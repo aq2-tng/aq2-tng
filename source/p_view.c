@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // p_view.c
 //
-// $Id: p_view.c,v 1.2 2001/05/07 21:18:35 slicerdw Exp $
+// $Id: p_view.c,v 1.3 2001/05/07 21:43:02 slicerdw Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: p_view.c,v $
+// Revision 1.3  2001/05/07 21:43:02  slicerdw
+// Removed Some Debug Messages Left Over
+//
 // Revision 1.2  2001/05/07 21:18:35  slicerdw
 // Added Video Checking System
 //
@@ -1152,7 +1155,6 @@ void ClientEndServerFrame (edict_t *ent)
   //AQ2:TNG - Slicer : Stuffs the client x seconds after he enters the server, needed for Video check
   if(!ent->client->resp.checked)
   {
-	  gi.dprintf("checking..\n");
 	  if (ent->client->resp.checktime <= (int)(level.time))
 	  {
 		
@@ -1163,9 +1165,8 @@ void ClientEndServerFrame (edict_t *ent)
 		if(video_check->value)
 		{
 				AntiCheat_CheckClient(ent);
-				gi.dprintf("Anticheat sent\n");
 				next_cheat_check = level.time + video_checktime->value;
-				gi.dprintf("next_cheat_check is set\n");
+
 		}
 
 		if(video_check_lockpvs->value || video_check->value)
@@ -1173,7 +1174,6 @@ void ClientEndServerFrame (edict_t *ent)
 	
 			strcpy(player_name,ent->client->pers.netname);
 			stuffcmd(ent,"name #%&\n");
-			gi.dprintf("Name copied and sent\n");
 		}
 		if(video_check_lockpvs->value)
 		{
