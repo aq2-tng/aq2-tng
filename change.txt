@@ -19,6 +19,7 @@ From 2.5
 + TNG now accepts M$ formatting on .agq files
 + In matchmode, the forcing of say_team in mm_forceteamtalk 2 wont be off if a team unreadies during a round
 + Added %P for last damaged player
+- Fixed newline problem with announcer (IMPRESSIVE.. 1 FRAG LEFT)
 - Fixed scoreboard alignment for after game scoreboard
 - Fixed FPM counter
 - CTF, fixed dropping players out of teams at the end of a map

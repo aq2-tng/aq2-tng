@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // p_client.c
 //
-// $Id: p_client.c,v 1.74 2002/02/23 18:12:14 freud Exp $
+// $Id: p_client.c,v 1.75 2002/02/23 18:33:52 freud Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: p_client.c,v $
+// Revision 1.75  2002/02/23 18:33:52  freud
+// Fixed newline bug with announcer (EXCELLENT.. 1 FRAG LEFT) for logfiles
+//
 // Revision 1.74  2002/02/23 18:12:14  freud
 // Added newlines back to the CenterPrintAll for IMPRESSIVE, EXCELLENT,
 // ACCURACY and X FRAGS Left, it was screwing up the logfile.
@@ -285,6 +288,8 @@ Add_Frag (edict_t * ent)
 	  sprintf (buf, "IMPRESSIVE %s!", ent->client->pers.netname);
 	  //AQ2:TNG End removing newlines
 	  CenterPrintAll (buf);
+	  //AQ2:TNG Freud adding newlines to the logfile
+	  gi.dprintf("\n");
 	  gi.sound (&g_edicts[0], CHAN_VOICE | CHAN_NO_PHS_ADD,
 		    gi.soundindex ("tng/impressive.wav"), 1.0, ATTN_NONE,
 		    0.0);
@@ -293,6 +298,8 @@ Add_Frag (edict_t * ent)
 	{
 	  sprintf (buf, "EXCELLENT %s!", ent->client->pers.netname);
 	  CenterPrintAll (buf);
+	  //AQ2:TNG Freud adding newlines to the logfile
+	  gi.dprintf("\n");
 	  gi.sound (&g_edicts[0], CHAN_VOICE | CHAN_NO_PHS_ADD,
 		    gi.soundindex ("tng/excellent.wav"), 1.0, ATTN_NONE, 0.0);
 	}
@@ -343,8 +350,10 @@ Add_Frag (edict_t * ent)
 	  if (fragwarning < 3)
 	    {
 	      //AQ2:TNG Igor removing newlines
-	      CenterPrintAll ("1 FRAG LEFT...\n");
+	      CenterPrintAll ("1 FRAG LEFT...");
 	      //AQ2:TNG End removing newlines
+              //AQ2:TNG Freud adding newlines to the logfile
+              gi.dprintf("\n");
 	      gi.sound (&g_edicts[0], CHAN_VOICE | CHAN_NO_PHS_ADD,
 			gi.soundindex ("tng/1_frag.wav"), 1.0, ATTN_NONE,
 			0.0);
@@ -356,8 +365,10 @@ Add_Frag (edict_t * ent)
 	  if (fragwarning < 2)
 	    {
 	      //AQ2:TNG Igor removing newlines
-	      CenterPrintAll ("2 FRAGS LEFT...\n");
+	      CenterPrintAll ("2 FRAGS LEFT...");
 	      //AQ2:TNG End removing newlines
+              //AQ2:TNG Freud adding newlines to the logfile
+              gi.dprintf("\n");
 	      gi.sound (&g_edicts[0], CHAN_VOICE | CHAN_NO_PHS_ADD,
 			gi.soundindex ("tng/2_frags.wav"), 1.0, ATTN_NONE,
 			0.0);
@@ -369,8 +380,10 @@ Add_Frag (edict_t * ent)
 	  if (fragwarning < 1)
 	    {
 	      //AQ2:TNG Igor removing newlines
-	      CenterPrintAll ("3 FRAGS LEFT...\n");
+	      CenterPrintAll ("3 FRAGS LEFT...");
 	      //AQ2:TNG End removing newlines
+              //AQ2:TNG Freud adding newlines to the logfile
+              gi.dprintf("\n");
 	      gi.sound (&g_edicts[0], CHAN_VOICE | CHAN_NO_PHS_ADD,
 			gi.soundindex ("tng/3_frags.wav"), 1.0, ATTN_NONE,
 			0.0);

@@ -3,10 +3,13 @@
 // Some of this is borrowed from Zoid's CTF (thanks Zoid)
 // -Fireblade
 //
-// $Id: a_team.c,v 1.74 2002/02/23 18:12:14 freud Exp $
+// $Id: a_team.c,v 1.75 2002/02/23 18:33:52 freud Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_team.c,v $
+// Revision 1.75  2002/02/23 18:33:52  freud
+// Fixed newline bug with announcer (EXCELLENT.. 1 FRAG LEFT) for logfiles
+//
 // Revision 1.74  2002/02/23 18:12:14  freud
 // Added newlines back to the CenterPrintAll for IMPRESSIVE, EXCELLENT,
 // ACCURACY and X FRAGS Left, it was screwing up the logfile.
@@ -2268,8 +2271,10 @@ CheckTeamRules ()
 	      if (timewarning < 2)
 		{
 		  //AQ2:TNG Igor removing newlines
-		  CenterPrintAll ("1 MINUTE LEFT...\n");
+		  CenterPrintAll ("1 MINUTE LEFT...");
 		  //AQ2:TNG End removing newlines
+		  //AQ2:TNG Freud adding newlines to the logfile
+		  gi.dprintf("\n");
 		  gi.sound (&g_edicts[0], CHAN_VOICE | CHAN_NO_PHS_ADD,
 			    gi.soundindex ("tng/1_minute.wav"), 1.0,
 			    ATTN_NONE, 0.0);
@@ -2282,8 +2287,10 @@ CheckTeamRules ()
 	      if (timewarning < 1)
 		{
 		  //AQ2:TNG Igor removing newlines
-		  CenterPrintAll ("3 MINUTES LEFT...\n");
+		  CenterPrintAll ("3 MINUTES LEFT...");
 		  //AQ2:TNG End removing newlines
+		  //AQ2:TNG Freud adding newlines to the logfile
+		  gi.dprintf("\n");
 		  gi.sound (&g_edicts[0], CHAN_VOICE | CHAN_NO_PHS_ADD,
 			    gi.soundindex ("tng/3_minutes.wav"), 1.0,
 			    ATTN_NONE, 0.0);
