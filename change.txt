@@ -1,0 +1,46 @@
+Changes in TNG
+
++ = new feature
+- = bug fix
+* = major bug fix
+
+From 2.5
++ Showing health icon on screen when bandaging (thanks to Dome)
+- Fixed a small bug which allowed people to deny kills by typing 'team none'
+- Fixed a small bug with the HC in hc_single 0 mode
+
+From 2.1
++ Added Darkmatch
++ Added sv softmap and sv map_restart commands
++ Added use_punch
++ Added statistics and 'stats' command
++ Added gl_clear checking toggle
++ Added serverinfo variables for team scores
++ Added matchmode variables for talking (mm_forceteamtalk) and updated the admin handling
++ Added 'time' and 'roundtimeleft'
++ Added prules.ini
+* Adjusted matchmode time
+* Fixed matchmode roundtimelimit bug
+* Fixed spawn code to prevent spawning twice in one spot
+* Fixed the config voting to reset after map change
+* Fixed weapon and item banning
+- Unlatched wpn_flag, itm_flag, rrot and vrot to allow them to be changed during the game in stead after a map restart
+- Announcer can be turned off completely now with use_warnings 0 and use_rewards 0
+
+
+From 2.0b3
++ Added a toggle to set the grenade damage to 1.52 strength
+* Updated MOTD to be a lot smaller to prevent overflows
+- Fixed an issue with suicides not being counted during DM
+
+From 2.0b2
++ Flood protection for Voice and Radio
+* Fixed an issue with the weapon command
+
+From 2.0b1
++ Invunerability for CTF to prevent spawn camping
++ Teamkilling after a round ends
++ New IR Vision
+* Fixed a bug where teams wouldn't get reset after a mapchange during CTF
+- Fixed %K to report kills made when you make someone crater
+- Fixed a reload bug with the sniper rifle 
