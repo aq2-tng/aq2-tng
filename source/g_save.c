@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // g_save.c
 //
-// $Id: g_save.c,v 1.14 2001/06/01 19:18:42 slicerdw Exp $
+// $Id: g_save.c,v 1.15 2001/06/05 09:38:20 slicerdw Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_save.c,v $
+// Revision 1.15  2001/06/05 09:38:20  slicerdw
+// Tweaked The Matchmode Code - Still some to be done.....
+//
 // Revision 1.14  2001/06/01 19:18:42  slicerdw
 // Added Matchmode Code
 //
@@ -296,7 +299,7 @@ void InitGame (void)
   use_3teams = gi.cvar("use_3teams", "0", CVAR_SERVERINFO|CVAR_LATCH);
   use_kickvote = gi.cvar("use_kickvote", "1",0);//slicer
   use_mapvote = gi.cvar("use_mapvote", "1", 0);  //slicer
-  ctf = gi.cvar("ctf", "1", CVAR_SERVERINFO|CVAR_LATCH);
+  ctf = gi.cvar("ctf", "0", CVAR_SERVERINFO|CVAR_LATCH);
   ctf_forcejoin = gi.cvar("ctf_forcejoin", "", 0);
   ctf_mode = gi.cvar("ctf_mode", "", 0);
   ctf_dropflag = gi.cvar("ctf_dropflag", "1", 0);

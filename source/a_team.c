@@ -3,10 +3,13 @@
 // Some of this is borrowed from Zoid's CTF (thanks Zoid)
 // -Fireblade
 //
-// $Id: a_team.c,v 1.18 2001/06/01 19:18:42 slicerdw Exp $
+// $Id: a_team.c,v 1.19 2001/06/05 09:38:20 slicerdw Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_team.c,v $
+// Revision 1.19  2001/06/05 09:38:20  slicerdw
+// Tweaked The Matchmode Code - Still some to be done.....
+//
 // Revision 1.18  2001/06/01 19:18:42  slicerdw
 // Added Matchmode Code
 //
@@ -1675,7 +1678,7 @@ WonGame (int winner)
 		{
 			if (matchtime >= timelimit->value*60)
 			{
-				gi.bprintf (PRINT_HIGH, "Match is over, waiting for next map vote...\n");
+				SendScores();
                 team1ready = team2ready = team_round_going =
 				team_round_countdown = team_game_going = matchtime = 0;
 				MakeAllLivePlayersObservers();
@@ -1709,11 +1712,11 @@ WonGame (int winner)
 	    {
 		  if(matchmode->value)
 		  {
-			gi.bprintf (PRINT_HIGH, "Match is over, waiting for next map, please vote a new one..\n");
-                team1ready = team2ready = team_round_going =
-				team_round_countdown = team_game_going = matchtime = 0;
-				MakeAllLivePlayersObservers();
-				return 1;
+			SendScores();
+		    team1ready = team2ready = team_round_going =
+			team_round_countdown = team_game_going = matchtime = 0;
+			MakeAllLivePlayersObservers();
+			return 1;
 		  }
 		  else
 		  {
@@ -1835,7 +1838,7 @@ CheckTeamRules ()
 		{
 			if (matchtime >= timelimit->value*60)
 			{
-				gi.bprintf (PRINT_HIGH, "Match is over, waiting for next map vote...\n");
+				SendScores();
                 team1ready = team2ready = team_round_going =
 				team_round_countdown = team_game_going = matchtime = 0;
 				MakeAllLivePlayersObservers();
@@ -1907,6 +1910,16 @@ CheckTeamRules ()
 	{
 	  if (current_round_length > roundtimelimit->value * 600)
 	    {
+		  if(matchmode->value)
+		  {
+		  	SendScores();
+            team1ready = team2ready = team_round_going =
+			team_round_countdown = team_game_going = matchtime = 0;
+			MakeAllLivePlayersObservers();
+			return;
+		  }
+		  else
+		  {
 	      gi.bprintf (PRINT_HIGH, "Round timelimit hit.\n");
 	      winner = CheckForForcedWinner ();
 	      if (WonGame (winner))
@@ -1918,6 +1931,7 @@ CheckTeamRules ()
 	      holding_on_tie_check = 0;
 	      team_round_countdown = 71;
 	      return;
+		  }
 	    }
 	  // AQ:TNG Igor[Rock] changing sound dir
 	  else if (current_round_length > (roundtimelimit->value - 1) * 600)

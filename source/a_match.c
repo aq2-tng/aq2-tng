@@ -31,6 +31,18 @@ void SendWorldMsg(char *s,int sound,int center)
         }
 }
 
+void SendScores()
+{
+	int mins,secs;
+	mins = matchtime/60;
+	secs = matchtime-(mins*60);
+	gi.bprintf (PRINT_HIGH, "Ÿ\n");
+	gi.bprintf (PRINT_HIGH, "Team 1 Score - Team 2 Score\n");
+	gi.bprintf (PRINT_HIGH, "    [%d]           [%d]\n",team1_score,team2_score);
+	gi.bprintf (PRINT_HIGH, "Total Played Time: %d:%02d\n",mins,secs);
+	gi.bprintf (PRINT_HIGH, "Ÿ\n");
+	gi.bprintf (PRINT_HIGH, "Match is over, waiting for next map, please vote a new one..\n");
+}
 void Cmd_Kill_f (edict_t *ent); // Used for killing people when they sub off
 
 void Cmd_Sub_f(edict_t *ent)

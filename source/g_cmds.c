@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // g_cmds.c
 //
-// $Id: g_cmds.c,v 1.12 2001/06/01 19:18:42 slicerdw Exp $
+// $Id: g_cmds.c,v 1.13 2001/06/05 09:38:20 slicerdw Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_cmds.c,v $
+// Revision 1.13  2001/06/05 09:38:20  slicerdw
+// Tweaked The Matchmode Code - Still some to be done.....
+//
 // Revision 1.12  2001/06/01 19:18:42  slicerdw
 // Added Matchmode Code
 //
@@ -1530,32 +1533,33 @@ void ClientCommand (edict_t *ent)
 		}
 		else if (Q_stricmp(cmd, "captain") == 0)
 		{
-			if(matchmode->value && teamplay->value)
+			if(matchmode->value)
 				Cmd_Captain_f(ent);
 			else
 			 Cmd_Say_f (ent, false, true, false);
 		}
 		else if (Q_stricmp(cmd, "ready") == 0)
 		{
-			if(matchmode->value && teamplay->value)
+			if(matchmode->value)
 				Cmd_Ready_f(ent);
 			else
 			 Cmd_Say_f (ent, false, true, false);
 		}
 		else if (Q_stricmp(cmd, "teamname") == 0)
 		{
-			if(matchmode->value && teamplay->value)
+			if(matchmode->value)
 				Cmd_Teamname_f(ent);
 			else
 			 Cmd_Say_f (ent, false, true, false);
 		}
 		else if (Q_stricmp(cmd, "teamskin") == 0)
 		{
-			if(matchmode->value && teamplay->value)
+			if(matchmode->value)
 				Cmd_Teamskin_f(ent);
 			else
 			 Cmd_Say_f (ent, false, true, false);
 		}
+
 //AQ2:TNG END
 //FIREBLADE
         else    // anything that doesn't match a command will be a chat

@@ -1,3 +1,4 @@
+void SendScores();
 void Cmd_Captain_f(edict_t *ent);
 void Cmd_Ready_f(edict_t *ent);
 void Cmd_Sub_f(edict_t *ent);
