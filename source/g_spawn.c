@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // g_spawn.c
 //
-// $Id: g_spawn.c,v 1.7 2001/05/12 13:45:59 mort Exp $
+// $Id: g_spawn.c,v 1.8 2001/05/12 17:20:27 mort Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_spawn.c,v $
+// Revision 1.8  2001/05/12 17:20:27  mort
+// Reset started variable in SP_worldspawn
+//
 // Revision 1.7  2001/05/12 13:45:59  mort
 // CTF status bar now sends correctly
 //
@@ -1434,6 +1437,7 @@ void SP_worldspawn (edict_t *ent)
 
 		// AQ2:TNG - CTF
 		loadedFlags = 0; // Fixes a bug with when the flags load
+		started = 0; 
 
         // reserve some spots for dead player bodies for coop / deathmatch
         InitBodyQue ();
