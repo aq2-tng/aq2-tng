@@ -3,10 +3,13 @@
 // Some of this is borrowed from Zoid's CTF (thanks Zoid)
 // -Fireblade
 //
-// $Id: a_team.c,v 1.21 2001/06/05 20:00:14 deathwatch Exp $
+// $Id: a_team.c,v 1.22 2001/06/05 23:37:54 slicerdw Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_team.c,v $
+// Revision 1.22  2001/06/05 23:37:54  slicerdw
+// Fixed a CTF bug
+//
 // Revision 1.21  2001/06/05 20:00:14  deathwatch
 // Added ICE-M to credits, fixed some stuff
 //
@@ -790,8 +793,8 @@ JoinTeam (edict_t * ent, int desired_team, int skip_menuclose)
   ent->client->resp.joined_team = level.framenum;
 
   CheckForUnevenTeams ();
-  
-  if (team_round_going && (ent->inuse && ent->client->resp.team != NOTEAM))
+  //AQ2:TNG - Slicer added the ctf->value coz teamplay people were spawning....
+  if (ctf->value && team_round_going && (ent->inuse && ent->client->resp.team != NOTEAM))
     {
       ent->client->resp.last_killed_target = NULL;
       //AQ2:TNG Slicer Last Damage Location
