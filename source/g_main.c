@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 //
 //
-// $Id: g_main.c,v 1.44 2002/01/22 16:55:49 deathwatch Exp $
+// $Id: g_main.c,v 1.45 2002/01/23 01:29:07 deathwatch Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_main.c,v $
+// Revision 1.45  2002/01/23 01:29:07  deathwatch
+// rrot should be a lot more random now (hope it works under linux as well)
+//
 // Revision 1.44  2002/01/22 16:55:49  deathwatch
 // fixed a bug with rrot which would make it override sv softmap (moved the dosoft check up in g_main.c
 // fixed a bug with rrot which would let it go to the same map (added an if near the end of the rrot statement in the EndDMLevel function)
@@ -520,15 +523,31 @@ void EndDMLevel (void)
 		}
     else if (rrot->value)
 		{
-			cur_map = rand () % num_maps;
-			if (cur_map >= num_maps)
+			// TNG: Making sure the rotation works fine
+			// If there is just one map in the rotation:
+			if(num_maps == 1)
+			{
 				cur_map = 0;
-			ent = G_Spawn ();
-			ent->classname = "target_changelevel"; //Yoohoo
-			Com_sprintf (level.nextmap, sizeof (level.nextmap), "%s", map_rotation[cur_map]);
-			nextmapname = ent->map = level.nextmap;
-			if(nextmapname == level.mapname)
-				EndDMLevel();
+				ent = G_Spawn ();
+				ent->classname = "target_changelevel"; //Yoohoo
+				Com_sprintf (level.nextmap, sizeof (level.nextmap), "%s", map_rotation[cur_map]);
+				nextmapname = ent->map = level.nextmap;
+			} 
+			// if there are 2 or more
+			else 
+			{
+				nextmapname = level.mapname;
+				while(!Q_strcasecmp(level.mapname, nextmapname)) {
+					srand(rand()); // Reinitializing the random generator
+					cur_map = rand () % num_maps;
+					if (cur_map >= num_maps)
+						cur_map = 0;
+					ent = G_Spawn ();
+					ent->classname = "target_changelevel"; //Yoohoo
+					Com_sprintf (level.nextmap, sizeof (level.nextmap), "%s", map_rotation[cur_map]);
+					nextmapname = ent->map = level.nextmap;
+				}
+			}
 		}
     else
 		{
