@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // Statistics Related Code
 //
-// $Id: tng_stats.c,v 1.19 2002/02/05 09:27:17 freud Exp $
+// $Id: tng_stats.c,v 1.20 2002/02/17 21:48:56 freud Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: tng_stats.c,v $
+// Revision 1.20  2002/02/17 21:48:56  freud
+// Changed/Fixed allignment of Scoreboard
+//
 // Revision 1.19  2002/02/05 09:27:17  freud
 // Weapon name changes and better alignment in "stats list"
 //
@@ -449,8 +452,8 @@ A_ScoreboardEndLevel (edict_t * ent, edict_t * killer)
       total++;
     }
   sprintf (string + strlen (string),
-	   "xv 0 yv 40 string2 \"Frags Player          Shots Acc  FPM \" "
-	   "xv 0 yv 48 string2 \"Ÿ Ÿ Ÿ Ÿ Ÿ\" ");
+	   "xv 0 yv 40 string2 \"Frags Player          Shots   Acc   FPM \" "
+	   "xv 0 yv 48 string2 \"Ÿ Ÿ Ÿ Ÿ Ÿ\" ");
 
 //        strcpy (string, "xv 0 yv 32 string2 \"Frags Player          Time Ping Damage Kills\" "
 //                "xv 0 yv 40 string2 \"Ÿ Ÿ Ÿ Ÿ Ÿ Ÿ\" ");
@@ -488,7 +491,7 @@ A_ScoreboardEndLevel (edict_t * ent, edict_t * killer)
       else
 	strcpy (damage, "******");
       sprintf (string + strlen (string),
-	       "xv 0 yv %d string \"%5d %-15s  %4d %.1f  %.1f\" ",
+	       "xv 0 yv %d string \"%5d %-15s  %4d %5.1f  %4.1f\" ",
 	       56 + i * 8,
 	       sortedscores[i],
 	       game.clients[sorted[i]].pers.netname, shots, accuracy, fpm);
