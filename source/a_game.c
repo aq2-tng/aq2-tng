@@ -5,10 +5,13 @@
 // Zucchini (spikard@u.washington.edu) and Fireblade (ucs_brf@shsu.edu) 
 // (splat/bullethole/shell ejection code from original Action source)
 //
-// $Id: a_game.c,v 1.9 2001/07/06 13:10:35 deathwatch Exp $
+// $Id: a_game.c,v 1.10 2001/08/22 14:40:14 deathwatch Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_game.c,v $
+// Revision 1.10  2001/08/22 14:40:14  deathwatch
+// Updated the MOTD to use less lines
+//
 // Revision 1.9  2001/07/06 13:10:35  deathwatch
 // Fixed a broken if/then/else statement in MOTD
 //
@@ -229,7 +232,8 @@ void PrintMOTD (edict_t * ent)
 		Welcome Message. This shows the Version Number and website URL, followed by an empty line
    */
 
-	strcpy (msg_buf, "Welcome to " TNG_VERSION2 "\n" "http://www.aq2tng.barrysworld.net/\n" "\n");
+	//strcpy (msg_buf, "Welcome to " TNG_VERSION2 "\n" "http://www.aq2tng.barrysworld.net/\n" "\n");
+	strcpy (msg_buf, TNG_VERSION2 "\n" "http://www.aq2tng.barrysworld.net/\n" "\n");
   lines = 3;
 
 	/*
@@ -291,6 +295,22 @@ void PrintMOTD (edict_t * ent)
 		}
     sprintf (msg_buf + strlen (msg_buf),"Game Type: %s\n", server_type);
     lines++;
+
+		/*
+			Darkmatch
+		*/
+		if((darkmatch->value==1) || (darkmatch->value==2) || (darkmatch->value==3)) {
+			if(darkmatch->value==1)
+				sprintf(msg_buf + strlen (msg_buf), "Playing in Total Darkness\n");
+			else if(darkmatch->value==2)
+				sprintf(msg_buf + strlen (msg_buf), "Playing in Near Darkness\n");
+			else if(darkmatch->value==3)
+				sprintf(msg_buf + strlen (msg_buf), "Playing in Day and Nighttime\n");
+			lines++;
+		}
+		// Adding an empty line
+		sprintf(msg_buf +strlen(msg_buf),"\n");
+		lines++;
 
 		/*
 			Now for the map rules, such as Timelimit, Roundlimit, etc
@@ -390,20 +410,22 @@ void PrintMOTD (edict_t * ent)
 
 		/*
 			Are we using Low Lag Sounds?
-		*/
+		
     if (llsound->value)
 		{
 			sprintf (msg_buf + strlen (msg_buf), "Low Lag Sounds Enabled\n");
 			lines++;
 		}
+		*/
 
 		/*
 			Are we using any types of voting?
 		*/
     if (use_mapvote->value || use_cvote->value || use_kickvote->value)
 		{
-			sprintf (msg_buf + strlen (msg_buf), "\nEnabled Vote Types:\n %s%s%s%s%s\n", use_mapvote->value ? "Mapvoting" : "", (use_mapvote->value && use_cvote->value) ? " & " : "", use_cvote->value ? "Configvoting" : "", ((use_mapvote->value && use_kickvote->value) || (use_cvote->value && use_kickvote->value)) ? " & " : "", use_kickvote->value ? "Kickvoting" : "");
-			lines+=3;
+			//sprintf (msg_buf + strlen (msg_buf), "\nEnabled Vote Types:\n %s%s%s%s%s\n", use_mapvote->value ? "Mapvoting" : "", (use_mapvote->value && use_cvote->value) ? " & " : "", use_cvote->value ? "Configvoting" : "", ((use_mapvote->value && use_kickvote->value) || (use_cvote->value && use_kickvote->value)) ? " & " : "", use_kickvote->value ? "Kickvoting" : "");
+			sprintf (msg_buf + strlen (msg_buf), "Vote Types: %s%s%s%s%s\n", use_mapvote->value ? "Map" : "", (use_mapvote->value && use_cvote->value) ? " & " : "", use_cvote->value ? "Config" : "", ((use_mapvote->value && use_kickvote->value) || (use_cvote->value && use_kickvote->value)) ? " & " : "", use_kickvote->value ? "Kick" : "");
+			lines++; // lines+=3;
 		}
 
 		/*
@@ -411,27 +433,21 @@ void PrintMOTD (edict_t * ent)
 		*/
 		if(ml_count!=0)
 		{
-			sprintf(msg_buf + strlen(msg_buf), "\nLocation File: %s, Build: %s\n",level.mapname,ml_build);
+			//sprintf(msg_buf + strlen(msg_buf), "\nLocation File: %s, Build: %s\n",level.mapname,ml_build);
+			sprintf(msg_buf + strlen(msg_buf), "\n%d Locations, by: %s\n",ml_count,ml_creator);
 			lines++;
-			sprintf(msg_buf + strlen(msg_buf), "%d Locations Loaded\n",ml_count);
+			/*sprintf(msg_buf + strlen(msg_buf), "%d Locations Loaded\n",ml_count);
 			lines++;
 			sprintf(msg_buf + strlen(msg_buf), "Created/Modified by %s\n",ml_creator);
-			lines++;
+			lines++;*/
 		}
+		/*
 		else
 		{
 			sprintf(msg_buf + strlen(msg_buf), "\nNo Locations Loaded for %s\n",level.mapname);
 			lines++;
 		}
-
-    /*
-			If we're in teamplay, we want to inform people that they can open the menu with TAB
 		*/
-		if (teamplay->value)
-		{
-			strcat (msg_buf, "\nHit TAB to open the Team selection menu\n");
-			lines += 2;
-		}
 
     /* 
 			If actionmaps, put a blank line then the maps list
@@ -440,22 +456,33 @@ void PrintMOTD (edict_t * ent)
 		{
 			int chars_on_line, len_mr;
 
-			strcat (msg_buf, "\nRunning the following maps in order:\n");
-			lines += 2;
+			//strcat (msg_buf, "\nRunning the following maps in order:\n");
+			//lines += 2;
 
 			// Using Vote Rotation?
 			if (vrot->value)
 	    {
-	      strcat (msg_buf, "(Dynamic Rotation is enabled)\n");
-	      lines++;
+	      //strcat (msg_buf, "(Dynamic Rotation is enabled)\n");
+				strcat (msg_buf, "\nRunning these maps in vote order:\n");
+	      //lines++;
+				lines+=2;
 	    }
 
 			// Using Random Rotation?
 			if (rrot->value)
 	    {
-	      strcat (msg_buf, "(Random Rotation is enabled)\n");
-	      lines++;
+	      //strcat (msg_buf, "(Random Rotation is enabled)\n");
+				strcat (msg_buf, "\nRunning the following maps randomly:\n");
+	      //lines++;
+				lines+=2;
 	    }
+			// Added this
+			if(!(rrot->value) && !(vrot->value))
+			{
+				strcat (msg_buf, "\nRunning the following maps in order:\n");
+				lines+=2;
+			}
+
 
 			chars_on_line = 0;
 			for (mapnum = 0; mapnum < num_maps; mapnum++)
@@ -486,11 +513,22 @@ void PrintMOTD (edict_t * ent)
 		}
 
 		/*
-			Inform Clients where to get the TNG Client Pak (not enabled yet)
+			Inform Clients where to get the TNG Client Pak (when modes which require it are enabled) - disabled for now
+		
+		if(ctf->value || darkmatch->value || llsound->value) {
+			strcat (msg_buf, "\nGet the Client Pak from\nhttp://www.aq2tng.barrysworld.net");
+		  lines += 2;
+		}
 		*/
 
-		//      strcat (msg_buf, "Get the Client Pak from\nhttp://www.aq2tng.barrysworld.net");
-		//      lines += 2;
+		/*
+			If we're in teamplay, we want to inform people that they can open the menu with TAB
+		*/
+		if (teamplay->value)
+		{
+			strcat (msg_buf, "\nHit TAB to open the Team selection menu");
+			lines ++; //lines+=2;
+		}
 		
     if (motd_num_lines && lines < max_lines)
 		{
