@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // p_view.c
 //
-// $Id: p_view.c,v 1.3 2001/05/07 21:43:02 slicerdw Exp $
+// $Id: p_view.c,v 1.4 2001/05/08 12:54:17 igor_rock Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: p_view.c,v $
+// Revision 1.4  2001/05/08 12:54:17  igor_rock
+// removed another debug message ;)
+//
 // Revision 1.3  2001/05/07 21:43:02  slicerdw
 // Removed Some Debug Messages Left Over
 //
@@ -1161,7 +1164,6 @@ void ClientEndServerFrame (edict_t *ent)
 		ent->client->resp.checked = true;
 		memset(player_name,0,sizeof(player_name));
 		memset(temp,0,sizeof(temp));
-		gi.dprintf("true\n");
 		if(video_check->value)
 		{
 				AntiCheat_CheckClient(ent);
