@@ -4,10 +4,13 @@
 //
 // laser sight patch, by Geza Beladi
 //
-// $Id: a_cmds.c,v 1.28 2002/03/25 23:35:19 freud Exp $
+// $Id: a_cmds.c,v 1.29 2002/03/28 13:30:36 freud Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_cmds.c,v $
+// Revision 1.29  2002/03/28 13:30:36  freud
+// Included time played in ghost.
+//
 // Revision 1.28  2002/03/25 23:35:19  freud
 // Ghost code, use_ghosts and more stuff..
 //
@@ -1352,7 +1355,7 @@ Person gets frags/kills/damage/weapon/item/team/stats back if he disconnected
 */
 void Cmd_Ghost_f (edict_t * ent)
 {
-  int x;
+  int x, frames_since;
   qboolean found = false;
 
   if (!use_ghosts->value) {
@@ -1372,6 +1375,8 @@ void Cmd_Ghost_f (edict_t * ent)
 		strcmp(ghost_players[x].netname, ent->client->pers.netname) == 0) {
 		found = true;
 		gi.cprintf(ent, PRINT_HIGH, "Welcome back %s\n", ent->client->pers.netname);
+		frames_since = level.framenum - ghost_players[x].disconnect_frame;
+		ent->client->resp.enterframe = ghost_players[x].enterframe + frames_since;
 		ent->client->resp.score = ghost_players[x].score;
 		ent->client->resp.kills = ghost_players[x].kills;
 		ent->client->resp.damage_dealt = ghost_players[x].damage_dealt;

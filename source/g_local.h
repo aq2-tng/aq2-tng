@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // g_local.h -- local definitions for game module
 //
-// $Id: g_local.h,v 1.61 2002/03/28 12:10:11 freud Exp $
+// $Id: g_local.h,v 1.62 2002/03/28 13:30:36 freud Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_local.h,v $
+// Revision 1.62  2002/03/28 13:30:36  freud
+// Included time played in ghost.
+//
 // Revision 1.61  2002/03/28 12:10:11  freud
 // Removed unused variables (compiler warnings).
 // Added cvar mm_allowlock.
@@ -1761,6 +1764,8 @@ typedef struct
 {
 	char ipaddr[100];
 	char netname[16];
+	int enterframe;
+        int disconnect_frame;
 	int score;
 	int kills;
 	int damage_dealt;

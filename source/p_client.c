@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // p_client.c
 //
-// $Id: p_client.c,v 1.79 2002/03/28 12:10:11 freud Exp $
+// $Id: p_client.c,v 1.80 2002/03/28 13:30:36 freud Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: p_client.c,v $
+// Revision 1.80  2002/03/28 13:30:36  freud
+// Included time played in ghost.
+//
 // Revision 1.79  2002/03/28 12:10:11  freud
 // Removed unused variables (compiler warnings).
 // Added cvar mm_allowlock.
@@ -4433,6 +4436,9 @@ CreateGhost (edict_t * ent)
 
   	sprintf(ghost_players[num_ghost_players].ipaddr, "%s", ent->client->ipaddr);
   	sprintf(ghost_players[num_ghost_players].netname, "%s", ent->client->pers.netname);
+
+	ghost_players[num_ghost_players].enterframe = ent->client->resp.enterframe;
+	ghost_players[num_ghost_players].disconnect_frame = level.framenum;
 
   	// Score
   	ghost_players[num_ghost_players].score = ent->client->resp.score;
