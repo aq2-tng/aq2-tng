@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // g_combat.c
 //
-// $Id: g_combat.c,v 1.8 2001/06/20 07:21:21 igor_rock Exp $
+// $Id: g_combat.c,v 1.9 2001/06/22 18:54:38 igor_rock Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_combat.c,v $
+// Revision 1.9  2001/06/22 18:54:38  igor_rock
+// fixed the "accuracy" for killing teammates with headshots
+//
 // Revision 1.8  2001/06/20 07:21:21  igor_rock
 // added use_warnings to enable/disable time/frags left msgs
 // added use_rewards to enable/disable eimpressive, excellent and accuracy msgs
@@ -761,11 +764,14 @@ void T_Damage (edict_t *targ, edict_t *inflictor, edict_t *attacker, vec3_t dir,
 		{
 		  if (attacker->client)
 		    {
-			  //AQ2:TNG Slicer Last Damage Location
-     		  attacker->client->resp.last_damaged_part = LOC_HDAM;
-			 //AQ2:TNG END
-			  attacker->client->resp.headshots++;
-		      attacker->client->resp.hs_streak++;
+		      //AQ2:TNG Slicer Last Damage Location
+		      attacker->client->resp.last_damaged_part = LOC_HDAM;
+		      //AQ2:TNG END
+		      attacker->client->resp.headshots++;
+		      if (!OnSameTeam (targ, attacker))
+			{
+			  attacker->client->resp.hs_streak++;
+			}
 		      // AQ:TNG Igor[Rock] changing sound dir
 		      if (attacker->client->resp.hs_streak == 3)
 			{
