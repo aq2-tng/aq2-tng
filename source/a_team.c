@@ -3,10 +3,13 @@
 // Some of this is borrowed from Zoid's CTF (thanks Zoid)
 // -Fireblade
 //
-// $Id: a_team.c,v 1.79 2002/03/24 22:45:53 freud Exp $
+// $Id: a_team.c,v 1.80 2002/03/25 17:44:17 freud Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_team.c,v $
+// Revision 1.80  2002/03/25 17:44:17  freud
+// Small fix
+//
 // Revision 1.79  2002/03/24 22:45:53  freud
 // New spawn code again, bad commit last time..
 //
@@ -3804,7 +3807,7 @@ NS_SetupTeamSpawnPoints ()
       teams_assigned[l] = false;
     }
 
-  if (NS_SelectRandomTeamplaySpawnPoint (NS_randteam, teams_assigned))
+  if (NS_SelectRandomTeamplaySpawnPoint (NS_randteam, teams_assigned) == false)
 	return;
 
   for (l = 0;l < num_teams;l++) {
