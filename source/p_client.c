@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // p_client.c
 //
-// $Id: p_client.c,v 1.87 2003/06/15 21:43:53 igor Exp $
+// $Id: p_client.c,v 1.88 2003/10/01 19:24:14 igor_rock Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: p_client.c,v $
+// Revision 1.88  2003/10/01 19:24:14  igor_rock
+// corrected a smaller bug (thanks to nopcode for the bug report)
+//
 // Revision 1.87  2003/06/15 21:43:53  igor
 // added IRC client
 //
@@ -725,7 +728,7 @@ void PrintDeathMessage(char *msg, edict_t * gibee)
 	edict_t *other;
 
 	if (!teamplay->value) {
-		gi.bprintf(PRINT_MEDIUM, msg);
+		gi.bprintf(PRINT_MEDIUM, "%s", msg);
 		return;
 	}
 
