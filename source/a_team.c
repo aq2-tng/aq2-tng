@@ -3,10 +3,13 @@
 // Some of this is borrowed from Zoid's CTF (thanks Zoid)
 // -Fireblade
 //
-// $Id: a_team.c,v 1.49 2001/09/28 16:24:19 deathwatch Exp $
+// $Id: a_team.c,v 1.50 2001/09/29 17:21:04 ra Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_team.c,v $
+// Revision 1.50  2001/09/29 17:21:04  ra
+// Fix a small 3teams bug
+//
 // Revision 1.49  2001/09/28 16:24:19  deathwatch
 // use_rewards now silences the teamX wins sounds and added gibbing for the Shotgun
 //
@@ -1811,6 +1814,7 @@ WonGame (int winner)
 				if(use_warnings->value)
 					gi.sound (&g_edicts[0], CHAN_VOICE | CHAN_NO_PHS_ADD,	gi.soundindex ("tng/team3_wins.wav"), 1.0, ATTN_NONE,	0.0);
 	      // end of changing sound dir
+	      team3_score++;
 	      team3score->value = team3_score;
 //	      itoa (team3_score, team3score->string, 10);
 	      sprintf(team3score->string, "%d", team3_score);
