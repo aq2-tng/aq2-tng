@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // p_client.c
 //
-// $Id: p_client.c,v 1.54 2001/11/29 17:58:31 igor_rock Exp $
+// $Id: p_client.c,v 1.55 2001/12/09 14:02:11 slicerdw Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: p_client.c,v $
+// Revision 1.55  2001/12/09 14:02:11  slicerdw
+// Added gl_clear check -> video_check_glclear cvar
+//
 // Revision 1.54  2001/11/29 17:58:31  igor_rock
 // TNG IRC Bot - First Version
 //
@@ -2665,6 +2668,7 @@ InitClientResp (gclient_t * client)
   memset (client->resp.vidref, 0, sizeof (client->resp.vidref));
   memset (client->resp.gldriver, 0, sizeof (client->resp.gldriver));
   client->resp.gllockpvs = 0;
+  client->resp.glclear = 0;
   client->resp.glmodulate = 0;
   client->resp.checked = false;
   memset (&client->resp.checktime, 0, sizeof (client->resp.checktime));

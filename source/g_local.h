@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // g_local.h -- local definitions for game module
 //
-// $Id: g_local.h,v 1.43 2001/11/07 11:41:37 igor_rock Exp $
+// $Id: g_local.h,v 1.44 2001/12/09 14:02:11 slicerdw Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_local.h,v $
+// Revision 1.44  2001/12/09 14:02:11  slicerdw
+// Added gl_clear check -> video_check_glclear cvar
+//
 // Revision 1.43  2001/11/07 11:41:37  igor_rock
 // removed unused variables stats_shots_hd and stats_shots_m
 //
@@ -757,6 +760,7 @@ extern cvar_t *video_max_3dfx;
 extern cvar_t *video_max_3dfxam;
 extern cvar_t *video_max_opengl;
 extern cvar_t *video_check_lockpvs;
+extern cvar_t *video_check_glclear;
 extern cvar_t *video_force_restart;
 extern cvar_t *check_time;
 extern cvar_t *matchmode;
@@ -1281,6 +1285,7 @@ typedef struct
   char gldriver[16];
   float gllockpvs;
   float glmodulate;
+  float glclear;
   qboolean checked;
   float checktime[3];
   int last_damaged_part;

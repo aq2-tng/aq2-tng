@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // g_save.c
 //
-// $Id: g_save.c,v 1.44 2001/11/27 19:09:52 igor_rock Exp $
+// $Id: g_save.c,v 1.45 2001/12/09 14:02:11 slicerdw Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_save.c,v $
+// Revision 1.45  2001/12/09 14:02:11  slicerdw
+// Added gl_clear check -> video_check_glclear cvar
+//
 // Revision 1.44  2001/11/27 19:09:52  igor_rock
 // removed tgren, limchasecam and ir from serverinfo
 // changed the cvarname of the teamscore to t1, t2 and t3 - the c variables are still team1score and so on.
@@ -487,6 +490,7 @@ InitGame (void)
   video_max_opengl = gi.cvar ("video_max_opengl", "3.0", 0);
   video_force_restart = gi.cvar ("video_force_restart", "0", CVAR_LATCH);
   video_check_lockpvs = gi.cvar ("video_check_lockpvs", "0", 0);
+  video_check_glclear = gi.cvar ("video_check_glclear", "0", 0);
   video_checktime = gi.cvar ("video_checktime", "15", 0);
   hc_single = gi.cvar ("hc_single", "1", CVAR_LATCH);	//default ON
   wp_flags = gi.cvar ("wp_flags", "511", 0);	// 511 = WPF_MK23 | WPF_MP5 | WPF_M4 | WPF_M3 | WPF_HC | WPF_SNIPER | WPF_DUAL | WPF_KNIFE | WPF_GRENADE

@@ -16,10 +16,13 @@
 // you get compiler errors too, comment them out like
 // I'd done.
 //
-// $Id: a_xgame.c,v 1.12 2001/09/28 13:48:34 ra Exp $
+// $Id: a_xgame.c,v 1.13 2001/12/09 14:02:11 slicerdw Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_xgame.c,v $
+// Revision 1.13  2001/12/09 14:02:11  slicerdw
+// Added gl_clear check -> video_check_glclear cvar
+//
 // Revision 1.12  2001/09/28 13:48:34  ra
 // I ran indent over the sources. All .c and .h files reindented.
 //
@@ -721,21 +724,29 @@ VideoCheckClient (edict_t * ent)
   if (!ent->client->resp.vidref)
     return;
 
-  if (video_check_lockpvs->value)
-    {
-      if (ent->client->resp.gllockpvs != 0)
-	{
-	  gi.cprintf (ent, PRINT_HIGH,
+  if (video_check_lockpvs->value) {
+      if (ent->client->resp.gllockpvs != 0) {
+		gi.cprintf (ent, PRINT_HIGH,
 		      "This server does not allow using that value for gl_lockpvs, set it to '0'\n");
-	  gi.bprintf (PRINT_HIGH, "%s was using an illegal setting\n",
+		gi.bprintf (PRINT_HIGH, "%s was using an illegal setting\n",
 		      ent->client->pers.netname);
-	  Kick_Client (ent);
-	  return;
-
-	}
-    }
+		 Kick_Client (ent);
+		 return;
+		}
+  }
+  if (video_check_glclear->value) {
+      if (ent->client->resp.glclear != 0) {
+		gi.cprintf (ent, PRINT_HIGH,
+		      "This server does not allow using that value for gl_clear, set it to '0'\n");
+		gi.bprintf (PRINT_HIGH, "%s was using an illegal setting\n",
+		      ent->client->pers.netname);
+		 Kick_Client (ent);
+		 return;
+		}
+  }
   //Starting Modulate checks
 
+  if(video_check->value) {
 
   if (Q_stricmp (ent->client->resp.gldriver, "3dfxgl") == 0)
     {
@@ -797,7 +808,8 @@ VideoCheckClient (edict_t * ent)
 		  ent->client->pers.netname, ent->client->resp.glmodulate);
       Kick_Client (ent);
       return;
-    }
+  }
+  }
 }
 
 //AQ2:TNG - Slicer : Last Damage Location

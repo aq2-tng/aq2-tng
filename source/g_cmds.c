@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // g_cmds.c
 //
-// $Id: g_cmds.c,v 1.43 2001/11/29 16:04:29 deathwatch Exp $
+// $Id: g_cmds.c,v 1.44 2001/12/09 14:02:11 slicerdw Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_cmds.c,v $
+// Revision 1.44  2001/12/09 14:02:11  slicerdw
+// Added gl_clear check -> video_check_glclear cvar
+//
 // Revision 1.43  2001/11/29 16:04:29  deathwatch
 // Fixed the playerlist command
 //
@@ -2162,11 +2165,12 @@ Cmd_VidRef_f (edict_t * ent)
 void
 Cmd_CPSI_f (edict_t * ent)
 {
-  if (video_check->value || video_check_lockpvs->value)
+  if (video_check->value || video_check_lockpvs->value || video_check_glclear)
     {
       ent->client->resp.glmodulate = atoi (gi.argv (1));
       ent->client->resp.gllockpvs = atoi (gi.argv (2));
-      strncpy (ent->client->resp.gldriver, gi.argv (3),
+	  ent->client->resp.glclear = atoi (gi.argv (3));
+      strncpy (ent->client->resp.gldriver, gi.argv (4),
 	       sizeof (ent->client->resp.gldriver - 1));
       ent->client->resp.gldriver[15] = 0;
       //      strncpy(ent->client->resp.vidref,gi.argv(4),sizeof(ent->client->resp.vidref-1));

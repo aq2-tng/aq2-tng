@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 //
 //
-// $Id: g_main.c,v 1.40 2001/11/29 17:58:31 igor_rock Exp $
+// $Id: g_main.c,v 1.41 2001/12/09 14:02:11 slicerdw Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_main.c,v $
+// Revision 1.41  2001/12/09 14:02:11  slicerdw
+// Added gl_clear check -> video_check_glclear cvar
+//
 // Revision 1.40  2001/11/29 17:58:31  igor_rock
 // TNG IRC Bot - First Version
 //
@@ -261,6 +264,7 @@ cvar_t *video_max_3dfxam;
 cvar_t *video_max_opengl;
 cvar_t *video_force_restart;
 cvar_t *video_check_lockpvs;
+cvar_t *video_check_glclear;
 cvar_t *hc_single;
 cvar_t *wp_flags;		// Weapon Banning
 cvar_t *itm_flags;		// Item Banning
