@@ -3,10 +3,13 @@
 // Some of this is borrowed from Zoid's CTF (thanks Zoid)
 // -Fireblade
 //
-// $Id: a_team.c,v 1.34 2001/06/28 14:36:40 deathwatch Exp $
+// $Id: a_team.c,v 1.35 2001/06/28 20:29:58 igor_rock Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_team.c,v $
+// Revision 1.35  2001/06/28 20:29:58  igor_rock
+// changed the scoreboard to redruce length (and changed the debug output to report at 1023 lenght)
+//
 // Revision 1.34  2001/06/28 14:36:40  deathwatch
 // Updated the Credits Menu a slight bit (added Kobra)
 //
@@ -2503,7 +2506,7 @@ A_ScoreboardMessage (edict_t * ent, edict_t * killer)
 			  "xv 0 yv %d string%s \"%s%s\" ",
 			  42 + i * 8,
 			  deadview ? (cl_ent->solid == SOLID_NOT ? "" : "2") : "",
-			  game.clients[sorted[TEAM1][i]].resp.captain ? "@" : " ",
+			  game.clients[sorted[TEAM1][i]].resp.captain ? "@" : "",
 			  game.clients[sorted[TEAM1][i]].pers.netname);
 		}
 	      
@@ -2523,7 +2526,7 @@ A_ScoreboardMessage (edict_t * ent, edict_t * killer)
 			  "xv 160 yv %d string%s \"%s%s\" ",  
 			  42 + i * 8,
 			  deadview ? (cl_ent->solid == SOLID_NOT ? "" : "2") : "",
-			  game.clients[sorted[TEAM2][i]].resp.captain ? "@" : " ",
+			  game.clients[sorted[TEAM2][i]].resp.captain ? "@" : "",
 			  game.clients[sorted[TEAM2][i]].pers.netname);
 		}
 	      
@@ -2535,13 +2538,13 @@ A_ScoreboardMessage (edict_t * ent, edict_t * killer)
 	    {
 	      if (stoppedat[TEAM1] > -1)
 		{
-		  sprintf (string + strlen (string), "xv 0 yv %d string \" ...and %d more\" ",
+		  sprintf (string + strlen (string), "xv 0 yv %d string \" + %d more\" ",
 			   42 + (stoppedat[TEAM1] * 8), total[TEAM1] - stoppedat[TEAM1]);
 		}
 
 	      if (stoppedat[TEAM2] > -1)
 		{
-		  sprintf (string + strlen (string), "xv 160 yv %d string \" ...and %d more\" ",
+		  sprintf (string + strlen (string), "xv 160 yv %d string \" + %d more\" ",
 			   42 + (stoppedat[TEAM2] * 8), total[TEAM2] - stoppedat[TEAM2]);
 		}
 	    }
@@ -2549,7 +2552,7 @@ A_ScoreboardMessage (edict_t * ent, edict_t * killer)
 	    {
 	      if (stoppedat[TEAM1] > -1)
 		{
-		  sprintf (string + strlen (string), "xv 0 yv %d string%s \" ...and %d/%d more\" ",
+		  sprintf (string + strlen (string), "xv 0 yv %d string%s \" + %d/%d more\" ",
 			   42 + (stoppedat[TEAM1] * 8),
 			   (totalalive[TEAM1] - totalaliveprinted[TEAM1]) ? "2" : "",
 			   totalalive[TEAM1] - totalaliveprinted[TEAM1],
@@ -2557,7 +2560,7 @@ A_ScoreboardMessage (edict_t * ent, edict_t * killer)
 		}
 	      if (stoppedat[TEAM2] > -1)
 		{
-		  sprintf (string + strlen (string), "xv 160 yv %d string%s \" ...and %d/%d more\" ",
+		  sprintf (string + strlen (string), "xv 160 yv %d string%s \" + %d/%d more\" ",
 			   42 + (stoppedat[TEAM2] * 8),
 			   (totalalive[TEAM2] - totalaliveprinted[TEAM2]) ? "2" : "",
 			   totalalive[TEAM2] - totalaliveprinted[TEAM2],
@@ -2565,8 +2568,8 @@ A_ScoreboardMessage (edict_t * ent, edict_t * killer)
 		}
 	    }
 	  
-	  sprintf(string+strlen(string), "xv 0 yv 96 string2 \"Subs:\" ");
-	  sprintf(string+strlen(string), "xv 160 yv 96 string2 \"Subs:\" ");
+	  sprintf(string+strlen(string), "xv 0 yv 96 string2 \"Subs\" ");
+	  sprintf(string+strlen(string), "xv 160 yv 96 string2 \"Subs\" ");
 
 	  subs[TEAM1] = subs[TEAM2] = 0;
 
@@ -2583,12 +2586,12 @@ A_ScoreboardMessage (edict_t * ent, edict_t * killer)
 		      sprintf(string+strlen(string), 
 			      "xv 0 yv %d string \"%s%s\" ",  
 			      104 + subs[TEAM1] * 8,
-			      game.clients[i].resp.captain ? "@" : " ",
+			      game.clients[i].resp.captain ? "@" : "",
 			      game.clients[i].pers.netname);
 		    }
 		  else if (subs[TEAM1] < 2)
 		    {
-		      sprintf (string + strlen (string), "xv 0 yv %d string \" ...and %d more\" ",
+		      sprintf (string + strlen (string), "xv 0 yv %d string \" + %d more\" ",
 			       104 + subs[TEAM1] * 8, totalsubs[TEAM1] - 1);
 		    }
 		  subs[TEAM1]++;
@@ -2601,24 +2604,24 @@ A_ScoreboardMessage (edict_t * ent, edict_t * killer)
 		      sprintf(string+strlen(string), 
 			      "xv 160 yv %d string \"%s%s\" ",  
 			      104 + subs[TEAM2] * 8,
-			      game.clients[i].resp.captain ? "@" : " ",
+			      game.clients[i].resp.captain ? "@" : "",
 			      game.clients[i].pers.netname);
 		    }
 		  else if (subs[TEAM2] < 2)
 		    {
-		      sprintf (string + strlen (string), "xv 160 yv %d string \" ...and %d more\" ",
+		      sprintf (string + strlen (string), "xv 160 yv %d string \" + %d more\" ",
 			       104 + subs[TEAM2] * 8, totalsubs[TEAM2] - 1);
 		    }
 		  subs[TEAM2]++;
 		}
 	    }
 	      
-	  sprintf(string+strlen(string), "xv 0 yv 128 string2 \"%s\" ", team1ready ? "Team Ready" : "Team Not Ready");
-	  sprintf(string+strlen(string), "xv 160 yv 128 string2 \"%s\" ", team2ready ? "Team Ready" : "Team Not Ready");
+	  sprintf(string+strlen(string), "xv 0 yv 128 string2 \"%s\" ", team1ready ? "Ready" : "Not Ready");
+	  sprintf(string+strlen(string), "xv 160 yv 128 string2 \"%s\" ", team2ready ? "Ready" : "Not Ready");
 	  
 	  mins = matchtime/60;
 	  secs = matchtime-(mins*60);
-	  sprintf(string+strlen(string), "xv 65 yv 144 string \"Time Elapsed: %d:%02d\" ", mins, secs);
+	  sprintf(string+strlen(string), "xv 112 yv 144 string \"Time: %d:%02d\" ", mins, secs);
 
 	}
       else
@@ -2843,7 +2846,7 @@ A_ScoreboardMessage (edict_t * ent, edict_t * killer)
     }
   
   
-  if (strlen (string) > 1300)	// for debugging...
+  if (strlen (string) > 1023)	// for debugging...
     {
       gi.dprintf ("Warning: scoreboard string neared or exceeded max length\nDump:\n%s\n---\n",
 		  string);
