@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 //
 //
-// $Id: g_main.c,v 1.37 2001/11/09 23:58:12 deathwatch Exp $
+// $Id: g_main.c,v 1.38 2001/11/10 14:00:14 deathwatch Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_main.c,v $
+// Revision 1.38  2001/11/10 14:00:14  deathwatch
+// Fixed resetting of teamXscores
+//
 // Revision 1.37  2001/11/09 23:58:12  deathwatch
 // Fiixed the %me command to display '[DEAD]' properly
 // Added the resetting of the teamXscore cvars at the exitlevel function where the team scores are reset as well. (not sure if that is correct)
@@ -701,8 +704,11 @@ ExitLevel (void)
       team3_score = 0;
 			// AQ2 TNG - Reset serverinfo score cvars too
 			team1score->value = 0;
+			strcpy(team1score->string,"0");
 			team2score->value = 0;
+			strcpy(team2score->string,"0");
 			team3score->value = 0;
+			strcpy(team3score->string,"0");
     }
   //FIREBLADE
   if (ctf->value)

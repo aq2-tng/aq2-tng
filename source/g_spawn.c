@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // g_spawn.c
 //
-// $Id: g_spawn.c,v 1.26 2001/09/28 13:48:34 ra Exp $
+// $Id: g_spawn.c,v 1.27 2001/11/10 14:00:14 deathwatch Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_spawn.c,v $
+// Revision 1.27  2001/11/10 14:00:14  deathwatch
+// Fixed resetting of teamXscores
+//
 // Revision 1.26  2001/09/28 13:48:34  ra
 // I ran indent over the sources. All .c and .h files reindented.
 //
@@ -1410,10 +1413,13 @@ SP_worldspawn (edict_t * ent)
   team1ready = team2ready = 0;
   matchtime = 0;
 
-
-  team1score->value = 0;
-  team2score->value = 0;
-  team3score->value = 0;
+	// AQ2:TNG Resetting the teamXscore cvars
+	team1score->value = 0;
+	strcpy(team1score->string,"0");
+	team2score->value = 0;
+	strcpy(team2score->string,"0");
+	team3score->value = 0;
+	strcpy(team3score->string,"0");
   //---------------
 
   // reserve some spots for dead player bodies for coop / deathmatch
