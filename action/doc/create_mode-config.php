@@ -2,7 +2,7 @@
   //-----------------------------------------------------------------------------
   // create_mode-config.php
   //-----------------------------------------------------------------------------
-  // $Id: create_mode-config.php,v 1.1 2001/06/18 10:54:22 igor_rock Exp $
+  // $Id: create_mode-config.php,v 1.2 2001/06/18 12:25:32 igor_rock Exp $
   //-----------------------------------------------------------------------------
 
   // Do some checks for illegal game modes
@@ -113,6 +113,7 @@
     }
   print "set itm_flags $itm_flags\n";
   print "set ir $data[ir]\n";
+  print "set new_irvision $data[new_irvision]\n";
   print "set tgren $data[tgren]\n";
   print "set dmweapon \"$data[dmweapon]\"\n";
   print "set hc_single $data[hc_single]\n";
