@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // g_local.h -- local definitions for game module
 //
-// $Id: g_local.h,v 1.27 2001/06/25 11:44:47 slicerdw Exp $
+// $Id: g_local.h,v 1.28 2001/06/25 11:59:20 slicerdw Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_local.h,v $
+// Revision 1.28  2001/06/25 11:59:20  slicerdw
+// Small Fix
+//
 // Revision 1.27  2001/06/25 11:44:47  slicerdw
 // New Video Check System - video_check and video_check_lockpvs no longer latched
 //
@@ -866,7 +869,7 @@ extern gitem_t itemlist[];
 void Cmd_Help_f (edict_t * ent);
 void Cmd_Score_f (edict_t * ent);
 void Cmd_CPSI_f(edict_t *ent);
-void Cmd_VidRef_f(ent);	
+void Cmd_VidRef_f(edict_t *ent);	
 //
 // g_items.c
 //
