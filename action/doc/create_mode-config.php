@@ -2,7 +2,7 @@
   //-----------------------------------------------------------------------------
   // create_mode-config.php
   //-----------------------------------------------------------------------------
-  // $Id: create_mode-config.php,v 1.2 2001/06/18 12:25:32 igor_rock Exp $
+  // $Id: create_mode-config.php,v 1.3 2001/06/20 07:29:10 igor_rock Exp $
   //-----------------------------------------------------------------------------
 
   // Do some checks for illegal game modes
@@ -72,6 +72,8 @@
   print "set punishkills $data[punishkills]\n";
   print "set noscore $data[noscore]\n";
   print "set nohud $data[nohud]\n";
+  print "set use_warnings $data[use_warnings]\n";
+  print "set use_rewards $data[use_rewards]\n";
 
   print "\n//-----------------------------------------------------------------------------\n";
   print "// Game Mode Settings\n";
