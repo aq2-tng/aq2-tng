@@ -3,10 +3,13 @@
 // Some of this is borrowed from Zoid's CTF (thanks Zoid)
 // -Fireblade
 //
-// $Id: a_team.c,v 1.88 2003/06/15 21:43:53 igor Exp $
+// $Id: a_team.c,v 1.89 2004/12/19 14:39:12 igor_rock Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_team.c,v $
+// Revision 1.89  2004/12/19 14:39:12  igor_rock
+// Corrected credits menu sounds to "play" instead "gi.sound" (Bug 889370)
+//
 // Revision 1.88  2003/06/15 21:43:53  igor
 // added IRC client
 //
@@ -617,7 +620,7 @@ CreditsReturnToMain (edict_t * ent, pmenu_t * p)
 void
 DoAGoodie (edict_t * ent, pmenu_t * p)
 {
-  gi.sound (ent, CHAN_VOICE, gi.soundindex ("boss3/bs3idle1.wav"), 1, ATTN_IDLE, 0);
+  stuffcmd (ent, "play boss3/bs3idle1.wav\n");
 }
 
 //PG BUND END
@@ -627,7 +630,7 @@ void
 RockClan (edict_t * ent, pmenu_t * p)
 {
   gi.cprintf (ent, PRINT_HIGH, "Let's Rock! http://www.rock-clan.de/\n");
-  gi.sound (ent, CHAN_VOICE, gi.soundindex ("user/letsrock.wav"), 1, ATTN_IDLE, 0);
+  stuffcmd (ent, "play user/letsrock.wav\n");
 }
 // AQ2:TNG - End Rock-Sound
 
@@ -636,7 +639,7 @@ void
 SlicersCat (edict_t * ent, pmenu_t * p)
 {
   gi.cprintf (ent, PRINT_HIGH,"sLiCeR [dW] couldn't have done it without his cat!\n");
-  gi.sound (ent, CHAN_VOICE, gi.soundindex ("makron/laf4.wav"), 1, ATTN_IDLE, 0);
+  stuffcmd (ent, "play makron/laf4.wav\n");
 }
 // AQ2:TNG End
 
@@ -645,7 +648,7 @@ void
 QuakeNigguhz (edict_t * ent, pmenu_t * p)
 {
   gi.cprintf (ent, PRINT_HIGH,"For all the homies!\n");
-  gi.sound (ent, CHAN_VOICE, gi.soundindex ("world/xian1.wav"), 1, ATTN_IDLE, 0);
+  stuffcmd (ent, "play world/xian1.wav\n");
 }
 
 // AQ2:TNG Deathwatch - Editing all menus to show the correct credits, version, names, locations, urls, etc
@@ -655,8 +658,8 @@ pmenu_t creditsmenu[] = {
   {"*Design Team", PMENU_ALIGN_LEFT, NULL, NULL},
   {NULL, PMENU_ALIGN_LEFT, NULL, NULL},
   {"Deathwatch", PMENU_ALIGN_LEFT, NULL, DoAGoodie},
-	{"Elviz", PMENU_ALIGN_LEFT, NULL, DoAGoodie},
-	{"Freud [QNI]", PMENU_ALIGN_LEFT, NULL, QuakeNigguhz},
+  {"Elviz", PMENU_ALIGN_LEFT, NULL, DoAGoodie},
+  {"Freud [QNI]", PMENU_ALIGN_LEFT, NULL, QuakeNigguhz},
   {"Igor[Rock]", PMENU_ALIGN_LEFT, NULL, RockClan},
   {"JBravo[QNI]", PMENU_ALIGN_LEFT, NULL, QuakeNigguhz},
   {"sLiCeR [dW]", PMENU_ALIGN_LEFT, NULL, SlicersCat},
