@@ -5,10 +5,13 @@
 // Zucchini (spikard@u.washington.edu) and Fireblade (ucs_brf@shsu.edu) 
 // (splat/bullethole/shell ejection code from original Action source)
 //
-// $Id: a_game.c,v 1.4 2001/05/12 17:36:33 deathwatch Exp $
+// $Id: a_game.c,v 1.5 2001/05/12 18:38:27 deathwatch Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_game.c,v $
+// Revision 1.5  2001/05/12 18:38:27  deathwatch
+// Tweaked MOTD and Menus some more
+//
 // Revision 1.4  2001/05/12 17:36:33  deathwatch
 // Edited the version variables and updated the menus. Added variables:
 // ACTION_VERSION, TNG_VERSION and TNG_VERSION2
@@ -194,6 +197,7 @@ ReadMOTDFile ()
   fclose (motd_file);
 }
 
+// AQ2:TNG Deathwatch - Ohh, lovely MOTD - edited it
 void
 PrintMOTD (edict_t * ent)
 {
@@ -233,7 +237,7 @@ PrintMOTD (edict_t * ent)
 	  {
 	    if (use_3teams->value)
 	    {
-	      server_type = "3 team game";
+	      server_type = "3 Team Teamplay";
 	    }
 		else if (ctf->value)
 		{
@@ -241,47 +245,47 @@ PrintMOTD (edict_t * ent)
 		}
 	    else if (!use_tourney->value)		// Added "->value", duh -TempFile
 	    {
-	      server_type = "team game";
+	      server_type = "Teamplay";
 	    }
         else
-	      server_type = "tourney";
+	      server_type = "Tourney";
 	  }
       else
 	  {
 	  if ((int) dmflags->value & DF_MODELTEAMS)
-	    server_type = "deathmatch (teams by model)";
+	    server_type = "Deathmatch (Teams by Model)";
 	  else if ((int) dmflags->value & DF_SKINTEAMS)
-	    server_type = "deathmatch (teams by skin)";
+	    server_type = "Deathmatch (Teams by Skin)";
 	  else
-	    server_type = "deathmatch (no teams)";
+	    server_type = "Deathmatch (No Teams)";
 	}
       sprintf (msg_buf + strlen (msg_buf),
-	       "Game type: %s\n",
+	       "Game Type: %s\n",
 	       server_type);
       lines++;
 
       // Line for frag and time limit
       if ((int) fraglimit->value)
-	sprintf (msg_buf + strlen (msg_buf), "Frag limit: %d", (int) fraglimit->value);
+	sprintf (msg_buf + strlen (msg_buf), "Fraglimit: %d", (int) fraglimit->value);
       else
-	strcat (msg_buf, "Frag limit: none");
+	strcat (msg_buf, "Fraglimit: none");
       if ((int) timelimit->value)
-	sprintf (msg_buf + strlen (msg_buf), "  Time limit: %d\n", (int) timelimit->value);
+	sprintf (msg_buf + strlen (msg_buf), "  Timelimit: %d\n", (int) timelimit->value);
       else
-	strcat (msg_buf, "  Time limit: none\n");
+	strcat (msg_buf, "  Timelimit: none\n");
       lines++;
 
       // Teamplay: 3 lines for round limit/round time limit, and menu instructions
       if (teamplay->value)
 	{
 	  if ((int) roundlimit->value)
-	    sprintf (msg_buf + strlen (msg_buf), "Round limit: %d", (int) roundlimit->value);
+	    sprintf (msg_buf + strlen (msg_buf), "Roundlimit: %d", (int) roundlimit->value);
 	  else
-	    strcat (msg_buf, "Round limit: none");
+	    strcat (msg_buf, "Roundlimit: none");
 	  if ((int) roundtimelimit->value)
-	    sprintf (msg_buf + strlen (msg_buf), "  Round time limit: %d\n", (int) roundtimelimit->value);
+	    sprintf (msg_buf + strlen (msg_buf), "  Roundtimelimit: %d\n", (int) roundtimelimit->value);
 	  else
-	    strcat (msg_buf, "  Round time limit: none\n");
+	    strcat (msg_buf, "  Roundtimelimit: none\n");
 	  lines++;
 	}
 
@@ -289,7 +293,7 @@ PrintMOTD (edict_t * ent)
       if ((int) unique_weapons->value != 1 ||
 	  (int) unique_items->value != 1)
 	{
-	  sprintf (msg_buf + strlen (msg_buf), "Max carry of special weaps: %d  items: %d\n",
+	  sprintf (msg_buf + strlen (msg_buf), "Max number of spec weapons: %d  items: %d\n",
 		   (int) unique_weapons->value, (int) unique_items->value);
 	  lines++;
 	}
@@ -317,14 +321,14 @@ PrintMOTD (edict_t * ent)
       if (limchasecam->value)
 	{
 	  if ((int) limchasecam->value == 2)
-	    sprintf (msg_buf + strlen (msg_buf), "Chase cam disallowed\n");
+	    sprintf (msg_buf + strlen (msg_buf), "Chase Cam Disallowed\n");
 	  else
-	    sprintf (msg_buf + strlen (msg_buf), "Chase cam restricted\n");
+	    sprintf (msg_buf + strlen (msg_buf), "Chase Cam Restricted\n");
 	  lines++;
 	}
       if (teamplay->value && !((int) dmflags->value & DF_NO_FRIENDLY_FIRE))
 	{
-	  sprintf (msg_buf + strlen (msg_buf), "Friendly fire enabled\n");
+	  sprintf (msg_buf + strlen (msg_buf), "Friendly Fire Enabled\n");
 	  lines++;
 	}
 	  //AQ2:TNG - Slicer : New location code
@@ -348,7 +352,7 @@ PrintMOTD (edict_t * ent)
       // Teamplay: 2 lines (one blank) for menu instructions
       if (teamplay->value)
 	{
-	  strcat (msg_buf, "\nHit tab to open the team selection menu\n");
+	  strcat (msg_buf, "\nHit TAB to open the Team selection menu\n");
 	  lines += 2;
 	}
 
@@ -366,12 +370,12 @@ PrintMOTD (edict_t * ent)
 	  // Igor[Rock] BEGIN
 	  if (vrot->value)
 	    {
-	      strcat (msg_buf, "(Dynamic rotation is enabled)\n");
+	      strcat (msg_buf, "(Dynamic Rotation is enabled)\n");
 	      lines++;
 	    }
 	  if (rrot->value)
 	    {
-	      strcat (msg_buf, "(Random rotation is enabled)\n");
+	      strcat (msg_buf, "(Random Rotation is enabled)\n");
 	      lines++;
 	    }
 	  // Igor[Rock] END
@@ -403,10 +407,10 @@ PrintMOTD (edict_t * ent)
 	      lines++;
 	    }
 	}
-
-      strcat (msg_buf, "CLIENTS MUST GET THE SOUND PACK\nFROM http://aqdt.fear.net");
-      lines += 2;
-
+// AQ2:TNG Deathwatch - We don't need this:
+//      strcat (msg_buf, "CLIENTS MUST GET THE SOUND PACK\nFROM http://aqdt.fear.net");
+//      lines += 2;
+// AQ2:TNG END
       if (motd_num_lines && lines < max_lines)
 	{
 	  strcat (msg_buf, "\n");
@@ -444,7 +448,7 @@ stuffcmd (edict_t * ent, char *c)
   gi.WriteString (c);
   gi.unicast (ent, true);
 }
-
+// AQ2:TNG END
 
 
 /********************************************************************************

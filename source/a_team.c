@@ -3,10 +3,13 @@
 // Some of this is borrowed from Zoid's CTF (thanks Zoid)
 // -Fireblade
 //
-// $Id: a_team.c,v 1.10 2001/05/12 17:36:33 deathwatch Exp $
+// $Id: a_team.c,v 1.11 2001/05/12 18:38:27 deathwatch Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_team.c,v $
+// Revision 1.11  2001/05/12 18:38:27  deathwatch
+// Tweaked MOTD and Menus some more
+//
 // Revision 1.10  2001/05/12 17:36:33  deathwatch
 // Edited the version variables and updated the menus. Added variables:
 // ACTION_VERSION, TNG_VERSION and TNG_VERSION2
@@ -376,31 +379,36 @@ pmenu_t creditsmenu[] =
 {
   {"*"TNG_VERSION, PMENU_ALIGN_CENTER, NULL, NULL},
   {"------------------------------", PMENU_ALIGN_CENTER, NULL, NULL},
-  {"*Design Team", PMENU_ALIGN_CENTER, NULL, NULL},
-  {"Deathwatch", PMENU_ALIGN_CENTER, NULL, DoAGoodie},  
-  {"Igor[ROCK]", PMENU_ALIGN_CENTER, NULL, DoAGoodie},
-  {"JBravo", PMENU_ALIGN_CENTER, NULL, DoAGoodie},
-  {"Mort", PMENU_ALIGN_CENTER, NULL, DoAGoodie},
-  {"sLiCeR [dW]", PMENU_ALIGN_CENTER, NULL, SlicersCat},
-  {"*Credits", PMENU_ALIGN_CENTER, NULL, NULL},
-  {"(in no particular order)", PMENU_ALIGN_CENTER, NULL, NULL},
-  {"Clan ROCK, Clan dW, Clan DP,", PMENU_ALIGN_CENTER, NULL, NULL},
-  {"Davross, Zarjazz, Killerbee,", PMENU_ALIGN_CENTER, NULL, NULL},
-  {"Rookie[ROCK], PG Bund, Palmtree,", PMENU_ALIGN_CENTER, NULL, NULL},
-  {"Tempfile, Elvis", PMENU_ALIGN_CENTER, NULL, NULL},
+  {"*Design Team", PMENU_ALIGN_LEFT, NULL, NULL},
   {NULL, PMENU_ALIGN_LEFT, NULL, NULL},
-  {"Return to main menu", PMENU_ALIGN_CENTER, NULL, CreditsReturnToMain},
-  {"TAB to exit menu", PMENU_ALIGN_CENTER, NULL, NULL},
+  {"Deathwatch", PMENU_ALIGN_LEFT, NULL, DoAGoodie},  
+  {"Igor[ROCK]", PMENU_ALIGN_LEFT, NULL, DoAGoodie},
+  {"JBravo", PMENU_ALIGN_LEFT, NULL, DoAGoodie},
+  {"Mort", PMENU_ALIGN_LEFT, NULL, DoAGoodie},
+  {"sLiCeR [dW]", PMENU_ALIGN_LEFT, NULL, SlicersCat},
   {NULL, PMENU_ALIGN_LEFT, NULL, NULL},
-  {"*"TNG_VERSION2, PMENU_ALIGN_RIGHT, NULL, NULL},
+  {"*Credits", PMENU_ALIGN_LEFT, NULL, NULL},
+  {"(in no particular order)", PMENU_ALIGN_LEFT, NULL, NULL},
+  {NULL, PMENU_ALIGN_LEFT, NULL, NULL},
+  {"Clan ROCK, Clan dW, ", PMENU_ALIGN_LEFT, NULL, NULL},
+  {"Clan DP, Davross,", PMENU_ALIGN_LEFT, NULL, NULL},
+  {"Zarjazz, Killerbee,", PMENU_ALIGN_LEFT, NULL, NULL},
+  {"Rookie[ROCK], PGBund,", PMENU_ALIGN_LEFT, NULL, NULL},
+  {"Tempfile, Elvis,", PMENU_ALIGN_LEFT, NULL, NULL},
+  {"Palmtree.", PMENU_ALIGN_LEFT, NULL, NULL},  
+  {NULL, PMENU_ALIGN_LEFT, NULL, NULL},
+  {"Return to main menu", PMENU_ALIGN_LEFT, NULL, CreditsReturnToMain},
+  {"TAB to exit menu", PMENU_ALIGN_LEFT, NULL, NULL},
+  {NULL, PMENU_ALIGN_LEFT, NULL, NULL},
+  {"v"ACTION_VERSION, PMENU_ALIGN_RIGHT, NULL, NULL},
 //PG BUND END
 };
 
 pmenu_t weapmenu[] =
 {
   {"*"TNG_VERSION, PMENU_ALIGN_CENTER, NULL, NULL},
-  {"--------------", PMENU_ALIGN_CENTER, NULL, NULL},
-  {"Select your weapon", PMENU_ALIGN_CENTER, NULL, NULL},
+  {"------------------------------", PMENU_ALIGN_CENTER, NULL, NULL},
+  {"Select your Weapon", PMENU_ALIGN_CENTER, NULL, NULL},
   {NULL, PMENU_ALIGN_LEFT, NULL, NULL},
   {"MP5/10 Submachinegun", PMENU_ALIGN_LEFT, NULL, SelectWeapon2},
   {"M3 Super90 Assault Shotgun", PMENU_ALIGN_LEFT, NULL, SelectWeapon3},
@@ -415,14 +423,14 @@ pmenu_t weapmenu[] =
   {"ENTER to select", PMENU_ALIGN_LEFT, NULL, NULL},
   {"TAB to exit menu", PMENU_ALIGN_LEFT, NULL, NULL},
   {NULL, PMENU_ALIGN_LEFT, NULL, NULL},
-  {"*"TNG_VERSION2, PMENU_ALIGN_RIGHT, NULL, NULL},
+  {"v"ACTION_VERSION, PMENU_ALIGN_RIGHT, NULL, NULL},
 };
 
 pmenu_t itemmenu[] =
 {
   {"*"TNG_VERSION, PMENU_ALIGN_CENTER, NULL, NULL},
-  {"--------------", PMENU_ALIGN_CENTER, NULL, NULL},
-  {"Select your item", PMENU_ALIGN_CENTER, NULL, NULL},
+  {"------------------------------", PMENU_ALIGN_CENTER, NULL, NULL},
+  {"Select your Item", PMENU_ALIGN_CENTER, NULL, NULL},
   {NULL, PMENU_ALIGN_LEFT, NULL, NULL},
   {"Kevlar Vest", PMENU_ALIGN_LEFT, NULL, SelectItem1},
   {"Laser Sight", PMENU_ALIGN_LEFT, NULL, SelectItem2},
@@ -435,14 +443,15 @@ pmenu_t itemmenu[] =
   {"ENTER to select", PMENU_ALIGN_LEFT, NULL, NULL},
   {"TAB to exit menu", PMENU_ALIGN_LEFT, NULL, NULL},
   {NULL, PMENU_ALIGN_LEFT, NULL, NULL},
-  {"*"TNG_VERSION2, PMENU_ALIGN_RIGHT, NULL, NULL},
+  {"v"ACTION_VERSION, PMENU_ALIGN_RIGHT, NULL, NULL},
 };
 
 pmenu_t joinmenu[] =
 {
   {"*"TNG_VERSION, PMENU_ALIGN_CENTER, NULL, NULL},
-  {NULL /* lvl name */ , PMENU_ALIGN_CENTER, NULL, NULL},
-  {NULL, PMENU_ALIGN_CENTER, NULL, NULL},
+  {"------------------------------", PMENU_ALIGN_CENTER, NULL, NULL},
+  {NULL /* lvl name */ , PMENU_ALIGN_LEFT, NULL, NULL},
+  {NULL, PMENU_ALIGN_LEFT, NULL, NULL},
   {NULL /* team 1 */ , PMENU_ALIGN_LEFT, NULL, JoinTeam1},
   {NULL, PMENU_ALIGN_LEFT, NULL, NULL},
   {NULL /* team 2 */ , PMENU_ALIGN_LEFT, NULL, JoinTeam2},
@@ -455,9 +464,10 @@ pmenu_t joinmenu[] =
   {"Use [ and ] to move cursor", PMENU_ALIGN_LEFT, NULL, NULL},
   {"ENTER to select", PMENU_ALIGN_LEFT, NULL, NULL},
   {"TAB to exit menu", PMENU_ALIGN_LEFT, NULL, NULL},
-  {"*"TNG_VERSION2, PMENU_ALIGN_RIGHT, NULL, NULL},
+  {"v" ACTION_VERSION, PMENU_ALIGN_RIGHT, NULL, NULL},
 };
 // AQ2:TNG End
+
 void
 CreditsMenu (edict_t * ent, pmenu_t * p)
 {
@@ -717,28 +727,29 @@ OpenWeaponMenu (edict_t * ent)
   PMenu_Open (ent, weapmenu, 4, sizeof (weapmenu) / sizeof (pmenu_t));
 }
 
+// AQ2:TNG Deathwatch - Updated this for the new menu
 int
 UpdateJoinMenu (edict_t * ent)
 {
-  static char levelname[32];
-  static char team1players[32];
-  static char team2players[32];
-  static char team3players[32];
+  static char levelname[28];
+  static char team1players[28];
+  static char team2players[28];
+  static char team3players[28];
   int num1, num2, num3, i;
 
-  joinmenu[3].text = team1_name;
-  joinmenu[3].SelectFunc = JoinTeam1;
-  joinmenu[5].text = team2_name;
-  joinmenu[5].SelectFunc = JoinTeam2;
+  joinmenu[4].text = team1_name;
+  joinmenu[4].SelectFunc = JoinTeam1;
+  joinmenu[6].text = team2_name;
+  joinmenu[6].SelectFunc = JoinTeam2;
   if (use_3teams->value)
     {
-      joinmenu[7].text = team3_name;
-      joinmenu[7].SelectFunc = JoinTeam3;
+      joinmenu[8].text = team3_name;
+      joinmenu[8].SelectFunc = JoinTeam3;
     }
   else
     {
-      joinmenu[7].text = NULL;
-      joinmenu[7].SelectFunc = NULL;
+      joinmenu[8].text = NULL;
+      joinmenu[8].SelectFunc = NULL;
     }
 
   levelname[0] = '*';
@@ -765,19 +776,19 @@ UpdateJoinMenu (edict_t * ent)
   sprintf (team2players, "  (%d players)", num2);
   sprintf (team3players, "  (%d players)", num3);
 
-  joinmenu[1].text = levelname;
-  if (joinmenu[3].text)
-    joinmenu[4].text = team1players;
+  joinmenu[2].text = levelname;
+  if (joinmenu[4].text)
+    joinmenu[5].text = team1players;
   else
-    joinmenu[4].text = NULL;
-  if (joinmenu[5].text)
-    joinmenu[6].text = team2players;
+    joinmenu[5].text = NULL;
+  if (joinmenu[6].text)
+    joinmenu[7].text = team2players;
   else
-    joinmenu[6].text = NULL;
-  if (joinmenu[7].text && use_3teams->value)
-    joinmenu[8].text = team3players;
+    joinmenu[7].text = NULL;
+  if (joinmenu[8].text && use_3teams->value)
+    joinmenu[9].text = team3players;
   else
-    joinmenu[8].text = NULL;
+    joinmenu[9].text = NULL;
 
   if (use_3teams->value)
     {
@@ -825,6 +836,8 @@ UpdateJoinMenu (edict_t * ent)
 	return TEAM1;
     }
 }
+// AQ2:TNG END
+
 
 void
 OpenJoinMenu (edict_t * ent)
