@@ -3,10 +3,13 @@
 // Some of this is borrowed from Zoid's CTF (thanks Zoid)
 // -Fireblade
 //
-// $Id: a_team.c,v 1.6 2001/05/11 16:12:03 mort Exp $
+// $Id: a_team.c,v 1.7 2001/05/12 08:20:01 mort Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_team.c,v $
+// Revision 1.7  2001/05/12 08:20:01  mort
+// CTF bug fix, makes sure flags have actually spawned before certain functions attempt to use them
+//
 // Revision 1.6  2001/05/11 16:12:03  mort
 // Updated path locations for CTF flag loading and CTF hacked spawns
 //
@@ -2427,9 +2430,16 @@ SetupTeamSpawnPoints ()
 			cvar_t  *game;
 			FILE *f;
 			char locfile[256];
+		
+			// Make sure we have loaded the flags
+
+			if(!loadedFlags)
+			{
+				spawnFlags(level.mapname);
+			}
+
 			
 			// Check for a hacked spawn file
-
 			game = gi.cvar("game", "", 0);
 
 			if(!*game->string)

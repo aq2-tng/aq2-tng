@@ -27,3 +27,5 @@ extern edict_t *closestBlueSpawns[3]; // AQ2:M - CTF
 
 extern int started;
 extern int hackedSpawns;
+
+extern int loadedFlags;

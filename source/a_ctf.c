@@ -21,6 +21,9 @@ edict_t *closestBlueSpawns[3]; // AQ2:M - CTF
 // Started flag
 int started = 0;
 
+// Have we loaded the flags?
+int loadedFlags = 0;
+
 // Hacked spawn flag
 int hackedSpawns;
 
@@ -302,10 +305,16 @@ void spawnFlags(char *mapname)
 	char line[256];
 	FILE *f;
 	char *param;
+	cvar_t  *game;
 
 	if(ctf->value)
 	{
-		sprintf(locfile, "action/aqm/%s.flg", mapname); // Re-using locfile... save's a bit of memory :)
+		game = gi.cvar("game", "", 0);
+
+		if(!*game->string)
+			sprintf(locfile, "%s/tng/%s.flg", GAMEVERSION, mapname);
+		else
+			sprintf(locfile, "%s/tng/%s.flg", game->string, mapname);
 
 		f = fopen(locfile, "rt");
 		if(!f)
@@ -349,7 +358,10 @@ void spawnFlags(char *mapname)
 			SpawnRedFlag();
 			SpawnBlueFlag();
 		}
+
+		loadedFlags = 1;
 	}
+
 
 }
 
@@ -463,9 +475,9 @@ void SVCmd_MoveFlag()
     game = gi.cvar("game", "", 0);
 
     if (!*game->string)
-		sprintf (name, "%s/aqm/%s.flg", GAMEVERSION, level.mapname);
+		sprintf (name, "%s/tng/%s.flg", GAMEVERSION, level.mapname);
     else
-		sprintf (name, "%s/aqm/%s.flg", game->string, level.mapname);
+		sprintf (name, "%s/tng/%s.flg", game->string, level.mapname);
 
     gi.cprintf (NULL, PRINT_HIGH, "Writing %s.\n", name);
 
@@ -622,9 +634,9 @@ void SVCmd_MoveSpawn()
     game = gi.cvar("game", "", 0);
 
     if (!*game->string)
-		sprintf (name, "%s/aqm/%s.flg", GAMEVERSION, level.mapname);
+		sprintf (name, "%s/tng/%s.flg", GAMEVERSION, level.mapname);
     else
-		sprintf (name, "%s/aqm/%s.flg", game->string, level.mapname);
+		sprintf (name, "%s/tng/%s.flg", game->string, level.mapname);
 
     gi.cprintf (NULL, PRINT_HIGH, "Writing %s.\n", name);
 
@@ -704,9 +716,9 @@ void SVCmd_RemoveSpawns()
     game = gi.cvar("game", "", 0);
 
     if (!*game->string)
-		sprintf (name, "%s/aqm/%s.flg", GAMEVERSION, level.mapname);
+		sprintf (name, "%s/tng/%s.flg", GAMEVERSION, level.mapname);
     else
-		sprintf (name, "%s/aqm/%s.flg", game->string, level.mapname);
+		sprintf (name, "%s/tng/%s.flg", game->string, level.mapname);
 
     gi.cprintf (NULL, PRINT_HIGH, "Writing %s.\n", name);
 

@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // g_spawn.c
 //
-// $Id: g_spawn.c,v 1.4 2001/05/12 00:37:03 ra Exp $
+// $Id: g_spawn.c,v 1.5 2001/05/12 08:20:01 mort Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_spawn.c,v $
+// Revision 1.5  2001/05/12 08:20:01  mort
+// CTF bug fix, makes sure flags have actually spawned before certain functions attempt to use them
+//
 // Revision 1.4  2001/05/12 00:37:03  ra
 //
 //
@@ -827,13 +830,12 @@ void SpawnEntities (char *mapname, char *entities, char *spawnpoint)
 	fclose(f);
 	gi.dprintf("Found %d locations.\n",count);
 
+
 	// AQ2:TNG - Load ctf locations
 	if(ctf->value)
 	{
 		spawnFlags(mapname);
 	}
-
-
 }
 
 
@@ -1411,6 +1413,9 @@ void SP_worldspawn (edict_t *ent)
         ent->s.modelindex = 1;          // world model is always index 1
 
         //---------------
+
+		// AQ2:TNG - CTF
+		loadedFlags = 0; // Fixes a bug with when the flags load
 
         // reserve some spots for dead player bodies for coop / deathmatch
         InitBodyQue ();
