@@ -5,10 +5,13 @@
 // Zucchini (spikard@u.washington.edu) and Fireblade (ucs_brf@shsu.edu) 
 // (splat/bullethole/shell ejection code from original Action source)
 //
-// $Id: a_game.c,v 1.5 2001/05/12 18:38:27 deathwatch Exp $
+// $Id: a_game.c,v 1.6 2001/05/13 11:29:25 igor_rock Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_game.c,v $
+// Revision 1.6  2001/05/13 11:29:25  igor_rock
+// corrected spelling error in inernet address (www, instead www.)
+//
 // Revision 1.5  2001/05/12 18:38:27  deathwatch
 // Tweaked MOTD and Menus some more
 //
@@ -212,7 +215,7 @@ PrintMOTD (edict_t * ent)
   // 3 lines for version number & website (third blank)
 // AQ2:TNG Deathwatch Edited this
   strcpy (msg_buf, "Welcome to " TNG_VERSION2 "\n"
-	  "http://www,aq2tng.barrysworld.net/\n"
+	  "http://www.aq2tng.barrysworld.net/\n"
 	  "\n");
   lines = 3;
 // AQ2:TNG END
