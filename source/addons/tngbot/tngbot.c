@@ -3,7 +3,7 @@
  * (c) 2001 by Stefan Giesen aka Igor[Rock]
  * All rights reserved
  *
- * $Id: tngbot.c,v 1.8 2001/12/08 15:53:05 igor_rock Exp $
+ * $Id: tngbot.c,v 1.9 2003/06/15 21:43:29 igor Exp $
  *
  *----------------------------------------------------------------------------
  * Usage: tngbot <ircserver>[:port] <channelname> <nickname>
@@ -35,6 +35,9 @@
  *
  *----------------------------------------------------------------------------
  * $Log: tngbot.c,v $
+ * Revision 1.9  2003/06/15 21:43:29  igor
+ * added some code for characters <32
+ *
  * Revision 1.8  2001/12/08 15:53:05  igor_rock
  * corrected a wrong offset
  *
@@ -358,6 +361,15 @@ int parse_input (char *inbuf)
 	    }
 	  }
 	} else {
+	  char *cp;
+	  for (cp = inbuf; *cp; cp++) {
+	    if (*cp < 32) {
+	      printf ("\\%3.3d", (int) *cp);
+	    } else {
+	      printf ("%c", *cp);
+	    }
+	  }
+	  printf ("\n");
 	  /* public message, we ignore it */
 	}
       } else {
@@ -444,7 +456,7 @@ void irc_loop ( )
 	printf ("Ping - Pong\n");
 	sprintf(outbuf, "pong %s\n\r", &inbuf[6]);
 	write(sock, outbuf, strlen(outbuf));
-      } else {
+      } else {	
 	if (parse_input (inbuf)) {
 	  break;
 	}
