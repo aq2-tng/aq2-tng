@@ -2,7 +2,7 @@
   //-----------------------------------------------------------------------------
   // create_aq2-config.php
   //-----------------------------------------------------------------------------
-  // $Id: create_aq2-config.php,v 1.6 2001/06/20 10:03:30 igor_rock Exp $
+  // $Id: create_aq2-config.php,v 1.7 2001/11/07 12:20:52 igor_rock Exp $
   //-----------------------------------------------------------------------------
 
   // check if the user wants to see or to save it
@@ -39,7 +39,10 @@
   print "set check_time $data[check_time]\n";
   print "set radiolog $data[radiolog]\n";
   print "set use_voice $data[use_voice]\n";
+  print "set use_classic $data[use_classic]\n";
+  print "set use_punch $data[use_punch]\n";
   print "set sv_crlf $data[sv_crlf]\n";
+  print "set punishkills $data[punishkills]\n";
 
   print "\n//-----------------------------------------------------------------------------\n";
   print "// Maprotation\n";
@@ -73,6 +76,7 @@
   print "set mapvote_min $data[mapvote_min]\n";
   print "set mapvote_need $data[mapvote_need]\n";
   print "set mapvote_pass $data[mapvote_pass]\n";
+  print "set mapvote_waittime $data[mapvote_waittime]\n";
   print "set mv_public $data[mv_public]\n";
 
   print "set use_kickvote $data[use_kickvote]\n";
@@ -88,6 +92,10 @@
   print "set flood_msgs $data[flood_msgs]\n";
   print "set flood_persecond $data[flood_persecond]\n";
   print "set flood_waitdelay $data[flood_waitdelay]\n";
+  print "set radio_max $data[radio_max]\n";
+  print "set radio_time $data[radio_time]\n";
+  print "set radio_repeat $data[radio_repeat]\n";
+  print "set radio_ban $data[radio_ban]\n";
 
   print "\n//-----------------------------------------------------------------------------\n";
   print "// Teamkill Parameters\n";
@@ -95,6 +103,7 @@
   print "set maxteamkills $data[maxteamkills]\n";
   print "set tkbanrounds $data[tkbanrounds]\n";
   print "set twbanrounds $data[twbanrounds]\n";
+  print "set ff_afterround $data[ff_afterround]\n";
 
   print "\n//-----------------------------------------------------------------------------\n";
   print "// Config End\n";

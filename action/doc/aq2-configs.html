@@ -3,7 +3,7 @@
 <html>
   <head>
     <meta name="generator" content="HTML Tidy, see www.w3.org">
-    <meta name="version" content="Version: $Id: aq2-configs.html,v 1.7 2001/06/20 10:03:30 igor_rock Exp $">
+    <meta name="version" content="Version: $Id: aq2-configs.html,v 1.8 2001/11/07 12:20:52 igor_rock Exp $">
 
     <title>AQ2:TNG - Online Config Generator Part I: Global Server Configuration</title>
   </head>
@@ -131,6 +131,34 @@
                 </tr>
 
                 <tr>
+                  <td>Use classic mode (from 1.52)</td>
+
+                  <td><select name="data[use_classic]">
+                    <option value="0" selected>
+                      No
+                    </option>
+
+                    <option value="1">
+                      Yes
+                    </option>
+                  </select> </td>
+                </tr>
+
+                <tr>
+                  <td>"punch" command enabled</td>
+
+                  <td><select name="data[use_punch]">
+                    <option value="0">
+                      No
+                    </option>
+
+                    <option value="1" selected>
+                      Yes
+                    </option>
+                  </select> </td>
+                </tr>
+
+                <tr>
                   <td>Allow CR/LF in say/say_team</td>
 
                   <td><select name="data[sv_crlf]">
@@ -139,6 +167,20 @@
                     </option>
 
                     <option value="1">
+                      Yes
+                    </option>
+                  </select> </td>
+                </tr>
+
+                <tr>
+                  <td>Suicide after serious wound counts as kill</td>
+
+                  <td><select name="data[punishkills]">
+                    <option value="0">
+                      No
+                    </option>
+
+                    <option value="1" selected>
                       Yes
                     </option>
                   </select> </td>
@@ -366,6 +408,12 @@
                 </tr>
 
                 <tr>
+                  <td>Time to block mapvotes after mapchange</td>
+
+                  <td><input type="text" name="data[mapvote_waittime]" size="3" maxlength="3" value="40"> seconds</td>
+                </tr>
+
+                <tr>
                   <td>Map voting parameters (minimum values)</td>
 
                   <td>If there are <input type="text" name="data[mapvote_min]" size="2" maxlength="2" value="2"> players connected and <input type="text" name="data[mapvote_need]" size="3" maxlength="3" value="66">% of them want to change the map, then you need <input type="text" name="data[mapvote_pass]" size="3" maxlength="3" value="50">% voting for the same map to vote it.</td>
@@ -447,6 +495,30 @@
                   <td><input type="text" name="data[flood_waitdelay]" size="2" maxlength="2" value="10"></td>
                 </tr>
 
+                <tr>
+                  <td>Max no of radio and voice requests</td>
+
+                  <td><input type="text" name="data[radio_max]" size="2" maxlength="2" value="4"></td>
+                </tr>
+
+                <tr>
+                  <td>Max time for the above radio_max</td>
+
+                  <td><input type="text" name="data[radio_time]" size="2" maxlength="2" value="2"> seconds</td>
+                </tr>
+
+                <tr>
+                  <td>Same as radio_max, only for repeats</td>
+
+                  <td><input type="text" name="data[radio_repeat]" size="2" maxlength="2" value="3"></td>
+                </tr>
+
+                <tr>
+                  <td>Silence player for</td>
+
+                  <td><input type="text" name="data[radio_ban]" size="2" maxlength="2" value="15"> seconds</td>
+                </tr>
+
               </table>
             </td>
           </tr>
@@ -480,6 +552,20 @@
                   <td>Number of maps banned for wounding teammates</td>
 
                   <td><input type="text" name="data[twbanrounds]" size="2" maxlength="2" value="2"></td>
+                </tr>
+
+                <tr>
+                  <td>Teamkills allowed without punishment after round ends</td>
+
+                  <td><select name="data[ff_afterround]">
+                    <option value="0">
+                      No
+                    </option>
+
+                    <option value="1" selected>
+                      Yes
+                    </option>
+                  </select> </td>
                 </tr>
 
               </table>
