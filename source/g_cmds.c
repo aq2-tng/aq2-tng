@@ -1,10 +1,16 @@
 //-----------------------------------------------------------------------------
 // g_cmds.c
 //
-// $Id: g_cmds.c,v 1.47 2002/01/24 01:40:40 deathwatch Exp $
+// $Id: g_cmds.c,v 1.48 2002/01/24 02:24:56 deathwatch Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_cmds.c,v $
+// Revision 1.48  2002/01/24 02:24:56  deathwatch
+// Major update to Stats code (thanks to Freud)
+// new cvars:
+// stats_afterround - will display the stats after a round ends or map ends
+// stats_endmap - if on (1) will display the stats scoreboard when the map ends
+//
 // Revision 1.47  2002/01/24 01:40:40  deathwatch
 // Freud's AutoRecord
 //
@@ -2151,9 +2157,14 @@ ClientCommand (edict_t * ent)
 		}
 	else if (Q_stricmp (cmd, "autorecord") == 0)
 	{
-		Cmd_AutoRecord_f (ent);
+		Cmd_AutoRecord_f(ent);
 		return;
   }
+	else if (Q_stricmp (cmd, "stat_mode") == 0 || Q_stricmp (cmd, "cmd_stat_mode") == 0)
+	{
+		Cmd_Statmode_f (ent);
+		return;
+	}
   else				// anything that doesn't match a command will be a chat
     Cmd_Say_f (ent, false, true, false);
 }

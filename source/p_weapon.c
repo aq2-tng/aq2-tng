@@ -1,10 +1,16 @@
 //-----------------------------------------------------------------------------
 // g_weapon.c
 //
-// $Id: p_weapon.c,v 1.15 2002/01/22 14:13:37 deathwatch Exp $
+// $Id: p_weapon.c,v 1.16 2002/01/24 02:24:56 deathwatch Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: p_weapon.c,v $
+// Revision 1.16  2002/01/24 02:24:56  deathwatch
+// Major update to Stats code (thanks to Freud)
+// new cvars:
+// stats_afterround - will display the stats after a round ends or map ends
+// stats_endmap - if on (1) will display the stats scoreboard when the map ends
+//
 // Revision 1.15  2002/01/22 14:13:37  deathwatch
 // Fixed spread (back to original)
 //
@@ -3336,8 +3342,10 @@ Pistol_Fire (edict_t * ent)
       ent->client->weaponstate = WEAPON_END_MAG;
       fire_bullet (ent, start, forward, damage, kick, spread, spread,
 		   MOD_MK23);
-      ent->client->resp.stats_shots_t += 1;	// TNG Stats, +1 hit
-      ent->client->resp.stats_pistol_shots_t += 1;	// TNG Stats, +1 hit
+			if (!teamplay->value || team_round_going || stats_afterround->value) {
+				ent->client->resp.stats_shots_t += 1;	// TNG Stats, +1 hit
+				ent->client->resp.stats_pistol_shots_t += 1;	// TNG Stats, +1 hit
+			}
       ent->client->mk23_rds--;
       ent->client->dual_rds--;
     }
@@ -3347,8 +3355,10 @@ Pistol_Fire (edict_t * ent)
       //If no reload, fire normally.
       fire_bullet (ent, start, forward, damage, kick, spread, spread,
 		   MOD_MK23);
-      ent->client->resp.stats_shots_t += 1;	// TNG Stats, +1 hit
-      ent->client->resp.stats_pistol_shots_t += 1;	// TNG Stats, +1 hit
+			if (!teamplay->value || team_round_going || stats_afterround->value) {
+				ent->client->resp.stats_shots_t += 1;	// TNG Stats, +1 hit
+				ent->client->resp.stats_pistol_shots_t += 1;	// TNG Stats, +1 hit
+			}
       ent->client->mk23_rds--;
       ent->client->dual_rds--;
     }
@@ -3489,8 +3499,10 @@ MP5_Fire (edict_t * ent)
   P_ProjectSource (ent->client, ent->s.origin, offset, forward, right, start);
 
   fire_bullet (ent, start, forward, damage, kick, spread, spread, MOD_MP5);
-  ent->client->resp.stats_shots_t += 1;	// TNG Stats, +1 hit
-  ent->client->resp.stats_mp5_shots_t += 1;	// TNG Stats, +1 hit
+	if (!teamplay->value || team_round_going || stats_afterround->value) {
+		ent->client->resp.stats_shots_t += 1;	// TNG Stats, +1 hit
+		ent->client->resp.stats_mp5_shots_t += 1;	// TNG Stats, +1 hit
+	}
   ent->client->mp5_rds--;
 
   if (!sv_shelloff->value)
@@ -3657,8 +3669,10 @@ M4_Fire (edict_t * ent)
 
   fire_bullet_sparks (ent, start, forward, damage, kick, spread, spread,
 		      MOD_M4);
-  ent->client->resp.stats_shots_t += 1;	// TNG Stats, +1 hit
-  ent->client->resp.stats_m4_shots_t += 1;	// TNG Stats, +1 hit
+  if (!teamplay->value || team_round_going || stats_afterround->value) {
+		ent->client->resp.stats_shots_t += 1;	// TNG Stats, +1 hit
+		ent->client->resp.stats_m4_shots_t += 1;	// TNG Stats, +1 hit
+	}
   ent->client->m4_rds--;
 
   if (!sv_shelloff->value)
@@ -3797,8 +3811,10 @@ M3_Fire (edict_t * ent)
   else
     fire_shotgun (ent, start, forward, damage, kick, 800, 800,
 		  12 /*DEFAULT_SHOTGUN_COUNT */ , MOD_M3);
-  ent->client->resp.stats_shots_t += 1;	// TNG Stats, +1 hit
-  ent->client->resp.stats_shotgun_shots_t += 1;	// TNG Stats, +1 hit
+	if (!teamplay->value || team_round_going || stats_afterround->value) {
+		ent->client->resp.stats_shots_t += 1;	// TNG Stats, +1 hit
+		ent->client->resp.stats_shotgun_shots_t += 1;	// TNG Stats, +1 hit
+	}
 
   if (llsound->value == 0)
     {
@@ -3891,8 +3907,10 @@ HC_Fire (edict_t * ent)
 	{
 		//half the spread, half the pellets?
 		fire_shotgun (ent, start, forward, sngl_damage, sngl_kick, DEFAULT_SHOTGUN_HSPREAD * 2.5, DEFAULT_SHOTGUN_VSPREAD * 2.5, 34 / 2, MOD_HC);
-		ent->client->resp.stats_shots_t += 1;	// TNG Stats, +1 hit
-		ent->client->resp.stats_hc_shots_t += 1;	// TNG Stats, +1 hit
+		if (!teamplay->value || team_round_going || stats_afterround->value) {
+			ent->client->resp.stats_shots_t += 1;	// TNG Stats, +1 hit
+			ent->client->resp.stats_hc_shots_t += 1;	// TNG Stats, +1 hit
+		}
 		if (llsound->value == 0)
 		{
 			gi.sound (ent, CHAN_WEAPON, gi.soundindex ("weapons/cannon_fire.wav"), 1, ATTN_NORM, 0);
@@ -3907,8 +3925,10 @@ HC_Fire (edict_t * ent)
   {
 		//sound on both WEAPON and ITEM to produce a louder 'boom'
 		fire_shotgun (ent, start, forward, damage, kick, DEFAULT_SHOTGUN_HSPREAD * 4, DEFAULT_SHOTGUN_VSPREAD * 4, 34 / 2, MOD_HC);
-		ent->client->resp.stats_shots_t += 1;	// TNG Stats, +1 hit
-		ent->client->resp.stats_hc_shots_t += 1;	// TNG Stats, +1 hit
+		if (!teamplay->value || team_round_going || stats_afterround->value) {
+			ent->client->resp.stats_shots_t += 1;	// TNG Stats, +1 hit
+			ent->client->resp.stats_hc_shots_t += 1;	// TNG Stats, +1 hit
+		}
 		
 		//only produce this extra sound if single shot is available
     if (hc_single->value)
@@ -4095,8 +4115,10 @@ Sniper_Fire (edict_t * ent)
     //If no reload, fire normally.
     fire_bullet_sniper (ent, start, forward, damage, kick, spread, spread,
 			MOD_SNIPER);
-    ent->client->resp.stats_shots_t += 1;	// TNG Stats, +1 hit
-    ent->client->resp.stats_sniper_shots_t += 1;	// TNG Stats, +1 hit
+		if (!teamplay->value || team_round_going || stats_afterround->value) {
+			ent->client->resp.stats_shots_t += 1;	// TNG Stats, +1 hit
+			ent->client->resp.stats_sniper_shots_t += 1;	// TNG Stats, +1 hit
+		}
     ent->client->sniper_rds--;
     ent->client->ps.fov = 90;	// so we can watch the next round get chambered
     ent->client->ps.gunindex =
@@ -4208,8 +4230,10 @@ Dual_Fire (edict_t * ent)
 
 	  fire_bullet (ent, start, forward, damage, kick, spread, spread,
 		       MOD_DUAL);
-	  ent->client->resp.stats_shots_t += 1;	// TNG Stats, +1 hit
-	  ent->client->resp.stats_dual_shots_t += 1;	// TNG Stats, +1 hit
+		if (!teamplay->value || team_round_going || stats_afterround->value) {
+			ent->client->resp.stats_shots_t += 1;	// TNG Stats, +1 hit
+			ent->client->resp.stats_dual_shots_t += 1;	// TNG Stats, +1 hit
+		}
 
 	  if (!sv_shelloff->value)
 	    {
@@ -4316,8 +4340,10 @@ Dual_Fire (edict_t * ent)
 
   //If no reload, fire normally.
   fire_bullet (ent, start, forward, damage, kick, spread, spread, MOD_DUAL);
-  ent->client->resp.stats_shots_t += 1;	// TNG Stats, +1 hit
-  ent->client->resp.stats_dual_shots_t += 1;	// TNG Stats, +1 hit
+	if (!teamplay->value || team_round_going || stats_afterround->value) {
+		ent->client->resp.stats_shots_t += 1;	// TNG Stats, +1 hit
+		ent->client->resp.stats_dual_shots_t += 1;	// TNG Stats, +1 hit
+	}
 
   if (llsound->value)
     {
@@ -4771,8 +4797,10 @@ Knife_Fire (edict_t * ent)
   if (ent->client->resp.knife_mode == 0)
     {
       knife_return = knife_attack (ent, start, forward, damage, kick);
-      ent->client->resp.stats_shots_t += 1;	// TNG Stats, +1 hit
-      ent->client->resp.stats_knife_shots_t += 1;	// TNG Stats, +1 hit
+			if (!teamplay->value || team_round_going || stats_afterround->value) {
+				ent->client->resp.stats_shots_t += 1;	// TNG Stats, +1 hit
+				ent->client->resp.stats_knife_shots_t += 1;	// TNG Stats, +1 hit
+			}
 
       if (knife_return < ent->client->knife_sound)
 	ent->client->knife_sound = knife_return;
@@ -4833,8 +4861,10 @@ Knife_Fire (edict_t * ent)
 	  ChangeWeapon (ent);
 	  // zucc was at 1250, dropping speed to 1200
 	  knife_throw (ent, start, forward, damage, 1200);
-          ent->client->resp.stats_shots_t += 1;	// TNG Stats, +1 hit
-          ent->client->resp.stats_tknife_shots_t += 1;	// TNG Stats, +1 hit
+		if (!teamplay->value || team_round_going || stats_afterround->value) {
+			ent->client->resp.stats_shots_t += 1;	// TNG Stats, +1 hit
+			ent->client->resp.stats_tknife_shots_t += 1;	// TNG Stats, +1 hit
+		}
 	  return 0;
 	}
       else
@@ -4856,8 +4886,10 @@ Knife_Fire (edict_t * ent)
       //      fire_rocket (ent, start, forward, damage, 650, 200, 200);
 
       knife_throw (ent, start, forward, damage, 1200);
-      ent->client->resp.stats_shots_t += 1;	// TNG Stats, +1 hit
-      ent->client->resp.stats_tknife_shots_t += 1;	// TNG Stats, +1 hit
+			if (!teamplay->value || team_round_going || stats_afterround->value) {
+				ent->client->resp.stats_shots_t += 1;	// TNG Stats, +1 hit
+				ent->client->resp.stats_tknife_shots_t += 1;	// TNG Stats, +1 hit
+			}
 
       // 
     }

@@ -1,10 +1,16 @@
 //-----------------------------------------------------------------------------
 // g_weapon.c
 //
-// $Id: g_weapon.c,v 1.8 2001/12/23 16:30:50 ra Exp $
+// $Id: g_weapon.c,v 1.9 2002/01/24 02:24:56 deathwatch Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_weapon.c,v $
+// Revision 1.9  2002/01/24 02:24:56  deathwatch
+// Major update to Stats code (thanks to Freud)
+// new cvars:
+// stats_afterround - will display the stats after a round ends or map ends
+// stats_endmap - if on (1) will display the stats scoreboard when the map ends
+//
 // Revision 1.8  2001/12/23 16:30:50  ra
 // 2.5 ready. New stats from Freud. HC and shotgun gibbing seperated.
 //
@@ -688,12 +694,25 @@ ProduceShotgunDamageReport (edict_t * self)
       gi.cprintf (self, PRINT_HIGH, "%s\n", textbuf);
     }
   // TNG Stats
+  if (!teamplay->value || team_round_going || stats_afterround->value) {
+
+      self->client->resp.stats_shots_h += total_to_print;
+
+      if (self->client->curr_weap == M3_NUM)
+        self->client->resp.stats_shotgun_shots_h += total_to_print;
+
+      if (self->client->curr_weap == HC_NUM)
+        self->client->resp.stats_hc_shots_h += total_to_print;
+
+  }
+
+/*
   self->client->resp.stats_shots_h += total_to_print;
   if (self->client->curr_weap == M3_NUM)
     self->client->resp.stats_shotgun_shots_h += total_to_print;
   if (self->client->curr_weap == HC_NUM)
     self->client->resp.stats_hc_shots_h += total_to_print;
-/*  if (mod == MOD_M3)
+  if (mod == MOD_M3)
     self->client->resp.stats_shotgun_shots_h += total_to_print;
   if (mod == MOD_HC)
     self->client->resp.stats_hc_shots_h += total_to_print; */

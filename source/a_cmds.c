@@ -4,10 +4,16 @@
 //
 // laser sight patch, by Geza Beladi
 //
-// $Id: a_cmds.c,v 1.22 2002/01/24 01:40:40 deathwatch Exp $
+// $Id: a_cmds.c,v 1.23 2002/01/24 02:24:56 deathwatch Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_cmds.c,v $
+// Revision 1.23  2002/01/24 02:24:56  deathwatch
+// Major update to Stats code (thanks to Freud)
+// new cvars:
+// stats_afterround - will display the stats after a round ends or map ends
+// stats_endmap - if on (1) will display the stats scoreboard when the map ends
+//
 // Revision 1.22  2002/01/24 01:40:40  deathwatch
 // Freud's AutoRecord
 //
@@ -1296,7 +1302,7 @@ void Cmd_Roundtimeleft_f(edict_t* ent)
 	Freud's AutoRecord
 	This will automatically record a new demo for every map if the client turns it on
 */
-void Cmd_AutoRecord_f (edict_t * ent)
+void Cmd_AutoRecord_f(edict_t * ent)
 {
   char rec_date[64], recstr[128];
   struct tm *now;
@@ -1313,4 +1319,5 @@ void Cmd_AutoRecord_f (edict_t * ent)
   }
 
   stuffcmd(ent, recstr);
+	return; // see if it makes the compiler happy
 }

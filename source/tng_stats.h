@@ -1,3 +1,4 @@
 /* Stats Command */
-void Cmd_Stats_f (edict_t * ent);
 void A_ScoreboardEndLevel (edict_t * ent, edict_t * killer);
+void Cmd_Stats_f (edict_t *targetent);
+void Cmd_Statmode_f(edict_t* ent);

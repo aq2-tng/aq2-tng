@@ -5,6 +5,10 @@ Changes in TNG
 * = major bug fix
 
 From 2.5
+* Toggle for the Statistics screen when a map ends (stats_endmap)
+* Toggle to display stats when a round or map ends (stats_afterround)
+* Stats command followed by player name will display someone else's stats
++ Updated Stats Code
 + Fixed ff_afterround
 + Showing health icon on screen when bandaging (thanks to Dome)
 - Fixed a small bug which allowed people to deny kills by typing 'team none'

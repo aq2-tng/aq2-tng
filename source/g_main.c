@@ -1,10 +1,16 @@
 //-----------------------------------------------------------------------------
 //
 //
-// $Id: g_main.c,v 1.45 2002/01/23 01:29:07 deathwatch Exp $
+// $Id: g_main.c,v 1.46 2002/01/24 02:24:56 deathwatch Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_main.c,v $
+// Revision 1.46  2002/01/24 02:24:56  deathwatch
+// Major update to Stats code (thanks to Freud)
+// new cvars:
+// stats_afterround - will display the stats after a round ends or map ends
+// stats_endmap - if on (1) will display the stats scoreboard when the map ends
+//
 // Revision 1.45  2002/01/23 01:29:07  deathwatch
 // rrot should be a lot more random now (hope it works under linux as well)
 //
@@ -289,6 +295,8 @@ cvar_t *mm_adminpwd;
 cvar_t *team1score;
 cvar_t *team2score;
 cvar_t *team3score;
+cvar_t *stats_endmap; // If on (1) show the fpm/etc stats when the map ends
+cvar_t *stats_afterround;     // Collect TNG stats between rounds
 
 cvar_t *use_punch;
 
@@ -441,13 +449,13 @@ extern void UnBan_TeamKillers (void);
 
 void EndDMLevel (void)
 {
-  edict_t *ent = NULL;
+  edict_t *ent = NULL, *cl_ent; // TNG Stats was: edict_t *ent = NULL;
   char *nextmapname = NULL;
   qboolean byvote = false;
   //Igor[Rock] BEGIN
   votelist_t *maptosort = NULL;
   votelist_t *tmp = NULL;
-  int newmappos;
+  int newmappos, i; // TNG Stats, was: int newmappos;
   //Igor[Rock] END
   //JBravo[QNI] Begin
   char ltm[64];
@@ -458,6 +466,15 @@ void EndDMLevel (void)
   now = localtime (&tnow);
   (void) strftime (ltm, 64, "%A %d %B %H:%M:%S", now);
   gi.bprintf (PRINT_HIGH, "Game ending at: %s\n", ltm);
+
+  // TNG Stats:
+	for (i = 0; i < game.maxclients; i++)
+  {
+		cl_ent = &g_edicts[1 + i];
+		if (cl_ent->inuse && cl_ent->client->resp.stat_mode == 1)
+	    Cmd_Stats_f(cl_ent);
+	}
+	// TNG Stats End
 
   if(teamplay->value) {
 	num_used_spawns = 0;
@@ -832,14 +849,21 @@ G_RunFrame (void)
 	    }
 	}
 
-      if (i > 0 && i <= maxclients->value)
+  if (i > 0 && i <= maxclients->value)
 	{
+		// TNG Stats:
+		if (!(level.framenum % 50)) {
+	    stuffcmd(ent, "cmd_stat_mode $stat_mode");
+		}
+		// TNG Stats End
+
 	  ClientBeginServerFrame (ent);
 	  continue;
 	}
 
-      G_RunEntity (ent);
-    }
+	if (maxclients->value != 20) // TNG Stats, Added if
+		G_RunEntity (ent);
+  }
 
   // see if it is time to end a deathmatch
   CheckDMRules ();

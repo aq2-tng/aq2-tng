@@ -1,10 +1,16 @@
 //-----------------------------------------------------------------------------
 // p_hud.c
 //
-// $Id: p_hud.c,v 1.7 2002/01/02 01:18:24 deathwatch Exp $
+// $Id: p_hud.c,v 1.8 2002/01/24 02:24:56 deathwatch Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: p_hud.c,v $
+// Revision 1.8  2002/01/24 02:24:56  deathwatch
+// Major update to Stats code (thanks to Freud)
+// new cvars:
+// stats_afterround - will display the stats after a round ends or map ends
+// stats_endmap - if on (1) will display the stats scoreboard when the map ends
+//
 // Revision 1.7  2002/01/02 01:18:24  deathwatch
 // Showing health icon when bandaging (thanks to Dome for submitting this code)
 //
@@ -247,13 +253,18 @@ DeathmatchScoreboardMessage (edict_t * ent, edict_t * killer)
       return;
     }
   else if (teamplay->value && !use_tourney->value)
-    {
-      if (level.intermissiontime)
-	A_ScoreboardEndLevel (ent, killer);
-      else
-	A_ScoreboardMessage (ent, killer);
-      return;
-    }
+  {
+		// DW: If the map ends
+    if (level.intermissiontime) {
+			if(stats_endmap->value)								// And we are to show the stats screen
+				A_ScoreboardEndLevel (ent, killer); // do it
+			else																	// otherwise
+				A_ScoreboardMessage (ent, killer);	// show the original
+		}
+		else
+			A_ScoreboardMessage (ent, killer);
+    return;
+  }
   //FIREBLADE
 
   // sort the clients by score
@@ -355,35 +366,34 @@ DeathmatchScoreboard (edict_t * ent)
   Display the scoreboard
   ==================
 */
-void
-Cmd_Score_f (edict_t * ent)
+void Cmd_Score_f (edict_t * ent)
 {
   ent->client->showinventory = false;
   ent->client->showhelp = false;
-
+	
   //FIREBLADE
   if (ent->client->menu)
     PMenu_Close (ent);
   //FIREBLADE
-
+	
   if (!deathmatch->value && !coop->value)
     return;
-
+	
   if (ent->client->showscores)
-    {
-      //FIREBLADE
-      if (teamplay->value && ent->client->scoreboardnum < 2)	// toggle scoreboards...
-	{
-	  ent->client->scoreboardnum++;
-	  DeathmatchScoreboard (ent);
-	  return;
+  {
+    //FIREBLADE
+    if (teamplay->value && ent->client->scoreboardnum < 2)	// toggle scoreboards...
+		{
+			ent->client->scoreboardnum++;
+			DeathmatchScoreboard (ent);
+			return;
+		}
+		//FIREBLADE
+		
+		ent->client->showscores = false;
+		return;
 	}
-      //FIREBLADE
-
-      ent->client->showscores = false;
-      return;
-    }
-
+	
   ent->client->showscores = true;
   //FIREBLADE
   ent->client->scoreboardnum = 1;

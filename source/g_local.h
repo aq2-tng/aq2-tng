@@ -1,10 +1,16 @@
 //-----------------------------------------------------------------------------
 // g_local.h -- local definitions for game module
 //
-// $Id: g_local.h,v 1.48 2001/12/24 18:06:05 slicerdw Exp $
+// $Id: g_local.h,v 1.49 2002/01/24 02:24:56 deathwatch Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_local.h,v $
+// Revision 1.49  2002/01/24 02:24:56  deathwatch
+// Major update to Stats code (thanks to Freud)
+// new cvars:
+// stats_afterround - will display the stats after a round ends or map ends
+// stats_endmap - if on (1) will display the stats scoreboard when the map ends
+//
 // Revision 1.48  2001/12/24 18:06:05  slicerdw
 // changed dynamic check for darkmatch only
 //
@@ -835,6 +841,9 @@ extern cvar_t *tgren;
 extern cvar_t *allweapon;
 extern cvar_t *allitem;
 
+extern cvar_t *stats_endmap; // If on (1), show the accuracy/etc stats at the end of a map
+extern cvar_t *stats_afterround; // TNG Stats, collect stats between rounds
+
 // zucc from action
 extern cvar_t *sv_shelloff;
 extern cvar_t *splatlimit;
@@ -1285,6 +1294,8 @@ typedef struct
   qboolean punch_desired;	//controlled in ClientThink
 
   int hs_streak;		// Headshots in a Row
+	
+	int stat_mode;    // Automatical Send of statistics to client
 
   int headshots;		// Headshot Counter
 	int legshots;		// Legshot Counter

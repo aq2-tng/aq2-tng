@@ -3,10 +3,16 @@
 // Some of this is borrowed from Zoid's CTF (thanks Zoid)
 // -Fireblade
 //
-// $Id: a_team.c,v 1.66 2001/12/30 04:00:09 ra Exp $
+// $Id: a_team.c,v 1.67 2002/01/24 02:24:56 deathwatch Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_team.c,v $
+// Revision 1.67  2002/01/24 02:24:56  deathwatch
+// Major update to Stats code (thanks to Freud)
+// new cvars:
+// stats_afterround - will display the stats after a round ends or map ends
+// stats_endmap - if on (1) will display the stats scoreboard when the map ends
+//
 // Revision 1.66  2001/12/30 04:00:09  ra
 // Players that switch between teams before dying should also be punished.
 //
@@ -233,23 +239,15 @@
 #include "cgf_sfx_glass.h"
 
 qboolean team_game_going = 0;	// is a team game going right now?
-
 qboolean team_round_going = 0;	// is an actual round of a team game going right now?
 
 int team_round_countdown = 0;	// countdown variable for start of a round
-
 int rulecheckfrequency = 0;	// accumulator variable for checking rules every 1.5 secs
-
 int lights_camera_action = 0;	// countdown variable for "lights...camera...action!" 
-
 int timewarning = 0;		// countdown variable for "x Minutes left"
-
 int fragwarning = 0;		// countdown variable for "x Frags left"
-
 int holding_on_tie_check = 0;	// when a team "wins", countdown for a bit and wait...
-
 int current_round_length = 0;	// frames that the current team round has lasted
-
 int round_delay_time = 0;	// time gap between round end and new round
 
 int team1_score = 0;
@@ -272,9 +270,7 @@ int num_teams = 3;		// teams in current game, fixed at 2 for now...
 
 transparent_list_t *transparent_list = NULL;
 
-
 void CreditsMenu (edict_t * ent, pmenu_t * p);
-
 
 void
 InitTransparentList ()
@@ -1832,174 +1828,183 @@ PrintScores ( )
 }
 
 // WonGame: returns true if we're exiting the level.
-int
-WonGame (int winner)
+int WonGame (int winner)
 {
-  edict_t *player;
-
+  edict_t *player, *cl_ent; // was: edict_t *player;
+  int i;
+ 
   gi.bprintf (PRINT_HIGH, "The round is over:\n");
+
+	for (i = 0; i < game.maxclients; i++)
+	{
+		cl_ent = &g_edicts[1 + i];
+
+		if ( cl_ent->inuse && cl_ent->client->resp.stat_mode == 2)
+			Cmd_Stats_f(cl_ent);
+	}
+
   if (winner == WINNER_TIE)
-    {
-      gi.bprintf (PRINT_HIGH, "It was a tie, no points awarded!\n");
-
-      if(use_warnings->value)
-	gi.sound (&g_edicts[0], CHAN_VOICE | CHAN_NO_PHS_ADD,	gi.soundindex ("tng/no_team_wins.wav"), 1.0, ATTN_NONE, 0.0);
-      PrintScores ();
-    }
+	{
+		gi.bprintf (PRINT_HIGH, "It was a tie, no points awarded!\n");
+		
+		if(use_warnings->value)
+			gi.sound (&g_edicts[0], CHAN_VOICE | CHAN_NO_PHS_ADD,	gi.soundindex ("tng/no_team_wins.wav"), 1.0, ATTN_NONE, 0.0);
+		PrintScores ();
+	}
   else
-    {
-      if (winner == WINNER_TEAM1)
 	{
-	  if (use_tourney->value)
-	    {
-	      player = TourneyFindPlayer (1);
-	      if (player)
+		if (winner == WINNER_TEAM1)
 		{
-		  gi.bprintf (PRINT_HIGH, "%s was victorious!\n",
-			      player->client->pers.netname);
-		  TourneyWinner (player);
+			if (use_tourney->value)
+			{
+				player = TourneyFindPlayer (1);
+				if (player)
+				{
+					gi.bprintf (PRINT_HIGH, "%s was victorious!\n",
+						player->client->pers.netname);
+					TourneyWinner (player);
+				}
+			}
+			else
+			{
+				gi.bprintf (PRINT_HIGH, "%s won!\n", TeamName (TEAM1));
+				// AQ:TNG Igor[Rock] changing sound dir
+				if(use_warnings->value)
+					gi.sound (&g_edicts[0], CHAN_VOICE | CHAN_NO_PHS_ADD,	gi.soundindex ("tng/team1_wins.wav"), 1.0, ATTN_NONE,	0.0);
+				// end of changing sound dir
+				team1_score++;
+				team1score->value = team1_score;
+				//	      itoa (team1_score, team1score->string, 10);
+				sprintf(team1score->string, "%d", team1_score);
+				PrintScores ();
+			}
 		}
-	    }
-	  else
-	    {
-	      gi.bprintf (PRINT_HIGH, "%s won!\n", TeamName (TEAM1));
-	      // AQ:TNG Igor[Rock] changing sound dir
-	      if(use_warnings->value)
-		gi.sound (&g_edicts[0], CHAN_VOICE | CHAN_NO_PHS_ADD,	gi.soundindex ("tng/team1_wins.wav"), 1.0, ATTN_NONE,	0.0);
-	      // end of changing sound dir
-	      team1_score++;
-	      team1score->value = team1_score;
-	      //	      itoa (team1_score, team1score->string, 10);
-	      sprintf(team1score->string, "%d", team1_score);
-	      PrintScores ();
-	    }
-	}
-      else if (winner == WINNER_TEAM2)
-	{
-	  if (use_tourney->value)
-	    {
-	      player = TourneyFindPlayer (NextOpponent);
-	      if (player)
+		else if (winner == WINNER_TEAM2)
 		{
-		  gi.bprintf (PRINT_HIGH, "%s was victorious!\n",
-			      player->client->pers.netname);
-		  TourneyWinner (player);
+			if (use_tourney->value)
+			{
+				player = TourneyFindPlayer (NextOpponent);
+				if (player)
+				{
+					gi.bprintf (PRINT_HIGH, "%s was victorious!\n",
+						player->client->pers.netname);
+					TourneyWinner (player);
+				}
+			}
+			else
+			{
+				gi.bprintf (PRINT_HIGH, "%s won!\n", TeamName (TEAM2));
+				// AQ:TNG Igor[Rock] changing sound dir
+				if(use_warnings->value)
+					gi.sound (&g_edicts[0], CHAN_VOICE | CHAN_NO_PHS_ADD, gi.soundindex ("tng/team2_wins.wav"), 1.0, ATTN_NONE, 0.0);
+				// end of changing sound dir
+				team2_score++;
+				team2score->value = team2_score;
+				//	      itoa (team2_score, team2score->string, 10);
+				sprintf(team2score->string, "%d", team2_score);
+				PrintScores ();
+			}
 		}
-	    }
-	  else
-	    {
-	      gi.bprintf (PRINT_HIGH, "%s won!\n", TeamName (TEAM2));
-	      // AQ:TNG Igor[Rock] changing sound dir
-	      if(use_warnings->value)
-		gi.sound (&g_edicts[0], CHAN_VOICE | CHAN_NO_PHS_ADD, gi.soundindex ("tng/team2_wins.wav"), 1.0, ATTN_NONE, 0.0);
-	      // end of changing sound dir
-	      team2_score++;
-	      team2score->value = team2_score;
-	      //	      itoa (team2_score, team2score->string, 10);
-	      sprintf(team2score->string, "%d", team2_score);
-	      PrintScores ();
-	    }
-	}
-      else if (use_3teams->value)
-	{
-	  if (use_tourney->value)
-	    {
-	      player = TourneyFindPlayer (NextOpponent);
-	      if (player)
+		else if (use_3teams->value)
 		{
-		  gi.bprintf (PRINT_HIGH, "%s was victorious!\n",
-			      player->client->pers.netname);
-		  TourneyWinner (player);
+			if (use_tourney->value)
+			{
+				player = TourneyFindPlayer (NextOpponent);
+				if (player)
+				{
+					gi.bprintf (PRINT_HIGH, "%s was victorious!\n",
+						player->client->pers.netname);
+					TourneyWinner (player);
+				}
+			}
+			else
+			{
+				gi.bprintf (PRINT_HIGH, "%s won!\n", TeamName (TEAM3));
+				// AQ:TNG Igor[Rock] changing sound dir
+				if(use_warnings->value)
+					gi.sound (&g_edicts[0], CHAN_VOICE | CHAN_NO_PHS_ADD,	gi.soundindex ("tng/team3_wins.wav"), 1.0, ATTN_NONE,	0.0);
+				// end of changing sound dir
+				team3_score++;
+				team3score->value = team3_score;
+				//	      itoa (team3_score, team3score->string, 10);
+				sprintf(team3score->string, "%d", team3_score);
+				PrintScores ();
+			}
 		}
-	    }
-	  else
-	    {
-	      gi.bprintf (PRINT_HIGH, "%s won!\n", TeamName (TEAM3));
-	      // AQ:TNG Igor[Rock] changing sound dir
-	      if(use_warnings->value)
-		gi.sound (&g_edicts[0], CHAN_VOICE | CHAN_NO_PHS_ADD,	gi.soundindex ("tng/team3_wins.wav"), 1.0, ATTN_NONE,	0.0);
-	      // end of changing sound dir
-	      team3_score++;
-	      team3score->value = team3_score;
-	      //	      itoa (team3_score, team3score->string, 10);
-	      sprintf(team3score->string, "%d", team3_score);
-	      PrintScores ();
-	    }
 	}
-    }
-
+	
   if (timelimit->value)
-    {
-      // AQ2:M - Matchmode
-      if (matchmode->value)
 	{
-	  if (matchtime >= timelimit->value * 60)
-	    {
-	      SendScores ();
-	      ingame = team1ready = team2ready = team_round_going =
-		team_round_countdown = team_game_going = matchtime = 0;
-	      MakeAllLivePlayersObservers ();
-	      return 1;
-	    }
+		// AQ2:M - Matchmode
+		if (matchmode->value)
+		{
+			if (matchtime >= timelimit->value * 60)
+			{
+				SendScores ();
+				ingame = team1ready = team2ready = team_round_going =
+					team_round_countdown = team_game_going = matchtime = 0;
+				MakeAllLivePlayersObservers ();
+				return 1;
+			}
+		}
+		if (!matchmode->value && level.time >= timelimit->value * 60)
+		{
+			gi.bprintf (PRINT_HIGH, "Timelimit hit.\n");
+			EndDMLevel ();
+			team_round_going = team_round_countdown = team_game_going = 0;
+			return 1;
+		}
 	}
-      if (!matchmode->value && level.time >= timelimit->value * 60)
-	{
-	  gi.bprintf (PRINT_HIGH, "Timelimit hit.\n");
-	  EndDMLevel ();
-	  team_round_going = team_round_countdown = team_game_going = 0;
-	  return 1;
-	}
-    }
-
+	
   if (roundlimit->value && !ctf->value)
-    {
-      if (use_3teams->value)
 	{
-	  if (team1_score >= roundlimit->value
-	      || team2_score >= roundlimit->value
-	      || team3_score >= roundlimit->value)
-	    {
-	      gi.bprintf (PRINT_HIGH, "Roundlimit hit.\n");
-	      EndDMLevel ();
-	      team_round_going = team_round_countdown = team_game_going = 0;
-	      return 1;
-	    }
-	}
-      else
-	{
-	  if (team1_score >= roundlimit->value
-	      || team2_score >= roundlimit->value)
-	    {
-	      if (matchmode->value)
+		if (use_3teams->value)
 		{
-		  SendScores ();
-		  ingame = team1ready = team2ready = team_round_going =
-		    team_round_countdown = team_game_going = matchtime = 0;
-		  MakeAllLivePlayersObservers ();
-		  return 1;
+			if (team1_score >= roundlimit->value
+				|| team2_score >= roundlimit->value
+				|| team3_score >= roundlimit->value)
+			{
+				gi.bprintf (PRINT_HIGH, "Roundlimit hit.\n");
+				EndDMLevel ();
+				team_round_going = team_round_countdown = team_game_going = 0;
+				return 1;
+			}
 		}
-	      else
+		else
 		{
-		  gi.bprintf (PRINT_HIGH, "Roundlimit hit.\n");
-		  EndDMLevel ();
-		  team_round_going = team_round_countdown = team_game_going =
-		    0;
-		  return 1;
+			if (team1_score >= roundlimit->value
+				|| team2_score >= roundlimit->value)
+			{
+				if (matchmode->value)
+				{
+					SendScores ();
+					ingame = team1ready = team2ready = team_round_going =
+						team_round_countdown = team_game_going = matchtime = 0;
+					MakeAllLivePlayersObservers ();
+					return 1;
+				}
+				else
+				{
+					gi.bprintf (PRINT_HIGH, "Roundlimit hit.\n");
+					EndDMLevel ();
+					team_round_going = team_round_countdown = team_game_going =
+						0;
+					return 1;
+				}
+			}
 		}
-	    }
 	}
-    }
-
+	
   //PG BUND - BEGIN
   if (vCheckVote () == true)
-    {
-      EndDMLevel ();
-      team_round_going = team_round_countdown = team_game_going = 0;
-      return 1;
-    }
+	{
+		EndDMLevel ();
+		team_round_going = team_round_countdown = team_game_going = 0;
+		return 1;
+	}
   vNewRound ();
   //PG BUND - END
-
+	
   return 0;
 }
 
