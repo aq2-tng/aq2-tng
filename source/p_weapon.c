@@ -1,10 +1,14 @@
 //-----------------------------------------------------------------------------
 // g_weapon.c
 //
-// $Id: p_weapon.c,v 1.3 2001/05/11 16:07:26 mort Exp $
+// $Id: p_weapon.c,v 1.4 2001/05/13 01:23:01 deathwatch Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: p_weapon.c,v $
+// Revision 1.4  2001/05/13 01:23:01  deathwatch
+// Added Single Barreled Handcannon mode, made the menus and scoreboards
+// look nicer and made the voice command a bit less loud.
+//
 // Revision 1.3  2001/05/11 16:07:26  mort
 // Various CTF bits and pieces...
 //
@@ -1835,6 +1839,34 @@ void Weapon_Generic (edict_t *ent, int FRAME_ACTIVATE_LAST, int FRAME_FIRE_LAST,
                                                 bOut = 1;
                                         break;
                                 }
+// AQ2:TNG Deathwatch - Single Barreled HC
+// DW: SingleBarrel HC
+                        case HC_NUM:
+
+								//if client is set to single shot mode, then allow
+								//fire if only have 1 round left
+                                {
+									if (ent->client->resp.hc_mode)
+									{
+										if ( ent->client->cannon_rds > 0 )
+                                        {
+                                                bFire = 1;
+                                        }
+                                        else
+                                                bOut = 1;
+									}
+									else
+									{
+										if ( ent->client->cannon_rds == 2 )
+                                        {
+                                                bFire = 1;
+                                        }
+                                        else
+                                                bOut = 1;
+									}
+									break;
+								}
+/*
                         case HC_NUM:
                                 {
                                         if ( ent->client->cannon_rds == 2 )
@@ -1845,6 +1877,8 @@ void Weapon_Generic (edict_t *ent, int FRAME_ACTIVATE_LAST, int FRAME_FIRE_LAST,
                                                 bOut = 1;
                                         break;
                                 }
+*/
+// AQ2:TNG END
                         case SNIPER_NUM:
                                 {
                                         if ( ent->client->ps.fov != ent->client->desired_fov)
@@ -3471,21 +3505,23 @@ void Weapon_M3 (edict_t *ent)
         Weapon_Generic (ent, 7, 15, 35, 41, 52, 60, pause_frames, fire_frames, M3_Fire);
 }
 
-
+// AQ2:TNG Deathwatch - Modified to use Single Barreled HC Mode
 void HC_Fire (edict_t *ent)
 {
-        vec3_t          start;
-        vec3_t          forward, right;
-        vec3_t          offset;
-        vec3_t          v;
-        int                     damage = 20;
-        int                     kick = 40;
-                int                             height;
+        vec3_t  start;
+        vec3_t  forward, right;
+        vec3_t  offset;
+        vec3_t  v;
+		int		sngl_damage = 15;
+		int		sngl_kick = 30;
+        int     damage = 20;
+        int     kick = 40;
+        int     height;
 
-                if (ent->client->pers.firing_style == ACTION_FIRING_CLASSIC)
-                        height = 8;
-                else
-                        height = 0;
+        if (ent->client->pers.firing_style == ACTION_FIRING_CLASSIC)
+			height = 8;
+		else
+            height = 0;
         
         AngleVectors (ent->client->v_angle, forward, right, NULL);
 
@@ -3502,6 +3538,82 @@ void HC_Fire (edict_t *ent)
         }*/
 
         v[PITCH] = ent->client->v_angle[PITCH];
+// DW: Single Barreled HC
+		if (ent->client->resp.hc_mode)
+		{
+			if (ent->client->cannon_rds == 2)
+				v[YAW]   = ent->client->v_angle[YAW] - ((0.5)/2);
+			else
+				v[YAW]   = ent->client->v_angle[YAW] + ((0.5)/2);
+		}
+		else
+        	v[YAW]   = ent->client->v_angle[YAW] - 0.5; //        v[YAW]   = ent->client->v_angle[YAW] - 5;
+
+        v[ROLL]  = ent->client->v_angle[ROLL];
+        AngleVectors (v, forward, NULL, NULL);
+        // default hspread is 1k and default vspread is 500
+		setFFState(ent);
+        InitShotgunDamageReport();  //FB 6/3/99
+
+        if (ent->client->resp.hc_mode)
+        {
+        	//half the spread, half the pellets?
+			fire_shotgun (ent, start, forward, sngl_damage, sngl_kick, DEFAULT_SHOTGUN_HSPREAD*2.5, DEFAULT_SHOTGUN_VSPREAD*2.5, 34/2, MOD_HC);
+			if (llsound->value == 0)
+			{
+				gi.sound(ent, CHAN_WEAPON, gi.soundindex("weapons/cannon_fire.wav"), 1, ATTN_NORM, 0);
+			}
+			// send muzzle flash
+			gi.WriteByte (svc_muzzleflash);
+			gi.WriteShort (ent-g_edicts);
+			gi.WriteByte (MZ_SSHOTGUN | is_silenced);
+			gi.multicast (ent->s.origin, MULTICAST_PVS);
+
+    	}
+        else //double shot
+        {
+        	//sound on both WEAPON and ITEM to produce a louder 'boom'
+        	fire_shotgun (ent, start, forward, damage, kick, DEFAULT_SHOTGUN_HSPREAD*4, DEFAULT_SHOTGUN_VSPREAD*4, 34/2, MOD_HC);
+        	//only produce this extra sound if single shot is available
+			if (hc_single->value) 
+			{
+				if (llsound->value == 0)
+				{
+					gi.sound(ent, CHAN_WEAPON, gi.soundindex("weapons/cannon_fire.wav"), 1, ATTN_NORM, 0);
+				}
+				// send muzzle flash
+				gi.WriteByte (svc_muzzleflash);
+				gi.WriteShort (ent-g_edicts);
+				gi.WriteByte (MZ_SSHOTGUN | is_silenced);
+				gi.multicast (ent->s.origin, MULTICAST_PVS);
+        		v[YAW]   = ent->client->v_angle[YAW] + 5;
+        		AngleVectors (v, forward, NULL, NULL);													 //was *5 here?
+        		fire_shotgun (ent, start, forward, damage, kick, DEFAULT_SHOTGUN_HSPREAD*4, DEFAULT_SHOTGUN_VSPREAD*4, 34/2, MOD_HC);
+				if (llsound->value == 0)
+				{
+					gi.sound(ent, CHAN_WEAPON, gi.soundindex("weapons/cannon_fire.wav"), 1, ATTN_NORM, 0);
+				}
+				// send muzzle flash
+				gi.WriteByte (svc_muzzleflash);
+				gi.WriteShort (ent-g_edicts);
+				gi.WriteByte (MZ_SSHOTGUN | is_silenced);
+				gi.multicast (ent->s.origin, MULTICAST_PVS);
+			}
+		}
+        ProduceShotgunDamageReport(ent);  //FB 6/3/99
+
+        ent->client->ps.gunframe++;
+        PlayerNoise(ent, start, PNOISE_WEAPON);
+
+//      if (! ( (int)dmflags->value & DF_INFINITE_AMMO ) )
+//              ent->client->pers.inventory[ent->client->ammo_index] -= 2;
+
+		if (ent->client->resp.hc_mode)
+			ent->client->cannon_rds -= 1;
+ 		else
+ 			ent->client->cannon_rds -= 2;
+}
+/*
         v[YAW]   = ent->client->v_angle[YAW] - 5;
         v[ROLL]  = ent->client->v_angle[ROLL];
         AngleVectors (v, forward, NULL, NULL);
@@ -3532,6 +3644,8 @@ void HC_Fire (edict_t *ent)
 
         ent->client->cannon_rds -= 2;
 }
+*/
+// AQ2:TNG END
 
 void Weapon_HC (edict_t *ent)
 {

@@ -1,12 +1,13 @@
 //-----------------------------------------------------------------------------
 // p_client.c
 //
-// $Id: p_client.c,v 1.15 2001/05/12 19:27:17 mort Exp $
+// $Id: p_client.c,v 1.16 2001/05/13 01:23:01 deathwatch Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: p_client.c,v $
-// Revision 1.15  2001/05/12 19:27:17  mort
-// Fixed various map change bugs
+// Revision 1.16  2001/05/13 01:23:01  deathwatch
+// Added Single Barreled Handcannon mode, made the menus and scoreboards
+// look nicer and made the voice command a bit less loud.
 //
 // Revision 1.14  2001/05/12 13:51:20  mort
 // Fixed ClientObituary Add_Frag bug in CTF
@@ -846,6 +847,38 @@ if (attacker && attacker != self && attacker->client && OnSameTeam (self, attack
           message = " is full of buckshot from"; message2 = "'s M3 Super 90 Assault Shotgun";
         }
         break;        
+
+// AQ2:TNG Deathwatch - Single Barreled HC Death Messages
+	case MOD_HC:
+		n = rand() % 2 + 1;
+		if (n == 1)
+		{
+			if(attacker->client->resp.hc_mode)
+			{
+				message = " underestimated";
+				message2 = "'s single barreled handcannon shot";
+			}
+			else
+			{
+				message = " ate";
+				message2 = "'s sawed-off 12 gauge";
+			}
+		}
+		else
+		{
+			if(attacker->client->resp.hc_mode)
+			{
+				message = " won't be able to pass a metal detector anymore thanks to";
+				message2 = "'s single barreled handcannon shot";
+			}
+			else
+			{
+				message = " is full of buckshot from";
+				message2 = "'s sawed off shotgun";
+			}
+		}
+		break;
+/*
       case MOD_HC:
         n = rand() % 2 + 1;
         if (n == 1)
@@ -857,6 +890,9 @@ if (attacker && attacker != self && attacker->client && OnSameTeam (self, attack
           message = " is full of buckshot from"; message2 = "'s sawed off shotgun";
         }
         break;    
+*/
+// AQ2:TNG End
+
       case MOD_SNIPER:
         switch (loc)
         {
@@ -2831,8 +2867,7 @@ void ClientBegin (edict_t *ent)
 
 		ent->s.modelindex3 = 0; // AQ2:TNG - CTF Make sure the player doesn't look like he has the flag
 		ent->hasSpawned = 0; // AQ2:TNG - CTF Clear hasSpawned
-		ent->client->resp.team = NOTEAM;
-      
+        
 		// clear inventory AQ:TNG - CTF - Clears the flag... 
         memset(ent->client->pers.inventory, 0, sizeof(ent->client->pers.inventory));
 

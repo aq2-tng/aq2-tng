@@ -4,10 +4,14 @@
 //
 // laser sight patch, by Geza Beladi
 //
-// $Id: a_cmds.c,v 1.3 2001/05/11 16:07:25 mort Exp $
+// $Id: a_cmds.c,v 1.4 2001/05/13 01:23:01 deathwatch Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_cmds.c,v $
+// Revision 1.4  2001/05/13 01:23:01  deathwatch
+// Added Single Barreled Handcannon mode, made the menus and scoreboards
+// look nicer and made the voice command a bit less loud.
+//
 // Revision 1.3  2001/05/11 16:07:25  mort
 // Various CTF bits and pieces...
 //
@@ -594,6 +598,21 @@ Cmd_Weapon_f (edict_t * ent)
 // TempFile - END
 
     }
+
+// AQ2:TNG Deathwatch - Single Barreled HC
+	if (ent->client->curr_weap == HC_NUM && hc_single->value)
+    {
+		if (!dead)
+			gi.sound(ent, CHAN_ITEM, gi.soundindex("misc/click.wav"), 1, ATTN_NORM, 0);
+
+		ent->client->resp.hc_mode = !(ent->client->resp.hc_mode);
+		if ( ent->client->resp.hc_mode )
+			gi.cprintf (ent, PRINT_HIGH, "Single Barreled Handcannon\n");
+		else
+			gi.cprintf (ent, PRINT_HIGH, "Double Barreled Handcannon\n");
+	}
+// AQ2:TNG End
+
   if (ent->client->curr_weap == KNIFE_NUM)
     {
       if (dead)

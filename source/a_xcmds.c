@@ -4,10 +4,14 @@
 //
 // contains all new non standard command functions
 //
-// $Id: a_xcmds.c,v 1.2 2001/05/11 12:21:18 slicerdw Exp $
+// $Id: a_xcmds.c,v 1.3 2001/05/13 01:23:01 deathwatch Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_xcmds.c,v $
+// Revision 1.3  2001/05/13 01:23:01  deathwatch
+// Added Single Barreled Handcannon mode, made the menus and scoreboards
+// look nicer and made the voice command a bit less loud.
+//
 // Revision 1.2  2001/05/11 12:21:18  slicerdw
 // Commented old Location support ( ADF ) With the ML/ETE Compatible one
 //
@@ -146,7 +150,9 @@ Cmd_Voice_f (edict_t * self)
     return;
   strcpy (fullpath, PG_SNDPATH);
   strcat (fullpath, s);
-  gi.sound (self, CHAN_VOICE, gi.soundindex (fullpath), 1, ATTN_NORM, 0);
+// AQ2:TNG Deathwatch - This should be IDLE not NORM
+  gi.sound (self, CHAN_VOICE, gi.soundindex (fullpath), 1, ATTN_IDLE, 0);
+// AQ2:TNG END
 }
 
 //AQ2:TNG SLicer - Old location support

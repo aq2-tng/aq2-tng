@@ -3,10 +3,14 @@
 // Some of this is borrowed from Zoid's CTF (thanks Zoid)
 // -Fireblade
 //
-// $Id: a_team.c,v 1.12 2001/05/12 19:17:03 slicerdw Exp $
+// $Id: a_team.c,v 1.13 2001/05/13 01:23:01 deathwatch Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_team.c,v $
+// Revision 1.13  2001/05/13 01:23:01  deathwatch
+// Added Single Barreled Handcannon mode, made the menus and scoreboards
+// look nicer and made the voice command a bit less loud.
+//
 // Revision 1.12  2001/05/12 19:17:03  slicerdw
 // Changed The Join and Weapon choosing Menus
 //
@@ -364,7 +368,7 @@ CreditsReturnToMain (edict_t * ent, pmenu_t * p)
 void
 DoAGoodie (edict_t * ent, pmenu_t * p)
 {
-  gi.sound (ent, CHAN_VOICE, gi.soundindex ("gladiator/sight.wav"), 1, ATTN_NORM, 0);
+  gi.sound (ent, CHAN_VOICE, gi.soundindex ("boss3/bs3srch3.wav"), 1, ATTN_IDLE, 0);
 }
 //PG BUND END
 
@@ -373,7 +377,7 @@ void
 SlicersCat (edict_t * ent, pmenu_t * p)
 {
   gi.cprintf (ent, PRINT_HIGH, "sLiCeR [dW] couldn't have done it without his cat!\n");
-  gi.sound (ent, CHAN_VOICE, gi.soundindex ("gladiator/sight.wav"), 1, ATTN_NORM, 0);
+  gi.sound (ent, CHAN_VOICE, gi.soundindex ("makron/laf4.wav"), 1, ATTN_IDLE, 0);
 }
 // AQ2:TNG End
 
@@ -381,7 +385,7 @@ SlicersCat (edict_t * ent, pmenu_t * p)
 pmenu_t creditsmenu[] =
 {
   {"*"TNG_VERSION, PMENU_ALIGN_CENTER, NULL, NULL},
-  {"------------------------------", PMENU_ALIGN_CENTER, NULL, NULL},
+  {"Ÿ", PMENU_ALIGN_CENTER, NULL, NULL},
   {"*Design Team", PMENU_ALIGN_LEFT, NULL, NULL},
   {NULL, PMENU_ALIGN_LEFT, NULL, NULL},
   {"Deathwatch", PMENU_ALIGN_LEFT, NULL, DoAGoodie},  
@@ -410,7 +414,7 @@ pmenu_t creditsmenu[] =
 pmenu_t weapmenu[] =
 {
   {"*"TNG_VERSION, PMENU_ALIGN_CENTER, NULL, NULL},
-  {"------------------------------", PMENU_ALIGN_CENTER, NULL, NULL},
+  {"Ÿ", PMENU_ALIGN_CENTER, NULL, NULL},
   {"Select your Weapon", PMENU_ALIGN_CENTER, NULL, NULL},
   {NULL, PMENU_ALIGN_LEFT, NULL, NULL},
   {"MP5/10 Submachinegun", PMENU_ALIGN_LEFT, NULL, SelectWeapon2},
@@ -436,7 +440,7 @@ pmenu_t weapmenu[] =
 pmenu_t itemmenu[] =
 {
   {"*"TNG_VERSION, PMENU_ALIGN_CENTER, NULL, NULL},
-  {"------------------------------", PMENU_ALIGN_CENTER, NULL, NULL},
+  {"Ÿ", PMENU_ALIGN_CENTER, NULL, NULL},
   {"Select your Item", PMENU_ALIGN_CENTER, NULL, NULL},
   {NULL, PMENU_ALIGN_LEFT, NULL, NULL},
   {"Kevlar Vest", PMENU_ALIGN_LEFT, NULL, SelectItem1},
@@ -464,7 +468,7 @@ VotingMenu (edict_t * ent, pmenu_t * p)
 pmenu_t joinmenu[] =
 {
   {"*"TNG_VERSION, PMENU_ALIGN_CENTER, NULL, NULL},
-  {"------------------------------", PMENU_ALIGN_CENTER, NULL, NULL},
+  {"Ÿ", PMENU_ALIGN_CENTER, NULL, NULL},
   {NULL /* lvl name */ , PMENU_ALIGN_CENTER, NULL, NULL},
   {NULL, PMENU_ALIGN_CENTER, NULL, NULL},
   {NULL /* team 1 */ , PMENU_ALIGN_LEFT, NULL, JoinTeam1},
@@ -2135,7 +2139,18 @@ A_ScoreboardMessage (edict_t * ent, edict_t * killer)
 	  total++;
 	}
 
-      if (noscore->value)
+    if (noscore->value)
+// AQ2:TNG Deathwatch - Nice little bar
+	{
+	  strcpy (string, "xv 0 yv 32 string2 \"Player          Time Ping\" "
+		  "xv 0 yv 40 string2 \"Ÿ Ÿ Ÿ\" ");
+	}
+      else
+	{
+	  strcpy (string, "xv 0 yv 32 string2 \"Frags Player          Time Ping Damage Kills\" "
+		  "xv 0 yv 40 string2 \"Ÿ Ÿ Ÿ Ÿ Ÿ Ÿ\" ");
+	}
+/*
 	{
 	  strcpy (string, "xv 0 yv 32 string2 \"Player          Time Ping\" "
 		  "xv 0 yv 40 string2 \"--------------- ---- ----\" ");
@@ -2145,6 +2160,8 @@ A_ScoreboardMessage (edict_t * ent, edict_t * killer)
 	  strcpy (string, "xv 0 yv 32 string2 \"Frags Player          Time Ping Damage Kills\" "
 		  "xv 0 yv 40 string2 \"----- --------------- ---- ---- ------ -----\" ");
 	}
+*/
+// AQ2:TNG END
 
       for (i = 0; i < total; i++)
 	{

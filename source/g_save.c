@@ -1,10 +1,14 @@
 //-----------------------------------------------------------------------------
 // g_save.c
 //
-// $Id: g_save.c,v 1.6 2001/05/12 21:19:51 ra Exp $
+// $Id: g_save.c,v 1.7 2001/05/13 01:23:01 deathwatch Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_save.c,v $
+// Revision 1.7  2001/05/13 01:23:01  deathwatch
+// Added Single Barreled Handcannon mode, made the menus and scoreboards
+// look nicer and made the voice command a bit less loud.
+//
 // Revision 1.6  2001/05/12 21:19:51  ra
 //
 //
@@ -284,6 +288,9 @@ void InitGame (void)
 	video_force_restart = gi.cvar("video_force_restart", "0", CVAR_LATCH);
 	video_check_lockpvs = gi.cvar("video_check_lockpvs", "0",CVAR_LATCH);
 	video_checktime = gi.cvar("video_checktime", "20", 0);
+// AQ2:TNG Deathwatch - Single Barreled HC
+	hc_single = gi.cvar("hc_single", "1", CVAR_LATCH); //default ON
+// AQ2:TNG End
   
   //FIREBLADE
   

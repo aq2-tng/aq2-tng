@@ -1,10 +1,14 @@
 //-----------------------------------------------------------------------------
 //
 //
-// $Id: g_main.c,v 1.5 2001/05/12 21:19:51 ra Exp $
+// $Id: g_main.c,v 1.6 2001/05/13 01:23:01 deathwatch Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_main.c,v $
+// Revision 1.6  2001/05/13 01:23:01  deathwatch
+// Added Single Barreled Handcannon mode, made the menus and scoreboards
+// look nicer and made the voice command a bit less loud.
+//
 // Revision 1.5  2001/05/12 21:19:51  ra
 //
 //
@@ -163,8 +167,10 @@ cvar_t 	*video_max_3dfxam;
 cvar_t 	*video_max_opengl;
 cvar_t  *video_force_restart;
 cvar_t  *video_check_lockpvs;
-//AQ2:TNG END
-
+//Slicer End
+//AQ2:TNG Deathwatch - Single Barreled HC
+cvar_t *hc_single;
+//AQ2:TND END
 
 void SpawnEntities (char *mapname, char *entities, char *spawnpoint);
 void ClientThink (edict_t *ent, usercmd_t *cmd);

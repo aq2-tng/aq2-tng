@@ -1,10 +1,14 @@
 //-----------------------------------------------------------------------------
 // g_local.h -- local definitions for game module
 //
-// $Id: g_local.h,v 1.12 2001/05/12 21:19:51 ra Exp $
+// $Id: g_local.h,v 1.13 2001/05/13 01:23:01 deathwatch Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_local.h,v $
+// Revision 1.13  2001/05/13 01:23:01  deathwatch
+// Added Single Barreled Handcannon mode, made the menus and scoreboards
+// look nicer and made the voice command a bit less loud.
+//
 // Revision 1.12  2001/05/12 21:19:51  ra
 //
 //
@@ -687,6 +691,10 @@ extern  cvar_t 	*video_check_lockpvs;
 extern  cvar_t 	*video_force_restart;
 extern	cvar_t	*check_time;
 //AQ2:TNG - END
+
+// AQ2:TNG Deathwatch Single Barreled HC
+extern  cvar_t  *hc_single;
+// AQ2:TNG Deathwatch
  
 extern cvar_t *skill;
 extern cvar_t *fraglimit;
@@ -1171,8 +1179,9 @@ typedef struct
 	//AQ2:TNG - Slicer Last Damage Location
 	int last_damaged_part;
 	//AQ2:TNG - END
-
-
+	// AQ2:TNG Deathwatch - HC Single Barreled HC
+	int	hc_mode;
+	// AQ2:TNG END
   }
 client_respawn_t;
 
