@@ -3,10 +3,13 @@
 // Some of this is borrowed from Zoid's CTF (thanks Zoid)
 // -Fireblade
 //
-// $Id: a_team.c,v 1.57 2001/11/03 17:21:57 deathwatch Exp $
+// $Id: a_team.c,v 1.58 2001/11/03 17:33:06 ra Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_team.c,v $
+// Revision 1.58  2001/11/03 17:33:06  ra
+// Yes another warning gone
+//
 // Revision 1.57  2001/11/03 17:21:57  deathwatch
 // Fixed something in the time command, removed the .. message from the voice command, fixed the vote spamming with mapvote, removed addpoint command (old pb command that wasnt being used). Some cleaning up of the source at a few points.
 //
@@ -3346,7 +3349,8 @@ void
 SetupTeamSpawnPoints ()
 {
   qboolean teams_assigned[MAX_TEAMS];
-  int started_at, l, firstassignment;
+//  int started_at, l, firstassignment;
+  int l;
 
   for (l = 0; l < num_teams; l++)
     {
