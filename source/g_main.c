@@ -1,12 +1,12 @@
 //-----------------------------------------------------------------------------
 //
 //
-// $Id: g_main.c,v 1.14 2001/06/20 21:43:26 slicerdw Exp $
+// $Id: g_main.c,v 1.15 2001/06/21 00:05:30 slicerdw Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_main.c,v $
-// Revision 1.14  2001/06/20 21:43:26  slicerdw
-// New Video Checking system - Bug fixed
+// Revision 1.15  2001/06/21 00:05:30  slicerdw
+// New Video Check System done -  might need some revision but works..
 //
 // Revision 1.12  2001/06/20 07:21:21  igor_rock
 // added use_warnings to enable/disable time/frags left msgs
@@ -601,7 +601,6 @@ void ExitLevel (void)
 void G_RunFrame (void)
 {
   int             i;
-  float oldtime;
   edict_t *ent;
   
   level.framenum++;
@@ -665,14 +664,18 @@ void G_RunFrame (void)
 		// check for cheat checking
 		if ((int)(video_checktime->value) > 5 && (video_check->value || video_check_lockpvs->value))
 		{
-			oldtime = next_cheat_check + 2;
 			if (level.time > next_cheat_check)
 			{
 				SVCmd_CheckCheats_f();
 				next_cheat_check = level.time + video_checktime->value;
 			}
-			if(level.time > oldtime)
-				VideoCheckClient(ent);
+			if(level.time > next_cheat_check2)
+			{
+				CheckClients();
+				next_cheat_check2 = level.time + video_checktime->value + 2;
+
+			}
+
 		}
 	//AQ2:TNG END
 

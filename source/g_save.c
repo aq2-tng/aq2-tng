@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // g_save.c
 //
-// $Id: g_save.c,v 1.22 2001/06/20 07:29:27 igor_rock Exp $
+// $Id: g_save.c,v 1.23 2001/06/21 00:05:30 slicerdw Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_save.c,v $
+// Revision 1.23  2001/06/21 00:05:30  slicerdw
+// New Video Check System done -  might need some revision but works..
+//
 // Revision 1.22  2001/06/20 07:29:27  igor_rock
 // corrected typo
 //
@@ -353,7 +356,7 @@ void InitGame (void)
 	video_max_opengl = gi.cvar("video_max_opengl", "3.0", 0);
 	video_force_restart = gi.cvar("video_force_restart", "0", CVAR_LATCH);
 	video_check_lockpvs = gi.cvar("video_check_lockpvs", "0",CVAR_LATCH);
-	video_checktime = gi.cvar("video_checktime", "20", 0);
+	video_checktime = gi.cvar("video_checktime", "15", 0);
 // AQ2:TNG Deathwatch - Single Barreled HC
 	hc_single = gi.cvar("hc_single", "1", CVAR_LATCH); //default ON
 // AQ2:TNG End

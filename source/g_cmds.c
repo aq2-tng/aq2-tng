@@ -1,12 +1,12 @@
 //-----------------------------------------------------------------------------
 // g_cmds.c
 //
-// $Id: g_cmds.c,v 1.17 2001/06/20 21:43:26 slicerdw Exp $
+// $Id: g_cmds.c,v 1.18 2001/06/21 00:05:30 slicerdw Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_cmds.c,v $
-// Revision 1.17  2001/06/20 21:43:26  slicerdw
-// New Video Checking system - Bug fixed
+// Revision 1.18  2001/06/21 00:05:30  slicerdw
+// New Video Check System done -  might need some revision but works..
 //
 // Revision 1.15  2001/06/06 18:57:14  slicerdw
 // Some tweaks on Ctf and related things

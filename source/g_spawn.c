@@ -1,12 +1,12 @@
 //-----------------------------------------------------------------------------
 // g_spawn.c
 //
-// $Id: g_spawn.c,v 1.18 2001/06/20 21:43:26 slicerdw Exp $
+// $Id: g_spawn.c,v 1.19 2001/06/21 00:05:30 slicerdw Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_spawn.c,v $
-// Revision 1.18  2001/06/20 21:43:26  slicerdw
-// New Video Checking system - Bug fixed
+// Revision 1.19  2001/06/21 00:05:30  slicerdw
+// New Video Check System done -  might need some revision but works..
 //
 // Revision 1.16  2001/06/13 09:43:49  igor_rock
 // if ctf is enabled, friendly fire automatically set to off (ff doesn't make any sense in ctf)
@@ -1582,7 +1582,9 @@ void SP_worldspawn (edict_t *ent)
 		// AQ2:TNG - Slicer matchmode ready reset
 		team1ready = team2ready = 0;
 		matchtime = 0;
-        //---------------
+		next_cheat_check = level.time + video_checktime->value;
+		next_cheat_check2 = level.time + video_checktime->value + 2;
+		//---------------
 
         // reserve some spots for dead player bodies for coop / deathmatch
         InitBodyQue ();

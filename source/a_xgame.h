@@ -4,10 +4,13 @@
 //
 // header file for a_xgame.c
 //
-// $Id: a_xgame.h,v 1.5 2001/05/31 16:58:14 igor_rock Exp $
+// $Id: a_xgame.h,v 1.6 2001/06/21 00:05:30 slicerdw Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_xgame.h,v $
+// Revision 1.6  2001/06/21 00:05:30  slicerdw
+// New Video Check System done -  might need some revision but works..
+//
 // Revision 1.5  2001/05/31 16:58:14  igor_rock
 // conflicts resolved
 //
@@ -99,10 +102,11 @@ void ParseSayText (edict_t * ent, char *text);
 //AQ2:TNG - Slicer 
 qboolean GetPlayerLocation(edict_t *self, char *buf);
 void GetSightedLocation(edict_t *self, char *buf);
-extern float next_cheat_check;
 void AntiCheat_CheckClient(edict_t *ent);
 void GetLastDamagedPart(edict_t *self, char *buf);
 void GetEnemyPosition (edict_t * self, char *buf);
+extern float next_cheat_check;
+extern float next_cheat_check2;
 //AQ2:TNG END
 
 void Cmd_SetFlag1_f(edict_t *self);

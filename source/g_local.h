@@ -1,12 +1,12 @@
 //-----------------------------------------------------------------------------
 // g_local.h -- local definitions for game module
 //
-// $Id: g_local.h,v 1.24 2001/06/20 21:43:26 slicerdw Exp $
+// $Id: g_local.h,v 1.25 2001/06/21 00:05:30 slicerdw Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_local.h,v $
-// Revision 1.24  2001/06/20 21:43:26  slicerdw
-// New Video Checking system - Bug fixed
+// Revision 1.25  2001/06/21 00:05:30  slicerdw
+// New Video Check System done -  might need some revision but works..
 //
 // Revision 1.22  2001/06/20 07:21:21  igor_rock
 // added use_warnings to enable/disable time/frags left msgs
@@ -1034,6 +1034,7 @@ qboolean SV_FilterPacket (char *from);
 //AQ2:TNG - Slicer
 void SVCmd_CheckCheats_f (void);
 void Kick_Client (edict_t *ent);
+void CheckClients (void);
 //AQ2:TNG END
 
 //

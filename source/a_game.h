@@ -1,12 +1,12 @@
 //-----------------------------------------------------------------------------
 // Include for base Action game-related things
 //
-// $Id: a_game.h,v 1.6 2001/06/20 21:43:26 slicerdw Exp $
+// $Id: a_game.h,v 1.7 2001/06/21 00:05:30 slicerdw Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_game.h,v $
-// Revision 1.6  2001/06/20 21:43:26  slicerdw
-// New Video Checking system - Bug fixed
+// Revision 1.7  2001/06/21 00:05:30  slicerdw
+// New Video Check System done -  might need some revision but works..
 //
 // Revision 1.4  2001/06/19 18:56:38  deathwatch
 // New Last killed target system
