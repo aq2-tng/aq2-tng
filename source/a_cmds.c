@@ -4,10 +4,13 @@
 //
 // laser sight patch, by Geza Beladi
 //
-// $Id: a_cmds.c,v 1.17 2001/10/18 12:45:47 ra Exp $
+// $Id: a_cmds.c,v 1.18 2001/10/18 12:55:35 deathwatch Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_cmds.c,v $
+// Revision 1.18  2001/10/18 12:55:35  deathwatch
+// Added roundtimeleft
+//
 // Revision 1.17  2001/10/18 12:45:47  ra
 // Disable time command in matchmode
 //
@@ -1248,8 +1251,8 @@ Cmd_Time (edict_t * ent)
   int mins, secs, remaining, rmins, rsecs, round;
 
      if(matchmode->value) {
-	gi.cprintf (ent, PRINT_HIGH, "This server is running in matchmode. See the scoreboard for timing info.\n");
-	return;
+			gi.cprintf (ent, PRINT_HIGH, "This server is running in matchmode. See the scoreboard for the time.\n");
+			return;
      }
      mins = level.time / 60;
      secs = level.time - (mins * 60);
@@ -1258,4 +1261,18 @@ Cmd_Time (edict_t * ent)
      rsecs = remaining - (rmins * 60);
 
      gi.cprintf (ent, PRINT_HIGH, "Elapsed time: %d:%02d. Remaining time: %d:%02d\n", mins, secs, rmins, rsecs);
+}
+
+void Cmd_Roundtimeleft_f(edict_t* ent)
+{
+  int time,i,u;
+	if(team_round_going != 1)
+		return;
+	i = roundtimelimit->value;
+	u = current_round_length;
+	if(i == 0)
+		return;
+	time = i - (u / 600);
+	gi.cprintf(ent, PRINT_HIGH, "There is %d minutes left in this round\n",time);
+
 }

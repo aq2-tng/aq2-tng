@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // Include for Action team-related things
 //
-// $Id: a_team.h,v 1.2 2001/09/28 13:48:34 ra Exp $
+// $Id: a_team.h,v 1.3 2001/10/18 12:55:35 deathwatch Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_team.h,v $
+// Revision 1.3  2001/10/18 12:55:35  deathwatch
+// Added roundtimeleft
+//
 // Revision 1.2  2001/09/28 13:48:34  ra
 // I ran indent over the sources. All .c and .h files reindented.
 //
@@ -100,3 +103,4 @@ extern int timewarning;
 extern int fragwarning;
 extern transparent_list_t *transparent_list;
 extern trace_t trace_t_temp;
+extern int current_round_length; // For RoundTimeLeft

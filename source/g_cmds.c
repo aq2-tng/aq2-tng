@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // g_cmds.c
 //
-// $Id: g_cmds.c,v 1.36 2001/09/30 03:09:34 ra Exp $
+// $Id: g_cmds.c,v 1.37 2001/10/18 12:55:35 deathwatch Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_cmds.c,v $
+// Revision 1.37  2001/10/18 12:55:35  deathwatch
+// Added roundtimeleft
+//
 // Revision 1.36  2001/09/30 03:09:34  ra
 // Removed new stats at end of rounds and created a new command to
 // do the same functionality.   Command is called "time"
@@ -2119,6 +2122,16 @@ ClientCommand (edict_t * ent)
 	Cmd_Say_f (ent, false, true, false);
       return;
     }
+		else if (Q_stricmp(cmd, "roundtimeleft") == 0) {
+			if(teamplay->value)
+				Cmd_Roundtimeleft_f(ent);
+			else
+				Cmd_Say_f(ent, false, true, false);
+			return;
+		}
+
+
+
   else				// anything that doesn't match a command will be a chat
     Cmd_Say_f (ent, false, true, false);
 }

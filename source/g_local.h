@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // g_local.h -- local definitions for game module
 //
-// $Id: g_local.h,v 1.41 2001/09/30 03:09:34 ra Exp $
+// $Id: g_local.h,v 1.42 2001/10/18 12:55:35 deathwatch Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_local.h,v $
+// Revision 1.42  2001/10/18 12:55:35  deathwatch
+// Added roundtimeleft
+//
 // Revision 1.41  2001/09/30 03:09:34  ra
 // Removed new stats at end of rounds and created a new command to
 // do the same functionality.   Command is called "time"
@@ -1673,6 +1676,7 @@ void Cmd_IR_f (edict_t * ent);
 void Cmd_Choose_f (edict_t * ent);
 void Cmd_TKOk (edict_t * ent);	// AQ:TNG - JBravo adding tkok
 void Cmd_Time (edict_t * ent);	// AQ:TNG - JBravo adding time
+void Cmd_Roundtimeleft_f(edict_t *ent); // AQ:TNG - DW added roundtimeleft
 void DropSpecialWeapon (edict_t * ent);
 void ReadySpecialWeapon (edict_t * ent);
 void DropSpecialItem (edict_t * ent);
