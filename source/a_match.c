@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // Matchmode related code
 //
-// $Id: a_match.c,v 1.5 2001/06/13 07:55:17 igor_rock Exp $
+// $Id: a_match.c,v 1.6 2001/06/13 15:36:31 deathwatch Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_match.c,v $
+// Revision 1.6  2001/06/13 15:36:31  deathwatch
+// Small fix
+//
 // Revision 1.5  2001/06/13 07:55:17  igor_rock
 // Re-Added a_match.h and a_match.c
 // Added CTF Header for a_ctf.h and a_ctf.c
@@ -181,7 +184,7 @@ void Cmd_Captain_f(edict_t *ent)
 		
 }
 
-extern int started; // AQ2:M - Matchmode - Used for ready command
+//extern int started; // AQ2:M - Matchmode - Used for ready command
 
 void Cmd_Ready_f(edict_t *ent)
 {
