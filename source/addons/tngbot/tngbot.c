@@ -3,7 +3,7 @@
  * (c) 2001 by Stefan Giesen aka Igor[Rock]
  * All rights reserved
  *
- * $Id: tngbot.c,v 1.2 2001/11/29 18:30:48 igor_rock Exp $
+ * $Id: tngbot.c,v 1.3 2001/11/29 18:43:16 igor_rock Exp $
  *
  *----------------------------------------------------------------------------
  * Usage: tngbot <ircserver>[:port] <channelname> <nickname>
@@ -35,6 +35,9 @@
  *
  *----------------------------------------------------------------------------
  * $Log: tngbot.c,v $
+ * Revision 1.3  2001/11/29 18:43:16  igor_rock
+ * added new format 'V' ("nickname FIXED_TEXT variable_text")
+ *
  * Revision 1.2  2001/11/29 18:30:48  igor_rock
  * corrected a smaller bug
  *
@@ -181,6 +184,15 @@ void colorize (char *inbuf, char *outbuf)
 	  outbuf[to] = inbuf[from];
 	}
 	sprintf (&outbuf[to], "%c%s%s\n", 0x03, GREY, &filtertxt[i][1]);
+	done = 1;
+	break;
+
+      case 'V':			/* Vote related */
+	sprintf (outbuf, "%c%s", 0x03, BLUE);
+	for (from = 0, to = strlen(outbuf); from < found; from++, to++) {
+	  outbuf[to] = inbuf[from];
+	}
+	sprintf (&outbuf[to], "%c%s%s\n", 0x03, GREY, &inbuf[from]);
 	done = 1;
 	break;
 
