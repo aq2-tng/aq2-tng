@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // p_client.c
 //
-// $Id: p_client.c,v 1.25 2001/06/19 21:10:05 igor_rock Exp $
+// $Id: p_client.c,v 1.26 2001/06/19 21:35:54 igor_rock Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: p_client.c,v $
+// Revision 1.26  2001/06/19 21:35:54  igor_rock
+// If you select Sniper, sniper is your startweapon now.
+//
 // Revision 1.25  2001/06/19 21:10:05  igor_rock
 // changed the "is now known" message to the normal namelimit
 //
@@ -2364,7 +2367,10 @@ void EquipClient( edict_t *ent )
         else if ( stricmp(client->resp.weapon->pickup_name, SNIPER_NAME ) == 0 )
         {
                 item = FindItem(SNIPER_NAME);
+		client->pers.selected_item = ITEM_INDEX(item);
                 client->pers.inventory[ITEM_INDEX(item)] = 1;
+		client->pers.weapon = item;
+		client->curr_weap = SNIPER_NUM;
                 client->unique_weapon_total = 1;
                 item = FindItem("AP Sniper Ammo");
                 if ( band )
