@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // g_cmds.c
 //
-// $Id: g_cmds.c,v 1.20 2001/06/25 11:44:47 slicerdw Exp $
+// $Id: g_cmds.c,v 1.21 2001/06/25 12:39:38 slicerdw Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_cmds.c,v $
+// Revision 1.21  2001/06/25 12:39:38  slicerdw
+// Cleaning up something i left behind..
+//
 // Revision 1.20  2001/06/25 11:44:47  slicerdw
 // New Video Check System - video_check and video_check_lockpvs no longer latched
 //
@@ -1735,10 +1738,7 @@ void ClientCommand (edict_t *ent)
 			Cmd_CPSI_f(ent);
 		else if (Q_stricmp(cmd, "%!fc") == 0)
 			Cmd_VidRef_f(ent);
-		else if (Q_stricmp(cmd, "mostravars") == 0)
-			gi.bprintf(PRINT_HIGH, "%s %s %f %f\n", ent->client->resp.vidref,
-			ent->client->resp.gldriver,ent->client->resp.glmodulate,ent->client->resp.gllockpvs);
-		//AQ2:TNG Slicer - Matchmode
+			//AQ2:TNG Slicer - Matchmode
 		else if (Q_stricmp(cmd, "sub") == 0)
 		{
 			if(matchmode->value && teamplay->value)
