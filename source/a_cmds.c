@@ -4,10 +4,13 @@
 //
 // laser sight patch, by Geza Beladi
 //
-// $Id: a_cmds.c,v 1.21 2001/11/25 19:09:25 slicerdw Exp $
+// $Id: a_cmds.c,v 1.22 2002/01/24 01:40:40 deathwatch Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_cmds.c,v $
+// Revision 1.22  2002/01/24 01:40:40  deathwatch
+// Freud's AutoRecord
+//
 // Revision 1.21  2001/11/25 19:09:25  slicerdw
 // Fixed Matchtime
 //
@@ -1287,4 +1290,27 @@ void Cmd_Roundtimeleft_f(edict_t* ent)
 	time = i - (u / 600);
 	gi.cprintf(ent, PRINT_HIGH, "There is %d minutes left in this round\n",time);
 
+}
+
+/*
+	Freud's AutoRecord
+	This will automatically record a new demo for every map if the client turns it on
+*/
+void Cmd_AutoRecord_f (edict_t * ent)
+{
+  char rec_date[64], recstr[128];
+  struct tm *now;
+  time_t tnow;
+
+  tnow = time ((time_t *) 0);
+  now = localtime (&tnow);
+  (void) strftime (rec_date, 64, "%Y_%b_%d_%H%M", now);
+
+  if (matchmode->value) {
+    sprintf(recstr, "record \"%s-%s_vs_%s-%s\"", rec_date, team1_name, team2_name, level.mapname);
+  } else {
+    sprintf(recstr, "record \"%s-%s\"", rec_date, level.mapname);
+  }
+
+  stuffcmd(ent, recstr);
 }

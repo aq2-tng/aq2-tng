@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // g_cmds.c
 //
-// $Id: g_cmds.c,v 1.46 2001/12/24 18:06:05 slicerdw Exp $
+// $Id: g_cmds.c,v 1.47 2002/01/24 01:40:40 deathwatch Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_cmds.c,v $
+// Revision 1.47  2002/01/24 01:40:40  deathwatch
+// Freud's AutoRecord
+//
 // Revision 1.46  2001/12/24 18:06:05  slicerdw
 // changed dynamic check for darkmatch only
 //
@@ -2136,10 +2139,7 @@ ClientCommand (edict_t * ent)
     }
   else if (Q_stricmp (cmd, "matchadmin") == 0)
     {
-//      if (matchmode->value)
-				Cmd_SetAdmin_f (ent);
-//      else
-//				Cmd_Say_f (ent, false, true, false);
+			Cmd_SetAdmin_f (ent);
       return;
     }
 	else if (Q_stricmp(cmd, "roundtimeleft") == 0) {
@@ -2149,6 +2149,11 @@ ClientCommand (edict_t * ent)
 				Cmd_Say_f(ent, false, true, false);
 			return;
 		}
+	else if (Q_stricmp (cmd, "autorecord") == 0)
+	{
+		Cmd_AutoRecord_f (ent);
+		return;
+  }
   else				// anything that doesn't match a command will be a chat
     Cmd_Say_f (ent, false, true, false);
 }
