@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 //
 //
-// $Id: g_main.c,v 1.31 2001/09/28 13:48:34 ra Exp $
+// $Id: g_main.c,v 1.32 2001/09/29 19:54:04 ra Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_main.c,v $
+// Revision 1.32  2001/09/29 19:54:04  ra
+// Made a CVAR to turn off extratimingstats
+//
 // Revision 1.31  2001/09/28 13:48:34  ra
 // I ran indent over the sources. All .c and .h files reindented.
 //
@@ -167,6 +170,7 @@ cvar_t *punishkills;		// AQ:TNG - JBravo adding punishkills
 cvar_t *mapvote_waittime;
 cvar_t *ff_afterround;
 cvar_t *uvtime;			// CTF Invunerability Time
+cvar_t *extrastats;
 cvar_t *sv_gib;
 cvar_t *sv_crlf;		// Allow Control Char
 cvar_t *vrot;			// Vote Rotation

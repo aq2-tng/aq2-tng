@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // g_local.h -- local definitions for game module
 //
-// $Id: g_local.h,v 1.39 2001/09/28 13:48:34 ra Exp $
+// $Id: g_local.h,v 1.40 2001/09/29 19:54:04 ra Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_local.h,v $
+// Revision 1.40  2001/09/29 19:54:04  ra
+// Made a CVAR to turn off extratimingstats
+//
 // Revision 1.39  2001/09/28 13:48:34  ra
 // I ran indent over the sources. All .c and .h files reindented.
 //
@@ -727,6 +730,7 @@ extern cvar_t *punishkills;
 extern cvar_t *mapvote_waittime;
 extern cvar_t *ff_afterround;
 extern cvar_t *uvtime;
+extern cvar_t *extrastats;
 extern cvar_t *use_mapvote;	// enable map voting
 extern cvar_t *sv_gib;
 extern cvar_t *sv_crlf;

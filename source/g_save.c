@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // g_save.c
 //
-// $Id: g_save.c,v 1.37 2001/09/28 20:45:55 ra Exp $
+// $Id: g_save.c,v 1.38 2001/09/29 19:54:04 ra Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_save.c,v $
+// Revision 1.38  2001/09/29 19:54:04  ra
+// Made a CVAR to turn off extratimingstats
+//
 // Revision 1.37  2001/09/28 20:45:55  ra
 // Switched punching on by default
 //
@@ -448,6 +451,7 @@ InitGame (void)
   mapvote_waittime = gi.cvar ("mapvote_waittime", "40", 0);
   ff_afterround = gi.cvar ("ff_afterround", "1", 0);
   uvtime = gi.cvar ("uvtime", "40", CVAR_LATCH);
+  extrastats = gi.cvar ("extrastats", "1", 0);
   sv_gib = gi.cvar ("sv_gib", "0", CVAR_LATCH);
   sv_crlf = gi.cvar ("sv_crlf", "1", CVAR_LATCH);	// DW - Enabled this by default
   vrot = gi.cvar ("vrot", "0", CVAR_LATCH);

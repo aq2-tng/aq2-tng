@@ -3,10 +3,13 @@
 // Some of this is borrowed from Zoid's CTF (thanks Zoid)
 // -Fireblade
 //
-// $Id: a_team.c,v 1.52 2001/09/29 19:16:47 ra Exp $
+// $Id: a_team.c,v 1.53 2001/09/29 19:54:04 ra Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_team.c,v $
+// Revision 1.53  2001/09/29 19:54:04  ra
+// Made a CVAR to turn off extratimingstats
+//
 // Revision 1.52  2001/09/29 19:16:47  ra
 // Made a boo boo in the timing stuff.
 //
@@ -1741,7 +1744,7 @@ WonGame (int winner)
   int mins, secs, remaining, rmins, rsecs;
 
   gi.bprintf (PRINT_HIGH, "The round is over:\n");
-  if(!matchmode->value) {
+  if(!matchmode->value && extrastats->value) {
 	mins = level.time / 60;
 	secs = level.time - (mins * 60);
 	remaining = (timelimit->value *60) - level.time;
