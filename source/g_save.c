@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // g_save.c
 //
-// $Id: g_save.c,v 1.26 2001/06/26 18:47:30 igor_rock Exp $
+// $Id: g_save.c,v 1.27 2001/06/28 14:36:40 deathwatch Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_save.c,v $
+// Revision 1.27  2001/06/28 14:36:40  deathwatch
+// Updated the Credits Menu a slight bit (added Kobra)
+//
 // Revision 1.26  2001/06/26 18:47:30  igor_rock
 // added ctf_respawn cvar
 //
@@ -346,7 +349,7 @@ void InitGame (void)
   //AQ2:TNG SLICER END
   //tempfile
   sv_gib = gi.cvar("sv_gib", "0", CVAR_LATCH);
-  sv_crlf = gi.cvar("sv_crlf", "0", CVAR_LATCH);
+  sv_crlf = gi.cvar("sv_crlf", "1", CVAR_LATCH); // DW - Enabled this by default
   //tempfile
   
   //Igor[Rock] BEGIN

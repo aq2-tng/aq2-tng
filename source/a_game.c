@@ -5,10 +5,13 @@
 // Zucchini (spikard@u.washington.edu) and Fireblade (ucs_brf@shsu.edu) 
 // (splat/bullethole/shell ejection code from original Action source)
 //
-// $Id: a_game.c,v 1.7 2001/05/31 16:58:14 igor_rock Exp $
+// $Id: a_game.c,v 1.8 2001/06/28 14:36:40 deathwatch Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_game.c,v $
+// Revision 1.8  2001/06/28 14:36:40  deathwatch
+// Updated the Credits Menu a slight bit (added Kobra)
+//
 // Revision 1.7  2001/05/31 16:58:14  igor_rock
 // conflicts resolved
 //
@@ -213,150 +216,196 @@ ReadMOTDFile ()
 }
 
 // AQ2:TNG Deathwatch - Ohh, lovely MOTD - edited it
-void
-PrintMOTD (edict_t * ent)
+void PrintMOTD (edict_t * ent)
 {
   int mapnum, i, lines = 0;
   int max_lines = MAX_TOTAL_MOTD_LINES;
   char msg_buf[16384], *server_type;
 
   /* 
-   * Welcome message
+		Welcome Message. This shows the Version Number and website URL, followed by an empty line
    */
 
-  // 3 lines for version number & website (third blank)
-// AQ2:TNG Deathwatch Edited this
-  strcpy (msg_buf, "Welcome to " TNG_VERSION2 "\n"
-	  "http://www.aq2tng.barrysworld.net/\n"
-	  "\n");
+	strcpy (msg_buf, "Welcome to " TNG_VERSION2 "\n" "http://www.aq2tng.barrysworld.net/\n" "\n");
   lines = 3;
-// AQ2:TNG END
 
+	/*
+		As long as we don't skip the MOTD, we want to print all information
+	*/
   if (!skipmotd->value)
-    {
-      // Line for server hostname, if set
-      if (hostname->string && strlen (hostname->string) && strcmp (hostname->string, "unnamed"))
-	{
-	  //strcat(msg_buf, "Running at: ");
-	  strcat (msg_buf, hostname->string);
-	  strcat (msg_buf, "\n");
-	  lines++;
-	}
+  {
+    // This line will show the hostname. If not set, the default name will be "Unnamed TNG Server" (used to be "unnamed")
+		if (hostname->string && strlen (hostname->string) && strcmp (hostname->string, "Unnamed TNG Server"))
+		{
+			//strcat(msg_buf, "Running at: ");
+			strcat (msg_buf, hostname->string);
+			strcat (msg_buf, "\n");
+			lines++;
+		}
 
-      /* 
-         * Server-specific settings information
-       */
+		/* 
+			Now all the settings
+		*/
 
-      // Line for game type
-      if (teamplay->value)
-	{
-	  if (ctf->value)
-	    {
-	      server_type = "Capture the Flag";
-	    }
-	  else if (use_3teams->value)
+		// Check what game type it is
+    if (teamplay->value)
+		{
+			// Is it CTF?
+			if (ctf->value)
+			{
+					server_type = "Capture the Flag";
+			}
+			// Is it Matchmode?
+			if (matchmode->value)
+			{
+					server_type = "Matchmode";
+			}
+			// Is it 3 Teams?
+			else if (use_3teams->value)
 	    {
 	      server_type = "3 Team Teamplay";
 	    }
-	  else if (!use_tourney->value)		// Added "->value", duh -TempFile
+			// Is it Tourney?
+			else if (use_tourney->value)		// Added "->value", duh -TempFile
 	    {
-	      server_type = "Teamplay";
+	      server_type = "Tourney";
 	    }
-	  else
-	    server_type = "Tourney";
-	}
-      else
-	{
-	  if ((int) dmflags->value & DF_MODELTEAMS)
-	    server_type = "Deathmatch (Teams by Model)";
-	  else if ((int) dmflags->value & DF_SKINTEAMS)
-	    server_type = "Deathmatch (Teams by Skin)";
-	  else
-	    server_type = "Deathmatch (No Teams)";
-	}
-      sprintf (msg_buf + strlen (msg_buf),
-	       "Game Type: %s\n",
-	       server_type);
-      lines++;
+			// No? Then it must be Teamplay
+			else
+				server_type = "Teamplay";
+		}
 
-      // Line for frag and time limit
-      if ((int) fraglimit->value)
-	sprintf (msg_buf + strlen (msg_buf), "Fraglimit: %d", (int) fraglimit->value);
-      else
-	strcat (msg_buf, "Fraglimit: none");
-      if ((int) timelimit->value)
-	sprintf (msg_buf + strlen (msg_buf), "  Timelimit: %d\n", (int) timelimit->value);
-      else
-	strcat (msg_buf, "  Timelimit: none\n");
-      lines++;
+		// So it's not Teamplay?
+    else
+		{
+			// Set the appropiate Deathmatch mode
+			if ((int) dmflags->value & DF_MODELTEAMS)
+				server_type = "Deathmatch (Teams by Model)";
+			else if ((int) dmflags->value & DF_SKINTEAMS)
+				server_type = "Deathmatch (Teams by Skin)";
+			else
+				server_type = "Deathmatch (No Teams)";
+		}
+    sprintf (msg_buf + strlen (msg_buf),"Game Type: %s\n", server_type);
+    lines++;
 
-      // Teamplay: 3 lines for round limit/round time limit, and menu instructions
-      if (teamplay->value && !ctf->value)
-	{
-	  if ((int) roundlimit->value)
-	    sprintf (msg_buf + strlen (msg_buf), "Roundlimit: %d", (int) roundlimit->value);
-	  else
-	    strcat (msg_buf, "Roundlimit: none");
-	  if ((int) roundtimelimit->value)
-	    sprintf (msg_buf + strlen (msg_buf), "  Roundtimelimit: %d\n", (int) roundtimelimit->value);
-	  else
-	    strcat (msg_buf, "  Roundtimelimit: none\n");
-	  lines++;
-	}
+		/*
+			Now for the map rules, such as Timelimit, Roundlimit, etc
+		*/
+		// What is the fraglimit?
+    if ((int) fraglimit->value)
+			sprintf (msg_buf + strlen (msg_buf), "Fraglimit: %d", (int) fraglimit->value);
+		else
+			strcat (msg_buf, "Fraglimit: none");
 
-      if (ctf->value)
-	{
-	  if ((int) capturelimit->value)
-	    sprintf (msg_buf + strlen (msg_buf), "  Capturelimit: %d\n", (int) capturelimit->value);
-	  else
-	    strcat (msg_buf, "  Capturelimit: none\n");
-	  lines++;
-	}
+		// What is the timelimit?
+		if ((int) timelimit->value)
+			sprintf (msg_buf + strlen (msg_buf), "  Timelimit: %d\n", (int) timelimit->value);
+		else
+			strcat (msg_buf, "  Timelimit: none\n");
+    lines++;
 
-      // Check for weird unique items/weapons settings, and inform with a line
-      if ((int) unique_weapons->value != 1 ||
-	  (int) unique_items->value != 1)
-	{
-	  sprintf (msg_buf + strlen (msg_buf), "Max number of spec weapons: %d  items: %d\n",
-		   (int) unique_weapons->value, (int) unique_items->value);
-	  lines++;
-	}
-      if (tgren->value > 0 || !(ir->value))
-	{
-	  char grenade_num[32];
-	  if (tgren->value > 0)
-	    sprintf (grenade_num, "%d grenade%s",
-		     (int) tgren->value,
-		     (int) tgren->value == 1 ? "" : "s");
-	  sprintf (msg_buf + strlen (msg_buf), "Bandolier w/ %s%s%s\n",
-		   !(ir->value) ? "no IR" : "",
-		   (tgren->value > 0 && !(ir->value)) ? " & " : "",
-		   tgren->value > 0 ? grenade_num : "");
-	  lines++;
-	}
-      if (allitem->value || allweapon->value)
-	{
-	  sprintf (msg_buf + strlen (msg_buf), "Players receive %s%s%s\n",
-		   allweapon->value ? "all weapons" : "",
-		   (allweapon->value && allitem->value) ? " & " : "",
-		   allitem->value ? "all items" : "");
-	  lines++;
-	}
-      if (limchasecam->value)
-	{
-	  if ((int) limchasecam->value == 2)
-	    sprintf (msg_buf + strlen (msg_buf), "Chase Cam Disallowed\n");
-	  else
-	    sprintf (msg_buf + strlen (msg_buf), "Chase Cam Restricted\n");
-	  lines++;
-	}
-      if (teamplay->value && !((int) dmflags->value & DF_NO_FRIENDLY_FIRE))
-	{
-	  sprintf (msg_buf + strlen (msg_buf), "Friendly Fire Enabled\n");
-	  lines++;
-	}
-	  //AQ2:TNG - Slicer : New location code
-	  /* Adding MOTD part for the Map Locations (Creator, Build and Number of Locations) */
+		// If we're in Teamplay, and not CTF, we want to see what the roundlimit and roundtimelimit is
+		if (teamplay->value && !ctf->value)
+		{
+			// What is the roundlimit?
+			if ((int) roundlimit->value)
+				sprintf (msg_buf + strlen (msg_buf), "Roundlimit: %d", (int) roundlimit->value);
+			else
+				strcat (msg_buf, "Roundlimit: none");
+
+			// What is the roundtimelimit?
+			if ((int) roundtimelimit->value)
+				sprintf (msg_buf + strlen (msg_buf), "  Roundtimelimit: %d\n", (int) roundtimelimit->value);
+			else
+				strcat (msg_buf, "  Roundtimelimit: none\n");
+			lines++;
+		}
+
+		// If we're in CTF, we want to know the capturelimit
+		if (ctf->value)
+		{
+			// What is the capturelimit?
+			if ((int) capturelimit->value)
+				sprintf (msg_buf + strlen (msg_buf), "  Capturelimit: %d\n", (int) capturelimit->value);
+			else
+				strcat (msg_buf, "  Capturelimit: none\n");
+			lines++;
+		}
+
+		/*
+			Check for the number of weapons and items people can carry
+		*/
+    if ((int) unique_weapons->value != 1 || (int) unique_items->value != 1)
+		{
+			sprintf (msg_buf + strlen (msg_buf), "Max number of spec weapons: %d  items: %d\n",(int) unique_weapons->value, (int) unique_items->value);
+			lines++;
+		}
+
+		/*
+			What can we use with the Bandolier?
+		*/
+		if (tgren->value > 0 || !(ir->value))
+		{
+			char grenade_num[32];
+			// Show the number of grenades with the Bandolier
+			if (tgren->value > 0)
+				sprintf (grenade_num, "%d grenade%s", (int) tgren->value, (int) tgren->value == 1 ? "" : "s");
+			sprintf (msg_buf + strlen (msg_buf), "Bandolier w/ %s%s%s\n", !(ir->value) ? "no IR" : "", (tgren->value > 0 && !(ir->value)) ? " & " : "", tgren->value > 0 ? grenade_num : "");
+			lines++;
+		}
+
+		/*
+			Is allitem and/or allweapon enabled?
+		*/
+    if (allitem->value || allweapon->value)
+		{
+			sprintf (msg_buf + strlen (msg_buf), "Players receive %s%s%s\n", allweapon->value ? "all weapons" : "", (allweapon->value && allitem->value) ? " & " : "", allitem->value ? "all items" : "");
+			lines++;
+		}
+
+		/*
+			Are we using limchasecam?
+		*/
+    if (limchasecam->value)
+		{
+			if ((int) limchasecam->value == 2)
+				sprintf (msg_buf + strlen (msg_buf), "Chase Cam Disallowed\n");
+			else
+				sprintf (msg_buf + strlen (msg_buf), "Chase Cam Restricted\n");
+			lines++;
+		}
+
+		/*
+			Are the dmflags set to disallow Friendly Fire?
+		*/
+    if (teamplay->value && !((int) dmflags->value & DF_NO_FRIENDLY_FIRE))
+		{
+			sprintf (msg_buf + strlen (msg_buf), "Friendly Fire Enabled\n");
+			lines++;
+		}
+
+		/*
+			Are we using Low Lag Sounds?
+		*/
+    if (llsound->value)
+		{
+			sprintf (msg_buf + strlen (msg_buf), "Low Lag Sounds Enabled\n");
+			lines++;
+		}
+
+		/*
+			Are we using any types of voting?
+		*/
+    if (use_mapvote->value || use_cvote->value || use_kickvote->value)
+		{
+			sprintf (msg_buf + strlen (msg_buf), "\nEnabled Vote Types:\n %s%s%s%s%s\n", use_mapvote->value ? "Mapvoting" : "", (use_mapvote->value && use_cvote->value) ? " & " : "", use_cvote->value ? "Configvoting" : "", ((use_mapvote->value && use_kickvote->value) || (use_cvote->value && use_kickvote->value)) ? " & " : "", use_kickvote->value ? "Kickvoting" : "");
+			lines+=3;
+		}
+
+		/*
+			Map Locations
+		*/
 		if(ml_count!=0)
 		{
 			sprintf(msg_buf + strlen(msg_buf), "\nLocation File: %s, Build: %s\n",level.mapname,ml_build);
@@ -371,102 +420,106 @@ PrintMOTD (edict_t * ent)
 			sprintf(msg_buf + strlen(msg_buf), "\nNo Locations Loaded for %s\n",level.mapname);
 			lines++;
 		}
-		//AQ2:TNG END
 
-      // Teamplay: 2 lines (one blank) for menu instructions
-      if (teamplay->value)
-	{
-	  strcat (msg_buf, "\nHit TAB to open the Team selection menu\n");
-	  lines += 2;
-	}
+    /*
+			If we're in teamplay, we want to inform people that they can open the menu with TAB
+		*/
+		if (teamplay->value)
+		{
+			strcat (msg_buf, "\nHit TAB to open the Team selection menu\n");
+			lines += 2;
+		}
 
-      /* 
-         * If actionmaps, put a blank line then the maps list
-       */
+    /* 
+			If actionmaps, put a blank line then the maps list
+    */
+    if (actionmaps->value && num_maps > 0)
+		{
+			int chars_on_line, len_mr;
 
-      // hopefully no one will run enough maps to exceed the line limit, if so, oh well... -FB
-      if (actionmaps->value && num_maps > 0)
-	{
-	  int chars_on_line, len_mr;
+			strcat (msg_buf, "\nRunning the following maps in order:\n");
+			lines += 2;
 
-	  strcat (msg_buf, "\nRunning the following maps in order:\n");
-	  lines += 2;
-	  // Igor[Rock] BEGIN
-	  if (vrot->value)
+			// Using Vote Rotation?
+			if (vrot->value)
 	    {
 	      strcat (msg_buf, "(Dynamic Rotation is enabled)\n");
 	      lines++;
 	    }
-	  if (rrot->value)
+
+			// Using Random Rotation?
+			if (rrot->value)
 	    {
 	      strcat (msg_buf, "(Random Rotation is enabled)\n");
 	      lines++;
 	    }
-	  // Igor[Rock] END
 
-	  chars_on_line = 0;
-	  for (mapnum = 0; mapnum < num_maps; mapnum++)
+			chars_on_line = 0;
+			for (mapnum = 0; mapnum < num_maps; mapnum++)
 	    {
 	      len_mr = strlen (*(map_rotation + mapnum));
 	      if ((chars_on_line + len_mr + 2) > 39)
-		{
-		  strcat (msg_buf, "\n");
-		  lines++;
-		  if (lines >= max_lines)
-		    break;
-		  chars_on_line = 0;
-		}
+				{
+					strcat (msg_buf, "\n");
+					lines++;
+					if (lines >= max_lines)
+						break;
+					chars_on_line = 0;
+				}
 	      strcat (msg_buf, *(map_rotation + mapnum));
 	      chars_on_line += len_mr;
 	      if (mapnum < (num_maps - 1))
-		{
-		  strcat (msg_buf, ", ");
-		  chars_on_line += 2;
-		}
+				{
+					strcat (msg_buf, ", ");
+					chars_on_line += 2;
+				}
 	    }
 
-	  if (lines < max_lines)
+			if (lines < max_lines)
 	    {
 	      strcat (msg_buf, "\n");
 	      lines++;
 	    }
+		}
+
+		/*
+			Inform Clients where to get the TNG Client Pak (not enabled yet)
+		*/
+
+		//      strcat (msg_buf, "Get the Client Pak from\nhttp://www.aq2tng.barrysworld.net");
+		//      lines += 2;
+		
+    if (motd_num_lines && lines < max_lines)
+		{
+			strcat (msg_buf, "\n");
+			lines++;
+		}
 	}
-// AQ2:TNG Deathwatch - We don't need this:
-//      strcat (msg_buf, "CLIENTS MUST GET THE SOUND PACK\nFROM http://aqdt.fear.net");
-//      lines += 2;
-// AQ2:TNG END
-      if (motd_num_lines && lines < max_lines)
-	{
-	  strcat (msg_buf, "\n");
-	  lines++;
-	}
-    }
 
   /* 
-   * Insert action/motd.txt contents (whole MOTD gets truncated after 30 lines)
-   */
+		Insert action/motd.txt contents (whole MOTD gets truncated after 30 lines)
+  */
 
   if (motd_num_lines)
-    {
-      if (lines < max_lines)
-	{
-	  for (i = 0; i < motd_num_lines; i++)
+  {
+		if (lines < max_lines)
+		{
+			for (i = 0; i < motd_num_lines; i++)
 	    {
-	      strcat (msg_buf, motd_lines[i]);
+				strcat (msg_buf, motd_lines[i]);
 	      strcat (msg_buf, "\n");
 	      lines++;
 	      if (lines >= max_lines)
-		break;
+					break;
 	    }
+		}
 	}
-    }
 
   gi.centerprintf (ent, msg_buf);
 }
 
 // stuffcmd: forces a player to execute a command.
-void
-stuffcmd (edict_t * ent, char *c)
+void stuffcmd (edict_t * ent, char *c)
 {
   gi.WriteByte (svc_stufftext);
   gi.WriteString (c);

@@ -3,10 +3,13 @@
 // Some of this is borrowed from Zoid's CTF (thanks Zoid)
 // -Fireblade
 //
-// $Id: a_team.c,v 1.33 2001/06/27 20:24:03 igor_rock Exp $
+// $Id: a_team.c,v 1.34 2001/06/28 14:36:40 deathwatch Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_team.c,v $
+// Revision 1.34  2001/06/28 14:36:40  deathwatch
+// Updated the Credits Menu a slight bit (added Kobra)
+//
 // Revision 1.33  2001/06/27 20:24:03  igor_rock
 // changed the matchmode scoreboard completly (did a new one)
 //
@@ -477,11 +480,11 @@ pmenu_t creditsmenu[] =
   {"(in no particular order)", PMENU_ALIGN_LEFT, NULL, NULL},
   {NULL, PMENU_ALIGN_LEFT, NULL, NULL},
   {"Clan Rock, Clan dW,", PMENU_ALIGN_LEFT, NULL, NULL},
-  {"Clan DP, Davross,", PMENU_ALIGN_LEFT, NULL, NULL},
+  {"Clan DP, Davross, Kobra,", PMENU_ALIGN_LEFT, NULL, NULL},
   {"Zarjazz, Killerbee,", PMENU_ALIGN_LEFT, NULL, NULL},
   {"Rookie[Rock], ICE-M", PMENU_ALIGN_LEFT, NULL, NULL},
   {"PG Bund[Rock], Elvis,", PMENU_ALIGN_LEFT, NULL, NULL},
-  {"Tempfile, Palmtree.", PMENU_ALIGN_LEFT, NULL, NULL},  
+  {"Tempfile, Palmtree,", PMENU_ALIGN_LEFT, NULL, NULL},  
   {NULL, PMENU_ALIGN_LEFT, NULL, NULL},
   {"Return to main menu", PMENU_ALIGN_LEFT, NULL, CreditsReturnToMain},
   {"TAB to exit menu", PMENU_ALIGN_LEFT, NULL, NULL},
