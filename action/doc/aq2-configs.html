@@ -3,9 +3,9 @@
 <html>
   <head>
     <meta name="generator" content="HTML Tidy, see www.w3.org">
-    <meta name="version" content="Version: $Id: aq2-configs.html,v 1.4 2001/06/13 08:39:13 igor_rock Exp $">
+    <meta name="version" content="Version: $Id: aq2-configs.html,v 1.5 2001/06/18 09:26:29 igor_rock Exp $">
 
-    <title>AQ2:TNG - Online Config Generator</title>
+    <title>AQ2:TNG - Online Config Generator Part I: Global Server Configuration</title>
   </head>
 
   <body bgcolor="#000000" text="#ff0000" link="#808080" vlink="#808080" alink="#808000">
@@ -13,8 +13,9 @@
       <form action="create_aq2-config.php" target="_blank">
         <table width="98%" cellspacing="2" cellpadding="2" border="0">
           <tr>
-            <td colspan="2" align="center" width="100%">
+            <td align="center" width="100%">
               <h1>AQ2:TNG Online Config Generator</h1>
+	      <h2>Part I: Global Server Config</h2>
 
               <p style="color:#FFFFFF"><b>How to use this page:</b></p>
 
@@ -23,7 +24,7 @@
           </tr>
 
           <tr>
-            <td colspan="2" align="center">
+            <td align="center">
               <table width="95%" cellspacing="2" cellpadding="2" border="2">
                 <tr>
                   <td colspan="2" align="center" width="100%">
@@ -32,47 +33,15 @@
                 </tr>
 
                 <tr>
-                  <td>Name of the config file to create</td>
+                  <td>Name of the main config file to create</td>
 
                   <td><input type="text" name="data[configname]" size="25" maxlength="40" value="action.cfg"></td>
-                </tr>
-
-                <tr>
-                  <td>Server Name</td>
-
-                  <td><input type="text" name="data[hostname]" size="25" maxlength="40" value="-= Action Quake 2 TNG =-"></td>
                 </tr>
 
                 <tr>
                   <td>rcon Password</td>
 
                   <td><input type="text" name="data[rcon_password]" size="15" maxlength="15" value="*ChangeMe*"></td>
-                </tr>
-
-                <tr>
-                  <td>DMFLAGS</td>
-
-                  <td><input type="checkbox" name="data[dmflag][0]" value="2"> No Powerups<br>
-                   <input type="checkbox" name="data[dmflag][1]" value="4"> Weapons Stay<br>
-                   <input type="checkbox" name="data[dmflag][2]" value="8"> No Falling Damage<br>
-                   <input type="checkbox" name="data[dmflag][3]" value="16"> Instant Powerups<br>
-                   <input type="checkbox" name="data[dmflag][4]" value="32"> Same Map<br>
-                   <input type="checkbox" name="data[dmflag][5]" value="64"> Teams by Skin<br>
-                   <input type="checkbox" name="data[dmflag][6]" value="128"> Teams by Model<br>
-                   <input type="checkbox" name="data[dmflag][7]" value="256"> No Friendly Fire<br>
-                   <input type="checkbox" name="data[dmflag][8]" value="512"> Spawn Farthest<br>
-                   <input type="checkbox" name="data[dmflag][9]" value="1024"> Force Respawn<br>
-                   <input type="checkbox" name="data[dmflag][10]" value="2048"> No Armor<br>
-                   <input type="checkbox" name="data[dmflag][11]" value="4096"> Allow Exit<br>
-                   <input type="checkbox" name="data[dmflag][12]" value="8192"> Infinite Ammo<br>
-                   <input type="checkbox" name="data[dmflag][13]" value="32768" checked> Fixed FOV<br>
-                   <input type="checkbox" name="data[dmflag][14]" value="16777216" checked> <i>Nitro Proxy</i>: disable the FPS boosting features<br>
-                   <input type="checkbox" name="data[dmflag][15]" value="33554432" checked> <i>Nitro Proxy</i>: disable weapon modifications<br>
-                   <input type="checkbox" name="data[dmflag][16]" value="67108864" checked> <i>Nitro Proxy</i>: silence the message commands<br>
-                   <input type="checkbox" name="data[dmflag][17]" value="134217728" checked> <i>Nitro Proxy</i>: disable skin overriding<br>
-                   <input type="checkbox" name="data[dmflag][18]" value="268435456" checked> <i>Nitro Proxy</i>: disable filters like fov/kick/blend<br>
-                   <input type="checkbox" name="data[dmflag][19]" value="536870912" checked> <i>Nitro Proxy</i>: enable the secure modified mode<br>
-                   </td>
                 </tr>
 
                 <tr>
@@ -96,32 +65,89 @@
                 </tr>
 
                 <tr>
-                  <td>Maplist Filename</td>
+                  <td>Skip Message Of The Day (MOTD)</td>
 
-                  <td><input type="text" name="data[maplistname]" size="25" maxlength="50" value="config/maplist.ini"></td>
+                  <td><select name="data[skipmotd]">
+                    <option value="0" selected>
+                      No
+                    </option>
+
+                    <option value="1">
+                      Yes
+                    </option>
+                  </select> </td>
                 </tr>
 
                 <tr>
-                  <td>INI Filename</td>
+                  <td>Time to display MOTD</td>
 
-                  <td><input type="text" name="data[ininame]" size="25" maxlength="40" value="config/action.ini"></td>
+                  <td><input type="text" name="data[motd_time]" size="2" maxlength="2" value="2"></td>
                 </tr>
 
                 <tr>
-                  <td>Max. # of clients</td>
+                  <td>Timeout for idle people until kicked</td>
 
-                  <td><input type="text" name="data[maxclients]" size="4" maxlength="4" value="12"></td>
+                  <td><input type="text" name="data[ppl_idletime]" size="2" maxlength="2" value="15"></td>
                 </tr>
+
+                <tr>
+                  <td>Check time (cheats)</td>
+
+                  <td><input type="text" name="data[check_time]" size="2" maxlength="2" value="3"></td>
+                </tr>
+
+                <tr>
+                  <td>Enable Radio Logging</td>
+
+                  <td><select name="data[radiolog]">
+                    <option value="0" selected>
+                      No
+                    </option>
+
+                    <option value="1">
+                      Yes
+                    </option>
+                  </select> </td>
+                </tr>
+
+                <tr>
+                  <td>Use voice commands</td>
+
+                  <td><select name="data[use_voice]">
+                    <option value="0">
+                      No
+                    </option>
+
+                    <option value="1" selected>
+                      Yes
+                    </option>
+                  </select> </td>
+                </tr>
+
+                <tr>
+                  <td>Allow CR/LF in say/say_team</td>
+
+                  <td><select name="data[sv_crlf]">
+                    <option value="0">
+                      No
+                    </option>
+
+                    <option value="1" selected>
+                      Yes
+                    </option>
+                  </select> </td>
+                </tr>
+
               </table>
             </td>
           </tr>
 
           <tr>
-            <td colspan="2">&nbsp;</td>
+            <td>&nbsp;</td>
           </tr>
 
           <tr>
-            <td colspan="2" align="center">
+            <td align="center">
               <table width="95%" cellspacing="2" cellpadding="2" border="2">
                 <tr>
                   <td colspan="2" align="center" width="100%">
@@ -147,11 +173,11 @@
                   <td>Use random rotation</td>
 
                   <td><select name="data[rrot]">
-                    <option value="0">
+                    <option value="0" selected>
                       No
                     </option>
 
-                    <option value="1" selected>
+                    <option value="1">
                       Yes
                     </option>
                   </select> </td>
@@ -171,176 +197,16 @@
                   </select> </td>
                 </tr>
 
-                <tr>
-                  <td>Map to start with</td>
-
-                  <td><input type="text" name="data[startmap]" size="25" maxlength="30" value="rhcity1"></td>
-                </tr>
-
               </table>
             </td>
           </tr>
 
           <tr>
-            <td colspan="2">&nbsp;</td>
+            <td>&nbsp;</td>
           </tr>
 
           <tr>
-            <td colspan="2" align="center">
-              <table width="95%" cellspacing="2" cellpadding="2" border="2">
-                <tr>
-                  <td colspan="2" align="center" width="100%">
-                    <h3>Game Mode Settings</h3>
-		    <p>For your information:
-		    <br>You can't combine CTF with 3 teams or tourney mode.
-		    <br>You can't combine tourney with 3 teams mode.
-		    <br>Selecting CTF mode will automatically select teamplay mode as well and will turn 3 teams and tourney mode off.
-                  </td>
-                </tr>
-
-                <tr>
-                  <td>Deathmatch</td>
-
-                  <td><select name="data[deathmatch]">
-                    <option value="0" selected>
-                      No
-                    </option>
-
-                    <option value="1">
-                      Yes
-                    </option>
-                  </select> </td>
-                </tr>
-
-                <tr>
-                  <td>Teamplay</td>
-
-                  <td><select name="data[teamplay]">
-                    <option value="0">
-                      No
-                    </option>
-
-                    <option value="1" selected>
-                      Yes
-                    </option>
-                  </select> </td>
-                </tr>
-
-                <tr>
-                  <td>Capture the flag mode</td>
-
-                  <td><select name="data[ctf]">
-                    <option value="0" selected>
-                      No
-                    </option>
-
-                    <option value="1">
-                      Yes
-                    </option>
-                  </select> </td>
-                </tr>
-
-                <tr>
-                  <td>Use 3 Teams mode</td>
-
-                  <td><select name="data[use_3teams]">
-                    <option value="0" selected>
-                      No
-                    </option>
-
-                    <option value="1">
-                      Yes
-                    </option>
-                  </select> </td>
-                </tr>
-
-                <tr>
-                  <td>Use tourney mode</td>
-
-                  <td><select name="data[use_tourney]">
-                    <option value="0" selected>
-                      No
-                    </option>
-
-                    <option value="1">
-                      Yes
-                    </option>
-                  </select> </td>
-                </tr>
-              </table>
-            </td>
-          </tr>
-
-          <tr>
-            <td colspan="2">&nbsp;</td>
-          </tr>
-
-          <tr>
-            <td colspan="2" align="center">
-              <table width="95%" cellspacing="2" cellpadding="2" border="2">
-                <tr>
-                  <td colspan="2" align="center" width="100%">
-                    <h3>Limits</h3>
-                  </td>
-                </tr>
-
-                <tr>
-                  <td>Fraglimit</td>
-
-                  <td><input type="text" name="data[fraglimit]" size="4" maxlength="4" value="0"></td>
-                </tr>
-
-                <tr>
-                  <td>Timelimit</td>
-
-                  <td><input type="text" name="data[timelimit]" size="4" maxlength="4" value="15"></td>
-                </tr>
-
-                <tr>
-                  <td>Roundlimit</td>
-
-                  <td><input type="text" name="data[roundlimit]" size="4" maxlength="4" value="15"></td>
-                </tr>
-
-                <tr>
-                  <td>Roundtimelimit</td>
-
-                  <td><input type="text" name="data[roundtimelimit]" size="4" maxlength="4" value="5"></td>
-                </tr>
-
-                <tr>
-                  <td>Limited Chasecam</td>
-
-                  <td><select name="data[limchasecam]">
-                    <option value="0" selected>
-                      No
-                    </option>
-
-                    <option value="1">
-                      Team only
-                    </option>
-
-                    <option value="2">
-                      Team "in eyes" only
-                    </option>
-                  </select> </td>
-                </tr>
-
-                <tr>
-                  <td>Knifelimit</td>
-
-                  <td><input type="text" name="data[knifelimit]" size="3" maxlength="3" value="40"></td>
-                </tr>
-              </table>
-            </td>
-          </tr>
-
-          <tr>
-            <td colspan="2">&nbsp;</td>
-          </tr>
-
-          <tr>
-            <td colspan="2" align="center">
+            <td align="center">
               <table width="95%" cellspacing="2" cellpadding="2" border="2">
                 <tr>
                   <td colspan="2" align="center" width="100%">
@@ -427,195 +293,11 @@
           </tr>
 
           <tr>
-            <td colspan="2">&nbsp;</td>
+            <td>&nbsp;</td>
           </tr>
 
           <tr>
-            <td colspan="2" align="center">
-              <table width="95%" cellspacing="2" cellpadding="2" border="2">
-                <tr>
-                  <td colspan="2" align="center" width="100%">
-                    <h3>Miscellaneous Game Options</h3>
-                  </td>
-                </tr>
-
-                <tr>
-                  <td>Player starts with <b>all</b> weapons (allweapon)</td>
-
-                  <td><select name="data[allweapon]">
-                    <option value="0" selected>
-                      No
-                    </option>
-
-                    <option value="1">
-                      Yes
-                    </option>
-                  </select> </td>
-                </tr>
-
-                <tr>
-                  <td>Number of unique weapons you are able to carry</td>
-
-                  <td><input type="text" name="data[weapons]" size="1" maxlength="1" value="1"></td>
-                </tr>
-
-                <tr>
-                  <td>Allowed Weapons</td>
-
-                  <td><input type="checkbox" name="data[wp_flags][0]" value="1" checked> MK23 Pistol<br>
-		   <input type="checkbox" name="data[wp_flags][1]" value="2" checked> MP5/10 Submachinegun<br>
-                   <input type="checkbox" name="data[wp_flags][2]" value="4" checked> M4 Assault Rifle<br>
-                   <input type="checkbox" name="data[wp_flags][3]" value="8" checked> M3 Super 90 Assault Shotgun<br>
-                   <input type="checkbox" name="data[wp_flags][4]" value="16" checked> Handcannon<br>
-                   <input type="checkbox" name="data[wp_flags][5]" value="32" checked> Sniper Rifle<br>
-                   <input type="checkbox" name="data[wp_flags][6]" value="64" checked> Dual MK23 Pistols<br>
-                   <input type="checkbox" name="data[wp_flags][7]" value="128" checked> Combat Knife<br>
-                   <input type="checkbox" name="data[wp_flags][8]" value="256" checked> M26 Fragmentation Grenade (only respawn, see tgren)<br>
-                   </td>
-                </tr>
-
-                <tr>
-                  <td>Player starts with <b>all</b> items (allitem)</td>
-
-                  <td><select name="data[allitem]">
-                    <option value="0" selected>
-                      No
-                    </option>
-
-                    <option value="1">
-                      Yes
-                    </option>
-                  </select> </td>
-                </tr>
-
-                <tr>
-                  <td>Number of unique items you are able to carry</td>
-
-                  <td><input type="text" name="data[items]" size="1" maxlength="1" value="1"></td>
-                </tr>
-
-                <tr>
-                  <td>Allowed Items</td>
-
-                  <td><input type="checkbox" name="data[itm_flags][0]" value="1" checked> Silencer<br>
-                   <input type="checkbox" name="data[itm_flags][1]" value="2" checked> Stealth Slippers<br>
-                   <input type="checkbox" name="data[itm_flags][2]" value="4" checked> Bandolier<br>
-                   <input type="checkbox" name="data[itm_flags][3]" value="8" checked> Kevlar Vest<br>
-                   <input type="checkbox" name="data[itm_flags][4]" value="16" checked> Lasersight<br>
-                   <input type="checkbox" name="data[itm_flags][5]" value="32" checked> Kevlar Helmet<br>
-                   </td>
-                </tr>
-
-                <tr>
-                  <td>Use Infra Red with bandolier</td>
-
-                  <td><select name="data[ir]">
-                    <option value="0">
-                      No
-                    </option>
-
-                    <option value="1" selected>
-                      Yes
-                    </option>
-                  </select> </td>
-                </tr>
-
-                <tr>
-                  <td>Number of grenades</td>
-
-                  <td><input type="text" name="data[tgren]" size="3" maxlength="3" value="1"></td>
-                </tr>
-
-                <tr>
-                  <td>Use voice commands</td>
-
-                  <td><select name="data[use_voice]">
-                    <option value="0">
-                      No
-                    </option>
-
-                    <option value="1" selected>
-                      Yes
-                    </option>
-                  </select> </td>
-                </tr>
-
-                <tr>
-                  <td>Allow CR/LF in say/say_team</td>
-
-                  <td><select name="data[sv_crlf]">
-                    <option value="0">
-                      No
-                    </option>
-
-                    <option value="1" selected>
-                      Yes
-                    </option>
-                  </select> </td>
-                </tr>
-
-                <tr>
-                  <td>Default weapon (comes with full ammo and reserve clip)</td>
-
-                  <td><select name="data[dmweapon]">
-                    <option value="Combat Knife">
-                      Combat Knife
-                    </option>
-
-                    <option value="MK23 Pistol" selected>
-                      MK23 Pistol
-                    </option>
-
-                    <option value="MP5/10 Submachinegun">
-                      MP5/10 Submachinegun
-                    </option>
-
-                    <option value="M3 Super 90 Assault Shotgun">
-                      M3 Super 90 Assault Shotgun
-                    </option>
-
-                    <option value="M4 Assault Rifle">
-                      M4 Assault Rifle
-                    </option>
-
-                    <option value="Handcannon">
-                      Handcannon
-                    </option>
-
-                    <option value="Sniper Rifle">
-                      Sniper Rifle
-                    </option>
-
-                    <option value="Dual MK23 Pistols">
-                      Dual MK23 Pistols
-                    </option>
-                  </select> </td>
-
-                <tr>
-                  <td>Single Barreled Handcannon</td>
-
-                  <td><select name="data[hc_single]">
-                    <option value="0" selected>
-                      No
-                    </option>
-
-                    <option value="1">
-                      Yes
-                    </option>
-                  </select> </td>
-                </tr>
-
-                </tr>
-              </table>
-            </td>
-          </tr>
-
-          <tr>
-            <td colspan="2">&nbsp;</td>
-          </tr>
-
-          <tr>
-            <td colspan="2" align="center">
+            <td align="center">
               <table width="95%" cellspacing="2" cellpadding="2" border="2">
                 <tr>
                   <td colspan="2" align="center" width="100%">
@@ -641,6 +323,12 @@
                   <td>Config voting parameters (minimum values)</td>
 
                   <td>If there are <input type="text" name="data[cvote_min]" size="2" maxlength="2" value="2"> players connected and <input type="text" name="data[cvote_need]" size="3" maxlength="3" value="66">% of them want to change the config, then you need <input type="text" name="data[cvote_pass]" size="3" maxlength="3" value="33">% voting for the same config to vote it.</td>
+                </tr>
+
+                <tr>
+                  <td>Name of the file for voteable configs</td>
+
+                  <td><input type="text" name="data[configlistname]" size="25" maxlength="40" value="configlist.ini"></td>
                 </tr>
 
                 <tr>
@@ -718,85 +406,93 @@
                     </option>
                   </select> be banned temporary</td>
                 </tr>
-
               </table>
             </td>
           </tr>
 
           <tr>
-            <td colspan="2">&nbsp;</td>
+            <td>&nbsp;</td>
           </tr>
  
           <tr>
-            <td colspan="2" align="center">
+            <td align="center">
               <table width="95%" cellspacing="2" cellpadding="2" border="2">
                 <tr>
                   <td colspan="2" align="center" width="100%">
-                    <h3>CTF Settings</h3>
+                    <h3>Flood Protection</h3>
                   </td>
                 </tr>
 
                 <tr>
-                  <td>Respawnmode</td>
+                  <td>Number of messages considered a flood</td>
 
-                  <td><select name="data[ctf_mode]">
-                    <option value="0" selected>
-                      Ammonition doesn't respawn
-                    </option>
-
-                    <option value="1">
-                      Ammonition respawns
-                    </option>
-                  </select> </td>
+                  <td><input type="text" name="data[flood_msgs]" size="2" maxlength="2" value="4"></td>
                 </tr>
 
                 <tr>
-                  <td>Player can drop flag</td>
+                  <td>Time for those number of messages</td>
 
-                  <td><select name="data[ctf_dropflag]">
-                    <option value="0" selected>
-                      No
-                    </option>
-
-                    <option value="1">
-                      Yes
-                    </option>
-                  </select> </td>
+                  <td><input type="text" name="data[flood_persecond]" size="2" maxlength="2" value="4"></td>
                 </tr>
 
-<!--
                 <tr>
-                  <td>Player s forced to join team on connect</td>
+                  <td>Time to block messages</td>
 
-                  <td><select name="data[ctf_forcejoin]">
-                    <option value="0" selected>
-                      No
-                    </option>
-
-                    <option value="1">
-                      Yes
-                    </option>
-                  </select> </td>
+                  <td><input type="text" name="data[flood_waitdelay]" size="2" maxlength="2" value="10"></td>
                 </tr>
--->
+
               </table>
             </td>
           </tr>
- 
+
           <tr>
-            <td colspan="2">&nbsp;</td>
+            <td>&nbsp;</td>
           </tr>
- 
+
           <tr>
-            <td colspan="2" align="center">
+            <td align="center">
               <table width="95%" cellspacing="2" cellpadding="2" border="2">
                 <tr>
-                  <td align="center"><input type="submit" name="data[action]" value="Download"> </td>
- 
-                  <td align="center"><input type="submit" name="data[action]" value="Show Config"> </td>
+                  <td colspan="2" align="center" width="100%">
+                    <h3>Teamkill Parameters</h3>
+                  </td>
                 </tr>
+
+                <tr>
+                  <td>Maximum number of teamkills</td>
+
+                  <td><input type="text" name="data[maxteamkills]" size="2" maxlength="2" value="0"></td>
+                </tr>
+
+                <tr>
+                  <td>Number of maps banned for killing teammates</td>
+
+                  <td><input type="text" name="data[tkbanrounds]" size="2" maxlength="2" value="2"></td>
+                </tr>
+
+                <tr>
+                  <td>Number of maps banned for wounding teammates</td>
+
+                  <td><input type="text" name="data[twbanrounds]" size="2" maxlength="2" value="2"></td>
+                </tr>
+
               </table>
             </td>
+          </tr>
+
+          <tr>
+            <td>&nbsp;</td>
+          </tr>
+
+          <tr>
+            <td align="center">
+              <table width="95%" cellspacing="2" cellpadding="2" border="0">
+	        <tr>
+	          <td align="center"><input type="submit" name="data[action]" value="Download"> </td>
+		  <td align="center"><input type="submit" name="data[action]" value="Show Config"> </td>
+                </tr>
+              </table>
+	    </td>
           </tr>
         </table>
       </form>
