@@ -16,10 +16,13 @@
 // you get compiler errors too, comment them out like
 // I'd done.
 //
-// $Id: a_xgame.c,v 1.17 2002/02/19 10:28:43 freud Exp $
+// $Id: a_xgame.c,v 1.18 2003/12/09 20:54:16 igor_rock Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_xgame.c,v $
+// Revision 1.18  2003/12/09 20:54:16  igor_rock
+// Say: added %M for teammate in line of sight (as %E does for enemies)
+//
 // Revision 1.17  2002/02/19 10:28:43  freud
 // Added to %D hit in the kevlar vest and kevlar helmet, also body for handcannon
 // and shotgun.
@@ -63,6 +66,8 @@
 //-----------------------------------------------------------------------------
 
 #include "g_local.h"
+
+extern edict_t *DetermineViewedTeammate (edict_t * ent); /* Defined in a_radio.c */
 
 //the whole map description
 //mapdesc_t mapdesc;
@@ -550,6 +555,22 @@ GetViewedEnemyName (edict_t * self, char *buf)
 }
 
 void
+GetViewedTeammateName (edict_t * self, char *buf)
+{
+  edict_t *the_teammate;
+
+  the_teammate = DetermineViewedTeammate (self);
+  if (the_teammate && the_teammate->client)
+    {
+      strcpy (buf, the_teammate->client->pers.netname);
+    }
+  else
+    {
+      strcpy (buf, "no teammate");
+    }
+}
+
+void
 GetViewedEnemyWeapon (edict_t * self, char *buf)
 {
   edict_t *the_enemy;
@@ -641,6 +662,12 @@ ParseSayText (edict_t * ent, char *text)
 	      continue;
 	    case 'T':
 	      GetNearbyTeammates (ent, infobuf);
+	      strcpy (pbuf, infobuf);
+	      pbuf = SeekBufEnd (pbuf);
+	      p += 2;
+	      continue;
+	    case 'M':
+	      GetViewedTeammateName (ent, infobuf);
 	      strcpy (pbuf, infobuf);
 	      pbuf = SeekBufEnd (pbuf);
 	      p += 2;
