@@ -2,7 +2,7 @@
   //-----------------------------------------------------------------------------
   // create_mode-config.php
   //-----------------------------------------------------------------------------
-  // $Id: create_mode-config.php,v 1.7 2002/02/23 18:33:02 igor_rock Exp $
+  // $Id: create_mode-config.php,v 1.8 2002/02/23 18:34:34 igor_rock Exp $
   //-----------------------------------------------------------------------------
 
   // Do some checks for illegal game modes
@@ -74,7 +74,7 @@
   print "set use_warnings $data[use_warnings]\n";
   print "set use_rewards $data[use_rewards]\n";
   print "set auto_join $data[auto_join]\n";
-  print "set auto_items $data[auto_items]\n";
+  print "set auto_equip $data[auto_equip]\n";
 
   print "\n//-----------------------------------------------------------------------------\n";
   print "// Game Mode Settings\n";
