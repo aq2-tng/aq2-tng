@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // g_cmds.c
 //
-// $Id: g_cmds.c,v 1.48 2002/01/24 02:24:56 deathwatch Exp $
+// $Id: g_cmds.c,v 1.49 2002/01/24 02:55:58 ra Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_cmds.c,v $
+// Revision 1.49  2002/01/24 02:55:58  ra
+// Fixed the mm_forceteamtalk 2 bug.
+//
 // Revision 1.48  2002/01/24 02:24:56  deathwatch
 // Major update to Stats code (thanks to Freud)
 // new cvars:
@@ -1278,8 +1281,8 @@ Cmd_Say_f (edict_t * ent, qboolean team, qboolean arg0, qboolean partner_msg)
 		}
 		else if (mm_forceteamtalk->value == 2)
 		{
-			if (!ent->client->resp.captain && !partner_msg && !isadmin
-				&& (team1ready && team2ready))
+			if (!ent->client->resp.captain && !partner_msg && !isadmin &&
+				((team1ready && team2ready) || team_round_going))
 				team = 1;
 		}
 		if (team)
