@@ -3,10 +3,13 @@
 // Some of this is borrowed from Zoid's CTF (thanks Zoid)
 // -Fireblade
 //
-// $Id: a_team.c,v 1.60 2001/11/25 19:09:25 slicerdw Exp $
+// $Id: a_team.c,v 1.61 2001/12/02 16:16:16 igor_rock Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_team.c,v $
+// Revision 1.61  2001/12/02 16:16:16  igor_rock
+// added "Actual Score" message after Round
+//
 // Revision 1.60  2001/11/25 19:09:25  slicerdw
 // Fixed Matchtime
 //
@@ -1762,6 +1765,18 @@ MakeAllLivePlayersObservers ()
     }
 }
 
+// PrintScores: Prints the actual scores on the console
+void
+PrintScores ( )
+{
+
+  if (use_3teams->value) {
+    gi.bprintf (PRINT_HIGH, "Actual Scores are %s: %d to %s: %d to %s: %d\n", TeamName (TEAM1), team1_score, TeamName (TEAM2), team2_score, TeamName (TEAM3), team3_score);
+  } else {
+    gi.bprintf (PRINT_HIGH, "Actual Scores are %s: %d to %s: %d\n", TeamName (TEAM1), team2_score, TeamName (TEAM2), team1_score);
+  }
+}
+
 // WonGame: returns true if we're exiting the level.
 int
 WonGame (int winner)
@@ -1772,9 +1787,10 @@ WonGame (int winner)
   if (winner == WINNER_TIE)
     {
       gi.bprintf (PRINT_HIGH, "It was a tie, no points awarded!\n");
-      
-			if(use_warnings->value)
-				gi.sound (&g_edicts[0], CHAN_VOICE | CHAN_NO_PHS_ADD,	gi.soundindex ("tng/no_team_wins.wav"), 1.0, ATTN_NONE, 0.0);
+
+      if(use_warnings->value)
+	gi.sound (&g_edicts[0], CHAN_VOICE | CHAN_NO_PHS_ADD,	gi.soundindex ("tng/no_team_wins.wav"), 1.0, ATTN_NONE, 0.0);
+      PrintScores ();
     }
   else
     {
@@ -1795,12 +1811,13 @@ WonGame (int winner)
 	      gi.bprintf (PRINT_HIGH, "%s won!\n", TeamName (TEAM1));
 	      // AQ:TNG Igor[Rock] changing sound dir
 	      if(use_warnings->value)
-					gi.sound (&g_edicts[0], CHAN_VOICE | CHAN_NO_PHS_ADD,	gi.soundindex ("tng/team1_wins.wav"), 1.0, ATTN_NONE,	0.0);
+		gi.sound (&g_edicts[0], CHAN_VOICE | CHAN_NO_PHS_ADD,	gi.soundindex ("tng/team1_wins.wav"), 1.0, ATTN_NONE,	0.0);
 	      // end of changing sound dir
 	      team1_score++;
 	      team1score->value = team1_score;
-//	      itoa (team1_score, team1score->string, 10);
+	      //	      itoa (team1_score, team1score->string, 10);
 	      sprintf(team1score->string, "%d", team1_score);
+	      PrintScores ();
 	    }
 	}
       else if (winner == WINNER_TEAM2)
@@ -1819,13 +1836,14 @@ WonGame (int winner)
 	    {
 	      gi.bprintf (PRINT_HIGH, "%s won!\n", TeamName (TEAM2));
 	      // AQ:TNG Igor[Rock] changing sound dir
-				if(use_warnings->value)
-					gi.sound (&g_edicts[0], CHAN_VOICE | CHAN_NO_PHS_ADD, gi.soundindex ("tng/team2_wins.wav"), 1.0, ATTN_NONE, 0.0);
+	      if(use_warnings->value)
+		gi.sound (&g_edicts[0], CHAN_VOICE | CHAN_NO_PHS_ADD, gi.soundindex ("tng/team2_wins.wav"), 1.0, ATTN_NONE, 0.0);
 	      // end of changing sound dir
 	      team2_score++;
 	      team2score->value = team2_score;
-//	      itoa (team2_score, team2score->string, 10);
+	      //	      itoa (team2_score, team2score->string, 10);
 	      sprintf(team2score->string, "%d", team2_score);
+	      PrintScores ();
 	    }
 	}
       else if (use_3teams->value)
@@ -1844,13 +1862,14 @@ WonGame (int winner)
 	    {
 	      gi.bprintf (PRINT_HIGH, "%s won!\n", TeamName (TEAM3));
 	      // AQ:TNG Igor[Rock] changing sound dir
-				if(use_warnings->value)
-					gi.sound (&g_edicts[0], CHAN_VOICE | CHAN_NO_PHS_ADD,	gi.soundindex ("tng/team3_wins.wav"), 1.0, ATTN_NONE,	0.0);
+	      if(use_warnings->value)
+		gi.sound (&g_edicts[0], CHAN_VOICE | CHAN_NO_PHS_ADD,	gi.soundindex ("tng/team3_wins.wav"), 1.0, ATTN_NONE,	0.0);
 	      // end of changing sound dir
 	      team3_score++;
 	      team3score->value = team3_score;
-//	      itoa (team3_score, team3score->string, 10);
+	      //	      itoa (team3_score, team3score->string, 10);
 	      sprintf(team3score->string, "%d", team3_score);
+	      PrintScores ();
 	    }
 	}
     }
@@ -1917,7 +1936,7 @@ WonGame (int winner)
 	}
     }
 
-//PG BUND - BEGIN
+  //PG BUND - BEGIN
   if (vCheckVote () == true)
     {
       EndDMLevel ();
@@ -1925,7 +1944,7 @@ WonGame (int winner)
       return 1;
     }
   vNewRound ();
-//PG BUND - END
+  //PG BUND - END
 
   return 0;
 }
