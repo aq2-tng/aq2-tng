@@ -3,12 +3,15 @@
 // Some of this is borrowed from Zoid's CTF (thanks Zoid)
 // -Fireblade
 //
-// $Id: a_team.c,v 1.1 2001/05/06 17:24:38 igor_rock Exp $
+// $Id: a_team.c,v 1.2 2001/05/07 20:06:45 igor_rock Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_team.c,v $
-// Revision 1.1  2001/05/06 17:24:38  igor_rock
-// Initial revision
+// Revision 1.2  2001/05/07 20:06:45  igor_rock
+// changed sound dir from sound/rock to sound/tng
+//
+// Revision 1.1.1.1  2001/05/06 17:24:38  igor_rock
+// This is the PG Bund Edition V1.25 with all stuff laying around here...
 //
 //-----------------------------------------------------------------------------
 
@@ -1219,8 +1222,10 @@ WonGame (int winner)
   if (winner == WINNER_TIE)
     {
       gi.bprintf (PRINT_HIGH, "It was a tie, no points awarded!\n");
+      // AQ:TNG Igor[Rock] changing sound dir
       gi.sound (&g_edicts[0], CHAN_VOICE | CHAN_NO_PHS_ADD,
-	      gi.soundindex ("rock/no_team_wins.wav"), 1.0, ATTN_NONE, 0.0);
+	      gi.soundindex ("tng/no_team_wins.wav"), 1.0, ATTN_NONE, 0.0);
+      // end of changing sound dir
     }
   else
     {
@@ -1238,8 +1243,10 @@ WonGame (int winner)
 	  else
 	    {
 	      gi.bprintf (PRINT_HIGH, "%s won!\n", TeamName (TEAM1));
+	      // AQ:TNG Igor[Rock] changing sound dir
 	      gi.sound (&g_edicts[0], CHAN_VOICE | CHAN_NO_PHS_ADD,
-		gi.soundindex ("rock/team1_wins.wav"), 1.0, ATTN_NONE, 0.0);
+		gi.soundindex ("tng/team1_wins.wav"), 1.0, ATTN_NONE, 0.0);
+	      // end of changing sound dir
 	      team1_score++;
 	    }
 	}
@@ -1257,8 +1264,10 @@ WonGame (int winner)
 	  else
 	    {
 	      gi.bprintf (PRINT_HIGH, "%s won!\n", TeamName (TEAM2));
+	      // AQ:TNG Igor[Rock] changing sound dir
 	      gi.sound (&g_edicts[0], CHAN_VOICE | CHAN_NO_PHS_ADD,
-		gi.soundindex ("rock/team2_wins.wav"), 1.0, ATTN_NONE, 0.0);
+			gi.soundindex ("tng/team2_wins.wav"), 1.0, ATTN_NONE, 0.0);
+	      // end of changing sound dir
 	      team2_score++;
 	    }
 	}
@@ -1276,8 +1285,10 @@ WonGame (int winner)
 	  else
 	    {
 	      gi.bprintf (PRINT_HIGH, "%s won!\n", TeamName (TEAM3));
+	      // AQ:TNG Igor[Rock] changing sound dir
 	      gi.sound (&g_edicts[0], CHAN_VOICE | CHAN_NO_PHS_ADD,
-		gi.soundindex ("rock/team3_wins.wav"), 1.0, ATTN_NONE, 0.0);
+		gi.soundindex ("tng/team3_wins.wav"), 1.0, ATTN_NONE, 0.0);
+	      // end of changing sound dir
 	      team3_score++;
 	    }
 	}
@@ -1488,13 +1499,14 @@ CheckTeamRules ()
 	      team_round_countdown = 71;
 	      return;
 	    }
+	  // AQ:TNG Igor[Rock] changing sound dir
 	  else if (current_round_length > (roundtimelimit->value - 1) * 600)
 	    {
 	      if (timewarning < 2)
 		{
 		  CenterPrintAll ("1 MINUTE LEFT...\n");
 		  gi.sound (&g_edicts[0], CHAN_VOICE | CHAN_NO_PHS_ADD,
-		  gi.soundindex ("rock/1_minute.wav"), 1.0, ATTN_NONE, 0.0);
+		  gi.soundindex ("tng/1_minute.wav"), 1.0, ATTN_NONE, 0.0);
 		  timewarning = 2;
 		}
 	    }
@@ -1504,10 +1516,11 @@ CheckTeamRules ()
 		{
 		  CenterPrintAll ("3 MINUTES LEFT...\n");
 		  gi.sound (&g_edicts[0], CHAN_VOICE | CHAN_NO_PHS_ADD,
-		  gi.soundindex ("rock/3_minutes.wav"), 1.0, ATTN_NONE, 0.0);
+		  gi.soundindex ("tng/3_minutes.wav"), 1.0, ATTN_NONE, 0.0);
 		  timewarning = 1;
 		}
 	    }
+	  // end of changing sound dir
 	}
     }
 }

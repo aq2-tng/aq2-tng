@@ -1,12 +1,15 @@
 //-----------------------------------------------------------------------------
 // g_combat.c
 //
-// $Id: g_combat.c,v 1.1 2001/05/06 17:30:50 igor_rock Exp $
+// $Id: g_combat.c,v 1.2 2001/05/07 20:06:45 igor_rock Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_combat.c,v $
-// Revision 1.1  2001/05/06 17:30:50  igor_rock
-// Initial revision
+// Revision 1.2  2001/05/07 20:06:45  igor_rock
+// changed sound dir from sound/rock to sound/tng
+//
+// Revision 1.1.1.1  2001/05/06 17:30:50  igor_rock
+// This is the PG Bund Edition V1.25 with all stuff laying around here...
 //
 //-----------------------------------------------------------------------------
 
@@ -720,14 +723,16 @@ void T_Damage (edict_t *targ, edict_t *inflictor, edict_t *attacker, vec3_t dir,
 		    {
 		      attacker->client->resp.headshots++;
 		      attacker->client->resp.hs_streak++;
+		      // AQ:TNG Igor[Rock] changing sound dir
 		      if (attacker->client->resp.hs_streak == 3)
 			{
 			  sprintf (buf, "ACCURACY %s!\n", attacker->client->pers.netname);
 			  CenterPrintAll (buf);
 			  gi.sound (&g_edicts[0], CHAN_VOICE | CHAN_NO_PHS_ADD,
-				    gi.soundindex ("rock/accuracy.wav"), 1.0, ATTN_NONE, 0.0);
+				    gi.soundindex ("tng/accuracy.wav"), 1.0, ATTN_NONE, 0.0);
 			  attacker->client->resp.hs_streak = 0;
 			}
+		      // end of changing sound dir
 		    }
 		  
 		  if ( (targ->client->pers.inventory[ITEM_INDEX(item2)])

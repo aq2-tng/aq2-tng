@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // p_client.c
 //
-// $Id: p_client.c,v 1.5 2001/05/07 02:05:36 ra Exp $
+// $Id: p_client.c,v 1.6 2001/05/07 20:06:45 igor_rock Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: p_client.c,v $
+// Revision 1.6  2001/05/07 20:06:45  igor_rock
+// changed sound dir from sound/rock to sound/tng
+//
 // Revision 1.5  2001/05/07 02:05:36  ra
 //
 //
@@ -47,20 +50,22 @@ void Add_Frag( edict_t *ent )
   if ( teamplay->value || (ent->client->resp.streak < 4) )
     {
       ent->client->resp.score++; // just 1 normal kill
+      // AQ:TNG Igor[Rock] changing sound dir
       if (ent->client->resp.streak == 4)
 	{
 	  sprintf (buf, "IMPRESSIVE %s!\n", ent->client->pers.netname);
 	  CenterPrintAll (buf);
 	  gi.sound (&g_edicts[0], CHAN_VOICE | CHAN_NO_PHS_ADD,
-		    gi.soundindex ("rock/impressive.wav"), 1.0, ATTN_NONE, 0.0);
+		    gi.soundindex ("tng/impressive.wav"), 1.0, ATTN_NONE, 0.0);
 	}
       else if ( ent->client->resp.streak == 12 )
 	{
 	  sprintf (buf, "EXCELLENT %s!\n", ent->client->pers.netname);
 	  CenterPrintAll (buf);
 	  gi.sound (&g_edicts[0], CHAN_VOICE | CHAN_NO_PHS_ADD,
-		    gi.soundindex ("rock/excellent.wav"), 1.0, ATTN_NONE, 0.0);
+		    gi.soundindex ("tng/excellent.wav"), 1.0, ATTN_NONE, 0.0);
 	}
+      // end changing sound dir
     }
   else if ( ent->client->resp.streak < 8 )
     {
@@ -94,6 +99,7 @@ void Add_Frag( edict_t *ent )
       gi.cprintf(ent, PRINT_HIGH, "Kill count: %d\n", ent->client->resp.streak );
     }
 
+  // AQ:TNG Igor[Rock] changing sound dir
   if (fraglimit->value)
     {
       if (ent->client->resp.score == fraglimit->value - 1)
@@ -102,7 +108,7 @@ void Add_Frag( edict_t *ent )
 	    {
 	      CenterPrintAll ("1 FRAG LEFT...\n");
 	      gi.sound (&g_edicts[0], CHAN_VOICE | CHAN_NO_PHS_ADD,
-			gi.soundindex ("rock/1_frag.wav"), 1.0, ATTN_NONE, 0.0);
+			gi.soundindex ("tng/1_frag.wav"), 1.0, ATTN_NONE, 0.0);
 	      fragwarning = 3;
 	    }
 	}
@@ -112,7 +118,7 @@ void Add_Frag( edict_t *ent )
 	    {
 	      CenterPrintAll ("2 FRAGS LEFT...\n");
 	      gi.sound (&g_edicts[0], CHAN_VOICE | CHAN_NO_PHS_ADD,
-			gi.soundindex ("rock/2_frags.wav"), 1.0, ATTN_NONE, 0.0);
+			gi.soundindex ("tng/2_frags.wav"), 1.0, ATTN_NONE, 0.0);
 	      fragwarning = 2;
 	    }
 	}
@@ -122,11 +128,12 @@ void Add_Frag( edict_t *ent )
 	    {
 	      CenterPrintAll ("3 FRAGS LEFT...\n");
 	      gi.sound (&g_edicts[0], CHAN_VOICE | CHAN_NO_PHS_ADD,
-			gi.soundindex ("rock/3_frags.wav"), 1.0, ATTN_NONE, 0.0);
+			gi.soundindex ("tng/3_frags.wav"), 1.0, ATTN_NONE, 0.0);
 	      fragwarning = 1;
 	    }
 	}
     }
+  // end of changing sound dir
 }
 
 void Subtract_Frag( edict_t *ent )
