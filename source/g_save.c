@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // g_save.c
 //
-// $Id: g_save.c,v 1.36 2001/09/28 13:48:34 ra Exp $
+// $Id: g_save.c,v 1.37 2001/09/28 20:45:55 ra Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_save.c,v $
+// Revision 1.37  2001/09/28 20:45:55  ra
+// Switched punching on by default
+//
 // Revision 1.36  2001/09/28 13:48:34  ra
 // I ran indent over the sources. All .c and .h files reindented.
 //
@@ -475,7 +478,7 @@ InitGame (void)
   team2score = gi.cvar ("team2score", "0", CVAR_SERVERINFO);
   team3score = gi.cvar ("team3score", "0", CVAR_SERVERINFO);
 
-  use_punch = gi.cvar ("use_punch", "0", 0);
+  use_punch = gi.cvar ("use_punch", "1", 0);
 
   radio_max = gi.cvar ("radio_max", "4", 0);
   radio_time = gi.cvar ("radio_time", "2", 0);
