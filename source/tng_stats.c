@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // Statistics Related Code
 //
-// $Id: tng_stats.c,v 1.18 2002/02/03 01:07:28 freud Exp $
+// $Id: tng_stats.c,v 1.19 2002/02/05 09:27:17 freud Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: tng_stats.c,v $
+// Revision 1.19  2002/02/05 09:27:17  freud
+// Weapon name changes and better alignment in "stats list"
+//
 // Revision 1.18  2002/02/03 01:07:28  freud
 // more fixes with stats
 //
@@ -37,7 +40,6 @@ void Cmd_Stats_f (edict_t *targetent, char *arg)
 	
   double	perc_hit;
   int		total, hits, i, x, y;
-  char		weap_str[32];
   char		str_perc_hit[10], str_shots_h[10], str_shots_t[10], str_headshots[10];
   char		str_chestshots[10], str_stomachshots[10], str_legshots[10], argument[10];
   char		stathead[50], str_playerid[32], playername[32], current_weapon[64];
@@ -96,7 +98,7 @@ void Cmd_Stats_f (edict_t *targetent, char *arg)
 
 				gi.cprintf (targetent, PRINT_HIGH, "   %s %s %s\n", str_playerid, playername, str_perc_hit);
 			}
-			gi.cprintf (targetent, PRINT_HIGH, "  Use \"stats <PlayerID>\" for individual stats\n\nŸ\n\n");
+			gi.cprintf (targetent, PRINT_HIGH, "\n  Use \"stats <PlayerID>\" for\n  individual stats\nŸ\n\n");
 			return;
 		}
 		i = atoi (arg);
@@ -117,43 +119,39 @@ void Cmd_Stats_f (edict_t *targetent, char *arg)
 			total += ent->client->resp.stats_shots[y];
 		}
 
-		sprintf(stathead, "\nŸ Statistics for %s ", ent->client->pers.netname);
-		for (i = 0; i + strlen(ent->client->pers.netname) < 19; i++) {
+		sprintf(stathead, "\nŸ Statistics for %s ", ent->client->pers.netname);
+		for (i = 0; i + strlen(ent->client->pers.netname) < 20; i++) {
 			sprintf(stathead, "%s", stathead);
 		}
 		sprintf(stathead, "%sŸ\n", stathead);
 		gi.cprintf (targetent, PRINT_HIGH, "%s", stathead);
 
 		if (total != 0) {
-			gi.cprintf (targetent, PRINT_HIGH, "Weapon           Accuracy Hits/Shots  Headshots\n");		
+			gi.cprintf (targetent, PRINT_HIGH, "Weapon             Accuracy Hits/Shots  Headshots\n");		
 
 			for (y = 0; y < 100 ; y++) {
 
 				if (y == MOD_MK23)
-					sprintf(current_weapon, MK23_NAME);
+					sprintf(current_weapon, "Pistol            ");
 				else if (y == MOD_DUAL)
-					sprintf(current_weapon, DUAL_NAME);
+					sprintf(current_weapon, "Dual Pistols      ");
 				else if (y == MOD_KNIFE)
-					sprintf(current_weapon, KNIFE_NAME);
+					sprintf(current_weapon, "Knife             ");
 				else if (y == MOD_KNIFE_THROWN)
-					sprintf(current_weapon, "Thrown %s", KNIFE_NAME);
+					sprintf(current_weapon, "Thrown Knife      ");
 				else if (y == MOD_M4)
-					sprintf(current_weapon, M4_NAME);
+					sprintf(current_weapon, "M4 Assault Riffle ");
 				else if (y == MOD_MP5)
-					sprintf(current_weapon, MP5_NAME);
+					sprintf(current_weapon, "MP5 Submachinegun ");
 				else if (y == MOD_SNIPER)
-					sprintf(current_weapon, SNIPER_NAME);
+					sprintf(current_weapon, "Sniper Riffle     ");
 				else if (y == MOD_HC)
-					sprintf(current_weapon, HC_NAME);
+					sprintf(current_weapon, "Handcannon        ");
 				else if (y == MOD_M3)
-					sprintf(current_weapon, M3_NAME);
+					sprintf(current_weapon, "M3 Shotgun        ");
 				else
-					sprintf(current_weapon, "Unknown Weapon");
+					sprintf(current_weapon, "Unknown Weapon    ");
 				
-				sprintf(weap_str, current_weapon);
-                                for (x = 0; (x + strlen(current_weapon)) < 28; x++) {
-                                        sprintf(weap_str, "%s ", weap_str);
-                                }
 
 				if (ent->client->resp.stats_shots[y] > 0) {
 					perc_hit = (((double) ent->client->resp.stats_hits[y] /
@@ -191,14 +189,14 @@ void Cmd_Stats_f (edict_t *targetent, char *arg)
 						sprintf(str_shots_t, "%i    ", ent->client->resp.stats_shots[y]);
 					}
 			
-      					gi.cprintf(targetent, PRINT_HIGH, "%s %s  %s/%s    %i\n", weap_str, str_perc_hit, str_shots_h, str_shots_t, ent->client->resp.stats_headshot[y]); 
+      					gi.cprintf(targetent, PRINT_HIGH, "%s %s  %s/%s    %i\n", current_weapon, str_perc_hit, str_shots_h, str_shots_t, ent->client->resp.stats_headshot[y]); 
 				}
 			}
     		} else {
 			gi.cprintf (targetent, PRINT_HIGH, "\n  Player has not fired a shot.\n");
 		}
 	
-  gi.cprintf (targetent, PRINT_HIGH, "\nŸ\n");
+  gi.cprintf (targetent, PRINT_HIGH, "\nŸ\n");
 	
 	
 	// Final Part
@@ -306,7 +304,7 @@ void Cmd_Stats_f (edict_t *targetent, char *arg)
 		
 		sprintf(str_perc_hit, "%.2f", perc_hit);
 		gi.cprintf (targetent, PRINT_HIGH, "Average Accuracy:                      %s\n", str_perc_hit); // Average
-    gi.cprintf (targetent, PRINT_HIGH, "\nŸ\n\n");
+    gi.cprintf (targetent, PRINT_HIGH, "\nŸ\n\n");
 	}
 }
 
