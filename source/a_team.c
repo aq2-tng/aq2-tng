@@ -3,10 +3,13 @@
 // Some of this is borrowed from Zoid's CTF (thanks Zoid)
 // -Fireblade
 //
-// $Id: a_team.c,v 1.40 2001/07/28 19:30:05 deathwatch Exp $
+// $Id: a_team.c,v 1.41 2001/07/30 10:17:59 igor_rock Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_team.c,v $
+// Revision 1.41  2001/07/30 10:17:59  igor_rock
+// added some parenthesis in the 3 minutes warning clause
+//
 // Revision 1.40  2001/07/28 19:30:05  deathwatch
 // Fixed the choose command (replaced weapon for item when it was working with items)
 // and fixed some tabs on other documents to make it more readable
@@ -2049,7 +2052,7 @@ CheckTeamRules ()
 		  timewarning = 2;
 		}
 	    }
-	  else if (current_round_length > (roundtimelimit->value - 3) * 600 && use_warnings->value && roundtimelimit->value >= 3)
+	  else if ((current_round_length > (roundtimelimit->value - 3) * 600) && use_warnings->value && (roundtimelimit->value >= 3))
 	    {
 	      if (timewarning < 1)
 		{
