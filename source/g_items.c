@@ -1,10 +1,15 @@
 //-----------------------------------------------------------------------------
 // g_itmes.c
 //
-// $Id: g_items.c,v 1.7 2001/09/28 13:48:34 ra Exp $
+// $Id: g_items.c,v 1.8 2002/03/27 15:16:56 freud Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_items.c,v $
+// Revision 1.8  2002/03/27 15:16:56  freud
+// Original 1.52 spawn code implemented for use_newspawns 0.
+// Teamplay, when dropping bandolier, your drop the grenades.
+// Teamplay, cannot pick up grenades unless wearing bandolier.
+//
 // Revision 1.7  2001/09/28 13:48:34  ra
 // I ran indent over the sources. All .c and .h files reindented.
 //
@@ -321,9 +326,11 @@ Drop_Special (edict_t * ent, gitem_t * item)
 	ent->client->pers.inventory[ITEM_INDEX (FindItem ("M4 Clip"))] = 1;
 
       ent->client->grenade_max = 2;
-      if (ent->client->pers.inventory[ITEM_INDEX (FindItem (GRENADE_NAME))] >
+      if (!teamplay->value && ent->client->pers.inventory[ITEM_INDEX (FindItem (GRENADE_NAME))] >
 	  2)
 	ent->client->pers.inventory[ITEM_INDEX (FindItem (GRENADE_NAME))] = 2;
+      else if (teamplay->value)
+	ent->client->pers.inventory[ITEM_INDEX (FindItem (GRENADE_NAME))] = 0;
 
       ent->client->pers.max_rockets = 2;
       if (ent->client->pers.

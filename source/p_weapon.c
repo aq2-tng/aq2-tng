@@ -1,10 +1,15 @@
 //-----------------------------------------------------------------------------
 // g_weapon.c
 //
-// $Id: p_weapon.c,v 1.17 2002/02/01 17:49:56 freud Exp $
+// $Id: p_weapon.c,v 1.18 2002/03/27 15:16:56 freud Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: p_weapon.c,v $
+// Revision 1.18  2002/03/27 15:16:56  freud
+// Original 1.52 spawn code implemented for use_newspawns 0.
+// Teamplay, when dropping bandolier, your drop the grenades.
+// Teamplay, cannot pick up grenades unless wearing bandolier.
+//
 // Revision 1.17  2002/02/01 17:49:56  freud
 // Heavy changes in stats code. Removed lots of variables and replaced them
 // with int arrays of MODs. This cleaned tng_stats.c up a whole lots and
@@ -454,9 +459,11 @@ Pickup_Weapon (edict_t * ent, edict_t * other)
     }
   else if (stricmp (ent->item->pickup_name, GRENADE_NAME) == 0)
     {
-
-      if (other->client->pers.inventory[index] < other->client->grenade_max)
-	{
+      if (teamplay->value && !other->client->pers.inventory[ITEM_INDEX (FindItem (BAND_NAME))]) {
+		return false;
+      } 
+      else if (other->client->pers.inventory[index] < other->client->grenade_max)
+      {
 	  other->client->pers.inventory[index]++;
 	  if (!(ent->spawnflags & DROPPED_PLAYER_ITEM)
 	      && !(ent->spawnflags & DROPPED_ITEM))

@@ -1,10 +1,15 @@
 //-----------------------------------------------------------------------------
 //
 //
-// $Id: g_main.c,v 1.62 2002/03/25 23:35:19 freud Exp $
+// $Id: g_main.c,v 1.63 2002/03/27 15:16:56 freud Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_main.c,v $
+// Revision 1.63  2002/03/27 15:16:56  freud
+// Original 1.52 spawn code implemented for use_newspawns 0.
+// Teamplay, when dropping bandolier, your drop the grenades.
+// Teamplay, cannot pick up grenades unless wearing bandolier.
+//
 // Revision 1.62  2002/03/25 23:35:19  freud
 // Ghost code, use_ghosts and more stuff..
 //
@@ -226,9 +231,6 @@
 
 #include <time.h>
 #include "g_local.h"
-
-extern int num_used_spawns;
-extern int teamplay_usedspawns[];
 
 game_locals_t game;
 level_locals_t level;
@@ -534,11 +536,6 @@ void EndDMLevel (void)
   (void) strftime (ltm, 64, "%A %d %B %H:%M:%S", now);
   gi.bprintf (PRINT_HIGH, "Game ending at: %s\n", ltm);
 
-  if(teamplay->value) {
-	num_used_spawns = 0;
-	teamplay_usedspawns[0] = 0;
-  }
-  //JBravo[QNI] END
 
   // stay on same level flag
   if ((int) dmflags->value & DF_SAME_LEVEL)

@@ -3,10 +3,15 @@
 // Some of this is borrowed from Zoid's CTF (thanks Zoid)
 // -Fireblade
 //
-// $Id: a_team.c,v 1.81 2002/03/26 21:49:01 ra Exp $
+// $Id: a_team.c,v 1.82 2002/03/27 15:16:56 freud Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_team.c,v $
+// Revision 1.82  2002/03/27 15:16:56  freud
+// Original 1.52 spawn code implemented for use_newspawns 0.
+// Teamplay, when dropping bandolier, your drop the grenades.
+// Teamplay, cannot pick up grenades unless wearing bandolier.
+//
 // Revision 1.81  2002/03/26 21:49:01  ra
 // Bufferoverflow fixes
 //
@@ -301,9 +306,7 @@ int team3_total = 0;
 
 edict_t *potential_spawns[MAX_SPAWNS];
 int num_potential_spawns;
-int num_used_spawns = 0;
 edict_t *teamplay_spawns[MAX_TEAMS];
-int teamplay_usedspawns[MAX_SPAWNS];
 trace_t trace_t_temp;		// used by our trace replace macro in ax_team.h
 
 int num_teams = 3;		// teams in current game, fixed at 2 for now...
@@ -1720,7 +1723,7 @@ SpawnPlayers ()
   int i;
   edict_t *ent;
 
-  if (!use_3teams->value && use_newspawns->value) {
+  if (use_newspawns->value) {
 	NS_SetupTeamSpawnPoints ();
   } else {
 	GetSpawnPoints ();
@@ -3363,17 +3366,6 @@ SelectRandomTeamplaySpawnPoint (int team, qboolean teams_assigned[])
   i = 0;
   ok = false;
 
-  if (teamplay->value && (num_used_spawns == num_potential_spawns)) {
-		num_used_spawns = 0;
-		teamplay_usedspawns[0] = 0;
-  }
-
-  do {
-		spawn_point = newrand (num_potential_spawns);
-  } while(CheckTeamSpawnPoints(spawn_point));
-
-  teamplay_usedspawns[num_used_spawns] = spawn_point;
-  num_used_spawns++;
 
   while ((ok == false) && (i < test_teams))
     {
@@ -3421,7 +3413,7 @@ void
 SelectFarTeamplaySpawnPoint (int team, qboolean teams_assigned[])
 {
   int x, y, spawn_to_use, preferred_spawn_points, num_already_used,
-    total_good_spawn_points, test_teams;
+	total_good_spawn_points, test_teams;
   float closest_spawn_distance, distance;
   spawn_distances_t *spawn_distances;
 
@@ -3506,8 +3498,7 @@ void
 SetupTeamSpawnPoints ()
 {
   qboolean teams_assigned[MAX_TEAMS];
-//  int started_at, l, firstassignment;
-  int l;
+  int started_at, l, firstassignment;
 
   for (l = 0; l < num_teams; l++)
     {
@@ -3515,48 +3506,30 @@ SetupTeamSpawnPoints ()
       teams_assigned[l] = false;
     }
 
-  SelectRandomTeamplaySpawnPoint (0, teams_assigned);
-  SelectFarTeamplaySpawnPoint (1, teams_assigned);
-  if(use_3teams->value)
-	SelectFarTeamplaySpawnPoint (2, teams_assigned);
-
-/*  started_at = l = newrand (num_teams);
+  started_at = l = newrand(num_teams);
   firstassignment = 1;
   do
-    {
-      if (l < 0 || l >= MAX_TEAMS)
+  {
+	if (l < 0 || l >= MAX_TEAMS)
 	{
-	  gi.dprintf ("Warning: attempt to setup spawns for out-of-range team (%d)\n", l);
+		gi.dprintf("Warning: attempt to setup spawns for out-of-range team (%d)\n", l);
 	}
 
-      if (firstassignment)
+	if (firstassignment)
 	{
-	  SelectRandomTeamplaySpawnPoint (l, teams_assigned);
-	  firstassignment = 0;
+		SelectRandomTeamplaySpawnPoint(l, teams_assigned);
+		firstassignment = 0;
 	}
-      else
+	else
 	{
-	  SelectFarTeamplaySpawnPoint (l, teams_assigned);
+		SelectFarTeamplaySpawnPoint(l, teams_assigned);
 	}
-      l++;
-      if (l == num_teams)
-	l = 0;
-    }
-  while (l != started_at); */
+	l++;
+	if (l == num_teams)
+		l = 0;
+  } while (l != started_at);
 }
 
-int
-CheckTeamSpawnPoints (int dapoint)
-{
-  int x = 0;
-
-  for (x = 0; x < num_used_spawns; x++)
-    {
-	if (dapoint == teamplay_usedspawns[x])
-		return 1;
-    }
-  return 0;
-}
 
 // TNG:Freud New Spawning system
 // NS_GetSpawnPoints:

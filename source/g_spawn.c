@@ -1,10 +1,15 @@
 //-----------------------------------------------------------------------------
 // g_spawn.c
 //
-// $Id: g_spawn.c,v 1.35 2002/03/25 23:35:19 freud Exp $
+// $Id: g_spawn.c,v 1.36 2002/03/27 15:16:56 freud Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_spawn.c,v $
+// Revision 1.36  2002/03/27 15:16:56  freud
+// Original 1.52 spawn code implemented for use_newspawns 0.
+// Teamplay, when dropping bandolier, your drop the grenades.
+// Teamplay, cannot pick up grenades unless wearing bandolier.
+//
 // Revision 1.35  2002/03/25 23:35:19  freud
 // Ghost code, use_ghosts and more stuff..
 //
@@ -830,11 +835,20 @@ SpawnEntities (char *mapname, char *entities, char *spawnpoint)
 	  use_tourney->value = 0;
 	  strcpy (use_tourney->string, "0");
 	}
-      if (use_3teams->value)
+      if (!((int) (dmflags->value) & DF_NO_FRIENDLY_FIRE))
+	{
+	  gi.dprintf ("CTF Enabled - Forcing Friendly Fire off\n");
+	  i = (int) dmflags->value;
+	  i |= DF_NO_FRIENDLY_FIRE;
+	  dmflags->value = (float) i;
+	  sprintf (dmflags->string, "%d", (int) dmflags->value);
+	}
+     }
+   if (use_3teams->value)
 	{
 	  if (!teamplay->value)
 	    {
-	      gi.dprintf ("3TEAMS Enabled - Forcing teamplay on\n");
+	      gi.dprintf ("3 Teams Enabled - Forcing teamplay on\n");
 	      teamplay->value = 1;
 	      strcpy (teamplay->string, "1");
 	    }
@@ -843,6 +857,12 @@ SpawnEntities (char *mapname, char *entities, char *spawnpoint)
 	      gi.dprintf ("3 Teams Enabled - Forcing Tourney off\n");
 	      use_tourney->value = 0;
 	      strcpy (use_tourney->string, "0");
+	    }
+	  if (use_newspawns->value)
+	    {
+		gi.dprintf ("3 Teams Enabled - Forcing use_newspawns off\n");
+		use_newspawns->value = 0;
+		strcpy (use_newspawns->string, "0");
 	    }
 
 	}
@@ -856,15 +876,6 @@ SpawnEntities (char *mapname, char *entities, char *spawnpoint)
 	    }
 
 	}
-      if (!((int) (dmflags->value) & DF_NO_FRIENDLY_FIRE))
-	{
-	  gi.dprintf ("CTF Enabled - Forcing Friendly Fire off\n");
-	  i = (int) dmflags->value;
-	  i |= DF_NO_FRIENDLY_FIRE;
-	  dmflags->value = (float) i;
-	  sprintf (dmflags->string, "%d", (int) dmflags->value);
-	}
-    }
 
   skill_level = floor (skill->value);
   if (skill_level < 0)
@@ -973,7 +984,7 @@ SpawnEntities (char *mapname, char *entities, char *spawnpoint)
   	num_ghost_players = 0;
 
   //TNG:Freud - New spawning system
-  if (teamplay->value && use_newspawns->value && !use_3teams->value)
+  if (teamplay->value && use_newspawns->value)
 	NS_GetSpawnPoints();
 
   //FIREBLADE
