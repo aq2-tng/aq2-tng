@@ -3,7 +3,7 @@
  * (c) 2001 by Stefan Giesen aka Igor[Rock]
  * All rights reserved
  *
- * $Id: tngbot.c,v 1.3 2001/11/29 18:43:16 igor_rock Exp $
+ * $Id: tngbot.c,v 1.4 2001/11/30 19:27:33 igor_rock Exp $
  *
  *----------------------------------------------------------------------------
  * Usage: tngbot <ircserver>[:port] <channelname> <nickname>
@@ -35,6 +35,12 @@
  *
  *----------------------------------------------------------------------------
  * $Log: tngbot.c,v $
+ * Revision 1.4  2001/11/30 19:27:33  igor_rock
+ * - added password to get op from the bot (with "/msg botname op password")
+ * - the bot sets the +m flag so other people can't talk in the channel (which
+ *   would maybe cause lag on the game server itself, since the bot runs on the
+ *   gameserver)
+ *
  * Revision 1.3  2001/11/29 18:43:16  igor_rock
  * added new format 'V' ("nickname FIXED_TEXT variable_text")
  *
@@ -81,11 +87,11 @@ char   colorfile[] = "tngbot.col";
 char   ircserver[BUFLEN];
 char   channel[BUFLEN];
 char   nickname[BUFLEN];
+char   password[BUFLEN];
 char  *txtbuffer;
 char **filtertxt;
 int    filteranz;
 int    port;
-
 
 int get_colorfile ( )
 {
@@ -153,73 +159,6 @@ void colorize (char *inbuf, char *outbuf)
   
   bzero (outbuf, BUFLEN);
   
-  for (i = 0; i < filteranz; i++ ) {
-    if ((cp = strstr (inbuf, &filtertxt[i][1])) != NULL) {
-      found = (int) (cp - inbuf);
-
-      switch (filtertxt[i][0]) {
-      case 'K':			/* Kill */
-	sprintf (outbuf, "%c%s", 0x03, BLUE);
-	for (from = 0, to = strlen(outbuf); from < found; from++, to++) {
-	  outbuf[to] = inbuf[from];
-	}
-	sprintf (&outbuf[to], "%c%s%s%c%s", 0x03, GREY, &filtertxt[i][1], 0x03, BLUE);
-	from += strlen (&filtertxt[i][1]);
-	to = strlen(outbuf);
-	if (inbuf[from] == ' ') {
-	  outbuf[to++] = ' ';
-	  outbuf[to] = 0;
-	  from++;
-	}
-	while ((inbuf[from] != ' ') && inbuf[from]){
-	  outbuf[to++] = inbuf[from++];
-	}
-	sprintf (&outbuf[to], "%c%s%s", 0x03, GREY, &inbuf[from]);
-	done = 1;
-	break;
-
-      case 'D':			/* Own Death */
-	sprintf (outbuf, "%c%s", 0x03, BLUE);
-	for (from = 0, to = strlen(outbuf); from < found; from++, to++) {
-	  outbuf[to] = inbuf[from];
-	}
-	sprintf (&outbuf[to], "%c%s%s\n", 0x03, GREY, &filtertxt[i][1]);
-	done = 1;
-	break;
-
-      case 'V':			/* Vote related */
-	sprintf (outbuf, "%c%s", 0x03, BLUE);
-	for (from = 0, to = strlen(outbuf); from < found; from++, to++) {
-	  outbuf[to] = inbuf[from];
-	}
-	sprintf (&outbuf[to], "%c%s%s\n", 0x03, GREY, &inbuf[from]);
-	done = 1;
-	break;
-
-      case 'G':
-	sprintf (outbuf, "%c%s%s%c%s\n", 0x03, RED, inbuf, 0x03, GREY);
-	done = 1;
-	break;
-
-      case 'S':
-	sprintf (outbuf, "%c%s%s%c%s\n", 0x03, ORANGE, inbuf, 0x03, GREY);
-	done = 1;
-	break;
-
-      case '-':
-	done = 1;
-	break;
-
-      default:
-	strncpy (outbuf, inbuf, strlen(inbuf));
-	done = 1;
-	break;
-      }
-
-      i = filteranz;
-    }
-  }
-  
   if (! done) {
     for (i = 0; (i < strlen (inbuf)) && (inbuf[i] != ' '); i++)
       ;
@@ -231,6 +170,75 @@ void colorize (char *inbuf, char *outbuf)
     }
   }
 
+  if (!done) {
+    for (i = 0; i < filteranz; i++ ) {
+      if ((cp = strstr (inbuf, &filtertxt[i][1])) != NULL) {
+	found = (int) (cp - inbuf);
+
+	switch (filtertxt[i][0]) {
+	case 'K':			/* Kill */
+	  sprintf (outbuf, "%c%s", 0x03, BLUE);
+	  for (from = 0, to = strlen(outbuf); from < found; from++, to++) {
+	    outbuf[to] = inbuf[from];
+	  }
+	  sprintf (&outbuf[to], "%c%s%s%c%s", 0x03, GREY, &filtertxt[i][1], 0x03, BLUE);
+	  from += strlen (&filtertxt[i][1]);
+	  to = strlen(outbuf);
+	  if (inbuf[from] == ' ') {
+	    outbuf[to++] = ' ';
+	    outbuf[to] = 0;
+	    from++;
+	  }
+	  while ((inbuf[from] != ' ') && inbuf[from]){
+	    outbuf[to++] = inbuf[from++];
+	  }
+	  sprintf (&outbuf[to], "%c%s%s", 0x03, GREY, &inbuf[from]);
+	  done = 1;
+	  break;
+
+	case 'D':			/* Own Death */
+	  sprintf (outbuf, "%c%s", 0x03, BLUE);
+	  for (from = 0, to = strlen(outbuf); from < found; from++, to++) {
+	    outbuf[to] = inbuf[from];
+	  }
+	  sprintf (&outbuf[to], "%c%s%s\n", 0x03, GREY, &filtertxt[i][1]);
+	  done = 1;
+	  break;
+
+	case 'V':			/* Vote related */
+	  sprintf (outbuf, "%c%s", 0x03, BLUE);
+	  for (from = 0, to = strlen(outbuf); from < found; from++, to++) {
+	    outbuf[to] = inbuf[from];
+	  }
+	  sprintf (&outbuf[to], "%c%s%s\n", 0x03, GREY, &inbuf[from]);
+	  done = 1;
+	  break;
+
+	case 'G':
+	  sprintf (outbuf, "%c%s%s%c%s\n", 0x03, RED, inbuf, 0x03, GREY);
+	  done = 1;
+	  break;
+
+	case 'S':
+	  sprintf (outbuf, "%c%s%s%c%s\n", 0x03, ORANGE, inbuf, 0x03, GREY);
+	  done = 1;
+	  break;
+
+	case '-':
+	  done = 1;
+	  break;
+
+	default:
+	  strncpy (outbuf, inbuf, strlen(inbuf));
+	  done = 1;
+	  break;
+	}
+
+	i = filteranz;
+      }
+    }
+  }
+  
   if (! done) {
     strncpy (outbuf, inbuf, strlen(inbuf));
   }
@@ -280,7 +288,55 @@ int do_irc_reg( )
   printf ("Joining #%s\n", channel);
   write(sock, outbuf, strlen(outbuf));
 
+  sprintf (outbuf, "mode #%s +m\n", channel);
+  write (sock, outbuf, strlen(outbuf));
+
   return (1);
+}
+
+
+void parse_input (char *inbuf)
+{
+  int  pos1;
+  int  pos2;
+  char von[BUFLEN];
+  char outbuf[BUFLEN];
+
+  if ((inbuf[0] == ':') && (strstr(inbuf, "PRIVMSG") != NULL)) {
+    for (pos1 = 1, pos2 = 0; (inbuf[pos1] != ' ') && (pos1 < strlen(inbuf)); pos1++, pos2++) {
+      von[pos2] = inbuf[pos1];
+    }
+    von[pos2] = 0;
+    if (pos1 < strlen(inbuf)) {
+      if (strstr (von, "!") != NULL) {
+	/* user message */
+	for (pos2 = 0; (pos2 < strlen(von)) && (von[pos2] != '!'); pos2++)
+	  ;
+	von[pos2] = 0;
+	pos1 += strlen (" PRIVMSG ");
+
+	if (strncmp (&inbuf[pos1], nickname, strlen(nickname)) == 0) {
+	  /* private message */
+	  pos1 += strlen(nickname);
+	  pos1 += strlen (" :");
+	  if (strncmp (&inbuf[pos1], "op ", 2) == 0) {
+	    pos1 += 3;
+	    if (strncmp (&inbuf[pos1], password, strlen (password)) == 0) {
+	      sprintf (outbuf, "MODE #%s +o %s\n", channel, von);
+	      write (sock, outbuf, strlen(outbuf));
+	    }
+	  }
+	} else {
+	  /* public message, we ignore it */
+	}
+      } else {
+	/* server message */
+	/* we ignore these in the moment */
+      }
+    }
+  } else {
+    printf ("%s\n", inbuf);
+  }
 }
 
 
@@ -343,6 +399,8 @@ void irc_loop ( )
 	printf ("Ping - Pong\n");
 	sprintf(outbuf, "pong %s\n\r", &inbuf[6]);
 	write(sock, outbuf, strlen(outbuf));
+      } else if (password[0]) {
+	parse_input (inbuf);
       }
       bzero(inbuf,  sizeof(inbuf));
       bzero(outbuf, sizeof(outbuf));
@@ -367,12 +425,13 @@ void main(int argc, char *argv[])
   fprintf (stderr, "AQ2 TNG IRC Bot v0.1 by Igor[Rock]\n");
   fprintf (stderr, "EMail: igor@rock-clan.de\n");
 
-  if (argc != 4) {
-    fprintf (stderr, "Usage: tngbot <ircserver>[:port] <channelname> <nickname>\n");
+  if (argc < 4) {
+    fprintf (stderr, "Usage: tngbot <ircserver>[:port] <channelname> <nickname> [password]\n");
     fprintf (stderr, "<ircserver> - Name or IP address of IRC server\n");
     fprintf (stderr, "[:port]     - Port for the IRC server\n");
     fprintf (stderr, "<channel>   - Channel to join (without leading '#')\n");
-    fprintf (stderr, "<nickname>  - Bot Nickname\n\n");
+    fprintf (stderr, "<nickname>  - Bot Nickname\n");
+    fprintf (stderr, "[password]  - OP-password for IRC\n\n");
     exit (1);
   }
 
@@ -381,6 +440,11 @@ void main(int argc, char *argv[])
   strncpy (ircserver, argv[1], BUFLEN);
   strncpy (channel,   argv[2], BUFLEN);
   strncpy (nickname,  argv[3], BUFLEN);
+  if (argc == 5) {
+    strncpy (password, argv[4], BUFLEN);
+  } else {
+    password[0] = 0;
+  }
 
   port = htons (IRC_PORT);
 
