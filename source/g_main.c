@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 //
 //
-// $Id: g_main.c,v 1.53 2002/02/17 20:10:09 freud Exp $
+// $Id: g_main.c,v 1.54 2002/02/18 19:44:45 freud Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_main.c,v $
+// Revision 1.54  2002/02/18 19:44:45  freud
+// Fixed the teamskin/teamname bug after softmap/map_restart
+//
 // Revision 1.53  2002/02/17 20:10:09  freud
 // Better naming of auto_items is auto_equip, requested by Deathwatch.
 //
@@ -544,6 +547,8 @@ void EndDMLevel (void)
     //Igor[Rock] BEGIN
     if (dosoft==1)
     {
+	team_round_going = 0;
+	team_game_going = 0;
 			dosoft=0;
       ent = G_Spawn ();
       nextmapname = ent->map = level.nextmap;
