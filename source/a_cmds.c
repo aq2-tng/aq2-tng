@@ -4,10 +4,13 @@
 //
 // laser sight patch, by Geza Beladi
 //
-// $Id: a_cmds.c,v 1.5 2001/05/31 16:58:14 igor_rock Exp $
+// $Id: a_cmds.c,v 1.6 2001/07/16 19:02:06 ra Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_cmds.c,v $
+// Revision 1.6  2001/07/16 19:02:06  ra
+// Fixed compilerwarnings (-g -Wall).  Only one remains.
+//
 // Revision 1.5  2001/05/31 16:58:14  igor_rock
 // conflicts resolved
 //
@@ -363,8 +366,10 @@ Cmd_Reload_f (edict_t * ent)
 void
 _SetSniper (edict_t * ent, int zoom)
 {
-  int desired_fov;
-  int sniper_mode;
+// AQ:TNG - JBravo fixing compilerwarnings.
+  int desired_fov = SNIPER_FOV1;
+  int sniper_mode = SNIPER_1X;
+// JBravo.
   int oldmode;
 
   if ((zoom != 1) && (zoom != 2) && (zoom != 4) && (zoom != 6) && (ent->client->curr_weap != SNIPER_NUM))

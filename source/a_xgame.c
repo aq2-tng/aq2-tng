@@ -16,10 +16,13 @@
 // you get compiler errors too, comment them out like
 // I'd done.
 //
-// $Id: a_xgame.c,v 1.10 2001/06/25 11:44:47 slicerdw Exp $
+// $Id: a_xgame.c,v 1.11 2001/07/16 19:02:06 ra Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_xgame.c,v $
+// Revision 1.11  2001/07/16 19:02:06  ra
+// Fixed compilerwarnings (-g -Wall).  Only one remains.
+//
 // Revision 1.10  2001/06/25 11:44:47  slicerdw
 // New Video Check System - video_check and video_check_lockpvs no longer latched
 //
@@ -213,7 +216,9 @@ DescListIsEmpty (void)
 
 //returns nearest description point. if < 0, no point is available.
 //before calling this function, check if mapdesc is empty via DescListIsEmpty().
-/*      see new function DescListCube()
+//AQ:TNG - JBravo changed next line not to be a C style comment.
+//         If this code is ever uncommented this must be fixed.
+/ *      see new function DescListCube()
    int DescListNearestPoint(vec3_t origin, vec_t *distance)
    {
    int i,j;
@@ -300,7 +305,9 @@ GetPositionText (vec3_t origin, char *buf)
 
 	    strcpy (buf, "near ");
 
-	  /*if(abs((int)(origin[2] - mapdesc[i].pos[2])) > 350)   // TF - z limit to avoid level confusion
+//AQ:TNG - JBravo changed next line not to be a C style comment.
+//         If this code is ever uncommented this must be fixed.
+	  / *if(abs((int)(origin[2] - mapdesc[i].pos[2])) > 350)   // TF - z limit to avoid level confusion
 	     return false;
 		// removed, Z check is no longer needed with cubes
 

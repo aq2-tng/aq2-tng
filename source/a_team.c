@@ -3,10 +3,13 @@
 // Some of this is borrowed from Zoid's CTF (thanks Zoid)
 // -Fireblade
 //
-// $Id: a_team.c,v 1.38 2001/07/15 02:08:40 slicerdw Exp $
+// $Id: a_team.c,v 1.39 2001/07/16 19:02:06 ra Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_team.c,v $
+// Revision 1.39  2001/07/16 19:02:06  ra
+// Fixed compilerwarnings (-g -Wall).  Only one remains.
+//
 // Revision 1.38  2001/07/15 02:08:40  slicerdw
 // Added the "Team" section on scoreboard2 using matchmode
 //
@@ -671,7 +674,9 @@ void
 Team_f (edict_t * ent)
 {
   char *t;
-  int desired_team;
+// AQ:TNG - JBravo fixing compilerwarnings.
+  int desired_team = NOTEAM;
+// JBravo.
 
 //PG BUND - BEGIN (Tourney extension)
   if (use_tourney->value)

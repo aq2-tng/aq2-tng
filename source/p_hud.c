@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // p_hud.c
 //
-// $Id: p_hud.c,v 1.3 2001/05/31 16:58:14 igor_rock Exp $
+// $Id: p_hud.c,v 1.4 2001/07/16 19:02:06 ra Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: p_hud.c,v $
+// Revision 1.4  2001/07/16 19:02:06  ra
+// Fixed compilerwarnings (-g -Wall).  Only one remains.
+//
 // Revision 1.3  2001/05/31 16:58:14  igor_rock
 // conflicts resolved
 //
@@ -457,7 +460,11 @@ void Cmd_Help_f (edict_t *ent)
 void G_SetStats (edict_t *ent)
 {
   gitem_t         *item;
-  int                     index, cells, index2;
+// AQ:TNG - JBravo fixing compilerwarnings.
+// Another one Im not 100% sure about...
+  int                     cells = 0;
+  int                     index, index2;
+// JBravo.
   int                     power_armor_type;
   
   if (!ent->client->chase_mode)

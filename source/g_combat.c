@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // g_combat.c
 //
-// $Id: g_combat.c,v 1.9 2001/06/22 18:54:38 igor_rock Exp $
+// $Id: g_combat.c,v 1.10 2001/07/16 19:02:06 ra Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_combat.c,v $
+// Revision 1.10  2001/07/16 19:02:06  ra
+// Fixed compilerwarnings (-g -Wall).  Only one remains.
+//
 // Revision 1.9  2001/06/22 18:54:38  igor_rock
 // fixed the "accuracy" for killing teammates with headshots
 //
@@ -234,7 +237,10 @@ static int CheckPowerArmor (edict_t *ent, vec3_t point, vec3_t normal, int damag
   gclient_t       *client;
   int                     save;
   int                     power_armor_type;
-  int                     index;
+// AQ:TNG - JBravo fixing compilerwarnings.
+// Bah.  JB will crash da servah if dis is wrong.
+  int                     index = 0;
+// JBravo.
   int                     damagePerCell;
   int                     pa_te_type;
   int                     power;
