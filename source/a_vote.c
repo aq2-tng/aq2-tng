@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // a_vote.c
 //
-// $Id: a_vote.c,v 1.12 2001/11/27 20:36:32 igor_rock Exp $
+// $Id: a_vote.c,v 1.13 2003/10/01 19:39:08 igor_rock Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_vote.c,v $
+// Revision 1.13  2003/10/01 19:39:08  igor_rock
+// corrected underflow bugs (thanks to nopcode for bug report)
+//
 // Revision 1.12  2001/11/27 20:36:32  igor_rock
 // corrected the mapvoting spamm protection
 //
@@ -1057,7 +1060,7 @@ Cmd_Votekicknum_f (edict_t * ent, char *argument)
 
   i = atoi (argument);
 
-  if (i && i <= game.maxclients)
+  if ((i > 0) && i <= game.maxclients)
     {
       target = &g_edicts[i];
       if (target && target->client && target != ent && target->inuse)
@@ -1804,7 +1807,7 @@ Cmd_Ignorenum_f (edict_t * self, char *s)
 
   i = atoi (s);
 
-  if (i && i <= game.maxclients)
+  if ((i > 0) && i <= game.maxclients)
     {
 
       target = &g_edicts[i];
