@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // p_client.c
 //
-// $Id: p_client.c,v 1.65 2002/02/17 20:01:32 freud Exp $
+// $Id: p_client.c,v 1.66 2002/02/17 20:10:09 freud Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: p_client.c,v $
+// Revision 1.66  2002/02/17 20:10:09  freud
+// Better naming of auto_items is auto_equip, requested by Deathwatch.
+//
 // Revision 1.65  2002/02/17 20:01:32  freud
 // Fixed stat_mode overflows, finally.
 // Added 2 new cvars:
@@ -2691,7 +2694,7 @@ InitClientResp (gclient_t * client)
   client->resp.ir = 1;
 
   // TNG:Freud, restore weapons and items from last map.
-  if (auto_items->value && teamplay->value) {
+  if (auto_equip->value && teamplay->value) {
 	if (item)
 		client->resp.item = item;
 	if (weapon)

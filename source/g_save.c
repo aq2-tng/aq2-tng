@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // g_save.c
 //
-// $Id: g_save.c,v 1.50 2002/02/17 20:01:32 freud Exp $
+// $Id: g_save.c,v 1.51 2002/02/17 20:10:09 freud Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_save.c,v $
+// Revision 1.51  2002/02/17 20:10:09  freud
+// Better naming of auto_items is auto_equip, requested by Deathwatch.
+//
 // Revision 1.50  2002/02/17 20:01:32  freud
 // Fixed stat_mode overflows, finally.
 // Added 2 new cvars:
@@ -526,7 +529,7 @@ InitGame (void)
   stats_afterround = gi.cvar ("stats_afterround", "0", 0);
 
   auto_join = gi.cvar ("auto_join", "0", 0);
-  auto_items = gi.cvar ("auto_items", "0", 0);
+  auto_equip = gi.cvar ("auto_equip", "0", 0);
 
   use_punch = gi.cvar ("use_punch", "1", 0);
 

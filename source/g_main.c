@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 //
 //
-// $Id: g_main.c,v 1.52 2002/02/17 20:01:32 freud Exp $
+// $Id: g_main.c,v 1.53 2002/02/17 20:10:09 freud Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_main.c,v $
+// Revision 1.53  2002/02/17 20:10:09  freud
+// Better naming of auto_items is auto_equip, requested by Deathwatch.
+//
 // Revision 1.52  2002/02/17 20:01:32  freud
 // Fixed stat_mode overflows, finally.
 // Added 2 new cvars:
@@ -320,7 +323,7 @@ cvar_t *stats_endmap; // If on (1) show the fpm/etc stats when the map ends
 cvar_t *stats_afterround;     // Collect TNG stats between rounds
 
 cvar_t *auto_join;
-cvar_t *auto_items;
+cvar_t *auto_equip;
 
 cvar_t *use_punch;
 

@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // g_local.h -- local definitions for game module
 //
-// $Id: g_local.h,v 1.51 2002/02/17 20:01:32 freud Exp $
+// $Id: g_local.h,v 1.52 2002/02/17 20:10:09 freud Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_local.h,v $
+// Revision 1.52  2002/02/17 20:10:09  freud
+// Better naming of auto_items is auto_equip, requested by Deathwatch.
+//
 // Revision 1.51  2002/02/17 20:01:32  freud
 // Fixed stat_mode overflows, finally.
 // Added 2 new cvars:
@@ -856,7 +859,7 @@ extern cvar_t *stats_endmap; // If on (1), show the accuracy/etc stats at the en
 extern cvar_t *stats_afterround; // TNG Stats, collect stats between rounds
 
 extern cvar_t *auto_join;	// Automaticly join clients to teams they were on in last map.
-extern cvar_t *auto_items;	// Remember weapons and items for players between maps.
+extern cvar_t *auto_equip;	// Remember weapons and items for players between maps.
 
 // zucc from action
 extern cvar_t *sv_shelloff;
