@@ -4,10 +4,13 @@
 //
 // contains all new non standard command functions
 //
-// $Id: a_xcmds.c,v 1.13 2002/04/01 15:16:06 freud Exp $
+// $Id: a_xcmds.c,v 1.14 2004/01/18 11:20:14 igor_rock Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_xcmds.c,v $
+// Revision 1.14  2004/01/18 11:20:14  igor_rock
+// added flashgrenades
+//
 // Revision 1.13  2002/04/01 15:16:06  freud
 // Stats code redone, tng_stats now much more smarter. Removed a few global
 // variables regarding stats code and added kevlar hits to stats.
@@ -415,4 +418,15 @@ Cmd_SaveFlags_f (edict_t * self)
   flagpos2[0] = 0;
 
   gi.cprintf (self, PRINT_MEDIUM, "\nFlag File saved.\n");
+}
+
+void Cmd_FlashGrenade_f(edict_t *ent)
+{
+  if (ent->client->grenadeType == GRENADE_NORMAL) {
+    gi.cprintf(ent, PRINT_HIGH, "Flash grenades selected.\n");
+    ent->client->grenadeType = GRENADE_FLASH;
+  } else {
+    gi.cprintf(ent, PRINT_HIGH, "Standard grenades selected.\n");
+    ent->client->grenadeType = GRENADE_NORMAL;
+  }
 }
