@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // Matchmode related code
 //
-// $Id: a_match.c,v 1.6 2001/06/13 15:36:31 deathwatch Exp $
+// $Id: a_match.c,v 1.7 2001/06/16 16:47:06 deathwatch Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_match.c,v $
+// Revision 1.7  2001/06/16 16:47:06  deathwatch
+// Matchmode Fixed
+//
 // Revision 1.6  2001/06/13 15:36:31  deathwatch
 // Small fix
 //
@@ -63,7 +66,8 @@ void Cmd_Kill_f (edict_t *ent); // Used for killing people when they sub off
 
 void Cmd_Sub_f(edict_t *ent)
 {
-	char temp[200];
+	char temp[1024];
+	memset(temp,0,sizeof(temp));
 	    if (ent->client->resp.team == NOTEAM || !teamplay->value)
 		{
 			gi.cprintf(ent, PRINT_HIGH, "You need to be on a team for that...\n");
@@ -79,14 +83,12 @@ void Cmd_Sub_f(edict_t *ent)
 			if(ent->client->resp.subteam == 1)
 			{
 				sprintf(temp, "%s is now a substitute for %s\n", ent->client->pers.netname,team1_name);
-				temp[200] = 0;
 				SendWorldMsg(temp,0,0);
 			}
 
 			else
 			{
 				sprintf(temp, "%s is now a substitute for %s\n", ent->client->pers.netname,team2_name);
-				temp[200] = 0;
 				SendWorldMsg(temp,0,0);
 			}
 			return;
@@ -95,7 +97,6 @@ void Cmd_Sub_f(edict_t *ent)
 		if(ent->client->resp.subteam == TEAM1)
 		{
 	    sprintf(temp, "%s is no longer a substitute for %s\n", ent->client->pers.netname,team1_name);
-		temp[200] = 0;
 		SendWorldMsg(temp,0,0);
         ent->client->resp.subteam = 0;
 		return;
@@ -103,7 +104,6 @@ void Cmd_Sub_f(edict_t *ent)
 		if(ent->client->resp.subteam == TEAM2)
 		{
         sprintf(temp, "%s is no longer a substitute for %s\n", ent->client->pers.netname,team2_name);
-		temp[200] = 0;
 		SendWorldMsg(temp,0,0);
 		ent->client->resp.subteam = 0;
 		return;
@@ -130,7 +130,8 @@ int CheckForCaptains(int cteam)
 void Cmd_Captain_f(edict_t *ent)
 {
 	int i;
-	char temp[200];
+	char temp[1024];
+	memset(temp,0,sizeof(temp));
 
         if (ent->client->resp.team == NOTEAM || !teamplay->value)
 		{
@@ -140,7 +141,6 @@ void Cmd_Captain_f(edict_t *ent)
 		if(ent->client->resp.captain == TEAM1)
 		{
 			sprintf(temp, "%s is no longer %s's Captain\n", ent->client->pers.netname,team1_name);
-			temp[200] = 0;
 			SendWorldMsg(temp,0,0);
 			team1ready = 0;
 			ent->client->resp.captain = 0;
@@ -166,14 +166,12 @@ void Cmd_Captain_f(edict_t *ent)
 			if(ent->client->resp.team == 1)
 			{
 				sprintf(temp, "%s is now %s's Captain\n", ent->client->pers.netname,team1_name);
-				temp[200] = 0;
 				SendWorldMsg(temp,1,0);
 				ent->client->resp.captain = 1;
 			}
 			else if (ent->client->resp.team == 2)
 			{
 			    sprintf(temp, "%s is now %s's Captain\n", ent->client->pers.netname,team2_name);
-				temp[200] = 0;
 				SendWorldMsg(temp,1,0);
 				ent->client->resp.captain = 2;
 
@@ -188,8 +186,9 @@ void Cmd_Captain_f(edict_t *ent)
 
 void Cmd_Ready_f(edict_t *ent)
 {
-	char temp[200];
+	char temp[1024];
 
+	memset(temp,0,sizeof(temp));
 	if(ent->client->resp.captain == 0)
 	{
 		gi.cprintf(ent, PRINT_HIGH, "You need to be a captain for that\n");
@@ -209,7 +208,6 @@ void Cmd_Ready_f(edict_t *ent)
 		if (team1ready)
 		{
 			sprintf(temp, "%s \nis no longer ready to play!\n",team1_name);
-			temp[200] = 0;
 		    SendWorldMsg(temp,0,1);
 			team1ready = 0;
 			return;
@@ -217,7 +215,6 @@ void Cmd_Ready_f(edict_t *ent)
 		else
 		{
 			sprintf(temp, "%s is ready to play!\n",team1_name);
-			temp[200] = 0;
 		    SendWorldMsg(temp,1,1);
 			team1ready = 1;
 			return;
@@ -230,7 +227,6 @@ void Cmd_Ready_f(edict_t *ent)
 		if (team2ready)
 		{
 			sprintf(temp, "The %s \nis no longer ready to play!\n",team2_name);
-			temp[200] = 0;
 		    SendWorldMsg(temp,0,1);
 			team2ready = 0;
 			return;
@@ -238,7 +234,6 @@ void Cmd_Ready_f(edict_t *ent)
 		else
 		{
 			sprintf(temp, "%s is ready to play!\n",team2_name);
-			temp[200] = 0;
 		    SendWorldMsg(temp,1,1);
 			team2ready = 1;
 			return;
@@ -253,6 +248,8 @@ void Cmd_Teamname_f(edict_t *ent)
 {
 	int i,u,team;
     char temp[1024];
+
+	memset(temp,0,sizeof(temp));
 	team = ent->client->resp.team;
 
 	if(ent->client->resp.captain == 0)
@@ -296,7 +293,6 @@ void Cmd_Teamname_f(edict_t *ent)
 	if(team == 1)
 	{
 		strcpy(team1_name,temp);
-		temp[200] = 0;
 	    gi.cprintf(ent, PRINT_HIGH, "New Team Name: %s\n",team1_name);
 		return;
     }
@@ -313,8 +309,9 @@ void Cmd_Teamskin_f(edict_t *ent)
 	char *s;
 	int i,team;
     char temp[1024];
-
-    team = ent->client->resp.team;
+	memset(temp,0,sizeof(temp));
+    
+	team = ent->client->resp.team;
 	if(ent->client->resp.captain == 0)
 	{
 		gi.cprintf(ent, PRINT_HIGH, "You need to be a captain for that\n");
