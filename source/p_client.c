@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // p_client.c
 //
-// $Id: p_client.c,v 1.48 2001/09/03 14:25:00 deathwatch Exp $
+// $Id: p_client.c,v 1.49 2001/09/05 14:33:57 slicerdw Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: p_client.c,v $
+// Revision 1.49  2001/09/05 14:33:57  slicerdw
+// Added Fix's from the 2.1 release
+//
 // Revision 1.48  2001/09/03 14:25:00  deathwatch
 // Added gibbing with HC (only happens rarely) when sv_gib is on and cleaned up
 // the player_die function and made sure the flashlight gets turned off when someone
@@ -3658,6 +3661,7 @@ void ClientBeginDeathmatch (edict_t *ent)
 //FIREBLADE
 
 //FIREBLADE
+		if(!level.intermissiontime)
         PrintMOTD(ent);
         ent->client->resp.motd_refreshes = 1;
 //FIREBLADE
@@ -3969,6 +3973,13 @@ void ClientDisconnect (edict_t *ent)
 
   if (!ent->client)
 		return;
+  if(ent->client->resp.captain)
+	{
+	if(ent->client->resp.captain == 1)
+		team1ready = 0;
+	else
+		team2ready = 0;
+	}
 
 	// drop items if they are alive/not observer
   if ( ent->solid != SOLID_NOT )

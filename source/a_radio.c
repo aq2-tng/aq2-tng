@@ -3,10 +3,13 @@
 // 
 // -Fireblade
 //
-// $Id: a_radio.c,v 1.2 2001/08/15 14:50:48 slicerdw Exp $
+// $Id: a_radio.c,v 1.3 2001/09/05 14:33:57 slicerdw Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_radio.c,v $
+// Revision 1.3  2001/09/05 14:33:57  slicerdw
+// Added Fix's from the 2.1 release
+//
 // Revision 1.2  2001/08/15 14:50:48  slicerdw
 // Added Flood protections to Radio & Voice, Fixed the sniper bug AGAIN
 //
@@ -801,6 +804,8 @@ qboolean CheckForFlood(edict_t *ent)
 	 }
 
 	 ent->client->resp.rd_whensaid++;
+	 if(ent->client->resp.rd_whensaid>9)
+		ent->client->resp.rd_whensaid = 9;
 	 ent->client->resp.rd_when[ent->client->resp.rd_whensaid] = level.time;
 
 	 if((ent->client->resp.rd_whensaid + 1) == radio_max->value)
