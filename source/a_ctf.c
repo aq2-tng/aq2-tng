@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // CTF related code
 //
-// $Id: a_ctf.c,v 1.9 2001/06/13 07:55:17 igor_rock Exp $
+// $Id: a_ctf.c,v 1.10 2001/06/13 13:05:41 igor_rock Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_ctf.c,v $
+// Revision 1.10  2001/06/13 13:05:41  igor_rock
+// corrected a minor error in CTFEffects
+//
 // Revision 1.9  2001/06/13 07:55:17  igor_rock
 // Re-Added a_match.h and a_match.c
 // Added CTF Header for a_ctf.h and a_ctf.c
@@ -634,7 +637,7 @@ void CTFFlagSetup (edict_t *ent)
 
 void CTFEffects(edict_t *player)
 {
-	player->s.effects &= (EF_FLAG1 | EF_FLAG2);
+	player->s.effects &= ~(EF_FLAG1 | EF_FLAG2);
 	if (player->health > 0) {
 		if (player->client->pers.inventory[ITEM_INDEX(flag1_item)]) {
 			player->s.effects |= EF_FLAG1;
