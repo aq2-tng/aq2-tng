@@ -11,6 +11,7 @@ From 2.5
 + Updated Stats Code
 + Fixed ff_afterround
 + Showing health icon on screen when bandaging (thanks to Dome)
++ TNG now accepts M$ formatting on .agq files
 - Fixed a small bug which allowed people to deny kills by typing 'team none'
 - Fixed a small bug with the HC in hc_single 0 mode
 - Reset some variables to original values
