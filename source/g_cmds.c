@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // g_cmds.c
 //
-// $Id: g_cmds.c,v 1.7 2001/05/12 21:19:51 ra Exp $
+// $Id: g_cmds.c,v 1.8 2001/05/13 14:55:11 igor_rock Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_cmds.c,v $
+// Revision 1.8  2001/05/13 14:55:11  igor_rock
+// corrected the lens command which was commented out in error
+//
 // Revision 1.7  2001/05/12 21:19:51  ra
 //
 //
@@ -1473,12 +1476,13 @@ void ClientCommand (edict_t *ent)
 				Cmd_AddCube_f(ent);
 		else if (Q_stricmp(cmd, "abortcube") == 0 && sv_cheats->value)
 				Cmd_AbortCube_f(ent);
-
+//AQ2:TNG - Igor correcting LENS command
+		*/
 		else if (Q_stricmp(cmd, "lens") == 0)
 				Cmd_Lens_f(ent);
-
 //TempFile - END
-*/
+
+//AQ2:TNG - End correcting lens command
 //AQ2:TNG END
 		//AQ:TNG Slicer : Video Checks
 		else if (Q_stricmp(cmd, "%cpsi") == 0)
