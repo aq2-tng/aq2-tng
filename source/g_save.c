@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // g_save.c
 //
-// $Id: g_save.c,v 1.11 2001/05/17 14:54:47 igor_rock Exp $
+// $Id: g_save.c,v 1.12 2001/05/19 19:33:19 igor_rock Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_save.c,v $
+// Revision 1.12  2001/05/19 19:33:19  igor_rock
+// changed itm_flags and wp_flags to Non-CVAR_LATCH (so you can change them without restart
+//
 // Revision 1.11  2001/05/17 14:54:47  igor_rock
 // added itm_flags for teamplay and ctf
 //
@@ -306,9 +309,9 @@ void InitGame (void)
 // AQ2:TNG End
 	//AQ2:TNG - Igor adding wp_flags/itm_flags
 	// 511 = WPF_MK23 | WPF_MP5 | WPF_M4 | WPF_M3 | WPF_HC | WPF_SNIPER | WPF_DUAL | WPF_KNIFE | WPF_GRENADE
-	wp_flags  = gi.cvar("wp_flags", "511", CVAR_LATCH);
+	wp_flags  = gi.cvar("wp_flags", "511", 0);
 	// 63 = ITF_SIL | ITF_SLIP | ITF_BAND | ITF_KEV | ITF_LASER | ITF_HELM
-	itm_flags = gi.cvar("itm_flags", "63", CVAR_LATCH);
+	itm_flags = gi.cvar("itm_flags", "63", 0);
 	//AQ2:TNG End adding flags
   
   //FIREBLADE
