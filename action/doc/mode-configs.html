@@ -3,7 +3,7 @@
 <html>
   <head>
     <meta name="generator" content="HTML Tidy, see www.w3.org">
-    <meta name="version" content="Version: $Id: mode-configs.html,v 1.5 2001/06/27 10:37:44 igor_rock Exp $">
+    <meta name="version" content="Version: $Id: mode-configs.html,v 1.6 2001/11/07 12:50:08 igor_rock Exp $">
 
     <title>AQ2:TNG - Online Config Generator Part II: Server Mode Configuration</title>
   </head>
@@ -98,20 +98,6 @@
                   <td>Map to start with</td>
 
                   <td><input type="text" name="data[startmap]" size="25" maxlength="30" value="rhcity1"></td>
-                </tr>
-
-                <tr>
-                  <td>Punishkills</td>
-
-                  <td><select name="data[punishkills]">
-                    <option value="0">
-                      No
-                    </option>
-
-                    <option value="1" selected>
-                      Yes
-                    </option>
-                  </select> </td>
                 </tr>
 
                 <tr>
@@ -274,6 +260,35 @@
                       Yes
                     </option>
                   </select> </td>
+                </tr>
+
+                <tr>
+                  <td>Darkmatch (Lightmode)</td>
+
+                  <td><select name="data[darkmatch]">
+                    <option value="0" selected>
+                      normal, no changes to lights
+                    </option>
+
+                    <option value="1">
+                      all lights are off
+                    </option>
+
+                    <option value="2">
+                      dusk/dawn mode
+                    </option>
+
+                    <option value="3">
+                      day, dusk, night, dawn cycling
+                    </option>
+
+                  </select> </td>
+                </tr>
+
+                <tr>
+                  <td>Cycling time for darkmatch</td>
+
+                  <td><input type="text" name="data[day_cycle]" size="4" maxlength="4" value="90"></td>
                 </tr>
 
               </table>
@@ -567,6 +582,69 @@
                   <td>Player Respawn Time</td>
 
                   <td><input type="text" name="data[ctf_respawn]" size="4" maxlength="4" value="4"></td>
+                </tr>
+
+                <tr>
+                  <td>Player Respawn Invulnerablity Time</td>
+
+                  <td><input type="text" name="data[uvtime]" size="4" maxlength="4" value="40"></td>
+                </tr>
+
+              </table>
+            </td>
+          </tr>
+ 
+          <tr>
+            <td colspan="2">&nbsp;</td>
+          </tr>
+
+          <tr>
+            <td colspan="2" align="center">
+              <table width="95%" cellspacing="2" cellpadding="2" border="2">
+                <tr>
+                  <td colspan="2" align="center" width="100%">
+                    <h3>Matchmode Settings</h3>
+                  </td>
+                </tr>
+
+                <tr>
+                  <td>Adminpassword ("0" to disable)</td>
+
+                  <td><input type="text" name="data[mm_adminpwd]" size="15" maxlength="15" value="0"></td>
+                </tr>
+
+                <tr>
+                  <td>Matchadmin can hear teammessages as well</td>
+
+                  <td><select name="data[hearall]">
+                    <option value="0" selected>
+                      No
+                    </option>
+
+                    <option value="1">
+                      Yes
+                    </option>
+
+                   </select></td>
+                </tr>
+
+
+                <tr>
+                  <td>Force talking to teammembers only</td>
+
+                  <td><select name="data[mm_forceteamtalk]">
+                    <option value="0" selected>
+                      No
+                    </option>
+
+                    <option value="1">
+                      Yes, always
+                    </option>
+
+                    <option value="2">
+                      Yes, but only after both teams are ready
+                    </option>
+                   </select></td>
                 </tr>
 
               </table>

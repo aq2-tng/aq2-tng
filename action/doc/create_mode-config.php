@@ -2,7 +2,7 @@
   //-----------------------------------------------------------------------------
   // create_mode-config.php
   //-----------------------------------------------------------------------------
-  // $Id: create_mode-config.php,v 1.4 2001/06/27 10:37:43 igor_rock Exp $
+  // $Id: create_mode-config.php,v 1.5 2001/11/07 12:50:08 igor_rock Exp $
   //-----------------------------------------------------------------------------
 
   // Do some checks for illegal game modes
@@ -69,7 +69,6 @@
   print "set maplistname $data[maplistname]\n";
   print "set ininame $data[ininame]\n";
   print "set maxclients $data[maxclients]\n";
-  print "set punishkills $data[punishkills]\n";
   print "set noscore $data[noscore]\n";
   print "set nohud $data[nohud]\n";
   print "set use_warnings $data[use_warnings]\n";
@@ -84,6 +83,8 @@
   print "set use_3teams $data[use_3teams]\n";
   print "set use_tourney $data[use_tourney]\n";
   print "set matchmode $data[matchmode]\n";
+  print "set darkmatch $data[darkmatch]\n";
+  print "set day_cycle $data[day_cycle]\n";
   
   print "\n//-----------------------------------------------------------------------------\n";
   print "// Limits\n";
@@ -128,6 +129,14 @@
   print "set ctf_dropflag $data[ctf_dropflag]\n";
   print "set capturelimit $data[capturelimit]\n";
   print "set ctf_respawn $data[ctf_respawn]\n";
+  print "set uvtime $data[uvtime]\n";
+
+  print "\n//-----------------------------------------------------------------------------\n";
+  print "// Matchmode Settings\n";
+  print "//-----------------------------------------------------------------------------\n";
+  print "set mm_adminpwd \"$data[mm_adminpwd]\"\n";
+  print "set hearall $data[hearall]\n";
+  print "set mm_forceteamtalk $data[mm_forceteamtalk]\n";
 
   print "\n//-----------------------------------------------------------------------------\n";
   print "// Video Checking\n";
