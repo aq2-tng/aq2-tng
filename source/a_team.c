@@ -3,10 +3,13 @@
 // Some of this is borrowed from Zoid's CTF (thanks Zoid)
 // -Fireblade
 //
-// $Id: a_team.c,v 1.63 2001/12/05 15:27:35 igor_rock Exp $
+// $Id: a_team.c,v 1.64 2001/12/27 23:29:46 slicerdw Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_team.c,v $
+// Revision 1.64  2001/12/27 23:29:46  slicerdw
+// Reset sub and captain vars when doing "team none"
+//
 // Revision 1.63  2001/12/05 15:27:35  igor_rock
 // improved my english (actual -> current :)
 //
@@ -999,6 +1002,17 @@ LeaveTeam (edict_t * ent)
 
   ent->client->resp.joined_team = 0;
   ent->client->resp.team = NOTEAM;
+  //AQ2:TNG Slicer 
+  if (matchmode->value)
+    {
+      if (ent->client->resp.captain == 1)
+	team1ready = 0;
+      else if (ent->client->resp.captain == 2)
+	team2ready = 0;
+      ent->client->resp.subteam = 0;	//SLICER: If a player joins or changes teams, the subteam resets....
+      ent->client->resp.captain = 0;	//SLICER: Same here
+    }
+  //AQ2:TNG END
 
   CheckForUnevenTeams ();
 }
