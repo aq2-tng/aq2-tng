@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // p_client.c
 //
-// $Id: p_client.c,v 1.55 2001/12/09 14:02:11 slicerdw Exp $
+// $Id: p_client.c,v 1.56 2001/12/23 16:30:50 ra Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: p_client.c,v $
+// Revision 1.56  2001/12/23 16:30:50  ra
+// 2.5 ready. New stats from Freud. HC and shotgun gibbing seperated.
+//
 // Revision 1.55  2001/12/09 14:02:11  slicerdw
 // Added gl_clear check -> video_check_glclear cvar
 //
@@ -2451,7 +2454,8 @@ player_die (edict_t * self, edict_t * inflictor, edict_t * attacker,
     }
 
   // Gibbing on really hard HC hit
-  if ((self->health < -35) && ((meansOfDeath == MOD_HC) || (meansOfDeath == MOD_M3)) && (sv_gib->value))
+  if ( ((self->health < -35) && (meansOfDeath == MOD_HC)) ||
+	((self->health < -30) && (meansOfDeath == MOD_M3)) && (sv_gib->value) )
     {
       gi.sound (self, CHAN_BODY, gi.soundindex ("misc/udeath.wav"), 1,
 		ATTN_NORM, 0);

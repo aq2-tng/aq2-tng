@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // g_combat.c
 //
-// $Id: g_combat.c,v 1.15 2001/09/28 13:48:34 ra Exp $
+// $Id: g_combat.c,v 1.16 2001/12/23 16:30:50 ra Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_combat.c,v $
+// Revision 1.16  2001/12/23 16:30:50  ra
+// 2.5 ready. New stats from Freud. HC and shotgun gibbing seperated.
+//
 // Revision 1.15  2001/09/28 13:48:34  ra
 // I ran indent over the sources. All .c and .h files reindented.
 //
@@ -786,6 +789,24 @@ T_Damage (edict_t * targ, edict_t * inflictor, edict_t * attacker, vec3_t dir,
 // TNG Stats - Add +1 to hit, make sure that hc and m3 are handles differently
 	  if ((attacker->client) && (mod != MOD_M3) && (mod != MOD_HC))
 	    attacker->client->resp.stats_shots_h++;
+
+          if ((attacker->client) && (mod == MOD_M4))
+            attacker->client->resp.stats_m4_shots_h++;
+
+          if ((attacker->client) && (mod == MOD_MP5))
+            attacker->client->resp.stats_mp5_shots_h++;
+
+          if ((attacker->client) && (mod == MOD_SNIPER))
+            attacker->client->resp.stats_sniper_shots_h++;
+
+          if ((attacker->client) && (mod == MOD_MK23))
+            attacker->client->resp.stats_pistol_shots_h++;
+
+          if ((attacker->client) && (mod == MOD_DUAL))
+            attacker->client->resp.stats_dual_shots_h++;
+
+          if ((attacker->client) && ((mod == MOD_KNIFE)  || (mod == MOD_KNIFE_THROWN)))
+            attacker->client->resp.stats_knife_shots_h++;
 // TNG Stats END
 
 
@@ -845,6 +866,25 @@ T_Damage (edict_t * targ, edict_t * inflictor, edict_t * attacker, vec3_t dir,
 		{
 		  if (attacker->client)
 		    {
+
+                      if (mod == MOD_KNIFE || mod == MOD_KNIFE_THROWN)
+                        attacker->client->resp.stats_knife_shots_hd++;
+
+                      if (mod == MOD_M4)
+                        attacker->client->resp.stats_m4_shots_hd++;
+            
+                      if (mod == MOD_MP5)
+                        attacker->client->resp.stats_mp5_shots_hd++;
+            
+                      if (mod == MOD_SNIPER)
+                        attacker->client->resp.stats_sniper_shots_hd++;
+            
+                      if (mod == MOD_MK23)
+                        attacker->client->resp.stats_pistol_shots_hd++;
+            
+                      if (mod == MOD_DUAL)
+                        attacker->client->resp.stats_dual_shots_hd++;
+            
 		      //AQ2:TNG Slicer Last Damage Location
 		      attacker->client->resp.last_damaged_part = LOC_HDAM;
 		      //AQ2:TNG END

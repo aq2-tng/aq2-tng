@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // g_weapon.c
 //
-// $Id: g_weapon.c,v 1.7 2001/09/28 13:48:34 ra Exp $
+// $Id: g_weapon.c,v 1.8 2001/12/23 16:30:50 ra Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_weapon.c,v $
+// Revision 1.8  2001/12/23 16:30:50  ra
+// 2.5 ready. New stats from Freud. HC and shotgun gibbing seperated.
+//
 // Revision 1.7  2001/09/28 13:48:34  ra
 // I ran indent over the sources. All .c and .h files reindented.
 //
@@ -686,6 +689,14 @@ ProduceShotgunDamageReport (edict_t * self)
     }
   // TNG Stats
   self->client->resp.stats_shots_h += total_to_print;
+  if (self->client->curr_weap == M3_NUM)
+    self->client->resp.stats_shotgun_shots_h += total_to_print;
+  if (self->client->curr_weap == HC_NUM)
+    self->client->resp.stats_hc_shots_h += total_to_print;
+/*  if (mod == MOD_M3)
+    self->client->resp.stats_shotgun_shots_h += total_to_print;
+  if (mod == MOD_HC)
+    self->client->resp.stats_hc_shots_h += total_to_print; */
 //FB 6/2/99
 }
 

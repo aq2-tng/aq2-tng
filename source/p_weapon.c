@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // g_weapon.c
 //
-// $Id: p_weapon.c,v 1.11 2001/11/08 20:56:24 igor_rock Exp $
+// $Id: p_weapon.c,v 1.12 2001/12/23 16:30:51 ra Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: p_weapon.c,v $
+// Revision 1.12  2001/12/23 16:30:51  ra
+// 2.5 ready. New stats from Freud. HC and shotgun gibbing seperated.
+//
 // Revision 1.11  2001/11/08 20:56:24  igor_rock
 // - changed some things related to wp_flags
 // - corrected use_punch bug when player only has an empty weapon left
@@ -3329,6 +3332,7 @@ Pistol_Fire (edict_t * ent)
       fire_bullet (ent, start, forward, damage, kick, spread, spread,
 		   MOD_MK23);
       ent->client->resp.stats_shots_t += 1;	// TNG Stats, +1 hit
+      ent->client->resp.stats_pistol_shots_t += 1;	// TNG Stats, +1 hit
       ent->client->mk23_rds--;
       ent->client->dual_rds--;
     }
@@ -3339,6 +3343,7 @@ Pistol_Fire (edict_t * ent)
       fire_bullet (ent, start, forward, damage, kick, spread, spread,
 		   MOD_MK23);
       ent->client->resp.stats_shots_t += 1;	// TNG Stats, +1 hit
+      ent->client->resp.stats_pistol_shots_t += 1;	// TNG Stats, +1 hit
       ent->client->mk23_rds--;
       ent->client->dual_rds--;
     }
@@ -3480,6 +3485,7 @@ MP5_Fire (edict_t * ent)
 
   fire_bullet (ent, start, forward, damage, kick, spread, spread, MOD_MP5);
   ent->client->resp.stats_shots_t += 1;	// TNG Stats, +1 hit
+  ent->client->resp.stats_mp5_shots_t += 1;	// TNG Stats, +1 hit
   ent->client->mp5_rds--;
 
   if (!sv_shelloff->value)
@@ -3647,6 +3653,7 @@ M4_Fire (edict_t * ent)
   fire_bullet_sparks (ent, start, forward, damage, kick, spread, spread,
 		      MOD_M4);
   ent->client->resp.stats_shots_t += 1;	// TNG Stats, +1 hit
+  ent->client->resp.stats_m4_shots_t += 1;	// TNG Stats, +1 hit
   ent->client->m4_rds--;
 
   if (!sv_shelloff->value)
@@ -3786,6 +3793,7 @@ M3_Fire (edict_t * ent)
     fire_shotgun (ent, start, forward, damage, kick, 800, 800,
 		  12 /*DEFAULT_SHOTGUN_COUNT */ , MOD_M3);
   ent->client->resp.stats_shots_t += 1;	// TNG Stats, +1 hit
+  ent->client->resp.stats_shotgun_shots_t += 1;	// TNG Stats, +1 hit
 
   if (llsound->value == 0)
     {
@@ -3878,6 +3886,7 @@ HC_Fire (edict_t * ent)
 		    DEFAULT_SHOTGUN_HSPREAD * 2.5,
 		    DEFAULT_SHOTGUN_VSPREAD * 2.5, 34 / 2, MOD_HC);
       ent->client->resp.stats_shots_t += 1;	// TNG Stats, +1 hit
+      ent->client->resp.stats_hc_shots_t += 1;	// TNG Stats, +1 hit
       if (llsound->value == 0)
 	{
 	  gi.sound (ent, CHAN_WEAPON,
@@ -3898,6 +3907,7 @@ HC_Fire (edict_t * ent)
 		    DEFAULT_SHOTGUN_HSPREAD * 4, DEFAULT_SHOTGUN_VSPREAD * 4,
 		    34 / 2, MOD_HC);
       ent->client->resp.stats_shots_t += 1;	// TNG Stats, +1 hit
+      ent->client->resp.stats_hc_shots_t += 1;	// TNG Stats, +1 hit
       //only produce this extra sound if single shot is available
       if (hc_single->value)
 	{
@@ -4090,6 +4100,7 @@ Sniper_Fire (edict_t * ent)
     fire_bullet_sniper (ent, start, forward, damage, kick, spread, spread,
 			MOD_SNIPER);
     ent->client->resp.stats_shots_t += 1;	// TNG Stats, +1 hit
+    ent->client->resp.stats_sniper_shots_t += 1;	// TNG Stats, +1 hit
     ent->client->sniper_rds--;
     ent->client->ps.fov = 90;	// so we can watch the next round get chambered
     ent->client->ps.gunindex =
@@ -4202,6 +4213,7 @@ Dual_Fire (edict_t * ent)
 	  fire_bullet (ent, start, forward, damage, kick, spread, spread,
 		       MOD_DUAL);
 	  ent->client->resp.stats_shots_t += 1;	// TNG Stats, +1 hit
+	  ent->client->resp.stats_dual_shots_t += 1;	// TNG Stats, +1 hit
 
 	  if (!sv_shelloff->value)
 	    {
@@ -4309,6 +4321,7 @@ Dual_Fire (edict_t * ent)
   //If no reload, fire normally.
   fire_bullet (ent, start, forward, damage, kick, spread, spread, MOD_DUAL);
   ent->client->resp.stats_shots_t += 1;	// TNG Stats, +1 hit
+  ent->client->resp.stats_dual_shots_t += 1;	// TNG Stats, +1 hit
 
   if (llsound->value)
     {
@@ -4763,6 +4776,7 @@ Knife_Fire (edict_t * ent)
     {
       knife_return = knife_attack (ent, start, forward, damage, kick);
       ent->client->resp.stats_shots_t += 1;	// TNG Stats, +1 hit
+      ent->client->resp.stats_knife_shots_t += 1;	// TNG Stats, +1 hit
 
       if (knife_return < ent->client->knife_sound)
 	ent->client->knife_sound = knife_return;
@@ -4823,6 +4837,8 @@ Knife_Fire (edict_t * ent)
 	  ChangeWeapon (ent);
 	  // zucc was at 1250, dropping speed to 1200
 	  knife_throw (ent, start, forward, damage, 1200);
+          ent->client->resp.stats_shots_t += 1;	// TNG Stats, +1 hit
+          ent->client->resp.stats_knife_shots_t += 1;	// TNG Stats, +1 hit
 	  return 0;
 	}
       else
@@ -4845,6 +4861,7 @@ Knife_Fire (edict_t * ent)
 
       knife_throw (ent, start, forward, damage, 1200);
       ent->client->resp.stats_shots_t += 1;	// TNG Stats, +1 hit
+      ent->client->resp.stats_knife_shots_t += 1;	// TNG Stats, +1 hit
 
       // 
     }
