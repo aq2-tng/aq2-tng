@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // g_save.c
 //
-// $Id: g_save.c,v 1.8 2001/05/14 21:10:16 igor_rock Exp $
+// $Id: g_save.c,v 1.9 2001/05/15 15:49:14 igor_rock Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_save.c,v $
+// Revision 1.9  2001/05/15 15:49:14  igor_rock
+// added itm_flags for deathmatch
+//
 // Revision 1.8  2001/05/14 21:10:16  igor_rock
 // added wp_flags support (and itm_flags skeleton - doesn't disturb in the moment)
 //
@@ -298,7 +301,7 @@ void InitGame (void)
 	// 511 = WPF_MK23 | WPF_MP5 | WPF_M4 | WPF_M3 | WPF_HC | WPF_SNIPER | WPF_DUAL | WPF_KNIFE | WPF_GRENADE
 	wp_flags  = gi.cvar("wp_flags", "511", CVAR_LATCH);
 	// 127 = ITF_SIL | ITF_SLIP | ITF_BAND | ITF_KEV | ITF_LASER | ITF_HELM
-	itm_flags = gi.cvar("itm_flags", "127", CVAR_LATCH);
+	itm_flags = gi.cvar("itm_flags", "63", CVAR_LATCH);
 	//AQ2:TNG End adding flags
   
   //FIREBLADE

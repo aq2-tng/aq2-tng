@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // g_spawn.c
 //
-// $Id: g_spawn.c,v 1.12 2001/05/14 21:10:16 igor_rock Exp $
+// $Id: g_spawn.c,v 1.13 2001/05/15 15:49:14 igor_rock Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_spawn.c,v $
+// Revision 1.13  2001/05/15 15:49:14  igor_rock
+// added itm_flags for deathmatch
+//
 // Revision 1.12  2001/05/14 21:10:16  igor_rock
 // added wp_flags support (and itm_flags skeleton - doesn't disturb in the moment)
 //
@@ -371,8 +374,8 @@ void ED_CallSpawn (edict_t *ent)
 
 // zucc BD's checkitem function
 //An 2D array of items to look for and replace with...
-        //item[i][0] = the Q2 item to look for
-        //item[i][1] = the NS2 item to actually spawn
+//item[i][0] = the Q2 item to look for
+//item[i][1] = the NS2 item to actually spawn
 
 #define ITEM_SWITCH_COUNT 15
 

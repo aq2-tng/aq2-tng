@@ -3,10 +3,13 @@
 // Zoid.
 // - zucc
 //
-// $Id: a_items.c,v 1.2 2001/05/11 16:07:25 mort Exp $
+// $Id: a_items.c,v 1.3 2001/05/15 15:49:14 igor_rock Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_items.c,v $
+// Revision 1.3  2001/05/15 15:49:14  igor_rock
+// added itm_flags for deathmatch
+//
 // Revision 1.2  2001/05/11 16:07:25  mort
 // Various CTF bits and pieces...
 //
@@ -112,7 +115,22 @@ SpawnSpecs (edict_t * ent)
     {
       if ((spec = FindItemByClassname (tnames[i])) != NULL &&
 	  (spot = FindSpecSpawn ()) != NULL)
-	SpawnSpec (spec, spot);
+	{
+	  //AQ2:TNG - Igor adding itm_flags
+	  if (
+	      (((int)itm_flags->value & ITF_SIL) && (strcmp(tnames[i], "item_quiet") == 0)) || 
+	      (((int)itm_flags->value & ITF_SLIP) && (strcmp(tnames[i], "item_slippers") == 0)) ||
+	      (((int)itm_flags->value & ITF_KEV) && (strcmp(tnames[i], "item_vest") == 0)) ||
+	      (((int)itm_flags->value & ITF_BAND) && (strcmp(tnames[i], "item_band") == 0)) ||
+	      (((int)itm_flags->value & ITF_LASER) && (strcmp(tnames[i], "item_lasersight") == 0)) ||
+	      (((int)itm_flags->value & ITF_HELM) && (strcmp(tnames[i], "item_helmet") == 0))
+	      )
+	    {
+	      //gi.dprintf("Spawning special item '%s'.\n", tnames[i]);
+	      SpawnSpec (spec, spot);
+	    }
+	  //AQ2:TNG End adding itm_flags
+	}
       i++;
     }
 }

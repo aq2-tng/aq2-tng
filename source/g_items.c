@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // g_itmes.c
 //
-// $Id: g_items.c,v 1.3 2001/05/14 21:10:16 igor_rock Exp $
+// $Id: g_items.c,v 1.4 2001/05/15 15:49:14 igor_rock Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_items.c,v $
+// Revision 1.4  2001/05/15 15:49:14  igor_rock
+// added itm_flags for deathmatch
+//
 // Revision 1.3  2001/05/14 21:10:16  igor_rock
 // added wp_flags support (and itm_flags skeleton - doesn't disturb in the moment)
 //
@@ -1286,6 +1289,9 @@ void SpawnItem (edict_t *ent, gitem_t *item)
         }
 
 	//AQ2:TNG - Igor adding wp_flags/itm_flags
+
+	// Weapons and Ammo
+
 	if (!((int)wp_flags->value & WPF_MK23) && 
 	    ((strcmp(ent->classname, "ammo_clip") == 0) ||
 	     (strcmp(ent->classname, "weapon_Mk23") == 0))
@@ -1314,7 +1320,7 @@ void SpawnItem (edict_t *ent, gitem_t *item)
 	  }
 	
 	if ((strcmp(ent->classname, "ammo_m3") == 0) &&
-	    !((int)wp_flags->value & WPF_M3) || ((int)wp_flags->value & WPF_HC)
+	    !(((int)wp_flags->value & WPF_M3) || ((int)wp_flags->value & WPF_HC))
 	    )
 	  {
 	    G_FreeEdict (ent);
@@ -1364,6 +1370,50 @@ void SpawnItem (edict_t *ent, gitem_t *item)
 	    G_FreeEdict (ent);
 	    return;
 	  }
+
+	// Items
+
+	if (!((int)itm_flags->value & ITF_SIL) &&
+            (strcmp(ent->classname, "item_quiet") == 0))
+          {
+            G_FreeEdict (ent);
+            return;
+          }
+
+	if (!((int)itm_flags->value & ITF_SLIP) &&
+            (strcmp(ent->classname, "item_slippers") == 0))
+          {
+            G_FreeEdict (ent);
+            return;
+          }
+
+	if (!((int)itm_flags->value & ITF_BAND) &&
+            (strcmp(ent->classname, "item_band") == 0))
+          {
+            G_FreeEdict (ent);
+            return;
+          }
+
+	if (!((int)itm_flags->value & ITF_KEV) &&
+            (strcmp(ent->classname, "item_vest") == 0))
+          {
+            G_FreeEdict (ent);
+            return;
+          }
+
+	if (!((int)itm_flags->value & ITF_LASER) &&
+            (strcmp(ent->classname, "item_lasersight") == 0))
+          {
+            G_FreeEdict (ent);
+            return;
+          }
+
+	if (!((int)itm_flags->value & ITF_HELM) &&
+            (strcmp(ent->classname, "item_helmet") == 0))
+          {
+            G_FreeEdict (ent);
+            return;
+          }
 
 	//AQ2:TNG End adding flags
 
