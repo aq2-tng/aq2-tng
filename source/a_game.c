@@ -5,10 +5,13 @@
 // Zucchini (spikard@u.washington.edu) and Fireblade (ucs_brf@shsu.edu) 
 // (splat/bullethole/shell ejection code from original Action source)
 //
-// $Id: a_game.c,v 1.8 2001/06/28 14:36:40 deathwatch Exp $
+// $Id: a_game.c,v 1.9 2001/07/06 13:10:35 deathwatch Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_game.c,v $
+// Revision 1.9  2001/07/06 13:10:35  deathwatch
+// Fixed a broken if/then/else statement in MOTD
+//
 // Revision 1.8  2001/06/28 14:36:40  deathwatch
 // Updated the Credits Menu a slight bit (added Kobra)
 //
@@ -256,7 +259,7 @@ void PrintMOTD (edict_t * ent)
 					server_type = "Capture the Flag";
 			}
 			// Is it Matchmode?
-			if (matchmode->value)
+			else if (matchmode->value)
 			{
 					server_type = "Matchmode";
 			}
