@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // a_vote.c
 //
-// $Id: a_vote.c,v 1.11 2001/11/08 11:01:10 igor_rock Exp $
+// $Id: a_vote.c,v 1.12 2001/11/27 20:36:32 igor_rock Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_vote.c,v $
+// Revision 1.12  2001/11/27 20:36:32  igor_rock
+// corrected the mapvoting spamm protection
+//
 // Revision 1.11  2001/11/08 11:01:10  igor_rock
 // finally got this damn configvote bug - configvote is OK now! :-)
 //
@@ -143,6 +146,8 @@ qboolean _iCheckMapVotes (void);
 void
 Cmd_Votemap_f (edict_t * ent, char *t)
 {
+  char *oldvote;
+
   if (!*t)
     {
       gi.cprintf (ent, PRINT_HIGH,
@@ -158,30 +163,32 @@ Cmd_Votemap_f (edict_t * ent, char *t)
 		  (int) ((float) mapvote_waittime->value + 1.0 - level.time));
     }
   else
-  {
+    {
       // END Igor[Rock]
-		switch (AddVoteToMap (t, ent))
-		{
-		case 0:
-			gi.cprintf (ent, PRINT_HIGH, "You have voted on map \"%s\"\n", t);
-			if (mv_public->value)
-				gi.bprintf (PRINT_HIGH, "%s voted for \"%s\"\n", ent->client->pers.netname, t);
-			break;
-		case 1:
-			gi.cprintf (ent, PRINT_HIGH, "You have changed your vote to map \"%s\"\n", t);
-			if (mv_public->value) {
-				if(strcmp(t,ent->client->resp.mapvote))
-					gi.bprintf (PRINT_HIGH,"%s changed his mind and voted for \"%s\"\n", ent->client->pers.netname, t);
-				else
-					gi.cprintf (ent, PRINT_HIGH, "We heard you the first time!\n");
-			}
-			break;
-		default:
-			//error
-			gi.cprintf (ent, PRINT_HIGH, "Map \"%s\" is not in the votelist!\n", t);
-			break;
-		}
+      oldvote = ent->client->resp.mapvote;
+
+      switch (AddVoteToMap (t, ent))
+	{
+	case 0:
+	  gi.cprintf (ent, PRINT_HIGH, "You have voted on map \"%s\"\n", t);
+	  if (mv_public->value)
+	    gi.bprintf (PRINT_HIGH, "%s voted for \"%s\"\n", ent->client->pers.netname, t);
+	  break;
+	case 1:
+	  gi.cprintf (ent, PRINT_HIGH, "You have changed your vote to map \"%s\"\n", t);
+	  if (mv_public->value) {
+	    if(Q_strcasecmp (t, oldvote))
+	      gi.bprintf (PRINT_HIGH,"%s changed his mind and voted for \"%s\"\n", ent->client->pers.netname, t);
+	    else
+	      gi.cprintf (ent, PRINT_HIGH, "We heard you the first time!\n");
+	  }
+	  break;
+	default:
+	  //error
+	  gi.cprintf (ent, PRINT_HIGH, "Map \"%s\" is not in the votelist!\n", t);
+	  break;
 	}
+    }
   return;
 }
 
@@ -538,10 +545,10 @@ AddVoteToMap (char *mapname, edict_t * ent)
   for (search = map_votes; search != NULL; search = search->next)
     if (Q_stricmp (search->mapname, mapname) == 0)
       {
-				map_num_votes++;
-				search->num_votes++;
-				ent->client->resp.mapvote = search->mapname;
-				return changed;
+	map_num_votes++;
+	search->num_votes++;
+	ent->client->resp.mapvote = search->mapname;
+	return changed;
       }
 
   // if we get here we didn't find the map!
