@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 //
 //
-// $Id: g_main.c,v 1.55 2002/02/18 20:21:36 freud Exp $
+// $Id: g_main.c,v 1.56 2002/02/18 20:33:48 freud Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_main.c,v $
+// Revision 1.56  2002/02/18 20:33:48  freud
+// PING PONG Change polling times
+//
 // Revision 1.55  2002/02/18 20:21:36  freud
 // Added PING PONG mechanism for timely disconnection of clients. This is
 // based on a similar scheme as the scheme used by IRC. The client has
@@ -897,8 +900,14 @@ G_RunFrame (void)
           			gi.AddCommandString (buffer);
 			}
 		}
-		if (!(level.framenum % 80)) {
-		    stuffcmd(ent, "cmd_stat_mode $stat_mode\npingpong\n");
+		if (!(level.framenum % 80)) 
+		    stuffcmd(ent, "cmd_stat_mode $stat_mode\n");
+
+		if (ping_timeout->value) {
+			int pt_real;
+			pt_real = ping_timeout->value * 5;
+			if (!(level.framenum % pt_real))
+				stuffcmd(ent, "pingpong\n");
 		}
 		// TNG Stats End
 
