@@ -1,12 +1,17 @@
 //-----------------------------------------------------------------------------
 // p_client.c
 //
-// $Id: p_client.c,v 1.1 2001/05/06 17:29:49 igor_rock Exp $
+// $Id: p_client.c,v 1.2 2001/05/06 20:20:49 ra Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: p_client.c,v $
-// Revision 1.1  2001/05/06 17:29:49  igor_rock
-// Initial revision
+// Revision 1.2  2001/05/06 20:20:49  ra
+//
+//
+// Fixing limchasecam.
+//
+// Revision 1.1.1.1  2001/05/06 17:29:49  igor_rock
+// This is the PG Bund Edition V1.25 with all stuff laying around here...
 //
 //-----------------------------------------------------------------------------
 
@@ -3310,7 +3315,14 @@ void ClientThink (edict_t *ent, usercmd_t *ucmd)
   ent->light_level = ucmd->lightlevel;
 
   // fire weapon from final position if needed
-  if (client->latched_buttons & BUTTON_ATTACK)
+  if ((client->latched_buttons & BUTTON_ATTACK)
+	//Limchasecam fix
+	|| (((limchasecam->value && !client->chase_mode) ||
+		(limchasecam->value == 2 && client->chase_mode == 1)) &&
+		team_round_going && (client->resp.team != NOTEAM) &&
+		!(limchasecam->value == 2 && client->chase_mode == 2))
+	)
+	//Limchasecam fix end
   {
 	  //TempFile
 	  //We're gonna fire in this frame? Then abort any punching.
