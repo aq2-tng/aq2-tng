@@ -1,10 +1,16 @@
 //-----------------------------------------------------------------------------
 // p_client.c
 //
-// $Id: p_client.c,v 1.64 2002/02/17 19:04:15 freud Exp $
+// $Id: p_client.c,v 1.65 2002/02/17 20:01:32 freud Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: p_client.c,v $
+// Revision 1.65  2002/02/17 20:01:32  freud
+// Fixed stat_mode overflows, finally.
+// Added 2 new cvars:
+// 	auto_join (0|1), enables auto joining teams from previous map.
+// 	auto_items (0|1), enables weapon and items caching between maps.
+//
 // Revision 1.64  2002/02/17 19:04:15  freud
 // Possible bugfix for overflowing clients with stat_mode set.
 //
@@ -2658,6 +2664,8 @@ void
 InitClientResp (gclient_t * client)
 {
   int team = client->resp.team;
+  gitem_t *item = client->resp.item;
+  gitem_t *weapon = client->resp.weapon;
 
   memset (&client->resp, 0, sizeof (client->resp));
   client->resp.team = team;
@@ -2681,6 +2689,20 @@ InitClientResp (gclient_t * client)
     }
   client->resp.item = FindItem (KEV_NAME);
   client->resp.ir = 1;
+
+  // TNG:Freud, restore weapons and items from last map.
+  if (auto_items->value && teamplay->value) {
+	if (item)
+		client->resp.item = item;
+	if (weapon)
+		client->resp.weapon = weapon;
+  }
+
+  client->resp.team = NOTEAM;
+
+  // TNG:Freud, restore team from previous map
+  if (auto_join->value && team)
+	client->resp.saved_team = team;
 
   //TempFile - BEGIN
   client->resp.punch_desired = false;
@@ -2721,6 +2743,7 @@ InitClientResp (gclient_t * client)
   client->resp.subteam = 0;
   client->resp.captain = 0;
   client->resp.admin = 0;
+  client->resp.stat_mode_intermission = 0;
   //AQ2:TNG END
 
   // No automatic team join
@@ -3891,6 +3914,11 @@ ClientBeginDeathmatch (edict_t * ent)
     }
 
   gi.bprintf (PRINT_HIGH, "%s entered the game\n", ent->client->pers.netname);
+
+  // TNG:Freud Automaticly join saved teams.
+  if (teamplay->value && ent->client->resp.saved_team)
+	JoinTeam (ent, ent->client->resp.saved_team, 1);
+
 //FIREBLADE
   if (deathmatch->value && !teamplay->value && ent->solid == SOLID_NOT)
     gi.bprintf (PRINT_HIGH, "%s became a spectator\n",
@@ -4371,9 +4399,9 @@ ClientThink (edict_t * ent, usercmd_t * ucmd)
     {
       client->ps.pmove.pm_type = PM_FREEZE;
       // 
-      if (level.time > level.intermissiontime + 3.0) {
-          if (ent->inuse && ent->client->resp.stat_mode > 0) {
-		ent->client->resp.stat_mode = 0;
+      if (level.time > level.intermissiontime + 4.0) {
+          if (ent->inuse && ent->client->resp.stat_mode > 0 && ent->client->resp.stat_mode_intermission == 0) {
+		ent->client->resp.stat_mode_intermission = 1;
                 Cmd_Stats_f(ent, ltm);
 	  }
       }

@@ -1,10 +1,16 @@
 //-----------------------------------------------------------------------------
 // g_local.h -- local definitions for game module
 //
-// $Id: g_local.h,v 1.50 2002/02/01 17:49:56 freud Exp $
+// $Id: g_local.h,v 1.51 2002/02/17 20:01:32 freud Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_local.h,v $
+// Revision 1.51  2002/02/17 20:01:32  freud
+// Fixed stat_mode overflows, finally.
+// Added 2 new cvars:
+// 	auto_join (0|1), enables auto joining teams from previous map.
+// 	auto_items (0|1), enables weapon and items caching between maps.
+//
 // Revision 1.50  2002/02/01 17:49:56  freud
 // Heavy changes in stats code. Removed lots of variables and replaced them
 // with int arrays of MODs. This cleaned tng_stats.c up a whole lots and
@@ -849,6 +855,9 @@ extern cvar_t *allitem;
 extern cvar_t *stats_endmap; // If on (1), show the accuracy/etc stats at the end of a map
 extern cvar_t *stats_afterround; // TNG Stats, collect stats between rounds
 
+extern cvar_t *auto_join;	// Automaticly join clients to teams they were on in last map.
+extern cvar_t *auto_items;	// Remember weapons and items for players between maps.
+
 // zucc from action
 extern cvar_t *sv_shelloff;
 extern cvar_t *splatlimit;
@@ -1248,6 +1257,7 @@ typedef struct
   gitem_t *weapon;		// weapon for teamplay
 
   int team;			// team the player is on
+  int saved_team;
   int ctf_state;
   float ctf_lasthurtcarrier;
   float ctf_lastreturnedflag;
@@ -1300,7 +1310,8 @@ typedef struct
 
   int hs_streak;		// Headshots in a Row
 	
-	int stat_mode;    // Automatical Send of statistics to client
+  int stat_mode;    		// Automatical Send of statistics to client
+  int stat_mode_intermission;
 
   int headshots;		// Headshot Counter
 	int legshots;		// Legshot Counter

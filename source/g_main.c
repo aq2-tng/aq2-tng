@@ -1,10 +1,16 @@
 //-----------------------------------------------------------------------------
 //
 //
-// $Id: g_main.c,v 1.51 2002/02/17 19:04:14 freud Exp $
+// $Id: g_main.c,v 1.52 2002/02/17 20:01:32 freud Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_main.c,v $
+// Revision 1.52  2002/02/17 20:01:32  freud
+// Fixed stat_mode overflows, finally.
+// Added 2 new cvars:
+// 	auto_join (0|1), enables auto joining teams from previous map.
+// 	auto_items (0|1), enables weapon and items caching between maps.
+//
 // Revision 1.51  2002/02/17 19:04:14  freud
 // Possible bugfix for overflowing clients with stat_mode set.
 //
@@ -312,6 +318,9 @@ cvar_t *team2score;
 cvar_t *team3score;
 cvar_t *stats_endmap; // If on (1) show the fpm/etc stats when the map ends
 cvar_t *stats_afterround;     // Collect TNG stats between rounds
+
+cvar_t *auto_join;
+cvar_t *auto_items;
 
 cvar_t *use_punch;
 

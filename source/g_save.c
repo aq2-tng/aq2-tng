@@ -1,10 +1,16 @@
 //-----------------------------------------------------------------------------
 // g_save.c
 //
-// $Id: g_save.c,v 1.49 2002/01/24 02:24:56 deathwatch Exp $
+// $Id: g_save.c,v 1.50 2002/02/17 20:01:32 freud Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_save.c,v $
+// Revision 1.50  2002/02/17 20:01:32  freud
+// Fixed stat_mode overflows, finally.
+// Added 2 new cvars:
+// 	auto_join (0|1), enables auto joining teams from previous map.
+// 	auto_items (0|1), enables weapon and items caching between maps.
+//
 // Revision 1.49  2002/01/24 02:24:56  deathwatch
 // Major update to Stats code (thanks to Freud)
 // new cvars:
@@ -516,8 +522,11 @@ InitGame (void)
   team1score = gi.cvar ("t1", "0", CVAR_SERVERINFO);
   team2score = gi.cvar ("t2", "0", CVAR_SERVERINFO);
   team3score = gi.cvar ("t3", "0", CVAR_SERVERINFO);
-	stats_endmap = gi.cvar("stats_endmap", "1",0);
-	stats_afterround = gi.cvar ("stats_afterround", "0", 0);
+  stats_endmap = gi.cvar("stats_endmap", "1",0);
+  stats_afterround = gi.cvar ("stats_afterround", "0", 0);
+
+  auto_join = gi.cvar ("auto_join", "0", 0);
+  auto_items = gi.cvar ("auto_items", "0", 0);
 
   use_punch = gi.cvar ("use_punch", "1", 0);
 
