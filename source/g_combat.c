@@ -1,10 +1,14 @@
 //-----------------------------------------------------------------------------
 // g_combat.c
 //
-// $Id: g_combat.c,v 1.22 2002/02/18 13:55:35 freud Exp $
+// $Id: g_combat.c,v 1.23 2002/02/18 17:17:20 freud Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_combat.c,v $
+// Revision 1.23  2002/02/18 17:17:20  freud
+// Fixed the CTF leaving team bug. Also made the shield more efficient,
+// No falling damage.
+//
 // Revision 1.22  2002/02/18 13:55:35  freud
 // Added last damaged players %P
 //
@@ -745,6 +749,8 @@ T_Damage (edict_t * targ, edict_t * inflictor, edict_t * attacker, vec3_t dir,
 	return;
 
 // AQ2:TNG - JBravo adding UVtime
+      if (ctf->value && targ->client && targ->client->ctf_uvtime > 0)
+		return;
       if (ctf->value && targ->client && attacker->client)
 	{
 	  if (targ->client->ctf_uvtime > 0
@@ -1134,7 +1140,7 @@ T_Damage (edict_t * targ, edict_t * inflictor, edict_t * attacker, vec3_t dir,
 	}
     }
 
-  if (mod == MOD_FALLING && !(targ->flags & FL_GODMODE))
+  if (mod == MOD_FALLING && !(targ->client->ctf_uvtime > 0) && !(targ->flags & FL_GODMODE) )
     {
       if (targ->client && targ->health > 0)
 	{

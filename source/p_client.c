@@ -1,10 +1,14 @@
 //-----------------------------------------------------------------------------
 // p_client.c
 //
-// $Id: p_client.c,v 1.67 2002/02/18 13:55:35 freud Exp $
+// $Id: p_client.c,v 1.68 2002/02/18 17:17:21 freud Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: p_client.c,v $
+// Revision 1.68  2002/02/18 17:17:21  freud
+// Fixed the CTF leaving team bug. Also made the shield more efficient,
+// No falling damage.
+//
 // Revision 1.67  2002/02/18 13:55:35  freud
 // Added last damaged players %P
 //
@@ -2698,7 +2702,7 @@ InitClientResp (gclient_t * client)
   client->resp.ir = 1;
 
   // TNG:Freud, restore weapons and items from last map.
-  if (auto_equip->value && teamplay->value) {
+  if (auto_equip->value && (teamplay->value || ctf->value)) {
 	if (item)
 		client->resp.item = item;
 	if (weapon)
@@ -3924,7 +3928,7 @@ ClientBeginDeathmatch (edict_t * ent)
   gi.bprintf (PRINT_HIGH, "%s entered the game\n", ent->client->pers.netname);
 
   // TNG:Freud Automaticly join saved teams.
-  if (teamplay->value && ent->client->resp.saved_team)
+  if ((teamplay->value || ctf->value) && ent->client->resp.saved_team)
 	JoinTeam (ent, ent->client->resp.saved_team, 1);
 
 //FIREBLADE

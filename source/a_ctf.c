@@ -1,10 +1,14 @@
 //-----------------------------------------------------------------------------
 // CTF related code
 //
-// $Id: a_ctf.c,v 1.16 2001/09/28 13:48:34 ra Exp $
+// $Id: a_ctf.c,v 1.17 2002/02/18 17:17:20 freud Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_ctf.c,v $
+// Revision 1.17  2002/02/18 17:17:20  freud
+// Fixed the CTF leaving team bug. Also made the shield more efficient,
+// No falling damage.
+//
 // Revision 1.16  2001/09/28 13:48:34  ra
 // I ran indent over the sources. All .c and .h files reindented.
 //
@@ -125,7 +129,7 @@ ResetPlayers ()
       ent = &g_edicts[1 + i];
       if (ent->inuse)
 	{
-	  ent->client->resp.team = NOTEAM;
+//	  ent->client->resp.team = NOTEAM;
 	  PutClientInServer (ent);
 	}
     }
