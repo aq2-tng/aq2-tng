@@ -3,10 +3,13 @@
 // Some of this is borrowed from Zoid's CTF (thanks Zoid)
 // -Fireblade
 //
-// $Id: a_team.c,v 1.8 2001/05/12 13:48:58 mort Exp $
+// $Id: a_team.c,v 1.9 2001/05/12 14:52:47 mort Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_team.c,v $
+// Revision 1.9  2001/05/12 14:52:47  mort
+// Fixed bug of people being able to respawn when choosing a new item
+//
 // Revision 1.8  2001/05/12 13:48:58  mort
 // Fixed CTF ForceSpawn bug
 //
@@ -1135,6 +1138,8 @@ SpawnPlayers ()
 	  //AQ2:TNG END
 	  PutClientInServer (ent);
 	  AddToTransparentList (ent);
+
+	  ent->hasSpawned = 1; // AQ:TNG - CTF
 	}
     }
 }
