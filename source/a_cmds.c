@@ -4,10 +4,14 @@
 //
 // laser sight patch, by Geza Beladi
 //
-// $Id: a_cmds.c,v 1.12 2001/08/17 21:31:37 deathwatch Exp $
+// $Id: a_cmds.c,v 1.13 2001/08/18 18:45:19 deathwatch Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_cmds.c,v $
+// Revision 1.13  2001/08/18 18:45:19  deathwatch
+// Edited the Flashlight movement code to the Lasersight's movement code, its probably better
+// and I added checks for darkmatch/being dead/being a spectator for its use
+//
 // Revision 1.12  2001/08/17 21:31:37  deathwatch
 // Added support for stats
 //
@@ -68,8 +72,7 @@ SP_LaserSight
 
 #define lss self->lasersight
 
-void
-SP_LaserSight (edict_t * self, gitem_t * item)
+void SP_LaserSight (edict_t * self, gitem_t * item)
 {
 
   vec3_t start, forward, right, end;
@@ -78,55 +81,54 @@ SP_LaserSight (edict_t * self, gitem_t * item)
 
 
 
-//      gi.cprintf(self, PRINT_HIGH, "Calling lasersight function have_laser %d.\n", self->client->have_laser);
+	//gi.cprintf(self, PRINT_HIGH, "Calling lasersight function have_laser %d.\n", self->client->have_laser);
 
   temp_item = FindItem (LASER_NAME);
   if (!(self->client->pers.inventory[ITEM_INDEX (temp_item)]))
-    {
-      if (lss)			// laser is on
-
 	{
-	  G_FreeEdict (lss);
-	  lss = NULL;
+		if (lss)			// laser is on
+		{
+			G_FreeEdict (lss);
+			lss = NULL;
+		}
+		//gi.cprintf(self, PRINT_HIGH, "didn't have laser sight.\n");             
+    return;
 	}
-//              gi.cprintf(self, PRINT_HIGH, "didn't have laser sight.\n");             
-      return;
-    }
 
-  // zucc code to make it be used with the right weapons
+  //zucc code to make it be used with the right weapons
 
 
-//      gi.cprintf(self, PRINT_HIGH, "curr_weap = %d.\n", self->client->curr_weap);             
+	//gi.cprintf(self, PRINT_HIGH, "curr_weap = %d.\n", self->client->curr_weap);             
 
   switch (self->client->curr_weap)
+	{
+		case MK23_NUM:
+		case MP5_NUM:
+		case M4_NUM:
     {
-    case MK23_NUM:
-    case MP5_NUM:
-    case M4_NUM:
-      {
-	laser_on = 1;
-	break;
-      }
+			laser_on = 1;
+			break;
+		}
     default:
-      {
-	laser_on = 0;
-	break;
-      }
-    }
+		{
+			laser_on = 0;
+			break;
+		}
+	}
 
-//      gi.cprintf(self, PRINT_HIGH, "laser_on is %d.\n", laser_on);            
+	//gi.cprintf(self, PRINT_HIGH, "laser_on is %d.\n", laser_on);            
 
   // laser is on but we want it off
   if (lss && !laser_on)
-    {
-//              gi.cprintf(self, PRINT_HIGH, "trying to free the laser sight\n");               
-      G_FreeEdict (lss);
-      lss = NULL;
-      //gi.bprintf (PRINT_HIGH, "lasersight off.");
-      return;
-    }
+	{
+		//gi.cprintf(self, PRINT_HIGH, "trying to free the laser sight\n");               
+		G_FreeEdict (lss);
+		lss = NULL;
+		//gi.bprintf (PRINT_HIGH, "lasersight off.");
+		return;
+	}
 
-//      gi.cprintf(self, PRINT_HIGH, "laser wasn't lss is %p.\n", lss);         
+	//gi.cprintf(self, PRINT_HIGH, "laser wasn't lss is %p.\n", lss);         
 
   // off and we want it to stay that way
   if (!laser_on)
@@ -158,8 +160,7 @@ LaserSightThink
   is the lasersight entity
 ---------------------------------------------*/
 
-void
-LaserSightThink (edict_t * self)
+void LaserSightThink (edict_t * self)
 {
   vec3_t start, end, endp, offset;
   vec3_t forward, right, up;
@@ -173,13 +174,13 @@ LaserSightThink (edict_t * self)
 
 
   if (self->owner->lasersight != self)
-    {
-      self->think = G_FreeEdict;
-    }
+	{
+		self->think = G_FreeEdict;
+  }
 
 
   if (self->owner->client->pers.firing_style == ACTION_FIRING_CLASSIC)
-    height = 8;
+		height = 8;
 
 
   VectorSet (offset, 24, 8, self->owner->viewheight - height);
@@ -192,10 +193,10 @@ LaserSightThink (edict_t * self)
   POSTTRACE ();
 
   if (tr.fraction != 1)
-    {
-      VectorMA (tr.endpos, -4, forward, endp);
-      VectorCopy (endp, tr.endpos);
-    }
+	{
+		VectorMA (tr.endpos, -4, forward, endp);
+    VectorCopy (endp, tr.endpos);
+	}
 
   vectoangles (tr.plane.normal, self->s.angles);
   VectorCopy (tr.endpos, self->s.origin);
@@ -205,8 +206,7 @@ LaserSightThink (edict_t * self)
 }
 
 
-void
-Cmd_New_Reload_f (edict_t * ent)
+void Cmd_New_Reload_f (edict_t * ent)
 {
 //FB 6/1/99 - refuse to reload during LCA
   if ((int) teamplay->value && lights_camera_action)
@@ -220,8 +220,7 @@ Cmd_New_Reload_f (edict_t * ent)
 //+BD ENTIRE CODE BLOCK NEW
 // Cmd_Reload_f()
 // Handles weapon reload requests
-void
-Cmd_Reload_f (edict_t * ent)
+void Cmd_Reload_f (edict_t * ent)
 {
 //      int rds_left;           //+BD - Variable to handle rounds left
 

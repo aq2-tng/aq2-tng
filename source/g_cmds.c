@@ -1,10 +1,14 @@
 //-----------------------------------------------------------------------------
 // g_cmds.c
 //
-// $Id: g_cmds.c,v 1.28 2001/08/18 17:14:04 deathwatch Exp $
+// $Id: g_cmds.c,v 1.29 2001/08/18 18:45:19 deathwatch Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_cmds.c,v $
+// Revision 1.29  2001/08/18 18:45:19  deathwatch
+// Edited the Flashlight movement code to the Lasersight's movement code, its probably better
+// and I added checks for darkmatch/being dead/being a spectator for its use
+//
 // Revision 1.28  2001/08/18 17:14:04  deathwatch
 // Flashlight Added (not done yet, needs to prevent DEAD ppl from using it,
 // the glow should be white and a bit smaller if possible and the daiper needs
@@ -1891,7 +1895,10 @@ void ClientCommand (edict_t *ent)
 		return;
 	}
 	else if (Q_stricmp (cmd, "flashlight") == 0) {
-		FL_make (ent);
+		if(darkmatch->value)
+			FL_make (ent);
+		else
+			Cmd_Say_f(ent, false, true, false);
 		return;
 	}
   else    // anything that doesn't match a command will be a chat
