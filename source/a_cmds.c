@@ -4,10 +4,13 @@
 //
 // laser sight patch, by Geza Beladi
 //
-// $Id: a_cmds.c,v 1.16 2001/09/30 03:09:34 ra Exp $
+// $Id: a_cmds.c,v 1.17 2001/10/18 12:45:47 ra Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_cmds.c,v $
+// Revision 1.17  2001/10/18 12:45:47  ra
+// Disable time command in matchmode
+//
 // Revision 1.16  2001/09/30 03:09:34  ra
 // Removed new stats at end of rounds and created a new command to
 // do the same functionality.   Command is called "time"
@@ -1244,6 +1247,10 @@ Cmd_Time (edict_t * ent)
 {
   int mins, secs, remaining, rmins, rsecs, round;
 
+     if(matchmode->value) {
+	gi.cprintf (ent, PRINT_HIGH, "This server is running in matchmode. See the scoreboard for timing info.\n");
+	return;
+     }
      mins = level.time / 60;
      secs = level.time - (mins * 60);
      remaining = (timelimit->value *60) - level.time;
