@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // p_view.c
 //
-// $Id: p_view.c,v 1.5 2001/05/11 16:07:26 mort Exp $
+// $Id: p_view.c,v 1.6 2001/05/20 15:00:19 slicerdw Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: p_view.c,v $
+// Revision 1.6  2001/05/20 15:00:19  slicerdw
+// Some minor fixes and changings on Video Checking system
+//
 // Revision 1.5  2001/05/11 16:07:26  mort
 // Various CTF bits and pieces...
 //
@@ -1163,7 +1166,6 @@ void ClientEndServerFrame (edict_t *ent)
   {
 	  if (ent->client->resp.checktime <= (int)(level.time))
 	  {
-		
 		ent->client->resp.checked = true;
 		memset(player_name,0,sizeof(player_name));
 		memset(temp,0,sizeof(temp));
@@ -1171,13 +1173,12 @@ void ClientEndServerFrame (edict_t *ent)
 		{
 				AntiCheat_CheckClient(ent);
 				next_cheat_check = level.time + video_checktime->value;
-
 		}
 
 		if(video_check_lockpvs->value || video_check->value)
 		{
-	
 			strcpy(player_name,ent->client->pers.netname);
+			player_name[16]=0;
 			stuffcmd(ent,"name #%&\n");
 		}
 		if(video_check_lockpvs->value)
@@ -1192,8 +1193,8 @@ void ClientEndServerFrame (edict_t *ent)
   
 		if(video_check_lockpvs->value || video_check->value)
 		{
-
 			sprintf(temp, "name \"%s\"\n",player_name);
+			temp[40]=0;
 			stuffcmd(ent,temp);
 		}
 		if(video_force_restart->value && video_check->value)

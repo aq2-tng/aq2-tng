@@ -16,10 +16,13 @@
 // you get compiler errors too, comment them out like
 // I'd done.
 //
-// $Id: a_xgame.c,v 1.4 2001/05/11 12:21:18 slicerdw Exp $
+// $Id: a_xgame.c,v 1.5 2001/05/20 15:00:19 slicerdw Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_xgame.c,v $
+// Revision 1.5  2001/05/20 15:00:19  slicerdw
+// Some minor fixes and changings on Video Checking system
+//
 // Revision 1.4  2001/05/11 12:21:18  slicerdw
 // Commented old Location support ( ADF ) With the ML/ETE Compatible one
 //
@@ -679,7 +682,7 @@ ParseSayText (edict_t * ent, char *text)
 
 // AQ2:TNG - Slicer Video Checks
 
-float	next_cheat_check;
+//float	next_cheat_check;
 
 void AntiCheat_CheckClient (edict_t *ent)
 {

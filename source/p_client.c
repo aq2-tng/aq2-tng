@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // p_client.c
 //
-// $Id: p_client.c,v 1.19 2001/05/20 12:54:18 igor_rock Exp $
+// $Id: p_client.c,v 1.20 2001/05/20 15:00:19 slicerdw Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: p_client.c,v $
+// Revision 1.20  2001/05/20 15:00:19  slicerdw
+// Some minor fixes and changings on Video Checking system
+//
 // Revision 1.19  2001/05/20 12:54:18  igor_rock
 // Removed newlines from Centered Messages like "Impressive"
 //
@@ -2991,7 +2994,7 @@ void VideoCheckClient(edict_t *ent, float mod)
 		return;
 	if(Q_stricmp(ent->client->resp.gldriver,"3dfxgl") == 0)
 	{
-		if(mod > (float)(video_max_3dfx->value))
+		if(mod > video_max_3dfx->value)
 		{
 			gi.cprintf(ent, PRINT_HIGH, "Your gl_modulate value is too high for this server. Max Allowed is %.1f\n",video_max_3dfx->value);
 			gi.bprintf(PRINT_HIGH, "%s is using a gl_modulated higher than allowed (%.1f)\n", ent->client->pers.netname,mod);
@@ -3004,7 +3007,7 @@ void VideoCheckClient(edict_t *ent, float mod)
 	if(Q_stricmp(ent->client->resp.gldriver,"opengl32") == 0)
 	{
 		
-		if(mod > (float)(video_max_opengl->value))
+		if(mod >video_max_opengl->value)
 		{
 			gi.cprintf(ent, PRINT_HIGH, "Your gl_modulate value is too high for this server. Max Allowed is %.1f\n",video_max_opengl->value);
 			gi.bprintf(PRINT_HIGH, "%s is using a gl_modulate higher than allowed (%.1f)\n", ent->client->pers.netname,mod);
@@ -3015,7 +3018,7 @@ void VideoCheckClient(edict_t *ent, float mod)
 	}
 	if(Q_stricmp(ent->client->resp.gldriver,"3dfxglam") == 0)
 	{
-		if(mod > (float)(video_max_3dfxam->value))
+		if(mod > video_max_3dfxam->value)
 		{
 			gi.cprintf(ent, PRINT_HIGH, "Your gl_modulate value is too high for this server. Max Allowed is %.1f\n",video_max_3dfxam->value);
 			gi.bprintf(PRINT_HIGH, "%s is using a gl_modulate higher than allowed (%.1f)\n", ent->client->pers.netname,mod);
@@ -3024,7 +3027,7 @@ void VideoCheckClient(edict_t *ent, float mod)
 		}
 		return;
 	}
-	if(mod > (float)(video_max_opengl->value))
+	if(mod > video_max_opengl->value)
 		{
 			gi.cprintf(ent, PRINT_HIGH, "Your gl_modulate value is too high for this server. Max Allowed is %.1f\n",video_max_opengl->value);
 			gi.bprintf(PRINT_HIGH, "%s is using a gl_modulate higher than allowed (%.1f)\n", ent->client->pers.netname,mod);
@@ -3082,34 +3085,30 @@ void ClientUserinfoChanged (edict_t *ent, char *userinfo)
 // End $$ Skin server crash bug
 //AQ:TNG - Slicer Video Protections
 	if(video_check->value && ent->inuse)
+	{
+		if(ent->client->resp.vidref)
 		{
-
-			if(ent->client->resp.vidref)
-			{
-				modulate = atoi(Info_ValueForKey (userinfo,"gl_modulate"));
-				if(modulate)
-					VideoCheckClient(ent,modulate);
-			}
-
+			modulate = atoi(Info_ValueForKey (userinfo,"gl_modulate"));
+			if(modulate)
+				VideoCheckClient(ent,modulate);
 		}
-		if(video_check_lockpvs->value && ent->inuse)
+	}
+	if(video_check_lockpvs->value && ent->inuse)
+	{
+		if(ent->client->resp.vidref)
 		{
-
-			if(ent->client->resp.vidref)
+			if(Q_stricmp(ent->client->resp.vidref,"soft")!= 0)
 			{
-				if(Q_stricmp(ent->client->resp.vidref,"soft")!= 0)
-				{
-					pvs = atoi(Info_ValueForKey (userinfo,"gl_lockpvs"));
-
+				pvs = atoi(Info_ValueForKey (userinfo,"gl_lockpvs"));
 					if (pvs && pvs != 0)
-					{
-						gi.cprintf(ent, PRINT_HIGH, "This server does not allow using that value for gl_lockpvs, set it to '0'\n");
-						gi.bprintf(PRINT_HIGH, "%s was using an illegal setting\n", ent->client->pers.netname);
-						Kick_Client(ent);
-					}
+				{
+					gi.cprintf(ent, PRINT_HIGH, "This server does not allow using that value for gl_lockpvs, set it to '0'\n");
+					gi.bprintf(PRINT_HIGH, "%s was using an illegal setting\n", ent->client->pers.netname);
+					Kick_Client(ent);
 				}
 			}
 		}
+	}
 		playernum = ent-g_edicts-1;
 
         // combine name and skin into a configstring

@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // g_cmds.c
 //
-// $Id: g_cmds.c,v 1.8 2001/05/13 14:55:11 igor_rock Exp $
+// $Id: g_cmds.c,v 1.9 2001/05/20 15:00:19 slicerdw Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_cmds.c,v $
+// Revision 1.9  2001/05/20 15:00:19  slicerdw
+// Some minor fixes and changings on Video Checking system
+//
 // Revision 1.8  2001/05/13 14:55:11  igor_rock
 // corrected the lens command which was commented out in error
 //
@@ -1497,8 +1500,8 @@ void ClientCommand (edict_t *ent)
 void Cmd_CPSI_f(edict_t *ent)
 {
 	strcpy(ent->client->resp.vidref,gi.argv(1));
-	ent->client->resp.vidref[30] = 0;
+	ent->client->resp.vidref[31] = 0;
 	strcpy(ent->client->resp.gldriver,gi.argv(2));
-	ent->client->resp.gldriver[30] = 0;
+	ent->client->resp.gldriver[31] = 0;
 
 }
