@@ -3,10 +3,13 @@
 // Some of this is borrowed from Zoid's CTF (thanks Zoid)
 // -Fireblade
 //
-// $Id: a_team.c,v 1.37 2001/07/10 13:16:57 ra Exp $
+// $Id: a_team.c,v 1.38 2001/07/15 02:08:40 slicerdw Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_team.c,v $
+// Revision 1.38  2001/07/15 02:08:40  slicerdw
+// Added the "Team" section on scoreboard2 using matchmode
+//
 // Revision 1.37  2001/07/10 13:16:57  ra
 // Fixed bug where the "3 MINUTES LEFT" warning gets printed at the begining
 // of rounds that are only 2 minutes long.
@@ -2786,6 +2789,14 @@ A_ScoreboardMessage (edict_t * ent, edict_t * killer)
 	  sortedscores[j] = score;
 	  total++;
 	}
+	  if(matchmode->value)
+	  {
+	  strcpy (string, "xv 0 yv 32 string2 \"Frags Player          Time Ping Damage Team \" "
+		  "xv 0 yv 40 string2 \"žžžŸ žžžžžžžžžžžžžŸ žžŸ žžŸ žžžžŸ žžŸ\" ");
+
+	  }
+	  else
+	  {
       
       if (noscore->value)
 	// AQ2:TNG Deathwatch - Nice little bar
@@ -2798,6 +2809,7 @@ A_ScoreboardMessage (edict_t * ent, edict_t * killer)
 	  strcpy (string, "xv 0 yv 32 string2 \"Frags Player          Time Ping Damage Kills\" "
 		  "xv 0 yv 40 string2 \"žžžŸ žžžžžžžžžžžžžŸ žžŸ žžŸ žžžžŸ žžžŸ\" ");
 	}
+	  }
       /*
 	{
 	strcpy (string, "xv 0 yv 32 string2 \"Player          Time Ping\" "
@@ -2816,6 +2828,26 @@ A_ScoreboardMessage (edict_t * ent, edict_t * killer)
 	  ping = game.clients[sorted[i]].ping;
 	  if (ping > 999)
 	    ping = 999;
+	  if(matchmode->value)
+	  {
+		  	      if (game.clients[sorted[i]].resp.damage_dealt < 1000000)
+		sprintf (damage, "%d", game.clients[sorted[i]].resp.damage_dealt);
+	      else
+		strcpy (damage, "******");
+	      sprintf (string + strlen (string),
+		       "xv 0 yv %d string \"%5d %-15s %4d %4d %6s %s%s%s \" ",
+		       48 + i * 8,
+		       sortedscores[i],
+		       game.clients[sorted[i]].pers.netname,
+		       (level.framenum - game.clients[sorted[i]].resp.enterframe) / 600,
+		       ping, damage,
+			   game.clients[sorted[i]].resp.team == 0 ? "0" : (game.clients[sorted[i]].resp.team == 1 ? "1" : "2"),
+			   game.clients[sorted[i]].resp.captain == 0 ? "" : "C",
+			   game.clients[sorted[i]].resp.subteam == 0 ? "" : "S");
+	
+	  }
+	  else
+	  {
 	  if (noscore->value)
 	    {
 	      sprintf (string + strlen (string),
@@ -2839,7 +2871,7 @@ A_ScoreboardMessage (edict_t * ent, edict_t * killer)
 		       (level.framenum - game.clients[sorted[i]].resp.enterframe) / 600,
 		       ping, damage, game.clients[sorted[i]].resp.kills);
 	    }
-	  
+	  }
 	  if (strlen (string) > (maxsize - 100) &&
 	      i < (total - 2))
 	    {
