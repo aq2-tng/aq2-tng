@@ -3,10 +3,13 @@
 // Some of this is borrowed from Zoid's CTF (thanks Zoid)
 // -Fireblade
 //
-// $Id: a_team.c,v 1.71 2002/02/17 19:04:14 freud Exp $
+// $Id: a_team.c,v 1.72 2002/02/17 23:25:29 freud Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_team.c,v $
+// Revision 1.72  2002/02/17 23:25:29  freud
+// Fixed a small bug where stats were sent twice on votes and roundlimits
+//
 // Revision 1.71  2002/02/17 19:04:14  freud
 // Possible bugfix for overflowing clients with stat_mode set.
 //
@@ -1847,17 +1850,6 @@ int WonGame (int winner)
   char arg[64];
  
   gi.bprintf (PRINT_HIGH, "The round is over:\n");
-  arg[0] = '\0';
-
-	for (i = 0; i < game.maxclients; i++)
-	{
-		cl_ent = &g_edicts[1 + i];
-
-		if ((teamplay->value && (level.time <= ((timelimit->value * 60) - 5))) &&
-		      cl_ent->inuse && cl_ent->client->resp.stat_mode == 2)
-			Cmd_Stats_f(cl_ent, arg);
-	}
-
   if (winner == WINNER_TIE)
 	{
 		gi.bprintf (PRINT_HIGH, "It was a tie, no points awarded!\n");
@@ -2020,6 +2012,17 @@ int WonGame (int winner)
   vNewRound ();
   //PG BUND - END
 	
+  arg[0] = '\0';
+
+	for (i = 0; i < game.maxclients; i++)
+	{
+		cl_ent = &g_edicts[1 + i];
+
+		if ((teamplay->value && (level.time <= ((timelimit->value * 60) - 5))) &&
+		      cl_ent->inuse && cl_ent->client->resp.stat_mode == 2)
+			Cmd_Stats_f(cl_ent, arg);
+	}
+
   return 0;
 }
 
