@@ -1,10 +1,14 @@
 //-----------------------------------------------------------------------------
 //
 //
-// $Id: g_main.c,v 1.10 2001/06/13 08:39:13 igor_rock Exp $
+// $Id: g_main.c,v 1.11 2001/06/18 12:36:40 igor_rock Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_main.c,v $
+// Revision 1.11  2001/06/18 12:36:40  igor_rock
+// added new irvision mode (with reddish screen and alpha blend) and corresponding
+// new cvar "new_irvision" to enable the new mode
+//
 // Revision 1.10  2001/06/13 08:39:13  igor_rock
 // changed "cvote" to "use_cvote" (like the other votecvars)
 //
@@ -124,6 +128,7 @@ cvar_t   *rrot;
 cvar_t   *strtwpn;
 cvar_t   *llsound;
 cvar_t   *use_cvote;
+cvar_t   *new_irvision;
 //Igor[Rock] END
 
 //Black Cross - Begin

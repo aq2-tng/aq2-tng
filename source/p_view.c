@@ -1,10 +1,14 @@
 //-----------------------------------------------------------------------------
 // p_view.c
 //
-// $Id: p_view.c,v 1.7 2001/05/31 16:58:14 igor_rock Exp $
+// $Id: p_view.c,v 1.8 2001/06/18 12:36:40 igor_rock Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: p_view.c,v $
+// Revision 1.8  2001/06/18 12:36:40  igor_rock
+// added new irvision mode (with reddish screen and alpha blend) and corresponding
+// new cvar "new_irvision" to enable the new mode
+//
 // Revision 1.7  2001/05/31 16:58:14  igor_rock
 // conflicts resolved
 //
@@ -490,7 +494,14 @@ void SV_CalcBlend (edict_t *ent)
     SV_AddBlend (0.0, 0.1, 0.05, 0.6, ent->client->ps.blend);
   else if (contents & CONTENTS_WATER)
     SV_AddBlend (0.5, 0.3, 0.2, 0.4, ent->client->ps.blend);
-        
+  
+  // AQ2:TNG - Igor[Rock] adding new irvision mode
+  if (new_irvision->value && (ent->client->resp.ir == 0) && (ent->client->pers.inventory[ITEM_INDEX (FindItem (BAND_NAME))]))
+    {
+      SV_AddBlend (0.1, 0.0, 0.0, 0.4, ent->client->ps.blend);
+    }
+  // AQ2:TNG end of new irvision mode
+
   // add for powerups
   if (ent->client->quad_framenum > level.framenum)
   {

@@ -1,10 +1,14 @@
 //-----------------------------------------------------------------------------
 // g_local.h -- local definitions for game module
 //
-// $Id: g_local.h,v 1.19 2001/06/13 08:39:13 igor_rock Exp $
+// $Id: g_local.h,v 1.20 2001/06/18 12:36:40 igor_rock Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_local.h,v $
+// Revision 1.20  2001/06/18 12:36:40  igor_rock
+// added new irvision mode (with reddish screen and alpha blend) and corresponding
+// new cvar "new_irvision" to enable the new mode
+//
 // Revision 1.19  2001/06/13 08:39:13  igor_rock
 // changed "cvote" to "use_cvote" (like the other votecvars)
 //
@@ -714,6 +718,7 @@ extern cvar_t *rrot;
 extern cvar_t *strtwpn;
 extern cvar_t *llsound;
 extern cvar_t *use_cvote;
+extern cvar_t *new_irvision;
 //Igor[Rock] END
 
 //AQ2:TNG - Slicer: For Video Checking
