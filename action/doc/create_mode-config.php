@@ -2,7 +2,7 @@
   //-----------------------------------------------------------------------------
   // create_mode-config.php
   //-----------------------------------------------------------------------------
-  // $Id: create_mode-config.php,v 1.6 2001/11/07 13:01:51 igor_rock Exp $
+  // $Id: create_mode-config.php,v 1.7 2002/02/23 18:33:02 igor_rock Exp $
   //-----------------------------------------------------------------------------
 
   // Do some checks for illegal game modes
@@ -73,6 +73,8 @@
   print "set nohud $data[nohud]\n";
   print "set use_warnings $data[use_warnings]\n";
   print "set use_rewards $data[use_rewards]\n";
+  print "set auto_join $data[auto_join]\n";
+  print "set auto_items $data[auto_items]\n";
 
   print "\n//-----------------------------------------------------------------------------\n";
   print "// Game Mode Settings\n";
@@ -144,6 +146,8 @@
   print "set video_check $data[video_check]\n";
   print "set video_force_restart $data[video_force_restart]\n";
   print "set video_check_lockpvs $data[video_check_lockpvs]\n";
+  print "set video_check_glclear $data[video_check_glclear]\n";
+  print "set video_check_gldynamic $data[video_check_gldynamic]\n";
   print "set video_checktime $data[video_checktime]\n";
   print "set video_max_3dfx $data[video_max_3dfx]\n";
   print "set video_max_3dfxam $data[video_max_3dfxam]\n";

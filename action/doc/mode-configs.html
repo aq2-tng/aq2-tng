@@ -3,7 +3,7 @@
 <html>
   <head>
     <meta name="generator" content="HTML Tidy, see www.w3.org">
-    <meta name="version" content="Version: $Id: mode-configs.html,v 1.7 2001/11/08 10:05:09 igor_rock Exp $">
+    <meta name="version" content="Version: $Id: mode-configs.html,v 1.8 2002/02/23 18:33:02 igor_rock Exp $">
 
     <title>AQ2:TNG - Online Config Generator Part II: Server Mode Configuration</title>
   </head>
@@ -151,6 +151,34 @@
                     </option>
 
                     <option value="1" selected>
+                      Yes
+                    </option>
+                  </select> </td>
+                </tr>
+
+                <tr>
+                  <td>Auto rejoin team after mapchange</td>
+
+                  <td><select name="data[auto_join]">
+                    <option value="0" selected>
+                      No
+                    </option>
+
+                    <option value="1">
+                      Yes
+                    </option>
+                  </select> </td>
+                </tr>
+
+                <tr>
+                  <td>Auto reselect weapon and item after mapchange</td>
+
+                  <td><select name="data[auto_items]">
+                    <option value="0" selected>
+                      No
+                    </option>
+
+                    <option value="1">
                       Yes
                     </option>
                   </select> </td>
@@ -696,6 +724,34 @@
                   <td>Check for gl_lockpvs</td>
 
                   <td><select name="data[video_check_lockpvs]">
+                    <option value="0" selected>
+                      No
+                    </option>
+
+                    <option value="1">
+                      Yes
+                    </option>
+                  </select> </td>
+                </tr>
+
+                <tr>
+                  <td>Check for gl_clear</td>
+
+                  <td><select name="data[video_check_glclear]">
+                    <option value="0" selected>
+                      No
+                    </option>
+
+                    <option value="1">
+                      Yes
+                    </option>
+                  </select> </td>
+                </tr>
+
+                <tr>
+                  <td>Check for gl_dynamic</td>
+
+                  <td><select name="data[video_check_gldynamic]">
                     <option value="0" selected>
                       No
                     </option>
