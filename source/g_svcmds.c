@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // g_svcmds.c
 //
-// $Id: g_svcmds.c,v 1.2 2001/05/07 21:18:35 slicerdw Exp $
+// $Id: g_svcmds.c,v 1.3 2001/05/07 22:03:15 slicerdw Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_svcmds.c,v $
+// Revision 1.3  2001/05/07 22:03:15  slicerdw
+// Added sv stuffcmd
+//
 // Revision 1.2  2001/05/07 21:18:35  slicerdw
 // Added Video Checking System
 //
@@ -301,7 +304,96 @@ void SVCmd_Nextmap_f (char *arg)
 }
 //Black Cross - End
 
+/*
+=================
+STUFF COMMAND
 
+This will stuff a certain command to the client.
+=================
+*/
+void SVCmd_stuffcmd_f ()
+{
+    int i, u;
+	char text[255];
+	char tmp[50];
+	char user[50];
+	edict_t *ent;
+	if(gi.argc() < 4){
+              gi.cprintf(NULL, PRINT_HIGH, "Usage:  stuffcmd <user id> <text>\n");
+              return;
+      }
+	i = gi.argc();
+	memset(text,0,sizeof(text));
+	memset(user,0,sizeof(user));
+	memset(tmp,0,sizeof(tmp));
+	strcpy(user,gi.argv(2));
+	user[50] = 0;
+	for(u=3;u<=i;u++)
+	{
+		strcpy(tmp,gi.argv(u));
+		if(tmp[0]=='!') // Checks for "!" and replaces for "$" to see the user info
+			tmp[0]='$';
+		tmp[50] = 0;
+		strcat(text,tmp);
+		strcat(text," ");
+	}
+ 	strcat(text,"\n");
+	text[255] = 0;
+	    
+	if(Q_stricmp(user,"team1")==0 || Q_stricmp(user,"team2")==0 || Q_stricmp(user,"all")==0 ){
+		for(i=1;i<=(int)(maxclients->value);i++)
+		{
+			if(Q_stricmp(user,"team1")==0)
+			{
+				if((int)(teamplay->value)==0)
+				{
+                    gi.cprintf(NULL, PRINT_HIGH, "Not in Teamplay mode\n");
+					return;
+				}
+				ent = getEnt(i);
+				if((int)(ent->client->resp.team)==1 && ent->inuse)
+				stuffcmd(ent, text);
+			}
+			if(Q_stricmp(user,"team2")==0)
+			{
+				if((int)(teamplay->value)==0)
+				{
+                    gi.cprintf(NULL, PRINT_HIGH, "Not in Teamplay mode\n");
+					return;
+				}
+				ent = getEnt(i);
+				if((int)(ent->client->resp.team)==2 && ent->inuse)
+				stuffcmd(ent, text);
+			}
+				if(Q_stricmp(user,"all")==0)
+			{
+				ent = getEnt(i);
+				if(ent->inuse)
+				stuffcmd(ent, text);
+			}
+		}
+		return;
+	}
+	else{
+	for (u=0;u<strlen(user);u++)
+			if(!isdigit(user[u])){
+				gi.cprintf(NULL, PRINT_HIGH, "Usage:  stuffcmd <user id> <text>\n");
+				return;
+			}
+	}
+
+	i = atoi(user)+1;
+    ent = getEnt(i);
+
+	if (i > (int)(maxclients->value)){	/* if is inserted number > server capacity */
+		gi.cprintf(NULL, PRINT_HIGH, "User id is not valid\n");
+		return;
+	}
+	if(ent->inuse)	/* if is inserted a user that exists in the server */
+		stuffcmd(ent, text);
+	else
+		gi.cprintf(NULL, PRINT_HIGH, "User id is not valid\n");
+}
 /*
 =================
 ServerCommand
@@ -329,8 +421,11 @@ void    ServerCommand (void)
 				SVCmd_Nextmap_f (gi.argv(2)); // Added by Black Cross
 		else if (Q_stricmp (cmd, "reloadmotd") == 0)
 				SVCmd_ReloadMOTD_f();
+		//AQ2:TNG - Slicer : CheckCheats & StuffCmd
 		else if (Q_stricmp (cmd, "checkcheats") == 0)
 				SVCmd_CheckCheats_f();
+		else if (Q_stricmp (cmd, "stuffcmd") == 0)
+                SVCmd_stuffcmd_f();
         else
 				gi.cprintf (NULL, PRINT_HIGH, "Unknown server command \"%s\"\n", cmd);
 }

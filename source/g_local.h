@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // g_local.h -- local definitions for game module
 //
-// $Id: g_local.h,v 1.4 2001/05/07 21:18:34 slicerdw Exp $
+// $Id: g_local.h,v 1.5 2001/05/07 22:03:15 slicerdw Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_local.h,v $
+// Revision 1.5  2001/05/07 22:03:15  slicerdw
+// Added sv stuffcmd
+//
 // Revision 1.4  2001/05/07 21:18:34  slicerdw
 // Added Video Checking System
 //
@@ -50,7 +53,9 @@
 
 //Black Cross
 #include "a_vote.h"
-
+//AQ:TNG Slicer - This was missing
+#define getEnt(entnum) (edict_t *)((char *)globals.edicts + (globals.edict_size * entnum))
+//AQ:TNG END
 // the "gameversion" client command will print this plus compile date
 #define GAMEVERSION     "action"
 
