@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 //
 //
-// $Id: g_main.c,v 1.6 2001/05/13 01:23:01 deathwatch Exp $
+// $Id: g_main.c,v 1.7 2001/05/14 21:10:16 igor_rock Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_main.c,v $
+// Revision 1.7  2001/05/14 21:10:16  igor_rock
+// added wp_flags support (and itm_flags skeleton - doesn't disturb in the moment)
+//
 // Revision 1.6  2001/05/13 01:23:01  deathwatch
 // Added Single Barreled Handcannon mode, made the menus and scoreboards
 // look nicer and made the voice command a bit less loud.
@@ -170,7 +173,11 @@ cvar_t  *video_check_lockpvs;
 //Slicer End
 //AQ2:TNG Deathwatch - Single Barreled HC
 cvar_t *hc_single;
-//AQ2:TND END
+//AQ2:TNG END
+//AQ2:TNG - Igor adding wp_flags/itm_flags
+cvar_t *wp_flags;
+cvar_t *itm_flags;
+//AQ2:TNG end adding flags
 
 void SpawnEntities (char *mapname, char *entities, char *spawnpoint);
 void ClientThink (edict_t *ent, usercmd_t *cmd);

@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // g_itmes.c
 //
-// $Id: g_items.c,v 1.2 2001/05/11 16:07:25 mort Exp $
+// $Id: g_items.c,v 1.3 2001/05/14 21:10:16 igor_rock Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_items.c,v $
+// Revision 1.3  2001/05/14 21:10:16  igor_rock
+// added wp_flags support (and itm_flags skeleton - doesn't disturb in the moment)
+//
 // Revision 1.2  2001/05/11 16:07:25  mort
 // Various CTF bits and pieces...
 //
@@ -1281,6 +1284,88 @@ void SpawnItem (edict_t *ent, gitem_t *item)
                         gi.dprintf("%s at %s has invalid spawnflags set\n", ent->classname, vtos(ent->s.origin));
                 }
         }
+
+	//AQ2:TNG - Igor adding wp_flags/itm_flags
+	if (!((int)wp_flags->value & WPF_MK23) && 
+	    ((strcmp(ent->classname, "ammo_clip") == 0) ||
+	     (strcmp(ent->classname, "weapon_Mk23") == 0))
+	    )
+	  {
+	    G_FreeEdict (ent);
+	    return;
+	  }
+
+	if (!((int)wp_flags->value & WPF_MP5) &&
+	    ((strcmp(ent->classname, "ammo_mag") == 0)  ||
+             (strcmp(ent->classname, "weapon_MP5") == 0))
+	    )
+	  {
+	    G_FreeEdict (ent);
+	    return;
+	  }
+
+	if (!((int)wp_flags->value & WPF_M4) &&
+	    ((strcmp(ent->classname, "ammo_m4") == 0) ||
+             (strcmp(ent->classname, "weapon_M4") == 0))
+	    )
+	  {
+	    G_FreeEdict (ent);
+	    return;
+	  }
+	
+	if ((strcmp(ent->classname, "ammo_m3") == 0) &&
+	    !((int)wp_flags->value & WPF_M3) || ((int)wp_flags->value & WPF_HC)
+	    )
+	  {
+	    G_FreeEdict (ent);
+	    return;
+	  }
+	
+	if (!((int)wp_flags->value & WPF_HC) &&
+	    (strcmp(ent->classname, "weapon_HC") == 0))
+          {
+            G_FreeEdict (ent);
+            return;
+          }
+	
+        if (!((int)wp_flags->value & WPF_DUAL) &&
+            (strcmp(ent->classname, "weapon_Dual") == 0))
+          {
+            G_FreeEdict (ent);
+            return;
+          }
+
+        if (!((int)wp_flags->value & WPF_KNIFE) &&
+            (strcmp(ent->classname, "weapon_Knife") == 0))
+          {
+            G_FreeEdict (ent);
+            return;
+          }
+
+        if (!((int)wp_flags->value & WPF_GRENADE) &&
+            (strcmp(ent->classname, "weapon_Grenade") == 0))
+          {
+            G_FreeEdict (ent);
+            return;
+          }
+
+	if (!((int)wp_flags->value & WPF_M3) &&
+	    (strcmp(ent->classname, "weapon_M3") == 0))
+	  {
+	    G_FreeEdict (ent);
+	    return;
+	  }
+
+	if (!((int)wp_flags->value & WPF_SNIPER) &&
+	    ((strcmp(ent->classname, "ammo_sniper") == 0) ||
+             (strcmp(ent->classname, "weapon_Sniper") == 0))
+	    )
+	  {
+	    G_FreeEdict (ent);
+	    return;
+	  }
+
+	//AQ2:TNG End adding flags
 
         // some items will be prevented in deathmatch
         if (deathmatch->value)

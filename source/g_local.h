@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // g_local.h -- local definitions for game module
 //
-// $Id: g_local.h,v 1.13 2001/05/13 01:23:01 deathwatch Exp $
+// $Id: g_local.h,v 1.14 2001/05/14 21:10:16 igor_rock Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_local.h,v $
+// Revision 1.14  2001/05/14 21:10:16  igor_rock
+// added wp_flags support (and itm_flags skeleton - doesn't disturb in the moment)
+//
 // Revision 1.13  2001/05/13 01:23:01  deathwatch
 // Added Single Barreled Handcannon mode, made the menus and scoreboards
 // look nicer and made the voice command a bit less loud.
@@ -695,7 +698,12 @@ extern	cvar_t	*check_time;
 // AQ2:TNG Deathwatch Single Barreled HC
 extern  cvar_t  *hc_single;
 // AQ2:TNG Deathwatch
- 
+
+//AQ2:TNG - Igor adding wp_flags/itm_flags
+extern  cvar_t  *wp_flags;
+extern  cvar_t  *itm_flags;
+//AQ2:TNG
+
 extern cvar_t *skill;
 extern cvar_t *fraglimit;
 extern cvar_t *timelimit;
@@ -1663,8 +1671,24 @@ void AddSplat (edict_t * self, vec3_t point, trace_t * tr);
 #define HELM_NAME    "Kevlar Helmet"
 #define LASER_NAME   "Lasersight"
 
+//AQ2:TNG - Igor adding wp_flags/itm_flags
+#define WPF_MK23      0x00000001
+#define WPF_MP5       0x00000002
+#define WPF_M4        0x00000004
+#define WPF_M3        0x00000008
+#define WPF_HC        0x00000010
+#define WPF_SNIPER    0x00000020
+#define WPF_DUAL      0x00000040
+#define WPF_KNIFE     0x00000080
+#define WPF_GRENADE   0x00000100
 
-
+#define ITF_SIL       0x00000001
+#define ITF_SLIP      0x00000002
+#define ITF_BAND      0x00000004
+#define ITF_KEV       0x00000008
+#define ITF_LASER     0x00000010
+#define ITF_HELM      0x00000020
+//AQ2:TNG End adding flags
 
 #define MK23_NUM                0
 #define MP5_NUM                 1

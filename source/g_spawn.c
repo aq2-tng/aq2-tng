@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // g_spawn.c
 //
-// $Id: g_spawn.c,v 1.11 2001/05/14 14:08:51 igor_rock Exp $
+// $Id: g_spawn.c,v 1.12 2001/05/14 21:10:16 igor_rock Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_spawn.c,v $
+// Revision 1.12  2001/05/14 21:10:16  igor_rock
+// added wp_flags support (and itm_flags skeleton - doesn't disturb in the moment)
+//
 // Revision 1.11  2001/05/14 14:08:51  igor_rock
 // added tng sounds for precaching
 //
@@ -358,7 +361,12 @@ void ED_CallSpawn (edict_t *ent)
                         return;
                 }
         }
-        gi.dprintf ("%s doesn't have a spawn function\n", ent->classname);
+	//AQ2:TNG - Igor adding wp_flags/itm_flags
+	if (strcmp(ent->classname, "freed") != 0)
+	  {
+	    gi.dprintf ("%s doesn't have a spawn function\n", ent->classname);
+	  }
+	//AQ2:TNG End adding flags
 }
 
 // zucc BD's checkitem function
