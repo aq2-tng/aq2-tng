@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // p_client.c
 //
-// $Id: p_client.c,v 1.60 2002/01/24 11:38:01 ra Exp $
+// $Id: p_client.c,v 1.61 2002/01/31 11:15:06 freud Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: p_client.c,v $
+// Revision 1.61  2002/01/31 11:15:06  freud
+// Fix for crashes with stat_mode, not sure it works.
+//
 // Revision 1.60  2002/01/24 11:38:01  ra
 // Cleanups
 //
@@ -4159,6 +4162,7 @@ ClientConnect (edict_t * ent, char *userinfo)
   // they can connect
   ent->client = game.clients + (ent - g_edicts - 1);
 
+  ent->client->resp.stat_mode = 0;
   ent->client->team_kills = 0;
   ent->client->team_wounds = 0;
   ent->client->team_wounds_before = 0;
