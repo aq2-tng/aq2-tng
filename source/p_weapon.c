@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // g_weapon.c
 //
-// $Id: p_weapon.c,v 1.14 2001/12/29 00:52:10 deathwatch Exp $
+// $Id: p_weapon.c,v 1.15 2002/01/22 14:13:37 deathwatch Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: p_weapon.c,v $
+// Revision 1.15  2002/01/22 14:13:37  deathwatch
+// Fixed spread (back to original)
+//
 // Revision 1.14  2001/12/29 00:52:10  deathwatch
 // Fixed HC sound bug (not making a sound when hc_single was 0)
 //
@@ -3189,16 +3192,11 @@ Weapon_BFG (edict_t * ent)
 		  weapon_bfg_fire);
 }
 
-
-
-
-#define MK23_SPREAD     140
-// orginal 250
-#define MP5_SPREAD 240
-#define M4_SPREAD 300
+#define MK23_SPREAD		140
+#define MP5_SPREAD		250 // DW: Changed this back to original from Edition's 240
+#define M4_SPREAD			300
 #define SNIPER_SPREAD 425
-// orginal 300
-#define DUAL_SPREAD     275
+#define DUAL_SPREAD   300 // DW: Changed this back to original from Edition's 275
 
 int
 AdjustSpread (edict_t * ent, int spread)
