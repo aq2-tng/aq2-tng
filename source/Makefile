@@ -1,7 +1,7 @@
 #-----------------------------------------------------------------------------
 # Action makefile 
 #
-# $Id: Makefile,v 1.1 2001/05/06 17:23:57 igor_rock Exp $
+# $Id: Makefile,v 1.2 2001/05/08 12:55:02 igor_rock Exp $
 #
 # Intended for gcc/Linux, may need modifying for other platforms
 # Adapted by PG BUND from Black Cross makefile
@@ -10,8 +10,12 @@
 # (needs still some testing/modification for the dist-targets)
 #-----------------------------------------------------------------------------
 # $Log: Makefile,v $
-# Revision 1.1  2001/05/06 17:23:57  igor_rock
-# Initial revision
+# Revision 1.2  2001/05/08 12:55:02  igor_rock
+# - corrected location for make install
+# - added a_ctf.o
+#
+# Revision 1.1.1.1  2001/05/06 17:23:57  igor_rock
+# This is the PG Bund Edition V1.25 with all stuff laying around here...
 #
 #-----------------------------------------------------------------------------
 
@@ -48,7 +52,7 @@ DO_CC=$(CC) $(CFLAGS) $(SHLIBCFLAGS) -o $@ -c $<
 	$(DO_CC)
 
 GAME_OBJS = \
-	a_ban.o a_cmds.o a_doorkick.o a_game.o a_items.o a_menu.o \
+	a_ban.o a_cmds.o a_ctf.o a_doorkick.o a_game.o a_items.o a_menu.o \
 	a_radio.o a_team.o a_tourney.o a_vote.o a_xcmds.o a_xgame.o \
 	a_xmenu.o a_xvote.o cgf_sfx_glass.o g_ai.o g_chase.o g_cmds.o \
 	g_combat.o g_func.o g_items.o g_main.o g_misc.o g_monster.o \
@@ -74,12 +78,13 @@ depend:
 	makedepend -I. -- $(CFLAGS) -- $(GAME_OBJS:.o=.c)
 
 install:
-	cp gamei386.so ../bin/
+	cp gamei386.so ../action/
+	strip ../action/gamei386.so
 
 bindist: game$(ARCH).$(SHLIBEXT)
 	strip gamei386.so
 	tar -zchvf $(PACKAGE)-$(VERSION)-x86-linux.tar.gz \
-		gamei386.so README CHANGES README.BC maplist.ini
+		gamei386.so README CHANGES maplist.ini
 
 distclean: clean
 	makedepend
