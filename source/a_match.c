@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // Matchmode related code
 //
-// $Id: a_match.c,v 1.12 2001/12/05 15:27:35 igor_rock Exp $
+// $Id: a_match.c,v 1.13 2002/03/25 23:34:06 slicerdw Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_match.c,v $
+// Revision 1.13  2002/03/25 23:34:06  slicerdw
+// Small tweak on var handling ( prevent overflows )
+//
 // Revision 1.12  2001/12/05 15:27:35  igor_rock
 // improved my english (actual -> current :)
 //
@@ -280,8 +283,8 @@ void
 Cmd_Teamname_f (edict_t * ent)
 {
   int i, u, team;
-  char temp[1024];
-  memset (temp, 0, sizeof (temp));
+  char temp[64];
+
   team = ent->client->resp.team;
   if (ent->client->resp.captain == 0)
 
@@ -318,12 +321,12 @@ Cmd_Teamname_f (edict_t * ent)
 	gi.cprintf (ent, PRINT_HIGH, "Your Team Name is %s\n", team2_name);
       return;
     }
-  strcpy (temp, gi.argv (1));
+  strncpy (temp,gi.argv (1),sizeof(temp));
   for (u = 2; u <= i; u++)
 
     {
-      strcat (temp, " ");
-      strcat (temp, gi.argv (u));
+      strncat (temp, " ",sizeof(temp));
+      strncat (temp, gi.argv (u),sizeof(temp));
     }
   temp[18] = 0;
   if (team == 1)
@@ -350,8 +353,9 @@ Cmd_Teamskin_f (edict_t * ent)
 {
   char *s;
   int i, team;
-  char temp[1024];
+  char temp[32];
   memset (temp, 0, sizeof (temp));
+
   team = ent->client->resp.team;
   if (ent->client->resp.captain == 0)
 
@@ -389,8 +393,8 @@ Cmd_Teamskin_f (edict_t * ent)
 	gi.cprintf (ent, PRINT_HIGH, "Your Team Skin is %s\n", team2_skin);
       return;
     }
-  strcpy (temp, gi.argv (1));
-  temp[32] = 0;
+  strncpy (temp, gi.argv (1),sizeof(temp));
+  temp[31] = 0;
   if (team == 1)
 
     {
