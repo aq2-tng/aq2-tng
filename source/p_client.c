@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // p_client.c
 //
-// $Id: p_client.c,v 1.22 2001/06/01 19:18:42 slicerdw Exp $
+// $Id: p_client.c,v 1.23 2001/06/18 18:14:09 igor_rock Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: p_client.c,v $
+// Revision 1.23  2001/06/18 18:14:09  igor_rock
+// corrected bug with team none players shooting and flying around
+//
 // Revision 1.22  2001/06/01 19:18:42  slicerdw
 // Added Matchmode Code
 //
@@ -3833,7 +3836,7 @@ void ClientBeginServerFrame (edict_t *ent)
     if (level.time > client->respawn_time)
     {
 //FIREBLADE
-      if (!ctf->value && ((teamplay->value || 
+      if ((!ctf->value || (ctf->value && ent->client->resp.team == NOTEAM)) && ((teamplay->value || 
          (!teamplay->value && ent->client->pers.spectator && ent->solid == SOLID_NOT &&
          ent->deadflag == DEAD_DEAD))))
       {
