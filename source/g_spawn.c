@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // g_spawn.c
 //
-// $Id: g_spawn.c,v 1.30 2002/01/24 01:32:34 ra Exp $
+// $Id: g_spawn.c,v 1.31 2002/01/24 01:47:17 ra Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_spawn.c,v $
+// Revision 1.31  2002/01/24 01:47:17  ra
+// Further fixes to M$ files
+//
 // Revision 1.30  2002/01/24 01:32:34  ra
 // Enabling .aqg files to be in either M$ form or real text files.
 //
@@ -998,8 +1001,9 @@ SpawnEntities (char *mapname, char *entities, char *spawnpoint)
       if (line[0] == '#' && line[2] == 'C')
 	{
 	  u = 0;
-	  for (i = 10; line[i] != '\r\n'; i++)
+	  for (i = 10; line[i] != '\n'; i++)
 	    {
+              if (line[i] == '\r') continue;
 	      ml_creator[u] = line[i];
 	      u++;
 	    }
@@ -1007,9 +1011,9 @@ SpawnEntities (char *mapname, char *entities, char *spawnpoint)
       if (line[0] == '#' && line[2] == 'B')
 	{
 	  u = 0;
-	  for (i = 8; line[i] != '\r\n'; i++)
+	  for (i = 8; line[i] != '\n'; i++)
 	    {
-	      if (line[i] != ' ')
+	      if (line[i] != ' ' && line[i] != '\r')
 		{
 		  ml_build[u] = line[i];
 		  u++;
