@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // g_cmds.c
 //
-// $Id: g_cmds.c,v 1.39 2001/11/03 17:43:20 deathwatch Exp $
+// $Id: g_cmds.c,v 1.40 2001/11/03 20:10:18 slicerdw Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_cmds.c,v $
+// Revision 1.40  2001/11/03 20:10:18  slicerdw
+// Removed the if that prevented people from talking at the end
+//
 // Revision 1.39  2001/11/03 17:43:20  deathwatch
 // Fixed matchadmin - it should only work when in matchmode and not use say when typing it normally in any other mode (security issue for dumb ppl typing matchadmin password on a server without matchmode)
 //
@@ -1762,8 +1765,8 @@ ClientCommand (edict_t * ent)
 
   if (!ent->client)
     return;			// not fully in game yet
-  if (level.intermissiontime)
-    return;
+ // if (level.intermissiontime)
+   // return;
 
   cmd = gi.argv (0);
 
