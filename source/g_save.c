@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // g_save.c
 //
-// $Id: g_save.c,v 1.19 2001/06/18 12:36:40 igor_rock Exp $
+// $Id: g_save.c,v 1.20 2001/06/19 21:26:20 igor_rock Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_save.c,v $
+// Revision 1.20  2001/06/19 21:26:20  igor_rock
+// changed sv_crlf to be 0 as default
+//
 // Revision 1.19  2001/06/18 12:36:40  igor_rock
 // added new irvision mode (with reddish screen and alpha blend) and corresponding
 // new cvar "new_irvision" to enable the new mode
@@ -320,7 +323,7 @@ void InitGame (void)
   //AQ2:TNG SLICER END
   //tempfile
   sv_gib = gi.cvar("sv_gib", "0", CVAR_LATCH);
-  sv_crlf = gi.cvar("sv_crlf", "1", CVAR_LATCH);
+  sv_crlf = gi.cvar("sv_crlf", "0", CVAR_LATCH);
   //tempfile
   
   //Igor[Rock] BEGIN
