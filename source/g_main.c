@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 //
 //
-// $Id: g_main.c,v 1.26 2001/08/15 14:50:48 slicerdw Exp $
+// $Id: g_main.c,v 1.27 2001/08/18 01:28:06 deathwatch Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_main.c,v $
+// Revision 1.27  2001/08/18 01:28:06  deathwatch
+// Fixed some stats stuff, added darkmatch + day_cycle, cleaned up several files, restructured ClientCommand
+//
 // Revision 1.26  2001/08/15 14:50:48  slicerdw
 // Added Flood protections to Radio & Voice, Fixed the sniper bug AGAIN
 //
@@ -113,17 +116,16 @@ game_import_t   gi;
 game_export_t   globals;
 spawn_temp_t    st;
 
-int     sm_meat_index;
-int     snd_fry;
-int meansOfDeath;
-// zucc for location
-int locOfDeath;
-int stopAP;
+int							sm_meat_index;
+int							snd_fry;
+int							meansOfDeath;
+int							locOfDeath;
+int							stopAP;
 
 edict_t         *g_edicts;
 
 //FIREBLADE
-cvar_t  *hostname;
+cvar_t	*hostname;
 cvar_t  *teamplay;
 cvar_t  *radiolog;
 cvar_t  *motd_time;
@@ -139,47 +141,28 @@ cvar_t	*nohud;
 cvar_t	*noscore;
 cvar_t  *actionversion;
 cvar_t	*needpass;
-//FIREBLADE
-//PG BUND - BEGIN
 cvar_t  *use_voice;
-//cvar_t	*use_friendlyfire;
-//cvar_t	*ff_maxkills;
-//cvar_t  *ff_kickat;
-//cvar_t  *ff_tempban;	// commented out for A1.52 FF compatibility -TempFile 7/25/99
 cvar_t  *ppl_idletime;
 cvar_t  *use_tourney;
 cvar_t  *use_3teams;
 cvar_t  *use_kickvote;
-//PG BUND - END
-
-// AQ:TNG - JBravo adding public voting and punishkills
-cvar_t	*mv_public;
-cvar_t	*vk_public;
-cvar_t	*punishkills;
+cvar_t	*mv_public; // AQ:TNG - JBravo adding public voting
+cvar_t	*vk_public; // AQ:TNG - JBravo adding public voting
+cvar_t	*punishkills; // AQ:TNG - JBravo adding punishkills
 cvar_t	*mapvote_waittime;
 cvar_t	*ff_afterround;
-cvar_t	*uvtime;
-// JBravo
-
-// tempfile
+cvar_t	*uvtime; // CTF Invunerability Time
 cvar_t	*sv_gib;
-cvar_t  *sv_crlf;
-// tempfile
-
-//Igor[Rock] BEGIN
-cvar_t   *vrot;
-cvar_t   *rrot;
-cvar_t   *strtwpn;
-cvar_t   *llsound;
-cvar_t   *use_cvote;
-cvar_t   *new_irvision;
-cvar_t   *use_rewards;
-cvar_t   *use_warnings;
-//Igor[Rock] END
-
-//Black Cross - Begin
+cvar_t  *sv_crlf; // Allow Control Char
+cvar_t  *vrot; // Vote Rotation
+cvar_t  *rrot; // Random Rotation
+cvar_t  *strtwpn; // Start DM Weapon
+cvar_t  *llsound;
+cvar_t  *use_cvote;
+cvar_t  *new_irvision;
+cvar_t  *use_rewards;
+cvar_t  *use_warnings;
 cvar_t	*use_mapvote;
-//Black Cross - End
 cvar_t  *deathmatch;
 cvar_t  *coop;
 cvar_t  *dmflags;
@@ -192,31 +175,23 @@ cvar_t  *maxclients;
 cvar_t  *maxentities;
 cvar_t  *g_select_empty;
 cvar_t  *dedicated;
-
 cvar_t  *filterban;
-
 cvar_t  *sv_maxvelocity;
 cvar_t  *sv_gravity;
-
 cvar_t  *sv_rollspeed;
 cvar_t  *sv_rollangle;
 cvar_t  *gun_x;
 cvar_t  *gun_y;
 cvar_t  *gun_z;
-
 cvar_t  *run_pitch;
 cvar_t  *run_roll;
 cvar_t  *bob_up;
 cvar_t  *bob_pitch;
 cvar_t  *bob_roll;
-
 cvar_t  *sv_cheats;
-
 cvar_t  *flood_msgs;
 cvar_t  *flood_persecond;
 cvar_t  *flood_waitdelay;
-
-//zucc server variables
 cvar_t  *unique_weapons;
 cvar_t  *unique_items;
 cvar_t  *ir;
@@ -224,14 +199,10 @@ cvar_t  *knifelimit;
 cvar_t  *tgren;
 cvar_t  *allweapon;
 cvar_t  *allitem;
-
-//zucc from action
 cvar_t  *sv_shelloff;
 cvar_t  *bholelimit;
 cvar_t  *splatlimit;
-
-//AQ2:TNG - Slicer 
-cvar_t  *check_time;
+cvar_t  *check_time; // Time to wait before checks start ?
 cvar_t	*video_check;
 cvar_t 	*video_checktime;	
 cvar_t 	*video_max_3dfx;
@@ -239,23 +210,18 @@ cvar_t 	*video_max_3dfxam;
 cvar_t 	*video_max_opengl;
 cvar_t  *video_force_restart;
 cvar_t  *video_check_lockpvs;
-//Slicer End
-//AQ2:TNG Deathwatch - Single Barreled HC
-cvar_t *hc_single;
-//AQ2:TNG END
-//AQ2:TNG - Igor adding wp_flags/itm_flags
-cvar_t *wp_flags;
-cvar_t *itm_flags;
-//AQ2:TNG end adding flags
-//AQ2:TNG Slicer - Matchmode 
+cvar_t  *hc_single;
+cvar_t  *wp_flags; // Weapon Banning
+cvar_t  *itm_flags; // Item Banning
 cvar_t  *matchmode;
+cvar_t	*darkmatch; // Darkmatch
+cvar_t	*day_cycle; // If darkmatch is on, this value is the nr of seconds between each interval (day, dusk, night, dawn)
 cvar_t  *hearall; // used for matchmode
 cvar_t  *admin; // Used in matchmode - number of client
-cvar_t  *radio_max;
-cvar_t	*radio_time;
-cvar_t	*radio_ban;
-cvar_t	*radio_repeat;
-//AQ2:TNG END
+cvar_t  *radio_max; // max nr Radio and Voice requests
+cvar_t	*radio_time; // max nr of time for the radio_max
+cvar_t	*radio_ban; // silence for xx nr of secs
+cvar_t	*radio_repeat; // same as radio_max, only for repeats
 
 void SpawnEntities (char *mapname, char *entities, char *spawnpoint);
 void ClientThink (edict_t *ent, usercmd_t *cmd);
@@ -644,6 +610,34 @@ void ExitLevel (void)
     }
 }
 
+// TNG Darkmatch
+int day_cycle_at=0; // variable that keeps track where we are in the cycle (0 = normal, 1 = darker, 2 = dark, 3 = pitch black, 4 = dark, 5 = darker)
+float day_next_cycle=10.0;
+
+void CycleLights() {
+	
+	if(!darkmatch->value == 3 || day_cycle->value == 0)
+		return;
+	
+
+	if(level.time == 10.0)
+		day_next_cycle = level.time + day_cycle->value;
+
+	if(day_next_cycle == level.time) {
+		switch(day_cycle_at) {
+			case 0 : { gi.configstring(CS_LIGHTS+0,"m"); day_cycle_at++; break; }
+			case 1 : { gi.configstring(CS_LIGHTS+0,"i"); day_cycle_at++; break; }
+			case 2 : { gi.configstring(CS_LIGHTS+0,"c"); day_cycle_at++; break; }
+			case 3 : { gi.configstring(CS_LIGHTS+0,"a"); day_cycle_at++; break; }
+			case 4 : { gi.configstring(CS_LIGHTS+0,"c"); day_cycle_at++; break; }
+			case 5 : { gi.configstring(CS_LIGHTS+0,"i"); day_cycle_at=0; break; }
+			default : break;
+		}
+		day_next_cycle = level.time + day_cycle->value;
+	}
+}
+
+
 /*
   ================
   G_RunFrame
@@ -673,6 +667,9 @@ void G_RunFrame (void)
       return;
     }
   
+	// TNG Darkmatch Cycle
+	CycleLights();
+
   //
   // treat each object in turn
   // even the world gets a chance to think

@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // g_spawn.c
 //
-// $Id: g_spawn.c,v 1.23 2001/07/15 16:02:18 slicerdw Exp $
+// $Id: g_spawn.c,v 1.24 2001/08/18 01:28:06 deathwatch Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_spawn.c,v $
+// Revision 1.24  2001/08/18 01:28:06  deathwatch
+// Fixed some stats stuff, added darkmatch + day_cycle, cleaned up several files, restructured ClientCommand
+//
 // Revision 1.23  2001/07/15 16:02:18  slicerdw
 // Added checks for teamplay on when using 3teams or tourney
 //
@@ -1856,50 +1859,42 @@ void SP_worldspawn (edict_t *ent)
         gi.modelindex ("models/objects/gibs/skull/tris.md2");
         gi.modelindex ("models/objects/gibs/head2/tris.md2");
 
+
 //
 // Setup light animation tables. 'a' is total darkness, 'z' is doublebright.
 //
 
-        // 0 normal
-        gi.configstring(CS_LIGHTS+0, "m");
-        
-        // 1 FLICKER (first variety)
-        gi.configstring(CS_LIGHTS+1, "mmnmmommommnonmmonqnmmo");
-        
-        // 2 SLOW STRONG PULSE
-        gi.configstring(CS_LIGHTS+2, "abcdefghijklmnopqrstuvwxyzyxwvutsrqponmlkjihgfedcba");
-        
-        // 3 CANDLE (first variety)
-        gi.configstring(CS_LIGHTS+3, "mmmmmaaaaammmmmaaaaaabcdefgabcdefg");
-        
-        // 4 FAST STROBE
-        gi.configstring(CS_LIGHTS+4, "mamamamamama");
-        
-        // 5 GENTLE PULSE 1
-        gi.configstring(CS_LIGHTS+5,"jklmnopqrstuvwxyzyxwvutsrqponmlkj");
-        
-        // 6 FLICKER (second variety)
-        gi.configstring(CS_LIGHTS+6, "nmonqnmomnmomomno");
-        
-        // 7 CANDLE (second variety)
-        gi.configstring(CS_LIGHTS+7, "mmmaaaabcdefgmmmmaaaammmaamm");
-        
-        // 8 CANDLE (third variety)
-        gi.configstring(CS_LIGHTS+8, "mmmaaammmaaammmabcdefaaaammmmabcdefmmmaaaa");
-        
-        // 9 SLOW STROBE (fourth variety)
-        gi.configstring(CS_LIGHTS+9, "aaaaaaaazzzzzzzz");
-        
-        // 10 FLUORESCENT FLICKER
-        gi.configstring(CS_LIGHTS+10, "mmamammmmammamamaaamammma");
+				/*
+						Darkmatch.
+						Darkmatch has three settings:
+						0 - normal, no changes to lights
+						1 - all lights are off.
+						2 - dusk/dawn mode.
+						3 - using the day_cycle to change the lights every xx seconds as defined by day_cycle
+																																																	*/
+				if(darkmatch->value == 1) { 
+					gi.configstring(CS_LIGHTS+0, "a");																										// Pitch Black
+				}
+				else if(darkmatch->value == 2) {
+					gi.configstring(CS_LIGHTS+0, "b");																										// Dusk
+				} 
+				else {
+					gi.configstring(CS_LIGHTS+0, "m");																										// 0 normal
+				}
 
-        // 11 SLOW PULSE NOT FADE TO BLACK
-        gi.configstring(CS_LIGHTS+11, "abcdefghijklmnopqrrqponmlkjihgfedcba");
-        
-        // styles 32-62 are assigned by the light program for switchable lights
-
-        // 63 testing
-        gi.configstring(CS_LIGHTS+63, "a");
+					gi.configstring(CS_LIGHTS+1, "mmnmmommommnonmmonqnmmo");															// 1 FLICKER (first variety)
+					gi.configstring(CS_LIGHTS+2, "abcdefghijklmnopqrstuvwxyzyxwvutsrqponmlkjihgfedcba");	// 2 SLOW STRONG PULSE
+					gi.configstring(CS_LIGHTS+3, "mmmmmaaaaammmmmaaaaaabcdefgabcdefg");										// 3 CANDLE (first variety)
+					gi.configstring(CS_LIGHTS+4, "mamamamamama");																					// 4 FAST STROBE
+					gi.configstring(CS_LIGHTS+5,"jklmnopqrstuvwxyzyxwvutsrqponmlkj");											// 5 GENTLE PULSE 1
+					gi.configstring(CS_LIGHTS+6, "nmonqnmomnmomomno");																		// 6 FLICKER (second variety)
+					gi.configstring(CS_LIGHTS+7, "mmmaaaabcdefgmmmmaaaammmaamm");													// 7 CANDLE (second variety)
+					gi.configstring(CS_LIGHTS+8, "mmmaaammmaaammmabcdefaaaammmmabcdefmmmaaaa");						// 8 CANDLE (third variety)
+        	gi.configstring(CS_LIGHTS+9, "aaaaaaaazzzzzzzz");																			// 9 SLOW STROBE (fourth variety)
+					gi.configstring(CS_LIGHTS+10, "mmamammmmammamamaaamammma");														// 10 FLUORESCENT FLICKER
+		      gi.configstring(CS_LIGHTS+11, "abcdefghijklmnopqrrqponmlkjihgfedcba");								// 11 SLOW PULSE NOT FADE TO BLACK
+          // styles 32-62 are assigned by the light program for switchable lights
+					gi.configstring(CS_LIGHTS+63, "a");																										// 63 testing
 	
 //FB 6/2/99
         if (took_damage != NULL)

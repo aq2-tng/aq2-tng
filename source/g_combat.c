@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // g_combat.c
 //
-// $Id: g_combat.c,v 1.13 2001/08/17 21:31:37 deathwatch Exp $
+// $Id: g_combat.c,v 1.14 2001/08/18 01:28:06 deathwatch Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_combat.c,v $
+// Revision 1.14  2001/08/18 01:28:06  deathwatch
+// Fixed some stats stuff, added darkmatch + day_cycle, cleaned up several files, restructured ClientCommand
+//
 // Revision 1.13  2001/08/17 21:31:37  deathwatch
 // Added support for stats
 //
@@ -743,12 +746,6 @@ void T_Damage (edict_t *targ, edict_t *inflictor, edict_t *attacker, vec3_t dir,
 // TNG Stats - Add +1 to hit, make sure that hc and m3 are handles differently
 			if ((attacker->client) && (mod != MOD_M3) && (mod != MOD_HC))
 				attacker->client->resp.stats_shots_h++;
-			else if((attacker->client) && (mod == MOD_M3))
-				attacker->client->resp.stats_shots_h+=1;
-			else if((attacker->client) && (mod == MOD_HC) && (attacker->client->resp.hc_mode)) 
-				attacker->client->resp.stats_shots_h+=1;
-			else if((attacker->client) && (mod == MOD_HC))
-				attacker->client->resp.stats_shots_h+=1;
 // TNG Stats END
 				
 

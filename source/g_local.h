@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // g_local.h -- local definitions for game module
 //
-// $Id: g_local.h,v 1.33 2001/08/17 21:31:37 deathwatch Exp $
+// $Id: g_local.h,v 1.34 2001/08/18 01:28:06 deathwatch Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_local.h,v $
+// Revision 1.34  2001/08/18 01:28:06  deathwatch
+// Fixed some stats stuff, added darkmatch + day_cycle, cleaned up several files, restructured ClientCommand
+//
 // Revision 1.33  2001/08/17 21:31:37  deathwatch
 // Added support for stats
 //
@@ -140,39 +143,24 @@
 // define GAME_INCLUDE so that game.h does not define the
 // short, server-visible gclient_t and edict_t structures,
 // because we define the full size ones in this file
-#define GAME_INCLUDE
-#include "game.h"
+#define		GAME_INCLUDE
+#include	"game.h"
 
-//FIREBLADE
-#include "a_team.h"
-#include "a_game.h"
-#include "a_menu.h"
-#include "a_radio.h"
-//FIREBLADE
-
-//PG BUND - BEGIN
-#include "a_xcmds.h"
-#include "a_xgame.h"
-#include "g_xmisc.h"
-#include "a_tourney.h"
-#include "a_xvote.h"
-#include "a_xmenu.h"
-#include "a_ban.h"
-//PG BUND - END
-
-//Black Cross
-#include "a_vote.h"
-
-//AQ2:TNG Slicer - Matchmode
-#include "a_match.h"
-//AQ2:TNG END
-//AQ:TNG Slicer - This was missing
-#define getEnt(entnum) (edict_t *)((char *)globals.edicts + (globals.edict_size * entnum))
-//AQ:TNG END
-
-
-// the "gameversion" client command will print this plus compile date
-#define GAMEVERSION     "action"
+#include	"a_team.h"
+#include	"a_game.h"
+#include	"a_menu.h"
+#include	"a_radio.h"
+#include	"a_xcmds.h"
+#include	"a_xgame.h"
+#include	"g_xmisc.h"
+#include	"a_tourney.h"
+#include	"a_xvote.h"
+#include	"a_xmenu.h"
+#include	"a_ban.h"
+#include	"a_vote.h"
+#include	"a_match.h"
+#define		getEnt(entnum)	(edict_t *)((char *)globals.edicts + (globals.edict_size * entnum)) //AQ:TNG Slicer - This was missing
+#define		GAMEVERSION			"action" // the "gameversion" client command will print this plus compile date
 
 // protocol bytes that can be directly added to messages
 #define svc_muzzleflash         1
@@ -187,7 +175,6 @@
 // view pitching times
 #define DAMAGE_TIME             0.5
 #define FALL_TIME               0.3
-
 
 // edict->spawnflags
 // these are set with checkboxes on each entity in the map editor
@@ -211,8 +198,7 @@
 #define FL_TEAMSLAVE                    0x00000400	// not the first on the team
 #define FL_NO_KNOCKBACK                 0x00000800
 #define FL_POWER_ARMOR                  0x00001000	// power armor (if any) is active
-#define FL_RESPAWN                              0x80000000	// used for item respawning
-
+#define FL_RESPAWN                      0x80000000	// used for item respawning
 
 #define FRAMETIME               0.1
 
@@ -223,13 +209,13 @@
 
 #define MELEE_DISTANCE  80
 
-#define BODY_QUEUE_SIZE         8
+#define BODY_QUEUE_SIZE  8
 
 typedef enum
   {
     DAMAGE_NO,
     DAMAGE_YES,			// will take damage if hit
-     DAMAGE_AIM			// auto targeting recognizes this
+    DAMAGE_AIM			// auto targeting recognizes this
   }
 damage_t;
 
@@ -239,14 +225,12 @@ typedef enum
     WEAPON_ACTIVATING,
     WEAPON_DROPPING,
     WEAPON_FIRING,
-    // zucc
+    
     WEAPON_END_MAG,
     WEAPON_RELOADING,
     WEAPON_BURSTING,
-    WEAPON_BUSY,		// used by sniper rifle when engaging zoom
-    // if I want to make laser sight toggle on/off 
-    // this could be used for that too...
-     WEAPON_BANDAGING
+    WEAPON_BUSY,		// used by sniper rifle when engaging zoom, if I want to make laser sight toggle on/off  this could be used for that too...
+    WEAPON_BANDAGING
   }
 weaponstate_t;
 
@@ -340,17 +324,17 @@ ammo_t;
 // edict->movetype values
 typedef enum
   {
-    MOVETYPE_NONE,		// never moves
-     MOVETYPE_NOCLIP,		// origin and angles change with no interaction
-     MOVETYPE_PUSH,		// no clip to world, push on box contact
-     MOVETYPE_STOP,		// no clip to world, stops on box contact
+    MOVETYPE_NONE,				// never moves
+    MOVETYPE_NOCLIP,			// origin and angles change with no interaction
+    MOVETYPE_PUSH,				// no clip to world, push on box contact
+    MOVETYPE_STOP,				// no clip to world, stops on box contact
 
-    MOVETYPE_WALK,		// gravity
-     MOVETYPE_STEP,		// gravity, special edge handling
-     MOVETYPE_FLY,
-    MOVETYPE_TOSS,		// gravity
-     MOVETYPE_FLYMISSILE,	// extra size to monsters
-     MOVETYPE_BOUNCE,
+    MOVETYPE_WALK,				// gravity
+    MOVETYPE_STEP,				// gravity, special edge handling
+    MOVETYPE_FLY,
+    MOVETYPE_TOSS,				// gravity
+    MOVETYPE_FLYMISSILE,	// extra size to monsters
+    MOVETYPE_BOUNCE,
     MOVETYPE_BLOOD
   }
 movetype_t;
@@ -358,13 +342,13 @@ movetype_t;
 
 
 typedef struct
-  {
-    int base_count;
-    int max_count;
+{
+    int		base_count;
+    int		max_count;
     float normal_protection;
     float energy_protection;
-    int armor;
-  }
+    int		armor;
+}
 gitem_armor_t;
 
 
@@ -379,10 +363,10 @@ gitem_armor_t;
 #define IT_FLAG                 128
 
 typedef struct gitem_s
-  {
+{
     char *classname;		// spawning name
 
-      qboolean (*pickup) (struct edict_s * ent, struct edict_s * other);
+    qboolean (*pickup) (struct edict_s * ent, struct edict_s * other);
     void (*use) (struct edict_s * ent, struct gitem_s * item);
     void (*drop) (struct edict_s * ent, struct gitem_s * item);
     void (*weaponthink) (struct edict_s * ent);
@@ -392,26 +376,17 @@ typedef struct gitem_s
     char *view_model;
 
     // client side info
-    char *icon;
-    char *pickup_name;		// for printing on pickup
-
-    int count_width;		// number of digits to display by icon
-
-    int quantity;		// for ammo how much, for weapons how much is used per shot
-
-    char *ammo;			// for weapons
-
-    int flags;			// IT_* flags
-
-    void *info;
-    int tag;
-
-    char *precaches;		// string of all models, sounds, and images this item will use
-
-  }
+    char	*icon;
+    char	*pickup_name;	// for printing on pickup
+    int		count_width;	// number of digits to display by icon
+    int		quantity;			// for ammo how much, for weapons how much is used per shot
+    char	*ammo;				// for weapons
+    int		flags;				// IT_* flags
+    void	*info;
+    int		tag;
+    char	*precaches;		// string of all models, sounds, and images this item will use
+}
 gitem_t;
-
-
 
 //
 // this structure is left intact through an entire game
@@ -422,8 +397,7 @@ typedef struct
   {
     char helpmessage1[512];
     char helpmessage2[512];
-    int helpchanged;		// flash F1 icon if non 0, play sound
-    // and increment only if 1, 2, or 3
+    int helpchanged;		// flash F1 icon if non 0, play sound and increment only if 1, 2, or 3
 
     gclient_t *clients;		// [maxclients]
 
@@ -704,7 +678,6 @@ extern cvar_t *maxentities;
 extern cvar_t *deathmatch;
 extern cvar_t *coop;
 extern cvar_t *dmflags;
-//FIREBLADE
 extern cvar_t *needpass;
 extern cvar_t *hostname;
 extern cvar_t *teamplay;
@@ -721,38 +694,20 @@ extern cvar_t *skipmotd;
 extern cvar_t *nohud;
 extern cvar_t *noscore;
 extern cvar_t *actionversion;
-//FIREBLADE
-
-//PG BUND - BEGIN
 extern cvar_t *use_voice;
-//extern  cvar_t  *use_friendlyfire;
-//extern  cvar_t  *ff_maxkills;
-//extern  cvar_t  *ff_kickat;
-//extern  cvar_t  *ff_tempban; // commented out since this is now in AQ 1.52 base code. -TempFile
 extern cvar_t *ppl_idletime;
 extern cvar_t *use_tourney;
 extern cvar_t *use_3teams;
 extern cvar_t *use_kickvote;
-
-// AQ:TNG - JBravo adding public voting, punishkill and etc.
 extern cvar_t *mv_public;
 extern cvar_t *vk_public;
 extern cvar_t *punishkills;
 extern cvar_t *mapvote_waittime;
 extern cvar_t *ff_afterround;
 extern cvar_t *uvtime;
-// JBravo
-
-//Black Cross
 extern cvar_t *use_mapvote;	// enable map voting
-//PG BUND - END
-
-//TempFile - BEGIN
 extern cvar_t *sv_gib;
 extern cvar_t *sv_crlf;
-//TempFile - END
-
-//Igor[Rock] BEGIN
 extern cvar_t *vrot;
 extern cvar_t *rrot;
 extern cvar_t *strtwpn;
@@ -761,10 +716,7 @@ extern cvar_t *use_cvote;
 extern cvar_t *new_irvision;
 extern cvar_t *use_rewards;
 extern cvar_t *use_warnings;
-//Igor[Rock] END
-
-//AQ2:TNG - Slicer: For Video Checking
-extern  cvar_t	*video_check;
+extern  cvar_t	*video_check; //AQ2:TNG - Slicer: For Video Checking
 extern  cvar_t 	*video_checktime;	//interval between cheat checks
 extern  cvar_t 	*video_max_3dfx;
 extern  cvar_t 	*video_max_3dfxam;
@@ -772,24 +724,18 @@ extern  cvar_t 	*video_max_opengl;
 extern  cvar_t 	*video_check_lockpvs;
 extern  cvar_t 	*video_force_restart;
 extern	cvar_t	*check_time;
-//AQ2:TNG - END
-//AQ2:TNG Slicer - Matchmode 
 extern  cvar_t  *matchmode;
+extern	cvar_t	*darkmatch;
+extern	cvar_t	*day_cycle; // If darkmatch is on, this value is the nr of seconds between each interval (day, dusk, night, dawn)
 extern  cvar_t  *admin; 
 extern  cvar_t  *hearall; // used in match mode
 extern  cvar_t  *radio_max;
 extern  cvar_t	*radio_time;
 extern  cvar_t	*radio_ban;
 extern  cvar_t	*radio_repeat;
-//AQ2:TNG END
-// AQ2:TNG Deathwatch Single Barreled HC
 extern  cvar_t  *hc_single;
-// AQ2:TNG Deathwatch
-
-//AQ2:TNG - Igor adding wp_flags/itm_flags
 extern  cvar_t  *wp_flags;
 extern  cvar_t  *itm_flags;
-//AQ2:TNG
 
 extern cvar_t *skill;
 extern cvar_t *fraglimit;
@@ -819,8 +765,6 @@ extern cvar_t *bob_roll;
 
 extern cvar_t *sv_cheats;
 extern cvar_t *maxclients;
-
-// zucc server variables
 
 extern cvar_t *unique_weapons;
 extern cvar_t *unique_items;
@@ -859,13 +803,13 @@ typedef enum
     F_INT,
     F_FLOAT,
     F_LSTRING,			// string on disk, pointer in memory, TAG_LEVEL
-     F_GSTRING,			// string on disk, pointer in memory, TAG_GAME
-     F_VECTOR,
+    F_GSTRING,			// string on disk, pointer in memory, TAG_GAME
+    F_VECTOR,
     F_ANGLEHACK,
     F_EDICT,			// index on disk, pointer in memory
-     F_ITEM,			// index on disk, pointer in memory
-     F_CLIENT,			// index on disk, pointer in memory
-     F_FUNCTION,
+    F_ITEM,			// index on disk, pointer in memory
+    F_CLIENT,			// index on disk, pointer in memory
+    F_FUNCTION,
     F_MMOVE,
     F_IGNORE
   }
@@ -883,7 +827,6 @@ field_t;
 
 extern field_t fields[];
 extern gitem_t itemlist[];
-
 
 //
 // g_cmds.c
@@ -1196,7 +1139,6 @@ typedef struct
     gitem_t *item;		// item for teamplay
 
     gitem_t *weapon;		// weapon for teamplay
-    //FIREBLADE
 
     int team;			// team the player is on
     int ctf_state;
@@ -1212,20 +1154,15 @@ typedef struct
     radio_queue_entry_t radio_queue[MAX_RADIO_QUEUE_SIZE];
     int radio_queue_size;
     edict_t *radio_partner;	// current partner
-
     edict_t *partner_last_offered_to;	// last person I offered a partnership to
-
     edict_t *partner_last_offered_from;		// last person I received a partnership offer from
-
     edict_t *partner_last_denied_from;	// last person I denied a partnership offer from
     // end of radio/partners stuff...
 
     int motd_refreshes;
     int last_motd_refresh;
     edict_t *last_chase_target;	// last person they chased, to resume at the same place later...
-    //FIREBLADE
 
-    //PG BUND - BEGIN
     edict_t *last_killed_target[MAX_LAST_KILLED];
     int killed_teammates;
     int idletime;
@@ -1233,75 +1170,54 @@ typedef struct
     edict_t *kickvote;
     ignorelist_t ignorelist;
 
-    //Black Cross
     char *mapvote;		// pointer to map voted on (if any)
-
     char *cvote;		// pointer to config voted on (if any)
-    //PG BUND - END
 
-    //moved to end of struct in 1.52 -TempFile
-    //Action
     int mk23_mode;		// firing mode, semi or auto
-
     int mp5_mode;
     int m4_mode;
     int knife_mode;
     int grenade_mode;
     int id;			// id command on or off
-
     int ir;			// ir on or off (only matters if player has ir device, currently bandolier)
 
     qboolean radio_partner_mode;	// 'radio' command using team or partner
-
     qboolean radio_gender;	// radiogender
-
     qboolean radio_power_off;	// radio_power
-    //---
 
-    //TempFile - BEGIN
     int fire_time;
     int ignore_time;		// framenum when the player called ignore - to prevent spamming
 
-    qboolean weapon_after_bandage_warned;	// to fix message bug when
-    // calling weapon while bandaging
-
+    qboolean weapon_after_bandage_warned;	// to fix message bug when calling weapon while bandaging
     qboolean punch_desired;	//controlled in ClientThink
 
     int hs_streak;		// Headshots in a Row
-
     int headshots;		// Headshot Counter
 
-	// TNG Stats
-	int stats_shots_t; // Total nr of shots
-	int stats_shots_h; // Total nr of hits
-	int stats_shots_hd; // Total nr of headshots
-	// TNG Stats End
+		int stats_shots_t; // Total nr of shots for TNG Stats
+		int stats_shots_h; // Total nr of hits for TNG Stats
+		int stats_shots_hd; // Total nr of headshots for TNG Stats
+	
+		//AQ2:TNG - Slicer: Video Checking and further Cheat cheking vars
+		char	vidref[16];
+		char	gldriver[16];
+		float gllockpvs;
+		float glmodulate;
+		qboolean	checked;
+		float checktime[3];
+		int		last_damaged_part;
+		//AQ2:TNG - Slicer Matchmode code
+		int		captain;
+		int		subteam;
 
-	//AQ2:TNG - Slicer: Video Checking and further Cheat cheking vars
-	char vidref[16];
-	char gldriver[16];
-	float gllockpvs;
-	float glmodulate;
-	qboolean	checked;
-	float checktime[3];
-	//AQ2:TNG END
-	//AQ2:TNG - Slicer Last Damage Location
-	int last_damaged_part;
-	//AQ2:TNG - END
-	//AQ2:TNG - Slicer Matchmode code
-	int captain;
-	int subteam;
-	//AQ2:TNG END
-	// AQ2:TNG Deathwatch - HC Single Barreled HC
-	int	hc_mode;
-	// AQ2:TNG END
-	float rd_mute;
-	float rd_when[10];
-	int rd_whensaid;
-	char rd_rep[96];
-	int rd_repcount;
-	float rd_reptime;
-  }
+		int		hc_mode;
+		float rd_mute;
+		float rd_when[10];
+		int		rd_whensaid;
+		char	rd_rep[96];
+		int		rd_repcount;
+		float rd_reptime;
+}
 client_respawn_t;
 
 // this structure is cleared on each PutClientInServer(),
@@ -1428,18 +1344,12 @@ struct gclient_s
     int knife_max;
 
     int grenade_max;
-
     int curr_weap;		// uses NAME_NUM values
 
-    // other
     int fired;			// keep track of semi auto
-
     int burst;			// remember if player is bursting or not
-
     int fast_reload;		// for shotgun/sniper rifle
-
     int idle_weapon;		// how many frames to keep our weapon idle
-
     int desired_fov;		// what fov does the player want? (via zooming)
 
     int unique_weapon_total;
@@ -1454,25 +1364,19 @@ struct gclient_s
     int leg_noise;
     int leghits;
     int bleeding;		//remaining points to bleed away
-
     int bleed_remain;
     int bleedloc;
     vec3_t bleedloc_offset;	// location of bleeding (from origin)
-
     vec3_t bleednorm;
     float bleeddelay;		// how long until we bleed again
 
     int bandage_stopped;
-
     int have_laser;
-
 
     int doortoggle;		// set by player with opendoor command
 
     edict_t *attacker;		// keep track of the last person to hit us
-
     int attacker_mod;		// and how they hit us
-
     int attacker_loc;		// location of the hit
 
     int push_timeout;		// timeout for how long an attacker will get fall death credit
@@ -1482,26 +1386,18 @@ struct gclient_s
     int reload_attempts;
     int weapon_attempts;
 
-
-    //FIREBLADE
     qboolean inmenu;		// in menu
-
     pmenuhnd_t *menu;		// current menu
 
     edict_t *chase_target;
     qboolean update_chase;
     int chase_mode;
-    //FIREBLADE
-
-    //TempFile
-    qboolean autoreloading;	//used for dual -> mk23 change with reloading
-    //TempFile
-
-    //AZEROV
+    
+		qboolean autoreloading;	//used for dual -> mk23 change with reloading
+    
     // Number of team kills this game
     int team_kills;
-    //AZEROV
-
+    
     //EEK
     // Number of teammate woundings this game and a "before attack" tracker
     int team_wounds;
@@ -1511,18 +1407,11 @@ struct gclient_s
     // IP address of this host to be collected at Connection time.
     // (getting at it later seems to be unreliable)
     char ipaddr[100];		// changed to 100  -FB
-    //EEK
 
-    //TempFile
-    int desired_zoom;		//either 0, 1, 2, 4 or 6
-    // This is set to 0 if no zooming shall be done, and is set to 0 after zooming
-    // is done.
-    //TempFile
-// AQ2:TNG - JBravo adding UVtime
-	int ctf_uvtime;
+    int desired_zoom;		//either 0, 1, 2, 4 or 6. This is set to 0 if no zooming shall be done, and is set to 0 after zooming is done.
 
-
-  };
+		int ctf_uvtime; // AQ2:TNG - JBravo adding UVtime
+};
 
 
 struct edict_s
@@ -1594,8 +1483,7 @@ struct edict_s
     vec3_t avelocity;
     int mass;
     float air_finished;
-    float gravity;		// per entity gravity multiplier (1.0 is normal)
-    // use for lowgrav artifact, flares
+    float gravity;		// per entity gravity multiplier (1.0 is normal) use for lowgrav artifact, flares
 
     edict_t *goalentity;
     edict_t *movetarget;
@@ -1706,17 +1594,12 @@ void Cmd_Bandage_f (edict_t * ent);
 void Cmd_ID_f (edict_t * ent);
 void Cmd_IR_f (edict_t * ent);
 void Cmd_Choose_f (edict_t * ent);
-// AQ:TNG - JBravo adding tkok
-void Cmd_TKOk (edict_t *ent);
-// end adding tkok
-
+void Cmd_TKOk (edict_t *ent); // AQ:TNG - JBravo adding tkok
 void DropSpecialWeapon (edict_t * ent);
 void ReadySpecialWeapon (edict_t * ent);
 void DropSpecialItem (edict_t * ent);
 void Bandage (edict_t * ent);
-// hentai's vwep function added by zucc
-void ShowGun (edict_t * ent);
-
+void ShowGun (edict_t * ent); // hentai's vwep function added by zucc
 
 // spec functions
 void SetupSpecSpawn (void);
@@ -1726,16 +1609,13 @@ void SpecThink (edict_t * spec);
 void DeadDropSpec (edict_t * ent);
 
 void temp_think_specweap (edict_t * ent);	// p_weapons.c
-
 void ThinkSpecWeap (edict_t * ent);
 void DropExtraSpecial (edict_t * ent);
 void TransparentListSet (solid_t solid_type);
 
-
 //local to g_combat but needed in p_view
 void SpawnDamage (int type, vec3_t origin, vec3_t normal, int damage);
 void Killed (edict_t * targ, edict_t * inflictor, edict_t * attacker, int damage, vec3_t point);
-
 
 void Add_Frag (edict_t * ent);
 void Subtract_Frag (edict_t * ent);
@@ -1746,7 +1626,6 @@ void SetIDView (edict_t * ent);
 
 void EndDMLevel (void);
 qboolean Pickup_Special (edict_t * ent, edict_t * other);
-
 
 // action function
 edict_t *FindEdictByClassnum (char *classname, int classnum);
@@ -1815,8 +1694,6 @@ void AddSplat (edict_t * self, vec3_t point, trace_t * tr);
 #define LOC_SDAM 3		// stomach
 #define LOC_LDAM 4		// legs
 
-
-
 // sniper modes
 #define SNIPER_1X 0
 #define SNIPER_2X 1
@@ -1846,8 +1723,7 @@ void AddSplat (edict_t * self, vec3_t point, trace_t * tr);
 #define GRENADE_DAMRAD  250
 
 //AQ2:TNG - Slicer New location support
-// Max amount of locations
-#define MAX_LOCATIONS_IN_BASE		256
+#define MAX_LOCATIONS_IN_BASE		256 // Max amount of locations
 // location structure
 typedef struct
 {

@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // g_weapon.c
 //
-// $Id: g_weapon.c,v 1.5 2001/08/06 14:38:45 ra Exp $
+// $Id: g_weapon.c,v 1.6 2001/08/18 01:28:06 deathwatch Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_weapon.c,v $
+// Revision 1.6  2001/08/18 01:28:06  deathwatch
+// Fixed some stats stuff, added darkmatch + day_cycle, cleaned up several files, restructured ClientCommand
+//
 // Revision 1.5  2001/08/06 14:38:45  ra
 // Adding UVtime for ctf
 //
@@ -657,6 +660,8 @@ void ProduceShotgunDamageReport(edict_t *self)
                 }
                 gi.cprintf(self, PRINT_HIGH, "%s\n", textbuf);
         }
+				// TNG Stats
+				self->client->resp.stats_shots_h+=total_to_print;
 //FB 6/2/99
 }
 
