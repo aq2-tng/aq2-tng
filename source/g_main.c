@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 //
 //
-// $Id: g_main.c,v 1.16 2001/06/22 16:34:05 slicerdw Exp $
+// $Id: g_main.c,v 1.17 2001/06/23 14:09:17 slicerdw Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_main.c,v $
+// Revision 1.17  2001/06/23 14:09:17  slicerdw
+// Small fix on the Time Reporting on matchmode
+//
 // Revision 1.16  2001/06/22 16:34:05  slicerdw
 // Finished Matchmode Basics, now with admins, Say command tweaked...
 //
@@ -615,7 +618,7 @@ void G_RunFrame (void)
   AI_SetSightClient ();
   
   //AQ2:TNG - Slicer Matchmode code
-  if(matchmode->value && team_game_going)
+  if(matchmode->value && (team_game_going && team_round_going))
 	matchtime = matchtime + 0.1;
   // exit intermissions
   
