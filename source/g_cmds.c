@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // g_cmds.c
 //
-// $Id: g_cmds.c,v 1.29 2001/08/18 18:45:19 deathwatch Exp $
+// $Id: g_cmds.c,v 1.30 2001/08/20 00:41:15 slicerdw Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_cmds.c,v $
+// Revision 1.30  2001/08/20 00:41:15  slicerdw
+// Added a new scoreboard for Teamplay with stats ( when map ends )
+//
 // Revision 1.29  2001/08/18 18:45:19  deathwatch
 // Edited the Flashlight movement code to the Lasersight's movement code, its probably better
 // and I added checks for darkmatch/being dead/being a spectator for its use
@@ -109,7 +112,7 @@
 
 #include "g_local.h"
 #include "m_player.h"
-#include "tng_stats.h" // Adding TNG Stats File
+
 
 char *ClientTeam (edict_t *ent)
 {

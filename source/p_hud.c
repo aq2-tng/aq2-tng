@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // p_hud.c
 //
-// $Id: p_hud.c,v 1.4 2001/07/16 19:02:06 ra Exp $
+// $Id: p_hud.c,v 1.5 2001/08/20 00:41:15 slicerdw Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: p_hud.c,v $
+// Revision 1.5  2001/08/20 00:41:15  slicerdw
+// Added a new scoreboard for Teamplay with stats ( when map ends )
+//
 // Revision 1.4  2001/07/16 19:02:06  ra
 // Fixed compilerwarnings (-g -Wall).  Only one remains.
 //
@@ -51,7 +54,7 @@ void MoveClientToIntermission (edict_t *ent)
   if (deathmatch->value || coop->value)
     {
       ent->client->showscores = true;
-      ent->client->scoreboardnum = 1;
+      ent->client->scoreboardnum = 1; 
     }
   VectorCopy (level.intermission_origin, ent->s.origin);
   ent->client->ps.pmove.origin[0] = level.intermission_origin[0]*8;
@@ -235,6 +238,9 @@ void DeathmatchScoreboardMessage (edict_t *ent, edict_t *killer)
   }
   else
     if (teamplay->value && !use_tourney->value) {
+		if(level.intermissiontime)
+			A_ScoreboardEndLevel (ent, killer);
+		else
       A_ScoreboardMessage (ent, killer);
       return;
     }

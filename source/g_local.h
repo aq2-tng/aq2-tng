@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // g_local.h -- local definitions for game module
 //
-// $Id: g_local.h,v 1.35 2001/08/18 17:14:04 deathwatch Exp $
+// $Id: g_local.h,v 1.36 2001/08/20 00:41:15 slicerdw Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_local.h,v $
+// Revision 1.36  2001/08/20 00:41:15  slicerdw
+// Added a new scoreboard for Teamplay with stats ( when map ends )
+//
 // Revision 1.35  2001/08/18 17:14:04  deathwatch
 // Flashlight Added (not done yet, needs to prevent DEAD ppl from using it,
 // the glow should be white and a bit smaller if possible and the daiper needs
@@ -165,6 +168,7 @@
 #include	"a_ban.h"
 #include	"a_vote.h"
 #include	"a_match.h"
+#include "tng_stats.h" // Adding TNG Stats File
 #define		getEnt(entnum)	(edict_t *)((char *)globals.edicts + (globals.edict_size * entnum)) //AQ:TNG Slicer - This was missing
 #define		GAMEVERSION			"action" // the "gameversion" client command will print this plus compile date
 
