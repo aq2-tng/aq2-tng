@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // p_client.c
 //
-// $Id: p_client.c,v 1.84 2002/12/31 17:07:22 igor_rock Exp $
+// $Id: p_client.c,v 1.85 2003/02/10 02:12:25 ra Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: p_client.c,v $
+// Revision 1.85  2003/02/10 02:12:25  ra
+// Zcam fixes, kick crashbug in CTF fixed and some code cleanup.
+//
 // Revision 1.84  2002/12/31 17:07:22  igor_rock
 // - corrected the Add_Ammo function to regard wp_flags
 //
@@ -3223,6 +3226,9 @@ void ClientDisconnect(edict_t * ent)
 		else
 			team2ready = 0;
 	}
+
+	camera_disconnect (ent);
+
 	// drop items if they are alive/not observer
 	if (ent->solid != SOLID_NOT)
 		TossItemsOnDeath(ent);
@@ -3273,8 +3279,6 @@ void ClientDisconnect(edict_t * ent)
 
 	if (ctf->value)
 		CTFDeadDropFlag(ent);
-
-	camera_disconnect (ent);
 
 	if (!teamplay->value) {
 		// send effect
@@ -3367,7 +3371,7 @@ edict_t *pm_passent;
 // pmove doesn't need to know about passent and contentmask
 trace_t PM_trace(vec3_t start, vec3_t mins, vec3_t maxs, vec3_t end)
 {
-	if (pm_passent->health > 0)
+	if (pm_passent && pm_passent->health > 0)
 		return gi.trace(start, mins, maxs, end, pm_passent, MASK_PLAYERSOLID);
 	else
 		return gi.trace(start, mins, maxs, end, pm_passent, MASK_DEADSOLID);
@@ -3519,55 +3523,6 @@ void ClientThink(edict_t * ent, usercmd_t * ucmd)
 			ent->velocity[2] = (float) ((int) (ent->velocity[2] * 8)) / 8;
 		}
 
-		/*
-		   if ( ent->client->leg_damage )
-		   {
-		   ent->client->leg_dam_count++;
-		   ent->client->leg_noise++;
-		   if ( ent->groundentity && pm.s.velocity[2] > 10 )
-		   {
-		   //      gi.cprintf(ent, PRINT_HIGH, "Cutting velocity\n");
-		   pm.s.velocity[2] = 0.0;
-		   }
-		   }
-
-		   if ( ent->client->leg_noise == 250 && ent->health > 0 )// && ent->groundentity && crandom() > 0.0 )
-		   {
-		   //    gi.cprintf(ent, PRINT_HIGH, "Playing sound?\n");
-		   ent->client->leg_noise = 0;
-		   if (IsFemale(ent))
-		   gi.sound(ent, CHAN_VOICE, gi.soundindex("player/female/pain100_1.wav"), 1, ATTN_IDLE, 0);
-		   else
-		   gi.sound(ent, CHAN_VOICE, gi.soundindex("player/male/pain100_1.wav"), 1, ATTN_IDLE, 0);
-		   PlayerNoise(ent, ent->s.origin, PNOISE_SELF);
-		   }
-
-		   if ( !ent->groundentity )
-		   {       
-		   for (i=0 ; i<3 ; i++)
-		   {
-		   ent->s.origin[i] = pm.s.origin[i]*0.125;
-		   ent->velocity[i] = pm.s.velocity[i]*0.125;
-		   }
-		   }
-		   else if ( ent->client->leg_dam_count < 10 )
-		   {                             
-		   for (i=0 ; i<3 ; i++)
-		   {
-		   ent->s.origin[i] = pm.s.origin[i]*0.125;
-		   ent->velocity[i] = pm.s.velocity[i]*0.125;
-		   }
-		   }       
-		   else 
-		   {
-		   for (i=0 ; i<3 ; i++)
-		   {
-		   ent->velocity[i] = 0;//pm.s.velocity[i]*0.125;
-		   }
-		   if ( ent->client->leg_dam_count > 11 )
-		   ent->client->leg_dam_count = 0;
-		   }
-		 */
 		VectorCopy(pm.mins, ent->mins);
 		VectorCopy(pm.maxs, ent->maxs);
 		client->resp.cmd_angles[0] = SHORT2ANGLE(ucmd->angles[0]);

@@ -1,7 +1,7 @@
 
 # Action makefile 
 #
-# $Id: Makefile,v 1.18 2002/09/04 11:23:09 ra Exp $
+# $Id: Makefile,v 1.19 2003/02/10 02:12:25 ra Exp $
 #
 # Intended for gcc/Linux, may need modifying for other platforms
 # Adapted by PG BUND from Black Cross makefile
@@ -10,6 +10,9 @@
 # (needs still some testing/modification for the dist-targets)
 #-----------------------------------------------------------------------------
 # $Log: Makefile,v $
+# Revision 1.19  2003/02/10 02:12:25  ra
+# Zcam fixes, kick crashbug in CTF fixed and some code cleanup.
+#
 # Revision 1.18  2002/09/04 11:23:09  ra
 # Added zcam to TNG and bumped version to 3.0
 #
@@ -83,7 +86,7 @@ PACKAGE="as-PG1.25"
 VERSION="1.52"
 
 # Uncomment this for debugging symbols and compiler warnings
-#DEBUG=1
+DEBUG=1
 
 ARCH=i386
 CC=gcc
@@ -93,9 +96,9 @@ BASE_CFLAGS=-Dstricmp=strcasecmp -DC_ONLY
 ifdef DEBUG
 	CFLAGS=$(BASE_CFLAGS) -g -O2 -Wall
 else
-	CFLAGS=$(BASE_CFLAGS) -m486 -O6 -ffast-math -funroll-loops \
-		-fomit-frame-pointer -fexpensive-optimizations -malign-loops=2 \
-		-malign-jumps=2 -malign-functions=2
+	CFLAGS=$(BASE_CFLAGS) -march=i586 -mcpu=i586 -O6 -ffast-math -funroll-loops \
+		-fomit-frame-pointer -fexpensive-optimizations -falign-loops=2 \
+		-falign-jumps=2 -falign-functions=2
 endif
 
 LDFLAGS=-ldl -lm

@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 //
-// $Id: zcam.h,v 1.1 2002/09/04 11:23:10 ra Exp $
+// $Id: zcam.h,v 1.2 2003/02/10 02:12:25 ra Exp $
 //
 //-----------------------------------------------------------------------------
 //
 // $Log: zcam.h,v $
+// Revision 1.2  2003/02/10 02:12:25  ra
+// Zcam fixes, kick crashbug in CTF fixed and some code cleanup.
+//
 // Revision 1.1  2002/09/04 11:23:10  ra
 // Added zcam to TNG and bumped version to 3.0
 //
@@ -21,6 +24,7 @@
  *  FLIC  camera mode is based on code  taken from q2cam by Paul Jordan
  *  SWING camera mode is based on ideas taken from CreepCam for Quake I 
  *
+ *  Ported to ActionQuake by JBravo.
  */ 
 
 #ifndef __ZCAM_H__

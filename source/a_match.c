@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // Matchmode related code
 //
-// $Id: a_match.c,v 1.15 2002/03/28 12:10:11 freud Exp $
+// $Id: a_match.c,v 1.16 2003/02/10 02:12:25 ra Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_match.c,v $
+// Revision 1.16  2003/02/10 02:12:25  ra
+// Zcam fixes, kick crashbug in CTF fixed and some code cleanup.
+//
 // Revision 1.15  2002/03/28 12:10:11  freud
 // Removed unused variables (compiler warnings).
 // Added cvar mm_allowlock.
@@ -46,407 +49,303 @@
 
 #include "g_local.h"
 #include "a_match.h"
+
 float matchtime = 0;
 int team1ready = 0;
 int team2ready = 0;
 int ingame = 0;
 int team_locked[MAX_TEAMS];
 
-void
-SendWorldMsg (char *s, int sound, int center)
+void SendWorldMsg(char *s, int sound, int center)
 {
-  int i;
-  edict_t *e;
+	int i;
+	edict_t *e;
 
-  for (i = 1; i <= maxclients->value; i++) {
-    e = g_edicts + i;
-
-    if (e->inuse) {
-      if (center) {
-	gi.centerprintf (e, "%s", s);
-      } else {
-	gi.cprintf (e, PRINT_HIGH, "%s", s);
-	if (sound)
-	  stuffcmd (e, "play misc/comp_up.wav");
-      }
-    }
-  }
-  gi.dprintf (s);
+	for (i = 1; i <= maxclients->value; i++) {
+		e = g_edicts + i;
+		if (e->inuse) {
+			if (center) {
+				gi.centerprintf(e, "%s", s);
+			} else {
+				gi.cprintf(e, PRINT_HIGH, "%s", s);
+				if (sound)
+					stuffcmd(e, "play misc/comp_up.wav");
+			}
+		}
+	}
+	gi.dprintf(s);
 }
 
-void
-SendScores ()
+void SendScores()
 {
-  int mins, secs;
-  mins = matchtime / 60;
-  secs = matchtime - (mins * 60);
-  gi.bprintf (PRINT_HIGH, "žžžžžžžžžžžžžžžžžžžžžžžžžžžžžžžžŸ\n");
-  gi.bprintf (PRINT_HIGH, "Team 1 Score - Team 2 Score\n");
-  gi.bprintf (PRINT_HIGH, "    [%d]           [%d]\n", team1_score,
-	      team2_score);
-  gi.bprintf (PRINT_HIGH, "Total Played Time: %d:%02d\n", mins, secs);
-  gi.bprintf (PRINT_HIGH, "žžžžžžžžžžžžžžžžžžžžžžžžžžžžžžžžŸ\n");
-  gi.bprintf (PRINT_HIGH,
-	      "Match is over, waiting for next map, please vote a new one..\n");
+	int mins, secs;
+
+	mins = matchtime / 60;
+	secs = matchtime - (mins * 60);
+	gi.bprintf(PRINT_HIGH, "žžžžžžžžžžžžžžžžžžžžžžžžžžžžžžžžŸ\n");
+	gi.bprintf(PRINT_HIGH, "Team 1 Score - Team 2 Score\n");
+	gi.bprintf(PRINT_HIGH, "    [%d]           [%d]\n", team1_score, team2_score);
+	gi.bprintf(PRINT_HIGH, "Total Played Time: %d:%02d\n", mins, secs);
+	gi.bprintf(PRINT_HIGH, "žžžžžžžžžžžžžžžžžžžžžžžžžžžžžžžžŸ\n");
+	gi.bprintf(PRINT_HIGH, "Match is over, waiting for next map, please vote a new one..\n");
 }
 
-void Cmd_Kill_f (edict_t * ent);	// Used for killing people when they sub off
-void
-Cmd_Sub_f (edict_t * ent)
+void Cmd_Kill_f(edict_t * ent);	// Used for killing people when they sub off
+void Cmd_Sub_f(edict_t * ent)
 {
-  char temp[1024];
-  memset (temp, 0, sizeof (temp));
-  if (ent->client->resp.team == NOTEAM || !teamplay->value)
+	char temp[1024];
 
-    {
-      gi.cprintf (ent, PRINT_HIGH, "You need to be on a team for that...\n");
-      return;
-    }
-  if (ent->client->resp.subteam == 0)
-
-    {
-      ent->client->resp.subteam = ent->client->resp.team;
-
-      // lets kill em.
-      Cmd_Kill_f (ent);
-      if (ent->client->resp.subteam == 1)
-
-	{
-	  sprintf (temp, "%s is now a substitute for %s\n",
-		   ent->client->pers.netname, team1_name);
-	  SendWorldMsg (temp, 0, 0);
-	}
-
-      else
-
-	{
-	  sprintf (temp, "%s is now a substitute for %s\n",
-		   ent->client->pers.netname, team2_name);
-	  SendWorldMsg (temp, 0, 0);
-	}
-      return;
-    }
-  if (ent->client->resp.subteam == TEAM1)
-
-    {
-      sprintf (temp, "%s is no longer a substitute for %s\n",
-	       ent->client->pers.netname, team1_name);
-      SendWorldMsg (temp, 0, 0);
-      ent->client->resp.subteam = 0;
-      return;
-    }
-  if (ent->client->resp.subteam == TEAM2)
-
-    {
-      sprintf (temp, "%s is no longer a substitute for %s\n",
-	       ent->client->pers.netname, team2_name);
-      SendWorldMsg (temp, 0, 0);
-      ent->client->resp.subteam = 0;
-      return;
-    }
-}
-int
-CheckForCaptains (int cteam)
-{
-  edict_t *ent;
-  int i;
-  for (i = 1; i <= (int) (maxclients->value); i++)
-
-    {
-      ent = getEnt (i);
-      if (ent->inuse)
-
-	{
-	  if (ent->client->resp.captain == cteam)
-	    return 1;
-	}
-    }
-  return 0;
-}
-
-void
-Cmd_Captain_f (edict_t * ent)
-{
-  int i;
-  char temp[1024];
-  memset (temp, 0, sizeof (temp));
-  if (ent->client->resp.team == NOTEAM || !teamplay->value)
-
-    {
-      gi.cprintf (ent, PRINT_HIGH, "You need to be on a team for that...\n");
-      return;
-    }
-  if (ent->client->resp.captain == TEAM1)
-
-    {
-      sprintf (temp, "%s is no longer %s's Captain\n",
-	       ent->client->pers.netname, team1_name);
-      SendWorldMsg (temp, 0, 0);
-      team1ready = 0;
-      ent->client->resp.captain = 0;
-      return;
-    }
-  if (ent->client->resp.captain == TEAM2)
-
-    {
-      sprintf (temp, "%s is no longer %s's Captain\n",
-	       ent->client->pers.netname, team2_name);
-      SendWorldMsg (temp, 0, 0);
-      team2ready = 0;
-      ent->client->resp.captain = 0;
-      return;
-    }
-  i = CheckForCaptains (ent->client->resp.team);
-  if (i == ent->client->resp.team)
-
-    {
-      gi.cprintf (ent, PRINT_HIGH, "Your team already has a Captain\n");
-      return;
-    }
-  if (i == 0)
-
-    {
-      if (ent->client->resp.team == 1)
-
-	{
-	  sprintf (temp, "%s is now %s's Captain\n",
-		   ent->client->pers.netname, team1_name);
-	  SendWorldMsg (temp, 1, 0);
-	  ent->client->resp.captain = 1;
-	}
-
-      else if (ent->client->resp.team == 2)
-
-	{
-	  sprintf (temp, "%s is now %s's Captain\n",
-		   ent->client->pers.netname, team2_name);
-	  SendWorldMsg (temp, 1, 0);
-	  ent->client->resp.captain = 2;
-	}
-    }
-}
-
-
-//extern int started; // AQ2:M - Matchmode - Used for ready command
-void
-Cmd_Ready_f (edict_t * ent)
-{
-  char temp[1024];
-  memset (temp, 0, sizeof (temp));
-  if (ent->client->resp.captain == 0)
-
-    {
-      gi.cprintf (ent, PRINT_HIGH, "You need to be a captain for that\n");
-      return;
-    }
-
-/*	if(started && !captainpause->value)
-	{
-		gi.cprintf(ent, PRINT_HIGH, "You can't unready mid-match\n");
+	memset(temp, 0, sizeof(temp));
+	if (ent->client->resp.team == NOTEAM || !teamplay->value) {
+		gi.cprintf(ent, PRINT_HIGH, "You need to be on a team for that...\n");
 		return;
 	}
-*/
-  if (ent->client->resp.captain == 1)
+	if (ent->client->resp.subteam == 0) {
+		ent->client->resp.subteam = ent->client->resp.team;
 
-    {
-      if (team1ready)
-
-	{
-	  sprintf (temp, "%s is no longer ready to play!\n", team1_name);
-	  SendWorldMsg (temp, 0, 1);
-	  team1ready = 0;
-	  return;
+		// lets kill em.
+		Cmd_Kill_f(ent);
+		if (ent->client->resp.subteam == 1) {
+			sprintf(temp, "%s is now a substitute for %s\n", ent->client->pers.netname, team1_name);
+			SendWorldMsg(temp, 0, 0);
+		} else {
+			sprintf(temp, "%s is now a substitute for %s\n", ent->client->pers.netname, team2_name);
+			SendWorldMsg(temp, 0, 0);
+		}
+		return;
 	}
-
-      else
-
-	{
-	  sprintf (temp, "%s is ready to play!\n", team1_name);
-	  SendWorldMsg (temp, 1, 1);
-	  team1ready = 1;
-	  return;
+	if (ent->client->resp.subteam == TEAM1) {
+		sprintf(temp, "%s is no longer a substitute for %s\n", ent->client->pers.netname, team1_name);
+		SendWorldMsg(temp, 0, 0);
+		ent->client->resp.subteam = 0;
+		return;
 	}
-    }
-  if (ent->client->resp.captain == 2)
-
-    {
-      if (team2ready)
-
-	{
-	  sprintf (temp, "The %s is no longer ready to play!\n",
-		   team2_name); SendWorldMsg (temp, 0, 1);
-	  team2ready = 0;
-	  return;
+	if (ent->client->resp.subteam == TEAM2) {
+		sprintf(temp, "%s is no longer a substitute for %s\n", ent->client->pers.netname, team2_name);
+		SendWorldMsg(temp, 0, 0);
+		ent->client->resp.subteam = 0;
+		return;
 	}
-
-      else
-
-	{
-	  sprintf (temp, "%s is ready to play!\n", team2_name);
-	  SendWorldMsg (temp, 1, 1);
-	  team2ready = 1;
-	  return;
-	}
-    }
 }
-void
-Cmd_Teamname_f (edict_t * ent)
+int CheckForCaptains(int cteam)
 {
-  int i, u, team;
-  char temp[64];
+	edict_t *ent;
+	int i;
 
-  team = ent->client->resp.team;
-  if (ent->client->resp.captain == 0)
-
-    {
-      gi.cprintf (ent, PRINT_HIGH, "You need to be a captain for that\n");
-      return;
-    }
-  if (team == 1 && team1ready == 1)
-
-    {
-      gi.cprintf (ent, PRINT_HIGH, "You cannot use this while 'Ready'\n");
-      return;
-    }
-  if (team == 2 && team2ready == 1)
-
-    {
-      gi.cprintf (ent, PRINT_HIGH, "You cannot use this while 'Ready'\n");
-      return;
-    }
-  if (team_round_going || team_game_going)
-
-    {
-      gi.cprintf (ent, PRINT_HIGH, "You cannot use this while playing\n");
-      return;
-    }
-  i = gi.argc ();
-  if (gi.argc () < 2)
-
-    {
-      if (team == 1)
-	gi.cprintf (ent, PRINT_HIGH, "Your Team Name is %s\n", team1_name);
-
-      else if (team == 2)
-	gi.cprintf (ent, PRINT_HIGH, "Your Team Name is %s\n", team2_name);
-      return;
-    }
-  strncpy (temp,gi.argv (1),sizeof(temp));
-  for (u = 2; u <= i; u++)
-
-    {
-      strncat (temp, " ",sizeof(temp));
-      strncat (temp, gi.argv (u),sizeof(temp));
-    }
-  temp[18] = 0;
-  if (team == 1)
-
-    {
-      gi.dprintf ("%s (Team 1) is now known as %s\n", team1_name, temp);
-      strcpy (team1_name, temp);
-      gi.cprintf (ent, PRINT_HIGH, "New Team Name: %s\n", team1_name);
-      return;
-    }
-  if (team == 2)
-
-    {
-      gi.dprintf ("%s (Team 2) is now known as %s\n", team2_name, temp);
-      strcpy (team2_name, temp);
-      gi.cprintf (ent, PRINT_HIGH, "New Team Name: %s\n", team2_name);
-      return;
-    }
+	for (i = 1; i <= (int) (maxclients->value); i++) {
+		ent = getEnt(i);
+		if (ent->inuse) {
+			if (ent->client->resp.captain == cteam)
+				return 1;
+		}
+	}
+	return 0;
 }
 
-
-void
-Cmd_Teamskin_f (edict_t * ent)
+void Cmd_Captain_f(edict_t * ent)
 {
-  char *s;
-  int i, team;
-  char temp[32];
-  memset (temp, 0, sizeof (temp));
+	int i;
+	char temp[1024];
 
-  team = ent->client->resp.team;
-  if (ent->client->resp.captain == 0)
-
-    {
-      gi.cprintf (ent, PRINT_HIGH, "You need to be a captain for that\n");
-      return;
-    }
-  if (team == 1 && team1ready == 1)
-
-    {
-      gi.cprintf (ent, PRINT_HIGH, "You cannot use this while 'Ready'\n");
-      return;
-    }
-  if (team == 2 && team2ready == 1)
-
-    {
-      gi.cprintf (ent, PRINT_HIGH, "You cannot use this while 'Ready'\n");
-      return;
-    }
-  if (team_round_going || team_game_going)
-
-    {
-      gi.cprintf (ent, PRINT_HIGH, "You cannot use this while playing\n");
-      return;
-    }
-  i = gi.argc ();
-  if (gi.argc () < 2)
-
-    {
-      s = Info_ValueForKey (ent->client->pers.userinfo, "skin");
-      if (ent->client->resp.team == 1)
-	gi.cprintf (ent, PRINT_HIGH, "Your Team Skin is %s\n", team1_skin);
-
-      else
-	gi.cprintf (ent, PRINT_HIGH, "Your Team Skin is %s\n", team2_skin);
-      return;
-    }
-  strncpy (temp, gi.argv (1),sizeof(temp));
-  temp[31] = 0;
-  if (team == 1)
-
-    {
-      strcpy (team1_skin, temp);
-      sprintf (team1_skin_index, "../players/%s_i", team1_skin);
-      gi.cprintf (ent, PRINT_HIGH, "New Team Skin: %s\n", team1_skin);
-      return;
-    }
-  if (team == 2)
-
-    {
-      strcpy (team2_skin, temp);
-      sprintf (team2_skin_index, "../players/%s_i", team2_skin);
-      gi.cprintf (ent, PRINT_HIGH, "New Team Skin: %s\n", team2_skin);
-      return;
-    }
+	memset(temp, 0, sizeof(temp));
+	if (ent->client->resp.team == NOTEAM || !teamplay->value) {
+		gi.cprintf(ent, PRINT_HIGH, "You need to be on a team for that...\n");
+		return;
+	}
+	if (ent->client->resp.captain == TEAM1) {
+		sprintf(temp, "%s is no longer %s's Captain\n", ent->client->pers.netname, team1_name);
+		SendWorldMsg(temp, 0, 0);
+		team1ready = 0;
+		ent->client->resp.captain = 0;
+		return;
+	}
+	if (ent->client->resp.captain == TEAM2) {
+		sprintf(temp, "%s is no longer %s's Captain\n", ent->client->pers.netname, team2_name);
+		SendWorldMsg(temp, 0, 0);
+		team2ready = 0;
+		ent->client->resp.captain = 0;
+		return;
+	}
+	i = CheckForCaptains(ent->client->resp.team);
+	if (i == ent->client->resp.team) {
+		gi.cprintf(ent, PRINT_HIGH, "Your team already has a Captain\n");
+		return;
+	}
+	if (i == 0) {
+		if (ent->client->resp.team == 1) {
+			sprintf(temp, "%s is now %s's Captain\n", ent->client->pers.netname, team1_name);
+			SendWorldMsg(temp, 1, 0);
+			ent->client->resp.captain = 1;
+		} else if (ent->client->resp.team == 2) {
+			sprintf(temp, "%s is now %s's Captain\n", ent->client->pers.netname, team2_name);
+			SendWorldMsg(temp, 1, 0);
+			ent->client->resp.captain = 2;
+		}
+	}
 }
 
-void
-Cmd_TeamLock_f (edict_t * ent, int a_switch)
+//extern int started; // AQ2:M - Matchmode - Used for ready command
+void Cmd_Ready_f(edict_t * ent)
 {
-  char msg[32];
+	char temp[1024];
 
-  if (!mm_allowlock->value)
-	gi.cprintf(ent, PRINT_HIGH, "Team locking is disabled on this server\n");
-  else if (!ent->client->resp.team)
-        gi.cprintf(ent, PRINT_HIGH, "You are not on a team\n");
-  else if (!ent->client->resp.captain)
-        gi.cprintf(ent, PRINT_HIGH, "You are not the captain of your team\n");
-  else if (a_switch == 1 && team_locked[ent->client->resp.team])
-        gi.cprintf(ent, PRINT_HIGH, "Your team is already locked\n");
-  else if (a_switch == 0 && !team_locked[ent->client->resp.team])
-        gi.cprintf(ent, PRINT_HIGH, "Your team isn't locked\n");
-  else {
-        team_locked[ent->client->resp.team] = a_switch;
+	memset(temp, 0, sizeof(temp));
+	if (ent->client->resp.captain == 0) {
+		gi.cprintf(ent, PRINT_HIGH, "You need to be a captain for that\n");
+		return;
+	}
 
-        if (a_switch == 1)
-                sprintf(msg, "%s locked\n", TeamName(ent->client->resp.team));
-        else
-                sprintf(msg, "%s unlocked\n", TeamName(ent->client->resp.team));
+	if (ent->client->resp.captain == 1) {
+		if (team1ready) {
+			sprintf(temp, "%s is no longer ready to play!\n", team1_name);
+			SendWorldMsg(temp, 0, 1);
+			team1ready = 0;
+			return;
+		} else {
+			sprintf(temp, "%s is ready to play!\n", team1_name);
+			SendWorldMsg(temp, 1, 1);
+			team1ready = 1;
+			return;
+		}
+	}
+	if (ent->client->resp.captain == 2) {
+		if (team2ready) {
+			sprintf(temp, "The %s is no longer ready to play!\n", team2_name);
+			SendWorldMsg(temp, 0, 1);
+			team2ready = 0;
+			return;
+		} else {
+			sprintf(temp, "%s is ready to play!\n", team2_name);
+			SendWorldMsg(temp, 1, 1);
+			team2ready = 1;
+			return;
+		}
+	}
+}
 
-        CenterPrintAll(msg);
+void Cmd_Teamname_f(edict_t * ent)
+{
+	int i, u, team;
+	char temp[64];
 
-  }
+	team = ent->client->resp.team;
+	if (ent->client->resp.captain == 0) {
+		gi.cprintf(ent, PRINT_HIGH, "You need to be a captain for that\n");
+		return;
+	}
+	if (team == 1 && team1ready == 1) {
+		gi.cprintf(ent, PRINT_HIGH, "You cannot use this while 'Ready'\n");
+		return;
+	}
+	if (team == 2 && team2ready == 1) {
+		gi.cprintf(ent, PRINT_HIGH, "You cannot use this while 'Ready'\n");
+		return;
+	}
+	if (team_round_going || team_game_going) {
+		gi.cprintf(ent, PRINT_HIGH, "You cannot use this while playing\n");
+		return;
+	}
+	i = gi.argc();
+	if (gi.argc() < 2) {
+		if (team == 1)
+			gi.cprintf(ent, PRINT_HIGH, "Your Team Name is %s\n", team1_name);
+
+		else if (team == 2)
+			gi.cprintf(ent, PRINT_HIGH, "Your Team Name is %s\n", team2_name);
+		return;
+	}
+	strncpy(temp, gi.argv(1), sizeof(temp));
+	for (u = 2; u <= i; u++) {
+		strncat(temp, " ", sizeof(temp));
+		strncat(temp, gi.argv(u), sizeof(temp));
+	}
+	temp[18] = 0;
+	if (team == 1) {
+		gi.dprintf("%s (Team 1) is now known as %s\n", team1_name, temp);
+		strcpy(team1_name, temp);
+		gi.cprintf(ent, PRINT_HIGH, "New Team Name: %s\n", team1_name);
+		return;
+	}
+	if (team == 2) {
+		gi.dprintf("%s (Team 2) is now known as %s\n", team2_name, temp);
+		strcpy(team2_name, temp);
+		gi.cprintf(ent, PRINT_HIGH, "New Team Name: %s\n", team2_name);
+		return;
+	}
+}
+
+void Cmd_Teamskin_f(edict_t * ent)
+{
+	char *s;
+	int i, team;
+	char temp[32];
+
+	memset(temp, 0, sizeof(temp));
+
+	team = ent->client->resp.team;
+	if (ent->client->resp.captain == 0) {
+		gi.cprintf(ent, PRINT_HIGH, "You need to be a captain for that\n");
+		return;
+	}
+	if (team == 1 && team1ready == 1) {
+		gi.cprintf(ent, PRINT_HIGH, "You cannot use this while 'Ready'\n");
+		return;
+	}
+	if (team == 2 && team2ready == 1) {
+		gi.cprintf(ent, PRINT_HIGH, "You cannot use this while 'Ready'\n");
+		return;
+	}
+	if (team_round_going || team_game_going) {
+		gi.cprintf(ent, PRINT_HIGH, "You cannot use this while playing\n");
+		return;
+	}
+	i = gi.argc();
+	if (gi.argc() < 2) {
+		s = Info_ValueForKey(ent->client->pers.userinfo, "skin");
+		if (ent->client->resp.team == 1)
+			gi.cprintf(ent, PRINT_HIGH, "Your Team Skin is %s\n", team1_skin);
+		else
+			gi.cprintf(ent, PRINT_HIGH, "Your Team Skin is %s\n", team2_skin);
+		return;
+	}
+	strncpy(temp, gi.argv(1), sizeof(temp));
+	temp[31] = 0;
+	if (team == 1) {
+		strcpy(team1_skin, temp);
+		sprintf(team1_skin_index, "../players/%s_i", team1_skin);
+		gi.cprintf(ent, PRINT_HIGH, "New Team Skin: %s\n", team1_skin);
+		return;
+	}
+	if (team == 2) {
+		strcpy(team2_skin, temp);
+		sprintf(team2_skin_index, "../players/%s_i", team2_skin);
+		gi.cprintf(ent, PRINT_HIGH, "New Team Skin: %s\n", team2_skin);
+		return;
+	}
+}
+
+void Cmd_TeamLock_f(edict_t * ent, int a_switch)
+{
+	char msg[32];
+
+	if (!mm_allowlock->value)
+		gi.cprintf(ent, PRINT_HIGH, "Team locking is disabled on this server\n");
+	else if (!ent->client->resp.team)
+		gi.cprintf(ent, PRINT_HIGH, "You are not on a team\n");
+	else if (!ent->client->resp.captain)
+		gi.cprintf(ent, PRINT_HIGH, "You are not the captain of your team\n");
+	else if (a_switch == 1 && team_locked[ent->client->resp.team])
+		gi.cprintf(ent, PRINT_HIGH, "Your team is already locked\n");
+	else if (a_switch == 0 && !team_locked[ent->client->resp.team])
+		gi.cprintf(ent, PRINT_HIGH, "Your team isn't locked\n");
+	else {
+		team_locked[ent->client->resp.team] = a_switch;
+
+		if (a_switch == 1)
+			sprintf(msg, "%s locked\n", TeamName(ent->client->resp.team));
+		else
+			sprintf(msg, "%s unlocked\n", TeamName(ent->client->resp.team));
+
+		CenterPrintAll(msg);
+	}
 }

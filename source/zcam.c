@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 //
-// $Id: zcam.c,v 1.1 2002/09/04 11:23:10 ra Exp $
+// $Id: zcam.c,v 1.2 2003/02/10 02:12:25 ra Exp $
 //
 //-----------------------------------------------------------------------------
 //
 // $Log: zcam.c,v $
+// Revision 1.2  2003/02/10 02:12:25  ra
+// Zcam fixes, kick crashbug in CTF fixed and some code cleanup.
+//
 // Revision 1.1  2002/09/04 11:23:10  ra
 // Added zcam to TNG and bumped version to 3.0
 //
@@ -21,6 +24,7 @@
  *  FLIC  camera mode is based on code  taken from q2cam by Paul Jordan
  *  SWING camera mode is based on ideas taken from CreepCam for Quake I 
  *
+ *  Ported to ActionQuake by JBravo.
  */
 
 #include "g_local.h"
@@ -54,108 +58,8 @@ edict_t *PlayerToTrack(edict_t * ent, edict_t * target1st);
 #define min(a, b)	((a) < (b) ? (a) : (b))
 #endif
 
-#ifndef Q3_VM
-
 #define acosf(x)        ((float)acos(x))
 #define asinf(x)        ((float)asin(x))
-
-#else
-
-#define sqrtf(x)        ((float)sqrt(x))
-
-/* math routines */
-#define PI 3.14159265358979323846264338327950288419716939937510f
-
-static float asin_consts[4] = { 5.0505363E-02f,
-	3.9721134E-02f,
-	7.5464795E-02f,
-	1.6665163E-01f
-};
-
-static int errno;
-
-static float _polyf(float g)
-{
-	int i;
-	float *p = asin_consts;
-	float Result;
-
-	if (g == 0.0f)
-		return (0.0f);
-
-	Result = g * (*p++);
-	for (i = 3; i > 0; i--)
-		Result = g * (Result + (*p++));
-
-	return Result;
-}
-
-static float acosf(float x)
-{
-	float g, y, Result;
-
-	y = (x < 0.0f) ? (-x) : x;
-
-	if (y > 0.5f) {
-		if (y > 1.0f) {
-			errno = 1;
-			y = 1.0f;
-		}
-
-		g = (1.0f - y) * 0.5f;
-		y = (-2.0f) * sqrtf(g);
-		Result = _polyf(g);
-		Result = y * (1 + Result);
-
-		if (x <= 0.0f)
-			Result = PI + Result;
-		else
-			Result = -Result;
-	} else {
-		g = y * y;
-
-		Result = _polyf(g);
-		Result = y * (1 + Result);
-
-		if (x <= 0.0f)
-			Result = (PI * 0.5f) + Result;
-		else
-			Result = (PI * 0.5f) - Result;
-	}
-
-	return Result;
-}
-
-static float asinf(float x)
-{
-	float g, y, Result;
-
-	y = (x < 0.0f) ? (-x) : x;
-
-	if (y > 0.5f) {
-		if (y > 1.0f) {
-			errno = 1;
-			y = 1.0f;
-		}
-
-		g = (1.0f - y) * 0.5f;
-		y = (-2.0f) * sqrtf(g);
-
-		Result = _polyf(g);
-		Result = PI * 0.5f + y * (1 + Result);
-	} else {
-		g = y * y;
-		Result = _polyf(g);
-		Result = y * (1 + Result);
-	}
-
-	if (x < 0.0f)
-		Result = -Result;
-
-	return Result;
-}
-
-#endif				/* Q3_VM */
 
 void SetClientViewAngle(edict_t * ent, vec3_t angle)
 {
@@ -188,19 +92,15 @@ static void CameraShowMode(edict_t * ent)
 static edict_t *ClosestVisible(edict_t * ent, float maxrange, qboolean pvs)
 {
 	int i;
-	edict_t *target;
-	edict_t *best = NULL;
+	edict_t *target, *best = NULL;
 	vec3_t distance;
 	float current, closest = -1.0F;
 
-	for (i = 0; i < game.maxclients; i++) {
+	for (i = 1; i < game.maxclients; i++) {
 		target = &g_edicts[i];
-		if (target != ent
-		    && game.clients[i].pers.connected
-		    && game.clients[i].resp.team != NOTEAM
-		    && target->client->ps.pmove.pm_type == PM_NORMAL
-		    && ((pvs) ? loc_CanSee(ent, target) :
-			IsVisible(ent, target, maxrange))) {
+		if (target != ent && target->client->pers.connected &&
+		    target->client->resp.team != NOTEAM && target->solid != SOLID_NOT &&
+		    ((pvs) ? loc_CanSee(ent, target) : IsVisible(ent, target, maxrange))) {
 			VectorSubtract(target->s.origin, ent->s.origin, distance);
 			current = VectorLength(distance);
 			if (closest < 0 || current < closest) {
@@ -216,10 +116,11 @@ static edict_t *ClosestVisible(edict_t * ent, float maxrange, qboolean pvs)
 static int NumPlayers(void)
 {
 	int i, count = 0;
+	edict_t *ent;
 
-	for (i = 0; i < game.maxclients; i++) {
-		if (game.clients[i].pers.connected
-		    && game.clients[i].resp.team != NOTEAM) {
+	for (i = 1; i < game.maxclients; i++) {
+		ent = &g_edicts[i];
+		if (ent->client->pers.connected && ent->client->resp.team != NOTEAM && ent->solid != SOLID_NOT) {
 			count++;
 		}
 	}
@@ -240,9 +141,8 @@ static void PointCamAtTarget(edict_t * ent)
 	vec3_t diff, angles;
 	float difference;
 
-	if (ent == NULL
-	    || ent->client->camera->flic_target == NULL
-	    || (ent->client->camera->flic_watching_the_wall && !IsVisible(ent, ent->client->camera->flic_target, 0)))
+	if (ent == NULL || ent->client->camera->flic_target == NULL ||
+	    (ent->client->camera->flic_watching_the_wall && !IsVisible(ent, ent->client->camera->flic_target, 0)))
 		return;
 
 	VectorSubtract(ent->client->camera->flic_target->s.origin, ent->s.origin, diff);
@@ -300,8 +200,7 @@ static void FindCamPos(edict_t * ent, float angle, vec3_t offset_position, vec3_
 
 static void RepositionAtTarget(edict_t * ent, vec3_t offset_position)
 {
-	vec3_t diff;
-	vec3_t cam_pos;
+	vec3_t diff, cam_pos;
 	trace_t trace;
 	qboolean snapto = false;	// snapto towards target when jumping to new position
 
@@ -508,7 +407,7 @@ static void CameraFlicThink(edict_t * ent)
 
 	// only watch the dead if it's the one we followed
 	if (!ent->client->camera->flic_watching_the_dead
-	    && ent->client->camera->flic_target && ent->client->camera->flic_target->client->ps.pmove.pm_type == PM_DEAD) {
+	    && ent->client->camera->flic_target && ent->client->camera->flic_target->solid == SOLID_NOT) {
 		ent->client->camera->flic_watching_the_dead = true;
 		ent->client->camera->flic_last_move_time = level.time + CAMERA_DEAD_SWITCH_TIME;
 		PointCamAtTarget(ent);
@@ -516,7 +415,7 @@ static void CameraFlicThink(edict_t * ent)
 		if (ent->client->camera->flic_last_move_time < level.time || InSolid(ent)) {
 			ent->client->camera->flic_watching_the_dead = false;
 		} else {
-			if (ent->client->camera->flic_target->client->ps.pmove.pm_type == PM_DEAD) {
+			if (ent->client->camera->flic_target->solid == SOLID_NOT) {
 				VectorCopy(ent->client->camera->flic_target->s.origin,
 					   ent->client->camera->flic_dead_origin);
 			}
@@ -681,10 +580,10 @@ static edict_t *CameraSwingTarget(edict_t * ent)
 	target1st = ent->client->camera->swing_target;
 	target2nd = (target1st != NULL) ? PlayerToTrack(ent, target1st) : NULL;
 
-	if (target2nd != ent->client->camera->swing_secondry_target
-	    && target2nd != NULL && ent->client->camera->swing_msg_time <= level.time) {
+	if (target2nd != ent->client->camera->swing_secondry_target &&
+	    target2nd != NULL && ent->client->camera->swing_msg_time <= level.time) {
 		ent->client->camera->swing_msg_time = 0;
-		gi.centerprintf (ent, "Tracking %s", target2nd->client->pers.netname);
+		gi.centerprintf (ent, "Following %s - Tracking %s", target1st->client->pers.netname, target2nd->client->pers.netname);
 	}
 
 	return target2nd;
@@ -806,10 +705,11 @@ void CameraSwingCycle(edict_t * ent, int dir)
 		// start with current flic target
 		if (ent->client->camera->flic_target != NULL) {
 			if (ent->client->camera->flic_target->client->pers.connected &&
-				ent->client->camera->flic_target->client->resp.team != NOTEAM) {
-		        	ent->client->camera->swing_target = ent->client->camera->flic_target;
-				camera_begin(ent);
-				return;
+				ent->client->camera->flic_target->client->resp.team != NOTEAM &&
+				ent->client->camera->flic_target->solid != SOLID_NOT) {
+		        		ent->client->camera->swing_target = ent->client->camera->flic_target;
+					camera_begin(ent);
+					return;
 			}
 		}
 		ent->client->camera->swing_target = NULL;
@@ -831,9 +731,8 @@ void CameraSwingCycle(edict_t * ent, int dir)
 			continue;
 		// can only follow connected clients
 		// can't follow another spectator
-		if (!game.clients[clientnum].pers.connected ||
-			game.clients[clientnum].resp.team == NOTEAM)
-//			game.clients[clientnum].ps.pmove.pm_type != PM_NORMAL)
+		if (!other->client->pers.connected || other->client->resp.team == NOTEAM ||
+			other->solid == SOLID_NOT)
 			continue;
 
 		// this is good, we can use it
@@ -847,13 +746,10 @@ void CameraSwingCycle(edict_t * ent, int dir)
 
 static void CameraSwingThink(edict_t * ent)
 {
-	vec3_t o, ownerv, goal, vDiff;
 	edict_t *target;
-	vec3_t forward, right;
+	vec3_t o, ownerv, goal, vDiff, forward;
+	vec3_t right, oldgoal, angles, viewangles;
 	trace_t trace;
-	vec3_t oldgoal;
-	vec3_t angles;
-	vec3_t viewangles;
 	static vec3_t mins = { -4, -4, -4 };
 	static vec3_t maxs = { 4, 4, 4 };
 
@@ -861,7 +757,8 @@ static void CameraSwingThink(edict_t * ent)
 	if (ent->client->camera->swing_target == NULL) {
 		if (ent->client->camera->swing_target != NULL &&
 			(!ent->client->camera->swing_target->client->pers.connected ||
-			ent->client->camera->swing_target->client->resp.team == NOTEAM)) {
+			ent->client->camera->swing_target->client->resp.team == NOTEAM ||
+			ent->client->camera->swing_target->solid == SOLID_NOT)) {
 			// target is not valid: try the next client
 			CameraSwingCycle(ent, 1);
 			if (ent->client->camera->swing_target == NULL)
@@ -876,7 +773,7 @@ static void CameraSwingThink(edict_t * ent)
 	ent->client->camera->swing_secondry_target = CameraSwingTarget(ent);
 
 	// update viewangles as long as target is alive
-	if (target->client->ps.pmove.pm_type != PM_DEAD) {
+	if (target->solid != SOLID_NOT) {
 		VectorCopy(target->client->ps.viewangles, ent->client->camera->swing_last_viewangles);
 	}
 	CameraSwingAngle(ent);
@@ -946,7 +843,7 @@ void camera_init(void)
 {
 	int i;
 
-	for (i = 0; i < game.maxclients; i++) {
+	for (i = 1; i < game.maxclients; i++) {
 		cameras[i].mode = CAMERA_MODE_FLIC;
 		cameras[i].flic_target = NULL;
 		cameras[i].swing_target = NULL;
@@ -988,29 +885,33 @@ void camera_begin(edict_t * ent)
 
 void camera_disconnect(edict_t * ent)
 {
+	edict_t *other;
 	int i;
 
 	// reset camera state for disconnected clients
 	CameraFlicBegin(ent);
 
 	// force rethink on all cameras
-	for (i = 0; i < game.maxclients; i++)
-		if (game.clients[i].pers.connected
-		    && game.clients[i].resp.team == NOTEAM) {
-			if (game.clients[i].camera->mode == CAMERA_MODE_FLIC) {
-				game.clients[i].camera->flic_last_move_time = level.time;
-				if (game.clients[i].camera->flic_target == ent) {
-					game.clients[i].camera->flic_target = NULL;
-					game.clients[i].camera->swing_target = NULL;
+	for (i = 1; i < game.maxclients; i++) {
+		other = &g_edicts[i];
+		if (!other->client->camera)
+			continue;
+		if (other->client->pers.connected && other->solid == SOLID_NOT) {
+			if (other->client->camera->mode == CAMERA_MODE_FLIC) {
+				other->client->camera->flic_last_move_time = level.time;
+				if (other->client->camera->flic_target == ent) {
+					other->client->camera->flic_target = NULL;
+					other->client->camera->swing_target = NULL;
 				}
-			} else if (game.clients[i].camera->mode == CAMERA_MODE_SWING) {
-				if (game.clients[i].camera->swing_target == ent) {
-					CameraSwingCycle(&g_edicts[i], 1);
-				} else if (game.clients[i].camera->swing_secondry_target == ent) {
-					game.clients[i].camera->swing_secondry_target = NULL;
+			} else if (other->client->camera->mode == CAMERA_MODE_SWING) {
+				if (other->client->camera->swing_target == ent) {
+					CameraSwingCycle(other, 1);
+				} else if (other->client->camera->swing_secondry_target == ent) {
+					other->client->camera->swing_secondry_target = NULL;
 				}
 			}
 		}
+	}
 }
 
 void camera_think(edict_t * ent)

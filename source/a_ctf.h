@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // CTF related definitions
 //
-// $Id: a_ctf.h,v 1.10 2001/09/28 13:48:34 ra Exp $
+// $Id: a_ctf.h,v 1.11 2003/02/10 02:12:25 ra Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_ctf.h,v $
+// Revision 1.11  2003/02/10 02:12:25  ra
+// Zcam fixes, kick crashbug in CTF fixed and some code cleanup.
+//
 // Revision 1.10  2001/09/28 13:48:34  ra
 // I ran indent over the sources. All .c and .h files reindented.
 //
@@ -90,6 +93,7 @@ void CTFOpenJoinMenu (edict_t * ent);
 qboolean CTFStartClient (edict_t * ent);
 
 qboolean CTFCheckRules (void);
+qboolean HasFlag (edict_t * ent);
 
 void SP_misc_ctf_banner (edict_t * ent);
 void SP_misc_ctf_small_banner (edict_t * ent);

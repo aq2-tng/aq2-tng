@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 //
-// $Id: zcam_target.c,v 1.1 2002/09/04 11:23:10 ra Exp $
+// $Id: zcam_target.c,v 1.2 2003/02/10 02:12:25 ra Exp $
 //
 //-----------------------------------------------------------------------------
 //
 // $Log: zcam_target.c,v $
+// Revision 1.2  2003/02/10 02:12:25  ra
+// Zcam fixes, kick crashbug in CTF fixed and some code cleanup.
+//
 // Revision 1.1  2002/09/04 11:23:10  ra
 // Added zcam to TNG and bumped version to 3.0
 //
@@ -21,6 +24,7 @@
  *  FLIC  camera mode is based on code  taken from q2cam by Paul Jordan
  *  SWING camera mode is based on ideas taken from CreepCam for Quake I 
  *
+ *  Ported to ActionQuake by JBravo.
  */
 
 /* Camera Target Selection */
@@ -58,21 +62,21 @@ int NumPlayersVisible(edict_t * viewer, float maxrange)
 {
 	int count = 0;
 	int i;
+	edict_t *ent;
 
 	if (viewer == NULL) {
 		return 0;
 	}
 
-	for (i = 0; i < game.maxclients; i++) {
-		if (viewer->s.number != i
-		    && game.clients[i].pers.connected
-		    && game.clients[i].resp.team != NOTEAM && game.clients[i].ps.pmove.pm_type != PM_DEAD) {
-			if (IsVisible(viewer, &g_edicts[i], maxrange)) {
-				count++;
-			}
+	for (i = 1; i < game.maxclients; i++) {
+		ent = &g_edicts[i];
+		if (viewer->s.number != i && ent->client->pers.connected &&
+			ent->client->resp.team != NOTEAM && ent->solid != SOLID_NOT) {
+				if (IsVisible(viewer, ent, maxrange)) {
+					count++;
+				}
 		}
 	}
-
 	return count;
 }
 
@@ -85,15 +89,14 @@ edict_t *PriorityTarget(edict_t * target, qboolean * override)
 {
 	int i;
 	edict_t *favorite = NULL;
+	edict_t *ent;
 
-	for (i = 0; i < game.maxclients; i++) {
-		if (game.clients[i].pers.connected && game.clients[i].resp.team != NOTEAM) {
-// LAGA		    && game.clients[i].ps.pmove.pm_type == PM_NORMAL && (game.clients[i].ps.powerups[PW_REDFLAG]
-// LAGA								    || game.clients[i].ps.powerups[PW_BLUEFLAG])) {
-			if (favorite == NULL
-			    || NumPlayersVisible(favorite, MAX_VISIBLE_RANGE) < NumPlayersVisible(&g_edicts[i],
-												  MAX_VISIBLE_RANGE)) {
-				favorite = &g_edicts[i];
+	for (i = 1; i < game.maxclients; i++) {
+		ent = &g_edicts[i];
+		if (ent->client->pers.connected && ent->client->resp.team != NOTEAM && ent->solid != SOLID_NOT && HasFlag(ent)) {
+			if (favorite == NULL ||
+			    NumPlayersVisible(favorite, MAX_VISIBLE_RANGE) < NumPlayersVisible(ent, MAX_VISIBLE_RANGE)) {
+				favorite = ent;
 			}
 		}
 	}
@@ -119,16 +122,13 @@ edict_t *PlayerToFollow(edict_t * ent, qboolean * override)
 
 	*override = false;
 
-	for (i = 0; i < game.maxclients; i++) {
-		/* don't switch to dead people */
+	for (i = 1; i < game.maxclients; i++) {
 		viewer = &g_edicts[i];
-
 		if (!viewer->inuse || !viewer->client)
 			continue;
 		if (!viewer->client->pers.connected)
 			continue;
-
-		if (viewer->client->resp.team != NOTEAM && viewer->client->ps.pmove.pm_type == PM_NORMAL) {
+		if (viewer->client->resp.team != NOTEAM && viewer->solid != SOLID_NOT) {
 			players = NumPlayersVisible(viewer, MAX_VISIBLE_RANGE);
 			if (players > best_count) {
 				best_count = players;
@@ -164,40 +164,33 @@ edict_t *PlayerToTrack(edict_t * ent, edict_t * target1st)
 	vec3_t distance;
 	float current, closest1 = -1.0F, closest2 = -1.0F;
 
-	for (i = 0; i < game.maxclients; i++) {
+	for (i = 1; i < game.maxclients; i++) {
 		target2nd = &g_edicts[i];
 		if (!target2nd->inuse || !target2nd->client)
 			continue;
-		if (target1st != target2nd
-		    && target2nd->client->pers.connected
-		    && target2nd->client->resp.team != NOTEAM
-		    && target2nd->client->ps.pmove.pm_type == PM_NORMAL
-		    && loc_CanSee(target1st, target2nd)) {
+		if (target1st != target2nd && target2nd->client->pers.connected &&
+		    target2nd->client->resp.team != NOTEAM && target2nd->solid != SOLID_NOT &&
+		    loc_CanSee(target1st, target2nd)) {
 			VectorSubtract(target1st->s.origin, target2nd->s.origin, distance);
 			current = VectorLength(distance);
 			if (target1st->client->resp.team == target2nd->client->resp.team) {
-// LAGA				if (target2nd->client->ps.powerups[PW_REDFLAG]
-//				    || target2nd->client->ps.powerups[PW_BLUEFLAG]) {
-//					best1 = target2nd;
-//				}
-
-// LAGA				if (!(best1 && (best1->client->ps.powerups[PW_REDFLAG]
-//						|| best1->client->ps.powerups[PW_BLUEFLAG]))
-				    if (closest1 < 0 || current < closest1) {
+				if (HasFlag(target2nd))
 					best1 = target2nd;
-					closest1 = current;
+				if (!(best1 && HasFlag(best1))) {
+					if (closest1 < 0 || current < closest1) {
+						best1 = target2nd;
+						closest1 = current;
+					}
 				}
 			} else {
-// LAGA				if (target2nd->client->ps.powerups[PW_REDFLAG]
-//				    || target2nd->client->ps.powerups[PW_BLUEFLAG]) {
-//					best2 = target2nd;
-//				}
-
-// LAGA				if (!(best2 && (best2->client->ps.powerups[PW_REDFLAG]
-//						|| best2->client->ps.powerups[PW_BLUEFLAG]))
-				    if (closest2 < 0 || current < closest2) {
+				if (HasFlag(target2nd)) {
 					best2 = target2nd;
-					closest2 = current;
+				}
+				if (!(best2 && HasFlag(best2))) {
+					if (closest2 < 0 || current < closest2) {
+						best2 = target2nd;
+						closest2 = current;
+					}
 				}
 			}
 		}

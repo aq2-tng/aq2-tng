@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // g_weapon.c
 //
-// $Id: g_weapon.c,v 1.13 2002/02/19 10:28:43 freud Exp $
+// $Id: g_weapon.c,v 1.14 2003/02/10 02:12:25 ra Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_weapon.c,v $
+// Revision 1.14  2003/02/10 02:12:25  ra
+// Zcam fixes, kick crashbug in CTF fixed and some code cleanup.
+//
 // Revision 1.13  2002/02/19 10:28:43  freud
 // Added to %D hit in the kevlar vest and kevlar helmet, also body for handcannon
 // and shotgun.
@@ -1513,7 +1516,9 @@ kick_attack (edict_t * ent)
 		    return;
 // AQ2:TNG - JBravo adding UVtime
 		  if (ctf->value) {
-			if (ent->client->ctf_uvtime || tr.ent->client->ctf_uvtime)
+			if (ent->client && ent->client->ctf_uvtime)
+				return;
+			if (tr.ent->client && tr.ent->client->ctf_uvtime)
 				return;
 		  }
 
