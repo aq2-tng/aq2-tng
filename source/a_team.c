@@ -3,10 +3,13 @@
 // Some of this is borrowed from Zoid's CTF (thanks Zoid)
 // -Fireblade
 //
-// $Id: a_team.c,v 1.11 2001/05/12 18:38:27 deathwatch Exp $
+// $Id: a_team.c,v 1.12 2001/05/12 19:17:03 slicerdw Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_team.c,v $
+// Revision 1.12  2001/05/12 19:17:03  slicerdw
+// Changed The Join and Weapon choosing Menus
+//
 // Revision 1.11  2001/05/12 18:38:27  deathwatch
 // Tweaked MOTD and Menus some more
 //
@@ -418,7 +421,11 @@ pmenu_t weapmenu[] =
   {"Combat Knives", PMENU_ALIGN_LEFT, NULL, SelectWeapon0},
   {"Akimbo Pistols", PMENU_ALIGN_LEFT, NULL, SelectWeapon9},
   {NULL, PMENU_ALIGN_LEFT, NULL, NULL},
-  {"Leave Team", PMENU_ALIGN_LEFT, NULL, LeaveTeams},
+  //AQ2:TNG - Slicer: changing this
+  //{"Leave Team", PMENU_ALIGN_LEFT, NULL, LeaveTeams},
+  {"Return to Main Menu", PMENU_ALIGN_LEFT, NULL, CreditsReturnToMain},
+  {NULL, PMENU_ALIGN_LEFT, NULL, NULL},
+    //AQ2:TNG END
   {"Use [ and ] to move cursor", PMENU_ALIGN_LEFT, NULL, NULL},
   {"ENTER to select", PMENU_ALIGN_LEFT, NULL, NULL},
   {"TAB to exit menu", PMENU_ALIGN_LEFT, NULL, NULL},
@@ -445,13 +452,21 @@ pmenu_t itemmenu[] =
   {NULL, PMENU_ALIGN_LEFT, NULL, NULL},
   {"v"ACTION_VERSION, PMENU_ALIGN_RIGHT, NULL, NULL},
 };
+//AQ2:TNG - slicer
+void
+VotingMenu (edict_t * ent, pmenu_t * p)
+{
+  PMenu_Close (ent);
+  vShowMenu(ent,"");
 
+}
+//AQ2:TNG END
 pmenu_t joinmenu[] =
 {
   {"*"TNG_VERSION, PMENU_ALIGN_CENTER, NULL, NULL},
   {"------------------------------", PMENU_ALIGN_CENTER, NULL, NULL},
-  {NULL /* lvl name */ , PMENU_ALIGN_LEFT, NULL, NULL},
-  {NULL, PMENU_ALIGN_LEFT, NULL, NULL},
+  {NULL /* lvl name */ , PMENU_ALIGN_CENTER, NULL, NULL},
+  {NULL, PMENU_ALIGN_CENTER, NULL, NULL},
   {NULL /* team 1 */ , PMENU_ALIGN_LEFT, NULL, JoinTeam1},
   {NULL, PMENU_ALIGN_LEFT, NULL, NULL},
   {NULL /* team 2 */ , PMENU_ALIGN_LEFT, NULL, JoinTeam2},
@@ -459,8 +474,12 @@ pmenu_t joinmenu[] =
   {NULL /* team 3 */ , PMENU_ALIGN_LEFT, NULL, JoinTeam3},
   {NULL, PMENU_ALIGN_LEFT, NULL, NULL},
   {NULL, PMENU_ALIGN_LEFT, NULL, NULL},
+  //AQ2:TNG - Slicer
+  {"Voting & Ignoring Menus", PMENU_ALIGN_LEFT, NULL, VotingMenu},
+  //AQ2:TNG END
   {"MOTD", PMENU_ALIGN_LEFT, NULL, ReprintMOTD},
   {"Credits", PMENU_ALIGN_LEFT, NULL, CreditsMenu},
+  {NULL, PMENU_ALIGN_LEFT, NULL, NULL},
   {"Use [ and ] to move cursor", PMENU_ALIGN_LEFT, NULL, NULL},
   {"ENTER to select", PMENU_ALIGN_LEFT, NULL, NULL},
   {"TAB to exit menu", PMENU_ALIGN_LEFT, NULL, NULL},
@@ -475,6 +494,7 @@ CreditsMenu (edict_t * ent, pmenu_t * p)
   PMenu_Open (ent, creditsmenu, 4, sizeof (creditsmenu) / sizeof (pmenu_t));
   stuffcmd (ent, "play world/elv.wav\n");
 }
+
 
 char *
 TeamName (int team)
