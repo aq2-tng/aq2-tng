@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // CTF related code
 //
-// $Id: a_ctf.c,v 1.12 2001/06/20 10:04:13 igor_rock Exp $
+// $Id: a_ctf.c,v 1.13 2001/06/26 18:47:30 igor_rock Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_ctf.c,v $
+// Revision 1.13  2001/06/26 18:47:30  igor_rock
+// added ctf_respawn cvar
+//
 // Revision 1.12  2001/06/20 10:04:13  igor_rock
 // corrected the path for the flagsounds (from ctf/ to tng/)
 //
@@ -37,6 +40,7 @@ cvar_t *ctf;
 cvar_t *ctf_forcejoin;
 cvar_t *ctf_mode;
 cvar_t *ctf_dropflag;
+cvar_t *ctf_respawn;
 
 /*--------------------------------------------------------------------------*/
 

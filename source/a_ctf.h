@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // CTF related definitions
 //
-// $Id: a_ctf.h,v 1.7 2001/06/15 14:18:07 igor_rock Exp $
+// $Id: a_ctf.h,v 1.8 2001/06/26 18:47:30 igor_rock Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_ctf.h,v $
+// Revision 1.8  2001/06/26 18:47:30  igor_rock
+// added ctf_respawn cvar
+//
 // Revision 1.7  2001/06/15 14:18:07  igor_rock
 // corrected bug with destroyed flags (won't be destroyed anymore, instead they
 // return to the base).
@@ -24,6 +27,7 @@ extern cvar_t *ctf;
 extern cvar_t *ctf_forcejoin;
 extern cvar_t *ctf_mode;
 extern cvar_t *ctf_dropflag;
+extern cvar_t *ctf_respawn;
 
 #define CTF_TEAM1_SKIN "ctf_r"
 #define CTF_TEAM2_SKIN "ctf_b"

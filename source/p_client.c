@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // p_client.c
 //
-// $Id: p_client.c,v 1.34 2001/06/25 11:44:47 slicerdw Exp $
+// $Id: p_client.c,v 1.35 2001/06/26 18:47:30 igor_rock Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: p_client.c,v $
+// Revision 1.35  2001/06/26 18:47:30  igor_rock
+// added ctf_respawn cvar
+//
 // Revision 1.34  2001/06/25 11:44:47  slicerdw
 // New Video Check System - video_check and video_check_lockpvs no longer latched
 //
@@ -1544,7 +1547,14 @@ void player_die (edict_t *self, edict_t *inflictor, edict_t *attacker, int damag
         self->svflags |= SVF_DEADMONSTER;
         if (!self->deadflag)
 	  {
-	    self->client->respawn_time = level.time + 1.0;
+	    if (ctf->value)
+	      {
+		self->client->respawn_time = level.time + ctf_respawn->value;
+	      }
+	    else
+	      {
+		self->client->respawn_time = level.time + 1.0;
+	      }
 	    LookAtKiller (self, inflictor, attacker);
 	    self->client->ps.pmove.pm_type = PM_DEAD;
 	    ClientObituary (self, inflictor, attacker);

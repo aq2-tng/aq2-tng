@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // g_save.c
 //
-// $Id: g_save.c,v 1.25 2001/06/25 11:44:47 slicerdw Exp $
+// $Id: g_save.c,v 1.26 2001/06/26 18:47:30 igor_rock Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_save.c,v $
+// Revision 1.26  2001/06/26 18:47:30  igor_rock
+// added ctf_respawn cvar
+//
 // Revision 1.25  2001/06/25 11:44:47  slicerdw
 // New Video Check System - video_check and video_check_lockpvs no longer latched
 //
@@ -332,6 +335,7 @@ void InitGame (void)
   ctf_forcejoin = gi.cvar("ctf_forcejoin", "", 0);
   ctf_mode = gi.cvar("ctf_mode", "", 0);
   ctf_dropflag = gi.cvar("ctf_dropflag", "1", 0);
+  ctf_respawn = gi.cvar("ctf_respawn", "4", 0);
   //PG BUND - END
 
 // AQ:TNG - JBravo adding public voting and punishkills.
