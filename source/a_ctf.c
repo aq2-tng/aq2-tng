@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // CTF related code
 //
-// $Id: a_ctf.c,v 1.11 2001/06/15 14:18:07 igor_rock Exp $
+// $Id: a_ctf.c,v 1.12 2001/06/20 10:04:13 igor_rock Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_ctf.c,v $
+// Revision 1.12  2001/06/20 10:04:13  igor_rock
+// corrected the path for the flagsounds (from ctf/ to tng/)
+//
 // Revision 1.11  2001/06/15 14:18:07  igor_rock
 // corrected bug with destroyed flags (won't be destroyed anymore, instead they
 // return to the base).
@@ -445,7 +448,7 @@ qboolean CTFPickup_Flag(edict_t *ent, edict_t *other)
 				else
 					ctfgame.team2++;
 
-				gi.sound (ent, CHAN_RELIABLE+CHAN_NO_PHS_ADD+CHAN_VOICE, gi.soundindex("ctf/flagcap.wav"), 1, ATTN_NONE, 0);
+				gi.sound (ent, CHAN_RELIABLE+CHAN_NO_PHS_ADD+CHAN_VOICE, gi.soundindex("tng/flagcap.wav"), 1, ATTN_NONE, 0);
 
 				// other gets another 10 frag bonus
 				other->client->resp.score += CTF_CAPTURE_BONUS;
@@ -483,7 +486,7 @@ qboolean CTFPickup_Flag(edict_t *ent, edict_t *other)
 			other->client->pers.netname, CTFTeamName(team));
 		other->client->resp.score += CTF_RECOVERY_BONUS;
 		other->client->resp.ctf_lastreturnedflag = level.time;
-		gi.sound (ent, CHAN_RELIABLE+CHAN_NO_PHS_ADD+CHAN_VOICE, gi.soundindex("ctf/flagret.wav"), 1, ATTN_NONE, 0);
+		gi.sound (ent, CHAN_RELIABLE+CHAN_NO_PHS_ADD+CHAN_VOICE, gi.soundindex("tng/flagret.wav"), 1, ATTN_NONE, 0);
 		//CTFResetFlag will remove this entity!  We must return false
 		CTFResetFlag(team);
 		return false;
