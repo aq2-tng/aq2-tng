@@ -3,10 +3,14 @@
 // Some of this is borrowed from Zoid's CTF (thanks Zoid)
 // -Fireblade
 //
-// $Id: a_team.c,v 1.36 2001/07/09 17:55:50 slicerdw Exp $
+// $Id: a_team.c,v 1.37 2001/07/10 13:16:57 ra Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_team.c,v $
+// Revision 1.37  2001/07/10 13:16:57  ra
+// Fixed bug where the "3 MINUTES LEFT" warning gets printed at the begining
+// of rounds that are only 2 minutes long.
+//
 // Revision 1.36  2001/07/09 17:55:50  slicerdw
 // Small change on the Board
 //
@@ -2033,7 +2037,7 @@ CheckTeamRules ()
 		  timewarning = 2;
 		}
 	    }
-	  else if (current_round_length > (roundtimelimit->value - 3) * 600 && use_warnings->value)
+	  else if (current_round_length > (roundtimelimit->value - 3) * 600 && use_warnings->value && roundtimelimit->value >= 3)
 	    {
 	      if (timewarning < 1)
 		{
