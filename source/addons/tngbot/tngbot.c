@@ -3,7 +3,7 @@
  * (c) 2001 by Stefan Giesen aka Igor[Rock]
  * All rights reserved
  *
- * $Id: tngbot.c,v 1.4 2001/11/30 19:27:33 igor_rock Exp $
+ * $Id: tngbot.c,v 1.5 2001/12/03 14:52:01 igor_rock Exp $
  *
  *----------------------------------------------------------------------------
  * Usage: tngbot <ircserver>[:port] <channelname> <nickname>
@@ -35,6 +35,9 @@
  *
  *----------------------------------------------------------------------------
  * $Log: tngbot.c,v $
+ * Revision 1.5  2001/12/03 14:52:01  igor_rock
+ * fixed some bugs, added some features / channel modes
+ *
  * Revision 1.4  2001/11/30 19:27:33  igor_rock
  * - added password to get op from the bot (with "/msg botname op password")
  * - the bot sets the +m flag so other people can't talk in the channel (which
@@ -288,7 +291,11 @@ int do_irc_reg( )
   printf ("Joining #%s\n", channel);
   write(sock, outbuf, strlen(outbuf));
 
-  sprintf (outbuf, "mode #%s +m\n", channel);
+  if (password[0]) {
+    sprintf (outbuf, "mode #%s +mntk %s\n", channel, password);
+  } else {
+    sprintf (outbuf, "mode #%s +mnt\n", channel);
+  }
   write (sock, outbuf, strlen(outbuf));
 
   return (1);
@@ -299,6 +306,7 @@ void parse_input (char *inbuf)
 {
   int  pos1;
   int  pos2;
+  char temp[BUFLEN];
   char von[BUFLEN];
   char outbuf[BUFLEN];
 
@@ -335,7 +343,14 @@ void parse_input (char *inbuf)
       }
     }
   } else {
-    printf ("%s\n", inbuf);
+    sprintf (temp, " KICK #%s %s :", channel, nickname);
+    if ((inbuf[0] == ':') && (strstr(inbuf, temp) != NULL)) {
+      sprintf(outbuf, "join #%s\n\r", channel);
+      printf ("Joining #%s\n", channel);
+      write(sock, outbuf, strlen(outbuf));
+    } else {
+      printf ("%s\n", inbuf);
+    }
   }
 }
 

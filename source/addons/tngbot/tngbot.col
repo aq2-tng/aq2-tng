@@ -66,6 +66,8 @@ K was taught how to fly by
 K ph34rs 
 K ate 
 K caught 
+K (Team 1) is now known as 
+K (Team 2) is now known as 
 S disconnected
 S connected
 S entered the game
@@ -131,8 +133,10 @@ GIt was a tie, no points awarded!
 GNot enough players to play!
 GMore than 50% map votes reached.
 GNext map was voted on and is
-GActual Scores are 
+GCurrent score is 
 GBoth Teams Must Be Ready!
+GMatch is over, waiting for next map, please vote a new one..
+-
 -couldn't exec
 -user sounds precached.
 -tourney events...
@@ -150,6 +154,7 @@ GBoth Teams Must Be Ready!
 -Found 
 -SetupTeamSpawnPoints
 -NET_SendPacket
+-Netchan_Transmit: 
 S is now a substitute for 
 S is no longer 
 S is now 
