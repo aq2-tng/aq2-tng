@@ -3,10 +3,14 @@
 // Some of this is borrowed from Zoid's CTF (thanks Zoid)
 // -Fireblade
 //
-// $Id: a_team.c,v 1.73 2002/02/18 13:55:35 freud Exp $
+// $Id: a_team.c,v 1.74 2002/02/23 18:12:14 freud Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_team.c,v $
+// Revision 1.74  2002/02/23 18:12:14  freud
+// Added newlines back to the CenterPrintAll for IMPRESSIVE, EXCELLENT,
+// ACCURACY and X FRAGS Left, it was screwing up the logfile.
+//
 // Revision 1.73  2002/02/18 13:55:35  freud
 // Added last damaged players %P
 //
@@ -2264,7 +2268,7 @@ CheckTeamRules ()
 	      if (timewarning < 2)
 		{
 		  //AQ2:TNG Igor removing newlines
-		  CenterPrintAll ("1 MINUTE LEFT...");
+		  CenterPrintAll ("1 MINUTE LEFT...\n");
 		  //AQ2:TNG End removing newlines
 		  gi.sound (&g_edicts[0], CHAN_VOICE | CHAN_NO_PHS_ADD,
 			    gi.soundindex ("tng/1_minute.wav"), 1.0,
@@ -2278,7 +2282,7 @@ CheckTeamRules ()
 	      if (timewarning < 1)
 		{
 		  //AQ2:TNG Igor removing newlines
-		  CenterPrintAll ("3 MINUTES LEFT...");
+		  CenterPrintAll ("3 MINUTES LEFT...\n");
 		  //AQ2:TNG End removing newlines
 		  gi.sound (&g_edicts[0], CHAN_VOICE | CHAN_NO_PHS_ADD,
 			    gi.soundindex ("tng/3_minutes.wav"), 1.0,

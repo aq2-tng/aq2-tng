@@ -1,10 +1,14 @@
 //-----------------------------------------------------------------------------
 // p_client.c
 //
-// $Id: p_client.c,v 1.73 2002/02/19 09:32:47 freud Exp $
+// $Id: p_client.c,v 1.74 2002/02/23 18:12:14 freud Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: p_client.c,v $
+// Revision 1.74  2002/02/23 18:12:14  freud
+// Added newlines back to the CenterPrintAll for IMPRESSIVE, EXCELLENT,
+// ACCURACY and X FRAGS Left, it was screwing up the logfile.
+//
 // Revision 1.73  2002/02/19 09:32:47  freud
 // Removed PING PONGs from CVS, not fit for release.
 //
@@ -339,7 +343,7 @@ Add_Frag (edict_t * ent)
 	  if (fragwarning < 3)
 	    {
 	      //AQ2:TNG Igor removing newlines
-	      CenterPrintAll ("1 FRAG LEFT...");
+	      CenterPrintAll ("1 FRAG LEFT...\n");
 	      //AQ2:TNG End removing newlines
 	      gi.sound (&g_edicts[0], CHAN_VOICE | CHAN_NO_PHS_ADD,
 			gi.soundindex ("tng/1_frag.wav"), 1.0, ATTN_NONE,
@@ -352,7 +356,7 @@ Add_Frag (edict_t * ent)
 	  if (fragwarning < 2)
 	    {
 	      //AQ2:TNG Igor removing newlines
-	      CenterPrintAll ("2 FRAGS LEFT...");
+	      CenterPrintAll ("2 FRAGS LEFT...\n");
 	      //AQ2:TNG End removing newlines
 	      gi.sound (&g_edicts[0], CHAN_VOICE | CHAN_NO_PHS_ADD,
 			gi.soundindex ("tng/2_frags.wav"), 1.0, ATTN_NONE,
@@ -365,7 +369,7 @@ Add_Frag (edict_t * ent)
 	  if (fragwarning < 1)
 	    {
 	      //AQ2:TNG Igor removing newlines
-	      CenterPrintAll ("3 FRAGS LEFT...");
+	      CenterPrintAll ("3 FRAGS LEFT...\n");
 	      //AQ2:TNG End removing newlines
 	      gi.sound (&g_edicts[0], CHAN_VOICE | CHAN_NO_PHS_ADD,
 			gi.soundindex ("tng/3_frags.wav"), 1.0, ATTN_NONE,
