@@ -3,10 +3,13 @@
 // Some of this is borrowed from Zoid's CTF (thanks Zoid)
 // -Fireblade
 //
-// $Id: a_team.c,v 1.48 2001/09/28 15:03:26 ra Exp $
+// $Id: a_team.c,v 1.49 2001/09/28 16:24:19 deathwatch Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_team.c,v $
+// Revision 1.49  2001/09/28 16:24:19  deathwatch
+// use_rewards now silences the teamX wins sounds and added gibbing for the Shotgun
+//
 // Revision 1.48  2001/09/28 15:03:26  ra
 // replacing itoa with a sprintf() call 'cause itoa is MIA on Linux
 //
@@ -1755,9 +1758,8 @@ WonGame (int winner)
 	    {
 	      gi.bprintf (PRINT_HIGH, "%s won!\n", TeamName (TEAM1));
 	      // AQ:TNG Igor[Rock] changing sound dir
-	      gi.sound (&g_edicts[0], CHAN_VOICE | CHAN_NO_PHS_ADD,
-			gi.soundindex ("tng/team1_wins.wav"), 1.0, ATTN_NONE,
-			0.0);
+	      if(use_warnings->value)
+					gi.sound (&g_edicts[0], CHAN_VOICE | CHAN_NO_PHS_ADD,	gi.soundindex ("tng/team1_wins.wav"), 1.0, ATTN_NONE,	0.0);
 	      // end of changing sound dir
 	      team1_score++;
 	      team1score->value = team1_score;
@@ -1781,9 +1783,8 @@ WonGame (int winner)
 	    {
 	      gi.bprintf (PRINT_HIGH, "%s won!\n", TeamName (TEAM2));
 	      // AQ:TNG Igor[Rock] changing sound dir
-	      gi.sound (&g_edicts[0], CHAN_VOICE | CHAN_NO_PHS_ADD,
-			gi.soundindex ("tng/team2_wins.wav"), 1.0, ATTN_NONE,
-			0.0);
+				if(use_warnings->value)
+					gi.sound (&g_edicts[0], CHAN_VOICE | CHAN_NO_PHS_ADD, gi.soundindex ("tng/team2_wins.wav"), 1.0, ATTN_NONE, 0.0);
 	      // end of changing sound dir
 	      team2_score++;
 	      team2score->value = team2_score;
@@ -1807,9 +1808,8 @@ WonGame (int winner)
 	    {
 	      gi.bprintf (PRINT_HIGH, "%s won!\n", TeamName (TEAM3));
 	      // AQ:TNG Igor[Rock] changing sound dir
-	      gi.sound (&g_edicts[0], CHAN_VOICE | CHAN_NO_PHS_ADD,
-			gi.soundindex ("tng/team3_wins.wav"), 1.0, ATTN_NONE,
-			0.0);
+				if(use_warnings->value)
+					gi.sound (&g_edicts[0], CHAN_VOICE | CHAN_NO_PHS_ADD,	gi.soundindex ("tng/team3_wins.wav"), 1.0, ATTN_NONE,	0.0);
 	      // end of changing sound dir
 	      team3score->value = team3_score;
 //	      itoa (team3_score, team3score->string, 10);

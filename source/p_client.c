@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // p_client.c
 //
-// $Id: p_client.c,v 1.51 2001/09/28 13:48:35 ra Exp $
+// $Id: p_client.c,v 1.52 2001/09/28 16:24:20 deathwatch Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: p_client.c,v $
+// Revision 1.52  2001/09/28 16:24:20  deathwatch
+// use_rewards now silences the teamX wins sounds and added gibbing for the Shotgun
+//
 // Revision 1.51  2001/09/28 13:48:35  ra
 // I ran indent over the sources. All .c and .h files reindented.
 //
@@ -2434,7 +2437,7 @@ player_die (edict_t * self, edict_t * inflictor, edict_t * attacker,
     }
 
   // Gibbing on really hard HC hit
-  if ((self->health < -35) && (meansOfDeath == MOD_HC) && (sv_gib->value))
+  if ((self->health < -35) && ((meansOfDeath == MOD_HC) || (meansOfDeath == MOD_M3)) && (sv_gib->value))
     {
       gi.sound (self, CHAN_BODY, gi.soundindex ("misc/udeath.wav"), 1,
 		ATTN_NORM, 0);
