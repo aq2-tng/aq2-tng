@@ -5,6 +5,7 @@ Changes in TNG
 * = major bug fix
 
 From 2.5
+* Fixed invdrop weapon farming in any teamplay mode
 * Toggle for the Statistics screen when a map ends (stats_endmap)
 * Toggle to display stats when a round or map ends (stats_afterround)
 * Stats command followed by player name will display someone else's stats
@@ -12,6 +13,7 @@ From 2.5
 + Fixed ff_afterround
 + Showing health icon on screen when bandaging (thanks to Dome)
 + TNG now accepts M$ formatting on .agq files
++ In matchmode, the forcing of say_team in mm_forceteamtalk 2 wont be off if a team unreadies during a round
 - Fixed a small bug which allowed people to deny kills by typing 'team none'
 - Fixed a small bug with the HC in hc_single 0 mode
 - Reset some variables to original values

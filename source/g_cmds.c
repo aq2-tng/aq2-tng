@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // g_cmds.c
 //
-// $Id: g_cmds.c,v 1.50 2002/02/01 12:54:08 ra Exp $
+// $Id: g_cmds.c,v 1.51 2002/02/13 12:13:00 deathwatch Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_cmds.c,v $
+// Revision 1.51  2002/02/13 12:13:00  deathwatch
+// INVDROP Weaponfarming fix
+//
 // Revision 1.50  2002/02/01 12:54:08  ra
 // messin with stat_mode
 //
@@ -1017,24 +1020,30 @@ Cmd_InvDrop_f (edict_t * ent)
 {
   gitem_t *it;
 
+	// TNG: Temp fix for INVDROP weapon farming
+	if(teamplay->value)
+		return;
+	// TNG: End
+
   if (ent->solid == SOLID_NOT && ent->deadflag != DEAD_DEAD)
     return;
 
   ValidateSelectedItem (ent);
 
   if (ent->client->pers.selected_item == -1)
-    {
-      gi.cprintf (ent, PRINT_HIGH, "No item to drop.\n");
-      return;
-    }
+  {
+    gi.cprintf (ent, PRINT_HIGH, "No item to drop.\n");
+    return;
+  }
 
   it = &itemlist[ent->client->pers.selected_item];
   if (!it->drop)
-    {
-      gi.cprintf (ent, PRINT_HIGH, "Item is not dropable.\n");
-      return;
-    }
+  {
+    gi.cprintf (ent, PRINT_HIGH, "Item is not dropable.\n");
+    return;
+  }
   it->drop (ent, it);
+
 }
 
 /*
