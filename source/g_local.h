@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // g_local.h -- local definitions for game module
 //
-// $Id: g_local.h,v 1.54 2002/02/18 20:21:36 freud Exp $
+// $Id: g_local.h,v 1.55 2002/02/19 09:32:47 freud Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_local.h,v $
+// Revision 1.55  2002/02/19 09:32:47  freud
+// Removed PING PONGs from CVS, not fit for release.
+//
 // Revision 1.54  2002/02/18 20:21:36  freud
 // Added PING PONG mechanism for timely disconnection of clients. This is
 // based on a similar scheme as the scheme used by IRC. The client has
@@ -869,7 +872,6 @@ extern cvar_t *stats_afterround; // TNG Stats, collect stats between rounds
 extern cvar_t *auto_join;	// Automaticly join clients to teams they were on in last map.
 extern cvar_t *auto_equip;	// Remember weapons and items for players between maps.
 
-extern cvar_t *ping_timeout;	// Ping timeout value to wait before kicking
 // zucc from action
 extern cvar_t *sv_shelloff;
 extern cvar_t *splatlimit;
@@ -930,7 +932,6 @@ void Cmd_Help_f (edict_t * ent);
 void Cmd_Score_f (edict_t * ent);
 void Cmd_CPSI_f (edict_t * ent);
 void Cmd_VidRef_f (edict_t * ent);
-void Cmd_PingPong_f (edict_t * ent);
 //
 // g_items.c
 //
@@ -1337,8 +1338,6 @@ typedef struct
   int stats_shots[5000];       // Shots fired
   int stats_hits[5000];                // Shots hit
   int stats_headshot[5000];    // Shots in head
-
-  int last_pong;		// Last time the client answered a Ping
 
   //AQ2:TNG - Slicer: Video Checking and further Cheat cheking vars
   char vidref[16];

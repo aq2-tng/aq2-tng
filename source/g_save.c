@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // g_save.c
 //
-// $Id: g_save.c,v 1.53 2002/02/18 20:21:36 freud Exp $
+// $Id: g_save.c,v 1.54 2002/02/19 09:32:47 freud Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_save.c,v $
+// Revision 1.54  2002/02/19 09:32:47  freud
+// Removed PING PONGs from CVS, not fit for release.
+//
 // Revision 1.53  2002/02/18 20:21:36  freud
 // Added PING PONG mechanism for timely disconnection of clients. This is
 // based on a similar scheme as the scheme used by IRC. The client has
@@ -539,8 +542,6 @@ InitGame (void)
 
   auto_join = gi.cvar ("auto_join", "0", 0);
   auto_equip = gi.cvar ("auto_equip", "0", 0);
-
-  ping_timeout = gi.cvar ("ping_timeout", "30", 0);
 
   use_punch = gi.cvar ("use_punch", "1", 0);
 

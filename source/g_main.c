@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 //
 //
-// $Id: g_main.c,v 1.57 2002/02/18 23:17:55 freud Exp $
+// $Id: g_main.c,v 1.58 2002/02/19 09:32:47 freud Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_main.c,v $
+// Revision 1.58  2002/02/19 09:32:47  freud
+// Removed PING PONGs from CVS, not fit for release.
+//
 // Revision 1.57  2002/02/18 23:17:55  freud
 // Polling tweaks for PINGs
 //
@@ -338,8 +341,6 @@ cvar_t *stats_afterround;     // Collect TNG stats between rounds
 
 cvar_t *auto_join;
 cvar_t *auto_equip;
-
-cvar_t *ping_timeout;
 
 cvar_t *use_punch;
 
@@ -893,25 +894,9 @@ G_RunFrame (void)
 
   if (i > 0 && i <= maxclients->value)
 	{
-		// TNG Stats:
-		if (ping_timeout->value && ent->client->resp.last_pong < (level.time - ping_timeout->value)) {
-			j = GetClientInternalNumber (ent);
-      			if (j) {
-				sprintf (buffer, "kick %i\n", --j);
-				gi.bprintf (PRINT_HIGH, "%s disconnected from the server (Ping Timeout).\n",
-                      			ent->client->pers.netname);
-          			gi.AddCommandString (buffer);
-			}
-		}
 		if (!(level.framenum % 80)) 
 		    stuffcmd(ent, "cmd_stat_mode $stat_mode\n");
 
-		if (ping_timeout->value) {
-			int pt_real;
-			pt_real = ping_timeout->value * 3;
-			if (!(level.framenum % pt_real))
-				stuffcmd(ent, "pingpong\n");
-		}
 		// TNG Stats End
 
 	  ClientBeginServerFrame (ent);

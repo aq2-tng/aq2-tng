@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // p_client.c
 //
-// $Id: p_client.c,v 1.72 2002/02/18 23:38:05 freud Exp $
+// $Id: p_client.c,v 1.73 2002/02/19 09:32:47 freud Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: p_client.c,v $
+// Revision 1.73  2002/02/19 09:32:47  freud
+// Removed PING PONGs from CVS, not fit for release.
+//
 // Revision 1.72  2002/02/18 23:38:05  freud
 // PING PONG..
 //
@@ -2771,7 +2774,6 @@ InitClientResp (gclient_t * client)
   client->resp.captain = 0;
   client->resp.admin = 0;
   client->resp.stat_mode_intermission = 0;
-  client->resp.last_pong = level.time + 300;
   //AQ2:TNG END
 
   // No automatic team join
