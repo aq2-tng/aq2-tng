@@ -2,7 +2,7 @@
   //-----------------------------------------------------------------------------
   // create_aq2-config.php
   //-----------------------------------------------------------------------------
-  // $Id: create_aq2-config.php,v 1.8 2001/11/07 13:01:51 igor_rock Exp $
+  // $Id: create_aq2-config.php,v 1.9 2001/11/28 08:30:08 igor_rock Exp $
   //-----------------------------------------------------------------------------
 
   // check if the user wants to see or to save it
@@ -32,7 +32,7 @@
   print "//-----------------------------------------------------------------------------\n";
   print "set rcon_password \"$data[rcon_password]\"\n";
   print "set public $data[public]\n";
-  print "set masterserver \"$data[masterserver]\"\n";
+  print "setmaster \"$data[masterserver]\"\n";
   print "set skipmotd $data[skipmotd]\n";
   print "set motd_time $data[motd_time]\n";
   print "set ppl_idletime $data[ppl_idletime]\n";
