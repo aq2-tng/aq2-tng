@@ -3,10 +3,13 @@
 // Some of this is borrowed from Zoid's CTF (thanks Zoid)
 // -Fireblade
 //
-// $Id: a_team.c,v 1.53 2001/09/29 19:54:04 ra Exp $
+// $Id: a_team.c,v 1.54 2001/09/29 20:18:26 ra Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_team.c,v $
+// Revision 1.54  2001/09/29 20:18:26  ra
+// Its boo boo day today
+//
 // Revision 1.53  2001/09/29 19:54:04  ra
 // Made a CVAR to turn off extratimingstats
 //
@@ -1749,7 +1752,7 @@ WonGame (int winner)
 	secs = level.time - (mins * 60);
 	remaining = (timelimit->value *60) - level.time;
 	rmins = remaining / 60;
-	rsecs = remaining - (mins * 60);
+	rsecs = remaining - (rmins * 60);
 	gi.bprintf (PRINT_HIGH, "Elapsed time: %d:%02d. Remaining time: %d:%02d\n", mins, secs, rmins, rsecs);
   }
 
