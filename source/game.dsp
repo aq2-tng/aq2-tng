@@ -951,7 +951,11 @@ SOURCE=.\q_shared.c
 # PROP Default_Filter "h;hpp;hxx;hm;inl;fi;fd"
 # Begin Source File
 
-SOURCE=.\a_flag.h
+SOURCE=.\a_ban.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\a_ctf.h
 # End Source File
 # Begin Source File
 
@@ -975,6 +979,30 @@ SOURCE=.\a_team.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\a_tourney.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\a_vote.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\a_xcmds.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\a_xgame.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\a_xmenu.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\a_xvote.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\cgf_sfx_glass.h
 # End Source File
 # Begin Source File
@@ -983,15 +1011,15 @@ SOURCE=.\g_local.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\g_xmisc.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\game.h
 # End Source File
 # Begin Source File
 
 SOURCE=.\m_player.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\menu.h
 # End Source File
 # Begin Source File
 

@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // a_vote.c
 //
-// $Id: a_vote.c,v 1.7 2001/07/16 18:28:46 ra Exp $
+// $Id: a_vote.c,v 1.8 2001/07/25 23:02:02 slicerdw Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_vote.c,v $
+// Revision 1.8  2001/07/25 23:02:02  slicerdw
+// Fixed the source, added the weapons and items capping to choose command
+//
 // Revision 1.7  2001/07/16 18:28:46  ra
 // Changed a 40 second hard limit on mapvoting into a cvar.
 //
@@ -140,7 +143,7 @@ Cmd_Votemap_f (edict_t * ent, char *t)
   // BEGIN Igor[Rock]
   if (level.time < (float)mapvote_waittime->value)
     {
-      gi.cprintf (ent, PRINT_HIGH, "Mapvote currently blocked - Please vote again in %d seconds\n", (int) ((float)mapvote_waittime->value + 1.0 - level.time));
+      gi.cprintf (ent, PRINT_HIGH, "Mapvote currently blocked - Please vote again in %d seconds\n", (int)((float)mapvote_waittime->value + 1.0 - level.time));
     }
   else
     {

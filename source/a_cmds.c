@@ -4,10 +4,13 @@
 //
 // laser sight patch, by Geza Beladi
 //
-// $Id: a_cmds.c,v 1.6 2001/07/16 19:02:06 ra Exp $
+// $Id: a_cmds.c,v 1.7 2001/07/25 23:02:02 slicerdw Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_cmds.c,v $
+// Revision 1.7  2001/07/25 23:02:02  slicerdw
+// Fixed the source, added the weapons and items capping to choose command
+//
 // Revision 1.6  2001/07/16 19:02:06  ra
 // Fixed compilerwarnings (-g -Wall).  Only one remains.
 //
@@ -972,31 +975,138 @@ Cmd_Choose_f (edict_t * ent)
     s = M4_NAME;
 
   if (stricmp (s, MP5_NAME) == 0)
-    ent->client->resp.weapon = FindItem (MP5_NAME);
-  else if (stricmp (s, M3_NAME) == 0)
-    ent->client->resp.weapon = FindItem (M3_NAME);
+  {
+	  if ((int)wp_flags->value & WPF_MP5)
+		  ent->client->resp.weapon = FindItem (MP5_NAME);
+	  else
+	  {
+		  gi.cprintf (ent, PRINT_HIGH, "Weapon disabled on this server.\n");		 
+		  return;
+	  }
+  }
+	else if (stricmp (s, M3_NAME) == 0)
+	{
+	  if ((int)wp_flags->value & WPF_M3)
+		  ent->client->resp.weapon = FindItem (M3_NAME);
+	  else
+	  {
+		  gi.cprintf (ent, PRINT_HIGH, "Weapon disabled on this server.\n");		 
+		  return;
+	  }
+	}
+
   else if (stricmp (s, M4_NAME) == 0)
-    ent->client->resp.weapon = FindItem (M4_NAME);
-  else if (stricmp (s, HC_NAME) == 0)
-    ent->client->resp.weapon = FindItem (HC_NAME);
-  else if (stricmp (s, SNIPER_NAME) == 0)
-    ent->client->resp.weapon = FindItem (SNIPER_NAME);
-  else if (stricmp (s, KNIFE_NAME) == 0)
-    ent->client->resp.weapon = FindItem (KNIFE_NAME);
+  {
+	  if ((int)wp_flags->value & WPF_M4)
+		  ent->client->resp.weapon = FindItem (M4_NAME);
+	  else
+	  {
+		  gi.cprintf (ent, PRINT_HIGH, "Weapon disabled on this server.\n");		 
+		  return;
+	  }
+  }
+ else if (stricmp (s, HC_NAME) == 0)
+ {
+	  if ((int)wp_flags->value & WPF_HC)
+		  ent->client->resp.weapon = FindItem (HC_NAME);
+	  else
+	  {
+		  gi.cprintf (ent, PRINT_HIGH, "Weapon disabled on this server.\n");		 
+		  return;
+	  }
+ }
+ else if (stricmp (s, SNIPER_NAME) == 0)
+ {
+	  if ((int)wp_flags->value & WPF_SNIPER)
+		  ent->client->resp.weapon = FindItem (SNIPER_NAME);
+	  else
+	  {
+		  gi.cprintf (ent, PRINT_HIGH, "Weapon disabled on this server.\n");		 
+		  return;
+	  }
+ }
+ else if (stricmp (s, KNIFE_NAME) == 0)
+ {
+	  if ((int)wp_flags->value & WPF_KNIFE)
+		  ent->client->resp.weapon = FindItem (KNIFE_NAME);
+	  else
+	  {
+		  gi.cprintf (ent, PRINT_HIGH, "Weapon disabled on this server.\n");		 
+		  return;
+	  }
+ }
+
   else if (stricmp (s, DUAL_NAME) == 0)
-    ent->client->resp.weapon = FindItem (DUAL_NAME);
+  {
+	  if ((int)wp_flags->value & WPF_DUAL)
+		  ent->client->resp.weapon = FindItem (DUAL_NAME);
+	  else
+	  {
+		  gi.cprintf (ent, PRINT_HIGH, "Weapon disabled on this server.\n");		 
+		  return;
+	  }
+  }
   else if (stricmp (s, KEV_NAME) == 0)
-    ent->client->resp.item = FindItem (KEV_NAME);
+  {
+	  	  if ((int)itm_flags->value & ITF_KEV)
+		      ent->client->resp.item = FindItem (KEV_NAME);
+	  else
+	  {
+		  gi.cprintf (ent, PRINT_HIGH, "Weapon disabled on this server.\n");		 
+		  return;
+	  }
+  }
+
   else if (stricmp (s, HELM_NAME) == 0)
-    ent->client->resp.item = FindItem (HELM_NAME);
+  {
+	  	  if ((int)itm_flags->value & ITF_HELM)
+		  ent->client->resp.weapon = FindItem (HELM_NAME);
+	  else
+	  {
+		  gi.cprintf (ent, PRINT_HIGH, "Weapon disabled on this server.\n");		 
+		  return;
+	  }
+  }
   else if (stricmp (s, LASER_NAME) == 0)
-    ent->client->resp.item = FindItem (LASER_NAME);
+  {
+	  	  if ((int)itm_flags->value & ITF_LASER)
+		  ent->client->resp.weapon = FindItem (LASER_NAME);
+	  else
+	  {
+		  gi.cprintf (ent, PRINT_HIGH, "Weapon disabled on this server.\n");		 
+		  return;
+	  }
+  }
   else if (stricmp (s, SLIP_NAME) == 0)
-    ent->client->resp.item = FindItem (SLIP_NAME);
+  {
+	  	  if ((int)itm_flags->value & ITF_SLIP)
+		  ent->client->resp.weapon = FindItem (SLIP_NAME);
+	  else
+	  {
+		  gi.cprintf (ent, PRINT_HIGH, "Weapon disabled on this server.\n");		 
+		  return;
+	  }
+	  }
   else if (stricmp (s, SIL_NAME) == 0)
-    ent->client->resp.item = FindItem (SIL_NAME);
+  {
+	  	  if ((int)itm_flags->value & ITF_SIL)
+		  ent->client->resp.weapon = FindItem (SIL_NAME);
+	  else
+	  {
+		  gi.cprintf (ent, PRINT_HIGH, "Weapon disabled on this server.\n");		 
+		  return;
+	  }
+	}
   else if (stricmp (s, BAND_NAME) == 0)
-    ent->client->resp.item = FindItem (BAND_NAME);
+  {
+	  	  if ((int)itm_flags->value & ITF_BAND)
+		  ent->client->resp.weapon = FindItem (BAND_NAME);
+	  else
+	  {
+		  gi.cprintf (ent, PRINT_HIGH, "Weapon disabled on this server.\n");		 
+		  return;
+	  }
+  }
   else
     {
       gi.cprintf (ent, PRINT_HIGH, "Invalid weapon or item choice.\n");

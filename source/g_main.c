@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 //
 //
-// $Id: g_main.c,v 1.21 2001/07/20 11:56:04 slicerdw Exp $
+// $Id: g_main.c,v 1.22 2001/07/25 23:02:02 slicerdw Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_main.c,v $
+// Revision 1.22  2001/07/25 23:02:02  slicerdw
+// Fixed the source, added the weapons and items capping to choose command
+//
 // Revision 1.21  2001/07/20 11:56:04  slicerdw
 // Added a check for the players spawning during countdown on ctf ( lets hope it works )
 //
@@ -141,6 +144,7 @@ cvar_t  *use_kickvote;
 cvar_t	*mv_public;
 cvar_t	*vk_public;
 cvar_t	*punishkills;
+cvar_t *mapvote_waittime;
 // JBravo
 
 // tempfile
