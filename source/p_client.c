@@ -1,10 +1,15 @@
 //-----------------------------------------------------------------------------
 // p_client.c
 //
-// $Id: p_client.c,v 1.2 2001/05/06 20:20:49 ra Exp $
+// $Id: p_client.c,v 1.3 2001/05/06 20:29:21 ra Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: p_client.c,v $
+// Revision 1.3  2001/05/06 20:29:21  ra
+//
+//
+// Adding comments to the limchasecam fix.
+//
 // Revision 1.2  2001/05/06 20:20:49  ra
 //
 //
@@ -3316,13 +3321,13 @@ void ClientThink (edict_t *ent, usercmd_t *ucmd)
 
   // fire weapon from final position if needed
   if ((client->latched_buttons & BUTTON_ATTACK)
-	//Limchasecam fix
+	// AQ:TNG - JBravo fixing Limchasecam
 	|| (((limchasecam->value && !client->chase_mode) ||
 		(limchasecam->value == 2 && client->chase_mode == 1)) &&
 		team_round_going && (client->resp.team != NOTEAM) &&
 		!(limchasecam->value == 2 && client->chase_mode == 2))
 	)
-	//Limchasecam fix end
+	// Limchasecam fix end
   {
 	  //TempFile
 	  //We're gonna fire in this frame? Then abort any punching.
