@@ -1,10 +1,16 @@
 //-----------------------------------------------------------------------------
 // g_local.h -- local definitions for game module
 //
-// $Id: g_local.h,v 1.10 2001/05/12 13:48:58 mort Exp $
+// $Id: g_local.h,v 1.11 2001/05/12 20:58:22 ra Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_local.h,v $
+// Revision 1.11  2001/05/12 20:58:22  ra
+//
+//
+// Adding public mapvoting and kickvoting. Its controlable via cvar's mv_public
+// and vk_public (both default off)
+//
 // Revision 1.10  2001/05/12 13:48:58  mort
 // Fixed CTF ForceSpawn bug
 //
@@ -634,6 +640,11 @@ extern cvar_t *ppl_idletime;
 extern cvar_t *use_tourney;
 extern cvar_t *use_3teams;
 extern cvar_t *use_kickvote;
+
+// AQ:TNG - JBravo adding public voting
+extern cvar_t *mv_public;
+extern cvar_t *vk_public;
+// JBravo
 
 //Black Cross
 extern cvar_t *use_mapvote;	// enable map voting

@@ -1,12 +1,18 @@
 //-----------------------------------------------------------------------------
 // a_vote.c
 //
-// $Id: a_vote.c,v 1.1 2001/05/06 17:25:12 igor_rock Exp $
+// $Id: a_vote.c,v 1.2 2001/05/12 20:58:22 ra Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_vote.c,v $
-// Revision 1.1  2001/05/06 17:25:12  igor_rock
-// Initial revision
+// Revision 1.2  2001/05/12 20:58:22  ra
+//
+//
+// Adding public mapvoting and kickvoting. Its controlable via cvar's mv_public
+// and vk_public (both default off)
+//
+// Revision 1.1.1.1  2001/05/06 17:25:12  igor_rock
+// This is the PG Bund Edition V1.25 with all stuff laying around here...
 //
 //-----------------------------------------------------------------------------
 
@@ -122,9 +128,13 @@ Cmd_Votemap_f (edict_t * ent, char *t)
 	{
 	case 0:
 	  gi.cprintf (ent, PRINT_HIGH, "You have voted on map \"%s\"\n", t);
+	  if(mv_public->value)
+		gi.bprintf(PRINT_HIGH, "%s voted for \"%s\"\n", ent->client->pers.netname, t);
 	  break;
 	case 1:
 	  gi.cprintf (ent, PRINT_HIGH, "You have changed your vote to map \"%s\"\n", t);
+	  if(mv_public->value)
+		gi.bprintf(PRINT_HIGH, "%s changed his mind and voted for \"%s\"\n", ent->client->pers.netname, t);
 	  break;
 	default:
 	  //error
@@ -725,13 +735,19 @@ _SetKickVote (edict_t * ent, edict_t * target)
     {
       ent->client->resp.kickvote = NULL;
       gi.cprintf (ent, PRINT_MEDIUM, "Your kickvote on %s is removed\n", target->client->pers.netname);
+      if(vk_public->value)
+	gi.bprintf(PRINT_HIGH, "%s doesnt want to kick %s after all\n", ent->client->pers.netname, target->client->pers.netname);
     }
   else
     {
       if (ent->client->resp.kickvote)
 	gi.cprintf (ent, PRINT_MEDIUM, "Kickvote was changed to %s\n", target->client->pers.netname);
       else
+	{
 	gi.cprintf (ent, PRINT_MEDIUM, "You voted on %s to be kicked\n", target->client->pers.netname);
+	if(vk_public->value)
+		gi.bprintf(PRINT_HIGH, "%s voted to kick %s\n", ent->client->pers.netname, target->client->pers.netname);
+	}
       ent->client->resp.kickvote = target;
       kickvotechanged = true;
     }

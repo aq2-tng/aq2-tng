@@ -1,10 +1,16 @@
 //-----------------------------------------------------------------------------
 // g_save.c
 //
-// $Id: g_save.c,v 1.4 2001/05/12 00:37:03 ra Exp $
+// $Id: g_save.c,v 1.5 2001/05/12 20:58:22 ra Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_save.c,v $
+// Revision 1.5  2001/05/12 20:58:22  ra
+//
+//
+// Adding public mapvoting and kickvoting. Its controlable via cvar's mv_public
+// and vk_public (both default off)
+//
 // Revision 1.4  2001/05/12 00:37:03  ra
 //
 //
@@ -238,6 +244,11 @@ void InitGame (void)
   use_kickvote = gi.cvar("use_kickvote", "1", CVAR_SERVERINFO);
   use_mapvote = gi.cvar("use_mapvote", "1", CVAR_SERVERINFO);  
   //PG BUND - END
+
+// AQ:TNG - JBravo adding public voting
+  mv_public = gi.cvar("mv_public", "0", CVAR_SERVERINFO);
+  vk_public = gi.cvar("vk_public", "0", CVAR_SERVERINFO);
+// JBravo
   
   //tempfile
   sv_gib = gi.cvar("sv_gib", "0", CVAR_LATCH);

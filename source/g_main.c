@@ -1,10 +1,16 @@
 //-----------------------------------------------------------------------------
 //
 //
-// $Id: g_main.c,v 1.3 2001/05/07 21:18:35 slicerdw Exp $
+// $Id: g_main.c,v 1.4 2001/05/12 20:58:22 ra Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_main.c,v $
+// Revision 1.4  2001/05/12 20:58:22  ra
+//
+//
+// Adding public mapvoting and kickvoting. Its controlable via cvar's mv_public
+// and vk_public (both default off)
+//
 // Revision 1.3  2001/05/07 21:18:35  slicerdw
 // Added Video Checking System
 //
@@ -64,6 +70,11 @@ cvar_t  *use_tourney;
 cvar_t  *use_3teams;
 cvar_t  *use_kickvote;
 //PG BUND - END
+
+// AQ:TNG - JBravo adding public voting
+cvar_t	*mv_public;
+cvar_t	*vk_public;
+// JBravo
 
 // tempfile
 cvar_t	*sv_gib;
