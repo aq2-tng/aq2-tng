@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // Statistics Related Code
 //
-// $Id: tng_stats.c,v 1.28 2002/04/01 15:16:06 freud Exp $
+// $Id: tng_stats.c,v 1.29 2002/04/01 15:30:38 freud Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: tng_stats.c,v $
+// Revision 1.29  2002/04/01 15:30:38  freud
+// Small stat fix
+//
 // Revision 1.28  2002/04/01 15:16:06  freud
 // Stats code redone, tng_stats now much more smarter. Removed a few global
 // variables regarding stats code and added kevlar hits to stats.
@@ -177,7 +180,7 @@ void Cmd_Stats_f (edict_t *targetent, char *arg)
   if (total != 0)
 		gi.cprintf (targetent, PRINT_HIGH, "Location                         Hits     (%%)\n");		
 		
-	for (y = 0;y <= 10;y++) {
+	for (y = 0;y < 10;y++) {
 		if (ent->client->resp.stats_locations[y] > 0) {
 			perc_hit = (((double) ent->client->resp.stats_locations[y] / (double) hits) * 100.0);
 
