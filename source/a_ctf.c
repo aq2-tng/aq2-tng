@@ -391,11 +391,11 @@ void ForceSpawn(edict_t *ent) // AQ2:M - CTF
 	{
 		if(started)
 		{
-			if(ent->client->hasSpawned == 0)
+			if(ent->hasSpawned == 0)
 			{
 				ent->client->resp.last_killed_target = NULL;
 				ent->client->resp.last_damaged_part = 0;
-				ent->client->hasSpawned = 1;
+				ent->hasSpawned = 1;
 
 				PutClientInServer(ent);
 				AddToTransparentList(ent);

@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // p_client.c
 //
-// $Id: p_client.c,v 1.12 2001/05/12 13:37:38 mort Exp $
+// $Id: p_client.c,v 1.13 2001/05/12 13:48:58 mort Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: p_client.c,v $
+// Revision 1.13  2001/05/12 13:48:58  mort
+// Fixed CTF ForceSpawn bug
+//
 // Revision 1.12  2001/05/12 13:37:38  mort
 // Fixed CTF bug, god mode is now on when players spawn
 //
@@ -2821,7 +2824,7 @@ void ClientBegin (edict_t *ent)
         ent->client = game.clients + (ent - g_edicts - 1);
 
 		ent->s.modelindex3 = 0; // AQ2:TNG - CTF Make sure the player doesn't look like he has the flag
-		ent->client->hasSpawned = 0; // AQ2:TNG - CTF Clear hasSpawned
+		ent->hasSpawned = 0; // AQ2:TNG - CTF Clear hasSpawned
         
 		// clear inventory AQ:TNG - CTF - Clears the flag... 
         memset(ent->client->pers.inventory, 0, sizeof(ent->client->pers.inventory));

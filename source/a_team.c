@@ -3,10 +3,13 @@
 // Some of this is borrowed from Zoid's CTF (thanks Zoid)
 // -Fireblade
 //
-// $Id: a_team.c,v 1.7 2001/05/12 08:20:01 mort Exp $
+// $Id: a_team.c,v 1.8 2001/05/12 13:48:58 mort Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_team.c,v $
+// Revision 1.8  2001/05/12 13:48:58  mort
+// Fixed CTF ForceSpawn bug
+//
 // Revision 1.7  2001/05/12 08:20:01  mort
 // CTF bug fix, makes sure flags have actually spawned before certain functions attempt to use them
 //
@@ -623,7 +626,7 @@ JoinTeam (edict_t * ent, int desired_team, int skip_menuclose)
   if (ent->client->resp.team == desired_team)
     return;
 
-  ent->client->hasSpawned = 0; // AQ2:M - ctf
+  ent->hasSpawned = 0; // AQ2:M - ctf
   a = (ent->client->resp.team == NOTEAM) ? "joined" : "changed to";
 
   ent->client->resp.team = desired_team;

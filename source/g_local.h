@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // g_local.h -- local definitions for game module
 //
-// $Id: g_local.h,v 1.9 2001/05/11 16:07:25 mort Exp $
+// $Id: g_local.h,v 1.10 2001/05/12 13:48:58 mort Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_local.h,v $
+// Revision 1.10  2001/05/12 13:48:58  mort
+// Fixed CTF ForceSpawn bug
+//
 // Revision 1.9  2001/05/11 16:07:25  mort
 // Various CTF bits and pieces...
 //
@@ -1371,8 +1374,6 @@ struct gclient_s
     // is done.
     //TempFile
 
-	//AQ2:TNG - CTF
-	int hasSpawned; // Flag saying whether this client has spawned
 
   };
 
@@ -1543,6 +1544,10 @@ struct edict_s
     int classnum;
     // PG BUND
     xmenu_t *x_menu;
+
+	//AQ2:TNG - CTF
+	int hasSpawned; // Flag saying whether this client has spawned
+
   };
 
 
