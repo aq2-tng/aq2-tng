@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // g_local.h -- local definitions for game module
 //
-// $Id: g_local.h,v 1.5 2001/05/07 22:03:15 slicerdw Exp $
+// $Id: g_local.h,v 1.6 2001/05/08 12:55:43 igor_rock Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_local.h,v $
+// Revision 1.6  2001/05/08 12:55:43  igor_rock
+// added inlcude file <ctype.h>
+//
 // Revision 1.5  2001/05/07 22:03:15  slicerdw
 // Added sv stuffcmd
 //
@@ -25,6 +28,10 @@
 // This is the PG Bund Edition V1.25 with all stuff laying around here...
 //
 //-----------------------------------------------------------------------------
+
+// AQ:TNG Igor[Rock] adding include
+#include <ctype.h>
+// AQ:TNG end adding include
 
 #include "q_shared.h"
 
