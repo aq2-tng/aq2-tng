@@ -1,10 +1,14 @@
 //-----------------------------------------------------------------------------
 // g_spawn.c
 //
-// $Id: g_spawn.c,v 1.27 2001/11/10 14:00:14 deathwatch Exp $
+// $Id: g_spawn.c,v 1.28 2001/11/16 13:01:39 deathwatch Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_spawn.c,v $
+// Revision 1.28  2001/11/16 13:01:39  deathwatch
+// Fixed 'no team wins' sound - it wont play now with use_warnings 0
+// Precaching misc/flashlight.wav
+//
 // Revision 1.27  2001/11/10 14:00:14  deathwatch
 // Fixed resetting of teamXscores
 //
@@ -1560,6 +1564,7 @@ SP_worldspawn (edict_t * ent)
   gi.soundindex ("tng/clanwar.wav");
   gi.soundindex ("tng/disabled.wav");
   gi.soundindex ("tng/enabled.wav");
+	gi.soundindex ("misc/flashlight.wav"); // Caching Flashlight
   // AQ2:TNG - end of precache sounds
 
   PrecacheRadioSounds ();

@@ -3,10 +3,14 @@
 // Some of this is borrowed from Zoid's CTF (thanks Zoid)
 // -Fireblade
 //
-// $Id: a_team.c,v 1.58 2001/11/03 17:33:06 ra Exp $
+// $Id: a_team.c,v 1.59 2001/11/16 13:01:39 deathwatch Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_team.c,v $
+// Revision 1.59  2001/11/16 13:01:39  deathwatch
+// Fixed 'no team wins' sound - it wont play now with use_warnings 0
+// Precaching misc/flashlight.wav
+//
 // Revision 1.58  2001/11/03 17:33:06  ra
 // Yes another warning gone
 //
@@ -1765,10 +1769,9 @@ WonGame (int winner)
   if (winner == WINNER_TIE)
     {
       gi.bprintf (PRINT_HIGH, "It was a tie, no points awarded!\n");
-      // AQ:TNG Igor[Rock] changing sound dir
-      gi.sound (&g_edicts[0], CHAN_VOICE | CHAN_NO_PHS_ADD,
-		gi.soundindex ("tng/no_team_wins.wav"), 1.0, ATTN_NONE, 0.0);
-      // end of changing sound dir
+      
+			if(use_warnings->value)
+				gi.sound (&g_edicts[0], CHAN_VOICE | CHAN_NO_PHS_ADD,	gi.soundindex ("tng/no_team_wins.wav"), 1.0, ATTN_NONE, 0.0);
     }
   else
     {
