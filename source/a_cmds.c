@@ -4,10 +4,14 @@
 //
 // laser sight patch, by Geza Beladi
 //
-// $Id: a_cmds.c,v 1.29 2002/03/28 13:30:36 freud Exp $
+// $Id: a_cmds.c,v 1.30 2002/04/01 15:16:06 freud Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_cmds.c,v $
+// Revision 1.30  2002/04/01 15:16:06  freud
+// Stats code redone, tng_stats now much more smarter. Removed a few global
+// variables regarding stats code and added kevlar hits to stats.
+//
 // Revision 1.29  2002/03/28 13:30:36  freud
 // Included time played in ghost.
 //
@@ -1387,13 +1391,10 @@ void Cmd_Ghost_f (edict_t * ent)
 			ent->client->resp.item = ghost_players[x].item;
 		}
 
-		ent->client->resp.headshots = ghost_players[x].headshots;
-		ent->client->resp.legshots = ghost_players[x].legshots;
-		ent->client->resp.stomachshots = ghost_players[x].stomachshots;
-		ent->client->resp.chestshots = ghost_players[x].chestshots;
 		ent->client->resp.stats_shots_t = ghost_players[x].stats_shots_t;
 		ent->client->resp.stats_shots_h = ghost_players[x].stats_shots_h;
 
+		memcpy(ent->client->resp.stats_locations, ghost_players[x].stats_locations, sizeof(ghost_players[x].stats_locations));
 		memcpy(ent->client->resp.stats_shots, ghost_players[x].stats_shots, sizeof(ghost_players[x].stats_shots));
 		memcpy(ent->client->resp.stats_hits, ghost_players[x].stats_hits, sizeof(ghost_players[x].stats_hits));
 		memcpy(ent->client->resp.stats_headshot, ghost_players[x].stats_headshot, sizeof(ghost_players[x].stats_headshot));

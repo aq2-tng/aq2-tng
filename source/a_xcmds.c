@@ -4,10 +4,14 @@
 //
 // contains all new non standard command functions
 //
-// $Id: a_xcmds.c,v 1.12 2002/03/26 21:49:01 ra Exp $
+// $Id: a_xcmds.c,v 1.13 2002/04/01 15:16:06 freud Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_xcmds.c,v $
+// Revision 1.13  2002/04/01 15:16:06  freud
+// Stats code redone, tng_stats now much more smarter. Removed a few global
+// variables regarding stats code and added kevlar hits to stats.
+//
 // Revision 1.12  2002/03/26 21:49:01  ra
 // Bufferoverflow fixes
 //
@@ -145,7 +149,7 @@ Cmd_Addpoint_f (edict_t * self)
   gi.cprintf (self, PRINT_MEDIUM,
 	      "\nLocation point feature was dropped in 1.20 and\n"
 	      "replaced by location area cubes.\nSee readme.txt for details.\n");
-  /*FILE *pntlist;
+  //FILE *pntlist;
      char *s, buf[1024];
 
      s = gi.args();

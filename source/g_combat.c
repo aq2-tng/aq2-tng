@@ -1,10 +1,14 @@
 //-----------------------------------------------------------------------------
 // g_combat.c
 //
-// $Id: g_combat.c,v 1.24 2002/02/19 10:28:43 freud Exp $
+// $Id: g_combat.c,v 1.25 2002/04/01 15:16:06 freud Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_combat.c,v $
+// Revision 1.25  2002/04/01 15:16:06  freud
+// Stats code redone, tng_stats now much more smarter. Removed a few global
+// variables regarding stats code and added kevlar hits to stats.
+//
 // Revision 1.24  2002/02/19 10:28:43  freud
 // Added to %D hit in the kevlar vest and kevlar helmet, also body for handcannon
 // and shotgun.
@@ -891,30 +895,18 @@ T_Damage (edict_t * targ, edict_t * inflictor, edict_t * attacker, vec3_t dir,
 			if (!teamplay->value || team_round_going || stats_afterround->value) {
 				attacker->client->resp.stats_headshot[mod]++;
 			}
-        /* if (mod == MOD_KNIFE && (!teamplay->value || team_round_going || stats_afterround->value))
-            attacker->client->resp.stats_knife_shots_hd++;
-         if (mod == MOD_KNIFE_THROWN && (!teamplay->value || team_round_going || stats_afterround->value))
-            attacker->client->resp.stats_tknife_shots_hd++;
-         if (mod == MOD_M4 && (!teamplay->value || team_round_going || stats_afterround->value))
-            attacker->client->resp.stats_m4_shots_hd++;
-         if (mod == MOD_MP5 && (!teamplay->value || team_round_going || stats_afterround->value))
-            attacker->client->resp.stats_mp5_shots_hd++;
-         if (mod == MOD_SNIPER && (!teamplay->value || team_round_going || stats_afterround->value))
-            attacker->client->resp.stats_sniper_shots_hd++;
-         if (mod == MOD_MK23 && (!teamplay->value || team_round_going || stats_afterround->value))
-            attacker->client->resp.stats_pistol_shots_hd++;
-	       if (mod == MOD_DUAL && (!teamplay->value || team_round_going || stats_afterround->value))
-            attacker->client->resp.stats_dual_shots_hd++;
-*/            
 		      //AQ2:TNG Slicer Last Damage Location
-			if (targ->client->pers.inventory[ITEM_INDEX (item2)])
+			if (targ->client->pers.inventory[ITEM_INDEX (item2)]) {
 		      		attacker->client->resp.last_damaged_part = LOC_KVLR_HELMET;
-			else
+				if ((!teamplay->value || team_round_going || stats_afterround->value))
+					attacker->client->resp.stats_locations[LOC_KVLR_HELMET]++;
+			} else {
 		      		attacker->client->resp.last_damaged_part = LOC_HDAM;
+				if ((!teamplay->value || team_round_going || stats_afterround->value))
+					attacker->client->resp.stats_locations[LOC_HDAM]++;
+			}
 
 		      //AQ2:TNG END
-					if ((!teamplay->value || team_round_going || stats_afterround->value))
-						attacker->client->resp.headshots++;
 		      if (!OnSameTeam (targ, attacker))
 			{
 			  attacker->client->resp.hs_streak++;
@@ -1016,7 +1008,7 @@ T_Damage (edict_t * targ, edict_t * inflictor, edict_t * attacker, vec3_t dir,
 		  attacker->client->resp.last_damaged_part = LOC_LDAM;
 		  //AQ2:TNG END
 			if (!teamplay->value || team_round_going || stats_afterround->value)
-				attacker->client->resp.legshots++; // TNG Stats
+				attacker->client->resp.stats_locations[LOC_LDAM]++; // TNG Stats
 		}
 	      else if (z_rel < STOMACH_DAMAGE)
 		{
@@ -1038,7 +1030,7 @@ T_Damage (edict_t * targ, edict_t * inflictor, edict_t * attacker, vec3_t dir,
 		  attacker->client->resp.last_damaged_part = LOC_SDAM;
 		  //AQ2:TNG END
 			if (!teamplay->value || team_round_going || stats_afterround->value)
-				attacker->client->resp.stomachshots++; // TNG Stats
+				attacker->client->resp.stats_locations[LOC_SDAM]++; // TNG Stats
 		}
 	      else		//(z_rel < CHEST_DAMAGE)
 		{
@@ -1107,13 +1099,16 @@ T_Damage (edict_t * targ, edict_t * inflictor, edict_t * attacker, vec3_t dir,
 				  damage, GIB_ORGANIC);
 		    }
 		  //AQ2:TNG Slicer Last Damage Location
-		if (targ->client->pers.inventory[ITEM_INDEX (item)])
+		if (targ->client->pers.inventory[ITEM_INDEX (item)]) {
 			attacker->client->resp.last_damaged_part = LOC_KVLR_VEST;
-		else
-			attacker->client->resp.last_damaged_part = LOC_CDAM;
-		  //AQ2:TNG END
 			if (!teamplay->value || team_round_going || stats_afterround->value)
-				attacker->client->resp.chestshots++; // TNG Stats
+				attacker->client->resp.stats_locations[LOC_CDAM]++; // TNG Stats
+		} else {
+			attacker->client->resp.last_damaged_part = LOC_CDAM;
+			if (!teamplay->value || team_round_going || stats_afterround->value)
+				attacker->client->resp.stats_locations[LOC_CDAM]++; // TNG Stats
+		}
+		  //AQ2:TNG END
 
 		}
 	      /*else

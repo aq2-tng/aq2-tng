@@ -1,10 +1,14 @@
 //-----------------------------------------------------------------------------
 // g_local.h -- local definitions for game module
 //
-// $Id: g_local.h,v 1.63 2002/03/30 17:20:59 ra Exp $
+// $Id: g_local.h,v 1.64 2002/04/01 15:16:06 freud Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_local.h,v $
+// Revision 1.64  2002/04/01 15:16:06  freud
+// Stats code redone, tng_stats now much more smarter. Removed a few global
+// variables regarding stats code and added kevlar hits to stats.
+//
 // Revision 1.63  2002/03/30 17:20:59  ra
 // New cvar use_buggy_bandolier to control behavior of dropping bando and grenades
 //
@@ -1362,17 +1366,14 @@ typedef struct
   int stat_mode;    		// Automatical Send of statistics to client
   int stat_mode_intermission;
 
-  int headshots;		// Headshot Counter
-  int legshots;		// Legshot Counter
-  int stomachshots;		// Stomachshot Counter
-  int chestshots;		// Chestshot Counter
+  int stats_locations[10];	// All locational damage
 
   int stats_shots_t;		// Total nr of shots for TNG Stats
   int stats_shots_h;		// Total nr of hits for TNG Stats
 
-  int stats_shots[5000];       // Shots fired
-  int stats_hits[5000];                // Shots hit
-  int stats_headshot[5000];    // Shots in head
+  int stats_shots[100];       // Shots fired
+  int stats_hits[100];                // Shots hit
+  int stats_headshot[100];    // Shots in head
 
   //AQ2:TNG - Slicer: Video Checking and further Cheat cheking vars
   char vidref[16];
@@ -1773,16 +1774,13 @@ typedef struct
 	int score;
 	int kills;
 	int damage_dealt;
-	int headshots;
-	int legshots;
-	int stomachshots;
-	int chestshots;
 	int stats_shots_t;
 	int stats_shots_h;
 
-	int stats_shots[5000];
-	int stats_hits[5000];
-	int stats_headshot[5000];
+	int stats_locations[10];
+	int stats_shots[100];
+	int stats_hits[100];
+	int stats_headshot[100];
 	int team;
 	gitem_t *weapon;
 	gitem_t *item;

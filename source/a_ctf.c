@@ -1,10 +1,14 @@
 //-----------------------------------------------------------------------------
 // CTF related code
 //
-// $Id: a_ctf.c,v 1.17 2002/02/18 17:17:20 freud Exp $
+// $Id: a_ctf.c,v 1.18 2002/04/01 15:16:06 freud Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_ctf.c,v $
+// Revision 1.18  2002/04/01 15:16:06  freud
+// Stats code redone, tng_stats now much more smarter. Removed a few global
+// variables regarding stats code and added kevlar hits to stats.
+//
 // Revision 1.17  2002/02/18 17:17:20  freud
 // Fixed the CTF leaving team bug. Also made the shield more efficient,
 // No falling damage.
@@ -280,6 +284,8 @@ CTFFragBonuses (edict_t * targ, edict_t * inflictor, edict_t * attacker)
   edict_t *flag, *carrier;
   char *c;
   vec3_t v1, v2;
+
+  carrier = NULL;
 
   // no bonus for fragging yourself
   if (!targ->client || !attacker->client || targ == attacker)

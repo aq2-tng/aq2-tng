@@ -1,10 +1,14 @@
 //-----------------------------------------------------------------------------
 // p_client.c
 //
-// $Id: p_client.c,v 1.80 2002/03/28 13:30:36 freud Exp $
+// $Id: p_client.c,v 1.81 2002/04/01 15:16:06 freud Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: p_client.c,v $
+// Revision 1.81  2002/04/01 15:16:06  freud
+// Stats code redone, tng_stats now much more smarter. Removed a few global
+// variables regarding stats code and added kevlar hits to stats.
+//
 // Revision 1.80  2002/03/28 13:30:36  freud
 // Included time played in ghost.
 //
@@ -4453,14 +4457,11 @@ CreateGhost (edict_t * ent)
   	}
 
   	// Statistics
-  	ghost_players[num_ghost_players].headshots = ent->client->resp.headshots;
-  	ghost_players[num_ghost_players].legshots = ent->client->resp.legshots;
-  	ghost_players[num_ghost_players].stomachshots = ent->client->resp.stomachshots;
-  	ghost_players[num_ghost_players].chestshots = ent->client->resp.chestshots;
 
   	ghost_players[num_ghost_players].stats_shots_t = ent->client->resp.stats_shots_t;
   	ghost_players[num_ghost_players].stats_shots_h = ent->client->resp.stats_shots_h;
 
+  	memcpy(ghost_players[num_ghost_players].stats_locations, ent->client->resp.stats_locations, sizeof(ent->client->resp.stats_locations));
   	memcpy(ghost_players[num_ghost_players].stats_shots, ent->client->resp.stats_shots, sizeof(ent->client->resp.stats_shots));
   	memcpy(ghost_players[num_ghost_players].stats_hits, ent->client->resp.stats_hits, sizeof(ent->client->resp.stats_hits));
   	memcpy(ghost_players[num_ghost_players].stats_headshot, ent->client->resp.stats_headshot, sizeof(ent->client->resp.stats_headshot));
