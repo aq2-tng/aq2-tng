@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // a_vote.c
 //
-// $Id: a_vote.c,v 1.6 2001/06/20 07:21:21 igor_rock Exp $
+// $Id: a_vote.c,v 1.7 2001/07/16 18:28:46 ra Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_vote.c,v $
+// Revision 1.7  2001/07/16 18:28:46  ra
+// Changed a 40 second hard limit on mapvoting into a cvar.
+//
 // Revision 1.6  2001/06/20 07:21:21  igor_rock
 // added use_warnings to enable/disable time/frags left msgs
 // added use_rewards to enable/disable eimpressive, excellent and accuracy msgs
@@ -135,9 +138,9 @@ Cmd_Votemap_f (edict_t * ent, char *t)
     }
 
   // BEGIN Igor[Rock]
-  if (level.time < 40.0)
+  if (level.time < (float)mapvote_waittime->value)
     {
-      gi.cprintf (ent, PRINT_HIGH, "Mapvote currently blocked - Please vote again in %d seconds\n", (int) (41.0 - level.time));
+      gi.cprintf (ent, PRINT_HIGH, "Mapvote currently blocked - Please vote again in %d seconds\n", (int) ((float)mapvote_waittime->value + 1.0 - level.time));
     }
   else
     {

@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // g_save.c
 //
-// $Id: g_save.c,v 1.27 2001/06/28 14:36:40 deathwatch Exp $
+// $Id: g_save.c,v 1.28 2001/07/16 18:28:46 ra Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_save.c,v $
+// Revision 1.28  2001/07/16 18:28:46  ra
+// Changed a 40 second hard limit on mapvoting into a cvar.
+//
 // Revision 1.27  2001/06/28 14:36:40  deathwatch
 // Updated the Credits Menu a slight bit (added Kobra)
 //
@@ -341,10 +344,11 @@ void InitGame (void)
   ctf_respawn = gi.cvar("ctf_respawn", "4", 0);
   //PG BUND - END
 
-// AQ:TNG - JBravo adding public voting and punishkills.
+// AQ:TNG - JBravo adding public voting, punishkills and etc.
   mv_public = gi.cvar("mv_public", "0", 0);//slicer 
   vk_public = gi.cvar("vk_public", "0", 0);//slicer
   punishkills = gi.cvar("punishkills","1", 0);//slicer
+  mapvote_waittime = gi.cvar("mapvote_waittime", "40", 0);
 // JBravo
   //AQ2:TNG SLICER END
   //tempfile

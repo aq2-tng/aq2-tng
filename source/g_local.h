@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // g_local.h -- local definitions for game module
 //
-// $Id: g_local.h,v 1.28 2001/06/25 11:59:20 slicerdw Exp $
+// $Id: g_local.h,v 1.29 2001/07/16 18:28:46 ra Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_local.h,v $
+// Revision 1.29  2001/07/16 18:28:46  ra
+// Changed a 40 second hard limit on mapvoting into a cvar.
+//
 // Revision 1.28  2001/06/25 11:59:20  slicerdw
 // Small Fix
 //
@@ -719,10 +722,11 @@ extern cvar_t *use_tourney;
 extern cvar_t *use_3teams;
 extern cvar_t *use_kickvote;
 
-// AQ:TNG - JBravo adding public voting and punishkill
+// AQ:TNG - JBravo adding public voting, punishkill and etc.
 extern cvar_t *mv_public;
 extern cvar_t *vk_public;
 extern cvar_t *punishkills;
+extern cvar_t *mapvote_waittime;
 // JBravo
 
 //Black Cross
