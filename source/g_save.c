@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // g_save.c
 //
-// $Id: g_save.c,v 1.55 2002/02/26 23:13:41 freud Exp $
+// $Id: g_save.c,v 1.56 2002/03/24 22:45:54 freud Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_save.c,v $
+// Revision 1.56  2002/03/24 22:45:54  freud
+// New spawn code again, bad commit last time..
+//
 // Revision 1.55  2002/02/26 23:13:41  freud
 // Added tgren and use_classic to serverinfo string
 //
@@ -547,6 +550,9 @@ InitGame (void)
   auto_equip = gi.cvar ("auto_equip", "0", 0);
 
   use_punch = gi.cvar ("use_punch", "1", 0);
+
+  //TNG:Freud - new spawning system
+  use_newspawns = gi.cvar ("use_newspawns", "1", CVAR_LATCH);
 
   radio_max = gi.cvar ("radio_max", "4", 0);
   radio_time = gi.cvar ("radio_time", "2", 0);

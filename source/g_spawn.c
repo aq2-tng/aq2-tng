@@ -1,15 +1,12 @@
 //-----------------------------------------------------------------------------
 // g_spawn.c
 //
-// $Id: g_spawn.c,v 1.32 2002/03/24 20:11:28 freud Exp $
+// $Id: g_spawn.c,v 1.33 2002/03/24 22:45:54 freud Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_spawn.c,v $
-// Revision 1.32  2002/03/24 20:11:28  freud
-// New Spawn system introduced. cvar use_newspawns (default on). The system
-// tries as best it can to stop teams from spawning in the same place more
-// than once. The chances of a team spawning at the same place completely
-// relies on how many spawns there are in the map.
+// Revision 1.33  2002/03/24 22:45:54  freud
+// New spawn code again, bad commit last time..
 //
 // Revision 1.31  2002/01/24 01:47:17  ra
 // Further fixes to M$ files
@@ -963,8 +960,9 @@ SpawnEntities (char *mapname, char *entities, char *spawnpoint)
 
   PlayerTrail_Init ();
 
-  if (teamplay->value)
-  	New_GetSpawnPoints ();
+  //TNG:Freud - New spawning system
+  if (teamplay->value && use_newspawns->value && !use_3teams->value)
+	NS_GetSpawnPoints();
 
   //FIREBLADE
   if (!teamplay->value)

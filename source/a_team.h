@@ -1,15 +1,12 @@
 //-----------------------------------------------------------------------------
 // Include for Action team-related things
 //
-// $Id: a_team.h,v 1.6 2002/03/24 20:11:28 freud Exp $
+// $Id: a_team.h,v 1.7 2002/03/24 22:45:53 freud Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_team.h,v $
-// Revision 1.6  2002/03/24 20:11:28  freud
-// New Spawn system introduced. cvar use_newspawns (default on). The system
-// tries as best it can to stop teams from spawning in the same place more
-// than once. The chances of a team spawning at the same place completely
-// relies on how many spawns there are in the map.
+// Revision 1.7  2002/03/24 22:45:53  freud
+// New spawn code again, bad commit last time..
 //
 // Revision 1.5  2001/11/27 23:23:40  igor_rock
 // Bug fixed: day_cycle_at wasn't reset at mapchange
@@ -60,7 +57,6 @@
                 TransparentListSet(SOLID_TRIGGER)
 
 edict_t *SelectTeamplaySpawnPoint (edict_t *);
-edict_t *New_SelectTeamplaySpawnPoint (edict_t *);
 qboolean FallingDamageAmnesty (edict_t * targ);
 void OpenJoinMenu (edict_t *);
 void OpenWeaponMenu (edict_t *);
@@ -74,13 +70,10 @@ qboolean StartClient (edict_t * ent);
 void AssignSkin (edict_t *, char *);
 void TallyEndOfLevelTeamScores (void);
 void CheckForUnevenTeams (void);
-void New_SetupTeamSpawnPoints ();
 void SetupTeamSpawnPoints ();
 int CheckTeamSpawnPoints ();
 void GetSpawnPoints ();
-void New_GetSpawnPoints ();
 void CleanBodies ();		// from p_client.c, removes all current dead bodies from map
-void New_SelectFarTeamplaySpawnPoint (int team, qboolean teams_assigned[]);
 
 void LeaveTeam (edict_t *);
 int newrand (int top);
@@ -89,6 +82,11 @@ void AddToTransparentList (edict_t *);
 void RemoveFromTransparentList (edict_t *);
 void PrintTransparentList ();
 void CenterPrintAll (char *msg);
+
+//TNG:Freud - new spawning system
+void NS_GetSpawnPoints ();
+void NS_SelectFarTeamplaySpawnPoint (int team, qboolean teams_assigned[]);
+void NS_SetupTeamSpawnPoints ();
 
 typedef struct spawn_distances_s
 {

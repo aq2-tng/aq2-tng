@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 //
 //
-// $Id: g_main.c,v 1.58 2002/02/19 09:32:47 freud Exp $
+// $Id: g_main.c,v 1.59 2002/03/24 22:45:53 freud Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_main.c,v $
+// Revision 1.59  2002/03/24 22:45:53  freud
+// New spawn code again, bad commit last time..
+//
 // Revision 1.58  2002/02/19 09:32:47  freud
 // Removed PING PONGs from CVS, not fit for release.
 //
@@ -341,6 +344,9 @@ cvar_t *stats_afterround;     // Collect TNG stats between rounds
 
 cvar_t *auto_join;
 cvar_t *auto_equip;
+
+//TNG:Freud - new spawning system
+cvar_t *new_spawns;
 
 cvar_t *use_punch;
 

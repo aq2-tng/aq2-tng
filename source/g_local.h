@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // g_local.h -- local definitions for game module
 //
-// $Id: g_local.h,v 1.56 2002/02/19 10:28:43 freud Exp $
+// $Id: g_local.h,v 1.57 2002/03/24 22:45:53 freud Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_local.h,v $
+// Revision 1.57  2002/03/24 22:45:53  freud
+// New spawn code again, bad commit last time..
+//
 // Revision 1.56  2002/02/19 10:28:43  freud
 // Added to %D hit in the kevlar vest and kevlar helmet, also body for handcannon
 // and shotgun.
@@ -875,6 +878,9 @@ extern cvar_t *stats_afterround; // TNG Stats, collect stats between rounds
 
 extern cvar_t *auto_join;	// Automaticly join clients to teams they were on in last map.
 extern cvar_t *auto_equip;	// Remember weapons and items for players between maps.
+
+// TNG:Freud - new spawning system
+extern cvar_t *use_newspawns;
 
 // zucc from action
 extern cvar_t *sv_shelloff;

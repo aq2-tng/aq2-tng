@@ -3,15 +3,12 @@
 // Some of this is borrowed from Zoid's CTF (thanks Zoid)
 // -Fireblade
 //
-// $Id: a_team.c,v 1.78 2002/03/24 20:11:28 freud Exp $
+// $Id: a_team.c,v 1.79 2002/03/24 22:45:53 freud Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_team.c,v $
-// Revision 1.78  2002/03/24 20:11:28  freud
-// New Spawn system introduced. cvar use_newspawns (default on). The system
-// tries as best it can to stop teams from spawning in the same place more
-// than once. The chances of a team spawning at the same place completely
-// relies on how many spawns there are in the map.
+// Revision 1.79  2002/03/24 22:45:53  freud
+// New spawn code again, bad commit last time..
 //
 // Revision 1.77  2002/02/27 16:07:13  deathwatch
 // Updated Credits menu
@@ -303,13 +300,15 @@ edict_t *teamplay_spawns[MAX_TEAMS];
 int teamplay_usedspawns[MAX_SPAWNS];
 trace_t trace_t_temp;		// used by our trace replace macro in ax_team.h
 
-int new_num_used_farteamplay_spawns[MAX_TEAMS];
-int new_num_potential_spawns[MAX_TEAMS];
-edict_t *new_potential_spawns[MAX_TEAMS][MAX_SPAWNS];
-edict_t *new_used_farteamplay_spawns[MAX_TEAMS][MAX_SPAWNS];
-int teamplay_random_spawn_team;
-
 int num_teams = 3;		// teams in current game, fixed at 2 for now...
+
+// <TNG:Freud New spawning variables>
+int NS_num_used_farteamplay_spawns[MAX_TEAMS];
+int NS_num_potential_spawns[MAX_TEAMS];
+edict_t *NS_potential_spawns[MAX_TEAMS][MAX_SPAWNS];
+edict_t *NS_used_farteamplay_spawns[MAX_TEAMS][MAX_SPAWNS];
+int NS_randteam;
+// </TNG:Freud>
 
 transparent_list_t *transparent_list = NULL;
 
@@ -1712,14 +1711,10 @@ SpawnPlayers ()
   int i;
   edict_t *ent;
 
-  int newspawn;
-
-  newspawn = 1;
-
-  if (newspawn == 1) {
-	New_SetupTeamSpawnPoints ();
+  if (!use_3teams->value && use_newspawns->value) {
+	NS_SetupTeamSpawnPoints ();
   } else {
-  	GetSpawnPoints ();
+	GetSpawnPoints ();
   	SetupTeamSpawnPoints ();
   }
   InitTransparentList ();
@@ -3288,7 +3283,6 @@ void
 GetSpawnPoints ()
 {
   edict_t *spot;
-  int y;
 
   spot = NULL;
   num_potential_spawns = 0;
@@ -3318,61 +3312,6 @@ GetSpawnPoints ()
     }
 }
 
-// GetSpawnPoints:
-// Put the spawn points into our potential_spawns array so we can work with them easily.
-void
-New_GetSpawnPoints ()
-{
-  edict_t *spot;
-  int y, x;
-
-  spot = NULL;
-
-  if (use_3teams->value)
-	teamplay_random_spawn_team = newrand(3);
-  else
-	teamplay_random_spawn_team = newrand(2);
-
-  for (x = 0;x < MAX_TEAMS;x++) {
-  	new_num_potential_spawns[x] = 0;
-	new_num_used_farteamplay_spawns[x] = 0;
-  }
-  gi.dprintf("New_GetSpawnPoints: Gettings teamspawnpoints\n");
-
-
-  if ((spot = G_Find (spot, FOFS (classname), "info_player_team1")) != NULL)
-    {
-	for (x = 0;x < MAX_TEAMS;x++) {
-		new_potential_spawns[x][new_num_potential_spawns[x]] = spot;
-		new_num_potential_spawns[x]++;
-	}
-    }
-
-  if ((spot = G_Find (spot, FOFS (classname), "info_player_team2")) != NULL)
-    {
-	for (x = 0;x < MAX_TEAMS;x++) {
-		
-		new_potential_spawns[x][new_num_potential_spawns[x]] = spot;
-		new_num_potential_spawns[x]++;
-	}
-    }
-
-  while ((spot = G_Find (spot, FOFS (classname), "info_player_deathmatch")) !=
-	 NULL)
-    {
-	for (x = 0;x < MAX_TEAMS;x++) {
-		
-		new_potential_spawns[x][new_num_potential_spawns[x]] = spot;
-		new_num_potential_spawns[x]++;
-      		if (new_num_potential_spawns[x] >= MAX_SPAWNS)
-		{
-	  		gi.dprintf ("Warning: MAX_SPAWNS exceeded\n");
-	  		return;
-		}
-	}
-    }
-}
-
 // newrand returns n, where 0 >= n < top
 int
 newrand (int top)
@@ -3394,87 +3333,6 @@ compare_spawn_distances (const void *sd1, const void *sd2)
     return 0;
 }
 
-qboolean
-New_SelectRandomTeamplaySpawnPoint (int team, qboolean teams_assigned[])
-{
-  int spawn_point, y, ok, i, test_teams, z;
-  float distance;
-  edict_t *spot;
-
-  gi.dprintf("New_SelectRandomTeamplaySpawnPoint\n");
-
-  spot = NULL;
-  i = 0;
-  ok = false;
-
-  if (use_3teams->value)
-    {
-      test_teams = 3;
-    }
-  else
-    {
-      test_teams = 2;
-    }
-
-  if (new_num_potential_spawns[team] < 1) {
-  	gi.dprintf("Spawncode: gone through all spawns, re-reading spawns\n");
-	New_GetSpawnPoints ();
-	New_SetupTeamSpawnPoints ();
-	return false;
-  }
-
-
-  spawn_point = newrand (new_num_potential_spawns[team]);
-  new_num_potential_spawns[team]--;
-
-  while ((ok == false) && (i < test_teams))
-    {
-      ok = true;
-      for (y = 0; y < test_teams; y++)
-	{
-	  if (teams_assigned[y])
-	    {
-	      distance =
-		SpawnPointDistance (new_potential_spawns[team][spawn_point],
-				    teamplay_spawns[y]);
-	      if (distance == 0)
-		{
-		  ok = false;
-		}
-	    }
-	}
-      if (ok == false)
-	{
-	  spawn_point++;
-	  if (spawn_point == new_num_potential_spawns[team])
-	    {
-	      spawn_point = 0;
-	    }
-	  i++;
-	}
-    }
-
-  teamplay_spawns[team] = new_potential_spawns[team][spawn_point];
-  teams_assigned[team] = true;
-
-  for (z = spawn_point;z < new_num_potential_spawns[team];z++) {
-	new_potential_spawns[team][z] = new_potential_spawns[team][z + 1];
-  }
-
-
-  if (i == test_teams)
-    {
-      gi.dprintf ("Warning: More teams than potential spawnpoints!\n");
-      if ((spot = G_Find (spot, FOFS (classname), "info_player_start")) !=
-	  NULL)
-	{
-	  teamplay_spawns[team] = spot;
-	}
-    }
-  return true;
-
-}
-
 void
 SelectRandomTeamplaySpawnPoint (int team, qboolean teams_assigned[])
 {
@@ -3483,8 +3341,6 @@ SelectRandomTeamplaySpawnPoint (int team, qboolean teams_assigned[])
   edict_t *spot;
 
   spot = NULL;
-  i = 0;
-  ok = false;
 
   if (use_3teams->value)
     {
@@ -3495,6 +3351,8 @@ SelectRandomTeamplaySpawnPoint (int team, qboolean teams_assigned[])
       test_teams = 2;
     }
 
+  i = 0;
+  ok = false;
 
   if (teamplay->value && (num_used_spawns == num_potential_spawns)) {
 		num_used_spawns = 0;
@@ -3548,117 +3406,6 @@ SelectRandomTeamplaySpawnPoint (int team, qboolean teams_assigned[])
 	}
     }
 
-}
-
-void
-New_SelectFarTeamplaySpawnPoint (int team, qboolean teams_assigned[])
-{
-  int u, x, y, z, spawn_to_use, preferred_spawn_points, num_already_used,
-    total_good_spawn_points, test_teams;
-  float closest_spawn_distance, distance;
-  spawn_distances_t *spawn_distances;
-  edict_t *usable_spawns[MAX_SPAWNS];
-  qboolean used;
-  int num_usable;
-
-  gi.dprintf("New_SelectFarTeamplaySpawnPoint\n");
-
-
-  if (use_3teams->value)
-    {
-      test_teams = 3;
-    }
-  else
-    {
-      test_teams = 2;
-    }
-
-  spawn_distances =
-    (spawn_distances_t *) gi.TagMalloc (new_num_potential_spawns[team] *
-					sizeof (spawn_distances_t), TAG_GAME);
-
-  num_already_used = 0;
-  for (x = 0; x < new_num_potential_spawns[team]; x++)
-    {
-      closest_spawn_distance = 2000000000;
-
-      for (y = 0; y < test_teams; y++)
-	{
-	  if (teams_assigned[y])
-	    {
-	      distance =
-		SpawnPointDistance (new_potential_spawns[team][x], teamplay_spawns[y]);
-	      if (distance < closest_spawn_distance)
-		{
-		  closest_spawn_distance = distance;
-		}
-	    }
-	}
-
-      if (closest_spawn_distance == 0)
-	num_already_used++;
-
-      spawn_distances[x].s = new_potential_spawns[team][x];
-      spawn_distances[x].distance = closest_spawn_distance;
-    }
-
-  qsort (spawn_distances, new_num_potential_spawns[team],
-	 sizeof (spawn_distances_t), compare_spawn_distances);
-
-  total_good_spawn_points = new_num_potential_spawns[team] - num_already_used;
-
-  if (total_good_spawn_points <= 4)
-    preferred_spawn_points = 1;
-  else if (total_good_spawn_points <= 10)
-    preferred_spawn_points = 2;
-  else
-    preferred_spawn_points = 3;
-
-  //FB 6/1/99 - make DF_SPAWN_FARTHEST force far spawn points in TP
-  if ((int) dmflags->value & DF_SPAWN_FARTHEST)
-    preferred_spawn_points = 1;
-  //FB 6/1/99
-
-
-
-  num_usable = 0;
-  for (z = 0;z < preferred_spawn_points;z++) {
-	used = false;
-	for (u = 0;u < new_num_used_farteamplay_spawns[team];u++) {
-		if (new_used_farteamplay_spawns[team][u] == 
-			spawn_distances[new_num_potential_spawns[team] - z - 1].s) {
-			used = true;
-		}
-	}
-	if (used == false) {
-		usable_spawns[num_usable] = spawn_distances[new_num_potential_spawns[team] - z - 1].s;
-		num_usable++;
-	}
-  }
-  if (num_usable < 1) {
-	New_SetupTeamSpawnPoints ();
-	return;
-  }
-
-  spawn_to_use = newrand (num_usable);
-
-
-  new_used_farteamplay_spawns[team][new_num_used_farteamplay_spawns[team]] = usable_spawns[spawn_to_use];
-  new_num_used_farteamplay_spawns[team]++;
-
-  if (team < 0 || team >= MAX_TEAMS)
-    {
-      gi.
-	dprintf
-	("Out-of-range teams value in SelectFarTeamplaySpawnPoint, skipping...\n");
-    }
-  else
-    {
-      teams_assigned[team] = true;
-      teamplay_spawns[team] = usable_spawns[spawn_to_use];
-    }
-
-  gi.TagFree (spawn_distances);
 }
 
 void
@@ -3760,11 +3507,9 @@ SetupTeamSpawnPoints ()
     }
 
   SelectRandomTeamplaySpawnPoint (0, teams_assigned);
-
-  //SelectRandomTeamplaySpawnPoint (0, teams_assigned);
   SelectFarTeamplaySpawnPoint (1, teams_assigned);
   if(use_3teams->value)
-  	SelectFarTeamplaySpawnPoint (2, teams_assigned);
+	SelectFarTeamplaySpawnPoint (2, teams_assigned);
 
 /*  started_at = l = newrand (num_teams);
   firstassignment = 1;
@@ -3791,37 +3536,6 @@ SetupTeamSpawnPoints ()
   while (l != started_at); */
 }
 
-void
-New_SetupTeamSpawnPoints ()
-{
-  qboolean teams_assigned[MAX_TEAMS];
-  int l;
-
-  gi.dprintf("New_SetupTeamSpawnPoints\n");
-
-  for (l = 0; l < num_teams; l++)
-    {
-      teamplay_spawns[l] = NULL;
-      teams_assigned[l] = false;
-    }
-
-  if (New_SelectRandomTeamplaySpawnPoint (0, teams_assigned) == false)
-	return;
-  New_SelectFarTeamplaySpawnPoint (1, teams_assigned);
-  if (use_3teams->value)
-   	New_SelectFarTeamplaySpawnPoint (2, teams_assigned);
- /* 
-  New_SelectRandomTeamplaySpawnPoint (teamplay_random_spawn_team, teams_assigned);
-
-  if (teamplay_random_spawn_team != 0)
-  	New_SelectFarTeamplaySpawnPoint (0, teams_assigned);
-  else if (teamplay_random_spawn_team != 1)
-  	New_SelectFarTeamplaySpawnPoint (1, teams_assigned);
-  else if (use_3teams->value && teamplay_random_spawn_team != 2)
-   	New_SelectFarTeamplaySpawnPoint (2, teams_assigned);
-*/
-}
-
 int
 CheckTeamSpawnPoints (int dapoint)
 {
@@ -3834,3 +3548,273 @@ CheckTeamSpawnPoints (int dapoint)
     }
   return 0;
 }
+
+// TNG:Freud New Spawning system
+// NS_GetSpawnPoints:
+// Put the potential spawns into arrays for each team.
+void
+NS_GetSpawnPoints ()
+{
+  edict_t *spot;
+  int x;
+
+  spot = NULL;
+
+  NS_randteam = newrand(2);
+
+  for (x = 0;x < MAX_TEAMS;x++) {
+	NS_num_potential_spawns[x] = 0;
+	NS_num_used_farteamplay_spawns[x] = 0;
+  }
+  gi.dprintf("Fetching spawn points\n");
+
+  if ((spot = G_Find (spot, FOFS (classname), "info_player_team1")) != NULL)
+    {
+	for (x = 0;x < MAX_TEAMS;x++) {
+		NS_potential_spawns[x][NS_num_potential_spawns[x]] = spot;
+		NS_num_potential_spawns[x]++;
+	}
+    }
+
+  if ((spot = G_Find (spot, FOFS (classname), "info_player_team2")) != NULL)
+    {
+	for (x = 0;x < MAX_TEAMS;x++) {
+		NS_potential_spawns[x][NS_num_potential_spawns[x]] = spot;
+		NS_num_potential_spawns[x]++;
+	}
+    }
+
+  while ((spot = G_Find (spot, FOFS (classname), "info_player_deathmatch")) !=
+	 NULL)
+    {
+	for (x = 0;x < MAX_TEAMS;x++) {
+		if (NS_num_potential_spawns[x] >= MAX_SPAWNS)
+		{
+			gi.dprintf ("Warning: MAX_SPAWNS exceeded\n");
+			return;
+		}
+		NS_potential_spawns[x][NS_num_potential_spawns[x]] = spot;
+		NS_num_potential_spawns[x]++;
+	}
+    }
+}
+
+// TNG:Freud
+// NS_SelectRandomTeamplaySpawnPoint
+// Select a random spawn point for the team from remaining spawns.
+// returns false if no spawns left.
+qboolean
+NS_SelectRandomTeamplaySpawnPoint (int team, qboolean teams_assigned[])
+{
+  int spawn_point, y, ok, i, test_teams, z;
+  float distance;
+  edict_t *spot;
+
+  spot = NULL;
+
+  i = 0;
+  ok = false;
+
+  if (use_3teams->value)
+    {
+      test_teams = 3;
+    }
+  else
+    {
+      test_teams = 2;
+    }
+
+  if (NS_num_potential_spawns[team] < 1) {
+	gi.dprintf("New Spawncode: gone through all spawns, re-reading spawns\n");
+	NS_GetSpawnPoints ();
+	NS_SetupTeamSpawnPoints ();
+	return false;
+  }
+
+  spawn_point = newrand (NS_num_potential_spawns[team]);
+  NS_num_potential_spawns[team]--;
+
+  while ((ok == false) && (i < test_teams))
+    {
+      ok = true;
+      for (y = 0; y < test_teams; y++)
+	{
+	  if (teams_assigned[y])
+	    {
+	      distance =
+		SpawnPointDistance (NS_potential_spawns[team][spawn_point],
+				    teamplay_spawns[y]);
+	      if (distance == 0)
+		{
+		  ok = false;
+		}
+	    }
+	}
+      if (ok == false)
+	{
+	  spawn_point++;
+	  if (spawn_point == NS_num_potential_spawns[team])
+	    {
+	      spawn_point = 0;
+	    }
+	  i++;
+	}
+    }
+
+  teamplay_spawns[team] = NS_potential_spawns[team][spawn_point];
+  teams_assigned[team] = true;
+
+  for (z = spawn_point;z < NS_num_potential_spawns[team];z++) {
+	NS_potential_spawns[team][z] = NS_potential_spawns[team][z + 1];
+  }
+
+  if (i == test_teams)
+    {
+      gi.dprintf ("Warning: More teams than potential spawnpoints!\n");
+      if ((spot = G_Find (spot, FOFS (classname), "info_player_start")) !=
+	  NULL)
+	{
+	  teamplay_spawns[team] = spot;
+	}
+    }
+  return true;
+
+}
+
+// TNG:Freud
+// NS_SelectFarTeamplaySpawnPoint
+// Selects farthest teamplay spawn point from available spawns.
+void
+NS_SelectFarTeamplaySpawnPoint (int team, qboolean teams_assigned[])
+{
+  int u, x, y, z, spawn_to_use, preferred_spawn_points, num_already_used,
+    total_good_spawn_points, test_teams;
+  float closest_spawn_distance, distance;
+  spawn_distances_t *spawn_distances;
+  edict_t *usable_spawns[MAX_SPAWNS];
+  qboolean used;
+  int num_usable;
+
+  if (use_3teams->value)
+    {
+      test_teams = 3;
+    }
+  else
+    {
+      test_teams = 2;
+    }
+
+  spawn_distances =
+    (spawn_distances_t *) gi.TagMalloc (NS_num_potential_spawns[team] *
+					sizeof (spawn_distances_t), TAG_GAME);
+
+  num_already_used = 0;
+  for (x = 0; x < NS_num_potential_spawns[team]; x++)
+    {
+      closest_spawn_distance = 2000000000;
+
+      for (y = 0; y < test_teams; y++)
+	{
+	  if (teams_assigned[y])
+	    {
+	      distance =
+		SpawnPointDistance (NS_potential_spawns[team][x], teamplay_spawns[y]);
+	      if (distance < closest_spawn_distance)
+		{
+		  closest_spawn_distance = distance;
+		}
+	    }
+	}
+
+      if (closest_spawn_distance == 0)
+	num_already_used++;
+
+      spawn_distances[x].s = NS_potential_spawns[team][x];
+      spawn_distances[x].distance = closest_spawn_distance;
+    }
+
+  qsort (spawn_distances, NS_num_potential_spawns[team],
+	 sizeof (spawn_distances_t), compare_spawn_distances);
+
+  total_good_spawn_points = NS_num_potential_spawns[team] - num_already_used;
+
+  if (total_good_spawn_points <= 4)
+    preferred_spawn_points = 1;
+  else if (total_good_spawn_points <= 10)
+    preferred_spawn_points = 2;
+  else
+    preferred_spawn_points = 3;
+
+  //FB 6/1/99 - make DF_SPAWN_FARTHEST force far spawn points in TP
+  if ((int) dmflags->value & DF_SPAWN_FARTHEST)
+    preferred_spawn_points = 1;
+  //FB 6/1/99
+
+  num_usable = 0;
+  for (z = 0;z < preferred_spawn_points;z++) {
+	used = false;
+	for (u = 0;u < NS_num_used_farteamplay_spawns[team];u++) {
+		if (NS_used_farteamplay_spawns[team][u] ==
+			spawn_distances[NS_num_potential_spawns[team] - z - 1].s) {
+			used = true;
+		}
+	}
+	if (used == false) {
+		usable_spawns[num_usable] = spawn_distances[NS_num_potential_spawns[team] - z - 1].s;
+		num_usable++;
+	}
+  }
+  if (num_usable < 1) {
+	NS_SetupTeamSpawnPoints ();
+	return;
+  }
+
+  spawn_to_use = newrand (num_usable);
+
+  NS_used_farteamplay_spawns[team][NS_num_used_farteamplay_spawns[team]] = usable_spawns[spawn_to_use];
+  NS_num_used_farteamplay_spawns[team]++;
+
+  if (team < 0 || team >= MAX_TEAMS)
+    {
+      gi.
+	dprintf
+	("Out-of-range teams value in SelectFarTeamplaySpawnPoint, skipping...\n");
+    }
+  else
+    {
+      teams_assigned[team] = true;
+      teamplay_spawns[team] = usable_spawns[spawn_to_use];
+    }
+
+  gi.TagFree (spawn_distances);
+}
+
+// TNG:Freud
+// NS_SetupTeamSpawnPoints
+// Finds and assigns spawn points to each team.
+void
+NS_SetupTeamSpawnPoints ()
+{
+  qboolean teams_assigned[MAX_TEAMS];
+  int l;
+
+  for (l = 0; l < num_teams; l++)
+    {
+      teamplay_spawns[l] = NULL;
+      teams_assigned[l] = false;
+    }
+
+  if (NS_SelectRandomTeamplaySpawnPoint (NS_randteam, teams_assigned))
+	return;
+
+  for (l = 0;l < num_teams;l++) {
+	// TNG:Freud disabled 3teams for new spawning system.
+	if (l != NS_randteam && l != 2)
+		NS_SelectFarTeamplaySpawnPoint (l, teams_assigned);
+  }
+
+}
+
+
+
+
