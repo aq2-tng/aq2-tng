@@ -1,10 +1,14 @@
 //-----------------------------------------------------------------------------
 // g_save.c
 //
-// $Id: g_save.c,v 1.43 2001/11/08 10:05:09 igor_rock Exp $
+// $Id: g_save.c,v 1.44 2001/11/27 19:09:52 igor_rock Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_save.c,v $
+// Revision 1.44  2001/11/27 19:09:52  igor_rock
+// removed tgren, limchasecam and ir from serverinfo
+// changed the cvarname of the teamscore to t1, t2 and t3 - the c variables are still team1score and so on.
+//
 // Revision 1.43  2001/11/08 10:05:09  igor_rock
 // day/night changing smoothened
 // changed default for day_cycle to 10 (because of more steps)
@@ -440,7 +444,7 @@ InitGame (void)
     }
   nohud = gi.cvar ("nohud", "0", CVAR_LATCH);
   roundlimit = gi.cvar ("roundlimit", "0", CVAR_SERVERINFO);
-  limchasecam = gi.cvar ("limchasecam", "0", CVAR_SERVERINFO | CVAR_LATCH);
+  limchasecam = gi.cvar ("limchasecam", "0", CVAR_LATCH);
   skipmotd = gi.cvar ("skipmotd", "0", 0);
   roundtimelimit = gi.cvar ("roundtimelimit", "0", CVAR_SERVERINFO);
   maxteamkills = gi.cvar ("maxteamkills", "0", 0);
@@ -493,9 +497,9 @@ InitGame (void)
   mm_forceteamtalk = gi.cvar ("mm_forceteamtalk", "0", 0);
   mm_adminpwd = gi.cvar ("mm_adminpwd", "0", 0);
 
-  team1score = gi.cvar ("team1score", "0", CVAR_SERVERINFO);
-  team2score = gi.cvar ("team2score", "0", CVAR_SERVERINFO);
-  team3score = gi.cvar ("team3score", "0", CVAR_SERVERINFO);
+  team1score = gi.cvar ("t1", "0", CVAR_SERVERINFO);
+  team2score = gi.cvar ("t2", "0", CVAR_SERVERINFO);
+  team3score = gi.cvar ("t3", "0", CVAR_SERVERINFO);
 
   use_punch = gi.cvar ("use_punch", "1", 0);
 
@@ -506,11 +510,11 @@ InitGame (void)
   unique_weapons =
     gi.cvar ("weapons", teamplay->value ? "1" : "1", CVAR_SERVERINFO | CVAR_LATCH);	// zucc changed teamplay to 1
   unique_items = gi.cvar ("items", "1", CVAR_SERVERINFO | CVAR_LATCH);
-  ir = gi.cvar ("ir", "1", CVAR_SERVERINFO);
+  ir = gi.cvar ("ir", "1", 0);
   knifelimit = gi.cvar ("knifelimit", "40", 0);
   allweapon = gi.cvar ("allweapon", "0", CVAR_SERVERINFO);
   allitem = gi.cvar ("allitem", "0", CVAR_SERVERINFO);
-  tgren = gi.cvar ("tgren", "0", CVAR_SERVERINFO);
+  tgren = gi.cvar ("tgren", "0", 0);
   sv_shelloff = gi.cvar ("shelloff", "1", 0);
   bholelimit = gi.cvar ("bholelimit", "0", 0);
   splatlimit = gi.cvar ("splatlimit", "0", 0);
