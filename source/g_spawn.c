@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // g_spawn.c
 //
-// $Id: g_spawn.c,v 1.29 2001/11/27 23:23:40 igor_rock Exp $
+// $Id: g_spawn.c,v 1.30 2002/01/24 01:32:34 ra Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_spawn.c,v $
+// Revision 1.30  2002/01/24 01:32:34  ra
+// Enabling .aqg files to be in either M$ form or real text files.
+//
 // Revision 1.29  2001/11/27 23:23:40  igor_rock
 // Bug fixed: day_cycle_at wasn't reset at mapchange
 //
@@ -991,11 +994,11 @@ SpawnEntities (char *mapname, char *entities, char *spawnpoint)
   while (readmore)
     {
       readmore = (fgets (line, 256, f) != NULL);
-      param = strtok (line, " :\n\0");
+      param = strtok (line, " :\r\n\0");
       if (line[0] == '#' && line[2] == 'C')
 	{
 	  u = 0;
-	  for (i = 10; line[i] != '\n'; i++)
+	  for (i = 10; line[i] != '\r\n'; i++)
 	    {
 	      ml_creator[u] = line[i];
 	      u++;
@@ -1004,7 +1007,7 @@ SpawnEntities (char *mapname, char *entities, char *spawnpoint)
       if (line[0] == '#' && line[2] == 'B')
 	{
 	  u = 0;
-	  for (i = 8; line[i] != '\n'; i++)
+	  for (i = 8; line[i] != '\r\n'; i++)
 	    {
 	      if (line[i] != ' ')
 		{
@@ -1026,32 +1029,32 @@ SpawnEntities (char *mapname, char *entities, char *spawnpoint)
 
       x = atoi (param);
 
-      param = strtok (NULL, " :\n\0");
+      param = strtok (NULL, " :\r\n\0");
       if (!param)
 	continue;
       y = atoi (param);
 
-      param = strtok (NULL, " :\n\0");
+      param = strtok (NULL, " :\r\n\0");
       if (!param)
 	continue;
       z = atoi (param);
 
-      param = strtok (NULL, " :\n\0");
+      param = strtok (NULL, " :\r\n\0");
       if (!param)
 	continue;
       rx = atoi (param);
 
-      param = strtok (NULL, " :\n\0");
+      param = strtok (NULL, " :\r\n\0");
       if (!param)
 	continue;
       ry = atoi (param);
 
-      param = strtok (NULL, " :\n\0");
+      param = strtok (NULL, " :\r\n\0");
       if (!param)
 	continue;
       rz = atoi (param);
 
-      param = strtok (NULL, "\n\0");
+      param = strtok (NULL, "\r\n\0");
       if (!param)
 	continue;
       locationstr = param;
