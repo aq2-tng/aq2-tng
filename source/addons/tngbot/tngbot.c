@@ -3,7 +3,7 @@
  * (c) 2001 by Stefan Giesen aka Igor[Rock]
  * All rights reserved
  *
- * $Id: tngbot.c,v 1.5 2001/12/03 14:52:01 igor_rock Exp $
+ * $Id: tngbot.c,v 1.6 2001/12/03 15:01:06 igor_rock Exp $
  *
  *----------------------------------------------------------------------------
  * Usage: tngbot <ircserver>[:port] <channelname> <nickname>
@@ -35,6 +35,9 @@
  *
  *----------------------------------------------------------------------------
  * $Log: tngbot.c,v $
+ * Revision 1.6  2001/12/03 15:01:06  igor_rock
+ * added password for joining the cahnnel if protected
+ *
  * Revision 1.5  2001/12/03 14:52:01  igor_rock
  * fixed some bugs, added some features / channel modes
  *
@@ -287,8 +290,13 @@ int do_irc_reg( )
     }
   }
  
-  sprintf(outbuf, "join #%s\n\r", channel);
-  printf ("Joining #%s\n", channel);
+  if (password[0]) {
+    sprintf(outbuf, "join #%s %s\n\r", channel, password);
+    printf ("Joining #%s %s\n", channel, password);
+  } else {
+    sprintf(outbuf, "join #%s\n\r", channel);
+    printf ("Joining #%s\n", channel);
+  }
   write(sock, outbuf, strlen(outbuf));
 
   if (password[0]) {
@@ -345,8 +353,13 @@ void parse_input (char *inbuf)
   } else {
     sprintf (temp, " KICK #%s %s :", channel, nickname);
     if ((inbuf[0] == ':') && (strstr(inbuf, temp) != NULL)) {
-      sprintf(outbuf, "join #%s\n\r", channel);
-      printf ("Joining #%s\n", channel);
+      if (password[0]) {
+	sprintf(outbuf, "join #%s %s\n\r", channel, password);
+	printf ("Joining #%s %s\n", channel, password);
+      } else {
+	sprintf(outbuf, "join #%s\n\r", channel);
+	printf ("Joining #%s\n", channel);
+      }
       write(sock, outbuf, strlen(outbuf));
     } else {
       printf ("%s\n", inbuf);
