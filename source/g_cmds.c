@@ -1,10 +1,15 @@
 //-----------------------------------------------------------------------------
 // g_cmds.c
 //
-// $Id: g_cmds.c,v 1.51 2002/02/13 12:13:00 deathwatch Exp $
+// $Id: g_cmds.c,v 1.52 2002/02/18 20:21:36 freud Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_cmds.c,v $
+// Revision 1.52  2002/02/18 20:21:36  freud
+// Added PING PONG mechanism for timely disconnection of clients. This is
+// based on a similar scheme as the scheme used by IRC. The client has
+// cvar ping_timeout seconds to reply or will be disconnected.
+//
 // Revision 1.51  2002/02/13 12:13:00  deathwatch
 // INVDROP Weaponfarming fix
 //
@@ -2180,6 +2185,11 @@ ClientCommand (edict_t * ent)
 		Cmd_Statmode_f (ent, gi.argv (1));
 		return;
 	}
+	else if (Q_stricmp (cmd, "pingpong") == 0)
+	{
+		Cmd_PingPong_f (ent);
+		return;
+	}
   else				// anything that doesn't match a command will be a chat
     Cmd_Say_f (ent, false, true, false);
 }
@@ -2211,4 +2221,10 @@ Cmd_CPSI_f (edict_t * ent)
       //      strncpy(ent->client->resp.vidref,gi.argv(4),sizeof(ent->client->resp.vidref-1));
       //      ent->client->resp.vidref[15] = 0;
     }
+}
+
+void
+Cmd_PingPong_f (edict_t * ent)
+{
+  ent->client->resp.last_pong = level.time;
 }

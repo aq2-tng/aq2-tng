@@ -1,10 +1,15 @@
 //-----------------------------------------------------------------------------
 //
 //
-// $Id: g_main.c,v 1.54 2002/02/18 19:44:45 freud Exp $
+// $Id: g_main.c,v 1.55 2002/02/18 20:21:36 freud Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_main.c,v $
+// Revision 1.55  2002/02/18 20:21:36  freud
+// Added PING PONG mechanism for timely disconnection of clients. This is
+// based on a similar scheme as the scheme used by IRC. The client has
+// cvar ping_timeout seconds to reply or will be disconnected.
+//
 // Revision 1.54  2002/02/18 19:44:45  freud
 // Fixed the teamskin/teamname bug after softmap/map_restart
 //
@@ -327,6 +332,8 @@ cvar_t *stats_afterround;     // Collect TNG stats between rounds
 
 cvar_t *auto_join;
 cvar_t *auto_equip;
+
+cvar_t *ping_timeout;
 
 cvar_t *use_punch;
 
@@ -827,8 +834,9 @@ CycleLights ()
 void
 G_RunFrame (void)
 {
-  int i;
+  int i, j;
   edict_t *ent;
+  char buffer[64];
 
   level.framenum++;
   level.time = level.framenum * FRAMETIME;
@@ -880,8 +888,17 @@ G_RunFrame (void)
   if (i > 0 && i <= maxclients->value)
 	{
 		// TNG Stats:
+		if (ping_timeout->value && ent->client->resp.last_pong < (level.time - ping_timeout->value)) {
+			j = GetClientInternalNumber (ent);
+      			if (j) {
+				sprintf (buffer, "kick %i\n", --j);
+				gi.bprintf (PRINT_HIGH, "%s disconnected from the server (Ping Timeout).\n",
+                      			ent->client->pers.netname);
+          			gi.AddCommandString (buffer);
+			}
+		}
 		if (!(level.framenum % 80)) {
-		    stuffcmd(ent, "cmd_stat_mode $stat_mode\n");
+		    stuffcmd(ent, "cmd_stat_mode $stat_mode\npingpong\n");
 		}
 		// TNG Stats End
 

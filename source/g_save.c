@@ -1,10 +1,15 @@
 //-----------------------------------------------------------------------------
 // g_save.c
 //
-// $Id: g_save.c,v 1.52 2002/02/18 18:25:51 ra Exp $
+// $Id: g_save.c,v 1.53 2002/02/18 20:21:36 freud Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_save.c,v $
+// Revision 1.53  2002/02/18 20:21:36  freud
+// Added PING PONG mechanism for timely disconnection of clients. This is
+// based on a similar scheme as the scheme used by IRC. The client has
+// cvar ping_timeout seconds to reply or will be disconnected.
+//
 // Revision 1.52  2002/02/18 18:25:51  ra
 // Bumped version to 2.6, fixed ctf falling and kicking of players in ctf
 // uvtime
@@ -534,6 +539,8 @@ InitGame (void)
 
   auto_join = gi.cvar ("auto_join", "0", 0);
   auto_equip = gi.cvar ("auto_equip", "0", 0);
+
+  ping_timeout = gi.cvar ("ping_timeout", "30", 0);
 
   use_punch = gi.cvar ("use_punch", "1", 0);
 
