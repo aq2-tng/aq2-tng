@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // g_spawn.c
 //
-// $Id: g_spawn.c,v 1.6 2001/05/12 13:15:04 mort Exp $
+// $Id: g_spawn.c,v 1.7 2001/05/12 13:45:59 mort Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_spawn.c,v $
+// Revision 1.7  2001/05/12 13:45:59  mort
+// CTF status bar now sends correctly
+//
 // Revision 1.6  2001/05/12 13:15:04  mort
 // Forces teamplay on when ctf is enabled
 //
@@ -1478,7 +1481,7 @@ void SP_worldspawn (edict_t *ent)
 			{
 				gi.configstring (CS_STATUSBAR, ctf_statusbar);
 			}
-        	if (deathmatch->value)
+        	else if (deathmatch->value)
 //FIREBLADE
 		{
 			if (noscore->value && teamplay->value)
