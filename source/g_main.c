@@ -1,10 +1,14 @@
 //-----------------------------------------------------------------------------
 //
 //
-// $Id: g_main.c,v 1.35 2001/11/04 15:15:19 ra Exp $
+// $Id: g_main.c,v 1.36 2001/11/08 10:05:09 igor_rock Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_main.c,v $
+// Revision 1.36  2001/11/08 10:05:09  igor_rock
+// day/night changing smoothened
+// changed default for day_cycle to 10 (because of more steps)
+//
 // Revision 1.35  2001/11/04 15:15:19  ra
 // New server commands: "sv softmap" and "sv map_restart".  sv softmap
 // takes one map as argument and starts is softly without restarting
@@ -706,57 +710,24 @@ float day_next_cycle = 10.0;
 void
 CycleLights ()
 {
+  static char *brightness = "mmmlkjihgfedcbaaabcdefghijkl";
+  char temp[2];
 
   if (!(darkmatch->value == 3) || (day_cycle->value == 0))
     return;
-
 
   if (level.time == 10.0)
     day_next_cycle = level.time + day_cycle->value;
 
   if (day_next_cycle == level.time)
     {
-      switch (day_cycle_at)
+      day_cycle_at++;
+      if (day_cycle_at == strlen(brightness))
 	{
-	case 0:
-	  {
-	    gi.configstring (CS_LIGHTS + 0, "m");
-	    day_cycle_at++;
-	    break;
-	  }
-	case 1:
-	  {
-	    gi.configstring (CS_LIGHTS + 0, "i");
-	    day_cycle_at++;
-	    break;
-	  }
-	case 2:
-	  {
-	    gi.configstring (CS_LIGHTS + 0, "c");
-	    day_cycle_at++;
-	    break;
-	  }
-	case 3:
-	  {
-	    gi.configstring (CS_LIGHTS + 0, "a");
-	    day_cycle_at++;
-	    break;
-	  }
-	case 4:
-	  {
-	    gi.configstring (CS_LIGHTS + 0, "c");
-	    day_cycle_at++;
-	    break;
-	  }
-	case 5:
-	  {
-	    gi.configstring (CS_LIGHTS + 0, "i");
-	    day_cycle_at = 0;
-	    break;
-	  }
-	default:
-	  break;
+	  day_cycle_at = 0;
 	}
+      sprintf (temp, "%c", brightness[day_cycle_at]);
+      gi.configstring (CS_LIGHTS + 0, temp);
       day_next_cycle = level.time + day_cycle->value;
     }
 }

@@ -1,10 +1,14 @@
 //-----------------------------------------------------------------------------
 // g_save.c
 //
-// $Id: g_save.c,v 1.42 2001/11/07 11:03:35 igor_rock Exp $
+// $Id: g_save.c,v 1.43 2001/11/08 10:05:09 igor_rock Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_save.c,v $
+// Revision 1.43  2001/11/08 10:05:09  igor_rock
+// day/night changing smoothened
+// changed default for day_cycle to 10 (because of more steps)
+//
 // Revision 1.42  2001/11/07 11:03:35  igor_rock
 // corrected some disformatting (removed linebreak at wrong position)
 //
@@ -511,7 +515,7 @@ InitGame (void)
   bholelimit = gi.cvar ("bholelimit", "0", 0);
   splatlimit = gi.cvar ("splatlimit", "0", 0);
   darkmatch = gi.cvar ("darkmatch", "0", CVAR_LATCH);	// Darkmatch
-  day_cycle = gi.cvar ("day_cycle", "90", 0);	// Darkmatch cycle time.
+  day_cycle = gi.cvar ("day_cycle", "10", 0);	// Darkmatch cycle time.
   use_classic = gi.cvar ("use_classic", "0", 0);	// Reset Spread and Grenade Strength to 1.52
 
   CGF_SFX_InstallGlassSupport ();	// william for CGF (glass fx)
