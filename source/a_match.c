@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // Matchmode related code
 //
-// $Id: a_match.c,v 1.16 2003/02/10 02:12:25 ra Exp $
+// $Id: a_match.c,v 1.17 2003/06/15 21:43:53 igor Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_match.c,v $
+// Revision 1.17  2003/06/15 21:43:53  igor
+// added IRC client
+//
 // Revision 1.16  2003/02/10 02:12:25  ra
 // Zcam fixes, kick crashbug in CTF fixed and some code cleanup.
 //
@@ -262,12 +265,14 @@ void Cmd_Teamname_f(edict_t * ent)
 	temp[18] = 0;
 	if (team == 1) {
 		gi.dprintf("%s (Team 1) is now known as %s\n", team1_name, temp);
+		IRC_printf(IRC_T_GAME, "%n (Team 1) is now known as %n", team1_name, temp);
 		strcpy(team1_name, temp);
 		gi.cprintf(ent, PRINT_HIGH, "New Team Name: %s\n", team1_name);
 		return;
 	}
 	if (team == 2) {
 		gi.dprintf("%s (Team 2) is now known as %s\n", team2_name, temp);
+		IRC_printf(IRC_T_GAME, "%n (Team 2) is now known as %n", team2_name, temp);
 		strcpy(team2_name, temp);
 		gi.cprintf(ent, PRINT_HIGH, "New Team Name: %s\n", team2_name);
 		return;

@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // p_client.c
 //
-// $Id: p_client.c,v 1.86 2003/06/15 15:34:32 igor Exp $
+// $Id: p_client.c,v 1.87 2003/06/15 21:43:53 igor Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: p_client.c,v $
+// Revision 1.87  2003/06/15 21:43:53  igor
+// added IRC client
+//
 // Revision 1.86  2003/06/15 15:34:32  igor
 // - removed the zcam code from this branch (see other branch)
 // - added fixes from 2.72 (source only) version
@@ -347,20 +350,32 @@ void Add_Frag(edict_t * ent)
 		gi.bprintf(PRINT_MEDIUM,
 			   "%s has %d kills in a row and receives %d frags for the kill!\n",
 			   ent->client->pers.netname, ent->client->resp.streak, 2);
+		IRC_printf(IRC_T_GAME,
+			   "%n has %k kills in a row and receives %k frags for the kill!",
+			   ent->client->pers.netname, ent->client->resp.streak, 2);
 		ent->client->resp.score += 2;
 	} else if (ent->client->resp.streak < 16) {
 		gi.bprintf(PRINT_MEDIUM,
 			   "%s has %d kills in a row and receives %d frags for the kill!\n",
+			   ent->client->pers.netname, ent->client->resp.streak, 4);
+		IRC_printf(IRC_T_GAME,
+			   "%n has %k kills in a row and receives %k frags for the kill!",
 			   ent->client->pers.netname, ent->client->resp.streak, 4);
 		ent->client->resp.score += 4;
 	} else if (ent->client->resp.streak < 32) {
 		gi.bprintf(PRINT_MEDIUM,
 			   "%s has %d kills in a row and receives %d frags for the kill!\n",
 			   ent->client->pers.netname, ent->client->resp.streak, 8);
+		IRC_printf(IRC_T_GAME,
+			   "%n has %k kills in a row and receives %k frags for the kill!",
+			   ent->client->pers.netname, ent->client->resp.streak, 8);
 		ent->client->resp.score += 8;
 	} else {
 		gi.bprintf(PRINT_MEDIUM,
 			   "%s has %d kills in a row and receives %d frags for the kill!\n",
+			   ent->client->pers.netname, ent->client->resp.streak, 16);
+		IRC_printf(IRC_T_GAME,
+			   "%n has %k kills in a row and receives %k frags for the kill!",
 			   ent->client->pers.netname, ent->client->resp.streak, 16);
 		ent->client->resp.score += 16;
 	}
@@ -853,6 +868,7 @@ void ClientObituary(edict_t * self, edict_t * inflictor, edict_t * attacker)
 		if (message && !special) {
 			sprintf(death_msg, "%s %s\n", self->client->pers.netname, message);
 			PrintDeathMessage(death_msg, self);
+			IRC_printf(IRC_T_DEATH, death_msg);
 
 			// AQ:TNG - JBravo: Since it's op to teamkill after rounds, why not plummet?
 			if (deathmatch->value) {
@@ -884,6 +900,7 @@ void ClientObituary(edict_t * self, edict_t * inflictor, edict_t * attacker)
 				sprintf(death_msg, "%s was taught how to fly by %s\n",
 					self->client->pers.netname, self->client->attacker->client->pers.netname);
 				PrintDeathMessage(death_msg, self);
+				IRC_printf(IRC_T_KILL, death_msg);
 				AddKilledPlayer(self->client->attacker, self);
 
 				//MODIFIED FOR FF -FB
@@ -923,6 +940,7 @@ void ClientObituary(edict_t * self, edict_t * inflictor, edict_t * attacker)
 					sprintf(death_msg, "%s plummets to his death\n", self->client->pers.netname);
 
 				PrintDeathMessage(death_msg, self);
+				IRC_printf(IRC_T_DEATH, death_msg);
 				if (deathmatch->value)
 					Subtract_Frag(self);	//self->client->resp.score--;
 				self->enemy = NULL;
@@ -1299,6 +1317,7 @@ void ClientObituary(edict_t * self, edict_t * inflictor, edict_t * attacker)
 				sprintf(death_msg, "%s%s %s%s\n", self->client->pers.netname,
 					message, attacker->client->pers.netname, message2);
 				PrintDeathMessage(death_msg, self);
+				IRC_printf(IRC_T_KILL, death_msg);
 				//FIREBLADE
 				if (deathmatch->value) {
 					if (ff) {
@@ -1325,6 +1344,7 @@ void ClientObituary(edict_t * self, edict_t * inflictor, edict_t * attacker)
 
 	sprintf(death_msg, "%s died\n", self->client->pers.netname);
 	PrintDeathMessage(death_msg, self);
+	IRC_printf(IRC_T_DEATH, death_msg);
 
 	if (deathmatch->value)
 		Subtract_Frag(self);	//self->client->resp.score--;
@@ -2924,6 +2944,7 @@ void ClientBeginDeathmatch(edict_t * ent)
 	}
 
 	gi.bprintf(PRINT_HIGH, "%s entered the game\n", ent->client->pers.netname);
+	IRC_printf(IRC_T_SERVER, "%n entered the game", ent->client->pers.netname);
 
 	// TNG:Freud Automaticly join saved teams.
 	if ((teamplay->value || ctf->value) && ent->client->resp.saved_team)
@@ -2931,7 +2952,10 @@ void ClientBeginDeathmatch(edict_t * ent)
 
 //FIREBLADE
 	if (deathmatch->value && !teamplay->value && ent->solid == SOLID_NOT)
+	  {
 		gi.bprintf(PRINT_HIGH, "%s became a spectator\n", ent->client->pers.netname);
+		IRC_printf(IRC_T_SERVER, "%n became a spectator", ent->client->pers.netname);
+	  }
 //FIREBLADE
 
 //FIREBLADE
@@ -3029,6 +3053,7 @@ void ClientBegin(edict_t * ent)
 			}
 
 			gi.bprintf(PRINT_HIGH, "%s entered the game\n", ent->client->pers.netname);
+			IRC_printf(IRC_T_SERVER, "%n entered the game", ent->client->pers.netname);
 		}
 	}
 
@@ -3065,6 +3090,7 @@ void ClientUserinfoChanged(edict_t * ent, char *userinfo)
 			s[sizeof(ent->client->pers.netname) - 1] = 0;
 		}
 		gi.bprintf(PRINT_MEDIUM, "%s is now known as %s.\n", ent->client->pers.netname, s);	//TempFile
+		IRC_printf(IRC_T_SERVER, "%n is now known as %n.", ent->client->pers.netname, s);
 	}
 	strncpy(ent->client->pers.netname, s, sizeof(ent->client->pers.netname) - 1);
 
@@ -3197,8 +3223,10 @@ qboolean ClientConnect(edict_t * ent, char *userinfo)
 
 	ClientUserinfoChanged(ent, userinfo);
 
-	if (game.maxclients > 1)
+	if (game.maxclients > 1) {
 		gi.dprintf("%s@%s connected\n", ent->client->pers.netname, ipaddr_buf);
+		IRC_printf(IRC_T_SERVER, "%n@%s connected", ent->client->pers.netname, ipaddr_buf);
+	}
 
 	strncpy(ent->client->ipaddr, ipaddr_buf, sizeof(ent->client->ipaddr));
 
@@ -3247,6 +3275,7 @@ void ClientDisconnect(edict_t * ent)
 	ent->lasersight = NULL;
 
 	gi.bprintf(PRINT_HIGH, "%s disconnected\n", ent->client->pers.netname);
+	IRC_printf(IRC_T_SERVER, "%n disconnected", ent->client->pers.netname);
 
 	// go clear any clients that have this guy as their attacker
 
@@ -3733,6 +3762,7 @@ void ClientBeginServerFrame(edict_t * ent)
 
 				gi.linkentity(ent);
 				gi.bprintf(PRINT_HIGH, "%s became a spectator\n", ent->client->pers.netname);
+				IRC_printf(IRC_T_SERVER, "%n became a spectator", ent->client->pers.netname);
 			} else	// immediately become observer...
 			{
 				if (ent->movetype != MOVETYPE_NOCLIP)	// have we already done this?  see above...
@@ -3746,6 +3776,7 @@ void ClientBeginServerFrame(edict_t * ent)
 					ent->deadflag = DEAD_NO;
 					gi.linkentity(ent);
 					gi.bprintf(PRINT_HIGH, "%s became a spectator\n", ent->client->pers.netname);
+					IRC_printf(IRC_T_SERVER, "%n became a spectator", ent->client->pers.netname);
 				}
 			}
 		} else {
@@ -3757,6 +3788,7 @@ void ClientBeginServerFrame(edict_t * ent)
 			ent->solid = SOLID_BBOX;
 			gi.linkentity(ent);
 			gi.bprintf(PRINT_HIGH, "%s rejoined the game\n", ent->client->pers.netname);
+			IRC_printf(IRC_T_SERVER, "%n rejoined the game", ent->client->pers.netname);
 			respawn(ent);
 		}
 	}

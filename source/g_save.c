@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // g_save.c
 //
-// $Id: g_save.c,v 1.62 2003/06/15 15:34:32 igor Exp $
+// $Id: g_save.c,v 1.63 2003/06/15 21:43:53 igor Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_save.c,v $
+// Revision 1.63  2003/06/15 21:43:53  igor
+// added IRC client
+//
 // Revision 1.62  2003/06/15 15:34:32  igor
 // - removed the zcam code from this branch (see other branch)
 // - added fixes from 2.72 (source only) version
@@ -450,6 +453,7 @@ field_t clientfields[] = {
 void
 InitGame (void)
 {
+  IRC_init ();
   gi.dprintf ("==== InitGame ====\n");
 
   ReadConfigFile ();

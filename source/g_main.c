@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 //
 //
-// $Id: g_main.c,v 1.69 2003/06/15 15:34:32 igor Exp $
+// $Id: g_main.c,v 1.70 2003/06/15 21:43:53 igor Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_main.c,v $
+// Revision 1.70  2003/06/15 21:43:53  igor
+// added IRC client
+//
 // Revision 1.69  2003/06/15 15:34:32  igor
 // - removed the zcam code from this branch (see other branch)
 // - added fixes from 2.72 (source only) version
@@ -425,6 +428,8 @@ void
 ShutdownGame (void)
 {
   gi.dprintf ("==== ShutdownGame ====\n");
+  IRC_printf (IRC_T_SERVER, "==== ShutdownGame ====");
+  IRC_exit ();
   //PG BUND
   vExitGame ();
   gi.FreeTags (TAG_LEVEL);
@@ -564,7 +569,7 @@ void EndDMLevel (void)
   now = localtime (&tnow);
   (void) strftime (ltm, 64, "%A %d %B %H:%M:%S", now);
   gi.bprintf (PRINT_HIGH, "Game ending at: %s\n", ltm);
-
+  IRC_printf (IRC_T_GAME, "Game ending at: %s", ltm);
 
   // stay on same level flag
   if ((int) dmflags->value & DF_SAME_LEVEL)
@@ -710,8 +715,10 @@ void EndDMLevel (void)
 		}
 	}
   //Igor[Rock] End
-  if (level.nextmap != NULL && !byvote)
+  if (level.nextmap != NULL && !byvote) {
     gi.bprintf (PRINT_HIGH, "Next map in rotation is %s.\n", level.nextmap);
+    IRC_printf (IRC_T_SERVER, "Next map in rotation is %s.", level.nextmap);
+  }
   //FIREBLADE
 
   ReadMOTDFile ();
@@ -751,6 +758,7 @@ CheckDMRules (void)
 	  if (level.time >= timelimit->value * 60)
 	    {
 	      gi.bprintf (PRINT_HIGH, "Timelimit hit.\n");
+	      IRC_printf (IRC_T_GAME, "Timelimit hit.");
 	      EndDMLevel ();
 	      return;
 	    }
@@ -784,6 +792,7 @@ CheckDMRules (void)
 	  if (cl->resp.score >= fraglimit->value)
 	    {
 	      gi.bprintf (PRINT_HIGH, "Fraglimit hit.\n");
+	      IRC_printf (IRC_T_GAME, "Fraglimit hit.");
 	      if (ctf->value)
 		ResetPlayers ();
 	      EndDMLevel ();

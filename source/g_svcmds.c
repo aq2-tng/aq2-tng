@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // g_svcmds.c
 //
-// $Id: g_svcmds.c,v 1.13 2002/03/28 15:32:47 ra Exp $
+// $Id: g_svcmds.c,v 1.14 2003/06/15 21:43:53 igor Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_svcmds.c,v $
+// Revision 1.14  2003/06/15 21:43:53  igor
+// added IRC client
+//
 // Revision 1.13  2002/03/28 15:32:47  ra
 // No softmapping during LCA
 //
@@ -524,6 +527,8 @@ ServerCommand (void)
   //AQ2:TNG - Slicer : CheckCheats & StuffCmd
   else if (Q_stricmp (cmd, "stuffcmd") == 0)
     SVCmd_stuffcmd_f ();
+  else if (Q_stricmp (cmd, "ircraw") == 0)
+    SVCmd_ircraw_f ();
   else if (Q_stricmp (cmd, "softmap") == 0)
     SVCmd_Softmap_f ();
   else if (Q_stricmp (cmd, "map_restart") == 0)

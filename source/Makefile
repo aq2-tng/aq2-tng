@@ -1,7 +1,7 @@
 
 # Action makefile 
 #
-# $Id: Makefile,v 1.20 2003/06/15 15:34:32 igor Exp $
+# $Id: Makefile,v 1.21 2003/06/15 21:43:53 igor Exp $
 #
 # Intended for gcc/Linux, may need modifying for other platforms
 # Adapted by PG BUND from Black Cross makefile
@@ -10,6 +10,9 @@
 # (needs still some testing/modification for the dist-targets)
 #-----------------------------------------------------------------------------
 # $Log: Makefile,v $
+# Revision 1.21  2003/06/15 21:43:53  igor
+# added IRC client
+#
 # Revision 1.20  2003/06/15 15:34:32  igor
 # - removed the zcam code from this branch (see other branch)
 # - added fixes from 2.72 (source only) version
@@ -132,7 +135,7 @@ GAME_OBJS = \
 	g_phys.o g_save.o g_spawn.o g_svcmds.o g_target.o g_trigger.o \
 	g_turret.o g_utils.o g_weapon.o g_xmisc.o m_move.o \
 	p_client.o p_hud.o p_trail.o p_view.o p_weapon.o q_shared.o \
-	tng_stats.o tng_flashlight.o
+	tng_stats.o tng_flashlight.o tng_irc.o
 
 game$(ARCH).$(SHLIBEXT) : $(GAME_OBJS)
 	$(CC) $(CFLAGS) $(SHLIBLDFLAGS) -o $@ $(GAME_OBJS)

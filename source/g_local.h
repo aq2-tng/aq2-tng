@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // g_local.h -- local definitions for game module
 //
-// $Id: g_local.h,v 1.66 2003/06/15 15:34:32 igor Exp $
+// $Id: g_local.h,v 1.67 2003/06/15 21:43:53 igor Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_local.h,v $
+// Revision 1.67  2003/06/15 21:43:53  igor
+// added IRC client
+//
 // Revision 1.66  2003/06/15 15:34:32  igor
 // - removed the zcam code from this branch (see other branch)
 // - added fixes from 2.72 (source only) version
@@ -281,6 +284,7 @@
 #include	"a_vote.h"
 #include	"a_match.h"
 #include "tng_stats.h"		// Adding TNG Stats File
+#include	"tng_irc.h"
 #define		getEnt(entnum)	(edict_t *)((char *)globals.edicts + (globals.edict_size * entnum))	//AQ:TNG Slicer - This was missing
 #define		GAMEVERSION			"action"	// the "gameversion" client command will print this plus compile date
 

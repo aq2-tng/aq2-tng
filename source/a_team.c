@@ -3,10 +3,13 @@
 // Some of this is borrowed from Zoid's CTF (thanks Zoid)
 // -Fireblade
 //
-// $Id: a_team.c,v 1.87 2002/04/01 14:00:08 freud Exp $
+// $Id: a_team.c,v 1.88 2003/06/15 21:43:53 igor Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_team.c,v $
+// Revision 1.88  2003/06/15 21:43:53  igor
+// added IRC client
+//
 // Revision 1.87  2002/04/01 14:00:08  freud
 // After extensive checking I think I have found the spawn bug in the new
 // system.
@@ -1025,6 +1028,11 @@ JoinTeam (edict_t * ent, int desired_team, int skip_menuclose)
 			ent->client->pers.netname,
 			ent->client->attacker->client->pers.netname,
 			ent->client->resp.radio_gender ? "she" : "he");
+		IRC_printf (IRC_T_DEATH,
+			"%n ph34rs %n so much %s committed suicide! :)",
+			ent->client->pers.netname,
+			ent->client->attacker->client->pers.netname,
+			ent->client->resp.radio_gender ? "she" : "he");
 		Add_Frag (ent->client->attacker);
 		Subtract_Frag (ent);
 	}
@@ -1040,10 +1048,14 @@ JoinTeam (edict_t * ent, int desired_team, int skip_menuclose)
       ent->client->resp.ctf_state = CTF_STATE_START;
       gi.bprintf (PRINT_HIGH, "%s %s %s.\n",
 		  ent->client->pers.netname, a, CTFTeamName (desired_team));
+      IRC_printf (IRC_T_GAME, "%n %s %n.",
+		  ent->client->pers.netname, a, CTFTeamName (desired_team));
     }
   else
     {
       gi.bprintf (PRINT_HIGH, "%s %s %s.\n",
+		  ent->client->pers.netname, a, TeamName (desired_team));
+      IRC_printf (IRC_T_GAME, "%n %s %n.",
 		  ent->client->pers.netname, a, TeamName (desired_team));
     }
 
@@ -1099,6 +1111,11 @@ LeaveTeam (edict_t * ent)
 			ent->client->pers.netname,
 			ent->client->attacker->client->pers.netname,
 			ent->client->resp.radio_gender ? "she" : "he");
+		IRC_printf (IRC_T_DEATH,
+			"%n ph34rs %n so much %s committed suicide! :)",
+			ent->client->pers.netname,
+			ent->client->attacker->client->pers.netname,
+			ent->client->resp.radio_gender ? "she" : "he");
 		Add_Frag (ent->client->attacker);
 		Subtract_Frag (ent);
 	}
@@ -1115,6 +1132,7 @@ LeaveTeam (edict_t * ent)
   else
     g = "his";
   gi.bprintf (PRINT_HIGH, "%s left %s team.\n", ent->client->pers.netname, g);
+  IRC_printf (IRC_T_GAME, "%n left %n team.", ent->client->pers.netname, g);
 
   ent->client->resp.joined_team = 0;
   ent->client->resp.team = NOTEAM;
@@ -1933,8 +1951,10 @@ PrintScores ( )
 
   if (use_3teams->value) {
     gi.bprintf (PRINT_HIGH, "Current score is %s: %d to %s: %d to %s: %d\n", TeamName (TEAM1), team1_score, TeamName (TEAM2), team2_score, TeamName (TEAM3), team3_score);
+    IRC_printf (IRC_T_TOPIC, "Current score on map %n is %n: %k to %n: %k to %n: %k", level.mapname, TeamName (TEAM1), team1_score, TeamName (TEAM2), team2_score, TeamName (TEAM3), team3_score);
   } else {
     gi.bprintf (PRINT_HIGH, "Current score is %s: %d to %s: %d\n", TeamName (TEAM1), team1_score, TeamName (TEAM2), team2_score);
+    IRC_printf (IRC_T_TOPIC, "Current score on map %n is %n: %k to %n: %k", level.mapname, TeamName (TEAM1), team1_score, TeamName (TEAM2), team2_score);
   }
 }
 
@@ -1946,9 +1966,11 @@ int WonGame (int winner)
   char arg[64];
  
   gi.bprintf (PRINT_HIGH, "The round is over:\n");
+  IRC_printf (IRC_T_GAME, "The round is over:");
   if (winner == WINNER_TIE)
 	{
 		gi.bprintf (PRINT_HIGH, "It was a tie, no points awarded!\n");
+		IRC_printf (IRC_T_GAME, "It was a tie, no points awarded!");
 		
 		if(use_warnings->value)
 			gi.sound (&g_edicts[0], CHAN_VOICE | CHAN_NO_PHS_ADD,	gi.soundindex ("tng/no_team_wins.wav"), 1.0, ATTN_NONE, 0.0);
@@ -1965,12 +1987,15 @@ int WonGame (int winner)
 				{
 					gi.bprintf (PRINT_HIGH, "%s was victorious!\n",
 						player->client->pers.netname);
+					IRC_printf (IRC_T_GAME, "%n was victorious!",
+						player->client->pers.netname);
 					TourneyWinner (player);
 				}
 			}
 			else
 			{
 				gi.bprintf (PRINT_HIGH, "%s won!\n", TeamName (TEAM1));
+				IRC_printf (IRC_T_GAME, "%n won!", TeamName (TEAM1));
 				// AQ:TNG Igor[Rock] changing sound dir
 				if(use_warnings->value)
 					gi.sound (&g_edicts[0], CHAN_VOICE | CHAN_NO_PHS_ADD,	gi.soundindex ("tng/team1_wins.wav"), 1.0, ATTN_NONE,	0.0);
@@ -1991,12 +2016,15 @@ int WonGame (int winner)
 				{
 					gi.bprintf (PRINT_HIGH, "%s was victorious!\n",
 						player->client->pers.netname);
+					IRC_printf (IRC_T_GAME, "%n was victorious!",
+						player->client->pers.netname);
 					TourneyWinner (player);
 				}
 			}
 			else
 			{
 				gi.bprintf (PRINT_HIGH, "%s won!\n", TeamName (TEAM2));
+				IRC_printf (IRC_T_GAME, "%n won!", TeamName (TEAM2));
 				// AQ:TNG Igor[Rock] changing sound dir
 				if(use_warnings->value)
 					gi.sound (&g_edicts[0], CHAN_VOICE | CHAN_NO_PHS_ADD, gi.soundindex ("tng/team2_wins.wav"), 1.0, ATTN_NONE, 0.0);
@@ -2017,12 +2045,15 @@ int WonGame (int winner)
 				{
 					gi.bprintf (PRINT_HIGH, "%s was victorious!\n",
 						player->client->pers.netname);
+					IRC_printf (IRC_T_GAME, "%n was victorious!",
+						player->client->pers.netname);
 					TourneyWinner (player);
 				}
 			}
 			else
 			{
 				gi.bprintf (PRINT_HIGH, "%s won!\n", TeamName (TEAM3));
+				IRC_printf (IRC_T_GAME, "%n won!", TeamName (TEAM3));
 				// AQ:TNG Igor[Rock] changing sound dir
 				if(use_warnings->value)
 					gi.sound (&g_edicts[0], CHAN_VOICE | CHAN_NO_PHS_ADD,	gi.soundindex ("tng/team3_wins.wav"), 1.0, ATTN_NONE,	0.0);
@@ -2053,6 +2084,7 @@ int WonGame (int winner)
 		if (!matchmode->value && level.time >= timelimit->value * 60)
 		{
 			gi.bprintf (PRINT_HIGH, "Timelimit hit.\n");
+			IRC_printf (IRC_T_GAME, "Timelimit hit.");
 			EndDMLevel ();
 			team_round_going = team_round_countdown = team_game_going = 0;
 			return 1;
@@ -2068,6 +2100,7 @@ int WonGame (int winner)
 				|| team3_score >= roundlimit->value)
 			{
 				gi.bprintf (PRINT_HIGH, "Roundlimit hit.\n");
+				IRC_printf (IRC_T_GAME, "Roundlimit hit.");
 				EndDMLevel ();
 				team_round_going = team_round_countdown = team_game_going = 0;
 				return 1;
@@ -2089,6 +2122,7 @@ int WonGame (int winner)
 				else
 				{
 					gi.bprintf (PRINT_HIGH, "Roundlimit hit.\n");
+					IRC_printf (IRC_T_GAME, "Roundlimit hit.");
 					EndDMLevel ();
 					team_round_going = team_round_countdown = team_game_going =
 						0;
@@ -2277,6 +2311,7 @@ CheckTeamRules ()
 	  if (!matchmode->value && level.time >= timelimit->value * 60)
 	    {
 	      gi.bprintf (PRINT_HIGH, "Timelimit hit.\n");
+	      IRC_printf (IRC_T_GAME, "Timelimit hit.");
 	      if (ctf->value)
 		ResetPlayers ();
 	      EndDMLevel ();
@@ -2351,6 +2386,7 @@ CheckTeamRules ()
 	  if (current_round_length > roundtimelimit->value * 600)
 	    {
 	      gi.bprintf (PRINT_HIGH, "Round timelimit hit.\n");
+	      IRC_printf (IRC_T_GAME, "Round timelimit hit.");
 	      winner = CheckForForcedWinner ();
 	      if (WonGame (winner))
 		return;
@@ -2404,6 +2440,7 @@ CheckTeamRules ()
 	  if (level.time >= timelimit->value * 60)
 	    {
 	      gi.bprintf (PRINT_HIGH, "Timelimit hit.\n");
+	      IRC_printf (IRC_T_GAME, "Timelimit hit.");
 	      ResetPlayers ();
 	      EndDMLevel ();
 	      team_round_going = team_round_countdown = team_game_going = 0;

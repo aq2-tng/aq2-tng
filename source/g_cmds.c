@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // g_cmds.c
 //
-// $Id: g_cmds.c,v 1.58 2003/06/15 15:34:32 igor Exp $
+// $Id: g_cmds.c,v 1.59 2003/06/15 21:43:53 igor Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_cmds.c,v $
+// Revision 1.59  2003/06/15 21:43:53  igor
+// added IRC client
+//
 // Revision 1.58  2003/06/15 15:34:32  igor
 // - removed the zcam code from this branch (see other branch)
 // - added fixes from 2.72 (source only) version
@@ -1484,8 +1487,12 @@ Cmd_Say_f (edict_t * ent, qboolean team, qboolean arg0, qboolean partner_msg)
 			cl->flood_when[cl->flood_whenhead] = level.time;
 		}
 		
-		if (dedicated->value)
-			gi.cprintf (NULL, PRINT_CHAT, "%s", text);
+		if (dedicated->value) {
+		  gi.cprintf (NULL, PRINT_CHAT, "%s", text);
+		  if ((!team) && (!partner_msg)) {
+		    IRC_printf (IRC_T_TALK, "%s", text);
+		  }
+		}
 		
 		for (j = 1; j <= game.maxclients; j++)
 		{
@@ -1683,8 +1690,11 @@ Cmd_Say_f (edict_t * ent, qboolean team, qboolean arg0, qboolean partner_msg)
 				cl->flood_when[cl->flood_whenhead] = level.time;
 			}
 			
-      if (dedicated->value)
-				gi.cprintf (NULL, PRINT_CHAT, "%s", text);
+      if (dedicated->value) {
+	gi.cprintf (NULL, PRINT_CHAT, "%s", text);
+	IRC_printf (IRC_T_TALK, "%s", text);
+       }
+
 			
       for (j = 1; j <= game.maxclients; j++)
 			{
@@ -1801,6 +1811,8 @@ Cmd_SetAdmin_f (edict_t * ent)
 	  gi.cprintf (ent, PRINT_HIGH, "You are no longer a match admin.\n");
 	  gi.dprintf ("%s is no longer a Match Admin\n",
 		      ent->client->pers.netname);
+	  IRC_printf (IRC_T_GAME, "%n is no longer a Match Admin",
+		      ent->client->pers.netname);
 	  ent->client->resp.admin = 0;
 
 	}
@@ -1808,6 +1820,7 @@ Cmd_SetAdmin_f (edict_t * ent)
 	{
 	  gi.cprintf (ent, PRINT_HIGH, "You are now a match admin.\n");
 	  gi.dprintf ("%s is now a Match Admin\n", ent->client->pers.netname);
+	  IRC_printf (IRC_T_GAME, "%n is now a Match Admin", ent->client->pers.netname);
 	  ent->client->resp.admin = 1;
 	}
 
