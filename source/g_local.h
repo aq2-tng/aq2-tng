@@ -1,10 +1,15 @@
 //-----------------------------------------------------------------------------
 // g_local.h -- local definitions for game module
 //
-// $Id: g_local.h,v 1.49 2002/01/24 02:24:56 deathwatch Exp $
+// $Id: g_local.h,v 1.50 2002/02/01 17:49:56 freud Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_local.h,v $
+// Revision 1.50  2002/02/01 17:49:56  freud
+// Heavy changes in stats code. Removed lots of variables and replaced them
+// with int arrays of MODs. This cleaned tng_stats.c up a whole lots and
+// everything looks well, might need more testing.
+//
 // Revision 1.49  2002/01/24 02:24:56  deathwatch
 // Major update to Stats code (thanks to Freud)
 // new cvars:
@@ -1305,41 +1310,9 @@ typedef struct
   int stats_shots_t;		// Total nr of shots for TNG Stats
   int stats_shots_h;		// Total nr of hits for TNG Stats
 
-  int stats_m4_shots_t;		// Total nr of shots for TNG Stats
-  int stats_m4_shots_h;		// Total nr of hits for TNG Stats
-  int stats_m4_shots_hd;	// Total nr of headshots for TNG Stats
-
-  int stats_mp5_shots_t;	// Total nr of shots for TNG Stats
-  int stats_mp5_shots_h;	// Total nr of hits for TNG Stats
-  int stats_mp5_shots_hd;	// Total nr of headshots for TNG Stats
-
-  int stats_sniper_shots_t;	// Total nr of shots for TNG Stats
-  int stats_sniper_shots_h;	// Total nr of hits for TNG Stats
-  int stats_sniper_shots_hd;	// Total nr of headshots for TNG Stats
-
-  int stats_shotgun_shots_t;	// Total nr of shots for TNG Stats
-  int stats_shotgun_shots_h;	// Total nr of hits for TNG Stats
-  int stats_shotgun_shots_hd;	// Total nr of headshots for TNG Stats
-
-  int stats_pistol_shots_t;	// Total nr of shots for TNG Stats
-  int stats_pistol_shots_h;	// Total nr of hits for TNG Stats
-  int stats_pistol_shots_hd;	// Total nr of headshots for TNG Stats
-
-  int stats_dual_shots_t;	// Total nr of shots for TNG Stats
-  int stats_dual_shots_h;	// Total nr of hits for TNG Stats
-  int stats_dual_shots_hd;	// Total nr of headshots for TNG Stats
-
-  int stats_knife_shots_t;	// Total nr of shots for TNG Stats
-  int stats_knife_shots_h;	// Total nr of hits for TNG Stats
-  int stats_knife_shots_hd;	// Total nr of headshots for TNG Stats
-
-  int stats_tknife_shots_t;	// Total nr of shots for TNG Stats
-  int stats_tknife_shots_h;	// Total nr of hits for TNG Stats
-  int stats_tknife_shots_hd;	// Total nr of headshots for TNG Stats
-
-  int stats_hc_shots_t;		// Total nr of shots for TNG Stats
-  int stats_hc_shots_h;		// Total nr of hits for TNG Stats
-  int stats_hc_shots_hd;	// Total nr of headshots for TNG Stats
+  int stats_shots[5000];       // Shots fired
+  int stats_hits[5000];                // Shots hit
+  int stats_headshot[5000];    // Shots in head
 
   //AQ2:TNG - Slicer: Video Checking and further Cheat cheking vars
   char vidref[16];

@@ -1,10 +1,15 @@
 //-----------------------------------------------------------------------------
 // g_combat.c
 //
-// $Id: g_combat.c,v 1.20 2002/01/24 02:24:56 deathwatch Exp $
+// $Id: g_combat.c,v 1.21 2002/02/01 17:49:56 freud Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_combat.c,v $
+// Revision 1.21  2002/02/01 17:49:56  freud
+// Heavy changes in stats code. Removed lots of variables and replaced them
+// with int arrays of MODs. This cleaned tng_stats.c up a whole lots and
+// everything looks well, might need more testing.
+//
 // Revision 1.20  2002/01/24 02:24:56  deathwatch
 // Major update to Stats code (thanks to Freud)
 // new cvars:
@@ -802,10 +807,13 @@ T_Damage (edict_t * targ, edict_t * inflictor, edict_t * attacker, vec3_t dir,
 	{
 
 // TNG Stats - Add +1 to hit, make sure that hc and m3 are handles differently
-		if ((attacker->client) && (mod != MOD_M3) && (mod != MOD_HC) && (!teamplay->value || team_round_going || stats_afterround->value))
-			attacker->client->resp.stats_shots_h++;
+
+               if ((attacker->client) && (mod != MOD_M3) && (mod != MOD_HC) && (!teamplay->value || team_round_going || stats_afterround->value)) {
+                       attacker->client->resp.stats_hits[mod]++;
+                       attacker->client->resp.stats_shots_h++;
+               }
  
-    if ((attacker->client) && (mod == MOD_M4) && (!teamplay->value || team_round_going || stats_afterround->value))
+/*    if ((attacker->client) && (mod == MOD_M4) && (!teamplay->value || team_round_going || stats_afterround->value))
       attacker->client->resp.stats_m4_shots_h++;
     if ((attacker->client) && (mod == MOD_MP5) && (!teamplay->value || team_round_going || stats_afterround->value))
       attacker->client->resp.stats_mp5_shots_h++;
@@ -819,24 +827,6 @@ T_Damage (edict_t * targ, edict_t * inflictor, edict_t * attacker, vec3_t dir,
       attacker->client->resp.stats_knife_shots_h++;
     if ((attacker->client) && (mod == MOD_KNIFE_THROWN) && (!teamplay->value || team_round_going || stats_afterround->value))
       attacker->client->resp.stats_tknife_shots_h++;
-/*
-	  if ((attacker->client) && (mod != MOD_M3) && (mod != MOD_HC))
-	    attacker->client->resp.stats_shots_h++;
-
-          if ((attacker->client) && (mod == MOD_M4))
-            attacker->client->resp.stats_m4_shots_h++;
-          if ((attacker->client) && (mod == MOD_MP5))
-            attacker->client->resp.stats_mp5_shots_h++;
-          if ((attacker->client) && (mod == MOD_SNIPER))
-            attacker->client->resp.stats_sniper_shots_h++;
-          if ((attacker->client) && (mod == MOD_MK23))
-            attacker->client->resp.stats_pistol_shots_h++;
-          if ((attacker->client) && (mod == MOD_DUAL))
-            attacker->client->resp.stats_dual_shots_h++;
-          if ((attacker->client) && (mod == MOD_KNIFE))
-            attacker->client->resp.stats_knife_shots_h++;
-          if ((attacker->client) && (mod == MOD_KNIFE_THROWN))
-            attacker->client->resp.stats_tknife_shots_h++;
 */
 // TNG Stats END
 
@@ -897,7 +887,10 @@ T_Damage (edict_t * targ, edict_t * inflictor, edict_t * attacker, vec3_t dir,
 		{
 		  if (attacker->client)
 		  {
-         if (mod == MOD_KNIFE && (!teamplay->value || team_round_going || stats_afterround->value))
+			if (!teamplay->value || team_round_going || stats_afterround->value) {
+				attacker->client->resp.stats_headshot[mod]++;
+			}
+        /* if (mod == MOD_KNIFE && (!teamplay->value || team_round_going || stats_afterround->value))
             attacker->client->resp.stats_knife_shots_hd++;
          if (mod == MOD_KNIFE_THROWN && (!teamplay->value || team_round_going || stats_afterround->value))
             attacker->client->resp.stats_tknife_shots_hd++;
@@ -911,21 +904,6 @@ T_Damage (edict_t * targ, edict_t * inflictor, edict_t * attacker, vec3_t dir,
             attacker->client->resp.stats_pistol_shots_hd++;
 	       if (mod == MOD_DUAL && (!teamplay->value || team_round_going || stats_afterround->value))
             attacker->client->resp.stats_dual_shots_hd++;
-/*
-         if (mod == MOD_KNIFE)
-	         attacker->client->resp.stats_knife_shots_hd++;
-         if (mod == MOD_KNIFE_THROWN)
-           attacker->client->resp.stats_tknife_shots_hd++;
-         if (mod == MOD_M4)
-           attacker->client->resp.stats_m4_shots_hd++;
-         if (mod == MOD_MP5)
-           attacker->client->resp.stats_mp5_shots_hd++;
-         if (mod == MOD_SNIPER)
-           attacker->client->resp.stats_sniper_shots_hd++;
-         if (mod == MOD_MK23)
-           attacker->client->resp.stats_pistol_shots_hd++;
-         if (mod == MOD_DUAL)
-           attacker->client->resp.stats_dual_shots_hd++;
 */            
 		      //AQ2:TNG Slicer Last Damage Location
 		      attacker->client->resp.last_damaged_part = LOC_HDAM;

@@ -1,10 +1,15 @@
 //-----------------------------------------------------------------------------
 // g_weapon.c
 //
-// $Id: g_weapon.c,v 1.9 2002/01/24 02:24:56 deathwatch Exp $
+// $Id: g_weapon.c,v 1.10 2002/02/01 17:49:56 freud Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_weapon.c,v $
+// Revision 1.10  2002/02/01 17:49:56  freud
+// Heavy changes in stats code. Removed lots of variables and replaced them
+// with int arrays of MODs. This cleaned tng_stats.c up a whole lots and
+// everything looks well, might need more testing.
+//
 // Revision 1.9  2002/01/24 02:24:56  deathwatch
 // Major update to Stats code (thanks to Freud)
 // new cvars:
@@ -698,11 +703,20 @@ ProduceShotgunDamageReport (edict_t * self)
 
       self->client->resp.stats_shots_h += total_to_print;
 
+       if (self->client->curr_weap == M3_NUM)
+        self->client->resp.stats_hits[MOD_M3] += total_to_print;
+ 
+       if (self->client->curr_weap == HC_NUM)
+        self->client->resp.stats_hits[MOD_HC] += total_to_print;
+ 
+/*
+
       if (self->client->curr_weap == M3_NUM)
         self->client->resp.stats_shotgun_shots_h += total_to_print;
 
       if (self->client->curr_weap == HC_NUM)
         self->client->resp.stats_hc_shots_h += total_to_print;
+*/
 
   }
 
