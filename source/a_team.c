@@ -3,10 +3,13 @@
 // Some of this is borrowed from Zoid's CTF (thanks Zoid)
 // -Fireblade
 //
-// $Id: a_team.c,v 1.75 2002/02/23 18:33:52 freud Exp $
+// $Id: a_team.c,v 1.76 2002/02/23 18:52:36 freud Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_team.c,v $
+// Revision 1.76  2002/02/23 18:52:36  freud
+// Added myself to the credits menu :)
+//
 // Revision 1.75  2002/02/23 18:33:52  freud
 // Fixed newline bug with announcer (EXCELLENT.. 1 FRAG LEFT) for logfiles
 //
@@ -609,6 +612,7 @@ pmenu_t creditsmenu[] = {
   {"JBravo[QNI]", PMENU_ALIGN_LEFT, NULL, DoAGoodie},
   {"Mort", PMENU_ALIGN_LEFT, NULL, DoAGoodie},
   {"sLiCeR [dW]", PMENU_ALIGN_LEFT, NULL, SlicersCat},
+  {"Freud [QNI]", PMENU_ALIGN_LEFT, NULL, DoAGoodie},
   {NULL, PMENU_ALIGN_LEFT, NULL, NULL},
   {"*Credits", PMENU_ALIGN_LEFT, NULL, NULL},
   {"(in no particular order)", PMENU_ALIGN_LEFT, NULL, NULL},
