@@ -1,10 +1,15 @@
 //-----------------------------------------------------------------------------
 // g_save.c
 //
-// $Id: g_save.c,v 1.3 2001/05/07 21:18:35 slicerdw Exp $
+// $Id: g_save.c,v 1.4 2001/05/12 00:37:03 ra Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_save.c,v $
+// Revision 1.4  2001/05/12 00:37:03  ra
+//
+//
+// Fixing various compilerwarnings.
+//
 // Revision 1.3  2001/05/07 21:18:35  slicerdw
 // Added Video Checking System
 //
@@ -391,6 +396,10 @@ void WriteField2 (FILE *f, field_t *field, byte *base)
 	  fwrite (*(char **)p, len, 1, f);
 	}
       break;
+// AQ:TNG JBravo fixing Compiler warning. Im not entirely sure here...
+    default:
+	return;
+// End Compiler warning fix
     }
 }
 

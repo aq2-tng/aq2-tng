@@ -1,12 +1,17 @@
 //-----------------------------------------------------------------------------
 // g_monster.c
 //
-// $Id: g_monster.c,v 1.1 2001/05/06 17:31:40 igor_rock Exp $
+// $Id: g_monster.c,v 1.2 2001/05/12 00:37:03 ra Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_monster.c,v $
-// Revision 1.1  2001/05/06 17:31:40  igor_rock
-// Initial revision
+// Revision 1.2  2001/05/12 00:37:03  ra
+//
+//
+// Fixing various compilerwarnings.
+//
+// Revision 1.1.1.1  2001/05/06 17:31:40  igor_rock
+// This is the PG Bund Edition V1.25 with all stuff laying around here...
 //
 //-----------------------------------------------------------------------------
 
@@ -398,11 +403,14 @@ void M_MoveFrame (edict_t *self)
         }
 
         index = self->s.frame - move->firstframe;
-        if (move->frame[index].aifunc)
+// AQ:TNG JBravo fixing compiler warning
+        if (move->frame[index].aifunc) {
                 if (!(self->monsterinfo.aiflags & AI_HOLD_FRAME))
                         move->frame[index].aifunc (self, move->frame[index].dist * self->monsterinfo.scale);
                 else
                         move->frame[index].aifunc (self, 0);
+	}
+// End compilerwarningfix.
 
         if (move->frame[index].thinkfunc)
                 move->frame[index].thinkfunc (self);

@@ -1,10 +1,15 @@
 //-----------------------------------------------------------------------------
 // g_spawn.c
 //
-// $Id: g_spawn.c,v 1.3 2001/05/11 16:07:25 mort Exp $
+// $Id: g_spawn.c,v 1.4 2001/05/12 00:37:03 ra Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_spawn.c,v $
+// Revision 1.4  2001/05/12 00:37:03  ra
+//
+//
+// Fixing various compilerwarnings.
+//
 // Revision 1.3  2001/05/11 16:07:25  mort
 // Various CTF bits and pieces...
 //
@@ -479,6 +484,10 @@ void ED_ParseField (char *key, char *value, edict_t *ent)
                                 break;
                         case F_IGNORE:
                                 break;
+// AQ:TNG JBravo fixing compiler warning. Still not sure 'bout this
+			default:
+				return;
+// End compiler warning fix
                         }
                         return;
                 }

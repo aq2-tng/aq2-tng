@@ -1,12 +1,17 @@
 //-----------------------------------------------------------------------------
 // g_ai.c
 //
-// $Id: g_ai.c,v 1.1 2001/05/06 17:29:54 igor_rock Exp $
+// $Id: g_ai.c,v 1.2 2001/05/12 00:37:03 ra Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_ai.c,v $
-// Revision 1.1  2001/05/06 17:29:54  igor_rock
-// Initial revision
+// Revision 1.2  2001/05/12 00:37:03  ra
+//
+//
+// Fixing various compilerwarnings.
+//
+// Revision 1.1.1.1  2001/05/06 17:29:54  igor_rock
+// This is the PG Bund Edition V1.25 with all stuff laying around here...
 //
 //-----------------------------------------------------------------------------
 
@@ -774,11 +779,14 @@ qboolean ai_checkattack (edict_t *self, float dist)
                 {
                         if ((level.time - self->enemy->teleport_time) > 5.0)
                         {
-                                if (self->goalentity == self->enemy)
+// AQ:TNG JBravo fixing compiler warning with braces.
+                                if (self->goalentity == self->enemy) {
                                         if (self->movetarget)
                                                 self->goalentity = self->movetarget;
                                         else
                                                 self->goalentity = NULL;
+				}
+// End warningfix.
                                 self->monsterinfo.aiflags &= ~AI_SOUND_TARGET;
                                 if (self->monsterinfo.aiflags & AI_TEMP_STAND_GROUND)
                                         self->monsterinfo.aiflags &= ~(AI_STAND_GROUND | AI_TEMP_STAND_GROUND);
