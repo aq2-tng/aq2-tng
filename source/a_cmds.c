@@ -4,10 +4,13 @@
 //
 // laser sight patch, by Geza Beladi
 //
-// $Id: a_cmds.c,v 1.30 2002/04/01 15:16:06 freud Exp $
+// $Id: a_cmds.c,v 1.31 2002/09/04 11:23:09 ra Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_cmds.c,v $
+// Revision 1.31  2002/09/04 11:23:09  ra
+// Added zcam to TNG and bumped version to 3.0
+//
 // Revision 1.30  2002/04/01 15:16:06  freud
 // Stats code redone, tng_stats now much more smarter. Removed a few global
 // variables regarding stats code and added kevlar hits to stats.
@@ -976,7 +979,7 @@ SetIDView (edict_t * ent)
 
     }
 
-  if (ent->client->chase_mode)
+  if (ent->client->chase_mode && ent->client->chase_mode != 3)
     {
       if (ent->client->chase_target && ent->client->chase_target->inuse)
 	{

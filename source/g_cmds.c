@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // g_cmds.c
 //
-// $Id: g_cmds.c,v 1.56 2002/03/28 11:46:03 freud Exp $
+// $Id: g_cmds.c,v 1.57 2002/09/04 11:23:09 ra Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_cmds.c,v $
+// Revision 1.57  2002/09/04 11:23:09  ra
+// Added zcam to TNG and bumped version to 3.0
+//
 // Revision 1.56  2002/03/28 11:46:03  freud
 // stat_mode 2 and timelimit 0 did not show stats at end of round.
 // Added lock/unlock.
@@ -2061,6 +2064,17 @@ ClientCommand (edict_t * ent)
   else if (Q_stricmp (cmd, "tkok") == 0)
     {
       Cmd_TKOk (ent);
+      return;
+    }
+  else if (Q_stricmp (cmd, "camera") == 0)
+    {
+      camera_cmd (ent);
+      return;
+    }
+  else if (Q_stricmp (cmd, "debugshit") == 0)
+    {
+      gi.cprintf (ent, PRINT_HIGH, "chase_mode is %i\n", ent->client->chase_mode);
+      gi.cprintf (ent, PRINT_HIGH, "pm_type is %i\n", ent->client->ps.pmove.pm_type);
       return;
     }
   else if (Q_stricmp (cmd, "time") == 0)

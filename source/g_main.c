@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 //
 //
-// $Id: g_main.c,v 1.67 2002/08/12 09:36:34 freud Exp $
+// $Id: g_main.c,v 1.68 2002/09/04 11:23:10 ra Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_main.c,v $
+// Revision 1.68  2002/09/04 11:23:10  ra
+// Added zcam to TNG and bumped version to 3.0
+//
 // Revision 1.67  2002/08/12 09:36:34  freud
 // Fixed the maxclients = 20 bug. G_RunEntity was not run if maxclients
 // 20, very weird code.. :)
@@ -415,6 +418,7 @@ ShutdownGame (void)
 {
   gi.dprintf ("==== ShutdownGame ====\n");
   //PG BUND
+  camera_shutdown ();
   vExitGame ();
   gi.FreeTags (TAG_LEVEL);
   gi.FreeTags (TAG_GAME);

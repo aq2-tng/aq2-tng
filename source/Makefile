@@ -1,7 +1,7 @@
 
 # Action makefile 
 #
-# $Id: Makefile,v 1.17 2002/04/03 08:59:17 freud Exp $
+# $Id: Makefile,v 1.18 2002/09/04 11:23:09 ra Exp $
 #
 # Intended for gcc/Linux, may need modifying for other platforms
 # Adapted by PG BUND from Black Cross makefile
@@ -10,6 +10,9 @@
 # (needs still some testing/modification for the dist-targets)
 #-----------------------------------------------------------------------------
 # $Log: Makefile,v $
+# Revision 1.18  2002/09/04 11:23:09  ra
+# Added zcam to TNG and bumped version to 3.0
+#
 # Revision 1.17  2002/04/03 08:59:17  freud
 # Added DEBUG option in Makefile for debugging symbols and compiler warnings
 #
@@ -118,7 +121,7 @@ GAME_OBJS = \
 	g_phys.o g_save.o g_spawn.o g_svcmds.o g_target.o g_trigger.o \
 	g_turret.o g_utils.o g_weapon.o g_xmisc.o m_move.o \
 	p_client.o p_hud.o p_trail.o p_view.o p_weapon.o q_shared.o \
-	tng_stats.o tng_flashlight.o
+	tng_stats.o tng_flashlight.o zcam_target.o zcam.o
 
 game$(ARCH).$(SHLIBEXT) : $(GAME_OBJS)
 	$(CC) $(CFLAGS) $(SHLIBLDFLAGS) -o $@ $(GAME_OBJS)

@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // g_local.h -- local definitions for game module
 //
-// $Id: g_local.h,v 1.64 2002/04/01 15:16:06 freud Exp $
+// $Id: g_local.h,v 1.65 2002/09/04 11:23:09 ra Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_local.h,v $
+// Revision 1.65  2002/09/04 11:23:09  ra
+// Added zcam to TNG and bumped version to 3.0
+//
 // Revision 1.64  2002/04/01 15:16:06  freud
 // Stats code redone, tng_stats now much more smarter. Removed a few global
 // variables regarding stats code and added kevlar hits to stats.
@@ -270,6 +273,7 @@
 #include	"a_vote.h"
 #include	"a_match.h"
 #include "tng_stats.h"		// Adding TNG Stats File
+#include	"zcam.h"
 #define		getEnt(entnum)	(edict_t *)((char *)globals.edicts + (globals.edict_size * entnum))	//AQ:TNG Slicer - This was missing
 #define		GAMEVERSION			"action"	// the "gameversion" client command will print this plus compile date
 
@@ -1401,6 +1405,8 @@ typedef struct
 }
 client_respawn_t;
 
+struct camera_s;
+
 // this structure is cleared on each PutClientInServer(),
 // except for 'client->pers'
 struct gclient_s
@@ -1592,6 +1598,7 @@ struct gclient_s
   int desired_zoom;		//either 0, 1, 2, 4 or 6. This is set to 0 if no zooming shall be done, and is set to 0 after zooming is done.
 
   int ctf_uvtime;		// AQ2:TNG - JBravo adding UVtime
+  struct camera_s *camera;
 };
 
 

@@ -5,10 +5,13 @@
 // when in regular chase cam mode, among other Axshun-related mods.
 // -Fireblade
 //
-// $Id: g_chase.c,v 1.2 2001/09/28 13:48:34 ra Exp $
+// $Id: g_chase.c,v 1.3 2002/09/04 11:23:09 ra Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_chase.c,v $
+// Revision 1.3  2002/09/04 11:23:09  ra
+// Added zcam to TNG and bumped version to 3.0
+//
 // Revision 1.2  2001/09/28 13:48:34  ra
 // I ran indent over the sources. All .c and .h files reindented.
 //
@@ -22,6 +25,8 @@
 int
 ChaseTargetGone (edict_t * ent)
 {
+  if (ent->client->chase_mode == 3)
+	  return 0;
   // is our chase target gone?
   if (!ent->client->chase_target->inuse
       || (ent->client->chase_target->solid == SOLID_NOT &&
@@ -130,7 +135,7 @@ UpdateChaseCam (edict_t * ent)
 
       VectorCopy (ent->client->resp.cmd_angles, ent->client->ps.viewangles);
     }
-  else				// chase_mode == 2
+  else if (ent->client->chase_mode == 2)
     {
       VectorCopy (targ->s.origin, ownerv);
       VectorCopy (targ->client->v_angle, angles);

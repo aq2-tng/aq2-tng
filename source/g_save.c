@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // g_save.c
 //
-// $Id: g_save.c,v 1.60 2002/03/30 17:20:59 ra Exp $
+// $Id: g_save.c,v 1.61 2002/09/04 11:23:10 ra Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_save.c,v $
+// Revision 1.61  2002/09/04 11:23:10  ra
+// Added zcam to TNG and bumped version to 3.0
+//
 // Revision 1.60  2002/03/30 17:20:59  ra
 // New cvar use_buggy_bandolier to control behavior of dropping bando and grenades
 //
@@ -629,6 +632,7 @@ InitGame (void)
   if (ctf->value)
     CTFInit ();
 
+  camera_init ();
   //PG BUND - must be at end of gameinit:
   vInitGame ();
 }

@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // g_combat.c
 //
-// $Id: g_combat.c,v 1.26 2002/04/01 15:47:51 freud Exp $
+// $Id: g_combat.c,v 1.27 2002/09/04 11:23:09 ra Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_combat.c,v $
+// Revision 1.27  2002/09/04 11:23:09  ra
+// Added zcam to TNG and bumped version to 3.0
+//
 // Revision 1.26  2002/04/01 15:47:51  freud
 // Typo fixed for statistics
 //
@@ -316,7 +319,7 @@ CheckPowerArmor (edict_t * ent, vec3_t point, vec3_t normal, int damage,
 // JBravo.
   int damagePerCell;
   int pa_te_type;
-  int power;
+  int power = 0;
   int power_used;
 
   if (!damage)
