@@ -16,10 +16,13 @@
 // you get compiler errors too, comment them out like
 // I'd done.
 //
-// $Id: a_xgame.c,v 1.15 2001/12/24 18:06:05 slicerdw Exp $
+// $Id: a_xgame.c,v 1.16 2002/02/18 13:55:35 freud Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_xgame.c,v $
+// Revision 1.16  2002/02/18 13:55:35  freud
+// Added last damaged players %P
+//
 // Revision 1.15  2001/12/24 18:06:05  slicerdw
 // changed dynamic check for darkmatch only
 //
@@ -697,6 +700,14 @@ ParseSayText (edict_t * ent, char *text)
 	      p += 2;
 	      continue;
 	      //AQ2:TNG END
+	      //AQ2:TNG Freud Last Player Damaged
+	    case 'P':
+	      GetLastDamagedPlayers (ent, infobuf);
+	      strcpy (pbuf, infobuf);
+	      pbuf = SeekBufEnd (pbuf);
+	      p += 2;
+	      continue;
+	      //AQ2:TNG END
 	    }
 	}
       *pbuf++ = *p++;
@@ -856,6 +867,19 @@ GetLastDamagedPart (edict_t * self, char *buf)
 }
 
 //AQ2:TNG END
+
+//AQ2:TNG add last damaged players - Freud
+void
+GetLastDamagedPlayers (edict_t * self, char *buf)
+{
+	if (self->client->resp.last_damaged_players == '\0')
+		strcpy(buf, "nobody");
+	else
+		strcpy(buf, self->client->resp.last_damaged_players);
+
+	self->client->resp.last_damaged_players[0] = '\0';
+}
+  
 
 // Gets the location string of a location (xo,yo,zo)
 // Modifies the the location areas by value of "mod"

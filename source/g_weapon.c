@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // g_weapon.c
 //
-// $Id: g_weapon.c,v 1.10 2002/02/01 17:49:56 freud Exp $
+// $Id: g_weapon.c,v 1.11 2002/02/18 13:55:35 freud Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_weapon.c,v $
+// Revision 1.11  2002/02/18 13:55:35  freud
+// Added last damaged players %P
+//
 // Revision 1.10  2002/02/01 17:49:56  freud
 // Heavy changes in stats code. Removed lots of variables and replaced them
 // with int arrays of MODs. This cleaned tng_stats.c up a whole lots and
@@ -664,6 +667,7 @@ ProduceShotgunDamageReport (edict_t * self)
   int l;
   int total_to_print = 0, printed = 0;
   static char textbuf[1024];
+  char damaged_players[1024];
 
 //FB 6/2/99 - shotgun/handcannon damage notification
   for (l = 1; l <= game.maxclients; l++)
@@ -676,6 +680,8 @@ ProduceShotgunDamageReport (edict_t * self)
       if (total_to_print > 10)
 	total_to_print = 10;
 
+      damaged_players[0] = '\0';
+
       strcpy (textbuf, "You hit ");
       for (l = 1; l <= game.maxclients; l++)
 	{
@@ -683,20 +689,28 @@ ProduceShotgunDamageReport (edict_t * self)
 	    {
 	      if (printed == (total_to_print - 1))
 		{
-		  if (total_to_print == 2)
+		  if (total_to_print == 2) {
 		    strcat (textbuf, " and ");
-		  else if (total_to_print != 1)
+		    strcat (damaged_players, " and ");
+		  } else if (total_to_print != 1) {
 		    strcat (textbuf, ", and ");
+		    strcat (damaged_players, ", and ");
+		  }
 		}
-	      else if (printed)
+	      else if (printed) {
 		strcat (textbuf, ", ");
+		strcat (damaged_players, ", ");
+	      }
 	      strcat (textbuf, g_edicts[l].client->pers.netname);
+	      strcat (damaged_players, g_edicts[l].client->pers.netname);
 	      printed++;
 	    }
 	  if (printed == total_to_print)
 	    break;
 	}
       gi.cprintf (self, PRINT_HIGH, "%s\n", textbuf);
+      sprintf(self->client->resp.last_damaged_players, "%s", damaged_players);
+      
     }
   // TNG Stats
   if (!teamplay->value || team_round_going || stats_afterround->value) {

@@ -4,10 +4,13 @@
 //
 // header file for a_xgame.c
 //
-// $Id: a_xgame.h,v 1.8 2001/09/28 13:48:34 ra Exp $
+// $Id: a_xgame.h,v 1.9 2002/02/18 13:55:35 freud Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_xgame.h,v $
+// Revision 1.9  2002/02/18 13:55:35  freud
+// Added last damaged players %P
+//
 // Revision 1.8  2001/09/28 13:48:34  ra
 // I ran indent over the sources. All .c and .h files reindented.
 //
@@ -110,6 +113,7 @@ qboolean GetPlayerLocation (edict_t * self, char *buf);
 void GetSightedLocation (edict_t * self, char *buf);
 void AntiCheat_CheckClient (edict_t * ent);
 void GetLastDamagedPart (edict_t * self, char *buf);
+void GetLastDamagedPlayers (edict_t * self, char *buf);
 void GetEnemyPosition (edict_t * self, char *buf);
 //AQ2:TNG END
 

@@ -3,10 +3,13 @@
 // Some of this is borrowed from Zoid's CTF (thanks Zoid)
 // -Fireblade
 //
-// $Id: a_team.c,v 1.72 2002/02/17 23:25:29 freud Exp $
+// $Id: a_team.c,v 1.73 2002/02/18 13:55:35 freud Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_team.c,v $
+// Revision 1.73  2002/02/18 13:55:35  freud
+// Added last damaged players %P
+//
 // Revision 1.72  2002/02/17 23:25:29  freud
 // Fixed a small bug where stats were sent twice on votes and roundlimits
 //
@@ -988,6 +991,7 @@ JoinTeam (edict_t * ent, int desired_team, int skip_menuclose)
       ResetKills (ent);
       //AQ2:TNG Slicer Last Damage Location
       ent->client->resp.last_damaged_part = 0;
+      ent->client->resp.last_damaged_players[0] = '\0';
       //AQ2:TNG END
       PutClientInServer (ent);
       AddToTransparentList (ent);
@@ -1692,6 +1696,7 @@ SpawnPlayers ()
 	  ResetKills (ent);
 	  //AQ2:TNG Slicer Last Damage Location
 	  ent->client->resp.last_damaged_part = 0;
+	  ent->client->resp.last_damaged_players[0] = '\0';
 	  //AQ2:TNG END
 	  PutClientInServer (ent);
 	  AddToTransparentList (ent);

@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // g_local.h -- local definitions for game module
 //
-// $Id: g_local.h,v 1.52 2002/02/17 20:10:09 freud Exp $
+// $Id: g_local.h,v 1.53 2002/02/18 13:55:35 freud Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_local.h,v $
+// Revision 1.53  2002/02/18 13:55:35  freud
+// Added last damaged players %P
+//
 // Revision 1.52  2002/02/17 20:10:09  freud
 // Better naming of auto_items is auto_equip, requested by Deathwatch.
 //
@@ -1338,6 +1341,7 @@ typedef struct
   qboolean checked;
   float checktime[3];
   int last_damaged_part;
+  char last_damaged_players[256];
   //AQ2:TNG - Slicer Matchmode code
   int captain;
   int subteam;

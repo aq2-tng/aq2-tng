@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // p_client.c
 //
-// $Id: p_client.c,v 1.66 2002/02/17 20:10:09 freud Exp $
+// $Id: p_client.c,v 1.67 2002/02/18 13:55:35 freud Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: p_client.c,v $
+// Revision 1.67  2002/02/18 13:55:35  freud
+// Added last damaged players %P
+//
 // Revision 1.66  2002/02/17 20:10:09  freud
 // Better naming of auto_items is auto_equip, requested by Deathwatch.
 //
@@ -2570,6 +2573,7 @@ player_die (edict_t * self, edict_t * inflictor, edict_t * attacker,
   //PG BUND - END        
   //AQ2:TNG Slicer Last Damage Location
   self->client->resp.last_damaged_part = 0;
+  self->client->resp.last_damaged_players[0] = '\0';
   //AQ2:TNG END
 
   //TempFile
@@ -2737,6 +2741,7 @@ InitClientResp (gclient_t * client)
   //AQ2:TNG END
   //AQ2:TNG Slicer Last Damage Location
   client->resp.last_damaged_part = 0;
+  client->resp.last_damaged_players[0] = '\0';
   //AQ2:TNG END
   //AQ2:TNG Slicer Moved this to here
   client->resp.killed_teammates = 0;
@@ -3982,6 +3987,7 @@ ClientBegin (edict_t * ent)
 //AQ2:TNG - Slicer :Dunno Why these Vars Are Here, as it calls InitClientResp..
       //Adding The Last_damaged_part anyway
       ent->client->resp.last_damaged_part = 0;
+      ent->client->resp.last_damaged_players[0] = '\0';
 //AQ2:TNG END
       ent->client->resp.killed_teammates = 0;
       ent->client->resp.idletime = 0;
