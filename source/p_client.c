@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // p_client.c
 //
-// $Id: p_client.c,v 1.62 2002/02/01 14:29:18 ra Exp $
+// $Id: p_client.c,v 1.63 2002/02/01 16:09:49 freud Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: p_client.c,v $
+// Revision 1.63  2002/02/01 16:09:49  freud
+// Fixed the Taught how to fly bug
+//
 // Revision 1.62  2002/02/01 14:29:18  ra
 // Attempting to fix tought how to fly no frag bug
 //
@@ -920,6 +923,8 @@ ClientObituary (edict_t * self, edict_t * inflictor, edict_t * attacker)
 		    	Add_Frag (self->client->attacker);	//attacker->client->resp.score++;
 
 		  if (!teamplay->value) */
+		// Fix on taught how to fly
+		  if (!(teamplay->value && OnSameTeam(self, self->client->attacker) && !team_round_going))
 			Add_Frag (self->client->attacker);
 		}
 	      //END FF ADD
