@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // p_client.c
 //
-// $Id: p_client.c,v 1.11 2001/05/12 10:50:16 slicerdw Exp $
+// $Id: p_client.c,v 1.12 2001/05/12 13:37:38 mort Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: p_client.c,v $
+// Revision 1.12  2001/05/12 13:37:38  mort
+// Fixed CTF bug, god mode is now on when players spawn
+//
 // Revision 1.11  2001/05/12 10:50:16  slicerdw
 // Fixed That Transparent List Thingy
 //
@@ -2086,7 +2089,7 @@ void respawn (edict_t *self)
 //                self->client->ps.pmove.pm_flags = PMF_TIME_TELEPORT;
 //                self->client->ps.pmove.pm_time = 14;
 
-                self->client->respawn_time = level.time;
+                self->client->respawn_time = level.time + 2;
 
 				// AQ2:TNG - CTF
 				// Equip the client and put on god mode
@@ -2096,6 +2099,7 @@ void respawn (edict_t *self)
 					AddToTransparentList(self);
 //AQ2:TNG END
 					EquipClient(self);
+					self->solid = SOLID_TRIGGER;
 					self->flags |= FL_GODMODE;
 				}
 
