@@ -1,12 +1,12 @@
 //-----------------------------------------------------------------------------
 // g_cmds.c
 //
-// $Id: g_cmds.c,v 1.14 2001/06/05 18:47:11 slicerdw Exp $
+// $Id: g_cmds.c,v 1.15 2001/06/06 18:57:14 slicerdw Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_cmds.c,v $
-// Revision 1.14  2001/06/05 18:47:11  slicerdw
-// Small tweaks to matchmode
+// Revision 1.15  2001/06/06 18:57:14  slicerdw
+// Some tweaks on Ctf and related things
 //
 // Revision 1.12  2001/06/01 19:18:42  slicerdw
 // Added Matchmode Code
@@ -1290,7 +1290,7 @@ void Cmd_Say_f (edict_t *ent, qboolean team, qboolean arg0, qboolean partner_msg
       if (teamplay->value && team_round_going)
 	{
       if ((ent->solid == SOLID_NOT || ent->deadflag == DEAD_DEAD) &&
-        (other->solid != SOLID_NOT && other->deadflag != DEAD_DEAD))
+        (other->solid != SOLID_NOT && other->deadflag != DEAD_DEAD)&& !ctf->value) //AQ2:TNG Slicer
 	    continue;
 	}
       //FIREBLADE             

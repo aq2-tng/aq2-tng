@@ -1,12 +1,12 @@
 //-----------------------------------------------------------------------------
 // g_save.c
 //
-// $Id: g_save.c,v 1.16 2001/06/05 18:47:11 slicerdw Exp $
+// $Id: g_save.c,v 1.17 2001/06/06 18:57:14 slicerdw Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_save.c,v $
-// Revision 1.16  2001/06/05 18:47:11  slicerdw
-// Small tweaks to matchmode
+// Revision 1.17  2001/06/06 18:57:14  slicerdw
+// Some tweaks on Ctf and related things
 //
 // Revision 1.14  2001/06/01 19:18:42  slicerdw
 // Added Matchmode Code

@@ -3,12 +3,12 @@
 // Some of this is borrowed from Zoid's CTF (thanks Zoid)
 // -Fireblade
 //
-// $Id: a_team.c,v 1.22 2001/06/05 23:37:54 slicerdw Exp $
+// $Id: a_team.c,v 1.23 2001/06/06 18:57:14 slicerdw Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_team.c,v $
-// Revision 1.22  2001/06/05 23:37:54  slicerdw
-// Fixed a CTF bug
+// Revision 1.23  2001/06/06 18:57:14  slicerdw
+// Some tweaks on Ctf and related things
 //
 // Revision 1.21  2001/06/05 20:00:14  deathwatch
 // Added ICE-M to credits, fixed some stuff
