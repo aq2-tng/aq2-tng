@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // a_vote.c
 //
-// $Id: a_vote.c,v 1.10 2001/11/03 17:21:57 deathwatch Exp $
+// $Id: a_vote.c,v 1.11 2001/11/08 11:01:10 igor_rock Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_vote.c,v $
+// Revision 1.11  2001/11/08 11:01:10  igor_rock
+// finally got this damn configvote bug - configvote is OK now! :-)
+//
 // Revision 1.10  2001/11/03 17:21:57  deathwatch
 // Fixed something in the time command, removed the .. message from the voice command, fixed the vote spamming with mapvote, removed addpoint command (old pb command that wasnt being used). Some cleaning up of the source at a few points.
 //
@@ -1274,7 +1277,6 @@ _ConfigExitLevel (char *NextMap)
 
   if (_iCheckConfigVotes ())
     {
-      strncpy (NextMap, map_votes->mapname, MAX_QPATH);
       voteconfig = ConfigWithMostVotes (NULL);
       gi.bprintf (PRINT_HIGH, "A new config was voted on and is %s.\n",
 		  voteconfig->configname);
@@ -1296,6 +1298,13 @@ _ConfigExitLevel (char *NextMap)
     }
   else
     {
+      //clear stats
+      for (voteconfig = config_votes; voteconfig != NULL;
+	   voteconfig = voteconfig->next)
+	{
+	  voteconfig->num_votes = 0;
+	}
+
       //clear stats
       config_num_votes = 0;
       config_num_clients = 0;
