@@ -3,10 +3,13 @@
 // Some of this is borrowed from Zoid's CTF (thanks Zoid)
 // -Fireblade
 //
-// $Id: a_team.c,v 1.5 2001/05/11 16:07:25 mort Exp $
+// $Id: a_team.c,v 1.6 2001/05/11 16:12:03 mort Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_team.c,v $
+// Revision 1.6  2001/05/11 16:12:03  mort
+// Updated path locations for CTF flag loading and CTF hacked spawns
+//
 // Revision 1.5  2001/05/11 16:07:25  mort
 // Various CTF bits and pieces...
 //
@@ -2430,9 +2433,9 @@ SetupTeamSpawnPoints ()
 			game = gi.cvar("game", "", 0);
 
 			if(!*game->string)
-				sprintf(locfile, "%s/aqm/%s.flg", GAMEVERSION, level.mapname);
+				sprintf(locfile, "%s/tng/%s.flg", GAMEVERSION, level.mapname);
 			else
-				sprintf(locfile, "%s/aqm/%s.flg", game->string, level.mapname);
+				sprintf(locfile, "%s/tng/%s.flg", game->string, level.mapname);
 
 			f = fopen(locfile, "rt");
 			if(f)
