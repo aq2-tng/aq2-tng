@@ -3,10 +3,13 @@
 // Some of this is borrowed from Zoid's CTF (thanks Zoid)
 // -Fireblade
 //
-// $Id: a_team.c,v 1.50 2001/09/29 17:21:04 ra Exp $
+// $Id: a_team.c,v 1.51 2001/09/29 19:15:38 ra Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_team.c,v $
+// Revision 1.51  2001/09/29 19:15:38  ra
+// Added some more timing stuff
+//
 // Revision 1.50  2001/09/29 17:21:04  ra
 // Fix a small 3teams bug
 //
@@ -1732,8 +1735,17 @@ int
 WonGame (int winner)
 {
   edict_t *player;
+  int mins, secs, remaining, rmins, rsecs;
 
   gi.bprintf (PRINT_HIGH, "The round is over:\n");
+  if(!matchmode->value) {
+	mins = level.time / 60;
+	secs = level.time - (mins * 60);
+	remaining = (timelimit->value *60) - level.time;
+	mins = remaining / 60;
+	secs = remaining - (mins * 60);
+	gi.bprintf (PRINT_HIGH, "Elapsed time: %d:%02d. Remaining time: %d:%02d\n", mins, secs, rmins, rsecs);
+  }
 
   if (winner == WINNER_TIE)
     {
