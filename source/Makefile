@@ -1,7 +1,7 @@
 #-----------------------------------------------------------------------------
 # Action makefile 
 #
-# $Id: Makefile,v 1.7 2001/06/13 07:55:17 igor_rock Exp $
+# $Id: Makefile,v 1.8 2001/06/13 08:00:25 igor_rock Exp $
 #
 # Intended for gcc/Linux, may need modifying for other platforms
 # Adapted by PG BUND from Black Cross makefile
@@ -10,6 +10,9 @@
 # (needs still some testing/modification for the dist-targets)
 #-----------------------------------------------------------------------------
 # $Log: Makefile,v $
+# Revision 1.8  2001/06/13 08:00:25  igor_rock
+# corrected stupid error (wrong changes committed)
+#
 # Revision 1.7  2001/06/13 07:55:17  igor_rock
 # Re-Added a_match.h and a_match.c
 # Added CTF Header for a_ctf.h and a_ctf.c
@@ -76,7 +79,7 @@ DO_CC=$(CC) $(CFLAGS) $(SHLIBCFLAGS) -o $@ -c $<
 	$(DO_CC)
 
 GAME_OBJS = \
-	a_ban.o a_cmds.o a_ctf.o a_doorkick.o a_game.o a_items.o \
+	a_ban.o a_cmds.o a_ctf.o a_doorkick.o a_game.o a_items.o a_match.o \
 	a_menu.o a_radio.o a_team.o a_tourney.o a_vote.o a_xcmds.o a_xgame.o \
 	a_xmenu.o a_xvote.o cgf_sfx_glass.o g_ai.o g_chase.o g_cmds.o \
 	g_combat.o g_func.o g_items.o g_main.o g_misc.o g_monster.o \
