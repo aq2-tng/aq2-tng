@@ -4,10 +4,13 @@
 //
 // contains all new non standard command functions
 //
-// $Id: a_xcmds.c,v 1.9 2001/11/03 17:21:57 deathwatch Exp $
+// $Id: a_xcmds.c,v 1.10 2001/11/08 13:22:18 igor_rock Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_xcmds.c,v $
+// Revision 1.10  2001/11/08 13:22:18  igor_rock
+// added missing parenthises (use_punch didn't function correct)
+//
 // Revision 1.9  2001/11/03 17:21:57  deathwatch
 // Fixed something in the time command, removed the .. message from the voice command, fixed the vote spamming with mapvote, removed addpoint command (old pb command that wasnt being used). Some cleaning up of the source at a few points.
 //
@@ -113,17 +116,17 @@ Cmd_Menu_f (edict_t * self)
 void
 Cmd_Punch_f (edict_t * self)
 {
-  if (!use_punch->value
-      || self->deadflag == DEAD_DEAD
-      || self->solid == SOLID_NOT
-      || self->client->resp.sniper_mode != SNIPER_1X
-      || self->client->weaponstate != WEAPON_READY)
+  if ((!use_punch->value)
+      || (self->deadflag == DEAD_DEAD)
+      || (self->solid == SOLID_NOT)
+      || (self->client->resp.sniper_mode != SNIPER_1X)
+      || (self->client->weaponstate != WEAPON_READY) )
     return;
-
+  
   // animation moved to punch_attack() in a_xgame.c
   // punch_attack is now called in ClientThink after evaluation punch_desired
   // for "no punch when firing" stuff - TempFile
-
+  
   self->client->resp.punch_desired = true;
 }
 
