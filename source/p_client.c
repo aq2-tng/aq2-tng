@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // p_client.c
 //
-// $Id: p_client.c,v 1.61 2002/01/31 11:15:06 freud Exp $
+// $Id: p_client.c,v 1.62 2002/02/01 14:29:18 ra Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: p_client.c,v $
+// Revision 1.62  2002/02/01 14:29:18  ra
+// Attempting to fix tought how to fly no frag bug
+//
 // Revision 1.61  2002/01/31 11:15:06  freud
 // Fix for crashes with stat_mode, not sure it works.
 //
@@ -913,9 +916,10 @@ ClientObituary (edict_t * self, edict_t * inflictor, edict_t * attacker)
 		}
 	      else
 		{
-		  if ((!teamplay->value || mod != MOD_TELEFRAG) && !(int) dmflags->value & DF_NO_FRIENDLY_FIRE)
-		    Add_Frag (self->client->attacker);	//attacker->client->resp.score++;
-		  if (!teamplay->value)
+/*		  if ((!teamplay->value || mod != MOD_TELEFRAG) && !(int) dmflags->value & DF_NO_FRIENDLY_FIRE)
+		    	Add_Frag (self->client->attacker);	//attacker->client->resp.score++;
+
+		  if (!teamplay->value) */
 			Add_Frag (self->client->attacker);
 		}
 	      //END FF ADD
