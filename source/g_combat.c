@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // g_combat.c
 //
-// $Id: g_combat.c,v 1.10 2001/07/16 19:02:06 ra Exp $
+// $Id: g_combat.c,v 1.11 2001/08/06 03:00:48 ra Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_combat.c,v $
+// Revision 1.11  2001/08/06 03:00:48  ra
+// Added FF after rounds. Please someone look at the EVIL if statments for me :)
+//
 // Revision 1.10  2001/07/16 19:02:06  ra
 // Fixed compilerwarnings (-g -Wall).  Only one remains.
 //
@@ -671,10 +674,17 @@ void T_Damage (edict_t *targ, edict_t *inflictor, edict_t *attacker, vec3_t dir,
       if (lights_camera_action)
 	return;
       
-      if (targ != attacker && targ->client && attacker->client &&
-	  (targ->client->resp.team == attacker->client->resp.team &&
-	   ((int)(dmflags->value) & (DF_NO_FRIENDLY_FIRE))))
-	return;
+//      if (targ != attacker && targ->client && attacker->client &&
+//	  (targ->client->resp.team == attacker->client->resp.team &&
+//	   ((int)(dmflags->value) & (DF_NO_FRIENDLY_FIRE))))
+//	return;
+// AQ2:TNG - JBravo adding FF after rounds
+	if (targ != attacker && targ->client && attacker->client &&
+		(targ->client->resp.team == attacker->client->resp.team &&
+		((int)(dmflags->value) & (DF_NO_FRIENDLY_FIRE))) &&
+		(team_round_going && ff_afterround->value))
+			return;
+// AQ:TNG
     }
   //FIREBLADE
   
@@ -710,7 +720,12 @@ void T_Damage (edict_t *targ, edict_t *inflictor, edict_t *attacker, vec3_t dir,
 				    & (DF_MODELTEAMS | DF_SKINTEAMS))) || coop->value) && 
 	    (attacker && attacker->client && 
 	     OnSameTeam (targ, attacker) && 
-	     ((int)(dmflags->value) & (DF_NO_FRIENDLY_FIRE)))))
+//	     ((int)(dmflags->value) & (DF_NO_FRIENDLY_FIRE)))))
+// AQ:TNG - JBravo adding FF afterrounds
+	     ((int)(dmflags->value) & (DF_NO_FRIENDLY_FIRE)) &&
+		(team_round_going && ff_afterround->value))))
+// AQ:TNG
+
 	{
 	  
 	  if ((mod == MOD_MK23) || 
@@ -992,7 +1007,9 @@ void T_Damage (edict_t *targ, edict_t *inflictor, edict_t *attacker, vec3_t dir,
     {
       if (OnSameTeam (targ, attacker))
 	{
-	  if ((int)(dmflags->value) & DF_NO_FRIENDLY_FIRE)
+//	  if ((int)(dmflags->value) & DF_NO_FRIENDLY_FIRE)
+// AQ:TNG - JBravo adding FF after rounds
+	  if (((int)(dmflags->value) & DF_NO_FRIENDLY_FIRE) && (team_round_going && ff_afterround->value))
 	    damage = 0;
 	  else
 	    mod |= MOD_FRIENDLY_FIRE;

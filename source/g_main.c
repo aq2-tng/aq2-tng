@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 //
 //
-// $Id: g_main.c,v 1.22 2001/07/25 23:02:02 slicerdw Exp $
+// $Id: g_main.c,v 1.23 2001/08/06 03:00:49 ra Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_main.c,v $
+// Revision 1.23  2001/08/06 03:00:49  ra
+// Added FF after rounds. Please someone look at the EVIL if statments for me :)
+//
 // Revision 1.22  2001/07/25 23:02:02  slicerdw
 // Fixed the source, added the weapons and items capping to choose command
 //
@@ -144,7 +147,8 @@ cvar_t  *use_kickvote;
 cvar_t	*mv_public;
 cvar_t	*vk_public;
 cvar_t	*punishkills;
-cvar_t *mapvote_waittime;
+cvar_t	*mapvote_waittime;
+cvar_t	*ff_afterround;
 // JBravo
 
 // tempfile

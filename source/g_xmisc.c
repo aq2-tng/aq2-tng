@@ -4,12 +4,15 @@
 //
 // this module contains all new functions regarding g_misc.c
 //
-// $Id: g_xmisc.c,v 1.1 2001/05/06 17:31:34 igor_rock Exp $
+// $Id: g_xmisc.c,v 1.2 2001/08/06 03:00:49 ra Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_xmisc.c,v $
-// Revision 1.1  2001/05/06 17:31:34  igor_rock
-// Initial revision
+// Revision 1.2  2001/08/06 03:00:49  ra
+// Added FF after rounds. Please someone look at the EVIL if statments for me :)
+//
+// Revision 1.1.1.1  2001/05/06 17:31:34  igor_rock
+// This is the PG Bund Edition V1.25 with all stuff laying around here...
 //
 //-----------------------------------------------------------------------------
 
@@ -54,7 +57,11 @@ void punch_attack (edict_t * ent )
           if (lights_camera_action)
             return;                                      
           if (tr.ent != ent && tr.ent->client && ent->client &&
-              (tr.ent->client->resp.team == ent->client->resp.team && !((int)dmflags->value && DF_NO_FRIENDLY_FIRE)))
+//              (tr.ent->client->resp.team == ent->client->resp.team && !((int)dmflags->value && DF_NO_FRIENDLY_FIRE)))
+// AQ:TNG - JBravo adding FF after rounds
+		(tr.ent->client->resp.team == ent->client->resp.team &&
+		!((int)dmflags->value && DF_NO_FRIENDLY_FIRE) &&
+		(team_round_going && ff_afterround->value)))
           {
             gi.sound(ent, CHAN_WEAPON, gi.soundindex("weapons/swish.wav"), 1, ATTN_NORM, 0);
             return;

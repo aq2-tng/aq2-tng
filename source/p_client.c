@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // p_client.c
 //
-// $Id: p_client.c,v 1.38 2001/08/03 15:08:32 ra Exp $
+// $Id: p_client.c,v 1.39 2001/08/06 03:00:49 ra Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: p_client.c,v $
+// Revision 1.39  2001/08/06 03:00:49  ra
+// Added FF after rounds. Please someone look at the EVIL if statments for me :)
+//
 // Revision 1.38  2001/08/03 15:08:32  ra
 // Fix small bug in %K related to "tought how to fly" deaths.
 //
@@ -763,6 +766,8 @@ void ClientObituary (edict_t *self, edict_t *inflictor, edict_t *attacker)
 	      //MODIFIED FOR FF -FB
 	      if (!((int)dmflags->value & DF_NO_FRIENDLY_FIRE) &&
 		  OnSameTeam(self, self->client->attacker) &&
+// AQ:TNG - JBravo adding FF after rounds
+		  (team_round_going && ff_afterround->value) &&
 		  teamplay->value)
 		{
 		  if (!teamplay->value || team_round_going)

@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // g_weapon.c
 //
-// $Id: g_weapon.c,v 1.3 2001/05/31 16:58:14 igor_rock Exp $
+// $Id: g_weapon.c,v 1.4 2001/08/06 03:00:49 ra Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_weapon.c,v $
+// Revision 1.4  2001/08/06 03:00:49  ra
+// Added FF after rounds. Please someone look at the EVIL if statments for me :)
+//
 // Revision 1.3  2001/05/31 16:58:14  igor_rock
 // conflicts resolved
 //
@@ -1356,9 +1359,16 @@ void kick_attack (edict_t * ent )
                                         if (lights_camera_action)
                                                 return;
                                         
-                                        if (tr.ent != ent && tr.ent->client && ent->client &&
-                                                tr.ent->client->resp.team == ent->client->resp.team)
+//                                        if (tr.ent != ent && tr.ent->client && ent->client &&
+//                                                tr.ent->client->resp.team == ent->client->resp.team)
+// AQ:TNG - JBravo adding FF after rounds
+                                        if ((tr.ent != ent) && (tr.ent->client && ent->client) &&
+                                                (tr.ent->client->resp.team == ent->client->resp.team) &&
+						team_round_going)
                                                 return;
+					if (!ff_afterround->value)
+						return;
+// AQ:TNG
                                 }
                                 
                                 if ( tr.ent->health <= 0 )

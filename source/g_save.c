@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // g_save.c
 //
-// $Id: g_save.c,v 1.29 2001/07/27 00:20:55 deathwatch Exp $
+// $Id: g_save.c,v 1.30 2001/08/06 03:00:49 ra Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_save.c,v $
+// Revision 1.30  2001/08/06 03:00:49  ra
+// Added FF after rounds. Please someone look at the EVIL if statments for me :)
+//
 // Revision 1.29  2001/07/27 00:20:55  deathwatch
 // Latched wp_flags and itm_flags
 //
@@ -352,6 +355,7 @@ void InitGame (void)
   vk_public = gi.cvar("vk_public", "0", 0);//slicer
   punishkills = gi.cvar("punishkills","1", 0);//slicer
   mapvote_waittime = gi.cvar("mapvote_waittime", "40", 0);
+  ff_afterround = gi.cvar("ff_afterround", "1", 0);
 // JBravo
   //AQ2:TNG SLICER END
   //tempfile

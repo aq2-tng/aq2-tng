@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // g_local.h -- local definitions for game module
 //
-// $Id: g_local.h,v 1.29 2001/07/16 18:28:46 ra Exp $
+// $Id: g_local.h,v 1.30 2001/08/06 03:00:49 ra Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_local.h,v $
+// Revision 1.30  2001/08/06 03:00:49  ra
+// Added FF after rounds. Please someone look at the EVIL if statments for me :)
+//
 // Revision 1.29  2001/07/16 18:28:46  ra
 // Changed a 40 second hard limit on mapvoting into a cvar.
 //
@@ -727,6 +730,7 @@ extern cvar_t *mv_public;
 extern cvar_t *vk_public;
 extern cvar_t *punishkills;
 extern cvar_t *mapvote_waittime;
+extern cvar_t *ff_afterround;
 // JBravo
 
 //Black Cross
