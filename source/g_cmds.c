@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // g_cmds.c
 //
-// $Id: g_cmds.c,v 1.24 2001/07/28 19:30:05 deathwatch Exp $
+// $Id: g_cmds.c,v 1.25 2001/07/30 16:07:25 igor_rock Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_cmds.c,v $
+// Revision 1.25  2001/07/30 16:07:25  igor_rock
+// added correct gender to "pheer" message
+//
 // Revision 1.24  2001/07/28 19:30:05  deathwatch
 // Fixed the choose command (replaced weapon for item when it was working with items)
 // and fixed some tabs on other documents to make it more readable
@@ -946,8 +949,8 @@ void Cmd_Kill_f (edict_t *ent)
 			ent->client->attacker->client &&
 			(ent->client->attacker->client !=
 			ent->client)) {
-		gi.bprintf(PRINT_HIGH, "%s pheer %s so much he committed suicide! :)\n",
-			ent->client->pers.netname, ent->client->attacker->client->pers.netname);
+		gi.bprintf(PRINT_HIGH, "%s pheer %s so much %s committed suicide! :)\n",
+			ent->client->pers.netname, ent->client->attacker->client->pers.netname, ent->client->resp.radio_gender ? "she" : "he");
 		Add_Frag(ent->client->attacker);
 		Subtract_Frag(ent);
 		}
