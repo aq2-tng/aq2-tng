@@ -3,10 +3,14 @@
 // Some of this is borrowed from Zoid's CTF (thanks Zoid)
 // -Fireblade
 //
-// $Id: a_team.c,v 1.29 2001/06/22 18:37:01 igor_rock Exp $
+// $Id: a_team.c,v 1.30 2001/06/25 20:59:17 ra Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_team.c,v $
+// Revision 1.30  2001/06/25 20:59:17  ra
+//
+// Adding my clantag.
+//
 // Revision 1.29  2001/06/22 18:37:01  igor_rock
 // fixed than damn limchasecam bug - eentually :)
 //
@@ -456,7 +460,7 @@ pmenu_t creditsmenu[] =
   {NULL, PMENU_ALIGN_LEFT, NULL, NULL},
   {"Deathwatch", PMENU_ALIGN_LEFT, NULL, DoAGoodie},  
   {"Igor[Rock]", PMENU_ALIGN_LEFT, NULL, RockClan},
-  {"JBravo", PMENU_ALIGN_LEFT, NULL, DoAGoodie},
+  {"JBravo[QNI]", PMENU_ALIGN_LEFT, NULL, DoAGoodie},
   {"Mort", PMENU_ALIGN_LEFT, NULL, DoAGoodie},
   {"sLiCeR [dW]", PMENU_ALIGN_LEFT, NULL, SlicersCat},
   {NULL, PMENU_ALIGN_LEFT, NULL, NULL},
