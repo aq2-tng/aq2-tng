@@ -1,10 +1,17 @@
 //-----------------------------------------------------------------------------
 // g_local.h -- local definitions for game module
 //
-// $Id: g_local.h,v 1.21 2001/06/19 18:56:38 deathwatch Exp $
+// $Id: g_local.h,v 1.22 2001/06/20 07:21:21 igor_rock Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_local.h,v $
+// Revision 1.22  2001/06/20 07:21:21  igor_rock
+// added use_warnings to enable/disable time/frags left msgs
+// added use_rewards to enable/disable eimpressive, excellent and accuracy msgs
+// change the configfile prefix for modes to "mode_" instead "../mode-" because
+// they don't have to be in the q2 dir for doewnload protection (action dir is sufficient)
+// and the "-" is bad in filenames because of linux command line parameters start with "-"
+//
 // Revision 1.21  2001/06/19 18:56:38  deathwatch
 // New Last killed target system
 //
@@ -722,6 +729,8 @@ extern cvar_t *strtwpn;
 extern cvar_t *llsound;
 extern cvar_t *use_cvote;
 extern cvar_t *new_irvision;
+extern cvar_t *use_rewards;
+extern cvar_t *use_warnings;
 //Igor[Rock] END
 
 //AQ2:TNG - Slicer: For Video Checking

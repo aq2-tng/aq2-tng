@@ -1,10 +1,17 @@
 //-----------------------------------------------------------------------------
 // g_combat.c
 //
-// $Id: g_combat.c,v 1.7 2001/05/31 16:58:14 igor_rock Exp $
+// $Id: g_combat.c,v 1.8 2001/06/20 07:21:21 igor_rock Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_combat.c,v $
+// Revision 1.8  2001/06/20 07:21:21  igor_rock
+// added use_warnings to enable/disable time/frags left msgs
+// added use_rewards to enable/disable eimpressive, excellent and accuracy msgs
+// change the configfile prefix for modes to "mode_" instead "../mode-" because
+// they don't have to be in the q2 dir for doewnload protection (action dir is sufficient)
+// and the "-" is bad in filenames because of linux command line parameters start with "-"
+//
 // Revision 1.7  2001/05/31 16:58:14  igor_rock
 // conflicts resolved
 //
@@ -762,12 +769,15 @@ void T_Damage (edict_t *targ, edict_t *inflictor, edict_t *attacker, vec3_t dir,
 		      // AQ:TNG Igor[Rock] changing sound dir
 		      if (attacker->client->resp.hs_streak == 3)
 			{
-			  //AQ2:TNG - Igor removing newlines
-			  sprintf (buf, "ACCURACY %s!", attacker->client->pers.netname);
-			  //AQ2:TNG End removing newlines
-			  CenterPrintAll (buf);
-			  gi.sound (&g_edicts[0], CHAN_VOICE | CHAN_NO_PHS_ADD,
-				    gi.soundindex ("tng/accuracy.wav"), 1.0, ATTN_NONE, 0.0);
+			  if (use_rewards->value)
+			    {
+			      //AQ2:TNG - Igor removing newlines
+			      sprintf (buf, "ACCURACY %s!", attacker->client->pers.netname);
+			      //AQ2:TNG End removing newlines
+			      CenterPrintAll (buf);
+			      gi.sound (&g_edicts[0], CHAN_VOICE | CHAN_NO_PHS_ADD,
+					gi.soundindex ("tng/accuracy.wav"), 1.0, ATTN_NONE, 0.0);
+			    }
 			  attacker->client->resp.hs_streak = 0;
 			}
 		      // end of changing sound dir

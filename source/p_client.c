@@ -1,10 +1,17 @@
 //-----------------------------------------------------------------------------
 // p_client.c
 //
-// $Id: p_client.c,v 1.26 2001/06/19 21:35:54 igor_rock Exp $
+// $Id: p_client.c,v 1.27 2001/06/20 07:21:21 igor_rock Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: p_client.c,v $
+// Revision 1.27  2001/06/20 07:21:21  igor_rock
+// added use_warnings to enable/disable time/frags left msgs
+// added use_rewards to enable/disable eimpressive, excellent and accuracy msgs
+// change the configfile prefix for modes to "mode_" instead "../mode-" because
+// they don't have to be in the q2 dir for doewnload protection (action dir is sufficient)
+// and the "-" is bad in filenames because of linux command line parameters start with "-"
+//
 // Revision 1.26  2001/06/19 21:35:54  igor_rock
 // If you select Sniper, sniper is your startweapon now.
 //
@@ -124,7 +131,7 @@ void Add_Frag( edict_t *ent )
     {
       ent->client->resp.score++; // just 1 normal kill
       // AQ:TNG Igor[Rock] changing sound dir
-      if (ent->client->resp.streak == 4)
+      if (ent->client->resp.streak == 4 && use_rewards->value)
 	{
 	  //AQ2:TNG - Igor removing newlines
 	  sprintf (buf, "IMPRESSIVE %s!", ent->client->pers.netname);
@@ -133,7 +140,7 @@ void Add_Frag( edict_t *ent )
 	  gi.sound (&g_edicts[0], CHAN_VOICE | CHAN_NO_PHS_ADD,
 		    gi.soundindex ("tng/impressive.wav"), 1.0, ATTN_NONE, 0.0);
 	}
-      else if ( ent->client->resp.streak == 12 )
+      else if ( ent->client->resp.streak == 12 && use_rewards->value)
 	{
 	  sprintf (buf, "EXCELLENT %s!", ent->client->pers.netname);
 	  CenterPrintAll (buf);
@@ -175,7 +182,7 @@ void Add_Frag( edict_t *ent )
     }
 
   // AQ:TNG Igor[Rock] changing sound dir
-  if (fraglimit->value)
+  if (fraglimit->value && use_warnings->value)
     {
       if (ent->client->resp.score == fraglimit->value - 1)
 	{
@@ -3074,12 +3081,14 @@ void ClientUserinfoChanged (edict_t *ent, char *userinfo)
   // on the initial update, we won't broadcast the message.
   if((Q_stricmp(ent->client->pers.netname, "") != 0)
      && (Q_stricmp(ent->client->pers.netname, s) != 0))
-  if (strlen(s) > sizeof(ent->client->pers.netname)-1)
   {
-    s[sizeof(ent->client->pers.netname)-1] = 0;
+    if (strlen(s) > sizeof(ent->client->pers.netname)-1)
+    {
+      s[sizeof(ent->client->pers.netname)-1] = 0;
+    }
+    gi.bprintf(PRINT_MEDIUM, "%s is now known as %s.\n", ent->client->pers.netname, s); //TempFile
   }
-  gi.bprintf(PRINT_MEDIUM, "%s is now known as %s.\n", ent->client->pers.netname, s); //TempFile
-  strncpy (ent->client->pers.netname, s, sizeof(ent->client->pers.netname)-1);
+    strncpy (ent->client->pers.netname, s, sizeof(ent->client->pers.netname)-1);
   
   
   //FIREBLADE     

@@ -3,10 +3,17 @@
 // Some of this is borrowed from Zoid's CTF (thanks Zoid)
 // -Fireblade
 //
-// $Id: a_team.c,v 1.26 2001/06/19 20:56:45 igor_rock Exp $
+// $Id: a_team.c,v 1.27 2001/06/20 07:21:21 igor_rock Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_team.c,v $
+// Revision 1.27  2001/06/20 07:21:21  igor_rock
+// added use_warnings to enable/disable time/frags left msgs
+// added use_rewards to enable/disable eimpressive, excellent and accuracy msgs
+// change the configfile prefix for modes to "mode_" instead "../mode-" because
+// they don't have to be in the q2 dir for doewnload protection (action dir is sufficient)
+// and the "-" is bad in filenames because of linux command line parameters start with "-"
+//
 // Revision 1.26  2001/06/19 20:56:45  igor_rock
 // fixed the matchmode scoreboard - finally :-)
 //
@@ -1952,7 +1959,7 @@ CheckTeamRules ()
 		  }
 	    }
 	  // AQ:TNG Igor[Rock] changing sound dir
-	  else if (current_round_length > (roundtimelimit->value - 1) * 600)
+	  else if (current_round_length > (roundtimelimit->value - 1) * 600 && use_warnings->value)
 	    {
 	      if (timewarning < 2)
 		{
@@ -1964,7 +1971,7 @@ CheckTeamRules ()
 		  timewarning = 2;
 		}
 	    }
-	  else if (current_round_length > (roundtimelimit->value - 3) * 600)
+	  else if (current_round_length > (roundtimelimit->value - 3) * 600 && use_warnings->value)
 	    {
 	      if (timewarning < 1)
 		{

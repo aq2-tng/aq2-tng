@@ -1,10 +1,17 @@
 //-----------------------------------------------------------------------------
 // g_save.c
 //
-// $Id: g_save.c,v 1.20 2001/06/19 21:26:20 igor_rock Exp $
+// $Id: g_save.c,v 1.21 2001/06/20 07:21:21 igor_rock Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_save.c,v $
+// Revision 1.21  2001/06/20 07:21:21  igor_rock
+// added use_warnings to enable/disable time/frags left msgs
+// added use_rewards to enable/disable eimpressive, excellent and accuracy msgs
+// change the configfile prefix for modes to "mode_" instead "../mode-" because
+// they don't have to be in the q2 dir for doewnload protection (action dir is sufficient)
+// and the "-" is bad in filenames because of linux command line parameters start with "-"
+//
 // Revision 1.20  2001/06/19 21:26:20  igor_rock
 // changed sv_crlf to be 0 as default
 //
@@ -332,6 +339,8 @@ void InitGame (void)
   llsound = gi.cvar("llsound", "1", CVAR_LATCH);
   use_cvote = gi.cvar("use_cvote", "0", CVAR_SERVERINFO);
   new_irvision = gi.cvar("new_irvision", "0", 0);
+  use_rewards  = gi.cvar(use_rewards", "1", 0);
+  use_warnings = gi.cvar(use_warnings", "1", 0);
   //Igor[Rock] END
 	//AQ2:TNG - Slicer
 	check_time = gi.cvar("check_time", "3", 0);

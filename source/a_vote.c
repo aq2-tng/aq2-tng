@@ -1,10 +1,17 @@
 //-----------------------------------------------------------------------------
 // a_vote.c
 //
-// $Id: a_vote.c,v 1.5 2001/06/18 11:01:42 igor_rock Exp $
+// $Id: a_vote.c,v 1.6 2001/06/20 07:21:21 igor_rock Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_vote.c,v $
+// Revision 1.6  2001/06/20 07:21:21  igor_rock
+// added use_warnings to enable/disable time/frags left msgs
+// added use_rewards to enable/disable eimpressive, excellent and accuracy msgs
+// change the configfile prefix for modes to "mode_" instead "../mode-" because
+// they don't have to be in the q2 dir for doewnload protection (action dir is sufficient)
+// and the "-" is bad in filenames because of linux command line parameters start with "-"
+//
 // Revision 1.5  2001/06/18 11:01:42  igor_rock
 // added "mode-" prefix to votet configfiles, so all mode configs are close together
 // when someone makes a "dir" or "ls -al" command on the server (cosmetic change)
@@ -1214,7 +1221,7 @@ _ConfigExitLevel (char *NextMap)
       strncpy (NextMap, map_votes->mapname, MAX_QPATH);
       voteconfig = ConfigWithMostVotes (NULL);
       gi.bprintf (PRINT_HIGH, "A new config was voted on and is %s.\n", voteconfig->configname);
-      Com_sprintf (buf, sizeof (buf), "exec \"../mode-%s.cfg\"\n", voteconfig->configname);
+      Com_sprintf (buf, sizeof (buf), "exec \"mode_%s.cfg\"\n", voteconfig->configname);
 
       //clear stats
       for (voteconfig = config_votes; voteconfig != NULL; voteconfig = voteconfig->next)

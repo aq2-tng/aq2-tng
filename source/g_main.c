@@ -1,10 +1,17 @@
 //-----------------------------------------------------------------------------
 //
 //
-// $Id: g_main.c,v 1.11 2001/06/18 12:36:40 igor_rock Exp $
+// $Id: g_main.c,v 1.12 2001/06/20 07:21:21 igor_rock Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_main.c,v $
+// Revision 1.12  2001/06/20 07:21:21  igor_rock
+// added use_warnings to enable/disable time/frags left msgs
+// added use_rewards to enable/disable eimpressive, excellent and accuracy msgs
+// change the configfile prefix for modes to "mode_" instead "../mode-" because
+// they don't have to be in the q2 dir for doewnload protection (action dir is sufficient)
+// and the "-" is bad in filenames because of linux command line parameters start with "-"
+//
 // Revision 1.11  2001/06/18 12:36:40  igor_rock
 // added new irvision mode (with reddish screen and alpha blend) and corresponding
 // new cvar "new_irvision" to enable the new mode
@@ -129,6 +136,8 @@ cvar_t   *strtwpn;
 cvar_t   *llsound;
 cvar_t   *use_cvote;
 cvar_t   *new_irvision;
+cvar_t   *use_rewards;
+cvar_t   *use_warnings;
 //Igor[Rock] END
 
 //Black Cross - Begin
