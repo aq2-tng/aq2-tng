@@ -1,12 +1,17 @@
 //-----------------------------------------------------------------------------
 // g_cmds.c
 //
-// $Id: g_cmds.c,v 1.1 2001/05/06 17:30:36 igor_rock Exp $
+// $Id: g_cmds.c,v 1.2 2001/05/07 01:38:51 ra Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_cmds.c,v $
-// Revision 1.1  2001/05/06 17:30:36  igor_rock
-// Initial revision
+// Revision 1.2  2001/05/07 01:38:51  ra
+//
+//
+// Added fixes for Ammo and Weaponsfarming.
+//
+// Revision 1.1.1.1  2001/05/06 17:30:36  igor_rock
+// This is the PG Bund Edition V1.25 with all stuff laying around here...
 //
 //-----------------------------------------------------------------------------
 
@@ -593,7 +598,12 @@ void Cmd_Drop_f (edict_t *ent)
                 DropSpecialItem ( ent );
                 return;
         }
-        
+
+// AQ:TNG - JBravo fixing ammo clip farming
+	if (ent->client->weaponstate == WEAPON_RELOADING)
+		return;
+// Ammo clip farming fix end
+
         it = FindItem (s);
         if (!it)
         {

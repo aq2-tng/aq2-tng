@@ -1,12 +1,17 @@
 //-----------------------------------------------------------------------------
 // g_weapon.c
 //
-// $Id: p_weapon.c,v 1.1 2001/05/06 17:25:06 igor_rock Exp $
+// $Id: p_weapon.c,v 1.2 2001/05/07 01:38:51 ra Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: p_weapon.c,v $
-// Revision 1.1  2001/05/06 17:25:06  igor_rock
-// Initial revision
+// Revision 1.2  2001/05/07 01:38:51  ra
+//
+//
+// Added fixes for Ammo and Weaponsfarming.
+//
+// Revision 1.1.1.1  2001/05/06 17:25:06  igor_rock
+// This is the PG Bund Edition V1.25 with all stuff laying around here...
 //
 //-----------------------------------------------------------------------------
 
@@ -855,7 +860,12 @@ void Drop_Weapon (edict_t *ent, gitem_t *item)
         if ((int)(dmflags->value) & DF_WEAPONS_STAY)
                 return;
 
-        
+// AQ:TNG - JBravo fixing weapon farming
+	if (ent->client->weaponstate == WEAPON_DROPPING ||
+		ent->client->weaponstate == WEAPON_BUSY)
+			return;
+// Weapon farming fix end.
+
         if ( ent->client->weaponstate == WEAPON_BANDAGING ||
                 ent->client->bandaging == 1 || ent->client->bandage_stopped == 1 )
         {
@@ -1024,7 +1034,14 @@ void Drop_Weapon (edict_t *ent, gitem_t *item)
                 gi.cprintf (ent, PRINT_HIGH, "Can't drop current weapon\n");
                 return;
         }
-        
+
+// AQ:TNG - JBravo fixing weapon farming
+	if (ent->client->unique_weapon_total < 0)
+		ent->client->unique_weapon_total = 0;
+	if (ent->client->pers.inventory[index] < 0)
+		ent->client->pers.inventory[index] = 0;
+// Weapon farming fix end
+
         if ( !temp )    
         {
                 temp = Drop_Item (ent, item);
