@@ -1,10 +1,15 @@
 //-----------------------------------------------------------------------------
 // p_client.c
 //
-// $Id: p_client.c,v 1.47 2001/09/02 20:33:34 deathwatch Exp $
+// $Id: p_client.c,v 1.48 2001/09/03 14:25:00 deathwatch Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: p_client.c,v $
+// Revision 1.48  2001/09/03 14:25:00  deathwatch
+// Added gibbing with HC (only happens rarely) when sv_gib is on and cleaned up
+// the player_die function and made sure the flashlight gets turned off when someone
+// is dead.
+//
 // Revision 1.47  2001/09/02 20:33:34  deathwatch
 // Added use_classic and fixed an issue with ff_afterround, also updated version
 // nr and cleaned up some commands.
@@ -2217,190 +2222,189 @@ player_die
 */
 void player_die (edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, vec3_t point)
 {
-//      int             n;
+	int             n;
 
-        VectorClear (self->avelocity);
+	VectorClear (self->avelocity);
                 
-        self->takedamage = DAMAGE_YES;
-        self->movetype = MOVETYPE_TOSS;
+	self->takedamage = DAMAGE_YES;
+	self->movetype = MOVETYPE_TOSS;
         
-//FIREBLADE
-        if (self->solid == SOLID_TRIGGER)
-        {
-                self->solid = SOLID_BBOX;
-                gi.linkentity(self);
-                RemoveFromTransparentList(self);
-        }
-//FIREBLADE
+	//FIREBLADE
+	if (self->solid == SOLID_TRIGGER)
+	{
+		self->solid = SOLID_BBOX;
+		gi.linkentity(self);
+		RemoveFromTransparentList(self);
+	}
+	//FIREBLADE
 
-        // zucc solves problem of people stopping doors while in their dead bodies
-        // 
-        // ...only need it in DM though...
-        // ...for teamplay, non-solid will get set soon after in CopyToBodyQue
-        if (!teamplay->value || ctf->value)
-        {
-                self->solid = SOLID_NOT;
-                gi.linkentity(self);
-        }
+	// zucc solves problem of people stopping doors while in their dead bodies
+	// 
+	// ...only need it in DM though...
+	// ...for teamplay, non-solid will get set soon after in CopyToBodyQue
+	if (!teamplay->value || ctf->value)
+	{
+		self->solid = SOLID_NOT;
+		gi.linkentity(self);
+	}
 
-        self->s.modelindex2 = 0;        // remove linked weapon model
+	self->s.modelindex2 = 0;        // remove linked weapon model
 	self->s.modelindex3 = 0;        // remove linked ctf flag
 
-        self->s.angles[0] = 0;
-        self->s.angles[2] = 0;
+	self->s.angles[0] = 0;
+	self->s.angles[2] = 0;
 
-        self->s.sound = 0;
-        self->client->weapon_sound = 0;
+	self->s.sound = 0;
+	self->client->weapon_sound = 0;
 
-        self->client->reload_attempts = 0; // stop them from trying to reload
-        self->client->weapon_attempts = 0;
+	self->client->reload_attempts = 0; // stop them from trying to reload
+	self->client->weapon_attempts = 0;
+	
 	//TempFile
 	self->client->desired_zoom = 0;
 	self->client->autoreloading = false;
 	//TempFile
 	
-        self->maxs[2] = -8;
+	self->maxs[2] = -8;
 	
-        self->svflags |= SVF_DEADMONSTER;
-        if (!self->deadflag)
+  self->svflags |= SVF_DEADMONSTER;
+  if (!self->deadflag)
+	{
+		if (ctf->value)
 	  {
-	    if (ctf->value)
-	      {
-		self->client->respawn_time = level.time + ctf_respawn->value;
-	      }
-	    else
-	      {
-		self->client->respawn_time = level.time + 1.0;
-	      }
-	    LookAtKiller (self, inflictor, attacker);
-	    self->client->ps.pmove.pm_type = PM_DEAD;
-	    ClientObituary (self, inflictor, attacker);
-	    if (ctf->value)
-	      CTFFragBonuses(self, inflictor, attacker);
-	    //TossClientWeapon (self);
-	    TossItemsOnDeath(self);
+			self->client->respawn_time = level.time + ctf_respawn->value;
+		}
+		else
+		{
+			self->client->respawn_time = level.time + 1.0;
+		}
+		LookAtKiller (self, inflictor, attacker);
+		self->client->ps.pmove.pm_type = PM_DEAD;
+		ClientObituary (self, inflictor, attacker);
+		if (ctf->value)
+			CTFFragBonuses(self, inflictor, attacker);
+		
+		//TossClientWeapon (self);
+		TossItemsOnDeath(self);
 	    
-	    if (ctf->value)
-	      CTFDeadDropFlag(self);                                                                               
-	    //FIREBLADE
-	    if (deathmatch->value && !teamplay->value)
-	      //FIREBLADE
-	      Cmd_Help_f (self);              // show scores
-	  }
+		if (ctf->value)
+			CTFDeadDropFlag(self);                                                                               
+		
+		//FIREBLADE
+		if (deathmatch->value && !teamplay->value)
+			//FIREBLADE
+			Cmd_Help_f (self);              // show scores
+	}
 	
-        // remove powerups
-        self->client->quad_framenum = 0;
-        self->client->invincible_framenum = 0;
-        self->client->breather_framenum = 0;
-        self->client->enviro_framenum = 0;
+	// remove powerups
+	self->client->quad_framenum = 0;
+	self->client->invincible_framenum = 0;
+	self->client->breather_framenum = 0;
+	self->client->enviro_framenum = 0;
 	
-        //zucc remove lasersight
-        if (self->lasersight)
-	  SP_LaserSight(self, NULL);
+	//zucc remove lasersight
+	if (self->lasersight)
+		SP_LaserSight(self, NULL);
+	
+	// TNG Turn Flashlight off
+	if(self->flashlight)
+		FL_make(self);
 	
 	//FIREBLADE
-        // clean up sniper rifle stuff
-        self->client->no_sniper_display = 0;
-        self->client->resp.sniper_mode = SNIPER_1X;
-        self->client->desired_fov = 90;
-        self->client->ps.fov = 90;
+  // clean up sniper rifle stuff
+  self->client->no_sniper_display = 0;
+  self->client->resp.sniper_mode = SNIPER_1X;
+  self->client->desired_fov = 90;
+  self->client->ps.fov = 90;
 	//FIREBLADE
         
-        self->client->resp.streak = 0;
-        Bandage(self); // clear up the leg damage when dead sound?
+  self->client->resp.streak = 0;
+  Bandage(self); // clear up the leg damage when dead sound?
 	self->client->bandage_stopped = 0;
 	
-        // clear inventory
-        memset(self->client->pers.inventory, 0, sizeof(self->client->pers.inventory));
+  // clear inventory
+  memset(self->client->pers.inventory, 0, sizeof(self->client->pers.inventory));
 	
-        // zucc - check if they have a primed grenade
-        if ( self->client->curr_weap == GRENADE_NUM &&
-	     (
-	      ( self->client->ps.gunframe >= GRENADE_IDLE_FIRST
-		&& self->client->ps.gunframe <= GRENADE_IDLE_LAST )
-	      || ( self->client->ps.gunframe >= GRENADE_THROW_FIRST
-		   && self->client->ps.gunframe <= GRENADE_THROW_LAST )
-	      ) )
-	  {
-	    self->client->ps.gunframe = 0;
-	    					// Reset Grenade Damage to 1.52 when requested:
-					if(use_classic->value)
-						fire_grenade2 (self, self->s.origin, tv(0,0,0), 170, 0, 2, 170*2, false);
-					else
-						fire_grenade2 (self, self->s.origin, tv(0,0,0), GRENADE_DAMRAD, 0, 2, GRENADE_DAMRAD*2, false);
-	  }
+  // zucc - check if they have a primed grenade
+  if ( self->client->curr_weap == GRENADE_NUM && (( self->client->ps.gunframe >= GRENADE_IDLE_FIRST	&& self->client->ps.gunframe <= GRENADE_IDLE_LAST ) || ( self->client->ps.gunframe >= GRENADE_THROW_FIRST && self->client->ps.gunframe <= GRENADE_THROW_LAST )))
+	{
+		self->client->ps.gunframe = 0;
+	  // Reset Grenade Damage to 1.52 when requested:
+		if(use_classic->value)
+			fire_grenade2 (self, self->s.origin, tv(0,0,0), 170, 0, 2, 170*2, false);
+		else
+			fire_grenade2 (self, self->s.origin, tv(0,0,0), GRENADE_DAMRAD, 0, 2, GRENADE_DAMRAD*2, false);
+	}
 	
-        //zucc no gibbing
-	/*      if (self->health < -40)
-		{       // gib
-                gi.sound (self, CHAN_BODY, gi.soundindex ("misc/udeath.wav"), 1, ATTN_NORM, 0);
-                for (n= 0; n < 4; n++)
-		ThrowGib (self, "models/objects/gibs/sm_meat/tris.md2", damage, GIB_ORGANIC);
-                ThrowClientHead (self, damage);
+  // Gibbing on really hard HC hit
+	if ((self->health < -35) && (meansOfDeath == MOD_HC) && (sv_gib->value))
+	{       
+		gi.sound(self, CHAN_BODY, gi.soundindex("misc/udeath.wav"), 1, ATTN_NORM, 0);
+		for(n=0;n<5;n++)
+			ThrowGib(self, "models/objects/gibs/sm_meat/tris.md2", damage, GIB_ORGANIC);
+		ThrowClientHead(self, damage);
 		self->client->anim_priority = ANIM_DEATH;
-                self->client->anim_end = 0;
-                self->takedamage = DAMAGE_NO;
-		}*/
-	//      else
-        {       // normal death
-	  if (!self->deadflag)
-	    {
-	      static int i;
+		self->client->anim_end = 0;
+		self->takedamage = DAMAGE_NO;
+	}
+	else
+	{       // normal death
+		if (!self->deadflag)
+		{
+			static int i;
 	      
-	      i = (i+1)%3;
-	      // start a death animation
-	      self->client->anim_priority = ANIM_DEATH;
-	      if (self->client->ps.pmove.pm_flags & PMF_DUCKED)
-		{
-		  self->s.frame = FRAME_crdeath1-1;
-		  self->client->anim_end = FRAME_crdeath5;
-		}
-	      else switch (i)
-		{
-		case 0:
-		  self->s.frame = FRAME_death101-1;
-		  self->client->anim_end = FRAME_death106;
-		  break;
-		case 1:
-		  self->s.frame = FRAME_death201-1;
-		  self->client->anim_end = FRAME_death206;
-		  break;
-		case 2:
-		  self->s.frame = FRAME_death301-1;
-		  self->client->anim_end = FRAME_death308;
-		  break;
-		}
-	      if ((meansOfDeath == MOD_SNIPER) || (meansOfDeath == MOD_KNIFE) || (meansOfDeath == MOD_KNIFE_THROWN))
-		{
-		  gi.sound(self, CHAN_VOICE, gi.soundindex("misc/glurp.wav"), 1, ATTN_NORM, 0);                
-		  // TempFile - BEGIN sniper gibbing
-		  if (meansOfDeath == MOD_SNIPER)
-		    {	
-		      int n;
-		      switch(locOfDeath)
+			i = (i+1)%3;
+			// start a death animation
+			self->client->anim_priority = ANIM_DEATH;
+			if (self->client->ps.pmove.pm_flags & PMF_DUCKED)
 			{
-			case LOC_HDAM:
-			  if(sv_gib->value)
-			    {
-			      for (n = 0; n < 8; n++)
-				ThrowGib (self, "models/objects/gibs/sm_meat/tris.md2", damage, GIB_ORGANIC);
-			      ThrowClientHead(self, damage);
-			    }
-			}				 
-		    }
+				self->s.frame = FRAME_crdeath1-1;
+				self->client->anim_end = FRAME_crdeath5;
+			}
+	    else switch (i)
+			{
+				case 0:
+					self->s.frame = FRAME_death101-1;
+					self->client->anim_end = FRAME_death106;
+					break;
+				case 1:
+					self->s.frame = FRAME_death201-1;
+					self->client->anim_end = FRAME_death206;
+					break;
+				case 2:
+					self->s.frame = FRAME_death301-1;
+					self->client->anim_end = FRAME_death308;
+					break;
+			}
+	    if ((meansOfDeath == MOD_SNIPER) || (meansOfDeath == MOD_KNIFE) || (meansOfDeath == MOD_KNIFE_THROWN))
+			{
+				gi.sound(self, CHAN_VOICE, gi.soundindex("misc/glurp.wav"), 1, ATTN_NORM, 0);                
+				// TempFile - BEGIN sniper gibbing
+				if (meansOfDeath == MOD_SNIPER)
+		    {	
+					int n;
+		      switch(locOfDeath)
+					{
+						case LOC_HDAM:
+							if(sv_gib->value)
+							{
+								for (n = 0; n < 8; n++)
+									ThrowGib (self, "models/objects/gibs/sm_meat/tris.md2", damage, GIB_ORGANIC);
+								ThrowClientHead(self, damage);
+							}
+					}				 
+				}
+			}
+	    else
+				gi.sound (self, CHAN_VOICE, gi.soundindex(va("*death%i.wav", (rand()%4)+1)), 1, ATTN_NORM, 0);
 		}
-	      
-	      //TempFile - END
-	      else
-		gi.sound (self, CHAN_VOICE, gi.soundindex(va("*death%i.wav", (rand()%4)+1)), 1, ATTN_NORM, 0);
-	    }
-        }
+	}
 	// zucc this will fix a jump kick death generating a weapon
-        self->client->curr_weap = MK23_NUM;
+  self->client->curr_weap = MK23_NUM;
 	//PG BUND - BEGIN
-        self->client->resp.idletime = 0;
-    //    self->client->resp.last_killed_target = NULL;
-		ResetKills(self);
+  self->client->resp.idletime = 0;
+  //    self->client->resp.last_killed_target = NULL;
+	ResetKills(self);
 	//PG BUND - END        
 	//AQ2:TNG Slicer Last Damage Location
 	self->client->resp.last_damaged_part = 0;
@@ -2409,8 +2413,8 @@ void player_die (edict_t *self, edict_t *inflictor, edict_t *attacker, int damag
 	//TempFile
 	self->client->pers.num_kills = 0;
 	//TempFile
-        self->deadflag = DEAD_DEAD;
-        gi.linkentity (self);
+	self->deadflag = DEAD_DEAD;
+  gi.linkentity (self);
 }
 
 //=======================================================================
