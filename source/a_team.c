@@ -3,10 +3,13 @@
 // Some of this is borrowed from Zoid's CTF (thanks Zoid)
 // -Fireblade
 //
-// $Id: a_team.c,v 1.89 2004/12/19 14:39:12 igor_rock Exp $
+// $Id: a_team.c,v 1.90 2005/03/19 18:35:51 igor_rock Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_team.c,v $
+// Revision 1.90  2005/03/19 18:35:51  igor_rock
+// added an additional space before nicknames to align nicks in status overview
+//
 // Revision 1.89  2004/12/19 14:39:12  igor_rock
 // Corrected credits menu sounds to "play" instead "gi.sound" (Bug 889370)
 //
@@ -2932,7 +2935,7 @@ A_ScoreboardMessage (edict_t * ent, edict_t * killer)
 			   deadview ? (cl_ent->solid ==
 				       SOLID_NOT ? "" : "2") : "",
 			   game.clients[sorted[TEAM1][i]].resp.
-			   captain ? "@" : "",
+			   captain ? "@" : " ",
 			   game.clients[sorted[TEAM1][i]].pers.netname);
 		}
 
@@ -2955,7 +2958,7 @@ A_ScoreboardMessage (edict_t * ent, edict_t * killer)
 			   deadview ? (cl_ent->solid ==
 				       SOLID_NOT ? "" : "2") : "",
 			   game.clients[sorted[TEAM2][i]].resp.
-			   captain ? "@" : "",
+			   captain ? "@" : " ",
 			   game.clients[sorted[TEAM2][i]].pers.netname);
 		}
 
@@ -3024,7 +3027,7 @@ A_ScoreboardMessage (edict_t * ent, edict_t * killer)
 		      sprintf (string + strlen (string),
 			       "xv 0 yv %d string \"%s%s\" ",
 			       104 + subs[TEAM1] * 8,
-			       game.clients[i].resp.captain ? "@" : "",
+			       game.clients[i].resp.captain ? "@" : " ",
 			       game.clients[i].pers.netname);
 		    }
 		  else if (subs[TEAM1] < 2)
@@ -3043,7 +3046,7 @@ A_ScoreboardMessage (edict_t * ent, edict_t * killer)
 		      sprintf (string + strlen (string),
 			       "xv 160 yv %d string \"%s%s\" ",
 			       104 + subs[TEAM2] * 8,
-			       game.clients[i].resp.captain ? "@" : "",
+			       game.clients[i].resp.captain ? "@" : " ",
 			       game.clients[i].pers.netname);
 		    }
 		  else if (subs[TEAM2] < 2)
