@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // p_client.c
 //
-// $Id: p_client.c,v 1.13 2001/05/12 13:48:58 mort Exp $
+// $Id: p_client.c,v 1.14 2001/05/12 13:51:20 mort Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: p_client.c,v $
+// Revision 1.14  2001/05/12 13:51:20  mort
+// Fixed ClientObituary Add_Frag bug in CTF
+//
 // Revision 1.13  2001/05/12 13:48:58  mort
 // Fixed CTF ForceSpawn bug
 //
@@ -539,7 +542,7 @@ void ClientObituary (edict_t *self, edict_t *inflictor, edict_t *attacker)
 			{
 				if(attacker->client)
 				{
-					Add_Frag(self->client->attacker );//attacker->client->resp.score++;
+					Add_Frag(attacker );//attacker->client->resp.score++;
 			        if(self->client->pers.inventory[ITEM_INDEX(FindItem("Red Flag"))]) // 2nd frag for killing flag carrier
 						attacker->client->resp.score += 2;
 					else if(self->client->pers.inventory[ITEM_INDEX(FindItem("Blue Flag"))]) // 2nd frag for killing flag carrier
