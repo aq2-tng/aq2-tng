@@ -1,12 +1,12 @@
 //-----------------------------------------------------------------------------
 // g_cmds.c
 //
-// $Id: g_cmds.c,v 1.13 2001/06/05 09:38:20 slicerdw Exp $
+// $Id: g_cmds.c,v 1.14 2001/06/05 18:47:11 slicerdw Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_cmds.c,v $
-// Revision 1.13  2001/06/05 09:38:20  slicerdw
-// Tweaked The Matchmode Code - Still some to be done.....
+// Revision 1.14  2001/06/05 18:47:11  slicerdw
+// Small tweaks to matchmode
 //
 // Revision 1.12  2001/06/01 19:18:42  slicerdw
 // Added Matchmode Code

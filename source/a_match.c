@@ -189,6 +189,7 @@ void Cmd_Ready_f(edict_t *ent)
 
 	if(ent->client->resp.captain == 1)
 	{
+		
 		if (team1ready)
 		{
 			sprintf(temp, "%s \nis no longer ready to play!\n",team1_name);
@@ -253,7 +254,7 @@ void Cmd_Teamname_f(edict_t *ent)
 		gi.cprintf(ent, PRINT_HIGH, "You cannot use this while 'Ready'\n");
 		return;
 	}
-	if(team_round_going)
+	if(team_round_going || team_game_going)
 	{
 		gi.cprintf(ent, PRINT_HIGH, "You cannot use this while playing\n");
 		return;
@@ -313,7 +314,7 @@ void Cmd_Teamskin_f(edict_t *ent)
 		gi.cprintf(ent, PRINT_HIGH, "You cannot use this while 'Ready'\n");
 		return;
 	}
-	if(team_round_going)
+	if(team_round_going || team_game_going)
 	{
 		gi.cprintf(ent, PRINT_HIGH, "You cannot use this while playing\n");
 		return;

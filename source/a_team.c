@@ -3,12 +3,12 @@
 // Some of this is borrowed from Zoid's CTF (thanks Zoid)
 // -Fireblade
 //
-// $Id: a_team.c,v 1.19 2001/06/05 09:38:20 slicerdw Exp $
+// $Id: a_team.c,v 1.20 2001/06/05 18:47:11 slicerdw Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_team.c,v $
-// Revision 1.19  2001/06/05 09:38:20  slicerdw
-// Tweaked The Matchmode Code - Still some to be done.....
+// Revision 1.20  2001/06/05 18:47:11  slicerdw
+// Small tweaks to matchmode
 //
 // Revision 1.18  2001/06/01 19:18:42  slicerdw
 // Added Matchmode Code
