@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // g_combat.c
 //
-// $Id: g_combat.c,v 1.4 2001/05/11 12:21:19 slicerdw Exp $
+// $Id: g_combat.c,v 1.5 2001/05/12 14:05:29 mort Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_combat.c,v $
+// Revision 1.5  2001/05/12 14:05:29  mort
+// Hurting someone whilst they are "god" is fixed now
+//
 // Revision 1.4  2001/05/11 12:21:19  slicerdw
 // Commented old Location support ( ADF ) With the ML/ETE Compatible one
 //
@@ -619,7 +622,11 @@ void T_Damage (edict_t *targ, edict_t *inflictor, edict_t *attacker, vec3_t dir,
   if (!targ->takedamage)
     return;
   
-  //FIREBLADE
+  // AQ2:TNG - CTF - Now... what is the point in being god if we can get hurt?
+  if (targ->flags & FL_GODMODE)
+	return;
+
+//FIREBLADE
   if (teamplay->value && mod != MOD_TELEFRAG)
     {
       if (lights_camera_action)
