@@ -1,10 +1,14 @@
 //-----------------------------------------------------------------------------
 // p_client.c
 //
-// $Id: p_client.c,v 1.52 2001/09/28 16:24:20 deathwatch Exp $
+// $Id: p_client.c,v 1.53 2001/11/08 20:56:24 igor_rock Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: p_client.c,v $
+// Revision 1.53  2001/11/08 20:56:24  igor_rock
+// - changed some things related to wp_flags
+// - corrected use_punch bug when player only has an empty weapon left
+//
 // Revision 1.52  2001/09/28 16:24:20  deathwatch
 // use_rewards now silences the teamX wins sounds and added gibbing for the Shotgun
 //
@@ -2146,10 +2150,14 @@ TossItemsOnDeath (edict_t * ent)
       ent->client->pers.inventory[ITEM_INDEX (item)] = 0;
       SP_LaserSight (ent, item);
     }
-  // give the player a dual pistol so they can be sure to drop one
-  item = FindItem (DUAL_NAME);
-  ent->client->pers.inventory[ITEM_INDEX (item)]++;
-  EjectItem (ent, item);
+  if (((int) wp_flags->value & WPF_MK23) &&
+      ((int) wp_flags->value & WPF_DUAL))
+    {
+      // give the player a dual pistol so they can be sure to drop one
+      item = FindItem (DUAL_NAME);
+      ent->client->pers.inventory[ITEM_INDEX (item)]++;
+      EjectItem (ent, item);
+    }
 
   // check for every item we want to drop when a player dies
   item = FindItem (MP5_NAME);
@@ -2558,8 +2566,17 @@ InitClientPersistant (gclient_t * client)
   client->pers.weapon = item;
   client->pers.lastweapon = item;
 
-  item = FindItem (KNIFE_NAME);
-  client->pers.inventory[ITEM_INDEX (item)] = 1;
+  if ((int) wp_flags->value & WPF_KNIFE)
+    {
+      item = FindItem (KNIFE_NAME);
+      client->pers.inventory[ITEM_INDEX (item)] = 1;
+      if (!(int) wp_flags->value & WPF_MK23)
+	{
+	  client->pers.selected_item = ITEM_INDEX (item);
+	  client->pers.weapon = item;
+	  client->pers.lastweapon = item;
+	}
+    }
 
   client->pers.health = 100;
   client->pers.max_health = 100;
@@ -2581,7 +2598,18 @@ InitClientPersistant (gclient_t * client)
   client->machinegun_shots = 0;
   client->unique_weapon_total = 0;
   client->unique_item_total = 0;
-  client->curr_weap = MK23_NUM;
+  if ((int) wp_flags->value & WPF_MK23)
+    {
+      client->curr_weap = MK23_NUM;
+    }
+  else if ((int) wp_flags->value & WPF_KNIFE)
+    {
+      client->curr_weap = KNIFE_NUM;
+    }
+  else
+    {
+      client->curr_weap = MK23_NUM;
+    }
   //AQ2:TNG - Slicer Moved This To Here
   client->pers.num_kills = 0;
   //AQ2:TNG END
@@ -2599,7 +2627,22 @@ InitClientResp (gclient_t * client)
   client->resp.team = team;
   client->resp.enterframe = level.framenum;
   client->resp.coop_respawn = client->pers;
-  client->resp.weapon = FindItem (MP5_NAME);
+  if ((int) wp_flags->value & WPF_MP5) 
+    {
+      client->resp.weapon = FindItem (MP5_NAME);
+    }
+  else if ((int) wp_flags->value & WPF_MK23) 
+    {
+      client->resp.weapon = FindItem (MK23_NAME);
+    }
+  else if ((int) wp_flags->value & WPF_KNIFE) 
+    {
+      client->resp.weapon = FindItem (KNIFE_NAME);
+    }
+  else
+    {
+      client->resp.weapon = FindItem (MK23_NAME);
+    }
   client->resp.item = FindItem (KEV_NAME);
   client->resp.ir = 1;
 
@@ -3196,12 +3239,14 @@ EquipClient (edict_t * ent)
     }
 
   // set them up with initial pistol ammo
-  item = FindItem ("Pistol Clip");
-  if (band)
-    client->pers.inventory[ITEM_INDEX (item)] = 2;
-  else
-    client->pers.inventory[ITEM_INDEX (item)] = 1;
-
+  if ((int) wp_flags->value & WPF_MK23)
+    {
+      item = FindItem ("Pistol Clip");
+      if (band)
+	client->pers.inventory[ITEM_INDEX (item)] = 2;
+      else
+	client->pers.inventory[ITEM_INDEX (item)] = 1;
+    }
 
   if (stricmp (client->resp.weapon->pickup_name, MP5_NAME) == 0)
     {
@@ -3326,10 +3371,18 @@ EquipClientDM (edict_t * ent)
 	  client->pers.selected_item = ITEM_INDEX (item);
 	  client->pers.inventory[client->pers.selected_item] = 1;
 	  client->pers.weapon = item;
-	  client->mk23_rds = client->mk23_max;
 	  client->curr_weap = MK23_NUM;
-	  item = FindItem ("Pistol Clip");
-	  client->pers.inventory[ITEM_INDEX (item)] = 1;
+	  if ((int) wp_flags->value & WPF_MK23)
+	    {
+	      client->mk23_rds = client->mk23_max;
+	      item = FindItem ("Pistol Clip");
+	      client->pers.inventory[ITEM_INDEX (item)] = 1;
+	    }
+	  else
+	    {
+	      client->mk23_rds = 0;
+	    }
+
 	}
       else if (Q_strcasecmp (strtwpn->string, MP5_NAME) == 0)
 	{
@@ -3672,8 +3725,16 @@ PutClientInServer (edict_t * ent)
   client->sniper_max = 6;
   client->cannon_max = 2;
   client->dual_max = 24;
-  client->mk23_rds = client->mk23_max;
-  client->dual_rds = client->mk23_max;
+  if ((int) wp_flags->value & WPF_MK23) 
+    {
+      client->mk23_rds = client->mk23_max;
+      client->dual_rds = client->mk23_max;
+    }
+  else
+    {
+      client->mk23_rds = 0;
+      client->dual_rds = 0;
+    }
   client->knife_max = 10;
   client->grenade_max = 2;
 

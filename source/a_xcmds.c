@@ -4,10 +4,14 @@
 //
 // contains all new non standard command functions
 //
-// $Id: a_xcmds.c,v 1.10 2001/11/08 13:22:18 igor_rock Exp $
+// $Id: a_xcmds.c,v 1.11 2001/11/08 20:56:24 igor_rock Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_xcmds.c,v $
+// Revision 1.11  2001/11/08 20:56:24  igor_rock
+// - changed some things related to wp_flags
+// - corrected use_punch bug when player only has an empty weapon left
+//
 // Revision 1.10  2001/11/08 13:22:18  igor_rock
 // added missing parenthises (use_punch didn't function correct)
 //
@@ -120,7 +124,7 @@ Cmd_Punch_f (edict_t * self)
       || (self->deadflag == DEAD_DEAD)
       || (self->solid == SOLID_NOT)
       || (self->client->resp.sniper_mode != SNIPER_1X)
-      || (self->client->weaponstate != WEAPON_READY) )
+      || ((self->client->weaponstate != WEAPON_READY) && (self->client->weaponstate != WEAPON_END_MAG)) )
     return;
   
   // animation moved to punch_attack() in a_xgame.c

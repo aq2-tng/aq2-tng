@@ -1,10 +1,14 @@
 //-----------------------------------------------------------------------------
 // g_weapon.c
 //
-// $Id: p_weapon.c,v 1.10 2001/09/28 13:48:35 ra Exp $
+// $Id: p_weapon.c,v 1.11 2001/11/08 20:56:24 igor_rock Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: p_weapon.c,v $
+// Revision 1.11  2001/11/08 20:56:24  igor_rock
+// - changed some things related to wp_flags
+// - corrected use_punch bug when player only has an empty weapon left
+//
 // Revision 1.10  2001/09/28 13:48:35  ra
 // I ran indent over the sources. All .c and .h files reindented.
 //
@@ -247,17 +251,24 @@ Pickup_Weapon (edict_t * ent, edict_t * other)
 
   if (stricmp (ent->item->pickup_name, MK23_NAME) == 0)
     {
-      if (other->client->pers.inventory[index])	// already has one
+      if ((int) wp_flags->value & WPF_MK23)
 	{
-	  if (!(ent->spawnflags & DROPPED_ITEM))
+	  if (other->client->pers.inventory[index])	// already has one
 	    {
-	      ammo = FindItem (ent->item->ammo);
-	      return (Add_Ammo (other, ammo, ammo->quantity));
+	      if (!(ent->spawnflags & DROPPED_ITEM))
+		{
+		  ammo = FindItem (ent->item->ammo);
+		  return (Add_Ammo (other, ammo, ammo->quantity));
+		}
 	    }
+	  other->client->pers.inventory[index]++;
+	  if (!(ent->spawnflags & DROPPED_ITEM))
+	    other->client->mk23_rds = other->client->mk23_max;
 	}
-      other->client->pers.inventory[index]++;
-      if (!(ent->spawnflags & DROPPED_ITEM))
-	other->client->mk23_rds = other->client->mk23_max;
+      else
+	{
+	  return false;
+	}
     }
   else if (stricmp (ent->item->pickup_name, MP5_NAME) == 0)
     {
@@ -381,21 +392,27 @@ Pickup_Weapon (edict_t * ent, edict_t * other)
     }
   else if (stricmp (ent->item->pickup_name, DUAL_NAME) == 0)
     {
-
-      if (other->client->pers.inventory[index])	// already has one
+      if ((int) wp_flags->value & WPF_MK23)
 	{
+	  if (other->client->pers.inventory[index])	// already has one
+	    {
+	      if (!(ent->spawnflags & DROPPED_ITEM))
+		{
+		  ammo = FindItem (ent->item->ammo);
+		  return (Add_Ammo (other, ammo, ammo->quantity));
+		}
+	    }
+	  other->client->pers.inventory[index]++;
 	  if (!(ent->spawnflags & DROPPED_ITEM))
 	    {
-	      ammo = FindItem (ent->item->ammo);
-	      return (Add_Ammo (other, ammo, ammo->quantity));
+	      other->client->dual_rds += other->client->mk23_max;
+	      // assume the player uses the new (full) pistol
+	      other->client->mk23_rds = other->client->mk23_max;
 	    }
 	}
-      other->client->pers.inventory[index]++;
-      if (!(ent->spawnflags & DROPPED_ITEM))
+      else
 	{
-	  other->client->dual_rds += other->client->mk23_max;
-	  // assume the player uses the new (full) pistol
-	  other->client->mk23_rds = other->client->mk23_max;
+	  return false;
 	}
     }
   else if (stricmp (ent->item->pickup_name, KNIFE_NAME) == 0)
