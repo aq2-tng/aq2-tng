@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // g_itmes.c
 //
-// $Id: g_items.c,v 1.8 2002/03/27 15:16:56 freud Exp $
+// $Id: g_items.c,v 1.9 2002/03/28 20:20:30 ra Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_items.c,v $
+// Revision 1.9  2002/03/28 20:20:30  ra
+// Nasty grenade bug fixed.
+//
 // Revision 1.8  2002/03/27 15:16:56  freud
 // Original 1.52 spawn code implemented for use_newspawns 0.
 // Teamplay, when dropping bandolier, your drop the grenades.
@@ -329,8 +332,13 @@ Drop_Special (edict_t * ent, gitem_t * item)
       if (!teamplay->value && ent->client->pers.inventory[ITEM_INDEX (FindItem (GRENADE_NAME))] >
 	  2)
 	ent->client->pers.inventory[ITEM_INDEX (FindItem (GRENADE_NAME))] = 2;
-      else if (teamplay->value)
-	ent->client->pers.inventory[ITEM_INDEX (FindItem (GRENADE_NAME))] = 0;
+      else if (teamplay->value) {
+	      if (ent->client->curr_weap == GRENADE_NUM && ((ent->client->ps.gunframe >= GRENADE_IDLE_FIRST &&
+			ent->client->ps.gunframe <= GRENADE_IDLE_LAST) || (ent->client->ps.gunframe >= GRENADE_THROW_FIRST &&
+			ent->client->ps.gunframe <= GRENADE_THROW_LAST)))
+		      ent->client->pers.inventory[ITEM_INDEX (FindItem (GRENADE_NAME))] = 1;
+	      else
+		      ent->client->pers.inventory[ITEM_INDEX (FindItem (GRENADE_NAME))] = 0;
 
       ent->client->pers.max_rockets = 2;
       if (ent->client->pers.
