@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // p_client.c
 //
-// $Id: p_client.c,v 1.43 2001/08/08 12:42:22 slicerdw Exp $
+// $Id: p_client.c,v 1.44 2001/08/15 14:50:48 slicerdw Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: p_client.c,v $
+// Revision 1.44  2001/08/15 14:50:48  slicerdw
+// Added Flood protections to Radio & Voice, Fixed the sniper bug AGAIN
+//
 // Revision 1.43  2001/08/08 12:42:22  slicerdw
 // Ctf Should finnaly be fixed now, lets hope so
 //
@@ -1813,9 +1816,13 @@ void InitClientResp (gclient_t *client)
   client->resp.gllockpvs = 0;
   client->resp.glmodulate = 0;
   client->resp.checked = false;
-  client->resp.checktime[0] = 0;
-  client->resp.checktime[1] = 0;
-  client->resp.checktime[2] = 0;
+  memset (&client->resp.checktime, 0, sizeof(client->resp.checktime));
+  memset (&client->resp.rd_when, 0, sizeof(client->resp.rd_when));
+  memset (client->resp.rd_rep, 0, sizeof(client->resp.rd_rep));
+  client->resp.rd_whensaid = -1;
+  client->resp.rd_mute = 0;
+  client->resp.rd_repcount = 0;
+  client->resp.rd_reptime = 0;
   //AQ2:TNG END
   //AQ2:TNG Slicer Last Damage Location
   client->resp.last_damaged_part = 0;

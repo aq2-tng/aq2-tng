@@ -4,12 +4,15 @@
 // Include file for use with radio stuff
 // -Fireblade
 //
-// $Id: a_radio.h,v 1.1 2001/05/06 17:24:32 igor_rock Exp $
+// $Id: a_radio.h,v 1.2 2001/08/15 14:50:48 slicerdw Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_radio.h,v $
-// Revision 1.1  2001/05/06 17:24:32  igor_rock
-// Initial revision
+// Revision 1.2  2001/08/15 14:50:48  slicerdw
+// Added Flood protections to Radio & Voice, Fixed the sniper bug AGAIN
+//
+// Revision 1.1.1.1  2001/05/06 17:24:32  igor_rock
+// This is the PG Bund Edition V1.25 with all stuff laying around here...
 //
 //----------------------------------------------------------------------------- 
 
@@ -60,3 +63,5 @@ void Cmd_Partner_f (edict_t *);
 void Cmd_Deny_f (edict_t *);
 void Cmd_Unpartner_f (edict_t *);
 void PrecacheRadioSounds ();
+qboolean CheckForFlood(edict_t *ent);
+qboolean CheckForRepeat(edict_t *ent,char *msg);

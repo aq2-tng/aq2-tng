@@ -3,12 +3,15 @@
 // 
 // -Fireblade
 //
-// $Id: a_radio.c,v 1.1 2001/05/06 17:24:29 igor_rock Exp $
+// $Id: a_radio.c,v 1.2 2001/08/15 14:50:48 slicerdw Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_radio.c,v $
-// Revision 1.1  2001/05/06 17:24:29  igor_rock
-// Initial revision
+// Revision 1.2  2001/08/15 14:50:48  slicerdw
+// Added Flood protections to Radio & Voice, Fixed the sniper bug AGAIN
+//
+// Revision 1.1.1.1  2001/05/06 17:24:29  igor_rock
+// This is the PG Bund Edition V1.25 with all stuff laying around here...
 //
 //-----------------------------------------------------------------------------
 
@@ -333,6 +336,7 @@ RadioBroadcast (edict_t * ent, int partner, char *msg)
   radio_msg_t *radio_msgs;
   char msg_fullpath[2048], *base_path;
   char msgname_num[8];
+  qboolean d;
 
   if (ent->deadflag == DEAD_DEAD || ent->solid == SOLID_NOT)
     return;
@@ -411,7 +415,21 @@ RadioBroadcast (edict_t * ent, int partner, char *msg)
       ent->client->pers.num_kills = 0;
     }
 //TempFile END
+	//AQ2:TNG Slicer
+    if(radio_repeat->value)
+  {
+	  	if((d = CheckForRepeat(ent,msg))==false)
+			return;
+  }
 
+  if(radio_max->value)
+  {
+	if((d = CheckForFlood(ent))==false)
+		return;
+  }
+
+
+  //AQ2:TNG END
   for (j = 1; j <= game.maxclients; j++)
     {
       other = &g_edicts[j];
@@ -764,4 +782,84 @@ Cmd_Say_partner_f (edict_t * ent)
     }
 
   Cmd_Say_f (ent, false, false, true);
+}
+qboolean CheckForFlood(edict_t *ent)
+{
+	float d;
+	 if(ent->client->resp.rd_mute) 
+	 {
+		 if(ent->client->resp.rd_mute > level.time)
+		 {
+	//		gi.cprintf(ent,PRINT_HIGH,"You are STILL muted pall\n");
+			return false;
+		 }
+		 else
+		 {
+			ent->client->resp.rd_mute = 0;
+
+		 }
+	 }
+
+	 ent->client->resp.rd_whensaid++;
+	 ent->client->resp.rd_when[ent->client->resp.rd_whensaid] = level.time;
+
+	 if((ent->client->resp.rd_whensaid + 1) == radio_max->value)
+	 {
+		  d = ent->client->resp.rd_when[ent->client->resp.rd_whensaid] - ent->client->resp.rd_when[0];
+		  memset (&ent->client->resp.rd_when, 0, sizeof(ent->client->resp.rd_when));
+		  ent->client->resp.rd_when[0] = level.time;
+		  ent->client->resp.rd_whensaid = 0;
+		  if (d < (radio_time->value))
+		  {
+			  gi.cprintf(ent,PRINT_HIGH,"[FLOOD PROTECTION]: Flood Detected, you are silenced for %d secs\n",(int)radio_ban->value);
+			  ent->client->resp.rd_mute = level.time + radio_ban->value;
+			  return false;
+		  }
+
+	}
+	 return true;
+}
+
+qboolean CheckForRepeat(edict_t *ent,char *msg)
+{
+	char *s;
+	
+	if(ent->client->resp.rd_mute) 
+	 {
+		 if(ent->client->resp.rd_mute > level.time)
+		 {
+	//		gi.cprintf(ent,PRINT_HIGH,"You are STILL muted pall\n");
+			return false;
+		 }
+		 else
+		 {
+			ent->client->resp.rd_mute = 0;
+
+		 }
+	 }
+	s = ent->client->resp.rd_rep;
+	
+	if ( *s && !strcmp(s,msg) )
+	{
+		if ((level.time - ent->client->resp.rd_reptime) < 4)
+		{
+			if (++ent->client->resp.rd_repcount >= radio_repeat->value)
+			{
+				if (ent->client->resp.rd_repcount == radio_repeat->value)
+				{
+					gi.cprintf(ent, PRINT_HIGH,
+						"[FLOOD PROTECTION]: Repeat Flood Detected, you are silenced for %d secs\n",(int)radio_ban->value);
+					ent->client->resp.rd_mute = level.time + radio_ban->value;
+				}
+			//ent->client->resp.rd_reptime = level.time;
+				return false;
+			}
+		}
+		else
+			ent->client->resp.rd_repcount = 0;
+			ent->client->resp.rd_reptime = level.time;
+	}
+	strncpy(ent->client->resp.rd_rep,msg,sizeof(ent->client->resp.rd_rep));
+	ent->client->resp.rd_reptime = level.time;
+	return true;
 }

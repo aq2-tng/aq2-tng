@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // Include for base Action game-related things
 //
-// $Id: a_game.h,v 1.9 2001/08/08 12:54:02 ra Exp $
+// $Id: a_game.h,v 1.10 2001/08/15 14:50:48 slicerdw Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_game.h,v $
+// Revision 1.10  2001/08/15 14:50:48  slicerdw
+// Added Flood protections to Radio & Voice, Fixed the sniper bug AGAIN
+//
 // Revision 1.9  2001/08/08 12:54:02  ra
 // Increasing version number to 2.0b2
 //
@@ -31,9 +34,9 @@
 
 
 // AQ2:TNG Deathwatch - Updated the Version variables to show TNG Stuff
-#define ACTION_VERSION  "1.52 TNG 2.0b2"
+#define ACTION_VERSION  "1.52 TNG 2.0b3"
 #define TNG_VERSION		"AQ2: The Next Generation"
-#define TNG_VERSION2	"AQ2: The Next Generation v2.0b2"
+#define TNG_VERSION2	"AQ2: The Next Generation v2.0b3"
 // AQ2:TNG Deathwatch End
 //AQ2:TNG Slicer This is the max players writen on last killed target
 #define MAX_LAST_KILLED 5

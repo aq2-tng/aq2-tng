@@ -4,10 +4,13 @@
 //
 // contains all new non standard command functions
 //
-// $Id: a_xcmds.c,v 1.5 2001/07/13 00:34:52 slicerdw Exp $
+// $Id: a_xcmds.c,v 1.6 2001/08/15 14:50:48 slicerdw Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_xcmds.c,v $
+// Revision 1.6  2001/08/15 14:50:48  slicerdw
+// Added Flood protections to Radio & Voice, Fixed the sniper bug AGAIN
+//
 // Revision 1.5  2001/07/13 00:34:52  slicerdw
 // Adjusted Punch command
 //
@@ -149,7 +152,7 @@ Cmd_Voice_f (edict_t * self)
 {
   char *s;
   char fullpath[2048];
-
+  qboolean d;
   s = gi.args ();
   //check if no sound is given
   if (!*s)
@@ -171,7 +174,18 @@ Cmd_Voice_f (edict_t * self)
     return;
   strcpy (fullpath, PG_SNDPATH);
   strcat (fullpath, s);
-// AQ2:TNG Deathwatch - This should be IDLE not NORM
+
+    if(radio_repeat->value)
+  {
+	if((d = CheckForRepeat(self,s))==false)
+		return;
+  }
+  if(radio_max->value)
+  {
+	if((d = CheckForFlood(self))==false)
+		return;
+  }
+  // AQ2:TNG Deathwatch - This should be IDLE not NORM
   gi.sound (self, CHAN_VOICE, gi.soundindex (fullpath), 1, ATTN_IDLE, 0);
 // AQ2:TNG END
 }

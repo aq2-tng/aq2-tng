@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // g_local.h -- local definitions for game module
 //
-// $Id: g_local.h,v 1.31 2001/08/06 14:38:45 ra Exp $
+// $Id: g_local.h,v 1.32 2001/08/15 14:50:48 slicerdw Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_local.h,v $
+// Revision 1.32  2001/08/15 14:50:48  slicerdw
+// Added Flood protections to Radio & Voice, Fixed the sniper bug AGAIN
+//
 // Revision 1.31  2001/08/06 14:38:45  ra
 // Adding UVtime for ctf
 //
@@ -770,7 +773,11 @@ extern	cvar_t	*check_time;
 //AQ2:TNG Slicer - Matchmode 
 extern  cvar_t  *matchmode;
 extern  cvar_t  *admin; 
-extern  cvar_t  *hearall; // used in match mode 
+extern  cvar_t  *hearall; // used in match mode
+extern  cvar_t  *radio_max;
+extern  cvar_t	*radio_time;
+extern  cvar_t	*radio_ban;
+extern  cvar_t	*radio_repeat;
 //AQ2:TNG END
 // AQ2:TNG Deathwatch Single Barreled HC
 extern  cvar_t  *hc_single;
@@ -1279,6 +1286,12 @@ typedef struct
 	// AQ2:TNG Deathwatch - HC Single Barreled HC
 	int	hc_mode;
 	// AQ2:TNG END
+	float rd_mute;
+	float rd_when[10];
+	int rd_whensaid;
+	char rd_rep[96];
+	int rd_repcount;
+	float rd_reptime;
   }
 client_respawn_t;
 

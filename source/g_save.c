@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // g_save.c
 //
-// $Id: g_save.c,v 1.31 2001/08/06 14:38:45 ra Exp $
+// $Id: g_save.c,v 1.32 2001/08/15 14:50:48 slicerdw Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_save.c,v $
+// Revision 1.32  2001/08/15 14:50:48  slicerdw
+// Added Flood protections to Radio & Voice, Fixed the sniper bug AGAIN
+//
 // Revision 1.31  2001/08/06 14:38:45  ra
 // Adding UVtime for ctf
 //
@@ -398,6 +401,11 @@ void InitGame (void)
 	matchmode = gi.cvar("matchmode", "0",CVAR_SERVERINFO|CVAR_LATCH);
 	admin = gi.cvar("admin", "-1", 0);
     hearall = gi.cvar("hearall", "0", 0); // used in matchmode
+
+	radio_max = gi.cvar("radio_max", "4", 0);
+	radio_time = gi.cvar("radio_time", "2", 0);
+	radio_ban = gi.cvar("radio_ban", "15", 0);
+	radio_repeat = gi.cvar("radio_repeat", "3", 0);
 //AQ2:TNG END
   
   //FIREBLADE

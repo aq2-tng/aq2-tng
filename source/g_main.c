@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 //
 //
-// $Id: g_main.c,v 1.25 2001/08/08 12:42:22 slicerdw Exp $
+// $Id: g_main.c,v 1.26 2001/08/15 14:50:48 slicerdw Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_main.c,v $
+// Revision 1.26  2001/08/15 14:50:48  slicerdw
+// Added Flood protections to Radio & Voice, Fixed the sniper bug AGAIN
+//
 // Revision 1.25  2001/08/08 12:42:22  slicerdw
 // Ctf Should finnaly be fixed now, lets hope so
 //
@@ -248,6 +251,10 @@ cvar_t *itm_flags;
 cvar_t  *matchmode;
 cvar_t  *hearall; // used for matchmode
 cvar_t  *admin; // Used in matchmode - number of client
+cvar_t  *radio_max;
+cvar_t	*radio_time;
+cvar_t	*radio_ban;
+cvar_t	*radio_repeat;
 //AQ2:TNG END
 
 void SpawnEntities (char *mapname, char *entities, char *spawnpoint);

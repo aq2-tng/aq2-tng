@@ -4,10 +4,13 @@
 //
 // laser sight patch, by Geza Beladi
 //
-// $Id: a_cmds.c,v 1.10 2001/08/06 12:13:07 slicerdw Exp $
+// $Id: a_cmds.c,v 1.11 2001/08/15 14:50:48 slicerdw Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_cmds.c,v $
+// Revision 1.11  2001/08/15 14:50:48  slicerdw
+// Added Flood protections to Radio & Voice, Fixed the sniper bug AGAIN
+//
 // Revision 1.10  2001/08/06 12:13:07  slicerdw
 // Fixed the Sniper Weapon plus reloading bug
 //
@@ -422,7 +425,7 @@ _SetSniper (edict_t * ent, int zoom)
     ent->client->ps.gunindex = gi.modelindex (ent->client->pers.weapon->view_model);
   //show the model if switching to 1x
 
-  if (oldmode == SNIPER_1X)
+  if (oldmode == SNIPER_1X && ent->client->weaponstate != WEAPON_RELOADING)
     {
       //do idleness stuff when switching from 1x, see function below
       ent->client->weaponstate = WEAPON_BUSY;
@@ -564,8 +567,8 @@ Cmd_Weapon_f (edict_t * ent)
   ent->client->resp.weapon_after_bandage_warned = false;
 
   if (ent->client->weaponstate == WEAPON_FIRING
-	  || ent->client->weaponstate == WEAPON_BUSY
-	  || ent->client->weaponstate == WEAPON_RELOADING)
+	  || ent->client->weaponstate == WEAPON_BUSY)
+
     {
       //gi.cprintf(ent, PRINT_HIGH, "Try again when you aren't using your weapon.\n");
       ent->client->weapon_attempts++;
