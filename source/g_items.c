@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // g_itmes.c
 //
-// $Id: g_items.c,v 1.5 2001/05/31 16:58:14 igor_rock Exp $
+// $Id: g_items.c,v 1.6 2001/07/18 15:19:11 slicerdw Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_items.c,v $
+// Revision 1.6  2001/07/18 15:19:11  slicerdw
+// Time for weapons and items dissapearing is set to "6" to prevent lag on ctf
+//
 // Revision 1.5  2001/05/31 16:58:14  igor_rock
 // conflicts resolved
 //
@@ -1000,8 +1003,17 @@ static void drop_make_touchable (edict_t *ent)
 	ent->touch = Touch_Item;
         if (deathmatch->value)
         {
-	  ent->nextthink = level.time + 119;
-	  ent->think = G_FreeEdict;
+					//AQ2:TNG - Slicer
+			if(ctf->value)
+			{
+			 ent->nextthink = level.time + 6;
+			 ent->think = G_FreeEdict;
+			}
+			else
+			{
+			ent->nextthink = level.time + 119;
+			ent->think = G_FreeEdict;
+			}
         }
 }
 

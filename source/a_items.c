@@ -3,10 +3,13 @@
 // Zoid.
 // - zucc
 //
-// $Id: a_items.c,v 1.4 2001/05/31 16:58:14 igor_rock Exp $
+// $Id: a_items.c,v 1.5 2001/07/18 15:19:11 slicerdw Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_items.c,v $
+// Revision 1.5  2001/07/18 15:19:11  slicerdw
+// Time for weapons and items dissapearing is set to "6" to prevent lag on ctf
+//
 // Revision 1.4  2001/05/31 16:58:14  igor_rock
 // conflicts resolved
 //
@@ -172,8 +175,17 @@ MakeTouchSpecThink (edict_t * ent)
     }
   else if (teamplay->value && !allitem->value)
     {
+	      //AQ2:TNG - Slicer This works for Special Items 
+	  if(ctf->value)
+	  {
+		ent->nextthink = level.time + 6;
+		ent->think = G_FreeEdict;
+	  }
+	  else
+	  {
       ent->nextthink = level.time + 60;
       ent->think = G_FreeEdict;
+	  }
     }
   else				// allitem->value is set
 

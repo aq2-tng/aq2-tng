@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // g_weapon.c
 //
-// $Id: p_weapon.c,v 1.5 2001/05/31 16:58:14 igor_rock Exp $
+// $Id: p_weapon.c,v 1.6 2001/07/18 15:19:11 slicerdw Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: p_weapon.c,v $
+// Revision 1.6  2001/07/18 15:19:11  slicerdw
+// Time for weapons and items dissapearing is set to "6" to prevent lag on ctf
+//
 // Revision 1.5  2001/05/31 16:58:14  igor_rock
 // conflicts resolved
 //
@@ -834,7 +837,7 @@ void temp_think_specweap( edict_t* ent )
 
   if (ctf->value)
     {
-      ent->nextthink = level.time + 20;
+      ent->nextthink = level.time + 6;
       ent->think = ThinkSpecWeap;
     }
   else if (deathmatch->value && !teamplay->value && !allweapon->value )
