@@ -3,7 +3,7 @@
  * (c) 2001 by Stefan Giesen aka Igor[Rock]
  * All rights reserved
  *
- * $Id: tngbot.c,v 1.6 2001/12/03 15:01:06 igor_rock Exp $
+ * $Id: tngbot.c,v 1.7 2001/12/08 15:46:39 igor_rock Exp $
  *
  *----------------------------------------------------------------------------
  * Usage: tngbot <ircserver>[:port] <channelname> <nickname>
@@ -35,6 +35,10 @@
  *
  *----------------------------------------------------------------------------
  * $Log: tngbot.c,v $
+ * Revision 1.7  2001/12/08 15:46:39  igor_rock
+ * added the private message command "cycle" so the bot disconencts and
+ * restarts after a 15 sec pause.
+ *
  * Revision 1.6  2001/12/03 15:01:06  igor_rock
  * added password for joining the cahnnel if protected
  *
@@ -310,8 +314,9 @@ int do_irc_reg( )
 }
 
 
-void parse_input (char *inbuf)
+int parse_input (char *inbuf)
 {
+  int  ret = 0;
   int  pos1;
   int  pos2;
   char temp[BUFLEN];
@@ -335,11 +340,18 @@ void parse_input (char *inbuf)
 	  /* private message */
 	  pos1 += strlen(nickname);
 	  pos1 += strlen (" :");
-	  if (strncmp (&inbuf[pos1], "op ", 2) == 0) {
-	    pos1 += 3;
-	    if (strncmp (&inbuf[pos1], password, strlen (password)) == 0) {
-	      sprintf (outbuf, "MODE #%s +o %s\n", channel, von);
-	      write (sock, outbuf, strlen(outbuf));
+	  if (password[0]) {
+	    if (strncmp (&inbuf[pos1], "op ", 3) == 0) {
+	      pos1 += 3;
+	      if (strncmp (&inbuf[pos1], password, strlen (password)) == 0) {
+		sprintf (outbuf, "MODE #%s +o %s\n", channel, von);
+		write (sock, outbuf, strlen(outbuf));
+	      }
+	    } else if (strncmp (&inbuf[pos1], "cycle ", 6) == 0) {
+	      pos1 += 3;
+	      if (strncmp (&inbuf[pos1], password, strlen (password)) == 0) {
+		ret = 1;
+	      }
 	    }
 	  }
 	} else {
@@ -365,6 +377,8 @@ void parse_input (char *inbuf)
       printf ("%s\n", inbuf);
     }
   }
+
+  return (ret);
 }
 
 
@@ -427,8 +441,10 @@ void irc_loop ( )
 	printf ("Ping - Pong\n");
 	sprintf(outbuf, "pong %s\n\r", &inbuf[6]);
 	write(sock, outbuf, strlen(outbuf));
-      } else if (password[0]) {
-	parse_input (inbuf);
+      } else {
+	if (parse_input (inbuf)) {
+	  break;
+	}
       }
       bzero(inbuf,  sizeof(inbuf));
       bzero(outbuf, sizeof(outbuf));
