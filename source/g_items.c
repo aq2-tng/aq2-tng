@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // g_itmes.c
 //
-// $Id: g_items.c,v 1.9 2002/03/28 20:20:30 ra Exp $
+// $Id: g_items.c,v 1.10 2002/03/28 20:24:08 ra Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_items.c,v $
+// Revision 1.10  2002/03/28 20:24:08  ra
+// I overfixed the bug...
+//
 // Revision 1.9  2002/03/28 20:20:30  ra
 // Nasty grenade bug fixed.
 //
@@ -333,9 +336,7 @@ Drop_Special (edict_t * ent, gitem_t * item)
 	  2)
 	ent->client->pers.inventory[ITEM_INDEX (FindItem (GRENADE_NAME))] = 2;
       else if (teamplay->value) {
-	      if (ent->client->curr_weap == GRENADE_NUM && ((ent->client->ps.gunframe >= GRENADE_IDLE_FIRST &&
-			ent->client->ps.gunframe <= GRENADE_IDLE_LAST) || (ent->client->ps.gunframe >= GRENADE_THROW_FIRST &&
-			ent->client->ps.gunframe <= GRENADE_THROW_LAST)))
+	      if (ent->client->curr_weap == GRENADE_NUM)
 		      ent->client->pers.inventory[ITEM_INDEX (FindItem (GRENADE_NAME))] = 1;
 	      else
 		      ent->client->pers.inventory[ITEM_INDEX (FindItem (GRENADE_NAME))] = 0;
