@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // Statistics Related Code
 //
-// $Id: tng_stats.c,v 1.24 2002/02/21 23:38:39 freud Exp $
+// $Id: tng_stats.c,v 1.25 2002/02/26 23:09:20 freud Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: tng_stats.c,v $
+// Revision 1.25  2002/02/26 23:09:20  freud
+// Stats <playerid> not working, fixed.
+//
 // Revision 1.24  2002/02/21 23:38:39  freud
 // Fix to a BAD stats bug. CRASH
 //
@@ -118,7 +121,7 @@ void Cmd_Stats_f (edict_t *targetent, char *arg)
 		}
 		i = atoi (arg);
 		ent = &g_edicts[1 + i];
-		if (game.maxclients >= game.maxclients || !ent->inuse)
+		if (i >= game.maxclients || !ent->inuse)
 			ent = targetent;
 
 	} else {
