@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // IRC related functions
 //
-// $Id: tng_irc.c,v 1.1 2003/06/15 21:45:11 igor Exp $
+// $Id: tng_irc.c,v 1.2 2003/06/19 15:53:26 igor_rock Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: tng_irc.c,v $
+// Revision 1.2  2003/06/19 15:53:26  igor_rock
+// changed a lot of stuff because of windows stupid socket implementation
+//
 // Revision 1.1  2003/06/15 21:45:11  igor
 // added IRC client
 //
@@ -13,15 +16,21 @@
 #define DEBUG 1
 
 //-----------------------------------------------------------------------------
+#ifdef WIN32
+#include <io.h>
+#include <winsock2.h>
+#define bzero(a,b)		memset(a,0,b)
+#else
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netdb.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
+#include <sys/time.h>
+#endif
 #include <errno.h>
 #include <string.h>
-#include <sys/time.h>
 #include <fcntl.h>
 #include <stdarg.h>
 
@@ -43,6 +52,98 @@
 
 tng_irc_t   irc_data;
 
+#ifdef WIN32
+// Windows junk
+int IRCstartWinsock()
+{
+  WSADATA wsa;
+  return WSAStartup(MAKEWORD(2,0),&wsa);
+}
+
+#define set_nonblocking(sok)	{ \
+				unsigned long one = 1; \
+				ioctlsocket (sok, FIONBIO, &one); \
+				}
+
+static int IRC_identd_is_running = FALSE;
+
+static int
+IRC_identd (void *unused)
+{
+  int sok, read_sok, len;
+  char *p;
+  char buf[256];
+  char outbuf[256];
+  struct sockaddr_in addr;
+
+  sok = socket (AF_INET, SOCK_STREAM, 0);
+  if (sok == INVALID_SOCKET)
+    return 0;
+
+  len = 1;
+  setsockopt (sok, SOL_SOCKET, SO_REUSEADDR, (char *) &len, sizeof (len));
+
+  memset (&addr, 0, sizeof (addr));
+  addr.sin_family = AF_INET;
+  addr.sin_port = htons (113);
+
+  if (bind (sok, (struct sockaddr *) &addr, sizeof (addr)) == SOCKET_ERROR)
+    {
+      closesocket (sok);
+      return 0;
+    }
+
+  if (listen (sok, 1) == SOCKET_ERROR)
+    {
+      closesocket (sok);
+      return 0;
+    }
+
+  len = sizeof (addr);
+  read_sok = accept (sok, (struct sockaddr *) &addr, &len);
+  closesocket (sok);
+  if (read_sok == INVALID_SOCKET)
+    return 0;
+
+  if (ircdebug->value) {
+    gi.dprintf ("IRC: identd: Servicing ident request from %s\n",
+		inet_ntoa (addr.sin_addr));
+  }
+        
+  recv (read_sok, buf, sizeof (buf) - 1, 0);
+  buf[sizeof (buf) - 1] = 0;        /* ensure null termination */
+
+  p = strchr (buf, ',');
+  if (p)
+    {
+      sprintf (outbuf, "%d, %d : USERID : UNIX : %s\r\n",
+	       atoi (buf), atoi (p + 1), irc_data.ircuser);
+      outbuf[sizeof (outbuf) - 1] = 0;        /* ensure null termination */
+      send (read_sok, outbuf, strlen (outbuf), 0);
+    }
+
+  //sleep (1);
+  closesocket (read_sok);
+  IRC_identd_is_running = FALSE;
+
+  return 0;
+}
+
+static void
+IRC_identd_start (void)
+{
+  DWORD tid;
+
+  if (IRC_identd_is_running == FALSE)
+    {
+      IRC_identd_is_running = TRUE;
+      CloseHandle (CreateThread (NULL, 0, (LPTHREAD_START_ROUTINE) IRC_identd,
+				 NULL, 0, &tid));
+    }
+}
+
+#endif
+
 void
 IRC_init ( void )
 {
@@ -63,6 +164,9 @@ IRC_init ( void )
   // init our internal structure
   irc_data.ircstatus = IRC_DISABLED;
   bzero(irc_data.input, sizeof(irc_data.input));
+#ifdef WIN32
+  IRCstartWinsock();
+#endif
 }
 
 
@@ -70,7 +174,7 @@ void
 IRC_exit ( void )
 {
   if (irc_data.ircstatus != IRC_DISABLED) {
-    write (irc_data.ircsocket, IRC_QUIT, strlen(IRC_QUIT));
+    send (irc_data.ircsocket, IRC_QUIT, strlen(IRC_QUIT), 0);
     if (ircdebug->value)
       gi.dprintf ("IRC: %s", IRC_QUIT);
     irc_data.ircstatus = IRC_DISABLED;
@@ -84,40 +188,39 @@ void
 irc_connect ( void )
 {
   char               outbuf[IRC_BUFLEN];
-  int                flags;
   struct sockaddr_in hostaddress;
   struct in_addr     ipnum;
   struct hostent     *hostdata;
-
+#ifndef WIN32
+  int                flags;
+#else
+  IRC_identd_start ();
+#endif
   
   irc_data.ircstatus = IRC_CONNECTING;
   strcpy  (ircstatus->string, IRC_ST_CONNECTING);
   irc_data.ircsocket = -1;
-  irc_data.ircport   = htons(ircport->value);
+  irc_data.ircport   = htons((unsigned short) ircport->value);
   strncpy (irc_data.ircserver, ircserver->string, IRC_BUFLEN);
   strncpy (irc_data.ircuser, ircuser->string, IRC_BUFLEN);
   strncpy (irc_data.ircpasswd, ircpasswd->string, IRC_BUFLEN);
   strncpy (irc_data.ircchannel, ircchannel->string, IRC_BUFLEN);
   
-  if (! inet_aton(irc_data.ircserver, &ipnum)) {
+  if ((ipnum.s_addr = inet_addr(irc_data.ircserver)) == -1) {
     /* Maybe it's a FQDN */
-    hostdata = gethostbyname (irc_data.ircserver);
+    hostdata = gethostbyname(irc_data.ircserver);
     if (hostdata==NULL) {
       gi.dprintf ("IRC: invalid hostname or wrong address! Please use an existing hostname or,the xxx.xxx.xxx.xxx format.\n");
       ircbot->value = 0;
       irc_data.ircstatus = IRC_DISABLED;
       strcpy (ircstatus->string, IRC_ST_DISABLED);
     } else {
-      /* Seems I'm just to stupid to find the right functio for this... */
-      ((char *)&ipnum.s_addr)[0] = hostdata->h_addr_list[0][0];
-      ((char *)&ipnum.s_addr)[1] = hostdata->h_addr_list[0][1];
-      ((char *)&ipnum.s_addr)[2] = hostdata->h_addr_list[0][2];
-      ((char *)&ipnum.s_addr)[3] = hostdata->h_addr_list[0][3];
+      ipnum.s_addr = inet_addr(inet_ntoa(*(struct in_addr *)(hostdata->h_addr_list[0])));
     }
   }
   
   if (ircbot->value) {
-    gi.dprintf ("IRC: using server %s:%i\n", inet_ntoa(ipnum), ntohs(irc_data.ircport));                                          
+    gi.dprintf ("IRC: using server %s:%i\n", inet_ntoa(ipnum), ntohs((unsigned short) irc_data.ircport));                                          
     bzero((char *) &hostaddress, sizeof(hostaddress));
     hostaddress.sin_family = AF_INET;
     hostaddress.sin_addr.s_addr = ipnum.s_addr;
@@ -134,7 +237,10 @@ irc_connect ( void )
 	irc_data.ircstatus = IRC_DISABLED;
 	strcpy (ircstatus->string, IRC_ST_DISABLED);
       } else {
-	gi.dprintf ("IRC: connected to %s:%d\n", irc_data.ircserver, ntohs(irc_data.ircport));
+	gi.dprintf ("IRC: connected to %s:%d\n", irc_data.ircserver, ntohs((unsigned short) irc_data.ircport));
+#ifdef WIN32
+	set_nonblocking(irc_data.ircsocket);
+#else
 	flags = fcntl(irc_data.ircsocket, F_GETFL);
 	flags |= O_NONBLOCK;
 	if (fcntl(irc_data.ircsocket, F_SETFL, (long) flags)) {
@@ -144,11 +250,14 @@ irc_connect ( void )
 	  irc_data.ircstatus = IRC_DISABLED;
 	  strcpy (ircstatus->string, IRC_ST_DISABLED);
 	} else {
+#endif
 	  sprintf (outbuf, "NICK %s\nUSER tng-mbot * * :%s\n", irc_data.ircuser, hostname->string);
-	  write (irc_data.ircsocket, outbuf, strlen(outbuf));
+	  send (irc_data.ircsocket, outbuf, strlen(outbuf), 0);
 	  if (ircdebug->value)
-	    gi.dprintf("IRC: >> NICK %s\nIRC: >> tng-mbot * * :%s\n", irc_data.ircuser, hostname->string);
+	    gi.dprintf("IRC: >> NICK %s\nIRC: >> USER tng-mbot * * :%s\n", irc_data.ircuser, hostname->string);
+#ifndef WIN32
 	}
+#endif
       }
     }
   }
@@ -195,7 +304,7 @@ irc_parse ( void )
 	      if (ircdebug->value)
 		gi.dprintf ("IRC: >> %s\n", ircop->string);
 	      sprintf (outbuf, "%s\n", ircop->string);
-	      write(irc_data.ircsocket, outbuf, strlen(outbuf));
+	      send (irc_data.ircsocket, outbuf, strlen(outbuf), 0);
 	    }
 	  } else {
 	    // joined another channel
@@ -207,20 +316,20 @@ irc_parse ( void )
 	sprintf(outbuf, "mode %s +i\n", irc_data.ircuser);
 	if (ircdebug->value)
 	  gi.dprintf("IRC: >> mode %s +i set\n", irc_data.ircuser);
-	write(irc_data.ircsocket, outbuf, strlen(outbuf));
+	send (irc_data.ircsocket, outbuf, strlen(outbuf), 0);
 
 	if (irc_data.ircpasswd[0]) {
 	  sprintf(outbuf, "join %s %s\n", irc_data.ircchannel, irc_data.ircpasswd);
 	  gi.dprintf ("IRC: trying to join channel %s %s\n", irc_data.ircchannel, irc_data.ircpasswd);
-	  write(irc_data.ircsocket, outbuf, strlen(outbuf));
+	  send (irc_data.ircsocket, outbuf, strlen(outbuf), 0);
 	  sprintf (outbuf, "mode %s +mntk %s\n", irc_data.ircchannel, irc_data.ircpasswd);
-	  write(irc_data.ircsocket, outbuf, strlen(outbuf));
+	  send (irc_data.ircsocket, outbuf, strlen(outbuf), 0);
 	} else {
 	  sprintf(outbuf, "join %s\n", irc_data.ircchannel);
 	  gi.dprintf ("IRC: trying to join channel %s\n", irc_data.ircchannel);
-	  write(irc_data.ircsocket, outbuf, strlen(outbuf));
+	  send (irc_data.ircsocket, outbuf, strlen(outbuf), 0);
 	  sprintf (outbuf, "mode %s +mnt\n", irc_data.ircchannel);
-	  write(irc_data.ircsocket, outbuf, strlen(outbuf));
+	  send (irc_data.ircsocket, outbuf, strlen(outbuf), 0);
 	}
 	
 	irc_data.ircstatus = IRC_CONNECTED;
@@ -239,7 +348,7 @@ irc_parse ( void )
 	    }
 	    if (Q_strncasecmp (&irc_data.input[pos], "op", 2) == 0) {
 	      gi.dprintf ("IRC: set +o %s\n", wer);
-	      write (irc_data.ircsocket, outbuf, strlen(outbuf));
+	      send (irc_data.ircsocket, outbuf, strlen(outbuf), 0);
 	    } else if (Q_strncasecmp (&irc_data.input[pos], "say", 3) == 0) {
 	      pos += 4;
 	      if (strlen(&irc_data.input[pos]) > 225) {
@@ -262,11 +371,11 @@ irc_parse ( void )
 	  if (irc_data.ircpasswd[0]) {
 	    sprintf(outbuf, "join %s %s\n", irc_data.ircchannel, irc_data.ircpasswd);
 	    gi.dprintf ("IRC: trying to join channel %s %s (got kicked)\n", irc_data.ircchannel, irc_data.ircpasswd);
-	    write(irc_data.ircsocket, outbuf, strlen(outbuf));
+	    send (irc_data.ircsocket, outbuf, strlen(outbuf), 0);
 	  } else {
 	    sprintf(outbuf, "join %s\n", irc_data.ircchannel);
 	    gi.dprintf ("IRC: trying to join channel %s (got kicked)\n", irc_data.ircchannel);
-	    write(irc_data.ircsocket, outbuf, strlen(outbuf));
+	    send (irc_data.ircsocket, outbuf, strlen(outbuf), 0);
 	  }
 	}
       }
@@ -275,7 +384,7 @@ irc_parse ( void )
       sprintf(outbuf, "PONG %s\n", &irc_data.input[6]);
       if (ircdebug->value)		
 	gi.dprintf ("IRC: >> %s\n", outbuf);
-      write(irc_data.ircsocket, outbuf, strlen(outbuf));
+      send (irc_data.ircsocket, outbuf, strlen(outbuf), 0);
     }
   }  
 }
@@ -296,9 +405,13 @@ irc_getinput ( void )
 
   bzero(inbuf, sizeof(inbuf));
   
-  anz_net = read(irc_data.ircsocket, inbuf, sizeof(inbuf));
+  anz_net = recv (irc_data.ircsocket, inbuf, sizeof(inbuf), 0);
   if (anz_net <= 0) {
+#ifdef WIN32
+    if ((anz_net == 0) || ((anz_net == -1) && (WSAGetLastError() != WSAEWOULDBLOCK))) {
+#else
     if ((anz_net == 0) || ((anz_net == -1) && (errno != EAGAIN))) {
+#endif
       gi.dprintf ("IRC: connection terminated!\n");
       close (irc_data.ircsocket);
       irc_data.ircstatus = IRC_DISABLED;
@@ -531,25 +644,25 @@ IRC_printf (int type, char *fmt, ... )
       sprintf (outbuf, "PRIVMSG %s :%s\n", irc_data.ircchannel, message);
       if (ircdebug->value)
 	gi.dprintf ("IRC: >> %s", outbuf);
-      write (irc_data.ircsocket, outbuf, strlen(outbuf));
+      send (irc_data.ircsocket, outbuf, strlen(outbuf), 0);
       if ((type == IRC_T_TOPIC) && (ircmlevel->value >= IRC_T_TOPIC)) {
 	sprintf (outbuf, "TOPIC %s :%s %s\n", irc_data.ircchannel, irctopic->string, topic);
-	write (irc_data.ircsocket, outbuf, strlen(outbuf));
+	send (irc_data.ircsocket, outbuf, strlen(outbuf), 0);
       }
     }
   } else if (irc_data.ircstatus == IRC_CONNECTED) {
     if (irc_data.ircpasswd[0]) {
       sprintf(outbuf, "join %s %s\n", irc_data.ircchannel, irc_data.ircpasswd);
       gi.dprintf ("IRC: trying to join channel %s %s\n", irc_data.ircchannel, irc_data.ircpasswd);
-      write(irc_data.ircsocket, outbuf, strlen(outbuf));
+      send (irc_data.ircsocket, outbuf, strlen(outbuf), 0);
       sprintf (outbuf, "mode %s +mntk %s\n", irc_data.ircchannel, irc_data.ircpasswd);
-      write(irc_data.ircsocket, outbuf, strlen(outbuf));
+      send (irc_data.ircsocket, outbuf, strlen(outbuf), 0);
     } else {
       sprintf(outbuf, "join %s\n", irc_data.ircchannel);
       gi.dprintf ("IRC: trying to join channel %s\n", irc_data.ircchannel);
-      write(irc_data.ircsocket, outbuf, strlen(outbuf));
+      send (irc_data.ircsocket, outbuf, strlen(outbuf), 0);
       sprintf (outbuf, "mode %s +mnt\n", irc_data.ircchannel);
-      write(irc_data.ircsocket, outbuf, strlen(outbuf));
+      send (irc_data.ircsocket, outbuf, strlen(outbuf), 0);
     }
   }
 }
@@ -570,6 +683,6 @@ void SVCmd_ircraw_f (void)
     strcat (outbuf, "\n");
     if (ircdebug->value)
       gi.cprintf (NULL, PRINT_HIGH, "IRC: >> %s\n", outbuf);
-    write (irc_data.ircsocket, outbuf, strlen(outbuf));
+    send (irc_data.ircsocket, outbuf, strlen(outbuf), 0);
   }
 }

@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // IRC related definitions
 //
-// $Id: tng_irc.h,v 1.1 2003/06/15 21:45:11 igor Exp $
+// $Id: tng_irc.h,v 1.2 2003/06/19 15:53:26 igor_rock Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: tng_irc.h,v $
+// Revision 1.2  2003/06/19 15:53:26  igor_rock
+// changed a lot of stuff because of windows stupid socket implementation
+//
 // Revision 1.1  2003/06/15 21:45:11  igor
 // added IRC client
 //
@@ -14,9 +17,9 @@
 #define IRC_PORT    	"6667"
 #define IRC_CHANNEL 	""
 #define IRC_CHMODE  	"nt"
-#define IRC_USER    	"TNGMBot"
+#define IRC_USER    	"TNG-Bot"
 #define IRC_PASSWD  	""
-#define IRC_TOPIC	"TNG IRC-Bot V0.1"
+#define IRC_TOPIC	"AQ2 TNG IRC-Bot"
 
 #define IRC_BUFLEN	2048
 
