@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // p_hud.c
 //
-// $Id: p_hud.c,v 1.6 2001/09/28 13:48:35 ra Exp $
+// $Id: p_hud.c,v 1.7 2002/01/02 01:18:24 deathwatch Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: p_hud.c,v $
+// Revision 1.7  2002/01/02 01:18:24  deathwatch
+// Showing health icon when bandaging (thanks to Dome for submitting this code)
+//
 // Revision 1.6  2001/09/28 13:48:35  ra
 // I ran indent over the sources. All .c and .h files reindented.
 //
@@ -776,13 +779,17 @@ G_SetStats (edict_t * ent)
 	ent->client->ps.stats[STAT_HELPICON] = gi.imageindex ("i_help");
       else
 	if (
-	    (ent->client->pers.hand == CENTER_HANDED
-	     || ent->client->ps.fov > 91) && ent->client->pers.weapon)
+	    (ent->client->pers.hand == CENTER_HANDED || ent->client->ps.fov > 91) && ent->client->pers.weapon)
 	ent->client->ps.stats[STAT_HELPICON] =
 	  gi.imageindex (ent->client->pers.weapon->icon);
       else
 	ent->client->ps.stats[STAT_HELPICON] = 0;
     }
+		// TNG: Show health icon when bandaging (thanks to Dome for this code)
+		if (ent->client->weaponstate == WEAPON_BANDAGING || ent->client->bandaging || ent->client->bandage_stopped)
+		{
+			ent->client->ps.stats[STAT_HELPICON] = gi.imageindex ("i_health");
+		}
 
   //
   // layouts
