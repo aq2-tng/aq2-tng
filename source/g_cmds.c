@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // g_cmds.c
 //
-// $Id: g_cmds.c,v 1.34 2001/09/28 21:43:21 deathwatch Exp $
+// $Id: g_cmds.c,v 1.35 2001/09/28 22:00:46 deathwatch Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_cmds.c,v $
+// Revision 1.35  2001/09/28 22:00:46  deathwatch
+// changed pheer to ph34rs in the kill denying statement
+//
 // Revision 1.34  2001/09/28 21:43:21  deathwatch
 // Fixed a but caused due to the reformatting of the source making the say stuff not working in non-matchmode modes
 //
@@ -1007,7 +1010,7 @@ Cmd_Kill_f (edict_t * ent)
 	  (ent->client->attacker->client != ent->client))
 	{
 	  gi.bprintf (PRINT_HIGH,
-		      "%s pheer %s so much %s committed suicide! :)\n",
+		      "%s ph34rs %s so much %s committed suicide! :)\n",
 		      ent->client->pers.netname,
 		      ent->client->attacker->client->pers.netname,
 		      ent->client->resp.radio_gender ? "she" : "he");
