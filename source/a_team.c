@@ -3,10 +3,13 @@
 // Some of this is borrowed from Zoid's CTF (thanks Zoid)
 // -Fireblade
 //
-// $Id: a_team.c,v 1.85 2002/03/28 13:34:01 deathwatch Exp $
+// $Id: a_team.c,v 1.86 2002/03/28 20:53:45 deathwatch Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_team.c,v $
+// Revision 1.86  2002/03/28 20:53:45  deathwatch
+// updated credits (forgot QNI in the clan list)
+//
 // Revision 1.85  2002/03/28 13:34:01  deathwatch
 // updated credits
 //
@@ -654,7 +657,7 @@ pmenu_t creditsmenu[] = {
   {"*Credits", PMENU_ALIGN_LEFT, NULL, NULL},
   {"(in no particular order)", PMENU_ALIGN_LEFT, NULL, NULL},
   {NULL, PMENU_ALIGN_LEFT, NULL, NULL},
-  {"Clan Rock, dW & DP,", PMENU_ALIGN_LEFT, NULL, NULL},
+  {"Clan Rock, dW, QNI & DP,", PMENU_ALIGN_LEFT, NULL, NULL},
   {"Kobra, Zarjazz,", PMENU_ALIGN_LEFT, NULL, NULL},
   {"Killerbee, Rookie[Rock],", PMENU_ALIGN_LEFT, NULL, NULL},
   {"PG Bund[Rock], Mort,", PMENU_ALIGN_LEFT, NULL, NULL},
