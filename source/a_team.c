@@ -3,10 +3,13 @@
 // Some of this is borrowed from Zoid's CTF (thanks Zoid)
 // -Fireblade
 //
-// $Id: a_team.c,v 1.61 2001/12/02 16:16:16 igor_rock Exp $
+// $Id: a_team.c,v 1.62 2001/12/02 16:41:52 igor_rock Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_team.c,v $
+// Revision 1.62  2001/12/02 16:41:52  igor_rock
+// corrected the teamscores (they where switched)
+//
 // Revision 1.61  2001/12/02 16:16:16  igor_rock
 // added "Actual Score" message after Round
 //
@@ -1773,7 +1776,7 @@ PrintScores ( )
   if (use_3teams->value) {
     gi.bprintf (PRINT_HIGH, "Actual Scores are %s: %d to %s: %d to %s: %d\n", TeamName (TEAM1), team1_score, TeamName (TEAM2), team2_score, TeamName (TEAM3), team3_score);
   } else {
-    gi.bprintf (PRINT_HIGH, "Actual Scores are %s: %d to %s: %d\n", TeamName (TEAM1), team2_score, TeamName (TEAM2), team1_score);
+    gi.bprintf (PRINT_HIGH, "Actual Scores are %s: %d to %s: %d\n", TeamName (TEAM1), team1_score, TeamName (TEAM2), team2_score);
   }
 }
 
