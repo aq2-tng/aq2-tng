@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // p_client.c
 //
-// $Id: p_client.c,v 1.58 2001/12/24 18:06:05 slicerdw Exp $
+// $Id: p_client.c,v 1.59 2002/01/23 13:08:32 ra Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: p_client.c,v $
+// Revision 1.59  2002/01/23 13:08:32  ra
+// fixing tought how to fly bug
+//
 // Revision 1.58  2001/12/24 18:06:05  slicerdw
 // changed dynamic check for darkmatch only
 //
@@ -904,8 +907,10 @@ ClientObituary (edict_t * self, edict_t * inflictor, edict_t * attacker)
 		}
 	      else
 		{
-		  if (!teamplay->value || mod != MOD_TELEFRAG)
+		  if ((!teamplay->value || mod != MOD_TELEFRAG) && !(int) dmflags->value & DF_NO_FRIENDLY_FIRE)
 		    Add_Frag (self->client->attacker);	//attacker->client->resp.score++;
+		  if (!teamplay->value)
+			Add_Frag (self->client->attacker);
 		}
 	      //END FF ADD
 	      //PG BUND - BEGIN 
