@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // g_spawn.c
 //
-// $Id: g_spawn.c,v 1.15 2001/06/01 19:18:42 slicerdw Exp $
+// $Id: g_spawn.c,v 1.16 2001/06/13 09:43:49 igor_rock Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_spawn.c,v $
+// Revision 1.16  2001/06/13 09:43:49  igor_rock
+// if ctf is enabled, friendly fire automatically set to off (ff doesn't make any sense in ctf)
+//
 // Revision 1.15  2001/06/01 19:18:42  slicerdw
 // Added Matchmode Code
 //
@@ -756,17 +759,25 @@ void SpawnEntities (char *mapname, char *entities, char *spawnpoint)
 	  teamplay->value = 1;
 	  strcpy(teamplay->string,"1");
 	}
-	 if(use_3teams->value)
+      if(use_3teams->value)
 	{
 	  gi.dprintf("CTF Enabled - Forcing 3Teams off\n");
 	  use_3teams->value = 0;
 	  strcpy(use_3teams->string,"0");
 	}
-	  if(use_tourney->value)
+      if(use_tourney->value)
 	{
 	  gi.dprintf("CTF Enabled - Forcing Tourney off\n");
 	  use_tourney->value = 0;
 	  strcpy(use_tourney->string,"0");
+	}
+      if(!((int)(dmflags->value) & DF_NO_FRIENDLY_FIRE))
+	{
+	  gi.dprintf("CTF Enabled - Forcing Friendly Fire off\n");
+	  i = (int) dmflags->value;
+	  i |= DF_NO_FRIENDLY_FIRE;
+	  dmflags->value = (float) i;
+	  sprintf (dmflags->string, "%d", (int)dmflags->value); 
 	}
     }
 
