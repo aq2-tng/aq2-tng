@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 //
 //
-// $Id: g_main.c,v 1.61 2002/03/25 18:32:11 freud Exp $
+// $Id: g_main.c,v 1.62 2002/03/25 23:35:19 freud Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_main.c,v $
+// Revision 1.62  2002/03/25 23:35:19  freud
+// Ghost code, use_ghosts and more stuff..
+//
 // Revision 1.61  2002/03/25 18:32:11  freud
 // I'm being too productive.. New ghost command needs testing.
 //
@@ -350,6 +353,8 @@ cvar_t *auto_equip;
 
 //TNG:Freud - new spawning system
 cvar_t *use_newspawns;
+//TNG:Freud - ghosts
+cvar_t *use_ghosts;
 
 cvar_t *use_punch;
 

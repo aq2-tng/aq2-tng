@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // p_client.c
 //
-// $Id: p_client.c,v 1.77 2002/03/25 18:57:36 freud Exp $
+// $Id: p_client.c,v 1.78 2002/03/25 23:35:19 freud Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: p_client.c,v $
+// Revision 1.78  2002/03/25 23:35:19  freud
+// Ghost code, use_ghosts and more stuff..
+//
 // Revision 1.77  2002/03/25 18:57:36  freud
 // Added maximum number of stored player sessions (ghosts)
 //
@@ -4366,7 +4369,8 @@ ClientDisconnect (edict_t * ent)
   TourneyRemovePlayer (ent);
   vClientDisconnect (ent);	// client voting disconnect
 
-  CreateGhost(ent);
+  if (use_ghosts->value)
+  	CreateGhost(ent);
 
   if (ctf->value)
     CTFDeadDropFlag (ent);
@@ -4399,6 +4403,28 @@ ClientDisconnect (edict_t * ent)
 void
 CreateGhost (edict_t * ent)
 {
+  int x;
+  qboolean duplicate = false;
+
+  if (ent->client->resp.score == 0 && ent->client->resp.damage_dealt == 0) {
+	return;
+  }
+
+
+  for (x = 0;x < num_ghost_players;x++) {
+	if (duplicate == true) {
+		ghost_players[x - 1] = ghost_players[x];
+	} else if (strcmp(ghost_players[x].ipaddr, ent->client->ipaddr) == 0 &&
+		strcmp(ghost_players[x].netname, ent->client->pers.netname) == 0) {
+		duplicate = true;
+	}
+  }
+
+  if (duplicate == true)
+	num_ghost_players--;
+
+		
+		
   if (num_ghost_players < MAX_CLIENTS) {
 
   	sprintf(ghost_players[num_ghost_players].ipaddr, "%s", ent->client->ipaddr);
@@ -4427,6 +4453,7 @@ CreateGhost (edict_t * ent)
 
   	memcpy(ghost_players[num_ghost_players].stats_shots, ent->client->resp.stats_shots, sizeof(ent->client->resp.stats_shots));
   	memcpy(ghost_players[num_ghost_players].stats_hits, ent->client->resp.stats_hits, sizeof(ent->client->resp.stats_hits));
+  	memcpy(ghost_players[num_ghost_players].stats_headshot, ent->client->resp.stats_headshot, sizeof(ent->client->resp.stats_headshot));
   
   	num_ghost_players++;
   } else {

@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // g_local.h -- local definitions for game module
 //
-// $Id: g_local.h,v 1.58 2002/03/25 18:32:11 freud Exp $
+// $Id: g_local.h,v 1.59 2002/03/25 23:35:19 freud Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_local.h,v $
+// Revision 1.59  2002/03/25 23:35:19  freud
+// Ghost code, use_ghosts and more stuff..
+//
 // Revision 1.58  2002/03/25 18:32:11  freud
 // I'm being too productive.. New ghost command needs testing.
 //
@@ -884,6 +887,8 @@ extern cvar_t *auto_equip;	// Remember weapons and items for players between map
 
 // TNG:Freud - new spawning system
 extern cvar_t *use_newspawns;
+// TNG:Freud - ghosts
+extern cvar_t *use_ghosts;
 
 // zucc from action
 extern cvar_t *sv_shelloff;

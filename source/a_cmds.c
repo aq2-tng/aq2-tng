@@ -4,10 +4,13 @@
 //
 // laser sight patch, by Geza Beladi
 //
-// $Id: a_cmds.c,v 1.27 2002/03/25 18:32:11 freud Exp $
+// $Id: a_cmds.c,v 1.28 2002/03/25 23:35:19 freud Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_cmds.c,v $
+// Revision 1.28  2002/03/25 23:35:19  freud
+// Ghost code, use_ghosts and more stuff..
+//
 // Revision 1.27  2002/03/25 18:32:11  freud
 // I'm being too productive.. New ghost command needs testing.
 //
@@ -1351,6 +1354,11 @@ void Cmd_Ghost_f (edict_t * ent)
 {
   int x;
   qboolean found = false;
+
+  if (!use_ghosts->value) {
+	gi.cprintf(ent, PRINT_HIGH, "Ghosting is not enabled on this server\n");
+	return;
+  }
 
   if (num_ghost_players == 0) {
   	gi.cprintf(ent, PRINT_HIGH, "No ghost match found\n");

@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // g_save.c
 //
-// $Id: g_save.c,v 1.56 2002/03/24 22:45:54 freud Exp $
+// $Id: g_save.c,v 1.57 2002/03/25 23:35:19 freud Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_save.c,v $
+// Revision 1.57  2002/03/25 23:35:19  freud
+// Ghost code, use_ghosts and more stuff..
+//
 // Revision 1.56  2002/03/24 22:45:54  freud
 // New spawn code again, bad commit last time..
 //
@@ -553,6 +556,8 @@ InitGame (void)
 
   //TNG:Freud - new spawning system
   use_newspawns = gi.cvar ("use_newspawns", "1", CVAR_LATCH);
+  //TNG:Freud - ghosts
+  use_ghosts = gi.cvar ("use_ghosts", "0", CVAR_LATCH);
 
   radio_max = gi.cvar ("radio_max", "4", 0);
   radio_time = gi.cvar ("radio_time", "2", 0);
