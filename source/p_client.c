@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // p_client.c
 //
-// $Id: p_client.c,v 1.83 2002/12/30 12:58:16 igor_rock Exp $
+// $Id: p_client.c,v 1.84 2002/12/31 17:07:22 igor_rock Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: p_client.c,v $
+// Revision 1.84  2002/12/31 17:07:22  igor_rock
+// - corrected the Add_Ammo function to regard wp_flags
+//
 // Revision 1.83  2002/12/30 12:58:16  igor_rock
 // - Corrected some comments (now it looks better)
 // - allweapon mode now recognizes wp_flags
@@ -2496,6 +2499,8 @@ void EquipClientDM(edict_t * ent)
 				client->pers.inventory[ITEM_INDEX(item)] = 1;
 			} else {
 				client->mk23_rds = 0;
+				item = FindItem("Pistol Clip");
+				client->pers.inventory[ITEM_INDEX(item)] = 0;
 			}
 
 		} else if (Q_strcasecmp(strtwpn->string, MP5_NAME) == 0) {

@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // g_itmes.c
 //
-// $Id: g_items.c,v 1.12 2002/03/30 17:20:59 ra Exp $
+// $Id: g_items.c,v 1.13 2002/12/31 17:07:22 igor_rock Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_items.c,v $
+// Revision 1.13  2002/12/31 17:07:22  igor_rock
+// - corrected the Add_Ammo function to regard wp_flags
+//
 // Revision 1.12  2002/03/30 17:20:59  ra
 // New cvar use_buggy_bandolier to control behavior of dropping bando and grenades
 //
@@ -700,21 +703,40 @@ Add_Ammo (edict_t * ent, gitem_t * item, int count)
   if (!ent->client)
     return false;
 
-  if (item->tag == AMMO_BULLETS)
-    max = ent->client->pers.max_bullets;
-  else if (item->tag == AMMO_SHELLS)
-    max = ent->client->pers.max_shells;
-  else if (item->tag == AMMO_ROCKETS)
-    max = ent->client->pers.max_rockets;
-  else if (item->tag == AMMO_GRENADES)
-    max = ent->client->pers.max_grenades;
-  else if (item->tag == AMMO_CELLS)
-    max = ent->client->pers.max_cells;
-  else if (item->tag == AMMO_SLUGS)
-    max = ent->client->pers.max_slugs;
-  else
+  if (item->tag == AMMO_BULLETS) {
+    if (((int) wp_flags->value & WPF_MK23) || ((int) wp_flags->value & WPF_DUAL))
+      max = ent->client->pers.max_bullets;
+    else
+      max = 0;
+  } else if (item->tag == AMMO_SHELLS) {
+    if (((int) wp_flags->value & WPF_M3) || ((int) wp_flags->value & WPF_HC))
+      max = ent->client->pers.max_shells;
+    else
+      max = 0;
+  } else if (item->tag == AMMO_ROCKETS) {
+    if ((int) wp_flags->value & WPF_MP5)
+      max = ent->client->pers.max_rockets;
+    else
+      max = 0;
+  } else if (item->tag == AMMO_GRENADES) {
+    if ((int) wp_flags->value & WPF_GRENADE)
+      max = ent->client->pers.max_grenades;
+    else
+      max = 0;
+  } else if (item->tag == AMMO_CELLS) {
+    if ((int) wp_flags->value & WPF_M4)
+      max = ent->client->pers.max_cells;
+    else
+      max = 0;
+  } else if (item->tag == AMMO_SLUGS) {
+    if ((int) wp_flags->value & WPF_SNIPER)
+      max = ent->client->pers.max_slugs;
+    else
+      max = 0;
+  } else {
     return false;
-
+  }
+  
   index = ITEM_INDEX (item);
 
   if (ent->client->pers.inventory[index] == max)
