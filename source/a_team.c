@@ -3,10 +3,13 @@
 // Some of this is borrowed from Zoid's CTF (thanks Zoid)
 // -Fireblade
 //
-// $Id: a_team.c,v 1.31 2001/06/27 16:58:14 igor_rock Exp $
+// $Id: a_team.c,v 1.32 2001/06/27 17:50:09 igor_rock Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_team.c,v $
+// Revision 1.32  2001/06/27 17:50:09  igor_rock
+// fixed the vote reached bug in teamplay and matchmode
+//
 // Revision 1.31  2001/06/27 16:58:14  igor_rock
 // corrected some limchasecam bugs
 //
@@ -1947,12 +1950,15 @@ CheckTeamRules ()
     else
     /* team_round_going */
     {
-      if ((vCheckVote () == true) && ctf->value)
-	  {
-	    EndDMLevel ();
-	    team_round_going = team_round_countdown = team_game_going = 0;
-	    return;
-	  }
+      if (ctf->value)
+	{
+	  if (vCheckVote () == true)
+	    {
+	      EndDMLevel ();
+	      team_round_going = team_round_countdown = team_game_going = 0;
+	      return;
+	    }
+	}
       
       if ((winner = CheckForWinner ()) != WINNER_NONE)
 	{
