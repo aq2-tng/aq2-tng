@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // a_ban.c
 //
-// $Id: a_ban.c,v 1.2 2001/09/28 13:48:34 ra Exp $
+// $Id: a_ban.c,v 1.3 2001/12/29 00:52:10 deathwatch Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_ban.c,v $
+// Revision 1.3  2001/12/29 00:52:10  deathwatch
+// Fixed HC sound bug (not making a sound when hc_single was 0)
+//
 // Revision 1.2  2001/09/28 13:48:34  ra
 // I ran indent over the sources. All .c and .h files reindented.
 //
@@ -23,7 +26,6 @@ typedef banstr banlist_t[BANLISTSIZE];
 
 banlist_t banlist;
 int banlistix;
-
 
 void
 InitBanList (void)

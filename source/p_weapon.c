@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // g_weapon.c
 //
-// $Id: p_weapon.c,v 1.13 2001/12/23 21:19:41 deathwatch Exp $
+// $Id: p_weapon.c,v 1.14 2001/12/29 00:52:10 deathwatch Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: p_weapon.c,v $
+// Revision 1.14  2001/12/29 00:52:10  deathwatch
+// Fixed HC sound bug (not making a sound when hc_single was 0)
+//
 // Revision 1.13  2001/12/23 21:19:41  deathwatch
 // Updated stats with location and average
 // cleaned it up a bit as well
@@ -3859,91 +3862,82 @@ HC_Fire (edict_t * ent)
   VectorSet (offset, 0, 8, ent->viewheight - height);
   P_ProjectSource (ent->client, ent->s.origin, offset, forward, right, start);
 
-  /*if (is_quad)
-     {
-     damage *= 4;
-     kick *= 4;
-     } */
+  /*
+	if (is_quad)
+  {
+		damage *= 4;
+    kick *= 4;
+	} */
 
   v[PITCH] = ent->client->v_angle[PITCH];
-// DW: Single Barreled HC
+	
+	// DW: Single Barreled HC
   if (ent->client->resp.hc_mode)
-    {
-      if (ent->client->cannon_rds == 2)
-	v[YAW] = ent->client->v_angle[YAW] - ((0.5) / 2);
-      else
-	v[YAW] = ent->client->v_angle[YAW] + ((0.5) / 2);
-    }
+  {
+		if (ent->client->cannon_rds == 2)
+			v[YAW] = ent->client->v_angle[YAW] - ((0.5) / 2);
+		else
+			v[YAW] = ent->client->v_angle[YAW] + ((0.5) / 2);
+	}
   else
-    v[YAW] = ent->client->v_angle[YAW] - 0.5;	//        v[YAW]   = ent->client->v_angle[YAW] - 5;
+		v[YAW] = ent->client->v_angle[YAW] - 0.5;	//        v[YAW]   = ent->client->v_angle[YAW] - 5;
 
-  v[ROLL] = ent->client->v_angle[ROLL];
+	v[ROLL] = ent->client->v_angle[ROLL];
   AngleVectors (v, forward, NULL, NULL);
-  // default hspread is 1k and default vspread is 500
+  
+	// default hspread is 1k and default vspread is 500
   setFFState (ent);
   InitShotgunDamageReport ();	//FB 6/3/99
 
   if (ent->client->resp.hc_mode)
-    {
-      //half the spread, half the pellets?
-      fire_shotgun (ent, start, forward, sngl_damage, sngl_kick,
-		    DEFAULT_SHOTGUN_HSPREAD * 2.5,
-		    DEFAULT_SHOTGUN_VSPREAD * 2.5, 34 / 2, MOD_HC);
-      ent->client->resp.stats_shots_t += 1;	// TNG Stats, +1 hit
-      ent->client->resp.stats_hc_shots_t += 1;	// TNG Stats, +1 hit
-      if (llsound->value == 0)
 	{
-	  gi.sound (ent, CHAN_WEAPON,
-		    gi.soundindex ("weapons/cannon_fire.wav"), 1, ATTN_NORM,
-		    0);
+		//half the spread, half the pellets?
+		fire_shotgun (ent, start, forward, sngl_damage, sngl_kick, DEFAULT_SHOTGUN_HSPREAD * 2.5, DEFAULT_SHOTGUN_VSPREAD * 2.5, 34 / 2, MOD_HC);
+		ent->client->resp.stats_shots_t += 1;	// TNG Stats, +1 hit
+		ent->client->resp.stats_hc_shots_t += 1;	// TNG Stats, +1 hit
+		if (llsound->value == 0)
+		{
+			gi.sound (ent, CHAN_WEAPON, gi.soundindex ("weapons/cannon_fire.wav"), 1, ATTN_NORM, 0);
+		}
+		// send muzzle flash
+		gi.WriteByte (svc_muzzleflash);
+		gi.WriteShort (ent - g_edicts);
+		gi.WriteByte (MZ_SSHOTGUN | is_silenced);
+		gi.multicast (ent->s.origin, MULTICAST_PVS);
 	}
-      // send muzzle flash
-      gi.WriteByte (svc_muzzleflash);
-      gi.WriteShort (ent - g_edicts);
-      gi.WriteByte (MZ_SSHOTGUN | is_silenced);
-      gi.multicast (ent->s.origin, MULTICAST_PVS);
-
-    }
-  else				//double shot
-    {
-      //sound on both WEAPON and ITEM to produce a louder 'boom'
-      fire_shotgun (ent, start, forward, damage, kick,
-		    DEFAULT_SHOTGUN_HSPREAD * 4, DEFAULT_SHOTGUN_VSPREAD * 4,
-		    34 / 2, MOD_HC);
-      ent->client->resp.stats_shots_t += 1;	// TNG Stats, +1 hit
-      ent->client->resp.stats_hc_shots_t += 1;	// TNG Stats, +1 hit
-      //only produce this extra sound if single shot is available
-      if (hc_single->value)
-	{
-	  if (llsound->value == 0)
+  else
+  {
+		//sound on both WEAPON and ITEM to produce a louder 'boom'
+		fire_shotgun (ent, start, forward, damage, kick, DEFAULT_SHOTGUN_HSPREAD * 4, DEFAULT_SHOTGUN_VSPREAD * 4, 34 / 2, MOD_HC);
+		ent->client->resp.stats_shots_t += 1;	// TNG Stats, +1 hit
+		ent->client->resp.stats_hc_shots_t += 1;	// TNG Stats, +1 hit
+		
+		//only produce this extra sound if single shot is available
+    if (hc_single->value)
+		{
+			if (llsound->value == 0)
 	    {
-	      gi.sound (ent, CHAN_WEAPON,
-			gi.soundindex ("weapons/cannon_fire.wav"), 1,
-			ATTN_NORM, 0);
+				gi.sound (ent, CHAN_WEAPON, gi.soundindex ("weapons/cannon_fire.wav"), 1, ATTN_NORM, 0);
 	    }
-	  // send muzzle flash
-	  gi.WriteByte (svc_muzzleflash);
-	  gi.WriteShort (ent - g_edicts);
-	  gi.WriteByte (MZ_SSHOTGUN | is_silenced);
-	  gi.multicast (ent->s.origin, MULTICAST_PVS);
-	  v[YAW] = ent->client->v_angle[YAW] + 5;
-	  AngleVectors (v, forward, NULL, NULL);	//was *5 here?
-	  fire_shotgun (ent, start, forward, damage, kick,
-			DEFAULT_SHOTGUN_HSPREAD * 4,
-			DEFAULT_SHOTGUN_VSPREAD * 4, 34 / 2, MOD_HC);
-	  if (llsound->value == 0)
-	    {
-	      gi.sound (ent, CHAN_WEAPON,
-			gi.soundindex ("weapons/cannon_fire.wav"), 1,
-			ATTN_NORM, 0);
-	    }
-	  // send muzzle flash
-	  gi.WriteByte (svc_muzzleflash);
-	  gi.WriteShort (ent - g_edicts);
-	  gi.WriteByte (MZ_SSHOTGUN | is_silenced);
-	  gi.multicast (ent->s.origin, MULTICAST_PVS);
+		}
+		// send muzzle flash
+		gi.WriteByte (svc_muzzleflash);
+		gi.WriteShort (ent - g_edicts);
+		gi.WriteByte (MZ_SSHOTGUN | is_silenced);
+		gi.multicast (ent->s.origin, MULTICAST_PVS);
+		v[YAW] = ent->client->v_angle[YAW] + 5;
+		AngleVectors (v, forward, NULL, NULL);	//was *5 here?
+		fire_shotgun (ent, start, forward, damage, kick, DEFAULT_SHOTGUN_HSPREAD * 4, DEFAULT_SHOTGUN_VSPREAD * 4, 34 / 2, MOD_HC);
+		if (llsound->value == 0)
+	  {
+			gi.sound (ent, CHAN_WEAPON, gi.soundindex ("weapons/cannon_fire.wav"), 1, ATTN_NORM, 0);
+	  }
+		// send muzzle flash
+		gi.WriteByte (svc_muzzleflash);
+		gi.WriteShort (ent - g_edicts);
+		gi.WriteByte (MZ_SSHOTGUN | is_silenced);
+		gi.multicast (ent->s.origin, MULTICAST_PVS);
 	}
-    }
   ProduceShotgunDamageReport (ent);	//FB 6/3/99
 
   ent->client->ps.gunframe++;
