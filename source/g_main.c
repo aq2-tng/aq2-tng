@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 //
 //
-// $Id: g_main.c,v 1.39 2001/11/25 19:09:25 slicerdw Exp $
+// $Id: g_main.c,v 1.40 2001/11/29 17:58:31 igor_rock Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_main.c,v $
+// Revision 1.40  2001/11/29 17:58:31  igor_rock
+// TNG IRC Bot - First Version
+//
 // Revision 1.39  2001/11/25 19:09:25  slicerdw
 // Fixed Matchtime
 //
@@ -730,7 +733,7 @@ CycleLights ()
   static char *brightness = "mmmlkjihgfedcbaaabcdefghijkl";
   char temp[2];
 
-  if (!(darkmatch->value == 3) || (day_cycle->value == 0))
+  if ((!(darkmatch->value == 3)) || (day_cycle->value == 0))
     return;
 
   if (level.time == 10.0)

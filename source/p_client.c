@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // p_client.c
 //
-// $Id: p_client.c,v 1.53 2001/11/08 20:56:24 igor_rock Exp $
+// $Id: p_client.c,v 1.54 2001/11/29 17:58:31 igor_rock Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: p_client.c,v $
+// Revision 1.54  2001/11/29 17:58:31  igor_rock
+// TNG IRC Bot - First Version
+//
 // Revision 1.53  2001/11/08 20:56:24  igor_rock
 // - changed some things related to wp_flags
 // - corrected use_punch bug when player only has an empty weapon left
@@ -1101,7 +1104,7 @@ ClientObituary (edict_t * self, edict_t * inflictor, edict_t * attacker)
 		  message = " was shot in the legs by";
 		  break;
 		default:
-		  message = "was sniped by";
+		  message = " was sniped by";
 		  //message2 = "'s Sniper Rifle";
 		}
 	      break;
@@ -1197,7 +1200,7 @@ ClientObituary (edict_t * self, edict_t * inflictor, edict_t * attacker)
 		}
 	      break;
 	    case MOD_GAS:
-	      message = "sucks down some toxic gas thanks to";
+	      message = " sucks down some toxic gas thanks to";
 	      break;
 	    case MOD_KICK:
 	      n = rand () % 3 + 1;
