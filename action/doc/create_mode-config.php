@@ -2,7 +2,7 @@
   //-----------------------------------------------------------------------------
   // create_mode-config.php
   //-----------------------------------------------------------------------------
-  // $Id: create_mode-config.php,v 1.3 2001/06/20 07:29:10 igor_rock Exp $
+  // $Id: create_mode-config.php,v 1.4 2001/06/27 10:37:43 igor_rock Exp $
   //-----------------------------------------------------------------------------
 
   // Do some checks for illegal game modes
@@ -127,6 +127,7 @@
 #  print "set ctf_mode $data[ctf_mode]\n";
   print "set ctf_dropflag $data[ctf_dropflag]\n";
   print "set capturelimit $data[capturelimit]\n";
+  print "set ctf_respawn $data[ctf_respawn]\n";
 
   print "\n//-----------------------------------------------------------------------------\n";
   print "// Video Checking\n";
