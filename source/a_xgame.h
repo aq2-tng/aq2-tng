@@ -4,10 +4,13 @@
 //
 // header file for a_xgame.c
 //
-// $Id: a_xgame.h,v 1.6 2001/06/21 00:05:30 slicerdw Exp $
+// $Id: a_xgame.h,v 1.7 2001/06/25 11:44:47 slicerdw Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_xgame.h,v $
+// Revision 1.7  2001/06/25 11:44:47  slicerdw
+// New Video Check System - video_check and video_check_lockpvs no longer latched
+//
 // Revision 1.6  2001/06/21 00:05:30  slicerdw
 // New Video Check System done -  might need some revision but works..
 //
@@ -105,8 +108,6 @@ void GetSightedLocation(edict_t *self, char *buf);
 void AntiCheat_CheckClient(edict_t *ent);
 void GetLastDamagedPart(edict_t *self, char *buf);
 void GetEnemyPosition (edict_t * self, char *buf);
-extern float next_cheat_check;
-extern float next_cheat_check2;
 //AQ2:TNG END
 
 void Cmd_SetFlag1_f(edict_t *self);

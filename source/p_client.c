@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // p_client.c
 //
-// $Id: p_client.c,v 1.33 2001/06/22 20:35:07 igor_rock Exp $
+// $Id: p_client.c,v 1.34 2001/06/25 11:44:47 slicerdw Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: p_client.c,v $
+// Revision 1.34  2001/06/25 11:44:47  slicerdw
+// New Video Check System - video_check and video_check_lockpvs no longer latched
+//
 // Revision 1.33  2001/06/22 20:35:07  igor_rock
 // fixed the flying corpse bug
 //
@@ -1770,7 +1773,9 @@ void InitClientResp (gclient_t *client)
   client->resp.gllockpvs = 0;
   client->resp.glmodulate = 0;
   client->resp.checked = false;
-  client->resp.checktime = 0;
+  client->resp.checktime[0] = 0;
+  client->resp.checktime[1] = 0;
+  client->resp.checktime[2] = 0;
   //AQ2:TNG END
   //AQ2:TNG Slicer Last Damage Location
   client->resp.last_damaged_part = 0;
@@ -2910,7 +2915,9 @@ void ClientBeginDeathmatch (edict_t *ent)
 //FIREBLADE
 
 		//AQ2:TNG - Slicer: Set time to check clients
-		ent->client->resp.checktime = (int)(level.time) + check_time->value;
+		ent->client->resp.checktime[0] = level.time + check_time->value;
+		ent->client->resp.checktime[1] = level.time + (check_time->value + 2);
+		ent->client->resp.checktime[1] = level.time + (check_time->value + 3);
 
         // make sure all view stuff is valid
         ClientEndServerFrame (ent);

@@ -16,10 +16,13 @@
 // you get compiler errors too, comment them out like
 // I'd done.
 //
-// $Id: a_xgame.c,v 1.9 2001/06/21 00:05:30 slicerdw Exp $
+// $Id: a_xgame.c,v 1.10 2001/06/25 11:44:47 slicerdw Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_xgame.c,v $
+// Revision 1.10  2001/06/25 11:44:47  slicerdw
+// New Video Check System - video_check and video_check_lockpvs no longer latched
+//
 // Revision 1.9  2001/06/21 00:05:30  slicerdw
 // New Video Check System done -  might need some revision but works..
 //
@@ -695,29 +698,6 @@ ParseSayText (edict_t * ent, char *text)
 
 //float	next_cheat_check;
 
-void AntiCheat_CheckClient (edict_t *ent)
-{
-    //check for gl_modulate?
-    if (video_check->value || video_check_lockpvs->value)
-		//user tells server what value he is using
-		// (then ClientCommand will handle it)
-		if(video_check->value && !video_check_lockpvs->value)
-		{
-			stuffcmd(ent, "%cpsi $gl_modulate $vid_ref $gl_driver\n");
-			return;
-		}
-		if(!video_check->value && video_check_lockpvs->value)
-		{
-			stuffcmd(ent, "%cpsi $gl_lockpvs $vid_ref\n");
-			return;
-		}
-		if(video_check->value && video_check_lockpvs->value)
-		{
-			stuffcmd(ent,"%cpsi $gl_lockpvs $gl_modulate $vid_ref $gl_driver\n");
-			return;
-		}
-
-}
 
 /*
 ===========
@@ -731,7 +711,7 @@ void VideoCheckClient(edict_t *ent)
 	if(!ent->client->resp.vidref)
 		return;
 		
-	if(video_check_lockpvs->value && Q_stricmp(ent->client->resp.vidref,"soft") != 0)
+	if(video_check_lockpvs->value)
 	{
 		if(ent->client->resp.gllockpvs !=0)
 		{
@@ -743,8 +723,7 @@ void VideoCheckClient(edict_t *ent)
 		}
 	}
 	//Starting Modulate checks
-	if(Q_stricmp(ent->client->resp.vidref,"soft") == 0)
-		return;
+
 
 	if(Q_stricmp(ent->client->resp.gldriver,"3dfxgl") == 0)
 	{

@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // g_spawn.c
 //
-// $Id: g_spawn.c,v 1.20 2001/06/22 16:34:05 slicerdw Exp $
+// $Id: g_spawn.c,v 1.21 2001/06/25 11:44:47 slicerdw Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_spawn.c,v $
+// Revision 1.21  2001/06/25 11:44:47  slicerdw
+// New Video Check System - video_check and video_check_lockpvs no longer latched
+//
 // Revision 1.20  2001/06/22 16:34:05  slicerdw
 // Finished Matchmode Basics, now with admins, Say command tweaked...
 //
@@ -1587,8 +1590,6 @@ void SP_worldspawn (edict_t *ent)
 		matchtime = 0;
 		admin->value = -1; // AQ2:M - No admin
 		strcpy(admin->string,"-1"); // As above
-		next_cheat_check = level.time + video_checktime->value;
-		next_cheat_check2 = level.time + video_checktime->value + 2;
 		//---------------
 
         // reserve some spots for dead player bodies for coop / deathmatch

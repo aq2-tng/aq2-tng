@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // g_cmds.c
 //
-// $Id: g_cmds.c,v 1.19 2001/06/22 16:34:05 slicerdw Exp $
+// $Id: g_cmds.c,v 1.20 2001/06/25 11:44:47 slicerdw Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_cmds.c,v $
+// Revision 1.20  2001/06/25 11:44:47  slicerdw
+// New Video Check System - video_check and video_check_lockpvs no longer latched
+//
 // Revision 1.19  2001/06/22 16:34:05  slicerdw
 // Finished Matchmode Basics, now with admins, Say command tweaked...
 //
@@ -1730,6 +1733,11 @@ void ClientCommand (edict_t *ent)
 		//AQ:TNG Slicer : Video Checks
 		else if (Q_stricmp(cmd, "%cpsi") == 0)
 			Cmd_CPSI_f(ent);
+		else if (Q_stricmp(cmd, "%!fc") == 0)
+			Cmd_VidRef_f(ent);
+		else if (Q_stricmp(cmd, "mostravars") == 0)
+			gi.bprintf(PRINT_HIGH, "%s %s %f %f\n", ent->client->resp.vidref,
+			ent->client->resp.gldriver,ent->client->resp.glmodulate,ent->client->resp.gllockpvs);
 		//AQ2:TNG Slicer - Matchmode
 		else if (Q_stricmp(cmd, "sub") == 0)
 		{
@@ -1774,35 +1782,24 @@ void ClientCommand (edict_t *ent)
 }
 
  // AQ2:TNG - Slicer : Video Check
-void Cmd_CPSI_f(edict_t *ent)
+void Cmd_VidRef_f(edict_t *ent)
 {
-	if(video_check->value && !video_check_lockpvs->value)
+	if(video_check->value || video_check_lockpvs->value)
 	{
-		ent->client->resp.glmodulate = atoi(gi.argv(1));
-		strncpy(ent->client->resp.vidref,gi.argv(2),sizeof(ent->client->resp.vidref-1));
-		ent->client->resp.vidref[30] = 0;
-		strncpy(ent->client->resp.gldriver,gi.argv(3),sizeof(ent->client->resp.gldriver-1));
-		ent->client->resp.gldriver[30] = 0;
-		return;
-	}
-		
-	else if(!video_check->value && video_check_lockpvs->value)
-	{
-		ent->client->resp.gllockpvs = atoi(gi.argv(1));
-		strncpy(ent->client->resp.vidref,gi.argv(2),sizeof(ent->client->resp.vidref-1));
-		ent->client->resp.vidref[30] = 0;
-		return;
-	}
-			
-	else if(video_check->value && video_check_lockpvs->value)
-	{
-		ent->client->resp.gllockpvs = atoi(gi.argv(1));
-		ent->client->resp.glmodulate = atoi(gi.argv(2));
-		strncpy(ent->client->resp.vidref,gi.argv(3),sizeof(ent->client->resp.vidref-1));
-		ent->client->resp.vidref[30] = 0;
-		strncpy(ent->client->resp.gldriver,gi.argv(4),sizeof(ent->client->resp.gldriver-1));
-		ent->client->resp.gldriver[30] = 0;
-		return;
+		strncpy(ent->client->resp.vidref,gi.argv(1),sizeof(ent->client->resp.vidref-1));
+		ent->client->resp.vidref[15] = 0;
 	}
 
+}
+void Cmd_CPSI_f(edict_t *ent)
+{
+	if(video_check->value || video_check_lockpvs->value)
+	{
+		ent->client->resp.glmodulate = atoi(gi.argv(1));
+		ent->client->resp.gllockpvs = atoi(gi.argv(2));
+		strncpy(ent->client->resp.gldriver,gi.argv(3),sizeof(ent->client->resp.gldriver-1));
+		ent->client->resp.gldriver[15] = 0;
+	//	strncpy(ent->client->resp.vidref,gi.argv(4),sizeof(ent->client->resp.vidref-1));
+	//	ent->client->resp.vidref[15] = 0;
+	}
 }

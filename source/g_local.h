@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // g_local.h -- local definitions for game module
 //
-// $Id: g_local.h,v 1.26 2001/06/22 16:34:05 slicerdw Exp $
+// $Id: g_local.h,v 1.27 2001/06/25 11:44:47 slicerdw Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_local.h,v $
+// Revision 1.27  2001/06/25 11:44:47  slicerdw
+// New Video Check System - video_check and video_check_lockpvs no longer latched
+//
 // Revision 1.26  2001/06/22 16:34:05  slicerdw
 // Finished Matchmode Basics, now with admins, Say command tweaked...
 //
@@ -863,7 +866,7 @@ extern gitem_t itemlist[];
 void Cmd_Help_f (edict_t * ent);
 void Cmd_Score_f (edict_t * ent);
 void Cmd_CPSI_f(edict_t *ent);
-
+void Cmd_VidRef_f(ent);	
 //
 // g_items.c
 //
@@ -1037,9 +1040,7 @@ void player_die (edict_t * self, edict_t * inflictor, edict_t * attacker, int da
 void ServerCommand (void);
 qboolean SV_FilterPacket (char *from);
 //AQ2:TNG - Slicer
-void SVCmd_CheckCheats_f (void);
 void Kick_Client (edict_t *ent);
-void CheckClients (void);
 //AQ2:TNG END
 
 //
@@ -1246,12 +1247,12 @@ typedef struct
     int headshots;		// Headshot Counter
     // Igor - END
 	//AQ2:TNG - Slicer: Video Checking and further Cheat cheking vars
-	char vidref[31];
-	char gldriver[31];
+	char vidref[16];
+	char gldriver[16];
 	float gllockpvs;
 	float glmodulate;
 	qboolean	checked;
-	int checktime;
+	float checktime[3];
 	//AQ2:TNG END
 	//AQ2:TNG - Slicer Last Damage Location
 	int last_damaged_part;

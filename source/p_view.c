@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // p_view.c
 //
-// $Id: p_view.c,v 1.11 2001/06/21 00:05:31 slicerdw Exp $
+// $Id: p_view.c,v 1.12 2001/06/25 11:44:47 slicerdw Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: p_view.c,v $
+// Revision 1.12  2001/06/25 11:44:47  slicerdw
+// New Video Check System - video_check and video_check_lockpvs no longer latched
+//
 // Revision 1.11  2001/06/21 00:05:31  slicerdw
 // New Video Check System done -  might need some revision but works..
 //
@@ -65,9 +68,6 @@ float   bobmove;
 int             bobcycle;               // odd cycles are right foot going forward
 float   bobfracsin;             // sin(bobfrac*M_PI)
 
-//AQ2:TNG - Slicer: needed var
-float	next_cheat_check;
-float   next_cheat_check2;
 
 /*
 ===============
@@ -1198,20 +1198,40 @@ void ClientEndServerFrame (edict_t *ent)
   current_client = ent->client;
 	
   //AQ2:TNG - Slicer : Stuffs the client x seconds after he enters the server, needed for Video check
-  if(!ent->client->resp.checked)
+  if (ent->client->resp.checktime[0] <= level.time)
   {
-	  if (ent->client->resp.checktime <= (int)(level.time))
-	  {
-		ent->client->resp.checked = true;
-		if(video_force_restart->value && video_check->value)
-		{
+	ent->client->resp.checktime[0] = level.time + video_checktime->value;	
+	if(video_check->value || video_check_lockpvs->value)
+			stuffcmd(ent,"%!fc $vid_ref\n");
+	if(video_force_restart->value && video_check->value && !ent->client->resp.checked)
+	{
 			stuffcmd(ent,"vid_restart\n");
-		}
+			ent->client->resp.checked = true;
+	}
 	
-	  }
-//AQ2:TNG End
-  
   }
+  if (ent->client->resp.checktime[1] <= level.time)
+  {
+	  ent->client->resp.checktime[1] = level.time + video_checktime->value;
+	  ent->client->resp.checktime[2] = level.time + 1;
+	  if(video_check->value || video_check_lockpvs->value)
+	  {
+		  if(ent->client->resp.vidref && Q_stricmp (ent->client->resp.vidref, "soft") != 0)
+			  stuffcmd(ent,"%cpsi $gl_modulate $gl_lockpvs $gl_driver\n");
+	  }
+
+  }
+  if (ent->client->resp.checktime[2] <= level.time)
+  {
+	 // ent->client->resp.checktime[2] = level.time + video_checktime->value;
+	  if(video_check->value || video_check_lockpvs->value)
+	  {
+		  if(ent->client->resp.vidref && Q_stricmp (ent->client->resp.vidref, "soft") != 0)
+			  VideoCheckClient(ent);
+	  }
+
+  }
+
 
   //FIREBLADE - Unstick avoidance stuff.
   if (ent->solid == SOLID_TRIGGER && !lights_camera_action)

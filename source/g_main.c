@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 //
 //
-// $Id: g_main.c,v 1.17 2001/06/23 14:09:17 slicerdw Exp $
+// $Id: g_main.c,v 1.18 2001/06/25 11:44:47 slicerdw Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_main.c,v $
+// Revision 1.18  2001/06/25 11:44:47  slicerdw
+// New Video Check System - video_check and video_check_lockpvs no longer latched
+//
 // Revision 1.17  2001/06/23 14:09:17  slicerdw
 // Small fix on the Time Reporting on matchmode
 //
@@ -667,26 +670,7 @@ void G_RunFrame (void)
   //FIREBLADE
   CheckNeedPass();
   //FIREBLADE
-  //AQ2:TNG - Slicer : This will update the clients gl_driver and vid_ref
   
-		// check for cheat checking
-		if ((int)(video_checktime->value) > 5 && (video_check->value || video_check_lockpvs->value))
-		{
-			if (level.time > next_cheat_check)
-			{
-				SVCmd_CheckCheats_f();
-				next_cheat_check = level.time + video_checktime->value;
-			}
-			if(level.time > next_cheat_check2)
-			{
-				CheckClients();
-				next_cheat_check2 = level.time + video_checktime->value + 2;
-
-			}
-
-		}
-	//AQ2:TNG END
-
   // build the playerstate_t structures for all players
   ClientEndServerFrames ();
 }

@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // g_save.c
 //
-// $Id: g_save.c,v 1.24 2001/06/22 16:34:05 slicerdw Exp $
+// $Id: g_save.c,v 1.25 2001/06/25 11:44:47 slicerdw Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_save.c,v $
+// Revision 1.25  2001/06/25 11:44:47  slicerdw
+// New Video Check System - video_check and video_check_lockpvs no longer latched
+//
 // Revision 1.24  2001/06/22 16:34:05  slicerdw
 // Finished Matchmode Basics, now with admins, Say command tweaked...
 //
@@ -353,12 +356,12 @@ void InitGame (void)
   //Igor[Rock] END
 	//AQ2:TNG - Slicer
 	check_time = gi.cvar("check_time", "3", 0);
-	video_check = gi.cvar("video_check", "0", CVAR_LATCH);
+	video_check = gi.cvar("video_check", "0",0);
 	video_max_3dfx = gi.cvar("video_max_3dfx", "1.5", 0);
 	video_max_3dfxam = gi.cvar("video_max_3dfxam", "1.5", 0);
 	video_max_opengl = gi.cvar("video_max_opengl", "3.0", 0);
 	video_force_restart = gi.cvar("video_force_restart", "0", CVAR_LATCH);
-	video_check_lockpvs = gi.cvar("video_check_lockpvs", "0",CVAR_LATCH);
+	video_check_lockpvs = gi.cvar("video_check_lockpvs", "0",0);
 	video_checktime = gi.cvar("video_checktime", "15", 0);
 // AQ2:TNG Deathwatch - Single Barreled HC
 	hc_single = gi.cvar("hc_single", "1", CVAR_LATCH); //default ON

@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // g_svcmds.c
 //
-// $Id: g_svcmds.c,v 1.8 2001/06/21 00:05:30 slicerdw Exp $
+// $Id: g_svcmds.c,v 1.9 2001/06/25 11:44:47 slicerdw Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_svcmds.c,v $
+// Revision 1.9  2001/06/25 11:44:47  slicerdw
+// New Video Check System - video_check and video_check_lockpvs no longer latched
+//
 // Revision 1.8  2001/06/21 00:05:30  slicerdw
 // New Video Check System done -  might need some revision but works..
 //
@@ -440,8 +443,6 @@ void    ServerCommand (void)
 		else if (Q_stricmp (cmd, "reloadmotd") == 0)
 				SVCmd_ReloadMOTD_f();
 		//AQ2:TNG - Slicer : CheckCheats & StuffCmd
-		else if (Q_stricmp (cmd, "checkcheats") == 0)
-				SVCmd_CheckCheats_f();
 		else if (Q_stricmp (cmd, "stuffcmd") == 0)
                 SVCmd_stuffcmd_f();
         else
@@ -546,42 +547,3 @@ void UnBan_TeamKillers (void)
 	}
 }
 //AZEROV
-
-// AQ2:TNG - Slicer
-/*
-=================
-SVCmd_CheckCheats_f
-
-Checks every client for Video 
-=================
-*/
-void SVCmd_CheckCheats_f (void)
-{
-	edict_t *ent;
-	int i;
-
-	//go through each client and check things
-	for (i=0; i<game.maxclients; i++)
-    {
-    	ent = &g_edicts[1+i];
-		if (!ent->inuse || !ent->client)
-			continue;
-		AntiCheat_CheckClient(ent);
-    }
-}
-
-void CheckClients (void)
-{
-	edict_t *ent;
-	int i;
-
-	//go through each client and check things
-	for (i=0; i<game.maxclients; i++)
-    {
-    	ent = &g_edicts[1+i];
-		if (!ent->inuse || !ent->client)
-			continue;
-		VideoCheckClient(ent);
-    }
-}
-// AQ2:TNG END
