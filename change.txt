@@ -6,6 +6,8 @@ Changes in TNG
 
 From 2.6
 - Fixed a typo in the stats
++ Added use_ghosts cvar and the ghost user command. It restores scores, stats, teams and items for player if he gets disconnected.
++ Added use_newspawns. New spawning system which makes spawns fair between teams, no spawning twice in the same place as long as possible.
 
 From 2.5
 + Stats list shows average accuracy for each player including player ID
