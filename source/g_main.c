@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 //
 //
-// $Id: g_main.c,v 1.41 2001/12/09 14:02:11 slicerdw Exp $
+// $Id: g_main.c,v 1.42 2001/12/24 17:27:58 slicerdw Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_main.c,v $
+// Revision 1.42  2001/12/24 17:27:58  slicerdw
+// Added check for gl_dynamic
+//
 // Revision 1.41  2001/12/09 14:02:11  slicerdw
 // Added gl_clear check -> video_check_glclear cvar
 //
@@ -265,6 +268,7 @@ cvar_t *video_max_opengl;
 cvar_t *video_force_restart;
 cvar_t *video_check_lockpvs;
 cvar_t *video_check_glclear;
+cvar_t *video_check_gldynamic;
 cvar_t *hc_single;
 cvar_t *wp_flags;		// Weapon Banning
 cvar_t *itm_flags;		// Item Banning

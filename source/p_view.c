@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // p_view.c
 //
-// $Id: p_view.c,v 1.17 2001/12/09 14:02:11 slicerdw Exp $
+// $Id: p_view.c,v 1.18 2001/12/24 17:27:58 slicerdw Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: p_view.c,v $
+// Revision 1.18  2001/12/24 17:27:58  slicerdw
+// Added check for gl_dynamic
+//
 // Revision 1.17  2001/12/09 14:02:11  slicerdw
 // Added gl_clear check -> video_check_glclear cvar
 //
@@ -1301,7 +1304,7 @@ ClientEndServerFrame (edict_t * ent)
   if (ent->client->resp.checktime[0] <= level.time)
     {
       ent->client->resp.checktime[0] = level.time + video_checktime->value;
-      if (video_check->value || video_check_lockpvs->value || video_check_glclear)
+      if (video_check->value || video_check_lockpvs->value || video_check_glclear || video_check_gldynamic)
 	stuffcmd (ent, "%!fc $vid_ref\n");
       if (video_force_restart->value && video_check->value
 	  && !ent->client->resp.checked)
@@ -1315,18 +1318,18 @@ ClientEndServerFrame (edict_t * ent)
     {
       ent->client->resp.checktime[1] = level.time + video_checktime->value;
       ent->client->resp.checktime[2] = level.time + 1;
-      if (video_check->value || video_check_lockpvs->value || video_check_glclear)
+      if (video_check->value || video_check_lockpvs->value || video_check_glclear || video_check_gldynamic)
 	{
 	  if (ent->client->resp.vidref
 	      && Q_stricmp (ent->client->resp.vidref, "soft") != 0)
-	    stuffcmd (ent, "%cpsi $gl_modulate $gl_lockpvs $gl_clear $gl_driver\n");
+	    stuffcmd (ent, "%cpsi $gl_modulate $gl_lockpvs $gl_clear $gl_dynamic $gl_driver\n");
 	}
 
     }
   if (ent->client->resp.checktime[2] <= level.time)
     {
       // ent->client->resp.checktime[2] = level.time + video_checktime->value;
-      if (video_check->value || video_check_lockpvs->value || video_check_glclear)
+      if (video_check->value || video_check_lockpvs->value || video_check_glclear || video_check_gldynamic)
 	{
 	  if (ent->client->resp.vidref
 	      && Q_stricmp (ent->client->resp.vidref, "soft") != 0)

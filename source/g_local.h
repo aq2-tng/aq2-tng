@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // g_local.h -- local definitions for game module
 //
-// $Id: g_local.h,v 1.46 2001/12/23 21:19:41 deathwatch Exp $
+// $Id: g_local.h,v 1.47 2001/12/24 17:27:58 slicerdw Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_local.h,v $
+// Revision 1.47  2001/12/24 17:27:58  slicerdw
+// Added check for gl_dynamic
+//
 // Revision 1.46  2001/12/23 21:19:41  deathwatch
 // Updated stats with location and average
 // cleaned it up a bit as well
@@ -768,6 +771,7 @@ extern cvar_t *video_max_3dfxam;
 extern cvar_t *video_max_opengl;
 extern cvar_t *video_check_lockpvs;
 extern cvar_t *video_check_glclear;
+extern cvar_t *video_check_gldynamic;
 extern cvar_t *video_force_restart;
 extern cvar_t *check_time;
 extern cvar_t *matchmode;
@@ -1333,6 +1337,7 @@ typedef struct
   float gllockpvs;
   float glmodulate;
   float glclear;
+  float gldynamic;
   qboolean checked;
   float checktime[3];
   int last_damaged_part;
