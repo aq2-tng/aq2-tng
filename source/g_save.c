@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // g_save.c
 //
-// $Id: g_save.c,v 1.41 2001/11/04 15:18:49 ra Exp $
+// $Id: g_save.c,v 1.42 2001/11/07 11:03:35 igor_rock Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_save.c,v $
+// Revision 1.42  2001/11/07 11:03:35  igor_rock
+// corrected some disformatting (removed linebreak at wrong position)
+//
 // Revision 1.41  2001/11/04 15:18:49  ra
 // Unlatch wpn_flag, itm_flag, rrot, vrot
 //
@@ -427,8 +430,7 @@ InitGame (void)
   actionmaps = gi.cvar ("actionmaps", "1", 0);
   if (actionmaps->value && num_maps < 1)
     {
-      gi.
-	dprintf
+      gi.dprintf
 	("No maps were read from the config file, \"actionmaps\" won't be used.\n");
       gi.cvar_set ("actionmaps", "0");
     }
