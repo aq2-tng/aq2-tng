@@ -20,9 +20,9 @@ void Cmd_Stats_f(edict_t *ent)
 	headshots = ent->client->resp.stats_shots_hd;
 	
 	if(total!=0) {
-		perc_hit = ((double) hits / (double) total) * 100.0; // Percentage of shots that hit
-		perc_miss = ((double) misses / (double) total) * 100.0; // Percentage of shots missed
-		perc_hd = ((double) headshots / (double) total) * 100.0; // Percentage of total shots that are headshots
+		perc_hit = (((double) hits / (double) total) * 100.0); // Percentage of shots that hit
+		perc_miss = (((double) misses / (double) total) * 100.0); // Percentage of shots missed
+		perc_hd = (((double) headshots / (double) total) * 100.0); // Percentage of total shots that are headshots
 	} else {
 		perc_hit = 0.0;
 		perc_miss = 0.0;
@@ -30,9 +30,9 @@ void Cmd_Stats_f(edict_t *ent)
 	}
 	
 	gi.cprintf(ent, PRINT_HIGH, "\nŸ\n");
-	gi.cprintf(ent, PRINT_HIGH, "Statistics for %s:\n",ent->client->pers.netname);
-	gi.cprintf(ent, PRINT_HIGH, "Of the %i shots fired, %d%% (%i) hit.\n", total, perc_hit, hits);
-	gi.cprintf(ent, PRINT_HIGH, "Number of Headshots:      %i - %d%% of the total nr of hits.\n", headshots, perc_hd);
+	gi.cprintf(ent, PRINT_HIGH, "Statistics for %s:\n", ent->client->pers.netname);
+	gi.cprintf(ent, PRINT_HIGH, "Of the %i shots fired, %.2f%% (%i) hit.\n", total, perc_hit, hits);
+	gi.cprintf(ent, PRINT_HIGH, "Number of Headshots:      %i - %.2f%% of the total nr of hits.\n", headshots, perc_hd);
 	gi.cprintf(ent, PRINT_HIGH, "Ÿ\n\n");
 
 }
