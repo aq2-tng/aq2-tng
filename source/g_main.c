@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 //
 //
-// $Id: g_main.c,v 1.24 2001/08/06 14:38:45 ra Exp $
+// $Id: g_main.c,v 1.25 2001/08/08 12:42:22 slicerdw Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_main.c,v $
+// Revision 1.25  2001/08/08 12:42:22  slicerdw
+// Ctf Should finnaly be fixed now, lets hope so
+//
 // Revision 1.24  2001/08/06 14:38:45  ra
 // Adding UVtime for ctf
 //
@@ -567,6 +570,7 @@ void CheckDMRules (void)
   
   if (ctf->value) {
     if (CTFCheckRules()) {
+	  ResetPlayers();
       EndDMLevel ();
     }
   }  
@@ -581,6 +585,8 @@ void CheckDMRules (void)
 	  if (cl->resp.score >= fraglimit->value)
 	    {
 	      gi.bprintf (PRINT_HIGH, "Fraglimit hit.\n");
+		  if(ctf->value)
+			  ResetPlayers();
 	      EndDMLevel ();
 	      return;
 	    }

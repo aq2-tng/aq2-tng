@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // CTF related definitions
 //
-// $Id: a_ctf.h,v 1.8 2001/06/26 18:47:30 igor_rock Exp $
+// $Id: a_ctf.h,v 1.9 2001/08/08 12:42:22 slicerdw Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_ctf.h,v $
+// Revision 1.9  2001/08/08 12:42:22  slicerdw
+// Ctf Should finnaly be fixed now, lets hope so
+//
 // Revision 1.8  2001/06/26 18:47:30  igor_rock
 // added ctf_respawn cvar
 //
@@ -90,3 +93,5 @@ extern char *ctf_statusbar;
 
 void SP_trigger_teleport (edict_t *ent);
 void SP_info_teleport_destination (edict_t *ent);
+
+void ResetPlayers ();

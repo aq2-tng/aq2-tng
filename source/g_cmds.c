@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // g_cmds.c
 //
-// $Id: g_cmds.c,v 1.25 2001/07/30 16:07:25 igor_rock Exp $
+// $Id: g_cmds.c,v 1.26 2001/08/08 12:42:22 slicerdw Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_cmds.c,v $
+// Revision 1.26  2001/08/08 12:42:22  slicerdw
+// Ctf Should finnaly be fixed now, lets hope so
+//
 // Revision 1.25  2001/07/30 16:07:25  igor_rock
 // added correct gender to "pheer" message
 //
@@ -1804,7 +1807,7 @@ void ClientCommand (edict_t *ent)
 		else if (Q_stricmp (cmd, "entcount") == 0)		//Slicer
 			Cmd_Ent_Count_f (ent);	
 	//		else if (Q_stricmp (cmd, "cleanweapons") == 0)		//Slicer
-	//		CleanWeapons ();	
+	//		CleanWeapons ();
 
 //AQ2:TNG END
 //FIREBLADE

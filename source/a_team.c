@@ -3,10 +3,13 @@
 // Some of this is borrowed from Zoid's CTF (thanks Zoid)
 // -Fireblade
 //
-// $Id: a_team.c,v 1.43 2001/08/06 14:38:44 ra Exp $
+// $Id: a_team.c,v 1.44 2001/08/08 12:42:22 slicerdw Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_team.c,v $
+// Revision 1.44  2001/08/08 12:42:22  slicerdw
+// Ctf Should finnaly be fixed now, lets hope so
+//
 // Revision 1.43  2001/08/06 14:38:44  ra
 // Adding UVtime for ctf
 //
@@ -1969,6 +1972,8 @@ CheckTeamRules ()
 	    if (!matchmode->value && level.time >= timelimit->value * 60)
 	    {
 	      gi.bprintf (PRINT_HIGH, "Timelimit hit.\n");
+		  if(ctf->value)
+			  ResetPlayers();
 	      EndDMLevel ();
 	      team_round_going = team_round_countdown = team_game_going = 0;
 	      return;
@@ -2096,6 +2101,7 @@ CheckTeamRules ()
 	  if (level.time >= timelimit->value * 60)
 	    {
 	      gi.bprintf (PRINT_HIGH, "Timelimit hit.\n");
+		  ResetPlayers();
 	      EndDMLevel ();
 	      team_round_going = team_round_countdown = team_game_going = 0;
 	      return;

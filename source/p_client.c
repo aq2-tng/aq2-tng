@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // p_client.c
 //
-// $Id: p_client.c,v 1.42 2001/08/06 23:35:31 ra Exp $
+// $Id: p_client.c,v 1.43 2001/08/08 12:42:22 slicerdw Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: p_client.c,v $
+// Revision 1.43  2001/08/08 12:42:22  slicerdw
+// Ctf Should finnaly be fixed now, lets hope so
+//
 // Revision 1.42  2001/08/06 23:35:31  ra
 // Fixed an uvtime bug when clients join server while CTF rounds are already
 // going.
@@ -3224,14 +3227,7 @@ qboolean ClientConnect (edict_t *ent, char *userinfo)
 //EEK
 
 	ResetKills(ent);
-//AQ2:TNG Slicer adding a fix ?
-	if(ctf->value)
-	{
-		ent->solid = SOLID_NOT;
-		ent->client->resp.team = NOTEAM;
-		ent->deadflag = DEAD_DEAD;
-	}
-	//AQ2:TNG END
+
 //FIREBLADE
 // We're not going to attempt to support reconnection...
 
@@ -3927,9 +3923,8 @@ void ClientBeginServerFrame (edict_t *ent)
       else
       {
         // in deathmatch, only wait for attack button
-		  //AQ2:TNG - Slicer Trying to fix ctf problem
-        if (deathmatch->value && !team_round_countdown )
-			//slicer end
+
+        if (deathmatch->value)
           buttonMask = BUTTON_ATTACK;
         else
           buttonMask = -1;

@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // CTF related code
 //
-// $Id: a_ctf.c,v 1.14 2001/08/06 14:38:44 ra Exp $
+// $Id: a_ctf.c,v 1.15 2001/08/08 12:42:22 slicerdw Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_ctf.c,v $
+// Revision 1.15  2001/08/08 12:42:22  slicerdw
+// Ctf Should finnaly be fixed now, lets hope so
+//
 // Revision 1.14  2001/08/06 14:38:44  ra
 // Adding UVtime for ctf
 //
@@ -99,6 +102,21 @@ int CTFOtherTeam(int team)
 edict_t *SelectRandomDeathmatchSpawnPoint (void);
 edict_t *SelectFarthestDeathmatchSpawnPoint (void);
 float	PlayersRangeFromSpot (edict_t *spot);
+
+void ResetPlayers ()
+{
+  edict_t *ent;
+  int i;
+
+  for (i = 0; i < game.maxclients; i++)
+    {
+      ent = &g_edicts[1 + i];
+	  if (ent->inuse){
+      ent->client->resp.team = NOTEAM;
+      PutClientInServer (ent);
+	  }
+    }
+}
 
 void CTFAssignTeam(gclient_t *who)
 {
