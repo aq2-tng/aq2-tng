@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // g_save.c
 //
-// $Id: g_save.c,v 1.28 2001/07/16 18:28:46 ra Exp $
+// $Id: g_save.c,v 1.29 2001/07/27 00:20:55 deathwatch Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_save.c,v $
+// Revision 1.29  2001/07/27 00:20:55  deathwatch
+// Latched wp_flags and itm_flags
+//
 // Revision 1.28  2001/07/16 18:28:46  ra
 // Changed a 40 second hard limit on mapvoting into a cvar.
 //
@@ -377,11 +380,11 @@ void InitGame (void)
 // AQ2:TNG Deathwatch - Single Barreled HC
 	hc_single = gi.cvar("hc_single", "1", CVAR_LATCH); //default ON
 // AQ2:TNG End
-	//AQ2:TNG - Igor adding wp_flags/itm_flags
+	//AQ2:TNG - Igor adding wp_flags/itm_flags (DW latched them)
 	// 511 = WPF_MK23 | WPF_MP5 | WPF_M4 | WPF_M3 | WPF_HC | WPF_SNIPER | WPF_DUAL | WPF_KNIFE | WPF_GRENADE
-	wp_flags  = gi.cvar("wp_flags", "511", 0);
-	// 63 = ITF_SIL | ITF_SLIP | ITF_BAND | ITF_KEV | ITF_LASER | ITF_HELM
-	itm_flags = gi.cvar("itm_flags", "63", 0);
+	wp_flags  = gi.cvar("wp_flags", "511", CVAR_LATCH);
+	// 63 = ITF_SIL | ITF_SLIP | ITF_BAND | ITF_KEV | ITF_LASER | ITF_HELM 
+	itm_flags = gi.cvar("itm_flags", "63", CVAR_LATCH);
 	//AQ2:TNG End adding flags
 	//AQ2:TNG Slicer - Matchmode 
 	matchmode = gi.cvar("matchmode", "0",CVAR_SERVERINFO|CVAR_LATCH);
