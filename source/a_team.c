@@ -3,10 +3,13 @@
 // Some of this is borrowed from Zoid's CTF (thanks Zoid)
 // -Fireblade
 //
-// $Id: a_team.c,v 1.41 2001/07/30 10:17:59 igor_rock Exp $
+// $Id: a_team.c,v 1.42 2001/08/01 13:54:26 ra Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_team.c,v $
+// Revision 1.42  2001/08/01 13:54:26  ra
+// Hack to keep scoreboard from revealing whos alive during matches
+//
 // Revision 1.41  2001/07/30 10:17:59  igor_rock
 // added some parenthesis in the 3 minutes warning clause
 //
@@ -2213,6 +2216,9 @@ A_ScoreboardMessage (edict_t * ent, edict_t * killer)
       int secs, mins;
       
       deadview = (ent->solid == SOLID_NOT || ent->deadflag == DEAD_DEAD || !team_round_going);
+// AQ:TNG - Hack to keep scoreboard from revealing whos alive during matches - JBravo
+	if(limchasecam->value != 0) deadview=0;
+//
       
       ent->client->ps.stats[STAT_TEAM_HEADER] = gi.imageindex ("tag3");
       
