@@ -9,6 +9,8 @@ From 2.6
 + Added use_ghosts cvar and the ghost user command. It restores scores, stats, teams and items for player if he gets disconnected.
 + Added use_newspawns. New spawning system which makes spawns fair between teams, no spawning twice in the same place as long as possible.
 + Added mm_allowlock. This allows captains in matchmode to lock the team so noone can join it, commands (lock/unlock).
+* Fixed a few overflow and server crash bugs
+- Fixed a small bug when doing a softmap during LCA
 
 From 2.5
 + Stats list shows average accuracy for each player including player ID
