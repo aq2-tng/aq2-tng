@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // g_spawn.c
 //
-// $Id: g_spawn.c,v 1.22 2001/06/26 11:41:39 igor_rock Exp $
+// $Id: g_spawn.c,v 1.23 2001/07/15 16:02:18 slicerdw Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_spawn.c,v $
+// Revision 1.23  2001/07/15 16:02:18  slicerdw
+// Added checks for teamplay on when using 3teams or tourney
+//
 // Revision 1.22  2001/06/26 11:41:39  igor_rock
 // removed the debug messages for flag and playerstart positions in ctf
 //
@@ -783,6 +786,32 @@ void SpawnEntities (char *mapname, char *entities, char *spawnpoint)
 	  use_tourney->value = 0;
 	  strcpy(use_tourney->string,"0");
 	}
+	  if(use_3teams->value)
+    {
+		 if(!teamplay->value)
+		{
+		  gi.dprintf("3TEAMS Enabled - Forcing teamplay on\n");
+		  teamplay->value = 1;
+		  strcpy(teamplay->string,"1");
+		}
+		if(use_tourney->value)
+		{
+		gi.dprintf("3 Teams Enabled - Forcing Tourney off\n");
+		use_tourney->value = 0;
+		strcpy(use_tourney->string,"0");
+		}
+
+	}
+	 if(use_tourney->value)
+	 {
+		 if(!teamplay->value)
+		{
+		  gi.dprintf("Tourney Enabled - Forcing teamplay on\n");
+		  teamplay->value = 1;
+		  strcpy(teamplay->string,"1");
+		}
+
+	 }
       if(!((int)(dmflags->value) & DF_NO_FRIENDLY_FIRE))
 	{
 	  gi.dprintf("CTF Enabled - Forcing Friendly Fire off\n");
