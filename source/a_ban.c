@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // a_ban.c
 //
-// $Id: a_ban.c,v 1.4 2002/03/26 21:56:50 ra Exp $
+// $Id: a_ban.c,v 1.5 2002/03/26 21:58:19 ra Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_ban.c,v $
+// Revision 1.5  2002/03/26 21:58:19  ra
+// Fixed a typo
+//
 // Revision 1.4  2002/03/26 21:56:50  ra
 // More fixes to possible overflows
 //
@@ -195,7 +198,7 @@ _stripname (char *source, char *dest)
       *p = '\0';
       p = buf;
     }
-  strcpy (dest, p, sizeof(buf)-1);
+  strncpy (dest, p, sizeof(buf)-1);
   return dest;
 }
 
