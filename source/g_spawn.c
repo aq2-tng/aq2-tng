@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // g_spawn.c
 //
-// $Id: g_spawn.c,v 1.5 2001/05/12 08:20:01 mort Exp $
+// $Id: g_spawn.c,v 1.6 2001/05/12 13:15:04 mort Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_spawn.c,v $
+// Revision 1.6  2001/05/12 13:15:04  mort
+// Forces teamplay on when ctf is enabled
+//
 // Revision 1.5  2001/05/12 08:20:01  mort
 // CTF bug fix, makes sure flags have actually spawned before certain functions attempt to use them
 //
@@ -630,6 +633,18 @@ void SpawnEntities (char *mapname, char *entities, char *spawnpoint)
 	//	placedata_t temp;
 //AQ2:TNG END
 
+//AQ2:M CTF
+		if(ctf->value)
+		{
+			// Make sure teamplay is enabled
+			if(!teamplay->value)
+			{
+				gi.dprintf("CTF Enabled - Forcing teamplay on\n");
+				teamplay->value = 1;
+				strcpy(teamplay->string,"1");
+			}
+		}
+//AQ2:M CTF
 
         skill_level = floor (skill->value);
         if (skill_level < 0)
