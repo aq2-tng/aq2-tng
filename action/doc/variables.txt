@@ -25,6 +25,7 @@ cvote_min	# of players needed to allow voting
 cvote_need	% of players needed to accept votes
 cvote_pass	% of players neede to vote a config
 configlistname	Name of the configlist file
+ppl_idletime	When people don't move, after this time a random insane sound is played	(0-?)	(Default: 15, 0 disables the feature)
 
 Explanation of the voting system:
 If you use mapvote_min=2, mapvote_need=75 and mapvote_pass=40, then a new map will be voted if:

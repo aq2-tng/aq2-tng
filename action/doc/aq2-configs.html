@@ -3,7 +3,7 @@
 <html>
   <head>
     <meta name="generator" content="HTML Tidy, see www.w3.org">
-    <meta name="version" content="Version: $Id: aq2-configs.html,v 1.2 2001/05/20 11:36:46 igor_rock Exp $">
+    <meta name="version" content="Version: $Id: aq2-configs.html,v 1.3 2001/05/31 17:01:48 igor_rock Exp $">
 
     <title>AQ2:TNG - Online Config Generator</title>
   </head>
@@ -737,37 +737,48 @@
                 </tr>
 
                 <tr>
-                  <td>CTF effects</td>
+                  <td>Respawnmode</td>
 
-                  <td><select name="data[ctf_effects]">
-                    <option value="0">
-                      No
+                  <td><select name="data[ctf_mode]">
+                    <option value="0" selected>
+                      Ammonition doesn't respawn
                     </option>
 
-                    <option value="1" selected>
-                      Yes
+                    <option value="1">
+                      Ammonition respawns
                     </option>
                   </select> </td>
                 </tr>
 
                 <tr>
-                  <td>CTF flag respawn time</td>
+                  <td>Player can drop flag</td>
 
-                  <td><input type="text" name="data[ctf_flag_respawn_time]" size="3" maxlength="3" value="120"></td>
+                  <td><select name="data[ctf_dropflag]">
+                    <option value="0" selected>
+                      No
+                    </option>
+
+                    <option value="1">
+                      Yes
+                    </option>
+                  </select> </td>
                 </tr>
 
+<!--
                 <tr>
-                  <td>CTF player respawn time</td>
+                  <td>Player s forced to join team on connect</td>
 
-                  <td><input type="text" name="data[ctf_player_respawn_time]" size="3" maxlength="3" value="3"></td>
+                  <td><select name="data[ctf_forcejoin]">
+                    <option value="0" selected>
+                      No
+                    </option>
+
+                    <option value="1">
+                      Yes
+                    </option>
+                  </select> </td>
                 </tr>
-
-                <tr>
-                  <td>CTF item remove time</td>
-
-                  <td><input type="text" name="data[ctf_item_remove_time]" size="3" maxlength="3" value="10"></td>
-                </tr>
-
+-->
               </table>
             </td>
           </tr>

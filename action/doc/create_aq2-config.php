@@ -2,7 +2,7 @@
   //-----------------------------------------------------------------------------
   // create_aq2-config.php
   //-----------------------------------------------------------------------------
-  // $Id: create_aq2-config.php,v 1.2 2001/05/20 11:36:46 igor_rock Exp $
+  // $Id: create_aq2-config.php,v 1.3 2001/05/31 17:01:48 igor_rock Exp $
   //-----------------------------------------------------------------------------
 
   // Do some checks for illegal game modes
@@ -151,10 +151,9 @@
   print "\n//-----------------------------------------------------------------------------\n";
   print "// CTF Settigns\n";
   print "//-----------------------------------------------------------------------------\n";
-  print "set ctf_effects $data[ctf_effects]\n";
-  print "set ctf_flag_respawn_time $data[ctf_flag_respawn_time]\n";
-  print "set ctf_player_respawn_time $data[ctf_player_respawn_time]\n";
-  print "set ctf_item_remove_time $data[ctf_item_remove_time]\n";
+  print "set ctf_mode $data[ctf_mode]\n";
+  print "set ctf_dropflag $data[ctf_dropflag]\n";
+#  print "set ctf_forcejoin $data[ctf_forcejoin]\n";
 
   print "\n//-----------------------------------------------------------------------------\n";
   print "// Config End\n";
