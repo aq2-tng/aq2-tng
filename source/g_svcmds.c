@@ -1,10 +1,15 @@
 //-----------------------------------------------------------------------------
 // g_svcmds.c
 //
-// $Id: g_svcmds.c,v 1.10 2001/09/28 13:48:34 ra Exp $
+// $Id: g_svcmds.c,v 1.11 2001/11/04 15:15:19 ra Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_svcmds.c,v $
+// Revision 1.11  2001/11/04 15:15:19  ra
+// New server commands: "sv softmap" and "sv map_restart".  sv softmap
+// takes one map as argument and starts is softly without restarting
+// the server.   map_restart softly restarts the current map.
+//
 // Revision 1.10  2001/09/28 13:48:34  ra
 // I ran indent over the sources. All .c and .h files reindented.
 //
@@ -41,6 +46,8 @@
 //-----------------------------------------------------------------------------
 
 #include "g_local.h"
+
+extern int dosoft;
 
 void
 SVCmd_ReloadMOTD_f ()
@@ -444,6 +451,38 @@ SVCmd_stuffcmd_f ()
 
 /*
 =================
+SV_Softmap_f
+=================
+*/
+void SVCmd_Softmap_f (void)
+{
+        if (gi.argc() < 3) {
+                gi.cprintf(NULL, PRINT_HIGH, "Usage:  sv softmap <map>\n");
+                return;
+        }
+        gi.bprintf(PRINT_HIGH, "Console is setting map: %s\n", gi.argv(2));
+        dosoft=1;
+        Com_sprintf(level.nextmap, sizeof(level.nextmap), "%s", gi.argv(2));
+        EndDMLevel();
+        return;
+}
+
+/*
+=================
+SV_Map_restart_f
+=================
+*/
+void SVCmd_Map_restart_f (void)
+{
+        gi.bprintf(PRINT_HIGH, "Console is restarting map\n");
+        dosoft=1;
+        Com_sprintf(level.nextmap, sizeof(level.nextmap), "%s", level.mapname);
+        EndDMLevel();
+        return;
+}
+
+/*
+=================
 ServerCommand
 
 ServerCommand will be called when an "sv" command is issued.
@@ -473,6 +512,10 @@ ServerCommand (void)
   //AQ2:TNG - Slicer : CheckCheats & StuffCmd
   else if (Q_stricmp (cmd, "stuffcmd") == 0)
     SVCmd_stuffcmd_f ();
+  else if (Q_stricmp (cmd, "softmap") == 0)
+    SVCmd_Softmap_f ();
+  else if (Q_stricmp (cmd, "map_restart") == 0)
+    SVCmd_Map_restart_f ();
   else
     gi.cprintf (NULL, PRINT_HIGH, "Unknown server command \"%s\"\n", cmd);
 }

@@ -1,10 +1,15 @@
 //-----------------------------------------------------------------------------
 //
 //
-// $Id: g_main.c,v 1.34 2001/11/02 16:07:47 ra Exp $
+// $Id: g_main.c,v 1.35 2001/11/04 15:15:19 ra Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_main.c,v $
+// Revision 1.35  2001/11/04 15:15:19  ra
+// New server commands: "sv softmap" and "sv map_restart".  sv softmap
+// takes one map as argument and starts is softly without restarting
+// the server.   map_restart softly restarts the current map.
+//
 // Revision 1.34  2001/11/02 16:07:47  ra
 // Changed teamplay spawn code so that teams dont spawn in the same place
 // often in a row
@@ -278,6 +283,8 @@ void ReadLevel (char *filename);
 void InitGame (void);
 void G_RunFrame (void);
 
+int dosoft;
+
 
 //===================================================================
 
@@ -488,11 +495,17 @@ EndDMLevel (void)
 	  if (cur_map >= num_maps)
 	    cur_map = 0;
 	  ent = G_Spawn ();
-	  ent->classname = "target_changelevel";
+	  ent->classname = "target_changelevel"; //Yoohoo
 	  Com_sprintf (level.nextmap, sizeof (level.nextmap), "%s",
 		       map_rotation[cur_map]);
 	  nextmapname = ent->map = level.nextmap;
 	}
+      else if (dosoft==1)
+        {
+                dosoft=0;
+                ent = G_Spawn ();
+                nextmapname = ent->map = level.nextmap;
+        }
       else
 	{
 	  //Igor[Rock] End
