@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // Statistics Related Code
 //
-// $Id: tng_stats.c,v 1.23 2002/02/18 23:47:33 freud Exp $
+// $Id: tng_stats.c,v 1.24 2002/02/21 23:38:39 freud Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: tng_stats.c,v $
+// Revision 1.24  2002/02/21 23:38:39  freud
+// Fix to a BAD stats bug. CRASH
+//
 // Revision 1.23  2002/02/18 23:47:33  freud
 // Fixed FPM if time was 0
 //
@@ -115,7 +118,7 @@ void Cmd_Stats_f (edict_t *targetent, char *arg)
 		}
 		i = atoi (arg);
 		ent = &g_edicts[1 + i];
-		if (!ent->inuse)
+		if (game.maxclients >= game.maxclients || !ent->inuse)
 			ent = targetent;
 
 	} else {
