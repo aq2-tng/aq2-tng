@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // p_client.c
 //
-// $Id: p_client.c,v 1.31 2001/06/21 07:37:10 igor_rock Exp $
+// $Id: p_client.c,v 1.32 2001/06/22 18:37:01 igor_rock Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: p_client.c,v $
+// Revision 1.32  2001/06/22 18:37:01  igor_rock
+// fixed than damn limchasecam bug - eentually :)
+//
 // Revision 1.31  2001/06/21 07:37:10  igor_rock
 // fixed some limchasecam bugs
 //
@@ -1671,6 +1674,25 @@ void player_die (edict_t *self, edict_t *inflictor, edict_t *attacker, int damag
 	//TempFile
         self->deadflag = DEAD_DEAD;
         gi.linkentity (self);
+	if (teamplay && limchasecam->value)
+	  {
+	    self->client->chase_target = NULL;
+	    GetChaseTarget(self);
+	    if (self->client->chase_target != NULL)
+	      {
+		if (limchasecam->value == 2)
+		  {
+		    self->client->chase_mode = 1;
+		    UpdateChaseCam(self);
+		    self->client->chase_mode = 2;
+		  }
+		else
+		  {
+		    self->client->chase_mode = 1;
+		  }
+		UpdateChaseCam(self);
+	      }
+	  }
 }
 
 //=======================================================================
@@ -3630,6 +3652,8 @@ void ClientThink (edict_t *ent, usercmd_t *ucmd)
 		{
 		  if (limchasecam->value == 2)
 		    {
+		      client->chase_mode = 1;
+		      UpdateChaseCam(ent);
 		      client->chase_mode = 2;
 		    }
 		  else

@@ -3,10 +3,13 @@
 // Some of this is borrowed from Zoid's CTF (thanks Zoid)
 // -Fireblade
 //
-// $Id: a_team.c,v 1.28 2001/06/20 19:23:19 igor_rock Exp $
+// $Id: a_team.c,v 1.29 2001/06/22 18:37:01 igor_rock Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_team.c,v $
+// Revision 1.29  2001/06/22 18:37:01  igor_rock
+// fixed than damn limchasecam bug - eentually :)
+//
 // Revision 1.28  2001/06/20 19:23:19  igor_rock
 // added vcehckvotes for ctf mode "in game" ;)
 //
@@ -1915,7 +1918,6 @@ CheckTeamRules ()
     {
       if ((vCheckVote () == true) && ctf->value)
 	  {
-	    gi.dprintf ("So ein test\n");
 	    EndDMLevel ();
 	    team_round_going = team_round_countdown = team_game_going = 0;
 	    return;
