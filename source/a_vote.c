@@ -1,10 +1,14 @@
 //-----------------------------------------------------------------------------
 // a_vote.c
 //
-// $Id: a_vote.c,v 1.4 2001/06/13 09:14:23 igor_rock Exp $
+// $Id: a_vote.c,v 1.5 2001/06/18 11:01:42 igor_rock Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_vote.c,v $
+// Revision 1.5  2001/06/18 11:01:42  igor_rock
+// added "mode-" prefix to votet configfiles, so all mode configs are close together
+// when someone makes a "dir" or "ls -al" command on the server (cosmetic change)
+//
 // Revision 1.4  2001/06/13 09:14:23  igor_rock
 // change the path for configs from "config/" to "../" because of possibility
 // of exploit with the "download" command if "allow_download" is set
@@ -1210,7 +1214,7 @@ _ConfigExitLevel (char *NextMap)
       strncpy (NextMap, map_votes->mapname, MAX_QPATH);
       voteconfig = ConfigWithMostVotes (NULL);
       gi.bprintf (PRINT_HIGH, "A new config was voted on and is %s.\n", voteconfig->configname);
-      Com_sprintf (buf, sizeof (buf), "exec \"../%s.cfg\"\n", voteconfig->configname);
+      Com_sprintf (buf, sizeof (buf), "exec \"../mode-%s.cfg\"\n", voteconfig->configname);
 
       //clear stats
       for (voteconfig = config_votes; voteconfig != NULL; voteconfig = voteconfig->next)
