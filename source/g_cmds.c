@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // g_cmds.c
 //
-// $Id: g_cmds.c,v 1.38 2001/11/03 17:21:57 deathwatch Exp $
+// $Id: g_cmds.c,v 1.39 2001/11/03 17:43:20 deathwatch Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_cmds.c,v $
+// Revision 1.39  2001/11/03 17:43:20  deathwatch
+// Fixed matchadmin - it should only work when in matchmode and not use say when typing it normally in any other mode (security issue for dumb ppl typing matchadmin password on a server without matchmode)
+//
 // Revision 1.38  2001/11/03 17:21:57  deathwatch
 // Fixed something in the time command, removed the .. message from the voice command, fixed the vote spamming with mapvote, removed addpoint command (old pb command that wasnt being used). Some cleaning up of the source at a few points.
 //
@@ -1706,6 +1709,10 @@ Cmd_Ent_Count_f (edict_t * ent)
 void
 Cmd_SetAdmin_f (edict_t * ent)
 {
+	if(!matchmode->value) {
+		gi.cprintf(ent, PRINT_HIGH, "Matchmode is not enabled on this server.\n");
+		return;
+	}
 
   if (gi.argc () < 2)
     {
@@ -2119,10 +2126,10 @@ ClientCommand (edict_t * ent)
     }
   else if (Q_stricmp (cmd, "matchadmin") == 0)
     {
-      if (matchmode->value)
+//      if (matchmode->value)
 				Cmd_SetAdmin_f (ent);
-      else
-				Cmd_Say_f (ent, false, true, false);
+//      else
+//				Cmd_Say_f (ent, false, true, false);
       return;
     }
 	else if (Q_stricmp(cmd, "roundtimeleft") == 0) {
