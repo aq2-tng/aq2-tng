@@ -3,10 +3,13 @@
 // Some of this is borrowed from Zoid's CTF (thanks Zoid)
 // -Fireblade
 //
-// $Id: a_team.c,v 1.64 2001/12/27 23:29:46 slicerdw Exp $
+// $Id: a_team.c,v 1.65 2001/12/30 03:39:52 ra Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_team.c,v $
+// Revision 1.65  2001/12/30 03:39:52  ra
+// Added to punishkills system if people do team none just before dieing
+//
 // Revision 1.64  2001/12/27 23:29:46  slicerdw
 // Reset sub and captain vars when doing "team none"
 //
@@ -985,8 +988,22 @@ LeaveTeam (edict_t * ent)
     return;
 
   if (ent->solid != SOLID_NOT)	// alive, in game
-
     {
+      if (punishkills->value)
+      {
+	if (ent->client->attacker &&
+		ent->client->attacker->client &&
+		(ent->client->attacker->client != ent->client))
+	{
+		gi.bprintf (PRINT_HIGH,
+			"%s ph34rs %s so much %s committed suicide! :)\n",
+			ent->client->pers.netname,
+			ent->client->attacker->client->pers.netname,
+			ent->client->resp.radio_gender ? "she" : "he");
+		Add_Frag (ent->client->attacker);
+		Subtract_Frag (ent);
+	}
+      }
       ent->health = 0;
       player_die (ent, ent, ent, 100000, vec3_origin);
       ent->deadflag = DEAD_DEAD;
