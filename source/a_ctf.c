@@ -3,10 +3,13 @@
 // CTF Flag functions
 //-----------------------------------------------------------------------------
 //
-// $Id: a_ctf.c,v 1.6 2001/05/13 11:24:31 igor_rock Exp $
+// $Id: a_ctf.c,v 1.7 2001/05/14 16:36:00 mort Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_ctf.c,v $
+// Revision 1.7  2001/05/14 16:36:00  mort
+// Frags for returning flag
+//
 // Revision 1.6  2001/05/13 11:24:31  igor_rock
 // Added the CVS Headers
 //
@@ -119,7 +122,9 @@ void flagTouch(edict_t *self, edict_t *other, cplane_t *plane, csurface_t *surf)
 
 				gi.sound(redFlag, CHAN_FLAG | CHAN_RELIABLE, gi.soundindex("ctf/flagret.wav"), 1, ATTN_NONE, 0);
 				gi.bprintf(PRINT_HIGH, "%s returned the red flag!\n", other->client->pers.netname);
-			
+
+				other->client->resp.score += 2;
+		
 				redFlagTaken = 0;
 			}
 		}
@@ -132,6 +137,9 @@ void flagTouch(edict_t *self, edict_t *other, cplane_t *plane, csurface_t *surf)
 
 				gi.sound(blueFlag, CHAN_FLAG | CHAN_RELIABLE, gi.soundindex("ctf/flagret.wav"), 1, ATTN_NONE, 0);
 				gi.bprintf(PRINT_HIGH, "%s returned the blue flag!\n", other->client->pers.netname);
+
+				other->client->resp.score += 2;
+
 
 				blueFlagTaken = 0;
 			}
