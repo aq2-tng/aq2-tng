@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // Matchmode related code
 //
-// $Id: a_match.c,v 1.11 2001/12/02 16:15:32 igor_rock Exp $
+// $Id: a_match.c,v 1.12 2001/12/05 15:27:35 igor_rock Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_match.c,v $
+// Revision 1.12  2001/12/05 15:27:35  igor_rock
+// improved my english (actual -> current :)
+//
 // Revision 1.11  2001/12/02 16:15:32  igor_rock
 // added console messages (for the IRC-Bot) to matchmode
 //
@@ -326,6 +329,7 @@ Cmd_Teamname_f (edict_t * ent)
   if (team == 1)
 
     {
+      gi.dprintf ("%s (Team 1) is now known as %s\n", team1_name, temp);
       strcpy (team1_name, temp);
       gi.cprintf (ent, PRINT_HIGH, "New Team Name: %s\n", team1_name);
       return;
@@ -333,11 +337,14 @@ Cmd_Teamname_f (edict_t * ent)
   if (team == 2)
 
     {
+      gi.dprintf ("%s (Team 2) is now known as %s\n", team2_name, temp);
       strcpy (team2_name, temp);
       gi.cprintf (ent, PRINT_HIGH, "New Team Name: %s\n", team2_name);
       return;
     }
 }
+
+
 void
 Cmd_Teamskin_f (edict_t * ent)
 {

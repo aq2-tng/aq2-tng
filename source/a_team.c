@@ -3,10 +3,13 @@
 // Some of this is borrowed from Zoid's CTF (thanks Zoid)
 // -Fireblade
 //
-// $Id: a_team.c,v 1.62 2001/12/02 16:41:52 igor_rock Exp $
+// $Id: a_team.c,v 1.63 2001/12/05 15:27:35 igor_rock Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_team.c,v $
+// Revision 1.63  2001/12/05 15:27:35  igor_rock
+// improved my english (actual -> current :)
+//
 // Revision 1.62  2001/12/02 16:41:52  igor_rock
 // corrected the teamscores (they where switched)
 //
@@ -1768,15 +1771,15 @@ MakeAllLivePlayersObservers ()
     }
 }
 
-// PrintScores: Prints the actual scores on the console
+// PrintScores: Prints the current score on the console
 void
 PrintScores ( )
 {
 
   if (use_3teams->value) {
-    gi.bprintf (PRINT_HIGH, "Actual Scores are %s: %d to %s: %d to %s: %d\n", TeamName (TEAM1), team1_score, TeamName (TEAM2), team2_score, TeamName (TEAM3), team3_score);
+    gi.bprintf (PRINT_HIGH, "Current score is %s: %d to %s: %d to %s: %d\n", TeamName (TEAM1), team1_score, TeamName (TEAM2), team2_score, TeamName (TEAM3), team3_score);
   } else {
-    gi.bprintf (PRINT_HIGH, "Actual Scores are %s: %d to %s: %d\n", TeamName (TEAM1), team1_score, TeamName (TEAM2), team2_score);
+    gi.bprintf (PRINT_HIGH, "Current score is %s: %d to %s: %d\n", TeamName (TEAM1), team1_score, TeamName (TEAM2), team2_score);
   }
 }
 
