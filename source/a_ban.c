@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // a_ban.c
 //
-// $Id: a_ban.c,v 1.3 2001/12/29 00:52:10 deathwatch Exp $
+// $Id: a_ban.c,v 1.4 2002/03/26 21:56:50 ra Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_ban.c,v $
+// Revision 1.4  2002/03/26 21:56:50  ra
+// More fixes to possible overflows
+//
 // Revision 1.3  2001/12/29 00:52:10  deathwatch
 // Fixed HC sound bug (not making a sound when hc_single was 0)
 //
@@ -173,7 +176,7 @@ _stripname (char *source, char *dest)
 {
   char *p, buf[512];
 
-  strcpy (buf, source);
+  strncpy (buf, source, sizeof(buf)-1);
   p = buf;
   if (*p == '\"')
     {
@@ -192,7 +195,7 @@ _stripname (char *source, char *dest)
       *p = '\0';
       p = buf;
     }
-  strcpy (dest, p);
+  strcpy (dest, p, sizeof(buf)-1);
   return dest;
 }
 
