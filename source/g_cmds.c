@@ -1,10 +1,14 @@
 //-----------------------------------------------------------------------------
 // g_cmds.c
 //
-// $Id: g_cmds.c,v 1.23 2001/07/20 11:56:04 slicerdw Exp $
+// $Id: g_cmds.c,v 1.24 2001/07/28 19:30:05 deathwatch Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_cmds.c,v $
+// Revision 1.24  2001/07/28 19:30:05  deathwatch
+// Fixed the choose command (replaced weapon for item when it was working with items)
+// and fixed some tabs on other documents to make it more readable
+//
 // Revision 1.23  2001/07/20 11:56:04  slicerdw
 // Added a check for the players spawning during countdown on ctf ( lets hope it works )
 //
@@ -942,7 +946,7 @@ void Cmd_Kill_f (edict_t *ent)
 			ent->client->attacker->client &&
 			(ent->client->attacker->client !=
 			ent->client)) {
-		gi.bprintf(PRINT_HIGH, "%s pheers %s so much he committed suicide! :)\n",
+		gi.bprintf(PRINT_HIGH, "%s pheer %s so much he committed suicide! :)\n",
 			ent->client->pers.netname, ent->client->attacker->client->pers.netname);
 		Add_Frag(ent->client->attacker);
 		Subtract_Frag(ent);

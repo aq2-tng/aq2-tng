@@ -3,10 +3,14 @@
 // Some of this is borrowed from Zoid's CTF (thanks Zoid)
 // -Fireblade
 //
-// $Id: a_team.c,v 1.39 2001/07/16 19:02:06 ra Exp $
+// $Id: a_team.c,v 1.40 2001/07/28 19:30:05 deathwatch Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_team.c,v $
+// Revision 1.40  2001/07/28 19:30:05  deathwatch
+// Fixed the choose command (replaced weapon for item when it was working with items)
+// and fixed some tabs on other documents to make it more readable
+//
 // Revision 1.39  2001/07/16 19:02:06  ra
 // Fixed compilerwarnings (-g -Wall).  Only one remains.
 //
@@ -1005,69 +1009,69 @@ OpenWeaponMenu (edict_t * ent)
   int pos;
 
   if ((int)wp_flags->value & ~(WPF_MK23 | WPF_GRENADE))
-    {
-      pos = 4;
-      if ((int)wp_flags->value & WPF_MP5)
-	{
-	  weapmenu[pos].text = menu_weapnames[0];
-	  weapmenu[pos].SelectFunc = SelectWeapon2;
-	  pos++;
-	}
+  {
+		pos = 4;
+    if ((int)wp_flags->value & WPF_MP5)
+		{
+			weapmenu[pos].text = menu_weapnames[0];
+			weapmenu[pos].SelectFunc = SelectWeapon2;
+			pos++;
+		}
       
-      if ((int)wp_flags->value & WPF_M3)
-	{
-	  weapmenu[pos].text = menu_weapnames[1];
-	  weapmenu[pos].SelectFunc = SelectWeapon3;
-	  pos++;
-	}
+    if ((int)wp_flags->value & WPF_M3)
+		{
+			weapmenu[pos].text = menu_weapnames[1];
+			weapmenu[pos].SelectFunc = SelectWeapon3;
+			pos++;
+		}
       
-      if ((int)wp_flags->value & WPF_HC)
-	{
-	  weapmenu[pos].text = menu_weapnames[2];
-	  weapmenu[pos].SelectFunc = SelectWeapon4;
-	  pos++;
-	}
+    if ((int)wp_flags->value & WPF_HC)
+		{
+			weapmenu[pos].text = menu_weapnames[2];
+			weapmenu[pos].SelectFunc = SelectWeapon4;
+			pos++;
+		}
       
-      if ((int)wp_flags->value & WPF_SNIPER)
-	{
-	  weapmenu[pos].text = menu_weapnames[3];
-	  weapmenu[pos].SelectFunc = SelectWeapon5;
-	  pos++;
-	}
+    if ((int)wp_flags->value & WPF_SNIPER)
+		{
+			weapmenu[pos].text = menu_weapnames[3];
+			weapmenu[pos].SelectFunc = SelectWeapon5;
+			pos++;
+		}
       
-      if ((int)wp_flags->value & WPF_M4)
-	{
-	  weapmenu[pos].text = menu_weapnames[4];
-	  weapmenu[pos].SelectFunc = SelectWeapon6;
-	  pos++;
-	}
+    if ((int)wp_flags->value & WPF_M4)
+		{
+			weapmenu[pos].text = menu_weapnames[4];
+			weapmenu[pos].SelectFunc = SelectWeapon6;
+			pos++;
+		}
       
-      if ((int)wp_flags->value & WPF_KNIFE)
-	{
-	  weapmenu[pos].text = menu_weapnames[5];
-	  weapmenu[pos].SelectFunc = SelectWeapon0;
-	  pos++;
-	}
+    if ((int)wp_flags->value & WPF_KNIFE)
+		{
+			weapmenu[pos].text = menu_weapnames[5];
+			weapmenu[pos].SelectFunc = SelectWeapon0;
+			pos++;
+		}
       
-      if ((int)wp_flags->value & WPF_DUAL)
-	{
-	  weapmenu[pos].text = menu_weapnames[6];
-	  weapmenu[pos].SelectFunc = SelectWeapon9;
-	  pos++;
-	}
+    if ((int)wp_flags->value & WPF_DUAL)
+		{
+			weapmenu[pos].text = menu_weapnames[6];
+			weapmenu[pos].SelectFunc = SelectWeapon9;
+			pos++;
+		}
       
-      for (;pos < 11; pos++)
-	{
-	  weapmenu[pos].text = NULL;
-	  weapmenu[pos].SelectFunc = NULL;
-	}
+    for (;pos < 11; pos++)
+		{
+			weapmenu[pos].text = NULL;
+			weapmenu[pos].SelectFunc = NULL;
+		}
       
-      PMenu_Open (ent, weapmenu, 4, sizeof (weapmenu) / sizeof (pmenu_t));
-    }
+    PMenu_Open (ent, weapmenu, 4, sizeof (weapmenu) / sizeof (pmenu_t));
+	}
   else
-    {
-       OpenItemMenu (ent);
-    }
+  {
+		OpenItemMenu (ent);
+	}
   //AQ2:TNG End adding wp_flags
 }
 
