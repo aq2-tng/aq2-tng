@@ -3,7 +3,7 @@
 <html>
   <head>
     <meta name="generator" content="HTML Tidy, see www.w3.org">
-    <meta name="version" content="Version: $Id: mode-configs.html,v 1.10 2002/02/23 18:42:41 igor_rock Exp $">
+    <meta name="version" content="Version: $Id: mode-configs.html,v 1.11 2003/06/19 16:37:57 igor_rock Exp $">
 
     <title>AQ2:TNG - Online Config Generator Part II: Server Mode Configuration</title>
   </head>
@@ -818,6 +818,65 @@
             </td>
           </tr>
  
+ 
+          <tr>
+            <td colspan="2">&nbsp;</td>
+          </tr>
+
+          <tr>
+            <td colspan="2" align="center">
+              <table width="95%" cellspacing="2" cellpadding="2" border="2">
+                <tr>
+                  <td colspan="2" align="center" width="100%">
+                    <h3>IRC Settings</h3>
+                  </td>
+                </tr>
+
+                <tr>
+                  <td>IRC Topic Prefix</td>
+
+                  <td><input type="text" name="data[irctopic]" size="25" maxlength="40" value="AQ2-TNG IRC MatchBot:"></td>
+                </tr>
+
+                <tr>
+                  <td>IRC chattiness (all lower levels are included)</td>
+
+                  <td valign="top"><select name="data[ircmlevel]">
+                    <option value="6">
+                      (6) Chats
+                    </option>
+
+                    <option value="5" selected>
+                      (5) Kills
+                    </option>
+
+                    <option value="4">
+                      (4) Deaths
+                    </option>
+
+                    <option value="3">
+                      (3) Votes
+                    </option>
+
+                    <option value="2">
+                      (2) Topic changes
+                    </option>
+
+                    <option value="1">
+                      (1) Game Scores
+                    </option>
+
+                    <option value="0">
+                      (0) Only Server relevant
+                    </option>
+
+                   </select></td>
+                </tr>
+
+              </table>
+            </td>
+          </tr>
+	  
           <tr>
             <td colspan="2">&nbsp;</td>
           </tr>

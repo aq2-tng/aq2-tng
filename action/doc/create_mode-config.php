@@ -2,7 +2,7 @@
   //-----------------------------------------------------------------------------
   // create_mode-config.php
   //-----------------------------------------------------------------------------
-  // $Id: create_mode-config.php,v 1.9 2002/02/23 18:42:41 igor_rock Exp $
+  // $Id: create_mode-config.php,v 1.10 2003/06/19 16:37:57 igor_rock Exp $
   //-----------------------------------------------------------------------------
 
   // Do some checks for illegal game modes
@@ -155,6 +155,12 @@
   print "set video_max_3dfx $data[video_max_3dfx]\n";
   print "set video_max_3dfxam $data[video_max_3dfxam]\n";
   print "set video_max_opengl $data[video_max_opengl]\n";
+
+  print "\n//-----------------------------------------------------------------------------\n";
+  print "// IRC Settings\n";
+  print "//-----------------------------------------------------------------------------\n";
+  print "set irctopic \"$data[irctopic]\"\n";
+  print "set ircmlevel $data[ircmlevel]\n";
 
   print "\n//-----------------------------------------------------------------------------\n";
   print "// Config End\n";

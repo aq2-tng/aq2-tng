@@ -3,7 +3,7 @@
 <html>
   <head>
     <meta name="generator" content="HTML Tidy, see www.w3.org">
-    <meta name="version" content="Version: $Id: aq2-configs.html,v 1.9 2001/11/28 10:55:00 igor_rock Exp $">
+    <meta name="version" content="Version: $Id: aq2-configs.html,v 1.10 2003/06/19 16:37:57 igor_rock Exp $">
 
     <title>AQ2:TNG - Online Config Generator Part I: Global Server Configuration</title>
   </head>
@@ -563,6 +563,94 @@
                     </option>
 
                     <option value="1" selected>
+                      Yes
+                    </option>
+                  </select> </td>
+                </tr>
+
+              </table>
+            </td>
+          </tr>
+
+          <tr>
+            <td>&nbsp;</td>
+          </tr>
+
+          <tr>
+            <td align="center">
+              <table width="95%" cellspacing="2" cellpadding="2" border="2">
+                <tr>
+                  <td colspan="2" align="center" width="100%">
+                    <h3>IRC Settings</h3>
+                  </td>
+                </tr>
+
+                <tr>
+                  <td>Enable IRC client</td>
+
+                  <td><select name="data[ircbot]">
+                    <option value="0" selected>
+                      No
+                    </option>
+
+                    <option value="1">
+                      Yes
+                    </option>
+                  </select> </td>
+
+                </tr>
+
+                <tr>
+                  <td>IRC Server (FQDN or IP address)</td>
+
+                  <td><input type="text" name="data[ircserver]" size="25" maxlength="40" value="irc.barrysworld.com"></td>
+                </tr>
+
+                <tr>
+                  <td>IRC Server Port (only <i>one</i> port!)</td>
+
+                  <td><input type="text" name="data[ircport]" size="5" maxlength="5" value="6667"></td>
+                </tr>
+
+                <tr>
+                  <td>IRC User Name of the Client</td>
+
+                  <td><input type="text" name="data[ircuser]" size="25" maxlength="25" value="TNG-Bot"></td>
+                </tr>
+
+                <tr>
+                  <td>Raw IRC Command to Auth with IRC, e.g. for quakenet:<br><b>PRIVMSG Q@CServe.quakenet.org :AUTH <i>mybotname mypassword</i></b></td>
+
+                  <td><input type="text" name="data[ircop]" size="25" maxlength="80" value=""></td>
+                </tr>
+
+                <tr>
+                  <td>IRC Channel (don't forget the leading "<b>#</b>")</td>
+
+                  <td><input type="text" name="data[ircchannel]" size="25" maxlength="25" value=""></td>
+                </tr>
+
+                <tr>
+                  <td>IRC Channel Password</td>
+
+                  <td><input type="text" name="data[ircpasswd]" size="15" maxlength="15" value=""></td>
+                </tr>
+
+                <tr>
+                  <td>IRC Admin Password (bot will op you on "<b>/msg <i>botname password</i> op<b>"</td>
+
+                  <td><input type="text" name="data[ircadminpwd]" size="15" maxlength="15" value=""></td>
+                </tr>
+
+                <tr>
+                  <td>IRC Debug Mode (writes all IRC in/outgoing Traffic to console)</td>
+
+                  <td><select name="data[ircdebug]">
+                    <option value="0" selected>
+                      No
+                    </option>
+
+                    <option value="1">
                       Yes
                     </option>
                   </select> </td>

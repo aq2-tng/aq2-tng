@@ -2,7 +2,7 @@
   //-----------------------------------------------------------------------------
   // create_aq2-config.php
   //-----------------------------------------------------------------------------
-  // $Id: create_aq2-config.php,v 1.9 2001/11/28 08:30:08 igor_rock Exp $
+  // $Id: create_aq2-config.php,v 1.10 2003/06/19 16:37:57 igor_rock Exp $
   //-----------------------------------------------------------------------------
 
   // check if the user wants to see or to save it
@@ -104,6 +104,19 @@
   print "set tkbanrounds $data[tkbanrounds]\n";
   print "set twbanrounds $data[twbanrounds]\n";
   print "set ff_afterround $data[ff_afterround]\n";
+
+  print "\n//-----------------------------------------------------------------------------\n";
+  print "// IRC Settings\n";
+  print "//-----------------------------------------------------------------------------\n";
+  print "set ircbot $data[ircbot]\n";
+  print "set ircserver \"$data[ircserver]\"\n";
+  print "set ircport $data[ircport]\n";
+  print "set ircuser \"$data[ircuser]\"\n";
+  print "set ircop \"$data[ircop]\"\n";
+  print "set ircchannel \"$data[ircchannel]\"\n";
+  print "set ircpasswd \"$data[ircpasswd]\"\n";
+  print "set ircadminpwd \"$data[ircadminpwd]\"\n";
+  print "set ircdebug $data[ircdebug]\n";
 
   print "\n//-----------------------------------------------------------------------------\n";
   print "// Config End\n";
