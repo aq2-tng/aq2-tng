@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // g_combat.c
 //
-// $Id: g_combat.c,v 1.17 2001/12/23 21:19:41 deathwatch Exp $
+// $Id: g_combat.c,v 1.18 2002/01/23 14:18:02 ra Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_combat.c,v $
+// Revision 1.18  2002/01/23 14:18:02  ra
+// Fixed another ff_afterrounds bobo
+//
 // Revision 1.17  2001/12/23 21:19:41  deathwatch
 // Updated stats with location and average
 // cleaned it up a bit as well
@@ -737,10 +740,10 @@ T_Damage (edict_t * targ, edict_t * inflictor, edict_t * attacker, vec3_t dir,
 //         ((int)(dmflags->value) & (DF_NO_FRIENDLY_FIRE))))
 //      return;
 // AQ2:TNG - JBravo adding FF after rounds
-      if (targ != attacker && targ->client && attacker->client &&
-	  (targ->client->resp.team == attacker->client->resp.team &&
-	   ((int) (dmflags->value) & (DF_NO_FRIENDLY_FIRE))) &&
-	  (team_round_going && ff_afterround->value))
+      if ( targ != attacker && targ->client && attacker->client &&
+	   targ->client->resp.team == attacker->client->resp.team &&
+	   ((int) (dmflags->value) & (DF_NO_FRIENDLY_FIRE)) &&
+	   (team_round_going && !ff_afterround->value) )
 	return;
 // AQ:TNG
     }
