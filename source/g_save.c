@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // g_save.c
 //
-// $Id: g_save.c,v 1.63 2003/06/15 21:43:53 igor Exp $
+// $Id: g_save.c,v 1.64 2004/01/18 11:25:31 igor_rock Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_save.c,v $
+// Revision 1.64  2004/01/18 11:25:31  igor_rock
+// added flashgrenades
+//
 // Revision 1.63  2003/06/15 21:43:53  igor
 // added IRC client
 //
@@ -600,6 +603,9 @@ InitGame (void)
   allweapon = gi.cvar ("allweapon", "0", CVAR_SERVERINFO);
   allitem = gi.cvar ("allitem", "0", CVAR_SERVERINFO);
   tgren = gi.cvar ("tgren", "0", CVAR_SERVERINFO);
+  flashgren = gi.cvar ("flashgren", "1", 0);
+  flashradius = gi.cvar ("flashradius", "300", 0);
+  flashtime = gi.cvar ("flashtime", "100", 0);
   sv_shelloff = gi.cvar ("shelloff", "1", 0);
   bholelimit = gi.cvar ("bholelimit", "0", 0);
   splatlimit = gi.cvar ("splatlimit", "0", 0);

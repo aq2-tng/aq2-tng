@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 //
 //
-// $Id: g_main.c,v 1.71 2003/06/16 18:16:06 igor Exp $
+// $Id: g_main.c,v 1.72 2004/01/18 11:25:31 igor_rock Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_main.c,v $
+// Revision 1.72  2004/01/18 11:25:31  igor_rock
+// added flashgrenades
+//
 // Revision 1.71  2003/06/16 18:16:06  igor
 // added IRC_poll to enable IRC mode (i had overseen it the first time)
 //
@@ -353,6 +356,9 @@ cvar_t *unique_items;
 cvar_t *ir;
 cvar_t *knifelimit;
 cvar_t *tgren;
+cvar_t *flashgren;
+cvar_t *flashradius;
+cvar_t *flashtime;
 cvar_t *allweapon;
 cvar_t *allitem;
 cvar_t *sv_shelloff;
