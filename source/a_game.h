@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // Include for base Action game-related things
 //
-// $Id: a_game.h,v 1.4 2001/06/19 18:56:38 deathwatch Exp $
+// $Id: a_game.h,v 1.5 2001/06/20 21:20:29 slicerdw Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_game.h,v $
+// Revision 1.5  2001/06/20 21:20:29  slicerdw
+// Added new Video System and a few tweaks to vars :\
+//
 // Revision 1.4  2001/06/19 18:56:38  deathwatch
 // New Last killed target system
 //
@@ -70,6 +73,7 @@ void ResetKills (edict_t *ent);
 int ReadKilledPlayers (edict_t * ent);
 void AddKilledPlayer (edict_t * self, edict_t * ent);
 void GetLastKilledTarget (edict_t * self, char *buf);
+void VideoCheckClient(edict_t *ent);
 //AQ2:TNG END
 //TempFile
 void GetLastLoss (edict_t * self, char *buf, char team);

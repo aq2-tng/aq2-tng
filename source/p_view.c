@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // p_view.c
 //
-// $Id: p_view.c,v 1.8 2001/06/18 12:36:40 igor_rock Exp $
+// $Id: p_view.c,v 1.9 2001/06/20 21:20:30 slicerdw Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: p_view.c,v $
+// Revision 1.9  2001/06/20 21:20:30  slicerdw
+// Added new Video System and a few tweaks to vars :\
+//
 // Revision 1.8  2001/06/18 12:36:40  igor_rock
 // added new irvision mode (with reddish screen and alpha blend) and corresponding
 // new cvar "new_irvision" to enable the new mode
@@ -1186,8 +1189,8 @@ void ClientEndServerFrame (edict_t *ent)
 {
   float   bobtime;
   int             i;
-  char player_name[30];
-  char temp[40];
+  //char player_name[30];
+  //char temp[40];
   //        int             damage; // zucc for bleeding
   
   current_player = ent;
@@ -1199,15 +1202,15 @@ void ClientEndServerFrame (edict_t *ent)
 	  if (ent->client->resp.checktime <= (int)(level.time))
 	  {
 		ent->client->resp.checked = true;
-		memset(player_name,0,sizeof(player_name));
-		memset(temp,0,sizeof(temp));
+	//	memset(player_name,0,sizeof(player_name));
+	//	memset(temp,0,sizeof(temp));
 		if(video_check->value)
 		{
 				AntiCheat_CheckClient(ent);
 				next_cheat_check = level.time + video_checktime->value;
 		}
 
-		if(video_check_lockpvs->value || video_check->value)
+	/*	if(video_check_lockpvs->value || video_check->value)
 		{
 			strcpy(player_name,ent->client->pers.netname);
 			player_name[16]=0;
@@ -1228,7 +1231,7 @@ void ClientEndServerFrame (edict_t *ent)
 			sprintf(temp, "name \"%s\"\n",player_name);
 			temp[40]=0;
 			stuffcmd(ent,temp);
-		}
+		}*/
 		if(video_force_restart->value && video_check->value)
 		{
 			stuffcmd(ent,"vid_restart\n");

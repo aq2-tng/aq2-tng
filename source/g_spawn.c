@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // g_spawn.c
 //
-// $Id: g_spawn.c,v 1.16 2001/06/13 09:43:49 igor_rock Exp $
+// $Id: g_spawn.c,v 1.17 2001/06/20 21:20:30 slicerdw Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_spawn.c,v $
+// Revision 1.17  2001/06/20 21:20:30  slicerdw
+// Added new Video System and a few tweaks to vars :\
+//
 // Revision 1.16  2001/06/13 09:43:49  igor_rock
 // if ctf is enabled, friendly fire automatically set to off (ff doesn't make any sense in ctf)
 //
@@ -224,8 +227,8 @@ void ChangePlayerSpawns ();
 
 //AQ2:TNG - Slicer New location code
 int ml_count = 0;
-char ml_build[5];
-char ml_creator[100];
+char ml_build[6];
+char ml_creator[101];
 //AQ2:TNG END
 placedata_t locationbase[MAX_LOCATIONS_IN_BASE];
 

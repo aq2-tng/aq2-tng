@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // g_local.h -- local definitions for game module
 //
-// $Id: g_local.h,v 1.22 2001/06/20 07:21:21 igor_rock Exp $
+// $Id: g_local.h,v 1.23 2001/06/20 21:20:30 slicerdw Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_local.h,v $
+// Revision 1.23  2001/06/20 21:20:30  slicerdw
+// Added new Video System and a few tweaks to vars :\
+//
 // Revision 1.22  2001/06/20 07:21:21  igor_rock
 // added use_warnings to enable/disable time/frags left msgs
 // added use_rewards to enable/disable eimpressive, excellent and accuracy msgs
@@ -1030,6 +1033,7 @@ void ServerCommand (void);
 qboolean SV_FilterPacket (char *from);
 //AQ2:TNG - Slicer
 void SVCmd_CheckCheats_f (void);
+void Kick_Client (edict_t *ent);
 //AQ2:TNG END
 
 //
@@ -1238,6 +1242,8 @@ typedef struct
 	//AQ2:TNG - Slicer: Video Checking and further Cheat cheking vars
 	char vidref[31];
 	char gldriver[31];
+	float gllockpvs;
+	float glmodulate;
 	qboolean	checked;
 	int checktime;
 	//AQ2:TNG END
@@ -1811,8 +1817,8 @@ typedef struct
 // Externals for accessing location structures
 extern int ml_count;
 extern placedata_t locationbase[];
-extern char ml_build[5];
-extern char ml_creator[100];
+extern char ml_build[6];
+extern char ml_creator[101];
 //AQ2:TNG END
 
 #include "a_ctf.h"

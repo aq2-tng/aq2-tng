@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // g_cmds.c
 //
-// $Id: g_cmds.c,v 1.15 2001/06/06 18:57:14 slicerdw Exp $
+// $Id: g_cmds.c,v 1.16 2001/06/20 21:20:29 slicerdw Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_cmds.c,v $
+// Revision 1.16  2001/06/20 21:20:29  slicerdw
+// Added new Video System and a few tweaks to vars :\
+//
 // Revision 1.15  2001/06/06 18:57:14  slicerdw
 // Some tweaks on Ctf and related things
 //
@@ -1569,9 +1572,33 @@ void ClientCommand (edict_t *ent)
  // AQ2:TNG - Slicer : Video Check
 void Cmd_CPSI_f(edict_t *ent)
 {
-	strcpy(ent->client->resp.vidref,gi.argv(1));
-	ent->client->resp.vidref[31] = 0;
-	strcpy(ent->client->resp.gldriver,gi.argv(2));
-	ent->client->resp.gldriver[31] = 0;
+	if(video_check->value && !video_check_lockpvs->value)
+	{
+		ent->client->resp.glmodulate = atoi(gi.argv(1));
+		strncpy(ent->client->resp.vidref,gi.argv(2),sizeof(ent->client->resp.vidref-1));
+		ent->client->resp.vidref[30] = 0;
+		strncpy(ent->client->resp.gldriver,gi.argv(3),sizeof(ent->client->resp.gldriver-1));
+		ent->client->resp.gldriver[30] = 0;
+		return;
+	}
+		
+	else if(!video_check->value && video_check_lockpvs->value)
+	{
+		ent->client->resp.gllockpvs = atoi(gi.argv(1));
+		strncpy(ent->client->resp.vidref,gi.argv(2),sizeof(ent->client->resp.vidref-1));
+		ent->client->resp.vidref[30] = 0;
+		return;
+	}
+			
+	else if(video_check->value && video_check_lockpvs->value)
+	{
+		ent->client->resp.gllockpvs = atoi(gi.argv(1));
+		ent->client->resp.glmodulate = atoi(gi.argv(2));
+		strncpy(ent->client->resp.vidref,gi.argv(2),sizeof(ent->client->resp.vidref-1));
+		ent->client->resp.vidref[30] = 0;
+		strncpy(ent->client->resp.gldriver,gi.argv(3),sizeof(ent->client->resp.gldriver-1));
+		ent->client->resp.gldriver[30] = 0;
+		return;
+	}
 
 }

@@ -16,10 +16,13 @@
 // you get compiler errors too, comment them out like
 // I'd done.
 //
-// $Id: a_xgame.c,v 1.6 2001/06/19 18:56:38 deathwatch Exp $
+// $Id: a_xgame.c,v 1.7 2001/06/20 21:20:29 slicerdw Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_xgame.c,v $
+// Revision 1.7  2001/06/20 21:20:29  slicerdw
+// Added new Video System and a few tweaks to vars :\
+//
 // Revision 1.6  2001/06/19 18:56:38  deathwatch
 // New Last killed target system
 //
@@ -698,10 +701,94 @@ void AntiCheat_CheckClient (edict_t *ent)
     if (video_check->value || video_check_lockpvs->value)
 		//user tells server what value he is using
 		// (then ClientCommand will handle it)
-		stuffcmd(ent, "%cpsi $vid_ref $gl_driver\n");
+		if(video_check->value && !video_check_lockpvs->value)
+		{
+			stuffcmd(ent, "%cpsi $gl_modulate $vid_ref $gl_driver\n");
+			return;
+		}
+		if(!video_check->value && video_check_lockpvs->value)
+		{
+			stuffcmd(ent, "%cpsi $gl_lockpvs $vid_ref\n");
+			return;
+		}
+		if(video_check->value && video_check_lockpvs->value)
+		{
+			stuffcmd(ent,"%cpsi $gl_lockpvs $gl_modulate $vid_ref $gl_driver\n");
+			return;
+		}
 
 }
-//AQ2:TNG END
+
+/*
+===========
+VideoCheckClient
+
+
+===========
+*/
+void VideoCheckClient(edict_t *ent)
+{
+	if(!ent->client->resp.vidref)
+		return;
+		
+	if(video_check_lockpvs->value && Q_stricmp(ent->client->resp.vidref,"soft") != 0)
+	{
+		if(ent->client->resp.gllockpvs !=0)
+		{
+			gi.cprintf(ent, PRINT_HIGH, "This server does not allow using that value for gl_lockpvs, set it to '0'\n");
+			gi.bprintf(PRINT_HIGH, "%s was using an illegal setting\n", ent->client->pers.netname);
+			Kick_Client(ent);
+			return;
+
+		}
+	}
+	//Starting Modulate checks
+	if(Q_stricmp(ent->client->resp.vidref,"soft") == 0)
+		return;
+
+	if(Q_stricmp(ent->client->resp.gldriver,"3dfxgl") == 0)
+	{
+		if(ent->client->resp.glmodulate > video_max_3dfx->value)
+		{
+			gi.cprintf(ent, PRINT_HIGH, "Your gl_modulate value is too high for this server. Max Allowed is %.1f\n",video_max_3dfx->value);
+			gi.bprintf(PRINT_HIGH, "%s is using a gl_modulated higher than allowed (%.1f)\n", ent->client->pers.netname,ent->client->resp.glmodulate);
+			Kick_Client(ent);
+			return;
+		}
+       return;
+	}
+
+	if(Q_stricmp(ent->client->resp.gldriver,"opengl32") == 0)
+	{
+		
+		if(ent->client->resp.glmodulate >video_max_opengl->value)
+		{
+			gi.cprintf(ent, PRINT_HIGH, "Your gl_modulate value is too high for this server. Max Allowed is %.1f\n",video_max_opengl->value);
+			gi.bprintf(PRINT_HIGH, "%s is using a gl_modulate higher than allowed (%.1f)\n", ent->client->pers.netname,ent->client->resp.glmodulate);
+			Kick_Client(ent);
+			return;
+		}
+		return;
+	}
+	if(Q_stricmp(ent->client->resp.gldriver,"3dfxglam") == 0)
+	{
+		if(ent->client->resp.glmodulate > video_max_3dfxam->value)
+		{
+			gi.cprintf(ent, PRINT_HIGH, "Your gl_modulate value is too high for this server. Max Allowed is %.1f\n",video_max_3dfxam->value);
+			gi.bprintf(PRINT_HIGH, "%s is using a gl_modulate higher than allowed (%.1f)\n", ent->client->pers.netname,ent->client->resp.glmodulate);
+			Kick_Client(ent);
+			return;
+		}
+		return;
+	}
+	if(ent->client->resp.glmodulate > video_max_opengl->value)
+		{
+			gi.cprintf(ent, PRINT_HIGH, "Your gl_modulate value is too high for this server. Max Allowed is %.1f\n",video_max_opengl->value);
+			gi.bprintf(PRINT_HIGH, "%s is using a gl_modulate higher than allowed (%.1f)\n", ent->client->pers.netname,ent->client->resp.glmodulate);
+			Kick_Client(ent);
+			return;
+		}
+}
 
 //AQ2:TNG - Slicer : Last Damage Location
 void GetLastDamagedPart(edict_t *self, char *buf)

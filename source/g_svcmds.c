@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // g_svcmds.c
 //
-// $Id: g_svcmds.c,v 1.5 2001/05/31 16:58:14 igor_rock Exp $
+// $Id: g_svcmds.c,v 1.6 2001/06/20 21:20:30 slicerdw Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_svcmds.c,v $
+// Revision 1.6  2001/06/20 21:20:30  slicerdw
+// Added new Video System and a few tweaks to vars :\
+//
 // Revision 1.5  2001/05/31 16:58:14  igor_rock
 // conflicts resolved
 //
@@ -329,9 +332,9 @@ This will stuff a certain command to the client.
 void SVCmd_stuffcmd_f ()
 {
     int i, u;
-	char text[255];
-	char tmp[50];
-	char user[50];
+	char text[256];
+	char tmp[51];
+	char user[51];
 	edict_t *ent;
 	if(gi.argc() < 4){
               gi.cprintf(NULL, PRINT_HIGH, "Usage:  stuffcmd <user id> <text>\n");
@@ -341,18 +344,18 @@ void SVCmd_stuffcmd_f ()
 	memset(text,0,sizeof(text));
 	memset(user,0,sizeof(user));
 	memset(tmp,0,sizeof(tmp));
-	strcpy(user,gi.argv(2));
+	strncpy(user,gi.argv(2),sizeof(user)-1);
 	user[50] = 0;
 	for(u=3;u<=i;u++)
 	{
-		strcpy(tmp,gi.argv(u));
+		strncpy(tmp,gi.argv(u),sizeof(tmp)-1);
 		if(tmp[0]=='!') // Checks for "!" and replaces for "$" to see the user info
 			tmp[0]='$';
 		tmp[50] = 0;
-		strcat(text,tmp);
-		strcat(text," ");
+		strncat(text,tmp,sizeof(text)-1);
+		strncat(text," ",sizeof(text)-1);
 	}
- 	strcat(text,"\n");
+ 	strncat(text,"\n",sizeof(text)-1);
 	text[255] = 0;
 	    
 	if(Q_stricmp(user,"team1")==0 || Q_stricmp(user,"team2")==0 || Q_stricmp(user,"all")==0 ){

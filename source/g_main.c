@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 //
 //
-// $Id: g_main.c,v 1.12 2001/06/20 07:21:21 igor_rock Exp $
+// $Id: g_main.c,v 1.13 2001/06/20 21:20:30 slicerdw Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_main.c,v $
+// Revision 1.13  2001/06/20 21:20:30  slicerdw
+// Added new Video System and a few tweaks to vars :\
+//
 // Revision 1.12  2001/06/20 07:21:21  igor_rock
 // added use_warnings to enable/disable time/frags left msgs
 // added use_rewards to enable/disable eimpressive, excellent and accuracy msgs
@@ -598,6 +601,7 @@ void ExitLevel (void)
 void G_RunFrame (void)
 {
   int             i;
+  float oldtime;
   edict_t *ent;
   
   level.framenum++;
@@ -663,9 +667,12 @@ void G_RunFrame (void)
 		{
 			if (level.time > next_cheat_check)
 			{
+				oldtime = next_cheat_check + 2;
 				SVCmd_CheckCheats_f();
 				next_cheat_check = level.time + video_checktime->value;
 			}
+			if(level.time > oldtime)
+				VideoCheckClient(ent);
 		}
 	//AQ2:TNG END
 
