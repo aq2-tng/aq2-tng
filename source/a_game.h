@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // Include for base Action game-related things
 //
-// $Id: a_game.h,v 1.12 2001/09/28 13:48:34 ra Exp $
+// $Id: a_game.h,v 1.13 2001/09/28 14:20:25 slicerdw Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_game.h,v $
+// Revision 1.13  2001/09/28 14:20:25  slicerdw
+// Few tweaks..
+//
 // Revision 1.12  2001/09/28 13:48:34  ra
 // I ran indent over the sources. All .c and .h files reindented.
 //
@@ -43,9 +46,9 @@
 
 
 // AQ2:TNG Deathwatch - Updated the Version variables to show TNG Stuff
-#define ACTION_VERSION  "1.52 TNG 2.1"
+#define ACTION_VERSION  "1.52 TNG 2.3"
 #define TNG_VERSION		"AQ2: The Next Generation"
-#define TNG_VERSION2	"AQ2: The Next Generation v2.1"
+#define TNG_VERSION2	"AQ2: The Next Generation v2.3"
 // AQ2:TNG Deathwatch End
 //AQ2:TNG Slicer This is the max players writen on last killed target
 #define MAX_LAST_KILLED 5

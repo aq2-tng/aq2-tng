@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // g_cmds.c
 //
-// $Id: g_cmds.c,v 1.32 2001/09/28 13:48:34 ra Exp $
+// $Id: g_cmds.c,v 1.33 2001/09/28 14:20:25 slicerdw Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_cmds.c,v $
+// Revision 1.33  2001/09/28 14:20:25  slicerdw
+// Few tweaks..
+//
 // Revision 1.32  2001/09/28 13:48:34  ra
 // I ran indent over the sources. All .c and .h files reindented.
 //
@@ -1692,7 +1695,12 @@ Cmd_SetAdmin_f (edict_t * ent)
       gi.cprintf (ent, PRINT_HIGH, "Usage:  matchadmin <password>\n");
       return;
     }
+  if(strcmp (mm_adminpwd->string, "0") == 0)
+  {
+	  gi.cprintf (ent, PRINT_HIGH, "Admin Mode is not enabled on this server..\n");
+      return;
 
+  }
   if (strcmp (mm_adminpwd->string, gi.argv (1)) == 0)
     {
       if (ent->client->resp.admin)
@@ -2083,6 +2091,14 @@ ClientCommand (edict_t * ent)
     {
       if (darkmatch->value)
 	FL_make (ent);
+      else
+	Cmd_Say_f (ent, false, true, false);
+      return;
+    }
+  else if (Q_stricmp (cmd, "matchadmin") == 0)
+    {
+      if (matchmode->value)
+	Cmd_SetAdmin_f (ent);
       else
 	Cmd_Say_f (ent, false, true, false);
       return;
