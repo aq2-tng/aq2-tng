@@ -3,10 +3,13 @@
 // Some of this is borrowed from Zoid's CTF (thanks Zoid)
 // -Fireblade
 //
-// $Id: a_team.c,v 1.27 2001/06/20 07:21:21 igor_rock Exp $
+// $Id: a_team.c,v 1.28 2001/06/20 19:23:19 igor_rock Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_team.c,v $
+// Revision 1.28  2001/06/20 19:23:19  igor_rock
+// added vcehckvotes for ctf mode "in game" ;)
+//
 // Revision 1.27  2001/06/20 07:21:21  igor_rock
 // added use_warnings to enable/disable time/frags left msgs
 // added use_rewards to enable/disable eimpressive, excellent and accuracy msgs
@@ -1910,6 +1913,14 @@ CheckTeamRules ()
     else
     /* team_round_going */
     {
+      if ((vCheckVote () == true) && ctf->value)
+	  {
+	    gi.dprintf ("So ein test\n");
+	    EndDMLevel ();
+	    team_round_going = team_round_countdown = team_game_going = 0;
+	    return;
+	  }
+      
       if ((winner = CheckForWinner ()) != WINNER_NONE)
 	{
 	  if (!checked_tie)
