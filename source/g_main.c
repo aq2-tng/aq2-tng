@@ -1,10 +1,14 @@
 //-----------------------------------------------------------------------------
 //
 //
-// $Id: g_main.c,v 1.32 2001/09/29 19:54:04 ra Exp $
+// $Id: g_main.c,v 1.33 2001/09/30 03:09:34 ra Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_main.c,v $
+// Revision 1.33  2001/09/30 03:09:34  ra
+// Removed new stats at end of rounds and created a new command to
+// do the same functionality.   Command is called "time"
+//
 // Revision 1.32  2001/09/29 19:54:04  ra
 // Made a CVAR to turn off extratimingstats
 //
@@ -170,7 +174,6 @@ cvar_t *punishkills;		// AQ:TNG - JBravo adding punishkills
 cvar_t *mapvote_waittime;
 cvar_t *ff_afterround;
 cvar_t *uvtime;			// CTF Invunerability Time
-cvar_t *extrastats;
 cvar_t *sv_gib;
 cvar_t *sv_crlf;		// Allow Control Char
 cvar_t *vrot;			// Vote Rotation

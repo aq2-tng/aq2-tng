@@ -1,10 +1,14 @@
 //-----------------------------------------------------------------------------
 // g_cmds.c
 //
-// $Id: g_cmds.c,v 1.35 2001/09/28 22:00:46 deathwatch Exp $
+// $Id: g_cmds.c,v 1.36 2001/09/30 03:09:34 ra Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_cmds.c,v $
+// Revision 1.36  2001/09/30 03:09:34  ra
+// Removed new stats at end of rounds and created a new command to
+// do the same functionality.   Command is called "time"
+//
 // Revision 1.35  2001/09/28 22:00:46  deathwatch
 // changed pheer to ph34rs in the kill denying statement
 //
@@ -1986,6 +1990,11 @@ ClientCommand (edict_t * ent)
   else if (Q_stricmp (cmd, "tkok") == 0)
     {
       Cmd_TKOk (ent);
+      return;
+    }
+  else if (Q_stricmp (cmd, "time") == 0)
+    {
+      Cmd_Time (ent);
       return;
     }
   else if (Q_stricmp (cmd, "voice") == 0 && use_voice->value)

@@ -4,10 +4,14 @@
 //
 // laser sight patch, by Geza Beladi
 //
-// $Id: a_cmds.c,v 1.15 2001/09/28 13:48:34 ra Exp $
+// $Id: a_cmds.c,v 1.16 2001/09/30 03:09:34 ra Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_cmds.c,v $
+// Revision 1.16  2001/09/30 03:09:34  ra
+// Removed new stats at end of rounds and created a new command to
+// do the same functionality.   Command is called "time"
+//
 // Revision 1.15  2001/09/28 13:48:34  ra
 // I ran indent over the sources. All .c and .h files reindented.
 //
@@ -1233,4 +1237,18 @@ Cmd_TKOk (edict_t * ent)
     }
   ent->enemy = NULL;
   return;
+}
+
+void
+Cmd_Time (edict_t * ent)
+{
+  int mins, secs, remaining, rmins, rsecs, round;
+
+     mins = level.time / 60;
+     secs = level.time - (mins * 60);
+     remaining = (timelimit->value *60) - level.time;
+     rmins = remaining / 60;
+     rsecs = remaining - (rmins * 60);
+
+     gi.cprintf (ent, PRINT_HIGH, "Elapsed time: %d:%02d. Remaining time: %d:%02d\n", mins, secs, rmins, rsecs);
 }

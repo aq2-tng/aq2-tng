@@ -1,10 +1,14 @@
 //-----------------------------------------------------------------------------
 // g_local.h -- local definitions for game module
 //
-// $Id: g_local.h,v 1.40 2001/09/29 19:54:04 ra Exp $
+// $Id: g_local.h,v 1.41 2001/09/30 03:09:34 ra Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_local.h,v $
+// Revision 1.41  2001/09/30 03:09:34  ra
+// Removed new stats at end of rounds and created a new command to
+// do the same functionality.   Command is called "time"
+//
 // Revision 1.40  2001/09/29 19:54:04  ra
 // Made a CVAR to turn off extratimingstats
 //
@@ -730,7 +734,6 @@ extern cvar_t *punishkills;
 extern cvar_t *mapvote_waittime;
 extern cvar_t *ff_afterround;
 extern cvar_t *uvtime;
-extern cvar_t *extrastats;
 extern cvar_t *use_mapvote;	// enable map voting
 extern cvar_t *sv_gib;
 extern cvar_t *sv_crlf;
@@ -1669,6 +1672,7 @@ void Cmd_ID_f (edict_t * ent);
 void Cmd_IR_f (edict_t * ent);
 void Cmd_Choose_f (edict_t * ent);
 void Cmd_TKOk (edict_t * ent);	// AQ:TNG - JBravo adding tkok
+void Cmd_Time (edict_t * ent);	// AQ:TNG - JBravo adding time
 void DropSpecialWeapon (edict_t * ent);
 void ReadySpecialWeapon (edict_t * ent);
 void DropSpecialItem (edict_t * ent);
