@@ -4,6 +4,10 @@ Changes in TNG
 - = bug fix
 * = major bug fix
 
+From 2.7
+* New spawning system spawn bug (spawning too close) fixed.
++ Added Kevlar vest and Kevlar Helmet locations in damage (entire rework of the stats code).
+
 From 2.6
 - Fixed a typo in the stats
 + Added use_ghosts cvar and the ghost user command. It restores scores, stats, teams and items for player if he gets disconnected.
