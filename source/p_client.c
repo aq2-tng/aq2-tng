@@ -1,10 +1,14 @@
 //-----------------------------------------------------------------------------
 // p_client.c
 //
-// $Id: p_client.c,v 1.41 2001/08/06 14:38:45 ra Exp $
+// $Id: p_client.c,v 1.42 2001/08/06 23:35:31 ra Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: p_client.c,v $
+// Revision 1.42  2001/08/06 23:35:31  ra
+// Fixed an uvtime bug when clients join server while CTF rounds are already
+// going.
+//
 // Revision 1.41  2001/08/06 14:38:45  ra
 // Adding UVtime for ctf
 //
@@ -2801,7 +2805,7 @@ void PutClientInServer (edict_t *ent)
         }
 // AQ2:TNG - JBravo adding UVtime
 	if (ctf->value) {
-		if (team_round_going && !lights_camera_action && uvtime->value) {
+		if (team_round_going && !lights_camera_action && uvtime->value && ent->client->resp.team != NOTEAM) {
 			ent->client->ctf_uvtime = uvtime->value;
 		}
 	}
