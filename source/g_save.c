@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // g_save.c
 //
-// $Id: g_save.c,v 1.9 2001/05/15 15:49:14 igor_rock Exp $
+// $Id: g_save.c,v 1.10 2001/05/16 13:26:38 slicerdw Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_save.c,v $
+// Revision 1.10  2001/05/16 13:26:38  slicerdw
+// Too Many Userinfo Cvars( commented some) & Enabled death messages on CTF
+//
 // Revision 1.9  2001/05/15 15:49:14  igor_rock
 // added itm_flags for deathmatch
 //
@@ -245,9 +248,10 @@ void InitGame (void)
   noscore = gi.cvar("noscore", "0", CVAR_SERVERINFO|CVAR_LATCH);
   actionversion = gi.cvar("actionversion", "none set", CVAR_SERVERINFO|CVAR_LATCH);
   gi.cvar_set("actionversion", ACTION_VERSION);
-  
+  //AQ2:TNG - Slicer Too many SERVERINFO CVARS !!!! commenting some.
+
   //PG BUND - BEGIN
-  use_voice = gi.cvar("use_voice", "1", CVAR_SERVERINFO|CVAR_LATCH);
+  use_voice = gi.cvar("use_voice", "1", CVAR_LATCH); //slicer
   //use_friendlyfire = gi.cvar("use_friendlyfire", "0", CVAR_SERVERINFO);
   //ff_maxkills = gi.cvar("ff_maxkills", "6", 0);
   //ff_kickat = gi.cvar("ff_kickat", "10", 0);
@@ -256,16 +260,16 @@ void InitGame (void)
   ppl_idletime = gi.cvar("ppl_idletime","15", CVAR_LATCH);
   use_tourney = gi.cvar("use_tourney", "0", CVAR_SERVERINFO|CVAR_LATCH);
   use_3teams = gi.cvar("use_3teams", "0", CVAR_SERVERINFO|CVAR_LATCH);
-  use_kickvote = gi.cvar("use_kickvote", "1", CVAR_SERVERINFO);
-  use_mapvote = gi.cvar("use_mapvote", "1", CVAR_SERVERINFO);  
+  use_kickvote = gi.cvar("use_kickvote", "1",0);//slicer
+  use_mapvote = gi.cvar("use_mapvote", "1", 0);  //slicer
   //PG BUND - END
 
 // AQ:TNG - JBravo adding public voting and punishkills.
-  mv_public = gi.cvar("mv_public", "0", CVAR_SERVERINFO);
-  vk_public = gi.cvar("vk_public", "0", CVAR_SERVERINFO);
-  punishkills = gi.cvar("punishkills","1", CVAR_SERVERINFO);
+  mv_public = gi.cvar("mv_public", "0", 0);//slicer 
+  vk_public = gi.cvar("vk_public", "0", 0);//slicer
+  punishkills = gi.cvar("punishkills","1", 0);//slicer
 // JBravo
-  
+  //AQ2:TNG SLICER END
   //tempfile
   sv_gib = gi.cvar("sv_gib", "0", CVAR_LATCH);
   sv_crlf = gi.cvar("sv_crlf", "1", CVAR_LATCH);

@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // p_client.c
 //
-// $Id: p_client.c,v 1.17 2001/05/13 15:01:45 ra Exp $
+// $Id: p_client.c,v 1.18 2001/05/16 13:26:38 slicerdw Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: p_client.c,v $
+// Revision 1.18  2001/05/16 13:26:38  slicerdw
+// Too Many Userinfo Cvars( commented some) & Enabled death messages on CTF
+//
 // Revision 1.17  2001/05/13 15:01:45  ra
 //
 //
@@ -541,7 +544,8 @@ void ClientObituary (edict_t *self, edict_t *inflictor, edict_t *attacker)
   qboolean        ff;
   int             special = 0;
   int                             n; 
-  
+  //AQ2:TNG - Slicer Lets try CTF with Death messages...
+  /*
 		if(ctf->value) // AQ2:M - CTF
 		{
 			self->client->respawn_time = level.time + ctf_player_respawn_time->value;
@@ -562,6 +566,8 @@ void ClientObituary (edict_t *self, edict_t *inflictor, edict_t *attacker)
 
 			return;
 		}
+		*/
+		//AQ2:TNG END
 
 	if (coop->value && attacker->client)
     meansOfDeath |= MOD_FRIENDLY_FIRE;
