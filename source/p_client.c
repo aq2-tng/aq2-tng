@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // p_client.c
 //
-// $Id: p_client.c,v 1.7 2001/05/07 21:18:35 slicerdw Exp $
+// $Id: p_client.c,v 1.8 2001/05/08 19:10:54 slicerdw Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: p_client.c,v $
+// Revision 1.8  2001/05/08 19:10:54  slicerdw
+// Added Last Damage Location
+//
 // Revision 1.7  2001/05/07 21:18:35  slicerdw
 // Added Video Checking System
 //
@@ -1521,6 +1524,9 @@ void player_die (edict_t *self, edict_t *inflictor, edict_t *attacker, int damag
         self->client->resp.idletime = 0;
         self->client->resp.last_killed_target = NULL;
 //PG BUND - END        
+  //AQ2:TNG Slicer Last Damage Location
+		self->client->resp.last_damaged_part = 0;
+	  //AQ2:TNG END
 
 //TempFile
 		self->client->pers.num_kills = 0;
@@ -1583,6 +1589,9 @@ void InitClientPersistant (gclient_t *client)
         client->unique_weapon_total = 0;
         client->unique_item_total = 0;
         client->curr_weap = MK23_NUM;
+		//AQ2:TNG - Slicer Moved This To Here
+		client->pers.num_kills = 0;
+		//AQ2:TNG END
 }
 
 
@@ -1599,7 +1608,7 @@ void InitClientResp (gclient_t *client)
 		client->resp.punch_desired = false;
 		client->resp.fire_time = 0;
 		client->resp.ignore_time = 0;
-		client->pers.num_kills = 0;
+		//client->pers.num_kills = 0; AQ2:TNG Moved This to InitClientPersistant
 //TempFile - END
 
 //PG BUND - BEGIN
@@ -1612,6 +1621,14 @@ void InitClientResp (gclient_t *client)
 	client->resp.checked = false;
 	client->resp.checktime = 0;
 	//AQ2:TNG END
+  //AQ2:TNG Slicer Last Damage Location
+	client->resp.last_damaged_part = 0;
+  //AQ2:TNG END
+	//AQ2:TNG Slicer Moved this to here
+    client->resp.killed_teammates = 0;
+    client->resp.idletime = 0;
+	//AQ2:TNG END
+	
 }
 
 /*
@@ -2675,10 +2692,10 @@ void ClientBeginDeathmatch (edict_t *ent)
 
         InitClientResp (ent->client);
                                 
-//PG BUND - BEGIN
-        ent->client->resp.last_killed_target = NULL;
-        ent->client->resp.killed_teammates = 0;
-        ent->client->resp.idletime = 0;
+//PG BUND - BEGIN    
+		/*client->resp.last_killed_target = NULL;
+		client->resp.killed_teammates = 0;
+		client->resp.idletime = 0; - AQ2:TNG Slicer Moved this to InitClientResp*/
         TourneyNewPlayer(ent);
         vInitClient(ent);
 //PG BUND - END
@@ -2756,6 +2773,10 @@ void ClientBegin (edict_t *ent)
           
 //PG BUND - BEGIN
           ent->client->resp.last_killed_target = NULL;
+//AQ2:TNG - Slicer :Dunno Why these Vars Are Here, as it calls InitClientResp..
+		  //Adding The Last_damaged_part anyway
+		  ent->client->resp.last_damaged_part = 0;
+//AQ2:TNG END
           ent->client->resp.killed_teammates = 0;
           ent->client->resp.idletime = 0;
           TourneyNewPlayer(ent);  

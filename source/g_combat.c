@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // g_combat.c
 //
-// $Id: g_combat.c,v 1.2 2001/05/07 20:06:45 igor_rock Exp $
+// $Id: g_combat.c,v 1.3 2001/05/08 19:10:54 slicerdw Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_combat.c,v $
+// Revision 1.3  2001/05/08 19:10:54  slicerdw
+// Added Last Damage Location
+//
 // Revision 1.2  2001/05/07 20:06:45  igor_rock
 // changed sound dir from sound/rock to sound/tng
 //
@@ -721,7 +724,10 @@ void T_Damage (edict_t *targ, edict_t *inflictor, edict_t *attacker, vec3_t dir,
 		{
 		  if (attacker->client)
 		    {
-		      attacker->client->resp.headshots++;
+			  //AQ2:TNG Slicer Last Damage Location
+     		  attacker->client->resp.last_damaged_part = LOC_HDAM;
+			 //AQ2:TNG END
+			  attacker->client->resp.headshots++;
 		      attacker->client->resp.hs_streak++;
 		      // AQ:TNG Igor[Rock] changing sound dir
 		      if (attacker->client->resp.hs_streak == 3)
@@ -794,6 +800,9 @@ void T_Damage (edict_t *targ, edict_t *inflictor, edict_t *attacker, vec3_t dir,
 		  damage_type = LOC_LDAM;
 		  targ->client->leg_damage = 1;
 		  targ->client->leghits++;
+		 //AQ2:TNG Slicer Last Damage Location
+		  attacker->client->resp.last_damaged_part = LOC_LDAM;
+		 //AQ2:TNG END
 		} 
 	      else if (z_rel < STOMACH_DAMAGE)
 		{ 
@@ -808,6 +817,9 @@ void T_Damage (edict_t *targ, edict_t *inflictor, edict_t *attacker, vec3_t dir,
 		  //TempFile bloody gibbing
 		  if((mod == MOD_SNIPER) && sv_gib->value)
 		    ThrowGib (targ, "models/objects/gibs/sm_meat/tris.md2", damage, GIB_ORGANIC);
+		//AQ2:TNG Slicer Last Damage Location
+		  attacker->client->resp.last_damaged_part = LOC_SDAM;
+		//AQ2:TNG END
 		} 
 	      else //(z_rel < CHEST_DAMAGE)
 		{   
@@ -866,6 +878,9 @@ void T_Damage (edict_t *targ, edict_t *inflictor, edict_t *attacker, vec3_t dir,
 		      if((mod == MOD_SNIPER) && sv_gib->value)
 			ThrowGib (targ, "models/objects/gibs/sm_meat/tris.md2", damage, GIB_ORGANIC);
 		    }
+		 //AQ2:TNG Slicer Last Damage Location
+		  attacker->client->resp.last_damaged_part = LOC_CDAM;
+		//AQ2:TNG END
 		  
 		} 
                                 /*else

@@ -3,10 +3,13 @@
 // Some of this is borrowed from Zoid's CTF (thanks Zoid)
 // -Fireblade
 //
-// $Id: a_team.c,v 1.2 2001/05/07 20:06:45 igor_rock Exp $
+// $Id: a_team.c,v 1.3 2001/05/08 19:10:54 slicerdw Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_team.c,v $
+// Revision 1.3  2001/05/08 19:10:54  slicerdw
+// Added Last Damage Location
+//
 // Revision 1.2  2001/05/07 20:06:45  igor_rock
 // changed sound dir from sound/rock to sound/tng
 //
@@ -1098,6 +1101,9 @@ SpawnPlayers ()
       if (ent->inuse && ent->client->resp.team != NOTEAM)
 	{
 	  ent->client->resp.last_killed_target = NULL;
+	  //AQ2:TNG Slicer Last Damage Location
+	  ent->client->resp.last_damaged_part = 0;
+	  //AQ2:TNG END
 	  PutClientInServer (ent);
 	  AddToTransparentList (ent);
 	}

@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // g_local.h -- local definitions for game module
 //
-// $Id: g_local.h,v 1.6 2001/05/08 12:55:43 igor_rock Exp $
+// $Id: g_local.h,v 1.7 2001/05/08 19:10:54 slicerdw Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_local.h,v $
+// Revision 1.7  2001/05/08 19:10:54  slicerdw
+// Added Last Damage Location
+//
 // Revision 1.6  2001/05/08 12:55:43  igor_rock
 // added inlcude file <ctype.h>
 //
@@ -1141,6 +1144,9 @@ typedef struct
 	qboolean	checked;
 	int checktime;
 	//AQ2:TNG END
+	//AQ2:TNG - Slicer Last Damage Location
+	int last_damaged_part;
+	//AQ2:TNG - END
 
 
   }

@@ -16,10 +16,13 @@
 // you get compiler errors too, comment them out like
 // I'd done.
 //
-// $Id: a_xgame.c,v 1.2 2001/05/07 21:18:34 slicerdw Exp $
+// $Id: a_xgame.c,v 1.3 2001/05/08 19:10:54 slicerdw Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_xgame.c,v $
+// Revision 1.3  2001/05/08 19:10:54  slicerdw
+// Added Last Damage Location
+//
 // Revision 1.2  2001/05/07 21:18:34  slicerdw
 // Added Video Checking System
 //
@@ -632,6 +635,14 @@ ParseSayText (edict_t * ent, char *text)
 	      pbuf = SeekBufEnd (pbuf);
 	      p += 2;
 	      continue;
+	//AQ2:TNG Slicer Last Damage Location
+		case 'D':
+		  GetLastDamagedPart(ent, infobuf);
+		  strcpy(pbuf, infobuf);
+		  pbuf = SeekBufEnd(pbuf);
+		  p += 2;
+		 continue;
+		 //AQ2:TNG END
 	    }
 	}
       *pbuf++ = *p++;
@@ -657,3 +668,34 @@ void AntiCheat_CheckClient (edict_t *ent)
 		stuffcmd(ent, "%cpsi $vid_ref $gl_driver\n");
 
 }
+//AQ2:TNG END
+
+//AQ2:TNG - Slicer : Last Damage Location
+void GetLastDamagedPart(edict_t *self, char *buf)
+{
+	if(self->client->resp.last_damaged_part == 0)
+				strcpy(buf, "nothing");
+	else if(self->client->resp.last_damaged_part == LOC_HDAM)
+	{
+		strcpy(buf, "head");
+		self->client->resp.last_damaged_part = 0;
+	}
+	else if(self->client->resp.last_damaged_part == LOC_CDAM)
+			{
+		strcpy(buf, "chest");
+		self->client->resp.last_damaged_part = 0;
+	}
+	else if(self->client->resp.last_damaged_part == LOC_SDAM)
+		{
+		strcpy(buf, "stomach");
+		self->client->resp.last_damaged_part = 0;
+	}
+	else if(self->client->resp.last_damaged_part == LOC_LDAM)
+	{
+		strcpy(buf, "legs");
+		self->client->resp.last_damaged_part = 0;
+	}
+	else
+		strcpy(buf,"nothing"); // Just in case
+}
+//AQ2:TNG END
