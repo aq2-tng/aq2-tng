@@ -16,10 +16,14 @@
 // you get compiler errors too, comment them out like
 // I'd done.
 //
-// $Id: a_xgame.c,v 1.16 2002/02/18 13:55:35 freud Exp $
+// $Id: a_xgame.c,v 1.17 2002/02/19 10:28:43 freud Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_xgame.c,v $
+// Revision 1.17  2002/02/19 10:28:43  freud
+// Added to %D hit in the kevlar vest and kevlar helmet, also body for handcannon
+// and shotgun.
+//
 // Revision 1.16  2002/02/18 13:55:35  freud
 // Added last damaged players %P
 //
@@ -862,6 +866,21 @@ GetLastDamagedPart (edict_t * self, char *buf)
       strcpy (buf, "legs");
       self->client->resp.last_damaged_part = 0;
     }
+  else if (self->client->resp.last_damaged_part == LOC_KVLR_HELMET)
+    {
+      strcpy (buf, "kevlar helmet");
+      self->client->resp.last_damaged_part = 0;
+    }
+  else if (self->client->resp.last_damaged_part == LOC_KVLR_VEST)
+    {
+      strcpy (buf, "kevlar vest");
+      self->client->resp.last_damaged_part = 0;
+    }
+  else if (self->client->resp.last_damaged_part == LOC_NO)
+    {
+      strcpy (buf, "body");
+      self->client->resp.last_damaged_part = 0;
+    }
   else
     strcpy (buf, "nothing");	// Just in case
 }
@@ -872,7 +891,7 @@ GetLastDamagedPart (edict_t * self, char *buf)
 void
 GetLastDamagedPlayers (edict_t * self, char *buf)
 {
-	if (self->client->resp.last_damaged_players == '\0')
+	if (self->client->resp.last_damaged_players[0] == '\0')
 		strcpy(buf, "nobody");
 	else
 		strcpy(buf, self->client->resp.last_damaged_players);

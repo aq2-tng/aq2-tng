@@ -1,10 +1,14 @@
 //-----------------------------------------------------------------------------
 // g_combat.c
 //
-// $Id: g_combat.c,v 1.23 2002/02/18 17:17:20 freud Exp $
+// $Id: g_combat.c,v 1.24 2002/02/19 10:28:43 freud Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_combat.c,v $
+// Revision 1.24  2002/02/19 10:28:43  freud
+// Added to %D hit in the kevlar vest and kevlar helmet, also body for handcannon
+// and shotgun.
+//
 // Revision 1.23  2002/02/18 17:17:20  freud
 // Fixed the CTF leaving team bug. Also made the shield more efficient,
 // No falling damage.
@@ -817,10 +821,12 @@ T_Damage (edict_t * targ, edict_t * inflictor, edict_t * attacker, vec3_t dir,
 
 // TNG Stats - Add +1 to hit, make sure that hc and m3 are handles differently
 
+		if ((attacker->client) && (mod != MOD_M3) && (mod != MOD_HC))
+			sprintf(attacker->client->resp.last_damaged_players, "%s", targ->client->pers.netname);
+
 		if ((attacker->client) && (mod != MOD_M3) && (mod != MOD_HC) && (!teamplay->value || team_round_going || stats_afterround->value)) {
 			attacker->client->resp.stats_hits[mod]++;
 			attacker->client->resp.stats_shots_h++;
-			sprintf(attacker->client->resp.last_damaged_players, "%s", targ->client->pers.netname);
 		}
  
 // TNG Stats END
@@ -901,7 +907,11 @@ T_Damage (edict_t * targ, edict_t * inflictor, edict_t * attacker, vec3_t dir,
             attacker->client->resp.stats_dual_shots_hd++;
 */            
 		      //AQ2:TNG Slicer Last Damage Location
-		      attacker->client->resp.last_damaged_part = LOC_HDAM;
+			if (targ->client->pers.inventory[ITEM_INDEX (item2)])
+		      		attacker->client->resp.last_damaged_part = LOC_KVLR_HELMET;
+			else
+		      		attacker->client->resp.last_damaged_part = LOC_HDAM;
+
 		      //AQ2:TNG END
 					if ((!teamplay->value || team_round_going || stats_afterround->value))
 						attacker->client->resp.headshots++;
@@ -1097,7 +1107,10 @@ T_Damage (edict_t * targ, edict_t * inflictor, edict_t * attacker, vec3_t dir,
 				  damage, GIB_ORGANIC);
 		    }
 		  //AQ2:TNG Slicer Last Damage Location
-		  attacker->client->resp.last_damaged_part = LOC_CDAM;
+		if (targ->client->pers.inventory[ITEM_INDEX (item)])
+			attacker->client->resp.last_damaged_part = LOC_KVLR_VEST;
+		else
+			attacker->client->resp.last_damaged_part = LOC_CDAM;
 		  //AQ2:TNG END
 			if (!teamplay->value || team_round_going || stats_afterround->value)
 				attacker->client->resp.chestshots++; // TNG Stats

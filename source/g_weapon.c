@@ -1,10 +1,14 @@
 //-----------------------------------------------------------------------------
 // g_weapon.c
 //
-// $Id: g_weapon.c,v 1.12 2002/02/18 18:25:51 ra Exp $
+// $Id: g_weapon.c,v 1.13 2002/02/19 10:28:43 freud Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_weapon.c,v $
+// Revision 1.13  2002/02/19 10:28:43  freud
+// Added to %D hit in the kevlar vest and kevlar helmet, also body for handcannon
+// and shotgun.
+//
 // Revision 1.12  2002/02/18 18:25:51  ra
 // Bumped version to 2.6, fixed ctf falling and kicking of players in ctf
 // uvtime
@@ -713,7 +717,9 @@ ProduceShotgunDamageReport (edict_t * self)
 	    break;
 	}
       gi.cprintf (self, PRINT_HIGH, "%s\n", textbuf);
+
       sprintf(self->client->resp.last_damaged_players, "%s", damaged_players);
+      self->client->resp.last_damaged_part = LOC_NO;
       
     }
   // TNG Stats

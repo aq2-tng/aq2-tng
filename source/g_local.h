@@ -1,10 +1,14 @@
 //-----------------------------------------------------------------------------
 // g_local.h -- local definitions for game module
 //
-// $Id: g_local.h,v 1.55 2002/02/19 09:32:47 freud Exp $
+// $Id: g_local.h,v 1.56 2002/02/19 10:28:43 freud Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_local.h,v $
+// Revision 1.56  2002/02/19 10:28:43  freud
+// Added to %D hit in the kevlar vest and kevlar helmet, also body for handcannon
+// and shotgun.
+//
 // Revision 1.55  2002/02/19 09:32:47  freud
 // Removed PING PONGs from CVS, not fit for release.
 //
@@ -1846,6 +1850,9 @@ void AddSplat (edict_t * self, vec3_t point, trace_t * tr);
 #define LOC_CDAM 2		// chest
 #define LOC_SDAM 3		// stomach
 #define LOC_LDAM 4		// legs
+#define LOC_KVLR_HELMET 5	// kevlar helmet	Freud, for %D
+#define LOC_KVLR_VEST 6		// kevlar vest 		Freud, for %D
+#define LOC_NO 7		// Shot by shotgun or handcannon
 
 // sniper modes
 #define SNIPER_1X 0
