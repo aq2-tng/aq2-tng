@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // g_save.c
 //
-// $Id: g_save.c,v 1.23 2001/06/21 00:05:30 slicerdw Exp $
+// $Id: g_save.c,v 1.24 2001/06/22 16:34:05 slicerdw Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_save.c,v $
+// Revision 1.24  2001/06/22 16:34:05  slicerdw
+// Finished Matchmode Basics, now with admins, Say command tweaked...
+//
 // Revision 1.23  2001/06/21 00:05:30  slicerdw
 // New Video Check System done -  might need some revision but works..
 //
@@ -368,6 +371,8 @@ void InitGame (void)
 	//AQ2:TNG End adding flags
 	//AQ2:TNG Slicer - Matchmode 
 	matchmode = gi.cvar("matchmode", "0",CVAR_SERVERINFO|CVAR_LATCH);
+	admin = gi.cvar("admin", "-1", 0);
+    hearall = gi.cvar("hearall", "0", 0); // used in matchmode
 //AQ2:TNG END
   
   //FIREBLADE

@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // g_local.h -- local definitions for game module
 //
-// $Id: g_local.h,v 1.25 2001/06/21 00:05:30 slicerdw Exp $
+// $Id: g_local.h,v 1.26 2001/06/22 16:34:05 slicerdw Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_local.h,v $
+// Revision 1.26  2001/06/22 16:34:05  slicerdw
+// Finished Matchmode Basics, now with admins, Say command tweaked...
+//
 // Revision 1.25  2001/06/21 00:05:30  slicerdw
 // New Video Check System done -  might need some revision but works..
 //
@@ -748,6 +751,8 @@ extern	cvar_t	*check_time;
 //AQ2:TNG - END
 //AQ2:TNG Slicer - Matchmode 
 extern  cvar_t  *matchmode;
+extern  cvar_t  *admin; 
+extern  cvar_t  *hearall; // used in match mode 
 //AQ2:TNG END
 // AQ2:TNG Deathwatch Single Barreled HC
 extern  cvar_t  *hc_single;

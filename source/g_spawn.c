@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // g_spawn.c
 //
-// $Id: g_spawn.c,v 1.19 2001/06/21 00:05:30 slicerdw Exp $
+// $Id: g_spawn.c,v 1.20 2001/06/22 16:34:05 slicerdw Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_spawn.c,v $
+// Revision 1.20  2001/06/22 16:34:05  slicerdw
+// Finished Matchmode Basics, now with admins, Say command tweaked...
+//
 // Revision 1.19  2001/06/21 00:05:30  slicerdw
 // New Video Check System done -  might need some revision but works..
 //
@@ -1582,6 +1585,8 @@ void SP_worldspawn (edict_t *ent)
 		// AQ2:TNG - Slicer matchmode ready reset
 		team1ready = team2ready = 0;
 		matchtime = 0;
+		admin->value = -1; // AQ2:M - No admin
+		strcpy(admin->string,"-1"); // As above
 		next_cheat_check = level.time + video_checktime->value;
 		next_cheat_check2 = level.time + video_checktime->value + 2;
 		//---------------

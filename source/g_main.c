@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 //
 //
-// $Id: g_main.c,v 1.15 2001/06/21 00:05:30 slicerdw Exp $
+// $Id: g_main.c,v 1.16 2001/06/22 16:34:05 slicerdw Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_main.c,v $
+// Revision 1.16  2001/06/22 16:34:05  slicerdw
+// Finished Matchmode Basics, now with admins, Say command tweaked...
+//
 // Revision 1.15  2001/06/21 00:05:30  slicerdw
 // New Video Check System done -  might need some revision but works..
 //
@@ -215,6 +218,8 @@ cvar_t *itm_flags;
 //AQ2:TNG end adding flags
 //AQ2:TNG Slicer - Matchmode 
 cvar_t  *matchmode;
+cvar_t  *hearall; // used for matchmode
+cvar_t  *admin; // Used in matchmode - number of client
 //AQ2:TNG END
 
 void SpawnEntities (char *mapname, char *entities, char *spawnpoint);

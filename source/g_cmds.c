@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // g_cmds.c
 //
-// $Id: g_cmds.c,v 1.18 2001/06/21 00:05:30 slicerdw Exp $
+// $Id: g_cmds.c,v 1.19 2001/06/22 16:34:05 slicerdw Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_cmds.c,v $
+// Revision 1.19  2001/06/22 16:34:05  slicerdw
+// Finished Matchmode Basics, now with admins, Say command tweaked...
+//
 // Revision 1.18  2001/06/21 00:05:30  slicerdw
 // New Video Check System done -  might need some revision but works..
 //
@@ -1100,6 +1103,7 @@ void Cmd_Say_f (edict_t *ent, qboolean team, qboolean arg0, qboolean partner_msg
 {
   int             j, i, offset_of_text;
   edict_t *other;
+  edict_t *adminent;
   char    *p;
   char    text[2048];
   gclient_t *cl;
@@ -1125,7 +1129,206 @@ void Cmd_Say_f (edict_t *ent, qboolean team, qboolean arg0, qboolean partner_msg
 	  return;
 	}
     }
+  if(matchmode->value)
+  {
+	  //TempFile - BEGIN
+  if(arg0)
+    strcpy(firstword, gi.argv(0));
+  else
+    sscanf(gi.args(), "%s", firstword);
   
+  if(!Q_stricmp("%me", firstword))
+    meing = 4;
+  else if (!Q_stricmp("%me", firstword + 1))
+    meing = 5;
+  //TempFile - END
+
+  i = atoi(admin->string) + 1;
+  adminent = getEnt(i);
+
+	if (i > (int)(maxclients->value))	/* if is inserted number > server capacity */
+		adminent = 0; // no adminent
+	if(!adminent->inuse)	/* if is inserted a user that exists in the server */
+		adminent = 0;
+	if(!ent->client->resp.captain && !partner_msg && ent != adminent)
+		team = 1; // Force to teamsay
+
+  if (team)
+    {
+      if (ent->client->resp.team == NOTEAM)
+	{
+	  gi.cprintf(ent, PRINT_HIGH, "You're not on a team.\n");
+	  return;
+	}
+      if(!meing)	// TempFile
+	Com_sprintf (text, sizeof(text), "%s(%s): ", 
+		     (teamplay->value && (ent->solid == SOLID_NOT || ent->deadflag == DEAD_DEAD)) ? "[DEAD] " : "",
+		     ent->client->pers.netname);
+      //TempFile - BEGIN
+      else
+	Com_sprintf (text, sizeof(text), "(%s%s ", 
+		     (teamplay->value && (ent->solid == SOLID_NOT || ent->deadflag == DEAD_DEAD)) ? "Dead " : "",
+		     ent->client->pers.netname);
+      //TempFile - END
+    }
+  else if (partner_msg)
+    {
+      if (ent->client->resp.radio_partner == NULL)
+	{
+	  gi.cprintf(ent, PRINT_HIGH, "You don't have a partner.\n");
+	  return;
+	}
+      if(!meing)	//TempFile
+	Com_sprintf (text, sizeof(text), "[%sPARTNER] %s: ", 
+		     (teamplay->value && (ent->solid == SOLID_NOT || ent->deadflag == DEAD_DEAD)) ? "DEAD " : "",
+		     ent->client->pers.netname);
+      //TempFile - BEGIN
+      else
+	Com_sprintf (text, sizeof(text), "%s partner %s ", 
+		     (teamplay->value && (ent->solid == SOLID_NOT || ent->deadflag == DEAD_DEAD)) ? "Dead " : "",
+		     ent->client->pers.netname);
+      //TempFile - END
+   }
+  else
+    {
+      if(!meing) //TempFile
+	  {
+		if(ent == adminent)
+			Com_sprintf (text, sizeof(text), "[ADMIN] %s: ", ent->client->pers.netname);
+		else
+			Com_sprintf (text, sizeof(text), "%s%s: ", 
+		     (teamplay->value && (ent->solid == SOLID_NOT || ent->deadflag == DEAD_DEAD)) ? "[DEAD] " : "",
+		     ent->client->pers.netname);
+      //TempFile - BEGIN
+	  }
+      else
+		Com_sprintf (text, sizeof(text), "%s%s ", 
+		     (teamplay->value && (ent->solid == SOLID_NOT || ent->deadflag == DEAD_DEAD)) ? "Dead " : "",
+		     ent->client->pers.netname);
+    }
+  //TempFile - END
+  
+  offset_of_text = strlen(text);	//FB 5/31/99
+  if(!meing)	//TempFile
+    {
+      if (arg0)
+	{
+	  strcat (text, gi.argv(0));
+	  strcat (text, " ");
+	  strcat (text, gi.args());
+	}
+      else
+	{
+	  p = gi.args();
+	  
+	  if (*p == '"')
+	    {
+	      p++;
+	      p[strlen(p)-1] = 0;
+	    }
+	  strcat(text, p);
+	}
+    }
+  else	// if meing
+    {
+      if (arg0)
+	{
+				//this one is easy: gi.args() cuts /me off for us!
+	  strcat (text, gi.args());
+	}
+      else
+	{
+				// we have to cut off "%me ".
+	  p = gi.args() + meing;
+	  if(p[strlen(p) - 1] == '"')
+	    p[strlen(p)-1] = 0;
+	  strcat(text, p);
+	}
+      
+      if(team)
+	strcat(text, ")");
+    }
+  //TempFile - END
+  // don't let text be too long for malicious reasons
+  // ...doubled this limit for Axshun -FB
+  // down a bit, crashed sometimes - TempFile
+  if (strlen(text) > 225)
+    text[225] = 0;
+  
+  if (ent->solid != SOLID_NOT && ent->deadflag != DEAD_DEAD)
+    ParseSayText(ent, text + offset_of_text);  //FB 5/31/99 - offset change
+                                // this will parse the % variables, 
+                                // and again check 300 limit afterwards -FB
+                                // (although it checks it without the name in front, oh well)
+  
+  strcat(text, "\n");
+  
+  if (flood_msgs->value)
+    {
+      cl = ent->client;
+      
+      if (level.time < cl->flood_locktill) 
+	{
+	  gi.cprintf(ent, PRINT_HIGH, "You can't talk for %d more seconds.\n",
+		     (int)(cl->flood_locktill - level.time));
+	  return;
+	}
+      i = cl->flood_whenhead - flood_msgs->value + 1;
+      if (i < 0)
+	i = (sizeof(cl->flood_when)/sizeof(cl->flood_when[0])) + i;
+      if (cl->flood_when[i] && 
+	  level.time - cl->flood_when[i] < flood_persecond->value) 
+	{
+	  cl->flood_locktill = level.time + flood_waitdelay->value;
+	  gi.cprintf(ent, PRINT_HIGH, "You can't talk for %d seconds.\n",
+		     (int)flood_waitdelay->value);
+	  return;
+	}
+      cl->flood_whenhead = (cl->flood_whenhead + 1) %
+	(sizeof(cl->flood_when)/sizeof(cl->flood_when[0]));
+      cl->flood_when[cl->flood_whenhead] = level.time;
+    }
+  
+  if (dedicated->value)
+    gi.cprintf(NULL, PRINT_CHAT, "%s", text);
+  
+  for (j = 1; j <= game.maxclients; j++)
+    {
+      other = &g_edicts[j];
+      if (!other->inuse)
+	continue;
+      if (!other->client)
+	continue;
+      if (team)
+	{
+	// if we are the adminent... we might want to hear (if hearall is set)
+		if(!hearall->value || other != adminent) // hearall isn't set and we aren't adminent
+			if (!OnSameTeam(ent, other))
+				continue;
+	}
+      if (partner_msg)
+	{
+	  if (other != ent->client->resp.radio_partner && other != ent)
+	    continue;
+	}
+      //FIREBLADE
+      if (teamplay->value && team_round_going)
+	{
+      if ((ent->solid == SOLID_NOT || ent->deadflag == DEAD_DEAD) &&
+        (other->solid != SOLID_NOT && other->deadflag != DEAD_DEAD)&& !ctf->value) //AQ2:TNG Slicer
+	    continue;
+	}
+      //FIREBLADE             
+      //PG BUND - BEGIN
+      if (IsInIgnoreList(other, ent))
+	continue;
+      //PG BUND - END
+      gi.cprintf(other, PRINT_CHAT, "%s", text);
+    }
+  }
+  else
+  {
+
   //TempFile - BEGIN
   if(arg0)
     strcpy(firstword, gi.argv(0));
@@ -1303,6 +1506,7 @@ void Cmd_Say_f (edict_t *ent, qboolean team, qboolean arg0, qboolean partner_msg
       //PG BUND - END
       gi.cprintf(other, PRINT_CHAT, "%s", text);
     }
+  }
 }
 
 void Cmd_PlayerList_f(edict_t *ent)
