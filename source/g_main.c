@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 //
 //
-// $Id: g_main.c,v 1.29 2001/09/02 20:33:34 deathwatch Exp $
+// $Id: g_main.c,v 1.30 2001/09/28 13:44:23 slicerdw Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_main.c,v $
+// Revision 1.30  2001/09/28 13:44:23  slicerdw
+// Several Changes / improvements
+//
 // Revision 1.29  2001/09/02 20:33:34  deathwatch
 // Added use_classic and fixed an issue with ff_afterround, also updated version
 // nr and cleaned up some commands.
@@ -226,7 +229,16 @@ cvar_t  *matchmode;
 cvar_t	*darkmatch; // Darkmatch
 cvar_t	*day_cycle; // If darkmatch is on, this value is the nr of seconds between each interval (day, dusk, night, dawn)
 cvar_t  *hearall; // used for matchmode
-cvar_t  *admin; // Used in matchmode - number of client
+
+cvar_t  *mm_forceteamtalk;
+cvar_t *mm_adminpwd;
+
+cvar_t *team1score;
+cvar_t *team2score;
+cvar_t *team3score;
+
+cvar_t *use_punch;
+
 cvar_t  *radio_max; // max nr Radio and Voice requests
 cvar_t	*radio_time; // max nr of time for the radio_max
 cvar_t	*radio_ban; // silence for xx nr of secs

@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // p_client.c
 //
-// $Id: p_client.c,v 1.49 2001/09/05 14:33:57 slicerdw Exp $
+// $Id: p_client.c,v 1.50 2001/09/28 13:44:23 slicerdw Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: p_client.c,v $
+// Revision 1.50  2001/09/28 13:44:23  slicerdw
+// Several Changes / improvements
+//
 // Revision 1.49  2001/09/05 14:33:57  slicerdw
 // Added Fix's from the 2.1 release
 //
@@ -2531,6 +2534,7 @@ void InitClientResp (gclient_t *client)
   //AQ2:TNG Slicer - Matchmode
   client->resp.subteam = 0;
   client->resp.captain = 0;
+  client->resp.admin = 0;
   //AQ2:TNG END
   
   // No automatic team join

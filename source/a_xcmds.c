@@ -4,10 +4,13 @@
 //
 // contains all new non standard command functions
 //
-// $Id: a_xcmds.c,v 1.6 2001/08/15 14:50:48 slicerdw Exp $
+// $Id: a_xcmds.c,v 1.7 2001/09/28 13:44:23 slicerdw Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_xcmds.c,v $
+// Revision 1.7  2001/09/28 13:44:23  slicerdw
+// Several Changes / improvements
+//
 // Revision 1.6  2001/08/15 14:50:48  slicerdw
 // Added Flood protections to Radio & Voice, Fixed the sniper bug AGAIN
 //
@@ -104,7 +107,8 @@ Cmd_Menu_f (edict_t * self)
 void
 Cmd_Punch_f (edict_t * self)
 {
-  if (self->deadflag == DEAD_DEAD
+  if (!use_punch->value 
+	  ||self->deadflag == DEAD_DEAD
 	  || self->solid == SOLID_NOT
 	  || self->client->resp.sniper_mode != SNIPER_1X
 	  || self->client->weaponstate != WEAPON_READY)

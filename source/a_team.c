@@ -3,10 +3,13 @@
 // Some of this is borrowed from Zoid's CTF (thanks Zoid)
 // -Fireblade
 //
-// $Id: a_team.c,v 1.45 2001/09/26 18:13:48 slicerdw Exp $
+// $Id: a_team.c,v 1.46 2001/09/28 13:44:23 slicerdw Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_team.c,v $
+// Revision 1.46  2001/09/28 13:44:23  slicerdw
+// Several Changes / improvements
+//
 // Revision 1.45  2001/09/26 18:13:48  slicerdw
 // Fixed the roundtimelimit thingy which was ending the game ( confused with roundlimit )
 //
@@ -1733,6 +1736,8 @@ WonGame (int winner)
 		gi.soundindex ("tng/team1_wins.wav"), 1.0, ATTN_NONE, 0.0);
 	      // end of changing sound dir
 	      team1_score++;
+		  team1score->value = team1_score;
+		  itoa(team1_score,team1score->string,10);
 	    }
 	}
       else if (winner == WINNER_TEAM2)
@@ -1754,6 +1759,8 @@ WonGame (int winner)
 			gi.soundindex ("tng/team2_wins.wav"), 1.0, ATTN_NONE, 0.0);
 	      // end of changing sound dir
 	      team2_score++;
+		  team2score->value = team2_score;
+		  itoa(team2_score,team2score->string,10);
 	    }
 	}
       else if (use_3teams->value)
@@ -1774,7 +1781,8 @@ WonGame (int winner)
 	      gi.sound (&g_edicts[0], CHAN_VOICE | CHAN_NO_PHS_ADD,
 		gi.soundindex ("tng/team3_wins.wav"), 1.0, ATTN_NONE, 0.0);
 	      // end of changing sound dir
-	      team3_score++;
+	      team3score->value = team3_score;
+		  itoa(team3_score,team3score->string,10);
 	    }
 	}
     }

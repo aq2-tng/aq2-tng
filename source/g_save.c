@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // g_save.c
 //
-// $Id: g_save.c,v 1.34 2001/09/02 20:33:34 deathwatch Exp $
+// $Id: g_save.c,v 1.35 2001/09/28 13:44:23 slicerdw Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_save.c,v $
+// Revision 1.35  2001/09/28 13:44:23  slicerdw
+// Several Changes / improvements
+//
 // Revision 1.34  2001/09/02 20:33:34  deathwatch
 // Added use_classic and fixed an issue with ff_afterround, also updated version
 // nr and cleaned up some commands.
@@ -379,9 +382,18 @@ void InitGame (void)
 	wp_flags					= gi.cvar("wp_flags", "511", CVAR_LATCH); 	// 511 = WPF_MK23 | WPF_MP5 | WPF_M4 | WPF_M3 | WPF_HC | WPF_SNIPER | WPF_DUAL | WPF_KNIFE | WPF_GRENADE
 	itm_flags					= gi.cvar("itm_flags", "63", CVAR_LATCH);// 63 = ITF_SIL | ITF_SLIP | ITF_BAND | ITF_KEV | ITF_LASER | ITF_HELM 
 	matchmode					= gi.cvar("matchmode", "0",CVAR_SERVERINFO|CVAR_LATCH);
-	admin							= gi.cvar("admin", "-1", 0);
   hearall						= gi.cvar("hearall", "0", 0); // used in matchmode
-	radio_max					= gi.cvar("radio_max", "4", 0);
+
+    mm_forceteamtalk = gi.cvar("mm_forceteamtalk","0",0); 
+	mm_adminpwd = gi.cvar("mm_adminpwd","0",0);
+	
+	team1score = gi.cvar("team1score","0",CVAR_SERVERINFO);
+	team2score = gi.cvar("team2score","0",CVAR_SERVERINFO);
+	team3score = gi.cvar("team3score","0",CVAR_SERVERINFO);
+	
+	use_punch = gi.cvar("use_punch","0",0);
+
+  radio_max					= gi.cvar("radio_max", "4", 0);
 	radio_time				= gi.cvar("radio_time", "2", 0);
 	radio_ban					= gi.cvar("radio_ban", "15", 0);
 	radio_repeat			= gi.cvar("radio_repeat", "3", 0);

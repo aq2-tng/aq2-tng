@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // g_spawn.c
 //
-// $Id: g_spawn.c,v 1.24 2001/08/18 01:28:06 deathwatch Exp $
+// $Id: g_spawn.c,v 1.25 2001/09/28 13:44:23 slicerdw Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_spawn.c,v $
+// Revision 1.25  2001/09/28 13:44:23  slicerdw
+// Several Changes / improvements
+//
 // Revision 1.24  2001/08/18 01:28:06  deathwatch
 // Fixed some stats stuff, added darkmatch + day_cycle, cleaned up several files, restructured ClientCommand
 //
@@ -1623,8 +1626,11 @@ void SP_worldspawn (edict_t *ent)
 		// AQ2:TNG - Slicer matchmode ready reset
 		team1ready = team2ready = 0;
 		matchtime = 0;
-		admin->value = -1; // AQ2:M - No admin
-		strcpy(admin->string,"-1"); // As above
+
+				
+		team1score->value = 0;
+		team2score->value = 0;
+		team3score->value = 0;
 		//---------------
 
         // reserve some spots for dead player bodies for coop / deathmatch

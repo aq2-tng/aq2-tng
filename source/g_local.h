@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // g_local.h -- local definitions for game module
 //
-// $Id: g_local.h,v 1.37 2001/09/02 20:33:34 deathwatch Exp $
+// $Id: g_local.h,v 1.38 2001/09/28 13:44:23 slicerdw Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_local.h,v $
+// Revision 1.38  2001/09/28 13:44:23  slicerdw
+// Several Changes / improvements
+//
 // Revision 1.37  2001/09/02 20:33:34  deathwatch
 // Added use_classic and fixed an issue with ff_afterround, also updated version
 // nr and cleaned up some commands.
@@ -743,12 +746,22 @@ extern cvar_t	*check_time;
 extern cvar_t *matchmode;
 extern cvar_t	*darkmatch;
 extern cvar_t	*day_cycle; // If darkmatch is on, this value is the nr of seconds between each interval (day, dusk, night, dawn)
-extern cvar_t *admin; 
+
 extern cvar_t *hearall; // used in match mode
+extern cvar_t  *mm_forceteamtalk;
+extern cvar_t *mm_adminpwd;
+
+extern cvar_t *team1score;
+extern cvar_t *team2score;
+extern cvar_t *team3score;
+
+extern cvar_t *use_punch;
+
 extern cvar_t *radio_max;
 extern cvar_t	*radio_time;
 extern cvar_t	*radio_ban;
 extern cvar_t	*radio_repeat;
+
 extern cvar_t *hc_single;
 extern cvar_t *wp_flags;
 extern cvar_t *itm_flags;
@@ -1226,6 +1239,7 @@ typedef struct
 		//AQ2:TNG - Slicer Matchmode code
 		int		captain;
 		int		subteam;
+		int     admin;
 
 		int		hc_mode;
 		float rd_mute;
