@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // g_itmes.c
 //
-// $Id: g_items.c,v 1.10 2002/03/28 20:24:08 ra Exp $
+// $Id: g_items.c,v 1.11 2002/03/28 20:28:56 ra Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_items.c,v $
+// Revision 1.11  2002/03/28 20:28:56  ra
+// Forgot a }
+//
 // Revision 1.10  2002/03/28 20:24:08  ra
 // I overfixed the bug...
 //
@@ -332,14 +335,14 @@ Drop_Special (edict_t * ent, gitem_t * item)
 	ent->client->pers.inventory[ITEM_INDEX (FindItem ("M4 Clip"))] = 1;
 
       ent->client->grenade_max = 2;
-      if (!teamplay->value && ent->client->pers.inventory[ITEM_INDEX (FindItem (GRENADE_NAME))] >
-	  2)
+      if (!teamplay->value && ent->client->pers.inventory[ITEM_INDEX (FindItem (GRENADE_NAME))] > 2)
 	ent->client->pers.inventory[ITEM_INDEX (FindItem (GRENADE_NAME))] = 2;
       else if (teamplay->value) {
 	      if (ent->client->curr_weap == GRENADE_NUM)
 		      ent->client->pers.inventory[ITEM_INDEX (FindItem (GRENADE_NAME))] = 1;
 	      else
 		      ent->client->pers.inventory[ITEM_INDEX (FindItem (GRENADE_NAME))] = 0;
+      }
 
       ent->client->pers.max_rockets = 2;
       if (ent->client->pers.
