@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // g_itmes.c
 //
-// $Id: g_items.c,v 1.11 2002/03/28 20:28:56 ra Exp $
+// $Id: g_items.c,v 1.12 2002/03/30 17:20:59 ra Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_items.c,v $
+// Revision 1.12  2002/03/30 17:20:59  ra
+// New cvar use_buggy_bandolier to control behavior of dropping bando and grenades
+//
 // Revision 1.11  2002/03/28 20:28:56  ra
 // Forgot a }
 //
@@ -335,15 +338,19 @@ Drop_Special (edict_t * ent, gitem_t * item)
 	ent->client->pers.inventory[ITEM_INDEX (FindItem ("M4 Clip"))] = 1;
 
       ent->client->grenade_max = 2;
-      if (!teamplay->value && ent->client->pers.inventory[ITEM_INDEX (FindItem (GRENADE_NAME))] > 2)
-	ent->client->pers.inventory[ITEM_INDEX (FindItem (GRENADE_NAME))] = 2;
-      else if (teamplay->value) {
+      if (use_buggy_bandolier->value == 0) {
+	if (!teamplay->value && ent->client->pers.inventory[ITEM_INDEX (FindItem (GRENADE_NAME))] > 2)
+		ent->client->pers.inventory[ITEM_INDEX (FindItem (GRENADE_NAME))] = 2;
+	else if (teamplay->value) {
 	      if (ent->client->curr_weap == GRENADE_NUM)
 		      ent->client->pers.inventory[ITEM_INDEX (FindItem (GRENADE_NAME))] = 1;
 	      else
 		      ent->client->pers.inventory[ITEM_INDEX (FindItem (GRENADE_NAME))] = 0;
+	}
+      } else {
+	 if (ent->client->pers.inventory[ITEM_INDEX (FindItem (GRENADE_NAME))] > 2)
+		  ent->client->pers.inventory[ITEM_INDEX (FindItem (GRENADE_NAME))] = 2;
       }
-
       ent->client->pers.max_rockets = 2;
       if (ent->client->pers.
 	  inventory[ITEM_INDEX (FindItem ("Machinegun Magazine"))] > 2)

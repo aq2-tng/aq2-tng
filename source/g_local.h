@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // g_local.h -- local definitions for game module
 //
-// $Id: g_local.h,v 1.62 2002/03/28 13:30:36 freud Exp $
+// $Id: g_local.h,v 1.63 2002/03/30 17:20:59 ra Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_local.h,v $
+// Revision 1.63  2002/03/30 17:20:59  ra
+// New cvar use_buggy_bandolier to control behavior of dropping bando and grenades
+//
 // Revision 1.62  2002/03/28 13:30:36  freud
 // Included time played in ghost.
 //
@@ -808,6 +811,7 @@ extern cvar_t *vk_public;
 extern cvar_t *punishkills;
 extern cvar_t *mapvote_waittime;
 extern cvar_t *ff_afterround;
+extern cvar_t *use_buggy_bandolier;
 extern cvar_t *uvtime;
 extern cvar_t *use_mapvote;	// enable map voting
 extern cvar_t *sv_gib;

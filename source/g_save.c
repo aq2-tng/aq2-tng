@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // g_save.c
 //
-// $Id: g_save.c,v 1.59 2002/03/28 12:10:11 freud Exp $
+// $Id: g_save.c,v 1.60 2002/03/30 17:20:59 ra Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_save.c,v $
+// Revision 1.60  2002/03/30 17:20:59  ra
+// New cvar use_buggy_bandolier to control behavior of dropping bando and grenades
+//
 // Revision 1.59  2002/03/28 12:10:11  freud
 // Removed unused variables (compiler warnings).
 // Added cvar mm_allowlock.
@@ -510,6 +513,7 @@ InitGame (void)
   gi.cvar_set ("actionversion", ACTION_VERSION);
   use_voice = gi.cvar ("use_voice", "1", 0);	//slicer
   ppl_idletime = gi.cvar ("ppl_idletime", "15", 0);
+  use_buggy_bandolier = gi.cvar ("use_buggy_bandolier", "0", 0);
   use_tourney = gi.cvar ("use_tourney", "0", CVAR_SERVERINFO | CVAR_LATCH);
   use_3teams = gi.cvar ("use_3teams", "0", CVAR_SERVERINFO | CVAR_LATCH);
   use_kickvote = gi.cvar ("use_kickvote", "1", 0);	//slicer

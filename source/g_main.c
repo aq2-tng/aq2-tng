@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 //
 //
-// $Id: g_main.c,v 1.65 2002/03/28 12:10:11 freud Exp $
+// $Id: g_main.c,v 1.66 2002/03/30 17:20:59 ra Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_main.c,v $
+// Revision 1.66  2002/03/30 17:20:59  ra
+// New cvar use_buggy_bandolier to control behavior of dropping bando and grenades
+//
 // Revision 1.65  2002/03/28 12:10:11  freud
 // Removed unused variables (compiler warnings).
 // Added cvar mm_allowlock.
@@ -274,6 +277,7 @@ cvar_t *actionversion;
 cvar_t *needpass;
 cvar_t *use_voice;
 cvar_t *ppl_idletime;
+cvar_t *use_buggy_bandolier;
 cvar_t *use_tourney;
 cvar_t *use_3teams;
 cvar_t *use_kickvote;
