@@ -3,10 +3,13 @@
 // Some of this is borrowed from Zoid's CTF (thanks Zoid)
 // -Fireblade
 //
-// $Id: a_team.c,v 1.25 2001/06/19 18:56:38 deathwatch Exp $
+// $Id: a_team.c,v 1.26 2001/06/19 20:56:45 igor_rock Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_team.c,v $
+// Revision 1.26  2001/06/19 20:56:45  igor_rock
+// fixed the matchmode scoreboard - finally :-)
+//
 // Revision 1.25  2001/06/19 18:56:38  deathwatch
 // New Last killed target system
 //
@@ -811,7 +814,7 @@ JoinTeam (edict_t * ent, int desired_team, int skip_menuclose)
       PutClientInServer (ent);
       AddToTransparentList (ent);
     }
-	//AQ2:TNG - Slicer MAtchmode
+	//AQ2:TNG - Slicer Matchmode
 	if(matchmode->value)
 	{
 		if(ent->client->resp.captain == 1)  
@@ -2114,6 +2117,7 @@ A_ScoreboardMessage (edict_t * ent, edict_t * killer)
       int totalalive[TEAM_TOP], totalaliveprinted[TEAM_TOP];
       int stoppedat[TEAM_TOP];
       int name_pos[TEAM_TOP];
+      int totalsubs[TEAM_TOP];
       int TotalPrinted[TEAM_TOP];
       int TotalSubsPrinted[TEAM_TOP];
       int secs,mins;
@@ -2124,7 +2128,7 @@ A_ScoreboardMessage (edict_t * ent, edict_t * killer)
       
       ent->client->ps.stats[STAT_TEAM_HEADER] = gi.imageindex ("tag3");
       
-      total[TEAM1] = total[TEAM2] = total[TEAM3] = TotalPrinted[TEAM1] =
+      total[TEAM1] = total[TEAM2] = total[TEAM3] = totalsubs[TEAM1] = totalsubs[TEAM2] = TotalPrinted[TEAM1] =
 	TotalPrinted[TEAM2] = TotalSubsPrinted[TEAM1] = TotalSubsPrinted[TEAM2] = 0;
       totalalive[TEAM1] = totalalive[TEAM2] = totalalive[TEAM3] = 0;
       totalscore[TEAM1] = totalscore[TEAM2] = totalscore[TEAM3] = 0;
@@ -2162,6 +2166,10 @@ A_ScoreboardMessage (edict_t * ent, edict_t * killer)
 	  sortedscores[team][j] = score;
 	  totalscore[team] += score;
 	  total[team]++;
+	  if (game.clients[i].resp.subteam)
+	    {
+	      totalsubs[team]++;
+	    }
 	  if (cl_ent->solid != SOLID_NOT &&
 	      cl_ent->deadflag != DEAD_DEAD)
 	    totalalive[team]++;
@@ -2350,6 +2358,8 @@ A_ScoreboardMessage (edict_t * ent, edict_t * killer)
 	}
       else if (matchmode->value)
 	{
+	  int u,j,temp;
+
 	  sprintf (string,
 	  // TEAM1
 		   "if 24 xv 0 yv 8 pic 24 endif "
@@ -2371,8 +2381,9 @@ A_ScoreboardMessage (edict_t * ent, edict_t * killer)
 	  totalaliveprinted[TEAM1] = totalaliveprinted[TEAM2] = 0;
 	  stoppedat[TEAM1] = stoppedat[TEAM2] = -1;
 	  
-	  for (i = 0; i < (MAX_SCORES_PER_TEAM + 1); i++)
+	  for (i = 0, j = 0; j < (MAX_SCORES_PER_TEAM - 1); i++)
 	    {
+	      u = 0;
 	      if (i >= total[TEAM1] && i >= total[TEAM2])
 		break;
 	      
@@ -2380,17 +2391,18 @@ A_ScoreboardMessage (edict_t * ent, edict_t * killer)
 	      // teams (if there's more than one member left to print in that team...)
 	      if (len > (maxsize - 100))
 		{
-		  if (i < (total[TEAM1] - 1))
+		  if (i < (total[TEAM1] - totalsubs[TEAM1] - 1))
 		    stoppedat[TEAM1] = i;
-		  if (i < (total[TEAM2] - 1))
+		  if (i < (total[TEAM2] - totalsubs[TEAM2] - 1))
 		    stoppedat[TEAM2] = i;
 		}
-	      if (i == MAX_SCORES_PER_TEAM - 1)
+
+	      if (j == MAX_SCORES_PER_TEAM - 3)
 		{
-		  if (total[TEAM1] > MAX_SCORES_PER_TEAM)
-		    stoppedat[TEAM1] = i;
-		  if (total[TEAM2] > MAX_SCORES_PER_TEAM)
-		    stoppedat[TEAM2] = i;
+		  if (total[TEAM1] > MAX_SCORES_PER_TEAM-2)
+		    stoppedat[TEAM1] = j;
+		  if (total[TEAM2] > MAX_SCORES_PER_TEAM-2)
+		    stoppedat[TEAM2] = j;
 		}
 	      
 	      if (i < total[TEAM1] && stoppedat[TEAM1] == -1)	// print next team 1 member...
@@ -2408,11 +2420,12 @@ A_ScoreboardMessage (edict_t * ent, edict_t * killer)
 		    {
 		      TotalPrinted[TEAM1]++;
 		      sprintf(string+strlen(string), 
-			      "xv 0 yv %d string%s \"%s%s\" ",  
+			      "xv 0 yv %d string%s \"%s%s\" ",
 			      34 + TotalPrinted[TEAM1] * 8,
 			      deadview ? (cl_ent->solid == SOLID_NOT ? "" : "2") : "",
 			      game.clients[sorted[TEAM1][i]].resp.captain ? "@" : "",
 			      game.clients[sorted[TEAM1][i]].pers.netname);
+		      u++;
 		    }
 		}
 	      
@@ -2436,12 +2449,16 @@ A_ScoreboardMessage (edict_t * ent, edict_t * killer)
 			      deadview ? (cl_ent->solid == SOLID_NOT ? "" : "2") : "",
 			      game.clients[sorted[TEAM2][i]].resp.captain ? "@" : "",
 			      game.clients[sorted[TEAM2][i]].pers.netname);
+		      u++;
 		    }
 		}
 	      
+	      if (u)
+		j++;
 	      len = strlen (string);
 	    }
 	  
+	  u=0;
 	  // Print remaining players if we ran out of room...
 	  if (!deadview)	// live player viewing scoreboard...
 	    {
@@ -2449,15 +2466,16 @@ A_ScoreboardMessage (edict_t * ent, edict_t * killer)
 		{
 		  sprintf (string + strlen (string), "xv 0 yv %d string \"..and %d more\" ",
 			   42 + (stoppedat[TEAM1] * 8), total[TEAM1] - stoppedat[TEAM1]);
+		  u++;
 		}
 	      if (stoppedat[TEAM2] > -1)
 		{
 		  sprintf (string + strlen (string), "xv 160 yv %d string \"..and %d more\" ",
 			   42 + (stoppedat[TEAM2] * 8), total[TEAM2] - stoppedat[TEAM2]);
+		  u++;
 		}
 	    }
 	  else			// dead player viewing scoreboard...
-	    
 	    {
 	      if (stoppedat[TEAM1] > -1)
 		{
@@ -2466,6 +2484,7 @@ A_ScoreboardMessage (edict_t * ent, edict_t * killer)
 			   (totalalive[TEAM1] - totalaliveprinted[TEAM1]) ? "2" : "",
 			   totalalive[TEAM1] - totalaliveprinted[TEAM1],
 			   total[TEAM1] - stoppedat[TEAM1]);
+		  u++;
 		}
 	      if (stoppedat[TEAM2] > -1)
 		{
@@ -2474,73 +2493,61 @@ A_ScoreboardMessage (edict_t * ent, edict_t * killer)
 			   (totalalive[TEAM2] - totalaliveprinted[TEAM2]) ? "2" : "",
 			   totalalive[TEAM2] - totalaliveprinted[TEAM2],
 			   total[TEAM2] - stoppedat[TEAM2]);
+		  u++;
 		}
 	    }
 	  
-	  if(matchmode->value)
+	  if (u)
+	    j++;
+
+	  temp = j;
+	  
+	  sprintf(string+strlen(string), 
+		  "xv 0 yv %d string2 \"Subs:\" ", 42 + temp * 8);
+	  sprintf(string+strlen(string), 
+		  "xv 160 yv %d string2 \"Subs:\" ", 42 + temp * 8);
+
+	  for (i = 0; i < game.maxclients; i++)
 	    {
-	      int u,j,temp;
-	      for (i = 0; i < game.maxclients; i++)
+	      cl_ent = g_edicts + 1 + i;
+	      if (!cl_ent->inuse)
+		continue;
+
+	      if ((game.clients[i].resp.subteam == TEAM1) && (TotalSubsPrinted[TEAM1]+temp < MAX_SCORES_PER_TEAM))
 		{
-		  cl_ent = g_edicts + 1 + i;
-		  if (!cl_ent->inuse)
-		    continue;
-		  u = 50 + TotalPrinted[TEAM1] * 8;
-		  j = 50 + TotalPrinted[TEAM2] * 8;
-		  if(u > j)
-		    temp = u;
-		  else if(u < j)
-		    temp = j;
-		  else if(u == j)
-		    temp = u;
+		  TotalSubsPrinted[TEAM1]++;
 		  sprintf(string+strlen(string), 
-			  "xv 0 yv %d string2 \"Subs:\" ",temp);
-		  sprintf(string+strlen(string), 
-			  "xv 160 yv %d string2 \"Subs:\" ",temp);
-		  
-		  if(game.clients[i].resp.subteam == TEAM1)
-		    {
-		      TotalSubsPrinted[TEAM1]++;
-		      sprintf(string+strlen(string), 
-			      "xv 0 yv %d string \"%s%s\" ",  
-			      temp + (TotalSubsPrinted[TEAM1]) *8,
-			      game.clients[i].resp.captain ? "@" : "",
-			      game.clients[i].pers.netname);
-		    }
-		  
-		  if(game.clients[i].resp.subteam == TEAM2)
-		    {
-		      TotalSubsPrinted[TEAM2]++;
-		      sprintf(string+strlen(string), 
-			      "xv 160 yv %d string \"%s%s\" ",  
-			      temp + (TotalSubsPrinted[TEAM2]) * 8,
-			      game.clients[i].resp.captain ? "@" : "",
-			      game.clients[i].pers.netname);
-		    }
-		  
-		  
+			  "xv 0 yv %d string \"%s%s\" ",  
+			  42 + (temp + TotalSubsPrinted[TEAM1]) *8,
+			  game.clients[i].resp.captain ? "@" : "",
+			  game.clients[i].pers.netname);
 		}
-	      u = (temp + 16) + TotalSubsPrinted[TEAM1] * 8;
-	      j = (temp + 16) + TotalSubsPrinted[TEAM2] * 8;
-	      if(u > j)
-		temp = u;
-	      else if(u < j)
-		temp = j;
-	      else if(u == j)
-		temp = u;
-	      sprintf(string+strlen(string), 
-		      "xv 0 yv %d string2 \"%s\" ",temp,
-		      team1ready ? "Team Ready" : "Team Not Ready");
-	      sprintf(string+strlen(string), 
-		      "xv 160 yv %d string2 \"%s\" ",temp,
-		      team2ready ? "Team Ready" : "Team Not Ready");
 	      
-	      mins = matchtime/60;
-	      secs = matchtime-(mins*60);
-	      sprintf(string+strlen(string), 
-		      "xv 65 yv %d string \"Time Elapsed: %d:%02d\" ",
-		      temp+16,mins,secs);
+	      if ((game.clients[i].resp.subteam == TEAM2)  && (TotalSubsPrinted[TEAM1]+temp < MAX_SCORES_PER_TEAM))
+		{
+		  TotalSubsPrinted[TEAM2]++;
+		  sprintf(string+strlen(string), 
+			  "xv 160 yv %d string \"%s%s\" ",  
+			  42 + (temp + TotalSubsPrinted[TEAM2]) * 8,
+			  game.clients[i].resp.captain ? "@" : "",
+			  game.clients[i].pers.netname);
+		}
 	    }
+
+	  i = (TotalSubsPrinted[TEAM1] > TotalSubsPrinted[TEAM2]) ? TotalSubsPrinted[TEAM1] : TotalSubsPrinted[TEAM2];
+	  temp = 42 + (temp+i) * 8;
+	  sprintf(string+strlen(string), 
+		  "xv 0 yv %d string2 \"%s\" ", temp + 16,
+		  team1ready ? "Team Ready" : "Team Not Ready");
+	  sprintf(string+strlen(string), 
+		  "xv 160 yv %d string2 \"%s\" ", temp + 16,
+		  team2ready ? "Team Ready" : "Team Not Ready");
+	  
+	  mins = matchtime/60;
+	  secs = matchtime-(mins*60);
+	  sprintf(string+strlen(string), 
+		  "xv 65 yv %d string \"Time Elapsed: %d:%02d\" ",
+		  temp + 32, mins, secs);
 	}
       else
 	{
@@ -2765,10 +2772,11 @@ A_ScoreboardMessage (edict_t * ent, edict_t * killer)
 
 
   if (strlen (string) > 1300)	// for debugging...
-
-    gi.dprintf ("Warning: scoreboard string neared or exceeded max length\nDump:\n%s\n---\n",
-		string);
-
+    {
+      gi.dprintf ("Warning: scoreboard string neared or exceeded max length\nDump:\n%s\n---\n",
+		  string);
+    }
+  
   gi.WriteByte (svc_layout);
   gi.WriteString (string);
 }
