@@ -3,10 +3,13 @@
 // Some of this is borrowed from Zoid's CTF (thanks Zoid)
 // -Fireblade
 //
-// $Id: a_team.c,v 1.14 2001/05/17 14:54:47 igor_rock Exp $
+// $Id: a_team.c,v 1.15 2001/05/17 16:18:13 igor_rock Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_team.c,v $
+// Revision 1.15  2001/05/17 16:18:13  igor_rock
+// added wp_flags and did some itm_flags and other corrections
+//
 // Revision 1.14  2001/05/17 14:54:47  igor_rock
 // added itm_flags for teamplay and ctf
 //
@@ -375,6 +378,15 @@ DoAGoodie (edict_t * ent, pmenu_t * p)
 }
 //PG BUND END
 
+// AQ2:TNG - Igor adding the Rock-Sound ;-)
+void
+RockClan (edict_t * ent, pmenu_t * p)
+{
+  gi.cprintf (ent, PRINT_HIGH, "Let's Rock! http://www.rock-clan.de/\n");
+  gi.sound (ent, CHAN_VOICE, gi.soundindex ("user/letsrock.wav"), 1, ATTN_IDLE, 0);
+}
+// AQ2:TNG - End Rock-Sound
+
 // AQ2:TNG Deathwatch - Just for slicer :)
 void
 SlicersCat (edict_t * ent, pmenu_t * p)
@@ -392,7 +404,7 @@ pmenu_t creditsmenu[] =
   {"*Design Team", PMENU_ALIGN_LEFT, NULL, NULL},
   {NULL, PMENU_ALIGN_LEFT, NULL, NULL},
   {"Deathwatch", PMENU_ALIGN_LEFT, NULL, DoAGoodie},  
-  {"Igor[ROCK]", PMENU_ALIGN_LEFT, NULL, DoAGoodie},
+  {"Igor[Rock]", PMENU_ALIGN_LEFT, NULL, RockClan},
   {"JBravo", PMENU_ALIGN_LEFT, NULL, DoAGoodie},
   {"Mort", PMENU_ALIGN_LEFT, NULL, DoAGoodie},
   {"sLiCeR [dW]", PMENU_ALIGN_LEFT, NULL, SlicersCat},
@@ -400,12 +412,12 @@ pmenu_t creditsmenu[] =
   {"*Credits", PMENU_ALIGN_LEFT, NULL, NULL},
   {"(in no particular order)", PMENU_ALIGN_LEFT, NULL, NULL},
   {NULL, PMENU_ALIGN_LEFT, NULL, NULL},
-  {"Clan ROCK, Clan dW, ", PMENU_ALIGN_LEFT, NULL, NULL},
+  {"Clan Rock, Clan dW,", PMENU_ALIGN_LEFT, NULL, RockClan},
   {"Clan DP, Davross,", PMENU_ALIGN_LEFT, NULL, NULL},
   {"Zarjazz, Killerbee,", PMENU_ALIGN_LEFT, NULL, NULL},
-  {"Rookie[ROCK], PGBund,", PMENU_ALIGN_LEFT, NULL, NULL},
-  {"Tempfile, Elvis,", PMENU_ALIGN_LEFT, NULL, NULL},
-  {"Palmtree.", PMENU_ALIGN_LEFT, NULL, NULL},  
+  {"Rookie[Rock],", PMENU_ALIGN_LEFT, NULL, RockClan},
+  {"PG Bund[Rock], Elvis,", PMENU_ALIGN_LEFT, NULL, RockClan},
+  {"Tempfile, Palmtree.", PMENU_ALIGN_LEFT, NULL, NULL},  
   {NULL, PMENU_ALIGN_LEFT, NULL, NULL},
   {"Return to main menu", PMENU_ALIGN_LEFT, NULL, CreditsReturnToMain},
   {"TAB to exit menu", PMENU_ALIGN_LEFT, NULL, NULL},
@@ -420,13 +432,15 @@ pmenu_t weapmenu[] =
   {"žžžžžžžžžžžžžžžžžžžžžžžžžŸ", PMENU_ALIGN_CENTER, NULL, NULL},
   {"Select your Weapon", PMENU_ALIGN_CENTER, NULL, NULL},
   {NULL, PMENU_ALIGN_LEFT, NULL, NULL},
-  {"MP5/10 Submachinegun", PMENU_ALIGN_LEFT, NULL, SelectWeapon2},
-  {"M3 Super90 Assault Shotgun", PMENU_ALIGN_LEFT, NULL, SelectWeapon3},
-  {"Handcannon", PMENU_ALIGN_LEFT, NULL, SelectWeapon4},
-  {"SSG 3000 Sniper Rifle", PMENU_ALIGN_LEFT, NULL, SelectWeapon5},
-  {"M4 Assault Rifle", PMENU_ALIGN_LEFT, NULL, SelectWeapon6},
-  {"Combat Knives", PMENU_ALIGN_LEFT, NULL, SelectWeapon0},
-  {"Akimbo Pistols", PMENU_ALIGN_LEFT, NULL, SelectWeapon9},
+  //AQ2:TNG - Igor adding wp_flags
+  {NULL, PMENU_ALIGN_LEFT, NULL, NULL}, // "MP5/10 Submachinegun", SelectWeapon2
+  {NULL, PMENU_ALIGN_LEFT, NULL, NULL}, // "M3 Super90 Assault Shotgun", SelectWeapon3
+  {NULL, PMENU_ALIGN_LEFT, NULL, NULL}, // "Handcannon", SelectWeapon4
+  {NULL, PMENU_ALIGN_LEFT, NULL, NULL}, // "SSG 3000 Sniper Rifle", SelectWeapon5
+  {NULL, PMENU_ALIGN_LEFT, NULL, NULL}, // "M4 Assault Rifle", SelectWeapon6
+  {NULL, PMENU_ALIGN_LEFT, NULL, NULL}, // "Combat Knives", SelectWeapon0
+  {NULL, PMENU_ALIGN_LEFT, NULL, NULL}, // "Akimbo Pistols", SelectWeapon9
+  //AQ2:TNG End adding wp_flags
   {NULL, PMENU_ALIGN_LEFT, NULL, NULL},
   //AQ2:TNG - Slicer: changing this
   //{"Leave Team", PMENU_ALIGN_LEFT, NULL, LeaveTeams},
@@ -446,12 +460,14 @@ pmenu_t itemmenu[] =
   {"žžžžžžžžžžžžžžžžžžžžžžžžžŸ", PMENU_ALIGN_CENTER, NULL, NULL},
   {"Select your Item", PMENU_ALIGN_CENTER, NULL, NULL},
   {NULL, PMENU_ALIGN_LEFT, NULL, NULL},
+  //AQ2:TNG Igor adding itm_flags
   {NULL, PMENU_ALIGN_LEFT, NULL, NULL}, // "Kevlar Vest", SelectItem1
   {NULL, PMENU_ALIGN_LEFT, NULL, NULL}, // "Laser Sight", SelectItem2
   {NULL, PMENU_ALIGN_LEFT, NULL, NULL}, // "Stealth Slippers", SelectItem3
   {NULL, PMENU_ALIGN_LEFT, NULL, NULL}, // "Silencer", SelectItem4
   {NULL, PMENU_ALIGN_LEFT, NULL, NULL}, // "Bandolier", SelectItem5
   {NULL, PMENU_ALIGN_LEFT, NULL, NULL}, // "Kevlar Helmet", SelectItem6
+  //AQ2:TNG end adding itm_flags
   {NULL, PMENU_ALIGN_LEFT, NULL, NULL},
   {"Use [ and ] to move cursor", PMENU_ALIGN_LEFT, NULL, NULL},
   {"ENTER to select", PMENU_ALIGN_LEFT, NULL, NULL},
@@ -745,6 +761,7 @@ ReturnToMain (edict_t * ent, pmenu_t * p)
 void
 OpenItemMenu (edict_t * ent)
 {
+  //AQ2:TNG - Igor adding itm_flags
   static char *menu_itemnames[] =
   {
     "Kevlar Vest",
@@ -754,66 +771,149 @@ OpenItemMenu (edict_t * ent)
     "Bandolier",
     "Kevlar Helmet"
   };
-
-  //AQ2:TNG - Igor adding itm_flags
   int pos;
-  pos = 4;
-  if ((int)itm_flags->value & ITF_KEV)
-    {
-      itemmenu[pos].text = menu_itemnames[0];
-      itemmenu[pos].SelectFunc = SelectItem1;
-      pos++;
-    }
 
-  if ((int)itm_flags->value & ITF_LASER)
+  if (itm_flags->value != 0)
     {
-      itemmenu[pos].text = menu_itemnames[1];
-      itemmenu[pos].SelectFunc = SelectItem2;
-      pos++;
+      pos = 4;
+      if ((int)itm_flags->value & ITF_KEV)
+	{
+	  itemmenu[pos].text = menu_itemnames[0];
+	  itemmenu[pos].SelectFunc = SelectItem1;
+	  pos++;
+	}
+      
+      if ((int)itm_flags->value & ITF_LASER)
+	{
+	  itemmenu[pos].text = menu_itemnames[1];
+	  itemmenu[pos].SelectFunc = SelectItem2;
+	  pos++;
+	}
+      
+      if ((int)itm_flags->value & ITF_SLIP)
+	{
+	  itemmenu[pos].text = menu_itemnames[2];
+	  itemmenu[pos].SelectFunc = SelectItem3;
+	  pos++;
+	}
+      
+      if ((int)itm_flags->value & ITF_SIL)
+	{
+	  itemmenu[pos].text = menu_itemnames[3];
+	  itemmenu[pos].SelectFunc = SelectItem4;
+	  pos++;
+	}
+      
+      if ((int)itm_flags->value & ITF_BAND)
+	{
+	  itemmenu[pos].text = menu_itemnames[4];
+	  itemmenu[pos].SelectFunc = SelectItem5;
+	  pos++;
+	}
+      
+      if ((int)itm_flags->value & ITF_HELM)
+	{
+	  itemmenu[pos].text = menu_itemnames[5];
+	  itemmenu[pos].SelectFunc = SelectItem6;
+	  pos++;
+	}
+      
+      for (;pos < 10; pos++)
+	{
+	  itemmenu[pos].text = NULL;
+	  itemmenu[pos].SelectFunc = NULL;
+	}
+      
+      //AQ2:TNG End adding itm_flags
+      PMenu_Open (ent, itemmenu, 4, sizeof (itemmenu) / sizeof (pmenu_t));
     }
-
-  if ((int)itm_flags->value & ITF_SLIP)
+  else
     {
-      itemmenu[pos].text = menu_itemnames[2];
-      itemmenu[pos].SelectFunc = SelectItem3;
-      pos++;
+      PMenu_Close (ent);
     }
-
-  if ((int)itm_flags->value & ITF_SIL)
-    {
-      itemmenu[pos].text = menu_itemnames[3];
-      itemmenu[pos].SelectFunc = SelectItem4;
-      pos++;
-    }
-
-  if ((int)itm_flags->value & ITF_BAND)
-    {
-      itemmenu[pos].text = menu_itemnames[4];
-      itemmenu[pos].SelectFunc = SelectItem5;
-      pos++;
-    }
-
-  if ((int)itm_flags->value & ITF_HELM)
-    {
-      itemmenu[pos].text = menu_itemnames[5];
-      itemmenu[pos].SelectFunc = SelectItem6;
-      pos++;
-    }
-
-  for (;pos < 10; pos++)
-    {
-      itemmenu[pos].text = NULL;
-      itemmenu[pos].SelectFunc = NULL;
-    }
-
-  //AQ2:TNG End adding itm_flags
-  PMenu_Open (ent, itemmenu, 4, sizeof (itemmenu) / sizeof (pmenu_t));
 }
 
 void
 OpenWeaponMenu (edict_t * ent)
 {
-  PMenu_Open (ent, weapmenu, 4, sizeof (weapmenu) / sizeof (pmenu_t));
+  //AQ2:TNG - Igor adding wp_flags
+  static char *menu_weapnames[] =
+  {
+    "MP5/10 Submachinegun",
+    "M3 Super90 Assault Shotgun",
+    "Handcannon",
+    "SSG 3000 Sniper Rifle",
+    "M4 Assault Rifle",
+    "Combat Knives",
+    "Akimbo Pistols"
+  };
+  int pos;
+
+  if ((int)wp_flags->value & ~(WPF_MK23 | WPF_GRENADE))
+    {
+      pos = 4;
+      if ((int)wp_flags->value & WPF_MP5)
+	{
+	  weapmenu[pos].text = menu_weapnames[0];
+	  weapmenu[pos].SelectFunc = SelectWeapon2;
+	  pos++;
+	}
+      
+      if ((int)wp_flags->value & WPF_M3)
+	{
+	  weapmenu[pos].text = menu_weapnames[1];
+	  weapmenu[pos].SelectFunc = SelectWeapon3;
+	  pos++;
+	}
+      
+      if ((int)wp_flags->value & WPF_HC)
+	{
+	  weapmenu[pos].text = menu_weapnames[2];
+	  weapmenu[pos].SelectFunc = SelectWeapon4;
+	  pos++;
+	}
+      
+      if ((int)wp_flags->value & WPF_SNIPER)
+	{
+	  weapmenu[pos].text = menu_weapnames[3];
+	  weapmenu[pos].SelectFunc = SelectWeapon5;
+	  pos++;
+	}
+      
+      if ((int)wp_flags->value & WPF_M4)
+	{
+	  weapmenu[pos].text = menu_weapnames[4];
+	  weapmenu[pos].SelectFunc = SelectWeapon6;
+	  pos++;
+	}
+      
+      if ((int)wp_flags->value & WPF_KNIFE)
+	{
+	  weapmenu[pos].text = menu_weapnames[5];
+	  weapmenu[pos].SelectFunc = SelectWeapon0;
+	  pos++;
+	}
+      
+      if ((int)wp_flags->value & WPF_DUAL)
+	{
+	  weapmenu[pos].text = menu_weapnames[6];
+	  weapmenu[pos].SelectFunc = SelectWeapon9;
+	  pos++;
+	}
+      
+      for (;pos < 11; pos++)
+	{
+	  weapmenu[pos].text = NULL;
+	  weapmenu[pos].SelectFunc = NULL;
+	}
+      
+      PMenu_Open (ent, weapmenu, 4, sizeof (weapmenu) / sizeof (pmenu_t));
+    }
+  else
+    {
+       OpenItemMenu (ent);
+    }
+  //AQ2:TNG End adding wp_flags
 }
 
 // AQ2:TNG Deathwatch - Updated this for the new menu
@@ -932,15 +1032,15 @@ void
 OpenJoinMenu (edict_t * ent)
 {
   int team;
-
-//PG BUND - BEGIN (Tourney extension)
+  
+  //PG BUND - BEGIN (Tourney extension)
   if (use_tourney->value)
     {
       OpenWeaponMenu (ent);
       return;
     }
-//PG BUND - END (Tourney extension)
-
+  //PG BUND - END (Tourney extension)
+  
   team = UpdateJoinMenu (ent);
   if (team == TEAM1)
     team = 3;
