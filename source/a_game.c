@@ -5,10 +5,18 @@
 // Zucchini (spikard@u.washington.edu) and Fireblade (ucs_brf@shsu.edu) 
 // (splat/bullethole/shell ejection code from original Action source)
 //
-// $Id: a_game.c,v 1.13 2003/02/10 02:12:25 ra Exp $
+// $Id: a_game.c,v 1.14 2003/06/15 15:34:32 igor Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_game.c,v $
+// Revision 1.14  2003/06/15 15:34:32  igor
+// - removed the zcam code from this branch (see other branch)
+// - added fixes from 2.72 (source only) version
+// - resetted version number to 2.72
+// - This version should be exactly like the release 2.72 - just with a few
+//   more fixes (which whoever did the source only variant didn't get because
+//   he didn't use the CVS as he should. Shame on him.
+//
 // Revision 1.13  2003/02/10 02:12:25  ra
 // Zcam fixes, kick crashbug in CTF fixed and some code cleanup.
 //
@@ -364,7 +372,7 @@ void PrintMOTD(edict_t * ent)
 		if (allitem->value || allweapon->value) {
 			sprintf(msg_buf + strlen(msg_buf), "Players receive %s%s%s\n",
 				allweapon->value ? "all weapons" : "",
-				(allweapon->value && allitem->value) ? " &	 " : "",
+				(allweapon->value && allitem->value) ? " & " : "",
 				allitem->value ? "all items" : "");
 			lines++;
 		}

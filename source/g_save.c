@@ -1,10 +1,18 @@
 //-----------------------------------------------------------------------------
 // g_save.c
 //
-// $Id: g_save.c,v 1.61 2002/09/04 11:23:10 ra Exp $
+// $Id: g_save.c,v 1.62 2003/06/15 15:34:32 igor Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_save.c,v $
+// Revision 1.62  2003/06/15 15:34:32  igor
+// - removed the zcam code from this branch (see other branch)
+// - added fixes from 2.72 (source only) version
+// - resetted version number to 2.72
+// - This version should be exactly like the release 2.72 - just with a few
+//   more fixes (which whoever did the source only variant didn't get because
+//   he didn't use the CVS as he should. Shame on him.
+//
 // Revision 1.61  2002/09/04 11:23:10  ra
 // Added zcam to TNG and bumped version to 3.0
 //
@@ -632,7 +640,6 @@ InitGame (void)
   if (ctf->value)
     CTFInit ();
 
-  camera_init ();
   //PG BUND - must be at end of gameinit:
   vInitGame ();
 }

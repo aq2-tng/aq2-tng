@@ -1,10 +1,18 @@
 //-----------------------------------------------------------------------------
 //
 //
-// $Id: g_main.c,v 1.68 2002/09/04 11:23:10 ra Exp $
+// $Id: g_main.c,v 1.69 2003/06/15 15:34:32 igor Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_main.c,v $
+// Revision 1.69  2003/06/15 15:34:32  igor
+// - removed the zcam code from this branch (see other branch)
+// - added fixes from 2.72 (source only) version
+// - resetted version number to 2.72
+// - This version should be exactly like the release 2.72 - just with a few
+//   more fixes (which whoever did the source only variant didn't get because
+//   he didn't use the CVS as he should. Shame on him.
+//
 // Revision 1.68  2002/09/04 11:23:10  ra
 // Added zcam to TNG and bumped version to 3.0
 //
@@ -418,7 +426,6 @@ ShutdownGame (void)
 {
   gi.dprintf ("==== ShutdownGame ====\n");
   //PG BUND
-  camera_shutdown ();
   vExitGame ();
   gi.FreeTags (TAG_LEVEL);
   gi.FreeTags (TAG_GAME);

@@ -1,10 +1,18 @@
 //-----------------------------------------------------------------------------
 // p_client.c
 //
-// $Id: p_client.c,v 1.85 2003/02/10 02:12:25 ra Exp $
+// $Id: p_client.c,v 1.86 2003/06/15 15:34:32 igor Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: p_client.c,v $
+// Revision 1.86  2003/06/15 15:34:32  igor
+// - removed the zcam code from this branch (see other branch)
+// - added fixes from 2.72 (source only) version
+// - resetted version number to 2.72
+// - This version should be exactly like the release 2.72 - just with a few
+//   more fixes (which whoever did the source only variant didn't get because
+//   he didn't use the CVS as he should. Shame on him.
+//
 // Revision 1.85  2003/02/10 02:12:25  ra
 // Zcam fixes, kick crashbug in CTF fixed and some code cleanup.
 //
@@ -2615,7 +2623,6 @@ void PutClientInServer(edict_t * ent)
 	int i;
 	client_persistant_t saved;
 	client_respawn_t resp;
-	camera_t savedCamera;
 
 	// zucc for ammo
 //      gitem_t *item;
@@ -2670,11 +2677,9 @@ void PutClientInServer(edict_t * ent)
 
 	if (client->ipaddr)
 		strncpy(save_ipaddr, client->ipaddr, sizeof(save_ipaddr) - 1);
-	memcpy(&savedCamera, &client->camera, sizeof(camera_t));
 //FF
 	memset(client, 0, sizeof(*client));
 
-	memcpy(&client->camera, &savedCamera, sizeof(camera_t));
 	client->pers = saved;
 
 //FF
@@ -2941,7 +2946,6 @@ void ClientBeginDeathmatch(edict_t * ent)
 	ent->client->resp.checktime[1] = level.time + (check_time->value + 3);
 
 	// make sure all view stuff is valid
-	camera_begin (ent);
 	ClientEndServerFrame(ent);
 }
 
@@ -3028,7 +3032,6 @@ void ClientBegin(edict_t * ent)
 		}
 	}
 
-	camera_begin(ent);
 	// make sure all view stuff is valid
 	ClientEndServerFrame(ent);
 }
@@ -3226,9 +3229,6 @@ void ClientDisconnect(edict_t * ent)
 		else
 			team2ready = 0;
 	}
-
-	camera_disconnect (ent);
-
 	// drop items if they are alive/not observer
 	if (ent->solid != SOLID_NOT)
 		TossItemsOnDeath(ent);
@@ -3446,9 +3446,7 @@ void ClientThink(edict_t * ent, usercmd_t * ucmd)
 
 	pm_passent = ent;
 	// FROM 3.20 -FB
-	if (ent->client->chase_mode == 3) {
-		camera_think(ent);
-	} else if (ent->client->chase_mode) {
+	if (ent->client->chase_mode) {
 		client->resp.cmd_angles[0] = SHORT2ANGLE(ucmd->angles[0]);
 		client->resp.cmd_angles[1] = SHORT2ANGLE(ucmd->angles[1]);
 		client->resp.cmd_angles[2] = SHORT2ANGLE(ucmd->angles[2]);
@@ -3605,28 +3603,14 @@ void ClientThink(edict_t * ent, usercmd_t * ucmd)
 						client->desired_fov = 90;
 						client->ps.fov = 90;
 						client->chase_mode++;
-						gi.cprintf (ent, PRINT_HIGH, "Specmode set to FOLLOW\n");
-					} else if (client->chase_mode == 2 && client->camera->mode == CAMERA_MODE_SWING) {
-						client->camera->mode = CAMERA_MODE_FLIC;
-						gi.cprintf (ent, PRINT_HIGH, "Specmode set to ZCAM-FLIC\n");
-						CameraFlicBegin(ent);
-					} else if (client->chase_mode == 2) {
-						client->chase_mode++;
-						client->desired_fov = 90;
-						client->ps.fov = 90;
-						client->camera->mode = CAMERA_MODE_SWING;
-						gi.cprintf (ent, PRINT_HIGH, "Specmode set to ZCAM-SWING\n");
-						CameraSwingCycle(ent, 1);
 					} else if ((limchasecam->value != 1) || (client->resp.team == NOTEAM)) {
 						client->chase_mode = 0;
 						client->chase_target = NULL;
 						client->desired_fov = 90;
 						client->ps.fov = 90;
 						client->ps.pmove.pm_flags &= ~PMF_NO_PREDICTION;
-						gi.cprintf (ent, PRINT_HIGH, "Specmode set to FREE\n");
 					} else {
 						client->chase_mode = 1;
-						gi.cprintf (ent, PRINT_HIGH, "Specmode set to FREE\n");
 						UpdateChaseCam(ent);
 					}
 				}
@@ -3654,9 +3638,7 @@ void ClientThink(edict_t * ent, usercmd_t * ucmd)
 		if (ucmd->upmove >= 10) {
 			if (!(client->ps.pmove.pm_flags & PMF_JUMP_HELD)) {
 				client->ps.pmove.pm_flags |= PMF_JUMP_HELD;
-				if (client->chase_mode == 3 && client->camera->mode == CAMERA_MODE_SWING) {
-					CameraSwingCycle(ent, 1);
-				} else if (client->chase_target) {
+				if (client->chase_target) {
 					ChaseNext(ent);
 				} else {
 					GetChaseTarget(ent);
@@ -3666,7 +3648,6 @@ void ClientThink(edict_t * ent, usercmd_t * ucmd)
 		} else
 			client->ps.pmove.pm_flags &= ~PMF_JUMP_HELD;
 		//FIREBLADE
-		if (ent->client->chase_mode != 3)
 			ChaseTargetGone(ent);	// run a check...result not important.
 		//FIREBLADE
 	}
@@ -3674,8 +3655,7 @@ void ClientThink(edict_t * ent, usercmd_t * ucmd)
 	// update chase cam if being followed
 	for (i = 1; i <= maxclients->value; i++) {
 		other = g_edicts + i;
-		if (other->inuse && other->client->chase_mode && other->client->chase_target == ent &&
-				other->client->chase_mode != 3)
+		if (other->inuse && other->client->chase_mode && other->client->chase_target == ent)
 			UpdateChaseCam(other);
 	}
 	// ^^^

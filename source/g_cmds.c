@@ -1,10 +1,18 @@
 //-----------------------------------------------------------------------------
 // g_cmds.c
 //
-// $Id: g_cmds.c,v 1.57 2002/09/04 11:23:09 ra Exp $
+// $Id: g_cmds.c,v 1.58 2003/06/15 15:34:32 igor Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_cmds.c,v $
+// Revision 1.58  2003/06/15 15:34:32  igor
+// - removed the zcam code from this branch (see other branch)
+// - added fixes from 2.72 (source only) version
+// - resetted version number to 2.72
+// - This version should be exactly like the release 2.72 - just with a few
+//   more fixes (which whoever did the source only variant didn't get because
+//   he didn't use the CVS as he should. Shame on him.
+//
 // Revision 1.57  2002/09/04 11:23:09  ra
 // Added zcam to TNG and bumped version to 3.0
 //
@@ -2064,17 +2072,6 @@ ClientCommand (edict_t * ent)
   else if (Q_stricmp (cmd, "tkok") == 0)
     {
       Cmd_TKOk (ent);
-      return;
-    }
-  else if (Q_stricmp (cmd, "camera") == 0)
-    {
-      camera_cmd (ent);
-      return;
-    }
-  else if (Q_stricmp (cmd, "debugshit") == 0)
-    {
-      gi.cprintf (ent, PRINT_HIGH, "chase_mode is %i\n", ent->client->chase_mode);
-      gi.cprintf (ent, PRINT_HIGH, "pm_type is %i\n", ent->client->ps.pmove.pm_type);
       return;
     }
   else if (Q_stricmp (cmd, "time") == 0)

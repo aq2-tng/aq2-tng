@@ -1,7 +1,7 @@
 
 # Action makefile 
 #
-# $Id: Makefile,v 1.19 2003/02/10 02:12:25 ra Exp $
+# $Id: Makefile,v 1.20 2003/06/15 15:34:32 igor Exp $
 #
 # Intended for gcc/Linux, may need modifying for other platforms
 # Adapted by PG BUND from Black Cross makefile
@@ -10,6 +10,14 @@
 # (needs still some testing/modification for the dist-targets)
 #-----------------------------------------------------------------------------
 # $Log: Makefile,v $
+# Revision 1.20  2003/06/15 15:34:32  igor
+# - removed the zcam code from this branch (see other branch)
+# - added fixes from 2.72 (source only) version
+# - resetted version number to 2.72
+# - This version should be exactly like the release 2.72 - just with a few
+#   more fixes (which whoever did the source only variant didn't get because
+#   he didn't use the CVS as he should. Shame on him.
+#
 # Revision 1.19  2003/02/10 02:12:25  ra
 # Zcam fixes, kick crashbug in CTF fixed and some code cleanup.
 #
@@ -86,7 +94,7 @@ PACKAGE="as-PG1.25"
 VERSION="1.52"
 
 # Uncomment this for debugging symbols and compiler warnings
-DEBUG=1
+#DEBUG=1
 
 ARCH=i386
 CC=gcc
@@ -124,7 +132,7 @@ GAME_OBJS = \
 	g_phys.o g_save.o g_spawn.o g_svcmds.o g_target.o g_trigger.o \
 	g_turret.o g_utils.o g_weapon.o g_xmisc.o m_move.o \
 	p_client.o p_hud.o p_trail.o p_view.o p_weapon.o q_shared.o \
-	tng_stats.o tng_flashlight.o zcam_target.o zcam.o
+	tng_stats.o tng_flashlight.o
 
 game$(ARCH).$(SHLIBEXT) : $(GAME_OBJS)
 	$(CC) $(CFLAGS) $(SHLIBLDFLAGS) -o $@ $(GAME_OBJS)
