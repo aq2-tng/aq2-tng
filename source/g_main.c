@@ -1,10 +1,14 @@
 //-----------------------------------------------------------------------------
 //
 //
-// $Id: g_main.c,v 1.43 2001/12/24 18:06:05 slicerdw Exp $
+// $Id: g_main.c,v 1.44 2002/01/22 16:55:49 deathwatch Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_main.c,v $
+// Revision 1.44  2002/01/22 16:55:49  deathwatch
+// fixed a bug with rrot which would make it override sv softmap (moved the dosoft check up in g_main.c
+// fixed a bug with rrot which would let it go to the same map (added an if near the end of the rrot statement in the EndDMLevel function)
+//
 // Revision 1.43  2001/12/24 18:06:05  slicerdw
 // changed dynamic check for darkmatch only
 //
@@ -432,8 +436,7 @@ ClientEndServerFrames (void)
 extern void UnBan_TeamKillers (void);
 //AZEROV
 
-void
-EndDMLevel (void)
+void EndDMLevel (void)
 {
   edict_t *ent = NULL;
   char *nextmapname = NULL;
@@ -461,139 +464,129 @@ EndDMLevel (void)
 
   // stay on same level flag
   if ((int) dmflags->value & DF_SAME_LEVEL)
-    {
-      ent = G_Spawn ();
-      ent->classname = "target_changelevel";
-      nextmapname = ent->map = level.mapname;
-    }
+	{
+		ent = G_Spawn ();
+    ent->classname = "target_changelevel";
+    nextmapname = ent->map = level.mapname;
+	}
 
   //FIREBLADE
   //  else if (!actionmaps->value || num_maps < 1)
   //FIREBLADE
   //Igor[Rock] Begin
-  else if (!actionmaps->value
-	   || (num_maps < 1
-	       && (map_num_maps < 1 || !vrot->value || !rrot->value)))
-    //Igor[Rock] End
-    {
-      if (level.nextmap[0])
-	{			// go to a specific map
-	  ent = G_Spawn ();
-	  ent->classname = "target_changelevel";
-	  nextmapname = ent->map = level.nextmap;
-	}
-      else
-	{			// search for a changelevel
-	  ent = G_Find (NULL, FOFS (classname), "target_changelevel");
-	  if (!ent)
+  else if (!actionmaps->value || (num_maps < 1 && (map_num_maps < 1 || !vrot->value || !rrot->value)))
+	//Igor[Rock] End
+  {
+		if (level.nextmap[0])
+		{			// go to a specific map
+			ent = G_Spawn ();
+			ent->classname = "target_changelevel";
+			nextmapname = ent->map = level.nextmap;
+		}
+    else
+		{			// search for a changelevel
+			ent = G_Find (NULL, FOFS (classname), "target_changelevel");
+			if (!ent)
 	    {			// the map designer didn't include a changelevel,
-	      // so create a fake ent that goes back to the same level
+				// so create a fake ent that goes back to the same level
 	      ent = G_Spawn ();
 	      ent->classname = "target_changelevel";
 	      nextmapname = ent->map = level.mapname;
 	    }
+		}
 	}
-    }
   //FIREBLADE
   else
+  {
+    //Igor[Rock] BEGIN
+    if (dosoft==1)
     {
-      //Igor[Rock] BEGIN
-      if (vrot->value)
-	{
-	  ent = G_Spawn ();
-	  ent->classname = "target_changelevel";
-	  Com_sprintf (level.nextmap, sizeof (level.nextmap), "%s",
-		       map_votes->mapname);
-	  nextmapname = ent->map = level.nextmap;
-	  maptosort = map_votes;
-	  map_votes = maptosort->next;
-	  for (tmp = map_votes; tmp->next != NULL; tmp = tmp->next)
-	    {
-	    }
-	  tmp->next = maptosort;
-	  maptosort->next = NULL;
-	}
-      else if (rrot->value)
-	{
-	  cur_map = rand () % num_maps;
-	  if (cur_map >= num_maps)
-	    cur_map = 0;
-	  ent = G_Spawn ();
-	  ent->classname = "target_changelevel"; //Yoohoo
-	  Com_sprintf (level.nextmap, sizeof (level.nextmap), "%s",
-		       map_rotation[cur_map]);
-	  nextmapname = ent->map = level.nextmap;
-	}
-      else if (dosoft==1)
-        {
-                dosoft=0;
-                ent = G_Spawn ();
-                nextmapname = ent->map = level.nextmap;
-        }
-      else
-	{
-	  //Igor[Rock] End
-	  cur_map++;
-	  if (cur_map >= num_maps)
-	    cur_map = 0;
-	  ent = G_Spawn ();
-	  ent->classname = "target_changelevel";
-	  Com_sprintf (level.nextmap, sizeof (level.nextmap), "%s",
-		       map_rotation[cur_map]);
-	  nextmapname = ent->map = level.nextmap;
-	  //Igor[Rock] BEGIN
-	}
-      //Igor[Rock] End
+			dosoft=0;
+      ent = G_Spawn ();
+      nextmapname = ent->map = level.nextmap;
     }
+    else if (vrot->value)
+		{
+			ent = G_Spawn ();
+			ent->classname = "target_changelevel";
+			Com_sprintf (level.nextmap, sizeof (level.nextmap), "%s", map_votes->mapname);
+			nextmapname = ent->map = level.nextmap;
+			maptosort = map_votes;
+			map_votes = maptosort->next;
+			for (tmp = map_votes; tmp->next != NULL; tmp = tmp->next)
+	    {}
+			tmp->next = maptosort;
+			maptosort->next = NULL;
+		}
+    else if (rrot->value)
+		{
+			cur_map = rand () % num_maps;
+			if (cur_map >= num_maps)
+				cur_map = 0;
+			ent = G_Spawn ();
+			ent->classname = "target_changelevel"; //Yoohoo
+			Com_sprintf (level.nextmap, sizeof (level.nextmap), "%s", map_rotation[cur_map]);
+			nextmapname = ent->map = level.nextmap;
+			if(nextmapname == level.mapname)
+				EndDMLevel();
+		}
+    else
+		{
+			//Igor[Rock] End
+			cur_map++;
+			if (cur_map >= num_maps)
+				cur_map = 0;
+			ent = G_Spawn ();
+			ent->classname = "target_changelevel";
+			Com_sprintf (level.nextmap, sizeof (level.nextmap), "%s", map_rotation[cur_map]);
+			nextmapname = ent->map = level.nextmap;
+			//Igor[Rock] BEGIN
+		}
+    //Igor[Rock] End
+	}
 
   //PG BUND - BEGIN
   level.tempmap[0] = '\0';
   vExitLevel (level.tempmap);
   if (level.tempmap[0])
-    {
-      // change to new map...
-      byvote = true;
-      nextmapname = ent->map = level.tempmap;	// TempFile added ent->map to fit 1.52 EndDMLevel() conventions
-      if (level.nextmap != NULL)
-	level.nextmap[0] = '\0';
-    }
+  {
+		// change to new map...
+    byvote = true;
+    nextmapname = ent->map = level.tempmap;	// TempFile added ent->map to fit 1.52 EndDMLevel() conventions
+    if (level.nextmap != NULL)
+			level.nextmap[0] = '\0';
+	}
   //PG BUND - END
 
   //Igor[Rock] Begin (we have to change the position in the maplist here, because now the votes are up-to-date
   if ((maptosort != NULL) && (num_allvotes > map_num_maps))
-    {				// I inserted the map_num_maps here to block an one user vote rotation...
-      newmappos =
-	(int) (
-	       ((100.0
-		 -
-		 (((float) maptosort->num_allvotes * 100.0) /
-		  (float) num_allvotes)) * ((float) map_num_maps -
-					    1.0)) / 100.0);
-      if (!(newmappos == (map_num_maps - 1)))
-	{
-	  // Delete the map from the end of the list
-	  for (tmp = map_votes; tmp->next != maptosort; tmp = tmp->next)
+  {				// I inserted the map_num_maps here to block an one user vote rotation...
+		newmappos =	(int) (((100.0 - (((float) maptosort->num_allvotes * 100.0) / (float) num_allvotes)) * ((float) map_num_maps - 1.0)) / 100.0);
+    if (!(newmappos == (map_num_maps - 1)))
+		{
+			// Delete the map from the end of the list
+			for (tmp = map_votes; tmp->next != maptosort; tmp = tmp->next)
 	    {
 	    }
-	  tmp->next = NULL;
-	  //insert it at the right position
-	  if (newmappos == 0)
+			tmp->next = NULL;
+			//insert it at the right position
+			if (newmappos == 0)
 	    {
 	      maptosort->next = map_votes;
 	      map_votes = maptosort;
 	    }
-	  else
+			else
 	    {
 	      newmappos--;
 	      for (tmp = map_votes; newmappos > 0; tmp = tmp->next)
-		{
-		  newmappos--;
-		}
+				{
+					newmappos--;
+				}
 	      maptosort->next = tmp->next;
 	      tmp->next = maptosort;
 	    }
+		}
 	}
-    }
   //Igor[Rock] End
   if (level.nextmap != NULL && !byvote)
     gi.bprintf (PRINT_HIGH, "Next map in rotation is %s.\n", level.nextmap);

@@ -1,10 +1,14 @@
 //-----------------------------------------------------------------------------
 // g_svcmds.c
 //
-// $Id: g_svcmds.c,v 1.11 2001/11/04 15:15:19 ra Exp $
+// $Id: g_svcmds.c,v 1.12 2002/01/22 16:55:49 deathwatch Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_svcmds.c,v $
+// Revision 1.12  2002/01/22 16:55:49  deathwatch
+// fixed a bug with rrot which would make it override sv softmap (moved the dosoft check up in g_main.c
+// fixed a bug with rrot which would let it go to the same map (added an if near the end of the rrot statement in the EndDMLevel function)
+//
 // Revision 1.11  2001/11/04 15:15:19  ra
 // New server commands: "sv softmap" and "sv map_restart".  sv softmap
 // takes one map as argument and starts is softly without restarting
@@ -456,15 +460,15 @@ SV_Softmap_f
 */
 void SVCmd_Softmap_f (void)
 {
-        if (gi.argc() < 3) {
-                gi.cprintf(NULL, PRINT_HIGH, "Usage:  sv softmap <map>\n");
-                return;
-        }
-        gi.bprintf(PRINT_HIGH, "Console is setting map: %s\n", gi.argv(2));
-        dosoft=1;
-        Com_sprintf(level.nextmap, sizeof(level.nextmap), "%s", gi.argv(2));
-        EndDMLevel();
-        return;
+	if (gi.argc() < 3) {
+		gi.cprintf(NULL, PRINT_HIGH, "Usage:  sv softmap <map>\n");
+		return;
+	}
+	gi.bprintf(PRINT_HIGH, "Console is setting map: %s\n", gi.argv(2));
+  dosoft=1;
+  Com_sprintf(level.nextmap, sizeof(level.nextmap), "%s", gi.argv(2));
+  EndDMLevel();
+  return;
 }
 
 /*

@@ -9,6 +9,8 @@ From 2.5
 - Fixed a small bug which allowed people to deny kills by typing 'team none'
 - Fixed a small bug with the HC in hc_single 0 mode
 - Reset some variables to original values
+- Fixed bug where rrot would override sv softmap
+- Fixed rrot selecting same level again
 
 From 2.1
 + Added Darkmatch
