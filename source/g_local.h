@@ -1,10 +1,14 @@
 //-----------------------------------------------------------------------------
 // g_local.h -- local definitions for game module
 //
-// $Id: g_local.h,v 1.16 2001/06/01 19:18:42 slicerdw Exp $
+// $Id: g_local.h,v 1.17 2001/06/13 07:55:17 igor_rock Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_local.h,v $
+// Revision 1.17  2001/06/13 07:55:17  igor_rock
+// Re-Added a_match.h and a_match.c
+// Added CTF Header for a_ctf.h and a_ctf.c
+//
 // Revision 1.16  2001/06/01 19:18:42  slicerdw
 // Added Matchmode Code
 //
@@ -113,7 +117,7 @@
 #include "a_vote.h"
 
 //AQ2:TNG Slicer - Matchmode
-#include "a_match.h"
+//#include "a_match.h"
 //AQ2:TNG END
 //AQ:TNG Slicer - This was missing
 #define getEnt(entnum) (edict_t *)((char *)globals.edicts + (globals.edict_size * entnum))

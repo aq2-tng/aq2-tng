@@ -1,3 +1,16 @@
+//-----------------------------------------------------------------------------
+// CTF related definitions
+//
+// $Id: a_ctf.h,v 1.6 2001/06/13 07:55:17 igor_rock Exp $
+//
+//-----------------------------------------------------------------------------
+// $Log: a_ctf.h,v $
+// Revision 1.6  2001/06/13 07:55:17  igor_rock
+// Re-Added a_match.h and a_match.c
+// Added CTF Header for a_ctf.h and a_ctf.c
+//
+//-----------------------------------------------------------------------------
+
 typedef enum {
 	CTF_STATE_START,
 	CTF_STATE_PLAYING
