@@ -1,10 +1,15 @@
 //-----------------------------------------------------------------------------
 // Include for Action team-related things
 //
-// $Id: a_team.h,v 1.7 2002/03/24 22:45:53 freud Exp $
+// $Id: a_team.h,v 1.8 2002/03/28 11:46:03 freud Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_team.h,v $
+// Revision 1.8  2002/03/28 11:46:03  freud
+// stat_mode 2 and timelimit 0 did not show stats at end of round.
+// Added lock/unlock.
+// A fix for use_oldspawns 1, crash bug.
+//
 // Revision 1.7  2002/03/24 22:45:53  freud
 // New spawn code again, bad commit last time..
 //
@@ -58,6 +63,7 @@
 
 edict_t *SelectTeamplaySpawnPoint (edict_t *);
 qboolean FallingDamageAmnesty (edict_t * targ);
+char * TeamName (int team);
 void OpenJoinMenu (edict_t *);
 void OpenWeaponMenu (edict_t *);
 void OpenItemMenu (edict_t * ent);

@@ -1,10 +1,15 @@
 //-----------------------------------------------------------------------------
 // g_spawn.c
 //
-// $Id: g_spawn.c,v 1.36 2002/03/27 15:16:56 freud Exp $
+// $Id: g_spawn.c,v 1.37 2002/03/28 11:46:03 freud Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_spawn.c,v $
+// Revision 1.37  2002/03/28 11:46:03  freud
+// stat_mode 2 and timelimit 0 did not show stats at end of round.
+// Added lock/unlock.
+// A fix for use_oldspawns 1, crash bug.
+//
 // Revision 1.36  2002/03/27 15:16:56  freud
 // Original 1.52 spawn code implemented for use_newspawns 0.
 // Teamplay, when dropping bandolier, your drop the grenades.
@@ -771,7 +776,7 @@ SpawnEntities (char *mapname, char *entities, char *spawnpoint)
   edict_t *ent;
   int inhibit;
   char *com_token;
-  int i;
+  int i, xx;
   float skill_level;
   //AQ2:TNG New Location Code
   char locfile[256];
@@ -786,6 +791,8 @@ SpawnEntities (char *mapname, char *entities, char *spawnpoint)
   //AQ2:TNG Slicer Forcing Teamplay on and ctf off with matchmode
   if (matchmode->value)
     {
+      for (xx = 0;xx <= MAX_TEAMS;xx++)
+	team_locked[xx] = 0;
       // Make sure teamplay is enabled
       if (!teamplay->value)
 	{
@@ -858,11 +865,11 @@ SpawnEntities (char *mapname, char *entities, char *spawnpoint)
 	      use_tourney->value = 0;
 	      strcpy (use_tourney->string, "0");
 	    }
-	  if (use_newspawns->value)
+	  if (!use_oldspawns->value)
 	    {
-		gi.dprintf ("3 Teams Enabled - Forcing use_newspawns off\n");
-		use_newspawns->value = 0;
-		strcpy (use_newspawns->string, "0");
+		gi.dprintf ("3 Teams Enabled - Forcing use_oldspawns on\n");
+		use_oldspawns->value = 0;
+		strcpy (use_oldspawns->string, "0");
 	    }
 
 	}
@@ -984,7 +991,7 @@ SpawnEntities (char *mapname, char *entities, char *spawnpoint)
   	num_ghost_players = 0;
 
   //TNG:Freud - New spawning system
-  if (teamplay->value && use_newspawns->value)
+  if (teamplay->value && !use_oldspawns->value)
 	NS_GetSpawnPoints();
 
   //FIREBLADE

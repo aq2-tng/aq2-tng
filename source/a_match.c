@@ -1,10 +1,15 @@
 //-----------------------------------------------------------------------------
 // Matchmode related code
 //
-// $Id: a_match.c,v 1.13 2002/03/25 23:34:06 slicerdw Exp $
+// $Id: a_match.c,v 1.14 2002/03/28 11:46:03 freud Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_match.c,v $
+// Revision 1.14  2002/03/28 11:46:03  freud
+// stat_mode 2 and timelimit 0 did not show stats at end of round.
+// Added lock/unlock.
+// A fix for use_oldspawns 1, crash bug.
+//
 // Revision 1.13  2002/03/25 23:34:06  slicerdw
 // Small tweak on var handling ( prevent overflows )
 //
@@ -41,6 +46,7 @@ float matchtime = 0;
 int team1ready = 0;
 int team2ready = 0;
 int ingame = 0;
+int team_locked[MAX_TEAMS];
 
 void
 SendWorldMsg (char *s, int sound, int center)
@@ -411,4 +417,30 @@ Cmd_Teamskin_f (edict_t * ent)
       gi.cprintf (ent, PRINT_HIGH, "New Team Skin: %s\n", team2_skin);
       return;
     }
+}
+
+void
+Cmd_TeamLock_f (edict_t * ent, int a_switch)
+{
+  char msg[32];
+
+  if (!ent->client->resp.team)
+        gi.cprintf(ent, PRINT_HIGH, "You are not on a team\n");
+  else if (!ent->client->resp.captain)
+        gi.cprintf(ent, PRINT_HIGH, "You are not the captain of your team\n");
+  else if (a_switch == 1 && team_locked[ent->client->resp.team])
+        gi.cprintf(ent, PRINT_HIGH, "Your team is already locked\n");
+  else if (a_switch == 0 && !team_locked[ent->client->resp.team])
+        gi.cprintf(ent, PRINT_HIGH, "Your team isn't locked\n");
+  else {
+        team_locked[ent->client->resp.team] = a_switch;
+
+        if (a_switch == 1)
+                sprintf(msg, "%s locked\n", TeamName(ent->client->resp.team));
+        else
+                sprintf(msg, "%s unlocked\n", TeamName(ent->client->resp.team));
+
+        CenterPrintAll(msg);
+
+  }
 }

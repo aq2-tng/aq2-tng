@@ -1,10 +1,15 @@
 //-----------------------------------------------------------------------------
 //
 //
-// $Id: g_main.c,v 1.63 2002/03/27 15:16:56 freud Exp $
+// $Id: g_main.c,v 1.64 2002/03/28 11:46:03 freud Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_main.c,v $
+// Revision 1.64  2002/03/28 11:46:03  freud
+// stat_mode 2 and timelimit 0 did not show stats at end of round.
+// Added lock/unlock.
+// A fix for use_oldspawns 1, crash bug.
+//
 // Revision 1.63  2002/03/27 15:16:56  freud
 // Original 1.52 spawn code implemented for use_newspawns 0.
 // Teamplay, when dropping bandolier, your drop the grenades.
@@ -354,7 +359,7 @@ cvar_t *auto_join;
 cvar_t *auto_equip;
 
 //TNG:Freud - new spawning system
-cvar_t *use_newspawns;
+cvar_t *use_oldspawns;
 //TNG:Freud - ghosts
 cvar_t *use_ghosts;
 

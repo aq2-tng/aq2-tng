@@ -3,10 +3,15 @@
 // Some of this is borrowed from Zoid's CTF (thanks Zoid)
 // -Fireblade
 //
-// $Id: a_team.c,v 1.82 2002/03/27 15:16:56 freud Exp $
+// $Id: a_team.c,v 1.83 2002/03/28 11:46:03 freud Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_team.c,v $
+// Revision 1.83  2002/03/28 11:46:03  freud
+// stat_mode 2 and timelimit 0 did not show stats at end of round.
+// Added lock/unlock.
+// A fix for use_oldspawns 1, crash bug.
+//
 // Revision 1.82  2002/03/27 15:16:56  freud
 // Original 1.52 spawn code implemented for use_newspawns 0.
 // Teamplay, when dropping bandolier, your drop the grenades.
@@ -979,6 +984,14 @@ JoinTeam (edict_t * ent, int desired_team, int skip_menuclose)
   if (ent->client->resp.team == desired_team)
     return;
 
+  if (team_locked[desired_team]) {
+        if (skip_menuclose)
+                gi.cprintf(ent, PRINT_HIGH, "Cannot join %s (locked)\n", TeamName(desired_team));
+        else
+                gi.centerprintf(ent, "Cannot join %s (locked)\n", TeamName(desired_team));
+        return;
+  }
+
   a = (ent->client->resp.team == NOTEAM) ? "joined" : "changed to";
 
   ent->client->resp.team = desired_team;
@@ -1530,6 +1543,26 @@ CenterPrintAll (char *msg)
     }
 }
 
+int TeamHasPlayers (int team)
+{
+  int i, players;
+  edict_t *ent;
+
+  players = 0;
+
+  for (i = 0; i < game.maxclients; i++)
+    {
+      ent = &g_edicts[1 + i];
+      if (!ent->inuse)
+        continue;
+
+      if (game.clients[i].resp.team == team)
+        players++;
+    }
+
+    return players;
+}
+
 qboolean BothTeamsHavePlayers ()
 {
   int onteam1 = 0, onteam2 = 0, onteam3 = 0, i;
@@ -1723,7 +1756,7 @@ SpawnPlayers ()
   int i;
   edict_t *ent;
 
-  if (use_newspawns->value) {
+  if (!use_oldspawns->value) {
 	NS_SetupTeamSpawnPoints ();
   } else {
 	GetSpawnPoints ();
@@ -2067,7 +2100,7 @@ int WonGame (int winner)
 	{
 		cl_ent = &g_edicts[1 + i];
 
-		if ((teamplay->value && (level.time <= ((timelimit->value * 60) - 5))) &&
+		if ((teamplay->value && (!timelimit->value || level.time <= ((timelimit->value * 60) - 5))) &&
 		      cl_ent->inuse && cl_ent->client->resp.stat_mode == 2)
 			Cmd_Stats_f(cl_ent, arg);
 	}
@@ -2081,6 +2114,7 @@ CheckTeamRules ()
 {
   int winner, i;
   int checked_tie = 0;
+  char buf[1024];
 
   if (round_delay_time && use_tourney->value)
     {
@@ -2121,6 +2155,20 @@ CheckTeamRules ()
 	  game.clients[i].ctf_uvtime = 0;
 	}
     }
+
+  if (matchmode->value) {
+	if (team_locked[TEAM1] && !TeamHasPlayers(TEAM1)) {
+		team_locked[TEAM1] = 0;
+		sprintf(buf, "%s unlocked (no players)\n", TeamName(TEAM1));
+		CenterPrintAll(buf);
+	}
+
+	if (team_locked[TEAM2] && !TeamHasPlayers(TEAM2)) {
+		team_locked[TEAM2] = 0;
+		sprintf(buf, "%s unlocked (no players)\n", TeamName(TEAM2));
+		CenterPrintAll(buf);
+	}
+  }
 
   if (lights_camera_action)
     {
@@ -3366,6 +3414,7 @@ SelectRandomTeamplaySpawnPoint (int team, qboolean teams_assigned[])
   i = 0;
   ok = false;
 
+  spawn_point = newrand (num_potential_spawns);
 
   while ((ok == false) && (i < test_teams))
     {
@@ -3440,7 +3489,8 @@ SelectFarTeamplaySpawnPoint (int team, qboolean teams_assigned[])
 	  if (teams_assigned[y])
 	    {
 	      distance =
-		SpawnPointDistance (potential_spawns[x], teamplay_spawns[y]);
+		SpawnPointDistance (potential_spawns[x],
+				    teamplay_spawns[y]);
 	      if (distance < closest_spawn_distance)
 		{
 		  closest_spawn_distance = distance;

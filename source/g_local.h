@@ -1,10 +1,15 @@
 //-----------------------------------------------------------------------------
 // g_local.h -- local definitions for game module
 //
-// $Id: g_local.h,v 1.59 2002/03/25 23:35:19 freud Exp $
+// $Id: g_local.h,v 1.60 2002/03/28 11:46:03 freud Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_local.h,v $
+// Revision 1.60  2002/03/28 11:46:03  freud
+// stat_mode 2 and timelimit 0 did not show stats at end of round.
+// Added lock/unlock.
+// A fix for use_oldspawns 1, crash bug.
+//
 // Revision 1.59  2002/03/25 23:35:19  freud
 // Ghost code, use_ghosts and more stuff..
 //
@@ -886,7 +891,7 @@ extern cvar_t *auto_join;	// Automaticly join clients to teams they were on in l
 extern cvar_t *auto_equip;	// Remember weapons and items for players between maps.
 
 // TNG:Freud - new spawning system
-extern cvar_t *use_newspawns;
+extern cvar_t *use_oldspawns;
 // TNG:Freud - ghosts
 extern cvar_t *use_ghosts;
 
@@ -1941,5 +1946,7 @@ extern placedata_t locationbase[];
 extern char ml_build[6];
 extern char ml_creator[101];
 //AQ2:TNG END
+
+void Cmd_Ghost_f (edict_t * ent);
 
 #include "a_ctf.h"

@@ -1,10 +1,15 @@
 //-----------------------------------------------------------------------------
 // g_save.c
 //
-// $Id: g_save.c,v 1.57 2002/03/25 23:35:19 freud Exp $
+// $Id: g_save.c,v 1.58 2002/03/28 11:46:03 freud Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_save.c,v $
+// Revision 1.58  2002/03/28 11:46:03  freud
+// stat_mode 2 and timelimit 0 did not show stats at end of round.
+// Added lock/unlock.
+// A fix for use_oldspawns 1, crash bug.
+//
 // Revision 1.57  2002/03/25 23:35:19  freud
 // Ghost code, use_ghosts and more stuff..
 //
@@ -555,7 +560,7 @@ InitGame (void)
   use_punch = gi.cvar ("use_punch", "1", 0);
 
   //TNG:Freud - new spawning system
-  use_newspawns = gi.cvar ("use_newspawns", "1", CVAR_LATCH);
+  use_oldspawns = gi.cvar ("use_oldspawns", "0", CVAR_LATCH);
   //TNG:Freud - ghosts
   use_ghosts = gi.cvar ("use_ghosts", "0", CVAR_LATCH);
 

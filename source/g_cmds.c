@@ -1,10 +1,15 @@
 //-----------------------------------------------------------------------------
 // g_cmds.c
 //
-// $Id: g_cmds.c,v 1.55 2002/03/26 21:49:01 ra Exp $
+// $Id: g_cmds.c,v 1.56 2002/03/28 11:46:03 freud Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_cmds.c,v $
+// Revision 1.56  2002/03/28 11:46:03  freud
+// stat_mode 2 and timelimit 0 did not show stats at end of round.
+// Added lock/unlock.
+// A fix for use_oldspawns 1, crash bug.
+//
 // Revision 1.55  2002/03/26 21:49:01  ra
 // Bufferoverflow fixes
 //
@@ -2202,6 +2207,16 @@ ClientCommand (edict_t * ent)
 	else if (Q_stricmp (cmd, "ghost") == 0)
 	{
 		Cmd_Ghost_f (ent);
+		return;
+	}
+	else if (Q_stricmp (cmd, "lock") == 0 && matchmode->value)
+	{
+		Cmd_TeamLock_f(ent, 1);
+		return;
+	}
+	else if (Q_stricmp (cmd, "unlock") == 0 && matchmode->value)
+	{
+		Cmd_TeamLock_f(ent, 0);
 		return;
 	}
   else				// anything that doesn't match a command will be a chat
