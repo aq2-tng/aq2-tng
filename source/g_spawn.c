@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // g_spawn.c
 //
-// $Id: g_spawn.c,v 1.10 2001/05/12 19:29:28 mort Exp $
+// $Id: g_spawn.c,v 1.11 2001/05/14 14:08:51 igor_rock Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_spawn.c,v $
+// Revision 1.11  2001/05/14 14:08:51  igor_rock
+// added tng sounds for precaching
+//
 // Revision 1.10  2001/05/12 19:29:28  mort
 // Fixed more various map change bugs
 //
@@ -1546,6 +1549,25 @@ void SP_worldspawn (edict_t *ent)
                 }
                 gi.imageindex(team2_skin_index);
         }
+
+	// AQ2:TNG - Igor adding precache for sounds
+	gi.soundindex ("tng/no_team_wins.wav");
+	gi.soundindex ("tng/team1_wins.wav");
+	gi.soundindex ("tng/team2_wins.wav");
+	gi.soundindex ("tng/team3_wins.wav");
+	gi.soundindex ("tng/1_minute.wav");
+	gi.soundindex ("tng/3_minutes.wav");
+	gi.soundindex ("tng/1_frag.wav");
+	gi.soundindex ("tng/2_frags.wav");
+	gi.soundindex ("tng/3_frags.wav");
+	gi.soundindex ("tng/impressive.wav");
+	gi.soundindex ("tng/excellent.wav");
+	gi.soundindex ("tng/accuracy.wav");
+	gi.soundindex ("tng/clanwar.wav");
+	gi.soundindex ("tng/disabled.wav");
+	gi.soundindex ("tng/enabled.wav");
+	// AQ2:TNG - end of precache sounds
+
         PrecacheRadioSounds();
 //PG BUND - Begin
        	PrecacheUserSounds();
