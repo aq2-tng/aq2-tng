@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 //
 //
-// $Id: g_main.c,v 1.18 2001/06/25 11:44:47 slicerdw Exp $
+// $Id: g_main.c,v 1.19 2001/06/26 21:19:31 ra Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_main.c,v $
+// Revision 1.19  2001/06/26 21:19:31  ra
+// Adding timestamps to gameendings.
+//
 // Revision 1.18  2001/06/25 11:44:47  slicerdw
 // New Video Check System - video_check and video_check_lockpvs no longer latched
 //
@@ -83,6 +86,7 @@
 //
 //-----------------------------------------------------------------------------
 
+#include <time.h>
 #include "g_local.h"
 
 game_locals_t   game;
@@ -372,6 +376,16 @@ void EndDMLevel (void)
   votelist_t *tmp = NULL;
   int         newmappos;
   //Igor[Rock] END
+  //JBravo[QNI] Begin
+  char ltm[64];
+  struct tm *now;
+  time_t tnow;
+
+  tnow = time((time_t *)0);
+  now = localtime(&tnow);
+  (void)strftime(ltm, 64, "%A %d %B %H:%M:%S", now);
+  gi.bprintf (PRINT_HIGH, "Game ending at: %s\n", ltm);
+  //JBravo[QNI] END
   
   // stay on same level flag
   if ((int)dmflags->value & DF_SAME_LEVEL)
