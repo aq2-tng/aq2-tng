@@ -3,10 +3,13 @@
 // Some of this is borrowed from Zoid's CTF (thanks Zoid)
 // -Fireblade
 //
-// $Id: a_team.c,v 1.15 2001/05/17 16:18:13 igor_rock Exp $
+// $Id: a_team.c,v 1.16 2001/05/20 12:54:18 igor_rock Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_team.c,v $
+// Revision 1.16  2001/05/20 12:54:18  igor_rock
+// Removed newlines from Centered Messages like "Impressive"
+//
 // Revision 1.15  2001/05/17 16:18:13  igor_rock
 // added wp_flags and did some itm_flags and other corrections
 //
@@ -1767,7 +1770,9 @@ CheckTeamRules ()
 	    {
 	      if (timewarning < 2)
 		{
-		  CenterPrintAll ("1 MINUTE LEFT...\n");
+		  //AQ2:TNG Igor removing newlines
+		  CenterPrintAll ("1 MINUTE LEFT...");
+		  //AQ2:TNG End removing newlines
 		  gi.sound (&g_edicts[0], CHAN_VOICE | CHAN_NO_PHS_ADD,
 		  gi.soundindex ("tng/1_minute.wav"), 1.0, ATTN_NONE, 0.0);
 		  timewarning = 2;
@@ -1777,7 +1782,9 @@ CheckTeamRules ()
 	    {
 	      if (timewarning < 1)
 		{
-		  CenterPrintAll ("3 MINUTES LEFT...\n");
+		  //AQ2:TNG Igor removing newlines
+		  CenterPrintAll ("3 MINUTES LEFT...");
+		  //AQ2:TNG End removing newlines
 		  gi.sound (&g_edicts[0], CHAN_VOICE | CHAN_NO_PHS_ADD,
 		  gi.soundindex ("tng/3_minutes.wav"), 1.0, ATTN_NONE, 0.0);
 		  timewarning = 1;

@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // p_client.c
 //
-// $Id: p_client.c,v 1.18 2001/05/16 13:26:38 slicerdw Exp $
+// $Id: p_client.c,v 1.19 2001/05/20 12:54:18 igor_rock Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: p_client.c,v $
+// Revision 1.19  2001/05/20 12:54:18  igor_rock
+// Removed newlines from Centered Messages like "Impressive"
+//
 // Revision 1.18  2001/05/16 13:26:38  slicerdw
 // Too Many Userinfo Cvars( commented some) & Enabled death messages on CTF
 //
@@ -87,14 +90,16 @@ void Add_Frag( edict_t *ent )
       // AQ:TNG Igor[Rock] changing sound dir
       if (ent->client->resp.streak == 4)
 	{
-	  sprintf (buf, "IMPRESSIVE %s!\n", ent->client->pers.netname);
+	  //AQ2:TNG - Igor removing newlines
+	  sprintf (buf, "IMPRESSIVE %s!", ent->client->pers.netname);
+	  //AQ2:TNG End removing newlines
 	  CenterPrintAll (buf);
 	  gi.sound (&g_edicts[0], CHAN_VOICE | CHAN_NO_PHS_ADD,
 		    gi.soundindex ("tng/impressive.wav"), 1.0, ATTN_NONE, 0.0);
 	}
       else if ( ent->client->resp.streak == 12 )
 	{
-	  sprintf (buf, "EXCELLENT %s!\n", ent->client->pers.netname);
+	  sprintf (buf, "EXCELLENT %s!", ent->client->pers.netname);
 	  CenterPrintAll (buf);
 	  gi.sound (&g_edicts[0], CHAN_VOICE | CHAN_NO_PHS_ADD,
 		    gi.soundindex ("tng/excellent.wav"), 1.0, ATTN_NONE, 0.0);
@@ -140,7 +145,9 @@ void Add_Frag( edict_t *ent )
 	{
 	  if (fragwarning < 3)
 	    {
-	      CenterPrintAll ("1 FRAG LEFT...\n");
+	      //AQ2:TNG Igor removing newlines
+	      CenterPrintAll ("1 FRAG LEFT...");
+	      //AQ2:TNG End removing newlines
 	      gi.sound (&g_edicts[0], CHAN_VOICE | CHAN_NO_PHS_ADD,
 			gi.soundindex ("tng/1_frag.wav"), 1.0, ATTN_NONE, 0.0);
 	      fragwarning = 3;
@@ -150,7 +157,9 @@ void Add_Frag( edict_t *ent )
 	{
 	  if (fragwarning < 2)
 	    {
-	      CenterPrintAll ("2 FRAGS LEFT...\n");
+	      //AQ2:TNG Igor removing newlines
+	      CenterPrintAll ("2 FRAGS LEFT...");
+	      //AQ2:TNG End removing newlines
 	      gi.sound (&g_edicts[0], CHAN_VOICE | CHAN_NO_PHS_ADD,
 			gi.soundindex ("tng/2_frags.wav"), 1.0, ATTN_NONE, 0.0);
 	      fragwarning = 2;
@@ -160,7 +169,9 @@ void Add_Frag( edict_t *ent )
 	{
 	  if (fragwarning < 1)
 	    {
-	      CenterPrintAll ("3 FRAGS LEFT...\n");
+	      //AQ2:TNG Igor removing newlines
+	      CenterPrintAll ("3 FRAGS LEFT...");
+	      //AQ2:TNG End removing newlines
 	      gi.sound (&g_edicts[0], CHAN_VOICE | CHAN_NO_PHS_ADD,
 			gi.soundindex ("tng/3_frags.wav"), 1.0, ATTN_NONE, 0.0);
 	      fragwarning = 1;

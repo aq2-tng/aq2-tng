@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // g_combat.c
 //
-// $Id: g_combat.c,v 1.5 2001/05/12 14:05:29 mort Exp $
+// $Id: g_combat.c,v 1.6 2001/05/20 12:54:18 igor_rock Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_combat.c,v $
+// Revision 1.6  2001/05/20 12:54:18  igor_rock
+// Removed newlines from Centered Messages like "Impressive"
+//
 // Revision 1.5  2001/05/12 14:05:29  mort
 // Hurting someone whilst they are "god" is fixed now
 //
@@ -739,7 +742,9 @@ void T_Damage (edict_t *targ, edict_t *inflictor, edict_t *attacker, vec3_t dir,
 		      // AQ:TNG Igor[Rock] changing sound dir
 		      if (attacker->client->resp.hs_streak == 3)
 			{
-			  sprintf (buf, "ACCURACY %s!\n", attacker->client->pers.netname);
+			  //AQ2:TNG - Igor removing newlines
+			  sprintf (buf, "ACCURACY %s!", attacker->client->pers.netname);
+			  //AQ2:TNG End removing newlines
 			  CenterPrintAll (buf);
 			  gi.sound (&g_edicts[0], CHAN_VOICE | CHAN_NO_PHS_ADD,
 				    gi.soundindex ("tng/accuracy.wav"), 1.0, ATTN_NONE, 0.0);
