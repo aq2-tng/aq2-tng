@@ -5,20 +5,20 @@ Changes in TNG
 * = major bug fix
 
 From 2.5
-* Fixed invdrop weapon farming in any teamplay mode
-* Toggle for the Statistics screen when a map ends (stats_endmap)
-* Toggle to record stats between rounds (stats_afterround)
 + Stats list shows average accuracy for each player including player ID
 + Stats command followed by player ID will display someone else's stats
 + auto_join cvar toggle for forced joins to the team players were on last map
 + auto_equip cvar toggle for forced weapons from last map on players
 + Stat_mode user variable which automaticly sends stats to players at round/map end
 + Updated Stats Code
-+ Fixed ff_afterround
 + Showing health icon on screen when bandaging (thanks to Dome)
-+ TNG now accepts M$ formatting on .agq files
-+ In matchmode, the forcing of say_team in mm_forceteamtalk 2 wont be off if a team unreadies during a round
 + Added %P for last damaged player
+* TNG now accepts MS formatting on .agq files
+* Fixed invdrop weapon farming in any teamplay mode
+* Toggle for the Statistics screen when a map ends (stats_endmap)
+* Toggle to record stats between rounds (stats_afterround)
+- Fixed ff_afterround
+- In matchmode, the forcing of say_team in mm_forceteamtalk 2 wont be off if a team unreadies during a round
 - Fixed newline problem with announcer (IMPRESSIVE.. 1 FRAG LEFT)
 - Fixed scoreboard alignment for after game scoreboard
 - Fixed FPM counter
@@ -31,6 +31,7 @@ From 2.5
 - Fixed bug where rrot would override sv softmap
 - Fixed rrot selecting same level again
 - Made rrot a bit more random
+- Updated Credits menu
 
 From 2.1
 + Added Darkmatch
