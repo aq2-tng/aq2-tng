@@ -3,10 +3,13 @@
 // Some of this is borrowed from Zoid's CTF (thanks Zoid)
 // -Fireblade
 //
-// $Id: a_team.c,v 1.47 2001/09/28 13:48:34 ra Exp $
+// $Id: a_team.c,v 1.48 2001/09/28 15:03:26 ra Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_team.c,v $
+// Revision 1.48  2001/09/28 15:03:26  ra
+// replacing itoa with a sprintf() call 'cause itoa is MIA on Linux
+//
 // Revision 1.47  2001/09/28 13:48:34  ra
 // I ran indent over the sources. All .c and .h files reindented.
 //
@@ -1758,7 +1761,8 @@ WonGame (int winner)
 	      // end of changing sound dir
 	      team1_score++;
 	      team1score->value = team1_score;
-	      itoa (team1_score, team1score->string, 10);
+//	      itoa (team1_score, team1score->string, 10);
+	      sprintf(team1score->string, "%d", team1_score);
 	    }
 	}
       else if (winner == WINNER_TEAM2)
@@ -1783,7 +1787,8 @@ WonGame (int winner)
 	      // end of changing sound dir
 	      team2_score++;
 	      team2score->value = team2_score;
-	      itoa (team2_score, team2score->string, 10);
+//	      itoa (team2_score, team2score->string, 10);
+	      sprintf(team2score->string, "%d", team2_score);
 	    }
 	}
       else if (use_3teams->value)
@@ -1807,7 +1812,8 @@ WonGame (int winner)
 			0.0);
 	      // end of changing sound dir
 	      team3score->value = team3_score;
-	      itoa (team3_score, team3score->string, 10);
+//	      itoa (team3_score, team3score->string, 10);
+	      sprintf(team3score->string, "%d", team3_score);
 	    }
 	}
     }
