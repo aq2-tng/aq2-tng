@@ -5,12 +5,14 @@ Changes in TNG
 * = major bug fix
 
 From 2.5
++ Fixed ff_afterround
 + Showing health icon on screen when bandaging (thanks to Dome)
 - Fixed a small bug which allowed people to deny kills by typing 'team none'
 - Fixed a small bug with the HC in hc_single 0 mode
 - Reset some variables to original values
 - Fixed bug where rrot would override sv softmap
 - Fixed rrot selecting same level again
+- Made rrot a bit more random
 
 From 2.1
 + Added Darkmatch
