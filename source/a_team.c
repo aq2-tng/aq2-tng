@@ -3,10 +3,13 @@
 // Some of this is borrowed from Zoid's CTF (thanks Zoid)
 // -Fireblade
 //
-// $Id: a_team.c,v 1.35 2001/06/28 20:29:58 igor_rock Exp $
+// $Id: a_team.c,v 1.36 2001/07/09 17:55:50 slicerdw Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_team.c,v $
+// Revision 1.36  2001/07/09 17:55:50  slicerdw
+// Small change on the Board
+//
 // Revision 1.35  2001/06/28 20:29:58  igor_rock
 // changed the scoreboard to redruce length (and changed the debug output to report at 1023 lenght)
 //
@@ -2616,8 +2619,8 @@ A_ScoreboardMessage (edict_t * ent, edict_t * killer)
 		}
 	    }
 	      
-	  sprintf(string+strlen(string), "xv 0 yv 128 string2 \"%s\" ", team1ready ? "Ready" : "Not Ready");
-	  sprintf(string+strlen(string), "xv 160 yv 128 string2 \"%s\" ", team2ready ? "Ready" : "Not Ready");
+	  sprintf(string+strlen(string), "xv 39 yv 128 string2 \"%s\" ", team1ready ? "Ready" : "Not Ready");
+	  sprintf(string+strlen(string), "xv 196 yv 128 string2 \"%s\" ", team2ready ? "Ready" : "Not Ready");
 	  
 	  mins = matchtime/60;
 	  secs = matchtime-(mins*60);
