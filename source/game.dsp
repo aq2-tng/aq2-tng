@@ -947,6 +947,23 @@ SOURCE=.\q_shared.c
 # End Source File
 # Begin Source File
 
+SOURCE=.\tng_flashlight.c
+
+!IF  "$(CFG)" == "game - Win32 Release"
+
+!ELSEIF  "$(CFG)" == "game - Win32 Debug"
+
+!ELSEIF  "$(CFG)" == "game - Win32 Debug Alpha"
+
+!ELSEIF  "$(CFG)" == "game - Win32 Release Alpha"
+
+!ELSEIF  "$(CFG)" == "game - Win32 Ppro"
+
+!ENDIF 
+
+# End Source File
+# Begin Source File
+
 SOURCE=.\tng_stats.c
 
 !IF  "$(CFG)" == "game - Win32 Release"

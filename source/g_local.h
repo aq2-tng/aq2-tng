@@ -1,10 +1,16 @@
 //-----------------------------------------------------------------------------
 // g_local.h -- local definitions for game module
 //
-// $Id: g_local.h,v 1.34 2001/08/18 01:28:06 deathwatch Exp $
+// $Id: g_local.h,v 1.35 2001/08/18 17:14:04 deathwatch Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_local.h,v $
+// Revision 1.35  2001/08/18 17:14:04  deathwatch
+// Flashlight Added (not done yet, needs to prevent DEAD ppl from using it,
+// the glow should be white and a bit smaller if possible and the daiper needs
+// to be gone. Also, it should only work in 'darkmatch' I guess and it should
+// make a sound when you turn it on/off.
+//
 // Revision 1.34  2001/08/18 01:28:06  deathwatch
 // Fixed some stats stuff, added darkmatch + day_cycle, cleaned up several files, restructured ClientCommand
 //
@@ -716,26 +722,26 @@ extern cvar_t *use_cvote;
 extern cvar_t *new_irvision;
 extern cvar_t *use_rewards;
 extern cvar_t *use_warnings;
-extern  cvar_t	*video_check; //AQ2:TNG - Slicer: For Video Checking
-extern  cvar_t 	*video_checktime;	//interval between cheat checks
-extern  cvar_t 	*video_max_3dfx;
-extern  cvar_t 	*video_max_3dfxam;
-extern  cvar_t 	*video_max_opengl;
-extern  cvar_t 	*video_check_lockpvs;
-extern  cvar_t 	*video_force_restart;
-extern	cvar_t	*check_time;
-extern  cvar_t  *matchmode;
-extern	cvar_t	*darkmatch;
-extern	cvar_t	*day_cycle; // If darkmatch is on, this value is the nr of seconds between each interval (day, dusk, night, dawn)
-extern  cvar_t  *admin; 
-extern  cvar_t  *hearall; // used in match mode
-extern  cvar_t  *radio_max;
-extern  cvar_t	*radio_time;
-extern  cvar_t	*radio_ban;
-extern  cvar_t	*radio_repeat;
-extern  cvar_t  *hc_single;
-extern  cvar_t  *wp_flags;
-extern  cvar_t  *itm_flags;
+extern cvar_t	*video_check; //AQ2:TNG - Slicer: For Video Checking
+extern cvar_t *video_checktime;	//interval between cheat checks
+extern cvar_t *video_max_3dfx;
+extern cvar_t *video_max_3dfxam;
+extern cvar_t *video_max_opengl;
+extern cvar_t *video_check_lockpvs;
+extern cvar_t *video_force_restart;
+extern cvar_t	*check_time;
+extern cvar_t *matchmode;
+extern cvar_t	*darkmatch;
+extern cvar_t	*day_cycle; // If darkmatch is on, this value is the nr of seconds between each interval (day, dusk, night, dawn)
+extern cvar_t *admin; 
+extern cvar_t *hearall; // used in match mode
+extern cvar_t *radio_max;
+extern cvar_t	*radio_time;
+extern cvar_t	*radio_ban;
+extern cvar_t	*radio_repeat;
+extern cvar_t *hc_single;
+extern cvar_t *wp_flags;
+extern cvar_t *itm_flags;
 
 extern cvar_t *skill;
 extern cvar_t *fraglimit;
@@ -1573,7 +1579,8 @@ struct edict_s
 
     // laser
     edict_t *lasersight;
-
+		// TNG Flashlight
+		edict_t *flashlight;
     // action
     qboolean splatted;
     int classnum;
@@ -1600,6 +1607,8 @@ void ReadySpecialWeapon (edict_t * ent);
 void DropSpecialItem (edict_t * ent);
 void Bandage (edict_t * ent);
 void ShowGun (edict_t * ent); // hentai's vwep function added by zucc
+void FL_think (edict_t *self); // TNG Flashlight
+void FL_make(edict_t *self); // TNG Flashlight
 
 // spec functions
 void SetupSpecSpawn (void);

@@ -1,10 +1,16 @@
 //-----------------------------------------------------------------------------
 // g_cmds.c
 //
-// $Id: g_cmds.c,v 1.27 2001/08/17 21:31:37 deathwatch Exp $
+// $Id: g_cmds.c,v 1.28 2001/08/18 17:14:04 deathwatch Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_cmds.c,v $
+// Revision 1.28  2001/08/18 17:14:04  deathwatch
+// Flashlight Added (not done yet, needs to prevent DEAD ppl from using it,
+// the glow should be white and a bit smaller if possible and the daiper needs
+// to be gone. Also, it should only work in 'darkmatch' I guess and it should
+// make a sound when you turn it on/off.
+//
 // Revision 1.27  2001/08/17 21:31:37  deathwatch
 // Added support for stats
 //
@@ -1882,6 +1888,10 @@ void ClientCommand (edict_t *ent)
 	}
 	else if (Q_stricmp (cmd, "stats") == 0) {
 		Cmd_Stats_f(ent);
+		return;
+	}
+	else if (Q_stricmp (cmd, "flashlight") == 0) {
+		FL_make (ent);
 		return;
 	}
   else    // anything that doesn't match a command will be a chat

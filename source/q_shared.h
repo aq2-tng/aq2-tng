@@ -1,10 +1,16 @@
 //-----------------------------------------------------------------------------
 // q_shared.h -- included first by ALL program modules
 //
-// $Id: q_shared.h,v 1.4 2001/05/31 16:58:14 igor_rock Exp $
+// $Id: q_shared.h,v 1.5 2001/08/18 17:14:04 deathwatch Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: q_shared.h,v $
+// Revision 1.5  2001/08/18 17:14:04  deathwatch
+// Flashlight Added (not done yet, needs to prevent DEAD ppl from using it,
+// the glow should be white and a bit smaller if possible and the daiper needs
+// to be gone. Also, it should only work in 'darkmatch' I guess and it should
+// make a sound when you turn it on/off.
+//
 // Revision 1.4  2001/05/31 16:58:14  igor_rock
 // conflicts resolved
 //
@@ -643,8 +649,6 @@ pmove_t;
 #define EF_HALF_DAMAGE                0x40000000
 #define EF_TRACKERTRAIL               0x80000000
 //ROGUE
-// ^^^
-
 
 // RAFAEL
 #define EF_IONRIPPER                    0x00100000
@@ -663,56 +667,26 @@ pmove_t;
 #define EF_TRACKERTRAIL                 0x80000000
 //ROGUE
 
-
-
-
-
-
 // zucc some I got from quake devels
-
-
 #define EF_BLUE          0x00400000	//a blue light
-
 #define EF_ROTATEREDSPOT 0x00800000	//fast rotate with a red spot of light at the front
-
 #define EF_TRANSLIGHT    0x01000000	//transparant with some lighting
-
 #define EF_PFOUNT        0x02000000	// particle foundtain
-
 #define EF_DYNDARK       0x04000000	//DYNAMIC darkness the one i was looking for!
-
 #define EF_YELLOWSHELL   0x08000000	//a yellow shell similar to those found with EF_COLOR_SHELL IIRC
-
 #define EF_TRANS         0x10000000	//translucency
-
 #define EF_YELLOWDOT     0x20000000	//yellow lighting with yellow dots under the model
-
 #define EF_WHITESHELL    0x40000000	//a yellow shell around  the model (like EF_YELLOWSHELL)
-
-
-
-
-
 #define EF_FLIES2        0x80000000	//Flies go a buzzin' and the sky grows dim
-
 #define EF_EDARK         0x84000000	// Extreme Darkness, you won't believe!
-
 #define EF_BLUE_CRUST    0x08208000	// An odd blue "crust" around the model
-
 #define EF_QBF           0x90408000	// The best of three worlds, blue shell like a quad, dark, and covered with flies
-
 #define EF_REDC          0x30050001	// This one is nice, a red light eminating of a red Quad crust
-
 #define EF_GREENRC       0x35152841	// It's Christmas time!  Red shell and geen light!
-
 #define EF_REDG          0x22010107	// RedCrust with gib effect trail
-
 #define EF_PUP           0x86080100	// 'ere's an odd one, a straight, upwards line of particles sprays above the modle
-
 #define EF_FLYG          0x60507800	// A few flies with a light, greenish yello crust
-
 #define EF_YELLOW_CRUST  0x10300070	// Yellow crust with a of smoke & yellow particles
-
 #define EF_BACKRED       0x90900900	// The Usual is black fly maham, but with a red light peeking through.
 
 
