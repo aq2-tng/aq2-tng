@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // Include for base Action game-related things
 //
-// $Id: a_game.h,v 1.3 2001/06/01 19:18:42 slicerdw Exp $
+// $Id: a_game.h,v 1.4 2001/06/19 18:56:38 deathwatch Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_game.h,v $
+// Revision 1.4  2001/06/19 18:56:38  deathwatch
+// New Last killed target system
+//
 // Revision 1.3  2001/06/01 19:18:42  slicerdw
 // Added Matchmode Code
 //
@@ -23,6 +26,9 @@
 #define TNG_VERSION		"AQ2: The Next Generation"
 #define TNG_VERSION2	"AQ2: The Next Generation v2.1"
 // AQ2:TNG Deathwatch End
+//AQ2:TNG Slicer This is the max players writen on last killed target
+#define MAX_LAST_KILLED 5
+//AQ2:TNG END
 
 extern char team1_name[];
 extern char team2_name[];
@@ -59,7 +65,12 @@ void GetHealth (edict_t * ent, char *buf);
 void GetAmmo (edict_t * ent, char *buf);
 void GetNearbyTeammates (edict_t * self, char *buf);
 //PG BUND - END
-
+//AQ2:TNG SLICER  New Last killed enemy support
+void ResetKills (edict_t *ent);
+int ReadKilledPlayers (edict_t * ent);
+void AddKilledPlayer (edict_t * self, edict_t * ent);
+void GetLastKilledTarget (edict_t * self, char *buf);
+//AQ2:TNG END
 //TempFile
 void GetLastLoss (edict_t * self, char *buf, char team);
 

@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // p_client.c
 //
-// $Id: p_client.c,v 1.23 2001/06/18 18:14:09 igor_rock Exp $
+// $Id: p_client.c,v 1.24 2001/06/19 18:56:38 deathwatch Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: p_client.c,v $
+// Revision 1.24  2001/06/19 18:56:38  deathwatch
+// New Last killed target system
+//
 // Revision 1.23  2001/06/18 18:14:09  igor_rock
 // corrected bug with team none players shooting and flying around
 //
@@ -737,7 +740,8 @@ void ClientObituary (edict_t *self, edict_t *inflictor, edict_t *attacker)
 		}
 	      //END FF ADD
 	      //PG BUND - BEGIN 
-	      self->client->attacker->client->resp.last_killed_target = self;
+	     // self->client->attacker->client->resp.last_killed_target = self;
+		  AddKilledPlayer(self,self);
 	      //PG BUND - END 
 	    }
 	  else
@@ -770,7 +774,8 @@ void ClientObituary (edict_t *self, edict_t *inflictor, edict_t *attacker)
 	{
 	  
 	  //PG BUND - BEGIN 
-	  attacker->client->resp.last_killed_target = self;
+//	  attacker->client->resp.last_killed_target = self;
+		  AddKilledPlayer(attacker,self);
 	  //PG BUND - END 
 	  
 	  switch (mod)
@@ -1635,7 +1640,8 @@ void player_die (edict_t *self, edict_t *inflictor, edict_t *attacker, int damag
         self->client->curr_weap = MK23_NUM;
 	//PG BUND - BEGIN
         self->client->resp.idletime = 0;
-        self->client->resp.last_killed_target = NULL;
+    //    self->client->resp.last_killed_target = NULL;
+		ResetKills(self);
 	//PG BUND - END        
 	//AQ2:TNG Slicer Last Damage Location
 	self->client->resp.last_damaged_part = 0;
@@ -1729,7 +1735,8 @@ void InitClientResp (gclient_t *client)
   //TempFile - END
   
   //PG BUND - BEGIN
-  client->resp.last_killed_target = NULL;
+//  client->resp.last_killed_target = NULL;
+//  ResetKills(ent);
   client->resp.idletime = 0;
   //PG BUND - END
   //AQ2:TNG - Slicer : Reset Video Cheking vars
@@ -2825,6 +2832,7 @@ deathmatch mode, so clear everything out before starting them.
 void ClientBeginDeathmatch (edict_t *ent)
 {
         G_InitEdict (ent);
+		
 
         InitClientResp (ent->client);
                                 
@@ -2832,7 +2840,9 @@ void ClientBeginDeathmatch (edict_t *ent)
 	ent->client->resp.team = NOTEAM;
 		/*client->resp.last_killed_target = NULL;
 		client->resp.killed_teammates = 0;
+
 		client->resp.idletime = 0; - AQ2:TNG Slicer Moved this to InitClientResp*/
+		ResetKills(ent);
         TourneyNewPlayer(ent);
         vInitClient(ent);
 //PG BUND - END
@@ -2909,7 +2919,8 @@ void ClientBegin (edict_t *ent)
         {
           
 //PG BUND - BEGIN
-          ent->client->resp.last_killed_target = NULL;
+//          ent->client->resp.last_killed_target = NULL;
+			ResetKills(ent);
 //AQ2:TNG - Slicer :Dunno Why these Vars Are Here, as it calls InitClientResp..
 		  //Adding The Last_damaged_part anyway
 		  ent->client->resp.last_damaged_part = 0;
@@ -2941,6 +2952,7 @@ void ClientBegin (edict_t *ent)
                 // ClientConnect() time
                 G_InitEdict (ent);
                 ent->classname = "player";
+				ResetKills(ent);
                 InitClientResp (ent->client);
                 PutClientInServer (ent);
         }
@@ -3208,6 +3220,8 @@ qboolean ClientConnect (edict_t *ent, char *userinfo)
 	ent->client->team_wounds_before = 0;
 //EEK
 
+	ResetKills(ent);
+
 //FIREBLADE
 // We're not going to attempt to support reconnection...
 
@@ -3289,13 +3303,17 @@ void ClientDisconnect (edict_t *ent)
             if (etemp->enemy == ent)
               etemp->enemy = NULL;
 // end tkok
+			//AQ2:TNG SLICER this is not needed
+			/*
 //PG BUND - BEGIN 
             if (etemp->client)
             {
               if (etemp->client->resp.last_killed_target == ent)
                 etemp->client->resp.last_killed_target = NULL;
             }
-//PG BUND - END 
+//PG BUND - END
+*/ 
+			//AQ2:TNG END
           }
         }
 

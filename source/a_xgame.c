@@ -16,10 +16,13 @@
 // you get compiler errors too, comment them out like
 // I'd done.
 //
-// $Id: a_xgame.c,v 1.5 2001/05/20 15:00:19 slicerdw Exp $
+// $Id: a_xgame.c,v 1.6 2001/06/19 18:56:38 deathwatch Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_xgame.c,v $
+// Revision 1.6  2001/06/19 18:56:38  deathwatch
+// New Last killed target system
+//
 // Revision 1.5  2001/05/20 15:00:19  slicerdw
 // Some minor fixes and changings on Video Checking system
 //
@@ -534,6 +537,8 @@ GetViewedEnemyWeapon (edict_t * self, char *buf)
     }
 }
 
+//AQ2:TNG SLICER Old support
+/*
 void
 GetLastKilledTarget (edict_t * self, char *buf)
 {
@@ -549,6 +554,8 @@ GetLastKilledTarget (edict_t * self, char *buf)
       strcpy (buf, "nobody");
     }
 }
+*/
+//AQ2:TNG END
 
 char *
 SeekBufEnd (char *buf)
@@ -557,6 +564,7 @@ SeekBufEnd (char *buf)
     buf++;
   return buf;
 }
+
 
 void
 ParseSayText (edict_t * ent, char *text)
@@ -878,3 +886,81 @@ void GetEnemyPosition (edict_t * self, char *buf)
     }
 }
 //AQ2:TNG END
+
+//AQ2:TNG Slicer - New last killed target functions
+void ResetKills (edict_t *ent)
+{
+	int i;
+	for(i=0;i<MAX_LAST_KILLED;i++)
+	{
+		ent->client->resp.last_killed_target[i] = NULL;
+	}
+}
+int ReadKilledPlayers (edict_t * ent)
+{
+	int results;
+	int i;
+
+	results = -1;
+	if(ent->client->resp.last_killed_target[0])
+	{
+		for (i=0;i<MAX_LAST_KILLED;i++)
+		{
+			if (ent->client->resp.last_killed_target[i])
+			{
+				results++;
+			}
+		}
+		return results;
+
+	}
+	else
+		return -1;
+}
+void AddKilledPlayer (edict_t * self, edict_t * ent)
+{
+	int kills;
+
+	kills = ReadKilledPlayers(self);
+	if(kills == MAX_LAST_KILLED || kills == -1) // if list is full wite on the first one
+	{
+		self->client->resp.last_killed_target[0] = ent;
+	}
+	else
+	{
+		self->client->resp.last_killed_target[kills+1] = ent;
+	}
+
+}
+void GetLastKilledTarget (edict_t * self, char *buf)
+{
+	int kills,i;
+
+	kills = ReadKilledPlayers(self);
+	
+	if(kills >= 0)
+	{
+		strcpy(buf,self->client->resp.last_killed_target[0]->client->pers.netname);
+		if (kills >0)
+		{
+			for(i=1;i<kills+1;i++)
+			{
+				if(i == kills)
+				{
+					strcat(buf," and ");
+					strcat(buf,self->client->resp.last_killed_target[i]->client->pers.netname);
+				}
+				else
+				{
+					strcat(buf,", ");
+					strcat(buf,self->client->resp.last_killed_target[i]->client->pers.netname);
+				}
+			}
+		}
+		ResetKills(self);
+	}
+	else
+    {
+      strcpy (buf, "nobody");
+    }
+}

@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // g_local.h -- local definitions for game module
 //
-// $Id: g_local.h,v 1.20 2001/06/18 12:36:40 igor_rock Exp $
+// $Id: g_local.h,v 1.21 2001/06/19 18:56:38 deathwatch Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_local.h,v $
+// Revision 1.21  2001/06/19 18:56:38  deathwatch
+// New Last killed target system
+//
 // Revision 1.20  2001/06/18 12:36:40  igor_rock
 // added new irvision mode (with reddish screen and alpha blend) and corresponding
 // new cvar "new_irvision" to enable the new mode
@@ -1178,7 +1181,7 @@ typedef struct
     //FIREBLADE
 
     //PG BUND - BEGIN
-    edict_t *last_killed_target;
+    edict_t *last_killed_target[MAX_LAST_KILLED];
     int killed_teammates;
     int idletime;
     int tourneynumber;

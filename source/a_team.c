@@ -3,10 +3,13 @@
 // Some of this is borrowed from Zoid's CTF (thanks Zoid)
 // -Fireblade
 //
-// $Id: a_team.c,v 1.24 2001/06/18 20:29:42 igor_rock Exp $
+// $Id: a_team.c,v 1.25 2001/06/19 18:56:38 deathwatch Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_team.c,v $
+// Revision 1.25  2001/06/19 18:56:38  deathwatch
+// New Last killed target system
+//
 // Revision 1.24  2001/06/18 20:29:42  igor_rock
 // subs don't respawn (says slicer :)
 // splitted the scoreboard for matchmode (new if/else branch)
@@ -800,7 +803,8 @@ JoinTeam (edict_t * ent, int desired_team, int skip_menuclose)
   //AQ2:TNG - Slicer added the ctf->value coz teamplay people were spawning....
   if (ctf->value && team_round_going && (ent->inuse && ent->client->resp.team != NOTEAM))
     {
-      ent->client->resp.last_killed_target = NULL;
+  //    ent->client->resp.last_killed_target = NULL;
+	  ResetKills(ent);
       //AQ2:TNG Slicer Last Damage Location
       ent->client->resp.last_damaged_part = 0;
       //AQ2:TNG END
@@ -1481,7 +1485,8 @@ SpawnPlayers ()
       ent = &g_edicts[1 + i];
       if (ent->inuse && ent->client->resp.team != NOTEAM && ent->client->resp.subteam == 0)
 	{
-	  ent->client->resp.last_killed_target = NULL;
+	 // ent->client->resp.last_killed_target = NULL;
+		ResetKills(ent);
 	  //AQ2:TNG Slicer Last Damage Location
 	  ent->client->resp.last_damaged_part = 0;
 	  //AQ2:TNG END
