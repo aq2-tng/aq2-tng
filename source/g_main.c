@@ -1,12 +1,12 @@
 //-----------------------------------------------------------------------------
 //
 //
-// $Id: g_main.c,v 1.20 2001/07/16 18:28:46 ra Exp $
+// $Id: g_main.c,v 1.21 2001/07/20 11:56:04 slicerdw Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_main.c,v $
-// Revision 1.20  2001/07/16 18:28:46  ra
-// Changed a 40 second hard limit on mapvoting into a cvar.
+// Revision 1.21  2001/07/20 11:56:04  slicerdw
+// Added a check for the players spawning during countdown on ctf ( lets hope it works )
 //
 // Revision 1.19  2001/06/26 21:19:31  ra
 // Adding timestamps to gameendings.
@@ -137,11 +137,10 @@ cvar_t  *use_3teams;
 cvar_t  *use_kickvote;
 //PG BUND - END
 
-// AQ:TNG - JBravo adding public voting, punishkills and etc.
+// AQ:TNG - JBravo adding public voting and punishkills
 cvar_t	*mv_public;
 cvar_t	*vk_public;
 cvar_t	*punishkills;
-cvar_t	*mapvote_waittime;
 // JBravo
 
 // tempfile
@@ -691,6 +690,15 @@ void G_RunFrame (void)
   
   // build the playerstate_t structures for all players
   ClientEndServerFrames ();
+  //AQ2:TNG Slicer
+ // if (ctf->value)
+  //{
+//	  i = Ent_Count();
+//	  if (i > 200)
+//		  CleanWeapons();
+
+  //}
+
 }
 
 

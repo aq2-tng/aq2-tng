@@ -1,12 +1,12 @@
 //-----------------------------------------------------------------------------
 // g_cmds.c
 //
-// $Id: g_cmds.c,v 1.22 2001/07/15 20:54:20 slicerdw Exp $
+// $Id: g_cmds.c,v 1.23 2001/07/20 11:56:04 slicerdw Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_cmds.c,v $
-// Revision 1.22  2001/07/15 20:54:20  slicerdw
-// Added a function to clean bodies "cleanbodies" and a "entcount" for test porpuses
+// Revision 1.23  2001/07/20 11:56:04  slicerdw
+// Added a check for the players spawning during countdown on ctf ( lets hope it works )
 //
 // Revision 1.21  2001/06/25 12:39:38  slicerdw
 // Cleaning up something i left behind..
@@ -1795,9 +1795,9 @@ void ClientCommand (edict_t *ent)
 			 Cmd_Say_f (ent, false, true, false);
 		}
 		else if (Q_stricmp (cmd, "entcount") == 0)		//Slicer
-		Cmd_Ent_Count_f (ent);	
-			else if (Q_stricmp (cmd, "cleanbodies") == 0)		//Slicer
-		CleanBodies ();	
+			Cmd_Ent_Count_f (ent);	
+	//		else if (Q_stricmp (cmd, "cleanweapons") == 0)		//Slicer
+	//		CleanWeapons ();	
 
 //AQ2:TNG END
 //FIREBLADE

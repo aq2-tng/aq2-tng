@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // p_client.c
 //
-// $Id: p_client.c,v 1.36 2001/06/27 16:58:14 igor_rock Exp $
+// $Id: p_client.c,v 1.37 2001/07/20 11:56:04 slicerdw Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: p_client.c,v $
+// Revision 1.37  2001/07/20 11:56:04  slicerdw
+// Added a check for the players spawning during countdown on ctf ( lets hope it works )
+//
 // Revision 1.36  2001/06/27 16:58:14  igor_rock
 // corrected some limchasecam bugs
 //
@@ -3890,7 +3893,9 @@ void ClientBeginServerFrame (edict_t *ent)
       else
       {
         // in deathmatch, only wait for attack button
-        if (deathmatch->value)
+		  //AQ2:TNG - Slicer Trying to fix ctf problem
+        if (deathmatch->value && !team_round_countdown )
+			//slicer end
           buttonMask = BUTTON_ATTACK;
         else
           buttonMask = -1;
