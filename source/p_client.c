@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // p_client.c
 //
-// $Id: p_client.c,v 1.70 2002/02/18 20:21:36 freud Exp $
+// $Id: p_client.c,v 1.71 2002/02/18 23:25:42 freud Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: p_client.c,v $
+// Revision 1.71  2002/02/18 23:25:42  freud
+// More tweaks
+//
 // Revision 1.70  2002/02/18 20:21:36  freud
 // Added PING PONG mechanism for timely disconnection of clients. This is
 // based on a similar scheme as the scheme used by IRC. The client has
@@ -2765,7 +2768,7 @@ InitClientResp (gclient_t * client)
   client->resp.captain = 0;
   client->resp.admin = 0;
   client->resp.stat_mode_intermission = 0;
-  client->resp.last_pong = level.time;
+  client->resp.last_pong = level.time - 100;
   //AQ2:TNG END
 
   // No automatic team join
