@@ -3,10 +3,13 @@
 // Some of this is borrowed from Zoid's CTF (thanks Zoid)
 // -Fireblade
 //
-// $Id: a_team.c,v 1.44 2001/08/08 12:42:22 slicerdw Exp $
+// $Id: a_team.c,v 1.45 2001/09/26 18:13:48 slicerdw Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_team.c,v $
+// Revision 1.45  2001/09/26 18:13:48  slicerdw
+// Fixed the roundtimelimit thingy which was ending the game ( confused with roundlimit )
+//
 // Revision 1.44  2001/08/08 12:42:22  slicerdw
 // Ctf Should finnaly be fixed now, lets hope so
 //
@@ -2045,16 +2048,6 @@ CheckTeamRules ()
 	{
 	  if (current_round_length > roundtimelimit->value * 600)
 	    {
-		  if(matchmode->value)
-		  {
-		  	SendScores();
-            team1ready = team2ready = team_round_going =
-			team_round_countdown = team_game_going = matchtime = 0;
-			MakeAllLivePlayersObservers();
-			return;
-		  }
-		  else
-		  {
 	      gi.bprintf (PRINT_HIGH, "Round timelimit hit.\n");
 	      winner = CheckForForcedWinner ();
 	      if (WonGame (winner))
@@ -2066,7 +2059,7 @@ CheckTeamRules ()
 	      holding_on_tie_check = 0;
 	      team_round_countdown = 71;
 	      return;
-		  }
+
 	    }
 	  // AQ:TNG Igor[Rock] changing sound dir
 	  else if (current_round_length > (roundtimelimit->value - 1) * 600 && use_warnings->value)
