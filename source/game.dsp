@@ -39,8 +39,8 @@ CFG=game - Win32 Debug Alpha
 # PROP BASE Target_Dir "."
 # PROP Use_MFC 0
 # PROP Use_Debug_Libraries 0
-# PROP Output_Dir "..\release"
-# PROP Intermediate_Dir ".\release"
+# PROP Output_Dir "\release\output\"
+# PROP Intermediate_Dir "\release\intermediate\"
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir "."
 CPP=cl.exe
@@ -159,8 +159,8 @@ LINK32=link.exe
 # PROP BASE Target_Dir ""
 # PROP Use_MFC 0
 # PROP Use_Debug_Libraries 0
-# PROP Output_Dir "PPRO\"
-# PROP Intermediate_Dir "PPRO\"
+# PROP Output_Dir "PPRO\Output\"
+# PROP Intermediate_Dir "PPRO\Intermediate\"
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 CPP=cl.exe
