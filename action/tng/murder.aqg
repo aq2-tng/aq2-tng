@@ -1,0 +1,51 @@
+#
+# Map:   murder.aqg
+# Build: 3
+# Creator: =OG=7
+#
+#	format is:
+#
+#	x:y:z:rX:rY:rZ:name
+#
+#	where "x:y:z" is the location coordinate
+#	"rX,rY" is the range for the location marker (if 0 then 1500 vector
+#		points)
+#       "rZ" is the height range for the location marker (if 0 then not use
+#		it)
+#	"name" is the name of the location marker and is used in "%L" and "%S"
+#		
+#	aqg_location 1		- Set corner 1 on the location box.
+#	aqg_location 2		- Set corner 2 on the location box.
+#	aqg_location calc	- Displays the location box coordinates/ranges.
+#	aqg_location checkL	- works like %L, but you don't need to be alive or on a team
+#	aqg_location checkS	- works like %S, but you don't need to be alive or on a team
+#
+-61: 1827:  611:  732:  305:   89:top of red roof building
+-535: 1089:  397:  382:  193:   53:roof of petes crash repair
+-613:  705:   59:  229:  192:   58:dark campers hideout
+1565: 1152:  758:   87: 1068:  230:long gray roof
+1250: 1061:  785:  289:  234:  251:long gray roof
+1075: 1040:  197:   85:  135:  196:elevator room
+770: 1063:  626:  170:  114:  376:skybridge
+367: 1139:  785:  216:  212:  240:roof with 4 boxes
+-161: 2542:  935:  737:  269:   73:yellow grenade jumper building
+-715: 1778:  149:  198:  504:  152:dumpster alley
+523: 1478:   58: 1008:  208:   69:street (middle)
+766: 1107:   71:  178:  173:   72:street (middle)
+404: 2272:   50:  834:  192:   47:long alley
+805: 2638:   67:  234:  168:   62:long alley
+973: 1940:  487:  189:  252:   47:roof (with 3 bars)
+1358: 2256:   45:  195:  560:   48:street (by neon light spawn)
+1194: 2632:  671:  184:  183:  326:little building roof
+-48: 1887:   35:  180:  179:   44:alley (under cover)
+673: 1879:   56:  111:  175:   60:back alley
+337:  286:  736:  329:  194:  216:roof (aq2 sign)
+808:  265:   46:  123:  188:   49:newbies bench
+626:  674:   39: 1003:  216:   40:street (by bench)
+1: 1113:   45:  166:  212:   45:road by crash repair shop
+1199:  302:  574:  259:  196:   48:camper room (with boxes)
+1207:  289:  898:  262:  194:  226:roof of camper building
+-169:  276:  579:  173:  174:  421:roof of joes tavern
+-647:  477:  650:  264:  377:  421:roof by [tdm] sign
+-179:  272:   53:  171:  156:   58:in joes tavern
+370: 1137:  338:  189:  188:   58:room with 3 windows in middle

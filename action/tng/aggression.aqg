@@ -1,0 +1,42 @@
+#
+# Map:   agression.aqg
+# Build: 1 
+# Creator: =OG=7
+#
+#	format is:
+#
+#	x:y:z:rX:rY:rZ:name
+#
+#	where "x:y:z" is the location coordinate
+#	"rX,rY" is the range for the location marker (if 0 then 1500 vector
+#		points)
+#       "rZ" is the height range for the location marker (if 0 then not use
+#		it)
+#	"name" is the name of the location marker and is used in "%L" and "%S"
+#		
+#	aqg_location 1		- Set corner 1 on the location box.
+#	aqg_location 2		- Set corner 2 on the location box.
+#	aqg_location calc	- Displays the location box coordinates/ranges.
+#	aqg_location checkL	- works like %L, but you don't need to be alive or on a team
+#	aqg_location checkS	- works like %S, but you don't need to be alive or on a team
+#
+0: 1624:  213:  384:  154:  229:=AR= building roof
+4: 1497: -106:  637:  282:   55:road (by =AR= building)
+-771: 1456:  -95:  116:  162:   66:newbies camp here room
+771: 1535:  250:  132:  257:  241:police building (roof)
+7: 1200:  288:  888:   51:   90:long strip of roof
+-729: 1487:   98:  152:  209:  129:top of newbies camping room
+-1310:    0:  113:  226:  370:   83:grass area
+-1368:    0:  325:  268:  354:   75:grass area (ledge)
+-1127:  690:  312:   40:  321:   39:secret tunnell
+-961:  960:  295:  198:   48:   55:secret tunnell
+-821: 1033:  280:   58:  116:   40:secret tunnell
+449: 1600: -391:   46:   48:  216:sewer (by =AR= building)
+378:  515: -439:  119: 1136:  170:sewer
+-120: 1536: -390:  387:  113:  204:sewer
+-15: -640: -252:  228:  243:  132:sniper building (basement)
+0: -639:   -4:  238:  239:   90:sniper building (1st floor)
+-68: -636:  176:  177:  241:   64:sniper building (2nd floor)
+0:  -28:   95:  193:  351:  159:road (by sniper building)
+-640:   -2:   18:  445:  125:   85:road (between grass & sniper building)
+0:  767:  -40:  125:  443:  116:road (between =AR= building & sniper building)

@@ -1,0 +1,38 @@
+#
+# Map:   chasm.aqg
+# Build: 1 
+# Creator: =OG=7
+#
+#	format is:
+#
+#	x:y:z:rX:rY:rZ:name
+#
+#	where "x:y:z" is the location coordinate
+#	"rX,rY" is the range for the location marker (if 0 then 1500 vector
+#		points)
+#       "rZ" is the height range for the location marker (if 0 then not use
+#		it)
+#	"name" is the name of the location marker and is used in "%L" and "%S"
+#		
+#	aqg_location 1		- Set corner 1 on the location box.
+#	aqg_location 2		- Set corner 2 on the location box.
+#	aqg_location calc	- Displays the location box coordinates/ranges.
+#	aqg_location checkL	- works like %L, but you don't need to be alive or on a team
+#	aqg_location checkS	- works like %S, but you don't need to be alive or on a team
+#
+-3:  137:   -4:  247:  150:   59:bridge
+-387:  117:   47:  123:  150:  104:entry way (low side)
+-574:  114:   41:   47:  143:  107:deadman's bottleneck (low side)
+384:  147:   -9:  110:   64:   52:entry way (high side)
+403:  -96:  119:  100:  159:  182:green room of death (high side)
+331:  160:  245:  166:   94:   53:lookout tower (high side)
+191:  -40:  244:   80:  118:   50:lookout tower (high side)
+278:  491:   41:  202:  156:  103:purple room (high side)
+-325:  380:   92:  188:  118:   48:(platform of death (low side)
+-400: -153:  -19:  222:  105:  171:cubby hole (low side)
+-384:  171: -139:  128:  205:   55:camper room (low side)
+
+
+
+
+

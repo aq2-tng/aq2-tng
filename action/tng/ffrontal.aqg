@@ -1,0 +1,34 @@
+#
+# Map:   ffrontal.aqg
+# Build: 2
+# Creator: =OG=7
+#
+#	format is:
+#
+#	x:y:z:rX:rY:rZ:name
+#
+#	where "x:y:z" is the location coordinate
+#	"rX,rY" is the range for the location marker (if 0 then 1500 vector
+#		points)
+#       "rZ" is the height range for the location marker (if 0 then not use
+#		it)
+#	"name" is the name of the location marker and is used in "%L" and "%S"
+#		
+#	aqg_location 1		- Set corner 1 on the location box.
+#	aqg_location 2		- Set corner 2 on the location box.
+#	aqg_location calc	- Displays the location box coordinates/ranges.
+#	aqg_location checkL	- works like %L, but you don't need to be alive or on a team
+#	aqg_location checkS	- works like %S, but you don't need to be alive or on a team
+#
+-2:  -51: 3512:  405:  303:   54:building (roof)
+-213:  -56: 3349:  190:  302:    35:building (2nd floor) (east side)
+216:  -53: 3349:  195:  302:   35:building (2nd floor) (west side)
+-1:  -92: 3246:  104:  263:   48:building (1st floor)
+16:  499: 3240:  368:  251:   43:grass area outside
+-18:  219: 3260:  131:   34:   57:grass area outside
+-300: 1017: 3234:   71:  211:   35:rock tunnell (ground level)
+-16: 1051: 3199:  136:  256:    0:grass area by rocks
+228:  945: 3390:  142:  260:   31:rock tunnell (west side)
+-212:  980: 3481:  144:  216:   66:rock tunnell (east side)
+0:  266: 3407:  351:   19:   58:building (balcony)
+-102: 1240: 3418:  183:   54:    4:retreat hole

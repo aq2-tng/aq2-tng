@@ -1,0 +1,80 @@
+#
+# Map:   colt.aqg
+# Build: 1
+# Creator: [DP] Deathwatch
+#
+#	format is:
+#
+#	x:y:z:rX:rY:rZ:name
+#
+#	where "x:y:z" is the location coordinate
+#	"rX,rY" is the range for the location marker (if 0 then 1500 vector
+#		points)
+#       "rZ" is the height range for the location marker (if 0 then not use
+#		it)
+#	"name" is the name of the location marker and is used in "%L" and "%S"
+#		
+#	aqg_location 1		- Set corner 1 on the location box.
+#	aqg_location 2		- Set corner 2 on the location box.
+#	aqg_location calc	- Displays the location box coordinates/ranges.
+#	aqg_location checkL	- works like %L, but you don't need to be alive or on a team
+#	aqg_location checkS	- works like %S, but you don't need to be alive or on a team
+#
+#
+
+-1581:-1060: -225:  674:   62:   73:long hall in front of the toilets
+-1983:-1352: -221:  257:  230:   74:women's toilets
+-1680:-1363: -220:   46:  137:   77:inside women's toilets
+-1321:-1366: -234:  300:  215:   68:men's toilets
+ -975:-1361: -233:   47:  137:   67:inside men's toilets
+-1246: -835: -230:  336:  158:   71:blue pump room
+-2001: -833: -224:  258:  159:   76:blue storage room
+-1664: -553: -206:   66:  453:   95:hall to the toilets
+-1643:   12: -174:   91:  107:  126:ladder down to the toilet area
+-1395:  381: -111:  156:  476:   63:glass room - toilet side
+-1228:  764: -127:    0:   31:   48:glass room - door
+-1196:  315: -112:   33:  177:   61:glass room - opening in the glass
+-1038:  -48: -111:  124:  186:   63:glass room - outside door side
+-1038:  565: -110:  124:  427:   64:glass room - office side
+ -670:  867:  -94:  223:  120:   81:small office with desk
+ -389:  874:  -95:   56:  127:   79:small office with desk
+  -63:  765:  -94:  257:  236:   79:soda machine room
+ -604:  627:  -95:  290:  107:   79:hall with office and outside doors
+  315:  132:   37:  105:  318:  211:red room
+  312: -225:   36:  108:   39:  212:red room - gas chamber door
+  320:  472:   33:  108:   27:  209:red room - crate room door
+  447:  764:   98:  239:  224:  144:crate room - high
+  443:  759: -109:  235:  219:   63:crate room - low
+  299:  524:   96:   90:   15:  142:crate room - ledge above door
+ -349:  761:  134:  547:  233:  106:locker room
+-1011:  747:  159:  103:  127:   67:upper level entrance
+-1081:  935:  163:   33:   60:   64:upper level - sloped corner
+-1227:  256:  162:  104:  499:   67:upper level
+-1018: -161:  163:  104:   81:   66:upper level - outside entrance
+-1432:  377:   95:  105:  375:    1:upper level - offices
+-1433: -120:   94:  106:  122:    0:upper level - corner opposite outside entrance
+-1013:  272:  163:  104:  347:   64:office with balcony
+ -353:  137:   63:  541:  374:  238:outside
+ -832:  196:  176:   81:   83:   70:balcony
+ -808:  401:  114:   56:  122:  131:outside
+ -335:  134:   31:  529:  371:  205:outside
+ -349:  127: -207:  415:  191:   31:outside - in the water
+ -849:   20:   12:   47:   87:   91:outside
+ -856: -154:   52:   45:   65:  179:outside - ladder leading to upper level
+-1014: -182:   26:  101:   54:   64:mid level - dark corner
+-1012:  367:   23:  103:  495:   68:mid level - offices (locker room side)
+-1221:  315:   24:  105:  442:   67:mid level - hallway
+-1429:  380:   21:  103:  378:   64:mid level - offices (above glass room)
+-1332: -120:   22:  212:  126:   64:mid level - stairs leading to glass room (outside door side)
+-1323:  877:   22:  207:  119:   64:mid level - stairs leading to glass room (locker room side)
+-1010:  934:   29:  105:   69:   64:mid level - stairs leading to locker room
+ -773: -903: -228:  120:  234:   75:gas chamber - outside doors
+ -115: -989: -233:  551:  108:   70:gas chamber - inside
+ -118: -765: -234:  548:  115:   69:gas chamber - outside (glass wall)
+  312: -476: -164:  113:  173:  137:gas chamber - entrance to red room
+ -902:  671: -120:    5:   64:   52:double doors leading to soda machines hall
+ -903:-1066: -239:    9:   63:   58:double door leading to gas chamber
+-1067:  -46: -108:  155:  189:   62:glass room - stairs side
+-1067:  746: -111:  154:  242:   63:glass room - double door side
+-1339:  933: -114:  119:   55:   72:mid level - stairs to glass room (locker side)
+-1340: -188:  -89:  117:   67:   45:mid level - stairs to glass room (outside door side)

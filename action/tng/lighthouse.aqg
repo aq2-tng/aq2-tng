@@ -1,0 +1,53 @@
+#
+# Map:   lighthouse.aqg
+# Build: 3 
+# Creator: =OG=7
+#
+#	format is:
+#
+#	x:y:z:rX:rY:rZ:name
+#
+#	where "x:y:z" is the location coordinate
+#	"rX,rY" is the range for the location marker (if 0 then 1500 vector
+#		points)
+#       "rZ" is the height range for the location marker (if 0 then not use
+#		it)
+#	"name" is the name of the location marker and is used in "%L" and "%S"
+#		
+#	aqg_location 1		- Set corner 1 on the location box.
+#	aqg_location 2		- Set corner 2 on the location box.
+#	aqg_location calc	- Displays the location box coordinates/ranges.
+#	aqg_location checkL	- works like %L, but you don't need to be alive or on a team
+#	aqg_location checkS	- works like %S, but you don't need to be alive or on a team
+#
+-1015: 1368:  504:  241:  258:   57:house (1st floor)
+-1070: 1819:  502:  189:  171:   39:kitchen
+-1072:  961:  508:  192:  145:   47:tv room
+-1078:  955:  635:  196:  145:   56:bedroom above tv
+-1069: 1825:  633:  191:  175:   54:bedroom above kitchen
+-1210: 1377:  634:   52:  251:   51:house (2nd floor)
+-1035: 1601:  614:  106:   28:   38:house (2nd floor)
+-847: 1379:  621:   61:  255:   46:outside house (2nd floor)
+-679: 1413:  484:   87:  226:   37:grass (by house)
+-355: 1368:  515:  192:  190:   65:fountain
+-1036: 1180:  633:  106:   58:   55:bathroom
+-112: 1963:  571:  157:  112:  124:inside barn
+-576: 1909:  484:  283:  257:   39:grass (by barn)
+-111: 2117:  512:  158:   39:   64:behind barn
+-109: 1717:  513:  158:  118:   66:grass (by barn)
+-165:  862:  512:   10:    9:   66:by doors of death (house side)
+-44: 1196:  513:   90:  343:   65:by doors of death (house side)
+-520:  990:  492:  341:  110:   44:by doors of death (house side)
+-231: -182:  215:  893:  181:   87:beach
+-429:  681:  565:  173:  183:  110:hall of death (wide)
+159:  831:  559:   80:  193:   48:hall of death (narrow)
+385:  816:  610:  124:  333:  106:grass by hall of death (road side)
+966:-1088:  504:  189:  324:  357:lighthouse
+986: -383:  197:   42:  332:   29:dock
+537: -833:  193:  215:   54:   26:dock
+822:  574:  412:  298:  576:  269:road
+800: 1104:  674:  175:   48:   31:road (camping overpass)
+-28: -809:   60: 1127:  600:   51:water
+-76: -809:  149:  258:  121:   25:boat (bottom)
+-72: -818:  322:  264:  143:  106:boat (top)
+-304:  237:  383:  813:  236:  124:sloped hill of death

@@ -1,0 +1,37 @@
+#
+# Map:   cloud.aqg
+# Build: 1 
+# Creator: =OG=7
+# Comments: map is preety bland descriptions wise...I did my best :P
+#
+#	format is:
+#
+#	x:y:z:rX:rY:rZ:name
+#
+#	where "x:y:z" is the location coordinate
+#	"rX,rY" is the range for the location marker (if 0 then 1500 vector
+#		points)
+#       "rZ" is the height range for the location marker (if 0 then not use
+#		it)
+#	"name" is the name of the location marker and is used in "%L" and "%S"
+#		
+#	aqg_location 1		- Set corner 1 on the location box.
+#	aqg_location 2		- Set corner 2 on the location box.
+#	aqg_location calc	- Displays the location box coordinates/ranges.
+#	aqg_location checkL	- works like %L, but you don't need to be alive or on a team
+#	aqg_location checkS	- works like %S, but you don't need to be alive or on a team
+#
+1407:  126:  377:  425:  161:  206:roof (middle building)
+1108: -488:  -24:  293:  126:  143:brick camper building
+1712: -528:  350:  310:  157:  202:roof (tallest building)
+1834: 1046:  200:  205:  251:  372:roof (brick building w/ramp)
+973:  916:  317:  249:  380:  280:roof (no way down buildings)
+1407:  919:  356:  131:  378:  285:roof (building w/overpass)
+1370:  431: -122:  655:  132:   51:road (middle)
+1927:  -16:  -99:   94:  305:   71:road (fenced alley)
+1266: -194: -174:  558:  163:    1:road (by brick camper building)
+1268: -192: -114:  563:  156:   60:road (by brick building)
+1127:  931: -142:  149:  377:   30:road (middle)
+1650: 1051: -130:  371:  244:   40:road (by building w/ramp)
+1609:  676: -127:   75:  130:   43:road
+

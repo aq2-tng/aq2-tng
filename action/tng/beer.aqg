@@ -1,0 +1,40 @@
+#
+# Map:   beer.aqg
+# Build: 1 
+# Creator: =OG=7
+#
+#	format is:
+#
+#	x:y:z:rX:rY:rZ:name
+#
+#	where "x:y:z" is the location coordinate
+#	"rX,rY" is the range for the location marker (if 0 then 1500 vector
+#		points)
+#       "rZ" is the height range for the location marker (if 0 then not use
+#		it)
+#	"name" is the name of the location marker and is used in "%L" and "%S"
+#		
+#	aqg_location 1		- Set corner 1 on the location box.
+#	aqg_location 2		- Set corner 2 on the location box.
+#	aqg_location calc	- Displays the location box coordinates/ranges.
+#	aqg_location checkL	- works like %L, but you don't need to be alive or on a team
+#	aqg_location checkS	- works like %S, but you don't need to be alive or on a team
+#
+260: -370:  540:  527:  511:  246:roof of house
+1077: -318:  218:  264:  319:   61:see through roof
+1524: -616:  530:  143:  777:  203:camper roof (by consortium billboard)
+1099:-1056:  519:  240:  308:  313:roof with 4 boxes
+1297:  321:  516:  421:  112:  223:telephone pole (about to fall to my death)
+1083: -339:   70:  313:  424:   62:grass area (by picnic tables)
+624: -332:   80:  126:  291:   63:(house) (1st floor...room with 2 tables)
+194: -333:   76:  281:  288:   59:(house) (1st floor...by bar)
+267: -586:  222:  495:  254:   61:(house) (2nd floor...by couches)
+247: -346:  227:  499:   70:   62:(house) (2nd floor...south side)
+184:  210:  218:  593:   79:   68:(house) (2nd floor...on tin roof)
+-328: -370:  239:   79:  494:   47:(house) (2nd floor...on tin roof)
+-144:-1154:  382:  530:  292:  379:outside by keg
+-375: -164:   83:  267:  690:   65:(road...south side)
+792:  341:   67:  873:  195:   69:(road...by tall bushes)
+618:-1258:  107:  234:  130:  103:outside by R.I.P.
+567: -985:   72:  179:  121:   64:garage (I don't know why)
+336: -738:   73:  415:   98:   57:(house) (1st floor...long hallway)
