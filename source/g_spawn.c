@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // g_spawn.c
 //
-// $Id: g_spawn.c,v 1.8 2001/05/12 17:20:27 mort Exp $
+// $Id: g_spawn.c,v 1.9 2001/05/12 19:27:17 mort Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_spawn.c,v $
+// Revision 1.9  2001/05/12 19:27:17  mort
+// Fixed various map change bugs
+//
 // Revision 1.8  2001/05/12 17:20:27  mort
 // Reset started variable in SP_worldspawn
 //
@@ -742,7 +745,14 @@ void SpawnEntities (char *mapname, char *entities, char *spawnpoint)
                 //zucc for special items
                 SetupSpecSpawn();
         }
-//AQ2:TNG Slicer - New location  code
+
+	// AQ2:TNG - Load ctf locations
+	if(ctf->value)
+	{
+		spawnFlags(mapname);
+	}
+	
+	//AQ2:TNG Slicer - New location  code
 	memset(ml_build,0,sizeof(ml_build));
 	memset(ml_creator,0,sizeof(ml_creator));
 
@@ -851,12 +861,6 @@ void SpawnEntities (char *mapname, char *entities, char *spawnpoint)
 	fclose(f);
 	gi.dprintf("Found %d locations.\n",count);
 
-
-	// AQ2:TNG - Load ctf locations
-	if(ctf->value)
-	{
-		spawnFlags(mapname);
-	}
 }
 
 

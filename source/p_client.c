@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // p_client.c
 //
-// $Id: p_client.c,v 1.14 2001/05/12 13:51:20 mort Exp $
+// $Id: p_client.c,v 1.15 2001/05/12 19:27:17 mort Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: p_client.c,v $
+// Revision 1.15  2001/05/12 19:27:17  mort
+// Fixed various map change bugs
+//
 // Revision 1.14  2001/05/12 13:51:20  mort
 // Fixed ClientObituary Add_Frag bug in CTF
 //
@@ -2828,7 +2831,8 @@ void ClientBegin (edict_t *ent)
 
 		ent->s.modelindex3 = 0; // AQ2:TNG - CTF Make sure the player doesn't look like he has the flag
 		ent->hasSpawned = 0; // AQ2:TNG - CTF Clear hasSpawned
-        
+		ent->client->resp.team = NOTEAM;
+      
 		// clear inventory AQ:TNG - CTF - Clears the flag... 
         memset(ent->client->pers.inventory, 0, sizeof(ent->client->pers.inventory));
 
