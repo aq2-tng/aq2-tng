@@ -1,10 +1,15 @@
 //-----------------------------------------------------------------------------
 // p_client.c
 //
-// $Id: p_client.c,v 1.4 2001/05/07 01:44:07 ra Exp $
+// $Id: p_client.c,v 1.5 2001/05/07 02:05:36 ra Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: p_client.c,v $
+// Revision 1.5  2001/05/07 02:05:36  ra
+//
+//
+// Added tkok command to forgive teamkills.
+//
 // Revision 1.4  2001/05/07 01:44:07  ra
 //
 //
@@ -635,6 +640,9 @@ if (attacker && attacker != self && attacker->client && OnSameTeam (self, attack
 		{
 			if (!teamplay->value || team_round_going)
 			{
+// AQ:TNG - JBravo adding tkok
+				self->enemy = self->client->attacker;
+// End adding tkok
 				Add_TeamKill(self->client->attacker);
 				Subtract_Frag( self->client->attacker );//attacker->client->resp.score--;
 			}
@@ -1066,6 +1074,9 @@ if (attacker && attacker != self && attacker->client && OnSameTeam (self, attack
 			{
 				if (!teamplay->value || team_round_going)
 				{
+// AQ:TNG - JBravo adding tkok
+					self->enemy = attacker;
+// End adding tkok
 					Add_TeamKill(attacker);
 					Subtract_Frag( attacker );//attacker->client->resp.score--;
 				}
@@ -3010,6 +3021,10 @@ void ClientDisconnect (edict_t *ent)
           {
             if ( etemp->client->attacker == ent )
               etemp->client->attacker = NULL;
+// AQ:TNG - JBravo adding tkok
+            if (etemp->enemy == ent)
+              etemp->enemy = NULL;
+// end tkok
 //PG BUND - BEGIN 
             if (etemp->client)
             {

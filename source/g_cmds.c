@@ -1,10 +1,15 @@
 //-----------------------------------------------------------------------------
 // g_cmds.c
 //
-// $Id: g_cmds.c,v 1.2 2001/05/07 01:38:51 ra Exp $
+// $Id: g_cmds.c,v 1.3 2001/05/07 02:05:36 ra Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_cmds.c,v $
+// Revision 1.3  2001/05/07 02:05:36  ra
+//
+//
+// Added tkok command to forgive teamkills.
+//
 // Revision 1.2  2001/05/07 01:38:51  ra
 //
 //
@@ -1398,6 +1403,11 @@ void ClientCommand (edict_t *ent)
                 Cmd_Deny_f(ent);
         else if (Q_stricmp(cmd, "choose") == 0)
                 Cmd_Choose_f(ent);
+
+// AQ:TNG - JBravo adding a tkok command to forgive teamkills
+	else if (Q_stricmp(cmd, "tkok") == 0)
+		Cmd_TKOk(ent);
+// End tkok
 
 //PG BUND - BEGIN
         else if (Q_stricmp(cmd, "voice") == 0 && use_voice->value)

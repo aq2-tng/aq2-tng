@@ -4,12 +4,17 @@
 //
 // laser sight patch, by Geza Beladi
 //
-// $Id: a_cmds.c,v 1.1 2001/05/06 17:24:14 igor_rock Exp $
+// $Id: a_cmds.c,v 1.2 2001/05/07 02:05:36 ra Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_cmds.c,v $
-// Revision 1.1  2001/05/06 17:24:14  igor_rock
-// Initial revision
+// Revision 1.2  2001/05/07 02:05:36  ra
+//
+//
+// Added tkok command to forgive teamkills.
+//
+// Revision 1.1.1.1  2001/05/06 17:24:14  igor_rock
+// This is the PG Bund Edition V1.25 with all stuff laying around here...
 //
 //-----------------------------------------------------------------------------
 
@@ -966,4 +971,29 @@ Cmd_Choose_f (edict_t * ent)
     }
   gi.cprintf (ent, PRINT_HIGH, "Weapon selected: %s\nItem selected: %s\n", (ent->client->resp.weapon)->pickup_name, (ent->client->resp.item)->pickup_name);
 
+}
+
+// AQ:TNG - JBravo adding tkok
+void Cmd_TKOk(edict_t *ent)
+{
+	if (!ent->enemy || !ent->enemy->inuse || !ent->enemy->client || (ent == ent->enemy)) {
+		gi.cprintf(ent, PRINT_HIGH, "Nothing to forgive\n");
+	}
+	else if (ent->client->resp.team == ent->enemy->client->resp.team) {
+		if (ent->enemy->client->team_kills) {
+			gi.cprintf(ent, PRINT_HIGH, "You forgave %s\n",
+				ent->enemy->client->pers.netname);
+			gi.cprintf(ent->enemy, PRINT_HIGH, "%s forgave you\n",
+				ent->client->pers.netname);
+			ent->enemy->client->team_kills--;
+			if (ent->enemy->client->team_wounds)
+				ent->enemy->client->team_wounds /= 2;
+			ent->enemy = NULL;
+		}
+	} else {
+		gi.cprintf(ent, PRINT_HIGH, "That's very noble of you...\n");
+		gi.bprintf(PRINT_HIGH, "%s turned the other cheek\n", ent->client->pers.netname);
+	}
+	ent->enemy = NULL;
+	return;
 }

@@ -1,12 +1,17 @@
 //-----------------------------------------------------------------------------
 // g_local.h -- local definitions for game module
 //
-// $Id: g_local.h,v 1.1 2001/05/06 17:29:25 igor_rock Exp $
+// $Id: g_local.h,v 1.2 2001/05/07 02:05:36 ra Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_local.h,v $
-// Revision 1.1  2001/05/06 17:29:25  igor_rock
-// Initial revision
+// Revision 1.2  2001/05/07 02:05:36  ra
+//
+//
+// Added tkok command to forgive teamkills.
+//
+// Revision 1.1.1.1  2001/05/06 17:29:25  igor_rock
+// This is the PG Bund Edition V1.25 with all stuff laying around here...
 //
 //-----------------------------------------------------------------------------
 
@@ -1490,6 +1495,9 @@ void Cmd_Bandage_f (edict_t * ent);
 void Cmd_ID_f (edict_t * ent);
 void Cmd_IR_f (edict_t * ent);
 void Cmd_Choose_f (edict_t * ent);
+// AQ:TNG - JBravo adding tkok
+void Cmd_TKOk (edict_t *ent);
+// end adding tkok
 
 void DropSpecialWeapon (edict_t * ent);
 void ReadySpecialWeapon (edict_t * ent);
