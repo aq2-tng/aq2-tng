@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // Matchmode related code
 //
-// $Id: a_match.c,v 1.10 2001/11/25 19:09:25 slicerdw Exp $
+// $Id: a_match.c,v 1.11 2001/12/02 16:15:32 igor_rock Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_match.c,v $
+// Revision 1.11  2001/12/02 16:15:32  igor_rock
+// added console messages (for the IRC-Bot) to matchmode
+//
 // Revision 1.10  2001/11/25 19:09:25  slicerdw
 // Fixed Matchtime
 //
@@ -38,29 +41,23 @@ SendWorldMsg (char *s, int sound, int center)
 {
   int i;
   edict_t *e;
-  for (i = 1; i <= maxclients->value; i++)
 
-    {
-      e = g_edicts + i;
-      if (e->inuse)
+  for (i = 1; i <= maxclients->value; i++) {
+    e = g_edicts + i;
 
-	{
-	  if (center)
-
-	    {
-	      gi.centerprintf (e, "%s", s);
-	    }
-
-	  else
-
-	    {
-	      gi.cprintf (e, PRINT_HIGH, "%s", s);
-	      if (sound)
-		stuffcmd (e, "play misc/comp_up.wav");
-	    }
-	}
+    if (e->inuse) {
+      if (center) {
+	gi.centerprintf (e, "%s", s);
+      } else {
+	gi.cprintf (e, PRINT_HIGH, "%s", s);
+	if (sound)
+	  stuffcmd (e, "play misc/comp_up.wav");
+      }
     }
+  }
+  gi.dprintf (s);
 }
+
 void
 SendScores ()
 {
@@ -239,7 +236,7 @@ Cmd_Ready_f (edict_t * ent)
       if (team1ready)
 
 	{
-	  sprintf (temp, "%s \nis no longer ready to play!\n", team1_name);
+	  sprintf (temp, "%s is no longer ready to play!\n", team1_name);
 	  SendWorldMsg (temp, 0, 1);
 	  team1ready = 0;
 	  return;
@@ -260,7 +257,7 @@ Cmd_Ready_f (edict_t * ent)
       if (team2ready)
 
 	{
-	  sprintf (temp, "The %s \nis no longer ready to play!\n",
+	  sprintf (temp, "The %s is no longer ready to play!\n",
 		   team2_name); SendWorldMsg (temp, 0, 1);
 	  team2ready = 0;
 	  return;
