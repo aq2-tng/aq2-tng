@@ -1,10 +1,14 @@
 //-----------------------------------------------------------------------------
 //
 //
-// $Id: g_main.c,v 1.33 2001/09/30 03:09:34 ra Exp $
+// $Id: g_main.c,v 1.34 2001/11/02 16:07:47 ra Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_main.c,v $
+// Revision 1.34  2001/11/02 16:07:47  ra
+// Changed teamplay spawn code so that teams dont spawn in the same place
+// often in a row
+//
 // Revision 1.33  2001/09/30 03:09:34  ra
 // Removed new stats at end of rounds and created a new command to
 // do the same functionality.   Command is called "time"
@@ -131,6 +135,9 @@
 
 #include <time.h>
 #include "g_local.h"
+
+extern int num_used_spawns;
+extern int teamplay_usedspawns[];
 
 game_locals_t game;
 level_locals_t level;
@@ -414,6 +421,11 @@ EndDMLevel (void)
   now = localtime (&tnow);
   (void) strftime (ltm, 64, "%A %d %B %H:%M:%S", now);
   gi.bprintf (PRINT_HIGH, "Game ending at: %s\n", ltm);
+
+  if(teamplay->value) {
+	num_used_spawns = 0;
+	teamplay_usedspawns[0] = 0;
+  }
   //JBravo[QNI] END
 
   // stay on same level flag

@@ -3,10 +3,14 @@
 // Some of this is borrowed from Zoid's CTF (thanks Zoid)
 // -Fireblade
 //
-// $Id: a_team.c,v 1.55 2001/09/30 03:09:34 ra Exp $
+// $Id: a_team.c,v 1.56 2001/11/02 16:07:47 ra Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_team.c,v $
+// Revision 1.56  2001/11/02 16:07:47  ra
+// Changed teamplay spawn code so that teams dont spawn in the same place
+// often in a row
+//
 // Revision 1.55  2001/09/30 03:09:34  ra
 // Removed new stats at end of rounds and created a new command to
 // do the same functionality.   Command is called "time"
@@ -228,7 +232,9 @@ int team3_total = 0;
 
 edict_t *potential_spawns[MAX_SPAWNS];
 int num_potential_spawns;
+int num_used_spawns = 0;
 edict_t *teamplay_spawns[MAX_TEAMS];
+int teamplay_usedspawns[MAX_SPAWNS];
 trace_t trace_t_temp;		// used by our trace replace macro in ax_team.h
 
 int num_teams = 3;		// teams in current game, fixed at 2 for now...
@@ -3193,7 +3199,19 @@ SelectRandomTeamplaySpawnPoint (int team, qboolean teams_assigned[])
 
   i = 0;
   ok = false;
+
+  if (teamplay->value && (num_used_spawns == num_potential_spawns)) {
+	num_used_spawns = 0;
+	teamplay_usedspawns[0] = 0;
+  }
+
+  do {
   spawn_point = newrand (num_potential_spawns);
+  } while(CheckTeamSpawnPoints(spawn_point));
+
+  teamplay_usedspawns[num_used_spawns] = spawn_point;
+  num_used_spawns++;
+
   while ((ok == false) && (i < test_teams))
     {
       ok = true;
@@ -3333,16 +3351,20 @@ SetupTeamSpawnPoints ()
       teams_assigned[l] = false;
     }
 
-  started_at = l = newrand (num_teams);
+  gi.dprintf("Hi!  Im in SetupTeamSpawnPoints()\n");
+
+  SelectRandomTeamplaySpawnPoint (0, teams_assigned);
+  SelectFarTeamplaySpawnPoint (1, teams_assigned);
+  if(use_3teams->value)
+	SelectFarTeamplaySpawnPoint (2, teams_assigned);
+
+/*  started_at = l = newrand (num_teams);
   firstassignment = 1;
   do
     {
       if (l < 0 || l >= MAX_TEAMS)
 	{
-	  gi.
-	    dprintf
-	    ("Warning: attempt to setup spawns for out-of-range team (%d)\n",
-	     l);
+	  gi.dprintf ("Warning: attempt to setup spawns for out-of-range team (%d)\n", l);
 	}
 
       if (firstassignment)
@@ -3358,5 +3380,18 @@ SetupTeamSpawnPoints ()
       if (l == num_teams)
 	l = 0;
     }
-  while (l != started_at);
+  while (l != started_at); */
+}
+
+int
+CheckTeamSpawnPoints (int dapoint)
+{
+  int x = 0;
+
+  for (x = 0; x < num_used_spawns; x++)
+    {
+	if (dapoint == teamplay_usedspawns[x])
+		return 1;
+    }
+  return 0;
 }
