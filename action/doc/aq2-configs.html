@@ -3,7 +3,7 @@
 <html>
   <head>
     <meta name="generator" content="HTML Tidy, see www.w3.org">
-    <meta name="version" content="Version: $Id: aq2-configs.html,v 1.1 2001/05/13 14:31:56 igor_rock Exp $">
+    <meta name="version" content="Version: $Id: aq2-configs.html,v 1.2 2001/05/20 11:36:46 igor_rock Exp $">
 
     <title>AQ2:TNG - Online Config Generator</title>
   </head>
@@ -170,6 +170,13 @@
                     </option>
                   </select> </td>
                 </tr>
+
+                <tr>
+                  <td>Map to start with</td>
+
+                  <td><input type="text" name="data[startmap]" size="25" maxlength="30" value="rhcity1"></td>
+                </tr>
+
               </table>
             </td>
           </tr>
@@ -364,7 +371,7 @@
                 <tr>
                   <td>Number of splatter in game (splatlimit)</td>
 
-                  <td><input type="text" name="data[bholelimit]" size="3" maxlength="3" value="0"></td>
+                  <td><input type="text" name="data[splatlimit]" size="3" maxlength="3" value="0"></td>
                 </tr>
 
                 <tr>
@@ -453,6 +460,21 @@
                 </tr>
 
                 <tr>
+                  <td>Allowed Weapons</td>
+
+                  <td><input type="checkbox" name="data[wp_flags][0]" value="1" checked> MK23 Pistol<br>
+		   <input type="checkbox" name="data[wp_flags][1]" value="2" checked> MP5/10 Submachinegun<br>
+                   <input type="checkbox" name="data[wp_flags][2]" value="4" checked> M4 Assault Rifle<br>
+                   <input type="checkbox" name="data[wp_flags][3]" value="8" checked> M3 Super 90 Assault Shotgun<br>
+                   <input type="checkbox" name="data[wp_flags][4]" value="16" checked> Handcannon<br>
+                   <input type="checkbox" name="data[wp_flags][5]" value="32" checked> Sniper Rifle<br>
+                   <input type="checkbox" name="data[wp_flags][6]" value="64" checked> Dual MK23 Pistols<br>
+                   <input type="checkbox" name="data[wp_flags][7]" value="128" checked> Combat Knife<br>
+                   <input type="checkbox" name="data[wp_flags][8]" value="256" checked> M26 Fragmentation Grenade (only respawn, see tgren)<br>
+                   </td>
+                </tr>
+
+                <tr>
                   <td>Player starts with <b>all</b> items (allitem)</td>
 
                   <td><select name="data[allitem]">
@@ -473,6 +495,18 @@
                 </tr>
 
                 <tr>
+                  <td>Allowed Items</td>
+
+                  <td><input type="checkbox" name="data[itm_flags][0]" value="1" checked> Silencer<br>
+                   <input type="checkbox" name="data[itm_flags][1]" value="2" checked> Stealth Slippers<br>
+                   <input type="checkbox" name="data[itm_flags][2]" value="4" checked> Bandolier<br>
+                   <input type="checkbox" name="data[itm_flags][3]" value="8" checked> Kevlar Vest<br>
+                   <input type="checkbox" name="data[itm_flags][4]" value="16" checked> Lasersight<br>
+                   <input type="checkbox" name="data[itm_flags][5]" value="32" checked> Kevlar Helmet<br>
+                   </td>
+                </tr>
+
+                <tr>
                   <td>Use Infra Red with bandolier</td>
 
                   <td><select name="data[ir]">
@@ -489,7 +523,7 @@
                 <tr>
                   <td>Number of grenades</td>
 
-                  <td><input type="text" name="data[grenades]" size="3" maxlength="3" value="1"></td>
+                  <td><input type="text" name="data[tgren]" size="3" maxlength="3" value="1"></td>
                 </tr>
 
                 <tr>

@@ -2,7 +2,7 @@
   //-----------------------------------------------------------------------------
   // create_aq2-config.php
   //-----------------------------------------------------------------------------
-  // $Id: create_aq2-config.php,v 1.1 2001/05/13 14:31:56 igor_rock Exp $
+  // $Id: create_aq2-config.php,v 1.2 2001/05/20 11:36:46 igor_rock Exp $
   //-----------------------------------------------------------------------------
 
   // Do some checks for illegal game modes
@@ -32,119 +32,133 @@
   else
     {
     header ("Content-type: application/aq2tng-config");
-    header ("Content-Disposition: attachment; filename=$data[configname]");
-    header ("Content-Description: AQ2:TNG configfile");
     }
+  header ("Content-Disposition: attachment; filename=$data[configname]");
+  header ("Content-Description: AQ2:TNG configfile");
  
-  print "#-----------------------------------------------------------------------------\n";
-  print "# AQ2:TNG Config file $data[configname]\n";
-  print "#\n";
-  print "# created: ".date("Y-m-d, H:i:s")."\n";
-  print "# with the AQ2:TNG config generator at http://www.FIXME.com\n";
-  print "#-----------------------------------------------------------------------------\n\n";
+  print "//-----------------------------------------------------------------------------\n";
+  print "// AQ2:TNG Config file $data[configname]\n";
+  print "//\n";
+  print "// created: ".date("Y-m-d, H:i:s")."\n";
+  print "// with the AQ2:TNG config generator at http://www.FIXME.com\n";
+  print "//-----------------------------------------------------------------------------\n\n";
 
   print "game action\n";
   print "gamedir action\n";
   
-  print "\n#-----------------------------------------------------------------------------\n";
-  print "# General Settings\n";
-  print "#-----------------------------------------------------------------------------\n";
-  print "hostname \"$data[hostname]\"\n";
-  print "rcon_password \"$data[rcon_password]\"\n";
+  print "\n//-----------------------------------------------------------------------------\n";
+  print "// General Settings\n";
+  print "//-----------------------------------------------------------------------------\n";
+  print "set hostname \"$data[hostname]\"\n";
+  print "set rcon_password \"$data[rcon_password]\"\n";
   $dmflags = 0;
   for ($i = 0; $i < 20; $i++)
     {
     $dmflags += $data[dmflag][$i];
     }
-  print "dmflags $dmflags\n";
-  print "public $data[public]\n";
-  print "masterserver $data[masterserver]\n";
-  print "maplistname $data[maplistname]\n";
-  print "ininame $data[ininame]\n";
-  print "maxclients $data[maxclients]\n";
+  print "set dmflags $dmflags\n";
+  print "set public $data[public]\n";
+  print "set masterserver $data[masterserver]\n";
+  print "set maplistname $data[maplistname]\n";
+  print "set ininame $data[ininame]\n";
+  print "set maxclients $data[maxclients]\n";
 
-  print "\n#-----------------------------------------------------------------------------\n";
-  print "# Maprotation\n";
-  print "#-----------------------------------------------------------------------------\n";
-  print "actionmaps $data[actionmaps]\n";
-  print "rrot $data[rrot]\n";
-  print "vrot $data[vrot]\n";
+  print "\n//-----------------------------------------------------------------------------\n";
+  print "// Maprotation\n";
+  print "//-----------------------------------------------------------------------------\n";
+  print "set actionmaps $data[actionmaps]\n";
+  print "set rrot $data[rrot]\n";
+  print "set vrot $data[vrot]\n";
 
-  print "\n#-----------------------------------------------------------------------------\n";
-  print "# Game Mode Settings\n";
-  print "#-----------------------------------------------------------------------------\n";
-  print "deathmatch $data[deathmatch]\n";
-  print "teamplay $data[teamplay]\n";
-  print "ctf $data[ctf]\n";
-  print "use_3teams $data[use_3teams]\n";
-  print "use_tourney $data[use_tourney]\n";
+  print "\n//-----------------------------------------------------------------------------\n";
+  print "// Game Mode Settings\n";
+  print "//-----------------------------------------------------------------------------\n";
+  print "set deathmatch $data[deathmatch]\n";
+  print "set teamplay $data[teamplay]\n";
+  print "set ctf $data[ctf]\n";
+  print "set use_3teams $data[use_3teams]\n";
+  print "set use_tourney $data[use_tourney]\n";
   
-  print "\n#-----------------------------------------------------------------------------\n";
-  print "# Limits\n";
-  print "#-----------------------------------------------------------------------------\n";
-  print "fraglimit $data[fraglimit]\n";
-  print "timelimit $data[timelimit]\n";
-  print "roundlimit $data[roundlimit]\n";
-  print "roundtimelimit $data[roundtimelimit]\n";
-  print "limchasecam $data[limchasecam]\n";
-  print "knifelimit $data[knifelimit]\n";
+  print "\n//-----------------------------------------------------------------------------\n";
+  print "// Limits\n";
+  print "//-----------------------------------------------------------------------------\n";
+  print "set fraglimit $data[fraglimit]\n";
+  print "set timelimit $data[timelimit]\n";
+  print "set roundlimit $data[roundlimit]\n";
+  print "set roundtimelimit $data[roundtimelimit]\n";
+  print "set limchasecam $data[limchasecam]\n";
+  print "set knifelimit $data[knifelimit]\n";
 
-  print "\n#-----------------------------------------------------------------------------\n";
-  print "# Lag related settings\n";
-  print "#-----------------------------------------------------------------------------\n";
-  print "llsound $data[llsound]\n";
-  print "bholelimit $data[bholelimit]\n";
-  print "splatlimit $data[splatlimit]\n";
-  print "shelloff $data[shelloff]\n";
-  print "sv_gib $data[sv_gib]\n";
-  print "breakableglass $data[breakableglass]\n";
-  print "glassfragmentlimit $data[glassfragmentlimit]\n";
+  print "\n//-----------------------------------------------------------------------------\n";
+  print "// Lag related settings\n";
+  print "//-----------------------------------------------------------------------------\n";
+  print "set llsound $data[llsound]\n";
+  print "set bholelimit $data[bholelimit]\n";
+  print "set splatlimit $data[splatlimit]\n";
+  print "set shelloff $data[shelloff]\n";
+  print "set sv_gib $data[sv_gib]\n";
+  print "set breakableglass $data[breakableglass]\n";
+  print "set glassfragmentlimit $data[glassfragmentlimit]\n";
   
-  print "\n#-----------------------------------------------------------------------------\n";
-  print "# Miscellaneous Options\n";
-  print "#-----------------------------------------------------------------------------\n";
-  print "allweapon $data[allweapon]\n";
-  print "weapons $data[weapons]\n";
-  print "allitem $data[allitem]\n";
-  print "items $data[items]\n";
-  print "ir $data[ir]\n";
-  print "tgren $data[tgren]\n";
-  print "use_voice $data[use_voice]\n";
-  print "sv_crlf $data[sv_crlf]\n";
-  print "dmweapon $data[dmweapon]\n";
-  print "hc_single $data[hc_single]\n";
+  print "\n//-----------------------------------------------------------------------------\n";
+  print "// Miscellaneous Options\n";
+  print "//-----------------------------------------------------------------------------\n";
+  print "set allweapon $data[allweapon]\n";
+  print "set weapons $data[weapons]\n";
+  $wp_flags = 0;
+  for ($i = 0; $i < 20; $i++)
+    {
+    $wp_flags += $data[wp_flags][$i];
+    }
+  print "set wp_flags $wp_flags\n";
+  print "set allitem $data[allitem]\n";
+  print "set items $data[items]\n";
+  $itm_flags = 0;
+  for ($i = 0; $i < 20; $i++)
+    {
+    $itm_flags += $data[itm_flags][$i];
+    }
+  print "set itm_flags $itm_flags\n";
+  print "set ir $data[ir]\n";
+  print "set tgren $data[tgren]\n";
+  print "set use_voice $data[use_voice]\n";
+  print "set sv_crlf $data[sv_crlf]\n";
+  print "set dmweapon \"$data[dmweapon]\"\n";
+  print "set hc_single $data[hc_single]\n";
 
-  print "\n#-----------------------------------------------------------------------------\n";
-  print "# Voting\n";
-  print "#-----------------------------------------------------------------------------\n";
+  print "\n//-----------------------------------------------------------------------------\n";
+  print "// Voting\n";
+  print "//-----------------------------------------------------------------------------\n";
   print "";
-  print "cvote $data[cvote]\n";
-  print "cvote_min $data[cvote_min]\n";
-  print "cvote_need $data[cvote_need]\n";
-  print "cvote_pass $data[cvote_pass]\n";
+  print "set cvote $data[cvote]\n";
+  print "set cvote_min $data[cvote_min]\n";
+  print "set cvote_need $data[cvote_need]\n";
+  print "set cvote_pass $data[cvote_pass]\n";
 
-  print "use_mapvote $data[use_mapvote]\n";
-  print "mapvote_min $data[mapvote_min]\n";
-  print "mapvote_need $data[mapvote_need]\n";
-  print "mapvote_pass $data[mapvote_pass]\n";
-  print "mv_public $data[mv_public]\n";
+  print "set use_mapvote $data[use_mapvote]\n";
+  print "set mapvote_min $data[mapvote_min]\n";
+  print "set mapvote_need $data[mapvote_need]\n";
+  print "set mapvote_pass $data[mapvote_pass]\n";
+  print "set mv_public $data[mv_public]\n";
 
-  print "use_kickvote $data[use_kickvote]\n";
-  print "kickvote_min $data[kickvote_min]\n";
-  print "kickvote_need $data[kickvote_need]\n";
-  print "kickvote_pass $data[kickvote_pass]\n";
-  print "kickvote_tempban $data[kickvote_tempban]\n";
-  print "vk_public $data[vk_public]\n";
+  print "set use_kickvote $data[use_kickvote]\n";
+  print "set kickvote_min $data[kickvote_min]\n";
+  print "set kickvote_need $data[kickvote_need]\n";
+  print "set kickvote_pass $data[kickvote_pass]\n";
+  print "set kickvote_tempban $data[kickvote_tempban]\n";
+  print "set vk_public $data[vk_public]\n";
 
-  print "\n#-----------------------------------------------------------------------------\n";
-  print "# CTF Settigns\n";
-  print "#-----------------------------------------------------------------------------\n";
-  print "ctf_effects $data[ctf_effects]\n";
-  print "ctf_flag_respawn_time $data[ctf_flag_respawn_time]\n";
-  print "ctf_player_respawn_time $data[ctf_player_respawn_time]\n";
-  print "ctf_item_remove_time $data[ctf_item_remove_time]\n";
+  print "\n//-----------------------------------------------------------------------------\n";
+  print "// CTF Settigns\n";
+  print "//-----------------------------------------------------------------------------\n";
+  print "set ctf_effects $data[ctf_effects]\n";
+  print "set ctf_flag_respawn_time $data[ctf_flag_respawn_time]\n";
+  print "set ctf_player_respawn_time $data[ctf_player_respawn_time]\n";
+  print "set ctf_item_remove_time $data[ctf_item_remove_time]\n";
 
-  print "\n-----------------------------------------------------------------------------\n";
-  print "# Config End\n";
-  print "#-----------------------------------------------------------------------------\n";
+  print "\n//-----------------------------------------------------------------------------\n";
+  print "// Config End\n";
+  print "//-----------------------------------------------------------------------------\n";
+
+  print "map $data[startmap]\n";
 ?>
