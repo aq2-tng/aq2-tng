@@ -4,12 +4,15 @@
 //
 // header file for a_xcmd.c
 //
-// $Id: a_xcmds.h,v 1.1 2001/05/06 17:25:16 igor_rock Exp $
+// $Id: a_xcmds.h,v 1.2 2001/05/11 12:21:18 slicerdw Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_xcmds.h,v $
-// Revision 1.1  2001/05/06 17:25:16  igor_rock
-// Initial revision
+// Revision 1.2  2001/05/11 12:21:18  slicerdw
+// Commented old Location support ( ADF ) With the ML/ETE Compatible one
+//
+// Revision 1.1.1.1  2001/05/06 17:25:16  igor_rock
+// This is the PG Bund Edition V1.25 with all stuff laying around here...
 //
 //-----------------------------------------------------------------------------
 
@@ -33,7 +36,8 @@ void Cmd_Voice_f (edict_t * self);
 //Shows new rules
 void Cmd_Rules_f (edict_t * self);
 void _Cmd_Rules_f (edict_t * self, char *argument);
-
+//AQ2:TNG - Slicer Old Location support
+/*
 //TempFile - BEGIN
 // new commands for area cubes
 
@@ -47,3 +51,5 @@ void Cmd_AbortCube_f (edict_t *);
 void Cmd_Lens_f (edict_t *);
 
 //TempFile - END
+*/
+//AQ2:TNG END

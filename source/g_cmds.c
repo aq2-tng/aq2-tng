@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // g_cmds.c
 //
-// $Id: g_cmds.c,v 1.4 2001/05/07 21:18:34 slicerdw Exp $
+// $Id: g_cmds.c,v 1.5 2001/05/11 12:21:19 slicerdw Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_cmds.c,v $
+// Revision 1.5  2001/05/11 12:21:19  slicerdw
+// Commented old Location support ( ADF ) With the ML/ETE Compatible one
+//
 // Revision 1.4  2001/05/07 21:18:34  slicerdw
 // Added Video Checking System
 //
@@ -1426,7 +1429,8 @@ void ClientCommand (edict_t *ent)
         else if (vCommand(ent, cmd) == true) ;        
                 
 //PG BUND - END
-
+//AQ2:TNG - Slicer Old Location Support
+		/*
 //TempFile - BEGIN
 		else if (Q_stricmp(cmd, "begincube") == 0 && sv_cheats->value)
 				Cmd_BeginCube_f(ent);
@@ -1445,6 +1449,8 @@ void ClientCommand (edict_t *ent)
 				Cmd_Lens_f(ent);
 
 //TempFile - END
+*/
+//AQ2:TNG END
 		//AQ:TNG Slicer : Video Checks
 		else if (Q_stricmp(cmd, "%cpsi") == 0)
 			Cmd_CPSI_f(ent);

@@ -5,12 +5,15 @@
 // Zucchini (spikard@u.washington.edu) and Fireblade (ucs_brf@shsu.edu) 
 // (splat/bullethole/shell ejection code from original Action source)
 //
-// $Id: a_game.c,v 1.1 2001/05/06 17:24:23 igor_rock Exp $
+// $Id: a_game.c,v 1.2 2001/05/11 12:21:18 slicerdw Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_game.c,v $
-// Revision 1.1  2001/05/06 17:24:23  igor_rock
-// Initial revision
+// Revision 1.2  2001/05/11 12:21:18  slicerdw
+// Commented old Location support ( ADF ) With the ML/ETE Compatible one
+//
+// Revision 1.1.1.1  2001/05/06 17:24:23  igor_rock
+// This is the PG Bund Edition V1.25 with all stuff laying around here...
 //
 //-----------------------------------------------------------------------------
 
@@ -313,6 +316,23 @@ PrintMOTD (edict_t * ent)
 	  sprintf (msg_buf + strlen (msg_buf), "Friendly fire enabled\n");
 	  lines++;
 	}
+	  //AQ2:TNG - Slicer : New location code
+	  /* Adding MOTD part for the Map Locations (Creator, Build and Number of Locations) */
+		if(ml_count!=0)
+		{
+			sprintf(msg_buf + strlen(msg_buf), "\nLocation File: %s, Build: %s\n",level.mapname,ml_build);
+			lines++;
+			sprintf(msg_buf + strlen(msg_buf), "%d Locations Loaded\n",ml_count);
+			lines++;
+			sprintf(msg_buf + strlen(msg_buf), "Created/Modified by %s\n",ml_creator);
+			lines++;
+		}
+		else
+		{
+			sprintf(msg_buf + strlen(msg_buf), "\nNo Locations Loaded for %s\n",level.mapname);
+			lines++;
+		}
+		//AQ2:TNG END
 
       // Teamplay: 2 lines (one blank) for menu instructions
       if (teamplay->value)

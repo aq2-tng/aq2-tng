@@ -3,12 +3,12 @@
 // Some of this is borrowed from Zoid's CTF (thanks Zoid)
 // -Fireblade
 //
-// $Id: a_team.c,v 1.3 2001/05/08 19:10:54 slicerdw Exp $
+// $Id: a_team.c,v 1.4 2001/05/11 12:21:18 slicerdw Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_team.c,v $
-// Revision 1.3  2001/05/08 19:10:54  slicerdw
-// Added Last Damage Location
+// Revision 1.4  2001/05/11 12:21:18  slicerdw
+// Commented old Location support ( ADF ) With the ML/ETE Compatible one
 //
 // Revision 1.2  2001/05/07 20:06:45  igor_rock
 // changed sound dir from sound/rock to sound/tng

@@ -1,12 +1,12 @@
 //-----------------------------------------------------------------------------
 // g_local.h -- local definitions for game module
 //
-// $Id: g_local.h,v 1.7 2001/05/08 19:10:54 slicerdw Exp $
+// $Id: g_local.h,v 1.8 2001/05/11 12:21:19 slicerdw Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_local.h,v $
-// Revision 1.7  2001/05/08 19:10:54  slicerdw
-// Added Last Damage Location
+// Revision 1.8  2001/05/11 12:21:19  slicerdw
+// Commented old Location support ( ADF ) With the ML/ETE Compatible one
 //
 // Revision 1.6  2001/05/08 12:55:43  igor_rock
 // added inlcude file <ctype.h>
@@ -1673,3 +1673,25 @@ void AddSplat (edict_t * self, vec3_t point, trace_t * tr);
 // Igor's back in Time to hard grenades :-)
 //#define GRENADE_DAMRAD  170
 #define GRENADE_DAMRAD  250
+
+//AQ2:TNG - Slicer New location support
+// Max amount of locations
+#define MAX_LOCATIONS_IN_BASE		256
+// location structure
+typedef struct
+{
+	int x;
+	int y;
+	int z;
+	int rx;
+	int ry;
+	int rz;
+	char desc[128];
+} placedata_t;
+
+// Externals for accessing location structures
+extern int ml_count;
+extern placedata_t locationbase[];
+extern char ml_build[5];
+extern char ml_creator[100];
+//AQ2:TNG END

@@ -4,19 +4,24 @@
 //
 // contains all new non standard command functions
 //
-// $Id: a_xcmds.c,v 1.1 2001/05/06 17:25:16 igor_rock Exp $
+// $Id: a_xcmds.c,v 1.2 2001/05/11 12:21:18 slicerdw Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_xcmds.c,v $
-// Revision 1.1  2001/05/06 17:25:16  igor_rock
-// Initial revision
+// Revision 1.2  2001/05/11 12:21:18  slicerdw
+// Commented old Location support ( ADF ) With the ML/ETE Compatible one
+//
+// Revision 1.1.1.1  2001/05/06 17:25:16  igor_rock
+// This is the PG Bund Edition V1.25 with all stuff laying around here...
 //
 //-----------------------------------------------------------------------------
 
 #include "g_local.h"
 #include "m_player.h"
 
-loccube_t *setcube = NULL;
+//AQ2:TNG - Slicer Old Location support
+//loccube_t *setcube = NULL;
+//AQ2:TNG End
 
 //
 void
@@ -144,9 +149,9 @@ Cmd_Voice_f (edict_t * self)
   gi.sound (self, CHAN_VOICE, gi.soundindex (fullpath), 1, ATTN_NORM, 0);
 }
 
-
+//AQ2:TNG SLicer - Old location support
 // TempFile - BEGIN
-
+/*
 void
 Cmd_BeginCube_f (edict_t * self)
 {
@@ -276,3 +281,5 @@ Cmd_PrintCubeState_f (edict_t * self)
 
 
 // TempFile - END
+*/
+//AQ2:TNG END

@@ -16,12 +16,12 @@
 // you get compiler errors too, comment them out like
 // I'd done.
 //
-// $Id: a_xgame.c,v 1.3 2001/05/08 19:10:54 slicerdw Exp $
+// $Id: a_xgame.c,v 1.4 2001/05/11 12:21:18 slicerdw Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_xgame.c,v $
-// Revision 1.3  2001/05/08 19:10:54  slicerdw
-// Added Last Damage Location
+// Revision 1.4  2001/05/11 12:21:18  slicerdw
+// Commented old Location support ( ADF ) With the ML/ETE Compatible one
 //
 // Revision 1.2  2001/05/07 21:18:34  slicerdw
 // Added Video Checking System
@@ -37,7 +37,7 @@
 //mapdesc_t mapdesc;
 
 //TempFile BEGIN
-mapdescex_t mapdescex;
+//mapdescex_t mapdescex; AQ2:TNG - Slicer old location support, commented.
 
 /* support for .pg dropped 7/26/1999
    int LoadPG(char *mapname)
@@ -92,6 +92,8 @@ mapdescex_t mapdescex;
 //FixCubeData() ensures that lower left is actually in the lower left
 //Called in DescListInit() and Cmd_AddCube_f()
 
+//AQ2:TNG Slicer commenting old location file support ( ADF )
+/*
 int num_loccubes = 0;
 
 void
@@ -225,7 +227,7 @@ DescListIsEmpty (void)
    if (j >= 0) *distance = dist;
    else *distance = 0.0;
    return j;
-   } */
+   } 
 
 //returns the index of the first found cube a point is located in.
 //if < 0, no cube was found.
@@ -288,7 +290,7 @@ GetPositionText (vec3_t origin, char *buf)
 
 	  /*if(abs((int)(origin[2] - mapdesc[i].pos[2])) > 350)   // TF - z limit to avoid level confusion
 	     return false;
-	   */// removed, Z check is no longer needed with cubes
+		// removed, Z check is no longer needed with cubes
 
 	  strcat (buf, mapdescex[i].desc);
 	  return true;
@@ -298,6 +300,8 @@ GetPositionText (vec3_t origin, char *buf)
 }
 
 // TempFile END
+AQ2:TNG END
+*/
 
 // DetermineViewedEnemy: determine the current player you're viewing (only looks for live Enemy)
 // Modified from DetermineViewedTeammate (which is used in a_radio.c)
@@ -349,6 +353,8 @@ DetermineViewedEnemy (edict_t * ent)
   return NULL;
 }
 
+//AQ2:TNG Slicer old location support ( ADF )
+/*
 void
 GetViewedPosition (edict_t * ent, char *buf)
 {
@@ -491,7 +497,8 @@ GetEnemyPosition (edict_t * self, char *buf)
       strcpy (buf, "somewhere");
     }
 }
-
+*/
+//AQ2:TNG END
 void
 GetViewedEnemyName (edict_t * self, char *buf)
 {
@@ -623,6 +630,8 @@ ParseSayText (edict_t * ent, char *text)
 	      pbuf = SeekBufEnd (pbuf);
 	      p += 2;
 	      continue;
+//AQ2:TNG Slicer - New Location Code
+		  /*
 	    case 'L':
 	      GetOwnPosition (ent, infobuf);
 	      strcpy (pbuf, infobuf);
@@ -635,6 +644,19 @@ ParseSayText (edict_t * ent, char *text)
 	      pbuf = SeekBufEnd (pbuf);
 	      p += 2;
 	      continue;
+		  */
+		case 'S':
+		    GetSightedLocation(ent, infobuf);
+			strcpy(pbuf, infobuf);
+			pbuf = SeekBufEnd(pbuf);
+			p += 2;
+			continue;
+		case 'L':
+			GetPlayerLocation(ent, infobuf);
+			strcpy(pbuf, infobuf);
+			pbuf = SeekBufEnd(pbuf);
+			p += 2;
+			continue;
 	//AQ2:TNG Slicer Last Damage Location
 		case 'D':
 		  GetLastDamagedPart(ent, infobuf);
@@ -697,5 +719,159 @@ void GetLastDamagedPart(edict_t *self, char *buf)
 	}
 	else
 		strcpy(buf,"nothing"); // Just in case
+}
+//AQ2:TNG END
+
+// Gets the location string of a location (xo,yo,zo)
+// Modifies the the location areas by value of "mod"
+// in the coord-inside-area tests
+//
+qboolean GetLocation(int xo, int yo, int zo, int mod, char *buf)
+{
+	int count;
+	int lx,ly,lz,rlx,rly,rlz;
+
+	count = ml_count;
+	while(count--) {
+
+		// get next location from location base
+		lx = locationbase[count].x;
+		ly = locationbase[count].y;
+		lz = locationbase[count].z;
+		rlx = locationbase[count].rx;
+		rly = locationbase[count].ry;
+		rlz = locationbase[count].rz;
+		
+		// Default X-range 1500
+		if (!rlx)
+		{
+			rlx = 1500;
+		}
+
+		// Default Y-range 1500
+		if (!rly)
+		{
+			rly = 1500;
+		}
+
+		// Test if the (xo,yo,zo) is inside the location
+		if (xo >= lx - rlx - mod && xo <= lx + rlx - mod &&
+			yo >= ly - rly - mod && yo <= ly + rly - mod)
+		{
+			if (rlz && (zo < lz - rlz - mod || zo > lz + rlz + mod))
+				continue;
+			
+			strcpy(buf,locationbase[count].desc);
+			
+			return true;
+		}
+	}
+
+	strcpy(buf,"around");
+	return false;
+}
+
+// Get the player location
+//
+qboolean GetPlayerLocation(edict_t *self, char *buf)
+{
+	int xo,yo,zo;
+	
+	xo = self->s.origin[0]; 
+	yo = self->s.origin[1];
+	zo = self->s.origin[2]; 
+
+	if(GetLocation(xo,yo,zo,0,buf) == false)
+		return false;
+	else
+		return true;
+}
+
+// Get the sighted location
+//
+void GetSightedLocation(edict_t *self, char *buf)
+{
+	vec3_t  start,forward,right,end,up,offset;
+	int xo,yo,zo;
+	trace_t tr;
+
+	AngleVectors (self->client->v_angle, forward, right, up);
+        
+	VectorSet(offset,24 , 8, self->viewheight);
+	P_ProjectSource (self->client, self->s.origin, offset, forward, right, start);
+	VectorMA(start,8192,forward,end);
+
+	PRETRACE();
+    	tr = gi.trace (start,NULL,NULL, end,self,CONTENTS_SOLID|CONTENTS_MONSTER|CONTENTS_DEADMONSTER);
+    	POSTTRACE();
+
+	xo = tr.endpos[0];
+	yo = tr.endpos[1];
+	zo = tr.endpos[2];
+
+	GetLocation(xo,yo,zo,10,buf);
+}
+
+void GetEnemyPosition (edict_t * self, char *buf)
+{
+  edict_t *the_enemy;
+  vec3_t rel_pos;
+  int rel_xy_pos;
+
+  the_enemy = DetermineViewedEnemy (self);
+  if (the_enemy && the_enemy->client)
+    {
+      if (GetPlayerLocation (the_enemy, buf) == false)
+	{
+	  //creating relative vector from origin to destination
+	  VectorSubtract (self->s.origin, the_enemy->s.origin, rel_pos);
+
+	  rel_xy_pos = 0;
+
+	  //checking bounds, if one direction is less than half the other, it may
+	  //be ignored...
+	  if (fabs (rel_pos[0]) > (fabs (rel_pos[1]) * 2))
+	    //x width (EAST, WEST) is twice greater than y width (NORTH, SOUTH)
+	    rel_pos[1] = 0.0;
+	  if (fabs (rel_pos[1]) > (fabs (rel_pos[0]) * 2))
+	    //y width (NORTH, SOUTH) is twice greater than x width (EAST, WEST)
+	    rel_pos[0] = 0.0;
+
+	  if (rel_pos[1] > 0.0)
+	    rel_xy_pos |= RP_NORTH;
+	  else if (rel_pos[1] < 0.0)
+	    rel_xy_pos |= RP_SOUTH;
+	  if (rel_pos[0] > 0.0)
+	    rel_xy_pos |= RP_EAST;
+	  else if (rel_pos[0] < 0.0)
+	    rel_xy_pos |= RP_WEST;
+
+	  //creating the text message, regarding to rel_xy_pos
+	  strcpy (buf, "in the ");
+	  if (rel_xy_pos & RP_NORTH)
+	    strcat (buf, "north");
+	  if (rel_xy_pos & RP_SOUTH)
+	    strcat (buf, "south");
+	  if (rel_xy_pos & RP_EAST)
+	    strcat (buf, "east");
+	  if (rel_xy_pos & RP_WEST)
+	    strcat (buf, "west");
+	  //gi.dprintf ("rel_xy_pos: %i\n", rel_xy_pos);
+	  //last but not least, the height of enemy, limit for up/down: 64
+	  if (fabs (rel_pos[2]) > 64.0)
+	    {
+	      if (rel_pos[2] < 0.0)
+		strcat (buf, ", above me");
+	      else
+		strcat (buf, ", under me");
+	    }
+	  else
+	    strcat (buf, ", on the same level");
+	  }
+	}
+  else
+    {
+      strcpy (buf, "somewhere");
+    }
 }
 //AQ2:TNG END

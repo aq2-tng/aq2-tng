@@ -1,12 +1,12 @@
 //-----------------------------------------------------------------------------
 // p_client.c
 //
-// $Id: p_client.c,v 1.8 2001/05/08 19:10:54 slicerdw Exp $
+// $Id: p_client.c,v 1.9 2001/05/11 12:21:19 slicerdw Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: p_client.c,v $
-// Revision 1.8  2001/05/08 19:10:54  slicerdw
-// Added Last Damage Location
+// Revision 1.9  2001/05/11 12:21:19  slicerdw
+// Commented old Location support ( ADF ) With the ML/ETE Compatible one
 //
 // Revision 1.7  2001/05/07 21:18:35  slicerdw
 // Added Video Checking System

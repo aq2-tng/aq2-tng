@@ -1,12 +1,15 @@
 //-----------------------------------------------------------------------------
 // g_spawn.c
 //
-// $Id: g_spawn.c,v 1.1 2001/05/06 17:31:52 igor_rock Exp $
+// $Id: g_spawn.c,v 1.2 2001/05/11 12:21:19 slicerdw Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_spawn.c,v $
-// Revision 1.1  2001/05/06 17:31:52  igor_rock
-// Initial revision
+// Revision 1.2  2001/05/11 12:21:19  slicerdw
+// Commented old Location support ( ADF ) With the ML/ETE Compatible one
+//
+// Revision 1.1.1.1  2001/05/06 17:31:52  igor_rock
+// This is the PG Bund Edition V1.25 with all stuff laying around here...
 //
 //-----------------------------------------------------------------------------
 
@@ -141,6 +144,14 @@ void SP_turret_driver (edict_t *self);
 //zucc - item replacement function
 void CheckItem(edict_t *ent, gitem_t *item);
 
+//AQ2:TNG - Slicer New location code
+int ml_count = 0;
+char ml_build[5];
+char ml_creator[100];
+//AQ2:TNG END
+placedata_t locationbase[MAX_LOCATIONS_IN_BASE];
+
+//AQ2:M
 spawn_t spawns[] = {
         {"item_health", SP_item_health},
         {"item_health_small", SP_item_health_small},
@@ -593,6 +604,17 @@ void SpawnEntities (char *mapname, char *entities, char *spawnpoint)
         char            *com_token;
         int                     i;
         float           skill_level;
+//AQ2:TNG New Location Code
+		char locfile[256];
+		char line[256];
+		FILE *f;
+		int readmore, x,y,z,rx,ry,rz,count;
+		char *locationstr, *param;
+		cvar_t *game_cvar;
+		int u;
+	//	placedata_t temp;
+//AQ2:TNG END
+
 
         skill_level = floor (skill->value);
         if (skill_level < 0)
@@ -684,6 +706,114 @@ void SpawnEntities (char *mapname, char *entities, char *spawnpoint)
                 //zucc for special items
                 SetupSpecSpawn();
         }
+//AQ2:TNG Slicer - New location  code
+	memset(ml_build,0,sizeof(ml_build));
+	memset(ml_creator,0,sizeof(ml_creator));
+
+
+	game_cvar = gi.cvar("game", "", 0);
+
+	if(!*game_cvar->string)
+		sprintf(locfile, "%s/tng/%s.aqg", GAMEVERSION, mapname);
+	else
+		sprintf(locfile, "%s/tng/%s.aqg", game_cvar->string, mapname);
+
+	f = fopen(locfile,"rt");
+	if (!f)
+	{
+		ml_count = 0;	
+		gi.dprintf("No location file for %s\n",mapname);
+		return;
+	}
+
+	gi.dprintf("Location file: %s\n",mapname);
+		
+	readmore = 1;
+	count = 0;
+
+	
+	while (readmore)
+	{
+		readmore = ( fgets(line,256,f) != NULL );
+		param = strtok(line, " :\n\0");
+        if(line[0] == '#' && line[2] == 'C')
+		{
+			u = 0;
+			for(i=10;line[i]!='\n';i++)
+			{
+				ml_creator[u] = line[i];
+				u++;
+			}
+		}
+		if(line[0] == '#' && line[2] == 'B')
+		{
+			u = 0;
+			for(i=8;line[i]!='\n';i++)
+			{
+				if(line[i] != ' ')
+				{
+				ml_build[u] = line[i];
+				u++;
+				}
+			}
+			
+		}
+		ml_build[5] = 0;
+		ml_creator[100] = 0;
+
+		// TODO: better support for file comments
+		if (!param || param[0] == '#')
+		{
+			continue;
+		}
+
+
+		x = atoi(param);
+				
+		param = strtok(NULL, " :\n\0");
+		if (!param) continue;
+		y = atoi(param);
+
+		param = strtok(NULL, " :\n\0");
+		if (!param) continue;
+		z = atoi(param);
+
+		param = strtok(NULL, " :\n\0");
+		if (!param) continue;
+		rx = atoi(param);
+
+		param = strtok(NULL, " :\n\0");
+		if (!param) continue;
+		ry = atoi(param);
+
+		param = strtok(NULL, " :\n\0");
+		if (!param) continue;
+		rz = atoi(param);
+
+		param = strtok(NULL, "\n\0");
+		if (!param) continue;
+		locationstr = param;
+
+		locationbase[count].x = x;
+		locationbase[count].y = y;
+		locationbase[count].z = z;
+		locationbase[count].rx = rx;
+		locationbase[count].ry = ry;
+		locationbase[count].rz = rz;
+		strcpy(locationbase[count].desc, locationstr);
+
+		count++;
+				
+		if (count >= MAX_LOCATIONS_IN_BASE)
+		{
+			gi.dprintf("Cannot read more than %d locations.\n",MAX_LOCATIONS_IN_BASE);
+			break;
+		}
+	}
+
+	ml_count = count;
+	fclose(f);
+	gi.dprintf("Found %d locations.\n",count);
 
 
 }
@@ -1218,7 +1348,9 @@ void SP_worldspawn (edict_t *ent)
         PrecacheRadioSounds();
 //PG BUND - Begin
        	PrecacheUserSounds();
-       	DescListInit(level.mapname);
+//AQ2:TNG - Slicer Old location support
+       	//DescListInit(level.mapname);
+//AQ2:TNG END
        	TourneyInit();
        	vInitLevel();
 //PG BUND - End

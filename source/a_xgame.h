@@ -4,12 +4,12 @@
 //
 // header file for a_xgame.c
 //
-// $Id: a_xgame.h,v 1.3 2001/05/08 19:10:54 slicerdw Exp $
+// $Id: a_xgame.h,v 1.4 2001/05/11 12:21:18 slicerdw Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_xgame.h,v $
-// Revision 1.3  2001/05/08 19:10:54  slicerdw
-// Added Last Damage Location
+// Revision 1.4  2001/05/11 12:21:18  slicerdw
+// Commented old Location support ( ADF ) With the ML/ETE Compatible one
 //
 // Revision 1.2  2001/05/07 21:18:34  slicerdw
 // Added Video Checking System
@@ -57,6 +57,8 @@
  */
 
 // TempFile cube support
+//AQ2:TNG - Slicer Old Location support
+/*
 typedef struct
   {
     vec3_t lowerleft;
@@ -75,15 +77,22 @@ void FixCubeData (loccube_t *);
 
 // TempFile END
 
+
 // --- forward declarations
 
 //initializes mapdesc, read a location file if available
 void DescListInit (char *mapname);
-void ParseSayText (edict_t * ent, char *text);
 qboolean GetPositionText (vec3_t, char *);	//TempFile we need this public (HUD!)
+*/
+//AQ2:TNG END
+void ParseSayText (edict_t * ent, char *text);
+
 
 //AQ2:TNG - Slicer 
+qboolean GetPlayerLocation(edict_t *self, char *buf);
+void GetSightedLocation(edict_t *self, char *buf);
 extern float next_cheat_check;
 void AntiCheat_CheckClient(edict_t *ent);
 void GetLastDamagedPart(edict_t *self, char *buf);
+void GetEnemyPosition (edict_t * self, char *buf);
 //AQ2:TNG END
