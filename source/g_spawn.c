@@ -1,10 +1,14 @@
 //-----------------------------------------------------------------------------
 // g_spawn.c
 //
-// $Id: g_spawn.c,v 1.37 2002/03/28 11:46:03 freud Exp $
+// $Id: g_spawn.c,v 1.38 2002/03/28 12:10:11 freud Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_spawn.c,v $
+// Revision 1.38  2002/03/28 12:10:11  freud
+// Removed unused variables (compiler warnings).
+// Added cvar mm_allowlock.
+//
 // Revision 1.37  2002/03/28 11:46:03  freud
 // stat_mode 2 and timelimit 0 did not show stats at end of round.
 // Added lock/unlock.
@@ -791,8 +795,10 @@ SpawnEntities (char *mapname, char *entities, char *spawnpoint)
   //AQ2:TNG Slicer Forcing Teamplay on and ctf off with matchmode
   if (matchmode->value)
     {
-      for (xx = 0;xx <= MAX_TEAMS;xx++)
-	team_locked[xx] = 0;
+      if (mm_allowlock->value) {
+      	for (xx = 0;xx <= MAX_TEAMS;xx++)
+		team_locked[xx] = 0;
+      }
       // Make sure teamplay is enabled
       if (!teamplay->value)
 	{

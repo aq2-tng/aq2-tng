@@ -1,10 +1,14 @@
 //-----------------------------------------------------------------------------
 // Statistics Related Code
 //
-// $Id: tng_stats.c,v 1.26 2002/03/15 19:28:36 deathwatch Exp $
+// $Id: tng_stats.c,v 1.27 2002/03/28 12:10:12 freud Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: tng_stats.c,v $
+// Revision 1.27  2002/03/28 12:10:12  freud
+// Removed unused variables (compiler warnings).
+// Added cvar mm_allowlock.
+//
 // Revision 1.26  2002/03/15 19:28:36  deathwatch
 // Updated with stats rifle name fix
 //
@@ -62,7 +66,7 @@ void Cmd_Stats_f (edict_t *targetent, char *arg)
   double	perc_hit;
   int		total, hits, i, x, y;
   char		str_perc_hit[10], str_shots_h[10], str_shots_t[10], str_headshots[10];
-  char		str_chestshots[10], str_stomachshots[10], str_legshots[10], argument[10];
+  char		str_chestshots[10], str_stomachshots[10], str_legshots[10];
   char		stathead[50], str_playerid[32], playername[32], current_weapon[64];
   edict_t	*ent, *cl_ent;
 

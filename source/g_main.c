@@ -1,10 +1,14 @@
 //-----------------------------------------------------------------------------
 //
 //
-// $Id: g_main.c,v 1.64 2002/03/28 11:46:03 freud Exp $
+// $Id: g_main.c,v 1.65 2002/03/28 12:10:11 freud Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_main.c,v $
+// Revision 1.65  2002/03/28 12:10:11  freud
+// Removed unused variables (compiler warnings).
+// Added cvar mm_allowlock.
+//
 // Revision 1.64  2002/03/28 11:46:03  freud
 // stat_mode 2 and timelimit 0 did not show stats at end of round.
 // Added lock/unlock.
@@ -348,6 +352,7 @@ cvar_t *hearall;		// used for matchmode
 
 cvar_t *mm_forceteamtalk;
 cvar_t *mm_adminpwd;
+cvar_t *mm_allowlock;
 
 cvar_t *team1score;
 cvar_t *team2score;
@@ -518,13 +523,13 @@ extern void UnBan_TeamKillers (void);
 
 void EndDMLevel (void)
 {
-  edict_t *ent = NULL, *cl_ent; // TNG Stats was: edict_t *ent = NULL;
+  edict_t *ent = NULL; // TNG Stats was: edict_t *ent = NULL;
   char *nextmapname = NULL;
   qboolean byvote = false;
   //Igor[Rock] BEGIN
   votelist_t *maptosort = NULL;
   votelist_t *tmp = NULL;
-  int newmappos, i; // TNG Stats, was: int newmappos;
+  int newmappos; // TNG Stats, was: int newmappos;
   //Igor[Rock] END
   //JBravo[QNI] Begin
   char ltm[64];
@@ -861,9 +866,8 @@ CycleLights ()
 void
 G_RunFrame (void)
 {
-  int i, j;
+  int i;
   edict_t *ent;
-  char buffer[64];
 
   level.framenum++;
   level.time = level.framenum * FRAMETIME;

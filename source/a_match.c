@@ -1,10 +1,14 @@
 //-----------------------------------------------------------------------------
 // Matchmode related code
 //
-// $Id: a_match.c,v 1.14 2002/03/28 11:46:03 freud Exp $
+// $Id: a_match.c,v 1.15 2002/03/28 12:10:11 freud Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_match.c,v $
+// Revision 1.15  2002/03/28 12:10:11  freud
+// Removed unused variables (compiler warnings).
+// Added cvar mm_allowlock.
+//
 // Revision 1.14  2002/03/28 11:46:03  freud
 // stat_mode 2 and timelimit 0 did not show stats at end of round.
 // Added lock/unlock.
@@ -424,7 +428,9 @@ Cmd_TeamLock_f (edict_t * ent, int a_switch)
 {
   char msg[32];
 
-  if (!ent->client->resp.team)
+  if (!mm_allowlock->value)
+	gi.cprintf(ent, PRINT_HIGH, "Team locking is disabled on this server\n");
+  else if (!ent->client->resp.team)
         gi.cprintf(ent, PRINT_HIGH, "You are not on a team\n");
   else if (!ent->client->resp.captain)
         gi.cprintf(ent, PRINT_HIGH, "You are not the captain of your team\n");

@@ -3,10 +3,14 @@
 // Some of this is borrowed from Zoid's CTF (thanks Zoid)
 // -Fireblade
 //
-// $Id: a_team.c,v 1.83 2002/03/28 11:46:03 freud Exp $
+// $Id: a_team.c,v 1.84 2002/03/28 12:10:11 freud Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_team.c,v $
+// Revision 1.84  2002/03/28 12:10:11  freud
+// Removed unused variables (compiler warnings).
+// Added cvar mm_allowlock.
+//
 // Revision 1.83  2002/03/28 11:46:03  freud
 // stat_mode 2 and timelimit 0 did not show stats at end of round.
 // Added lock/unlock.
@@ -984,7 +988,7 @@ JoinTeam (edict_t * ent, int desired_team, int skip_menuclose)
   if (ent->client->resp.team == desired_team)
     return;
 
-  if (team_locked[desired_team]) {
+  if (mm_allowlock->value && team_locked[desired_team]) {
         if (skip_menuclose)
                 gi.cprintf(ent, PRINT_HIGH, "Cannot join %s (locked)\n", TeamName(desired_team));
         else
@@ -2156,7 +2160,7 @@ CheckTeamRules ()
 	}
     }
 
-  if (matchmode->value) {
+  if (matchmode->value && mm_allowlock->value) {
 	if (team_locked[TEAM1] && !TeamHasPlayers(TEAM1)) {
 		team_locked[TEAM1] = 0;
 		sprintf(buf, "%s unlocked (no players)\n", TeamName(TEAM1));

@@ -1,10 +1,14 @@
 //-----------------------------------------------------------------------------
 // g_local.h -- local definitions for game module
 //
-// $Id: g_local.h,v 1.60 2002/03/28 11:46:03 freud Exp $
+// $Id: g_local.h,v 1.61 2002/03/28 12:10:11 freud Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_local.h,v $
+// Revision 1.61  2002/03/28 12:10:11  freud
+// Removed unused variables (compiler warnings).
+// Added cvar mm_allowlock.
+//
 // Revision 1.60  2002/03/28 11:46:03  freud
 // stat_mode 2 and timelimit 0 did not show stats at end of round.
 // Added lock/unlock.
@@ -829,6 +833,7 @@ extern cvar_t *day_cycle;	// If darkmatch is on, this value is the nr of seconds
 extern cvar_t *hearall;		// used in match mode
 extern cvar_t *mm_forceteamtalk;
 extern cvar_t *mm_adminpwd;
+extern cvar_t *mm_allowlock;
 
 extern cvar_t *team1score;
 extern cvar_t *team2score;
@@ -1948,5 +1953,6 @@ extern char ml_creator[101];
 //AQ2:TNG END
 
 void Cmd_Ghost_f (edict_t * ent);
+void Cmd_AutoRecord_f(edict_t * ent);
 
 #include "a_ctf.h"

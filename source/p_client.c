@@ -1,10 +1,14 @@
 //-----------------------------------------------------------------------------
 // p_client.c
 //
-// $Id: p_client.c,v 1.78 2002/03/25 23:35:19 freud Exp $
+// $Id: p_client.c,v 1.79 2002/03/28 12:10:11 freud Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: p_client.c,v $
+// Revision 1.79  2002/03/28 12:10:11  freud
+// Removed unused variables (compiler warnings).
+// Added cvar mm_allowlock.
+//
 // Revision 1.78  2002/03/25 23:35:19  freud
 // Ghost code, use_ghosts and more stuff..
 //
@@ -2543,8 +2547,8 @@ player_die (edict_t * self, edict_t * inflictor, edict_t * attacker,
     }
 
   // Gibbing on really hard HC hit
-  if ( ((self->health < -35) && (meansOfDeath == MOD_HC)) ||
-	((self->health < -20) && (meansOfDeath == MOD_M3)) && (sv_gib->value) )
+  if ( (((self->health < -35) && (meansOfDeath == MOD_HC)) ||
+	((self->health < -20) && (meansOfDeath == MOD_M3))) && (sv_gib->value) )
     {
       gi.sound (self, CHAN_BODY, gi.soundindex ("misc/udeath.wav"), 1,
 		ATTN_NORM, 0);

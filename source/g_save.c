@@ -1,10 +1,14 @@
 //-----------------------------------------------------------------------------
 // g_save.c
 //
-// $Id: g_save.c,v 1.58 2002/03/28 11:46:03 freud Exp $
+// $Id: g_save.c,v 1.59 2002/03/28 12:10:11 freud Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_save.c,v $
+// Revision 1.59  2002/03/28 12:10:11  freud
+// Removed unused variables (compiler warnings).
+// Added cvar mm_allowlock.
+//
 // Revision 1.58  2002/03/28 11:46:03  freud
 // stat_mode 2 and timelimit 0 did not show stats at end of round.
 // Added lock/unlock.
@@ -547,6 +551,7 @@ InitGame (void)
 
   mm_forceteamtalk = gi.cvar ("mm_forceteamtalk", "0", 0);
   mm_adminpwd = gi.cvar ("mm_adminpwd", "0", 0);
+  mm_allowlock = gi.cvar ("mm_allowlock", "1", CVAR_LATCH);
 
   team1score = gi.cvar ("t1", "0", CVAR_SERVERINFO);
   team2score = gi.cvar ("t2", "0", CVAR_SERVERINFO);
