@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // Include for Action team-related things
 //
-// $Id: a_team.h,v 1.4 2001/11/03 17:31:15 ra Exp $
+// $Id: a_team.h,v 1.5 2001/11/27 23:23:40 igor_rock Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_team.h,v $
+// Revision 1.5  2001/11/27 23:23:40  igor_rock
+// Bug fixed: day_cycle_at wasn't reset at mapchange
+//
 // Revision 1.4  2001/11/03 17:31:15  ra
 // Compiler warning fix.
 //
@@ -108,3 +111,4 @@ extern int fragwarning;
 extern transparent_list_t *transparent_list;
 extern trace_t trace_t_temp;
 extern int current_round_length; // For RoundTimeLeft
+extern int day_cycle_at;

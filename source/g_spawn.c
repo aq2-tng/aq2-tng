@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // g_spawn.c
 //
-// $Id: g_spawn.c,v 1.28 2001/11/16 13:01:39 deathwatch Exp $
+// $Id: g_spawn.c,v 1.29 2001/11/27 23:23:40 igor_rock Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_spawn.c,v $
+// Revision 1.29  2001/11/27 23:23:40  igor_rock
+// Bug fixed: day_cycle_at wasn't reset at mapchange
+//
 // Revision 1.28  2001/11/16 13:01:39  deathwatch
 // Fixed 'no team wins' sound - it wont play now with use_warnings 0
 // Precaching misc/flashlight.wav
@@ -1416,6 +1419,7 @@ SP_worldspawn (edict_t * ent)
   // AQ2:TNG - Slicer matchmode ready reset
   team1ready = team2ready = 0;
   matchtime = 0;
+  day_cycle_at = 0;
 
 	// AQ2:TNG Resetting the teamXscore cvars
 	team1score->value = 0;
