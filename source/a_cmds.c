@@ -4,10 +4,13 @@
 //
 // laser sight patch, by Geza Beladi
 //
-// $Id: a_cmds.c,v 1.24 2002/01/24 11:29:34 ra Exp $
+// $Id: a_cmds.c,v 1.25 2002/03/24 19:38:05 ra Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_cmds.c,v $
+// Revision 1.25  2002/03/24 19:38:05  ra
+// Securityfix
+//
 // Revision 1.24  2002/01/24 11:29:34  ra
 // Cleanup's in stats code
 //
@@ -576,7 +579,7 @@ Cmd_Lens_f (edict_t * ent)
 {
   int nArg = atoi (gi.args ());
   char args[16];
-  strcpy (args, gi.args ());
+  strncpy (args, gi.args (), sizeof(args)-1);
 
   if (ent->client->curr_weap != SNIPER_NUM)
     return;
