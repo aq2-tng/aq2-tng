@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // p_client.c
 //
-// $Id: p_client.c,v 1.37 2001/07/20 11:56:04 slicerdw Exp $
+// $Id: p_client.c,v 1.38 2001/08/03 15:08:32 ra Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: p_client.c,v $
+// Revision 1.38  2001/08/03 15:08:32  ra
+// Fix small bug in %K related to "tought how to fly" deaths.
+//
 // Revision 1.37  2001/07/20 11:56:04  slicerdw
 // Added a check for the players spawning during countdown on ctf ( lets hope it works )
 //
@@ -755,6 +758,7 @@ void ClientObituary (edict_t *self, edict_t *inflictor, edict_t *attacker)
 	      sprintf(death_msg, "%s was taught how to fly by %s\n", 
 		      self->client->pers.netname, self->client->attacker->client->pers.netname );
 	      PrintDeathMessage(death_msg, self);
+	      AddKilledPlayer(self->client->attacker, self);
 	      
 	      //MODIFIED FOR FF -FB
 	      if (!((int)dmflags->value & DF_NO_FRIENDLY_FIRE) &&
