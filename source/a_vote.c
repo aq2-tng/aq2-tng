@@ -1,10 +1,15 @@
 //-----------------------------------------------------------------------------
 // a_vote.c
 //
-// $Id: a_vote.c,v 1.13 2003/10/01 19:39:08 igor_rock Exp $
+// $Id: a_vote.c,v 1.14 2003/12/09 22:06:11 igor_rock Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_vote.c,v $
+// Revision 1.14  2003/12/09 22:06:11  igor_rock
+// added "ignorepart" commadn to ignore all players with the specified part in
+// their name (one shot function: if player changes his name/new palyers join,
+// the list will _not_ changed!)
+//
 // Revision 1.13  2003/10/01 19:39:08  igor_rock
 // corrected underflow bugs (thanks to nopcode for bug report)
 //
@@ -1761,6 +1766,40 @@ _ClrIgnoresOn (edict_t * target)
 	    _AddOrDelIgnoreSubject (other, target, true);
 	}
     }
+}
+
+
+//Ignores players by part of the name
+void
+Cmd_IgnorePart_f (edict_t * self, char *s)
+{
+  int      i;
+  int      j;
+  edict_t *target;
+
+  if (!*s) {
+    gi.cprintf (self, PRINT_MEDIUM, "\nUse ignorepart <part-of-playername>.\n");
+    return;
+  }
+  if (level.framenum < (self->client->resp.ignore_time + 100)) {  
+    gi.cprintf (self, PRINT_MEDIUM,
+		"Wait 10 seconds before ignoring again.\n");
+    return;
+  }
+  
+  j = 0;
+  for (i = 1; i <= game.maxclients; i++) {
+    target = &g_edicts[i];
+    if (target && target->client && target != self && (strstr(target->client->pers.netname, s) != 0)) {
+      _AddOrDelIgnoreSubject (self, target, false);
+      j++;
+    }
+  }
+  
+  if (j == 0) {
+    gi.cprintf (self, PRINT_MEDIUM,
+		"\nUse ignorelist to see who can be ignored.\n");
+  }
 }
 
 

@@ -1,10 +1,15 @@
 //-----------------------------------------------------------------------------
 // Voting stuff
 //
-// $Id: a_vote.h,v 1.2 2001/09/28 13:48:34 ra Exp $
+// $Id: a_vote.h,v 1.3 2003/12/09 22:06:11 igor_rock Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_vote.h,v $
+// Revision 1.3  2003/12/09 22:06:11  igor_rock
+// added "ignorepart" commadn to ignore all players with the specified part in
+// their name (one shot function: if player changes his name/new palyers join,
+// the list will _not_ changed!)
+//
 // Revision 1.2  2001/09/28 13:48:34  ra
 // I ran indent over the sources. All .c and .h files reindented.
 //
@@ -70,6 +75,7 @@ void Cmd_Ignoreclear_f (edict_t * self, char *s);
 void Cmd_Ignorelist_f (edict_t * self, char *s);
 void Cmd_Ignorenum_f (edict_t * self, char *s);
 void Cmd_Ignore_f (edict_t * self, char *s);
+void Cmd_IgnorePart_f (edict_t * self, char *s);
 void _ClrIgnoresOn (edict_t * target);
 int IsInIgnoreList (edict_t * source, edict_t * subject);
 void _IgnoreVoteSelected (edict_t * ent, pmenu_t * p);

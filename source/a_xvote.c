@@ -1,10 +1,15 @@
 //-----------------------------------------------------------------------------
 // a_xvote.c
 //
-// $Id: a_xvote.c,v 1.3 2002/03/26 21:49:01 ra Exp $
+// $Id: a_xvote.c,v 1.4 2003/12/09 22:06:11 igor_rock Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_xvote.c,v $
+// Revision 1.4  2003/12/09 22:06:11  igor_rock
+// added "ignorepart" commadn to ignore all players with the specified part in
+// their name (one shot function: if player changes his name/new palyers join,
+// the list will _not_ changed!)
+//
 // Revision 1.3  2002/03/26 21:49:01  ra
 // Bufferoverflow fixes
 //
@@ -104,7 +109,7 @@ vote_t xvotelist[] = {
     ,
     {"ignoreclear", Cmd_Ignoreclear_f}
     ,
-    {NULL, NULL}
+    {"ignorepart", Cmd_IgnorePart_f}
     ,
     }
    }

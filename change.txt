@@ -7,6 +7,7 @@ Changes in TNG
 From 2.8
 + stuffcmd now reports to player console if used (to prevent admin cheating)
 + Say: Added %M for teammate in line of sight (like %E for enemy in line of sight)
++ ignorepart command added.
 
 From 2.72
 + IRC client added
