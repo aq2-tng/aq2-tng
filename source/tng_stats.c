@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // Statistics Related Code
 //
-// $Id: tng_stats.c,v 1.22 2002/02/18 19:31:40 freud Exp $
+// $Id: tng_stats.c,v 1.23 2002/02/18 23:47:33 freud Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: tng_stats.c,v $
+// Revision 1.23  2002/02/18 23:47:33  freud
+// Fixed FPM if time was 0
+//
 // Revision 1.22  2002/02/18 19:31:40  freud
 // FPM fix.
 //
@@ -492,7 +495,11 @@ A_ScoreboardEndLevel (edict_t * ent, edict_t * killer)
       else
 	accuracy = 0;
 
-      fpm = (((double) sortedscores[i] / (double) ((level.framenum - game.clients[sorted[i]].resp.enterframe) / 10)) * 100.0);
+      if ((int) ((level.framenum - game.clients[sorted[i]].resp.enterframe) / 10))
+      	fpm = (((double) sortedscores[i] / (double) ((level.framenum - game.clients[sorted[i]].resp.enterframe) / 10)) * 100.0);
+      else
+        fpm = 0.0;
+
       if (game.clients[sorted[i]].resp.damage_dealt < 1000000)
 	sprintf (damage, "%d", game.clients[sorted[i]].resp.damage_dealt);
       else
