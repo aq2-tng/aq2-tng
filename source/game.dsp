@@ -301,6 +301,23 @@ SOURCE=.\a_items.c
 # End Source File
 # Begin Source File
 
+SOURCE=.\a_match.c
+
+!IF  "$(CFG)" == "game - Win32 Release"
+
+!ELSEIF  "$(CFG)" == "game - Win32 Debug"
+
+!ELSEIF  "$(CFG)" == "game - Win32 Debug Alpha"
+
+!ELSEIF  "$(CFG)" == "game - Win32 Release Alpha"
+
+!ELSEIF  "$(CFG)" == "game - Win32 Ppro"
+
+!ENDIF 
+
+# End Source File
+# Begin Source File
+
 SOURCE=.\a_menu.c
 
 !IF  "$(CFG)" == "game - Win32 Release"
