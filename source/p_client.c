@@ -1,12 +1,12 @@
 //-----------------------------------------------------------------------------
 // p_client.c
 //
-// $Id: p_client.c,v 1.57 2001/12/24 17:27:58 slicerdw Exp $
+// $Id: p_client.c,v 1.58 2001/12/24 18:06:05 slicerdw Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: p_client.c,v $
-// Revision 1.57  2001/12/24 17:27:58  slicerdw
-// Added check for gl_dynamic
+// Revision 1.58  2001/12/24 18:06:05  slicerdw
+// changed dynamic check for darkmatch only
 //
 // Revision 1.56  2001/12/23 16:30:50  ra
 // 2.5 ready. New stats from Freud. HC and shotgun gibbing seperated.
@@ -2676,7 +2676,7 @@ InitClientResp (gclient_t * client)
   memset (client->resp.gldriver, 0, sizeof (client->resp.gldriver));
   client->resp.gllockpvs = 0;
   client->resp.glclear = 0;
-  client->resp.gldynamic = 0;
+  client->resp.gldynamic = 1;
   client->resp.glmodulate = 0;
   client->resp.checked = false;
   memset (&client->resp.checktime, 0, sizeof (client->resp.checktime));

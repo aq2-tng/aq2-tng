@@ -1,12 +1,12 @@
 //-----------------------------------------------------------------------------
 // g_cmds.c
 //
-// $Id: g_cmds.c,v 1.45 2001/12/24 17:27:58 slicerdw Exp $
+// $Id: g_cmds.c,v 1.46 2001/12/24 18:06:05 slicerdw Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_cmds.c,v $
-// Revision 1.45  2001/12/24 17:27:58  slicerdw
-// Added check for gl_dynamic
+// Revision 1.46  2001/12/24 18:06:05  slicerdw
+// changed dynamic check for darkmatch only
 //
 // Revision 1.44  2001/12/09 14:02:11  slicerdw
 // Added gl_clear check -> video_check_glclear cvar
@@ -2168,7 +2168,7 @@ Cmd_VidRef_f (edict_t * ent)
 void
 Cmd_CPSI_f (edict_t * ent)
 {
-  if (video_check->value || video_check_lockpvs->value || video_check_glclear || video_check_gldynamic)
+  if (video_check->value || video_check_lockpvs->value || video_check_glclear->value || darkmatch->value)
     {
       ent->client->resp.glmodulate = atoi (gi.argv (1));
       ent->client->resp.gllockpvs = atoi (gi.argv (2));

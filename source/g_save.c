@@ -1,12 +1,12 @@
 //-----------------------------------------------------------------------------
 // g_save.c
 //
-// $Id: g_save.c,v 1.47 2001/12/24 17:27:58 slicerdw Exp $
+// $Id: g_save.c,v 1.48 2001/12/24 18:06:05 slicerdw Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_save.c,v $
-// Revision 1.47  2001/12/24 17:27:58  slicerdw
-// Added check for gl_dynamic
+// Revision 1.48  2001/12/24 18:06:05  slicerdw
+// changed dynamic check for darkmatch only
 //
 // Revision 1.46  2001/12/23 16:30:50  ra
 // 2.5 ready. New stats from Freud. HC and shotgun gibbing seperated.
@@ -497,7 +497,6 @@ InitGame (void)
   video_force_restart = gi.cvar ("video_force_restart", "0", CVAR_LATCH);
   video_check_lockpvs = gi.cvar ("video_check_lockpvs", "0", 0);
   video_check_glclear = gi.cvar ("video_check_glclear", "0", 0);
-  video_check_gldynamic = gi.cvar ("video_check_gldynamic", "0", 0);
   video_checktime = gi.cvar ("video_checktime", "15", 0);
   hc_single = gi.cvar ("hc_single", "1", CVAR_LATCH);	//default ON
   wp_flags = gi.cvar ("wp_flags", "511", 0);	// 511 = WPF_MK23 | WPF_MP5 | WPF_M4 | WPF_M3 | WPF_HC | WPF_SNIPER | WPF_DUAL | WPF_KNIFE | WPF_GRENADE

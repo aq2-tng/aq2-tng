@@ -16,12 +16,12 @@
 // you get compiler errors too, comment them out like
 // I'd done.
 //
-// $Id: a_xgame.c,v 1.14 2001/12/24 17:27:58 slicerdw Exp $
+// $Id: a_xgame.c,v 1.15 2001/12/24 18:06:05 slicerdw Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_xgame.c,v $
-// Revision 1.14  2001/12/24 17:27:58  slicerdw
-// Added check for gl_dynamic
+// Revision 1.15  2001/12/24 18:06:05  slicerdw
+// changed dynamic check for darkmatch only
 //
 // Revision 1.13  2001/12/09 14:02:11  slicerdw
 // Added gl_clear check -> video_check_glclear cvar
@@ -747,10 +747,10 @@ VideoCheckClient (edict_t * ent)
 		 return;
 		}
   }
-   if (video_check_gldynamic->value) {
-      if (ent->client->resp.gldynamic != 0) {
+   if (darkmatch->value) {
+      if (ent->client->resp.gldynamic !=1) {
 		gi.cprintf (ent, PRINT_HIGH,
-		      "This server does not allow using that value for gl_dynamic, set it to '0'\n");
+		      "This server does not allow using that value for gl_dynamic, set it to '1'\n");
 		gi.bprintf (PRINT_HIGH, "%s was using an illegal setting\n",
 		      ent->client->pers.netname);
 		 Kick_Client (ent);

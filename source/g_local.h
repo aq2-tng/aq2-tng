@@ -1,12 +1,12 @@
 //-----------------------------------------------------------------------------
 // g_local.h -- local definitions for game module
 //
-// $Id: g_local.h,v 1.47 2001/12/24 17:27:58 slicerdw Exp $
+// $Id: g_local.h,v 1.48 2001/12/24 18:06:05 slicerdw Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_local.h,v $
-// Revision 1.47  2001/12/24 17:27:58  slicerdw
-// Added check for gl_dynamic
+// Revision 1.48  2001/12/24 18:06:05  slicerdw
+// changed dynamic check for darkmatch only
 //
 // Revision 1.46  2001/12/23 21:19:41  deathwatch
 // Updated stats with location and average
@@ -771,7 +771,6 @@ extern cvar_t *video_max_3dfxam;
 extern cvar_t *video_max_opengl;
 extern cvar_t *video_check_lockpvs;
 extern cvar_t *video_check_glclear;
-extern cvar_t *video_check_gldynamic;
 extern cvar_t *video_force_restart;
 extern cvar_t *check_time;
 extern cvar_t *matchmode;
