@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // p_view.c
 //
-// $Id: p_view.c,v 1.4 2001/05/08 12:54:17 igor_rock Exp $
+// $Id: p_view.c,v 1.5 2001/05/11 16:07:26 mort Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: p_view.c,v $
+// Revision 1.5  2001/05/11 16:07:26  mort
+// Various CTF bits and pieces...
+//
 // Revision 1.4  2001/05/08 12:54:17  igor_rock
 // removed another debug message ;)
 //
@@ -1203,29 +1206,66 @@ void ClientEndServerFrame (edict_t *ent)
 	  
   }
 
+  // AQ2:TNG - CTF
+  if(ctf->value)
+	  checkForCap(ent);
+
   //FIREBLADE - Unstick avoidance stuff.
   if (ent->solid == SOLID_TRIGGER && !lights_camera_action)
   {       
-    edict_t *overlap;
-    if ((overlap = FindOverlap(ent, NULL)) == NULL)
-    {
-      ent->solid = SOLID_BBOX;
-      gi.linkentity(ent);
-      RemoveFromTransparentList(ent);
-    }
-    else
-    {
-      do
-      {
-        if (overlap->solid == SOLID_BBOX)
-        {
-          overlap->solid = SOLID_TRIGGER;
-          gi.linkentity(overlap);
-          AddToTransparentList(overlap);
-        }
-        overlap = FindOverlap(ent, overlap);
-      } while (overlap != NULL);
-    }
+	  if(ctf->value) // AQ2:M - CTF
+	  {
+		  if(ent->client->respawn_time < level.time) // Make use of a variable :)
+		  {
+				edict_t *overlap;
+		
+				// Get rid of god mode
+				ent->flags &= ~FL_GODMODE;
+
+			    if ((overlap = FindOverlap(ent, NULL)) == NULL)
+			    {
+				   ent->solid = SOLID_BBOX;
+				   gi.linkentity(ent);
+				   RemoveFromTransparentList(ent);
+			    }
+			    else
+				{
+					do
+					{
+				        if (overlap->solid == SOLID_BBOX)
+				        {
+							overlap->solid = SOLID_TRIGGER;
+							gi.linkentity(overlap);
+							AddToTransparentList(overlap);
+						}
+						overlap = FindOverlap(ent, overlap);
+					} while (overlap != NULL);
+				}		  
+		  }
+	  }
+	  else
+	  {
+			edict_t *overlap;
+			if ((overlap = FindOverlap(ent, NULL)) == NULL)
+		    {
+				ent->solid = SOLID_BBOX;
+				gi.linkentity(ent);
+				RemoveFromTransparentList(ent);
+			}
+			else
+			{
+				do
+				{
+					if (overlap->solid == SOLID_BBOX)
+					{
+						overlap->solid = SOLID_TRIGGER;
+						gi.linkentity(overlap);
+						AddToTransparentList(overlap);
+					}
+					overlap = FindOverlap(ent, overlap);
+				} while (overlap != NULL);
+			}
+	  }
   }
   //FIREBLADE
 

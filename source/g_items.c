@@ -1,12 +1,15 @@
 //-----------------------------------------------------------------------------
 // g_itmes.c
 //
-// $Id: g_items.c,v 1.1 2001/05/06 17:31:33 igor_rock Exp $
+// $Id: g_items.c,v 1.2 2001/05/11 16:07:25 mort Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_items.c,v $
-// Revision 1.1  2001/05/06 17:31:33  igor_rock
-// Initial revision
+// Revision 1.2  2001/05/11 16:07:25  mort
+// Various CTF bits and pieces...
+//
+// Revision 1.1.1.1  2001/05/06 17:31:33  igor_rock
+// This is the PG Bund Edition V1.25 with all stuff laying around here...
 //
 //-----------------------------------------------------------------------------
 
@@ -191,7 +194,16 @@ qboolean Pickup_Powerup (edict_t *ent, edict_t *other)
 //zucc pickup function for special items
 qboolean Pickup_Special ( edict_t *ent, edict_t *other )
 {
-        if ( other->client->unique_item_total >= unique_items->value )
+	// AQ2:M - CTF - Special code for flag...
+	if(stricmp(ent->item->classname, "item_redflag") == 0 ||
+		stricmp(ent->item->classname, "item_blueflag") == 0)
+	{
+		other->client->pers.inventory[ITEM_INDEX(ent->item)]++;
+
+		return true;
+	}
+
+	if ( other->client->unique_item_total >= unique_items->value )
                 return false;
         else
         {
@@ -925,7 +937,22 @@ void Touch_Item (edict_t *ent, edict_t *other, cplane_t *plane, csurface_t *surf
                 if (ent->item->use)
                         other->client->pers.selected_item = other->client->ps.stats[STAT_SELECTED_ITEM] = ITEM_INDEX(ent->item);
 
-                gi.sound(other, CHAN_ITEM, gi.soundindex(ent->item->pickup_sound), 1, ATTN_NORM, 0);
+				// AQ2:M - CTF
+				if(stricmp(ent->item->classname, "item_redflag") == 0 ||
+					stricmp(ent->item->classname, "item_blueflag") == 0)
+				{
+					// Make sure the flag is treated "properly"
+
+					if(ent->touch != flagTouch)
+					{
+						ent->touch = flagTouch;
+						flagTouch(ent, other, plane, surf);
+					}
+
+	                gi.sound(other, CHAN_FLAG | CHAN_RELIABLE, gi.soundindex(ent->item->pickup_sound), 1, ATTN_NONE, 0);
+				}
+				else
+					gi.sound(other, CHAN_ITEM, gi.soundindex(ent->item->pickup_sound), 1, ATTN_NORM, 0);
         }
 
         if (!(ent->spawnflags & ITEM_TARGETS_USED))
@@ -953,16 +980,43 @@ static void drop_temp_touch (edict_t *ent, edict_t *other, cplane_t *plane, csur
         if (other == ent->owner)
                 return;
 
+		// AQ2:M - CTF
+		if(stricmp(ent->item->classname, "item_redflag") == 0 ||
+			stricmp(ent->item->classname, "item_blueflag") == 0)
+		{
+//			flagTouch(ent, other, plane, surf);
+			return;
+		}
+
         Touch_Item (ent, other, plane, surf);
 }
 
 static void drop_make_touchable (edict_t *ent)
 {
-        ent->touch = Touch_Item;
-        if (deathmatch->value)
+ 	    // AQ2:M - CTF
+	if(stricmp(ent->item->classname, "item_redflag") == 0 ||
+		stricmp(ent->item->classname, "item_blueflag") == 0)
+	{
+		ent->think = returnFlag;
+		ent->nextthink = level.time + ctf_flag_respawn_time->value;
+		ent->touch = flagTouch;
+		ent->solid = SOLID_TRIGGER;
+		ent->owner = 0;
+
+		gi.linkentity(ent); 
+
+		return;
+	}
+
+	ent->touch = Touch_Item;
+        if (deathmatch->value || ctf->value) // AQ2:M - CTF
         {
-                ent->nextthink = level.time + 119;
-                ent->think = G_FreeEdict;
+			if(ctf->value) // AQ2:M - CTF
+				ent->nextthink = level.time + ctf_item_remove_time->value; // AQ2:M - CTF // AQ2:M - CTF
+			else // AQ2:M - CTF
+				ent->nextthink = level.time + 119;
+
+			ent->think = G_FreeEdict;
         }
 }
 
@@ -995,7 +1049,12 @@ edict_t *Drop_Item (edict_t *ent, gitem_t *item)
         dropped->solid = SOLID_TRIGGER;
         dropped->movetype = MOVETYPE_TOSS;  
         
-        dropped->touch = drop_temp_touch;
+ 		// aq2:m - ctf
+		if(stricmp(dropped->classname, "item_redflag") == 0 ||
+					stricmp(dropped->classname, "item_blueflag") == 0)
+			dropped->solid = SOLID_BBOX;
+
+		dropped->touch = drop_temp_touch;
         dropped->owner = ent;
 
         if (ent->client)
@@ -2682,7 +2741,50 @@ tank commander's head
 /* precache */ ""
         },
 
-        // end of list marker
+		// AQ2:M - CTF - FLAGS
+		{
+                "item_redflag",
+                        Pickup_Special,
+                        NULL,
+                        Drop_Special,
+                        NULL,
+                        "ctf/flagtk.wav", // sound
+                        "models/flags/flag1.md2",
+                        0,
+                        NULL,
+/* icon */              "i_ctf1",
+/* pickup */    "Red Flag",
+/* width */             2,
+                        1,
+                        NULL,
+                        IT_ITEM,
+                        NULL,
+                        0,
+    
+		},
+
+		{
+                "item_blueflag",
+                        Pickup_Special,
+                        NULL,
+                        Drop_Special,
+                        NULL,
+                        "ctf/flagtk.wav", // sound
+                        "models/flags/flag2.md2",
+                        0,
+                        NULL,
+/* icon */              "i_ctf2",
+/* pickup */    "Blue Flag",
+/* width */             2,
+                        2,
+                        NULL,
+                        IT_ITEM,
+                        NULL,
+                        0,
+    
+		},
+        
+		// end of list marker
         {NULL}
 };
 

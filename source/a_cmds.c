@@ -4,10 +4,13 @@
 //
 // laser sight patch, by Geza Beladi
 //
-// $Id: a_cmds.c,v 1.2 2001/05/07 02:05:36 ra Exp $
+// $Id: a_cmds.c,v 1.3 2001/05/11 16:07:25 mort Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_cmds.c,v $
+// Revision 1.3  2001/05/11 16:07:25  mort
+// Various CTF bits and pieces...
+//
 // Revision 1.2  2001/05/07 02:05:36  ra
 //
 //
@@ -970,6 +973,21 @@ Cmd_Choose_f (edict_t * ent)
       return;
     }
   gi.cprintf (ent, PRINT_HIGH, "Weapon selected: %s\nItem selected: %s\n", (ent->client->resp.weapon)->pickup_name, (ent->client->resp.item)->pickup_name);
+
+  // AQ2:TNG - CTF Checking
+	if(ctf->value)
+	{
+		if(stricmp(s, LASER_NAME) == 0)
+			ForceSpawn(ent); // AQ2:M - CTF
+		else if(stricmp(s, KEV_NAME) == 0)
+			ForceSpawn(ent); // AQ2:M - CTF
+		else if(stricmp(s, SIL_NAME) == 0)
+			ForceSpawn(ent); // AQ2:M - CTF
+		else if(stricmp(s, BAND_NAME) == 0)
+			ForceSpawn(ent); // AQ2:M - CTF
+		else if(stricmp(s, SLIP_NAME) == 0)
+			ForceSpawn(ent); // AQ2:M - CTF
+	}
 
 }
 

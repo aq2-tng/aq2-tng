@@ -3,10 +3,13 @@
 // Some of this is borrowed from Zoid's CTF (thanks Zoid)
 // -Fireblade
 //
-// $Id: a_team.c,v 1.4 2001/05/11 12:21:18 slicerdw Exp $
+// $Id: a_team.c,v 1.5 2001/05/11 16:07:25 mort Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_team.c,v $
+// Revision 1.5  2001/05/11 16:07:25  mort
+// Various CTF bits and pieces...
+//
 // Revision 1.4  2001/05/11 12:21:18  slicerdw
 // Commented old Location support ( ADF ) With the ML/ETE Compatible one
 //
@@ -47,6 +50,8 @@ int team3_score = 0;
 int team1_total = 0;
 int team2_total = 0;
 int team3_total = 0;
+
+int hackedSpawns; 
 
 #define MAX_SPAWNS 1000		// max DM spawn points supported
 
@@ -273,6 +278,7 @@ SelectItem1 (edict_t * ent, pmenu_t * p)
   PMenu_Close (ent);
 //PG BUND
   stuffcmd (ent, "play misc/veston.wav\n");
+  ForceSpawn(ent); // AQ2:TNG - CTF
 }
 
 void
@@ -282,6 +288,7 @@ SelectItem2 (edict_t * ent, pmenu_t * p)
   PMenu_Close (ent);
 //PG BUND
   stuffcmd (ent, "play misc/lasersight.wav\n");
+  ForceSpawn(ent); // AQ2:TNG - CTF
 }
 
 void
@@ -291,6 +298,7 @@ SelectItem3 (edict_t * ent, pmenu_t * p)
   PMenu_Close (ent);
 //PG BUND
   stuffcmd (ent, "play misc/veston.wav\n");
+  ForceSpawn(ent); // AQ2:TNG - CTF
 }
 
 void
@@ -300,6 +308,7 @@ SelectItem4 (edict_t * ent, pmenu_t * p)
   PMenu_Close (ent);
 //PG BUND
   stuffcmd (ent, "play misc/screw.wav");
+  ForceSpawn(ent); // AQ2:TNG - CTF
 }
 
 void
@@ -309,6 +318,7 @@ SelectItem5 (edict_t * ent, pmenu_t * p)
   PMenu_Close (ent);
 //PG BUND
   stuffcmd (ent, "play misc/veston.wav");
+  ForceSpawn(ent); // AQ2:TNG - CTF
 }
 
 void
@@ -318,6 +328,7 @@ SelectItem6 (edict_t * ent, pmenu_t * p)
   PMenu_Close (ent);
 //PG BUND
   stuffcmd (ent, "play misc/veston.wav\n");
+  ForceSpawn(ent); // AQ2:TNG - CTF
 }
 
 void
@@ -606,6 +617,7 @@ JoinTeam (edict_t * ent, int desired_team, int skip_menuclose)
   if (ent->client->resp.team == desired_team)
     return;
 
+  ent->client->hasSpawned = 0; // AQ2:M - ctf
   a = (ent->client->resp.team == NOTEAM) ? "joined" : "changed to";
 
   ent->client->resp.team = desired_team;
@@ -619,6 +631,11 @@ JoinTeam (edict_t * ent, int desired_team, int skip_menuclose)
       player_die (ent, ent, ent, 100000, vec3_origin);
       ent->deadflag = DEAD_DEAD;
     }
+
+  // AQ2:TNG - CTF
+  if(started && ctf->value)
+	ent->client->pers.spectator = 1; 
+  // AQ2:TNG - CTF
 
   gi.bprintf (PRINT_HIGH, "%s %s %s.\n",
 	      ent->client->pers.netname, a, TeamName (desired_team));
@@ -952,6 +969,9 @@ CheckForWinner ()
   int onteam1 = 0, onteam2 = 0, onteam3 = 0, i;
   edict_t *ent;
 
+  if(ctf->value) // AQ2:M - CTF - Disables server from thinking that a team has won when everyone is dead
+	return WINNER_NONE;
+  
   for (i = 0; i < game.maxclients; i++)
     {
       ent = &g_edicts[1 + i];
@@ -1190,6 +1210,7 @@ ContinueLCA ()
 	  CenterPrintAll ("ACTION!\n");
 	  gi.sound (&g_edicts[0], CHAN_VOICE | CHAN_NO_PHS_ADD,
 		    gi.soundindex ("atl/action.wav"), 1.0, ATTN_NONE, 0.0);
+	  started = 1; // AQ2:M - CTF
 	}
       else if (lights_camera_action == 1)
 	{
@@ -1424,48 +1445,60 @@ CheckTeamRules ()
   if (rulecheckfrequency % 15 && !checked_tie)
     return;
 
-  if (!team_round_going)
+    if (!team_round_going || ctf->value) // AQ2:M - CTF
     {
       if (timelimit->value)
-	{
-	  if (level.time >= timelimit->value * 60)
+	  {
+	    if (level.time >= timelimit->value * 60)
 	    {
 	      gi.bprintf (PRINT_HIGH, "Timelimit hit.\n");
 	      EndDMLevel ();
 	      team_round_going = team_round_countdown = team_game_going = 0;
 	      return;
 	    }
-	}
+	  }
+	
+	  // AQ2:M - CTF
+	  if (roundlimit->value && ctf->value)
+	  {
+	    if(team1_score >= roundlimit->value ||
+		  team2_score >= roundlimit->value)
+		{
+          gi.bprintf (PRINT_HIGH, "Roundlimit hit.\n");
+          EndDMLevel();
+          team_round_going = team_round_countdown = team_game_going = 0;
+		  return;
+		}
+	  }
 
 //PG BUND - BEGIN
       if (vCheckVote () == true)
-	{
-	  EndDMLevel ();
-	  team_round_going = team_round_countdown = team_game_going = 0;
-	  return;
-	}
+	  {
+	    EndDMLevel ();
+	    team_round_going = team_round_countdown = team_game_going = 0;
+	    return;
+	  }
 //PG BUND - END
 
-      if (!team_round_countdown)
-	{
-	  if (BothTeamsHavePlayers ())
+      if (!team_round_countdown && !(ctf->value && started)) // AQ2:M - CTF
+	  {
+	    if (BothTeamsHavePlayers ())
 	    {
 	      if (use_tourney->value)
-		{
-		  TourneyNewRound ();
-		  team_round_countdown = TourneySetTime (T_START);
-		  TourneyTimeEvent (T_START, team_round_countdown);
-		}
+		  {
+		    TourneyNewRound ();
+		    team_round_countdown = TourneySetTime (T_START);
+		    TourneyTimeEvent (T_START, team_round_countdown);
+		  }
 	      else
-		{
-		  CenterPrintAll ("The round will begin in 20 seconds!\n");
-		  team_round_countdown = 201;
-		}
-
+		  {
+		    CenterPrintAll ("The round will begin in 20 seconds!\n");
+		    team_round_countdown = 201;
+		  }
 	    }
-	}
+	  }
     }
-  else
+    else
     /* team_round_going */
     {
       if ((winner = CheckForWinner ()) != WINNER_NONE)
@@ -2139,7 +2172,36 @@ TallyEndOfLevelTeamScores (void)
 edict_t *
 SelectTeamplaySpawnPoint (edict_t * ent)
 {
-  return teamplay_spawns[ent->client->resp.team - 1];
+	// AQ2:M - CTF
+	if(ctf->value)
+	{
+		int a = 0;
+		
+redo:
+
+		a = rand() % 3;
+
+		if(ent->client->resp.team == 1)
+		{
+			if(!closestRedSpawns[a])
+				goto redo;
+			if(!closestRedSpawns[a]->inuse)
+				goto redo;
+
+			return closestRedSpawns[a];
+		}
+		else
+		{
+			if(!closestBlueSpawns[a])
+				goto redo;
+			if(!closestBlueSpawns[a]->inuse)
+				goto redo;
+
+			return closestBlueSpawns[a];
+		}
+	}
+	
+	return teamplay_spawns[ent->client->resp.team - 1];
 }
 
 // SpawnPointDistance: 
@@ -2352,7 +2414,271 @@ SetupTeamSpawnPoints ()
   qboolean teams_assigned[MAX_TEAMS];
   int started_at, l, firstassignment;
 
-  for (l = 0; l < num_teams; l++)
+		// AQ2:M CTF - THIS CODE NEEDS CLEANING UP A BIT
+		if(ctf->value)
+		{
+			int closest = 2000000000;
+			int distance; 
+			int a = 0;
+			int best = 0;
+			cvar_t  *game;
+			FILE *f;
+			char locfile[256];
+			
+			// Check for a hacked spawn file
+
+			game = gi.cvar("game", "", 0);
+
+			if(!*game->string)
+				sprintf(locfile, "%s/aqm/%s.flg", GAMEVERSION, level.mapname);
+			else
+				sprintf(locfile, "%s/aqm/%s.flg", game->string, level.mapname);
+
+			f = fopen(locfile, "rt");
+			if(f)
+			{
+				char line[256];
+
+				fgets(line, 255, f); // get the first line...
+				if(!feof(f))
+				{
+					fgets(line, 255, f); // get the second line...
+					if(!feof(f))
+					{
+						// We have hacked spawns... Load them
+						char *param;
+						int x, y, z;
+						int n;
+						edict_t *ent;
+
+						hackedSpawns = 1;
+				
+						n = 0;
+						while(n < 3)
+						{
+							if(line[0] == '#')
+							{
+								fgets(line, 256, f);
+								closestRedSpawns[n] = 0;
+								n++;
+								continue;
+							}
+
+							param = strtok(line, " ,:\n\0");
+							x = atoi(param);
+
+							param = strtok(NULL, " ,:\n\0");
+							y = atoi(param);
+
+							param = strtok(NULL, " ,:\n\0");
+							z = atoi(param);
+
+							ent = G_Spawn();
+					        ent->s.skinnum = 0;
+					        ent->solid = SOLID_NOT;
+						    VectorSet (ent->mins, 0, 0, 0);
+							VectorSet (ent->maxs, 0, 0, 0);
+							VectorSet (ent->s.origin, x, y, z);
+
+							gi.linkentity(ent);
+					
+							closestRedSpawns[n] = ent;
+
+							fgets(line, 256, f);
+							n++;
+						}
+
+						n = 0;
+						while(n < 3)
+						{
+							if(line[0] == '#')
+							{
+								fgets(line, 256, f);
+								closestBlueSpawns[n] = 0;
+								n++;
+								continue;
+							}
+	
+							param = strtok(line, " ,:\n\0");
+							x = atoi(param);
+			
+							param = strtok(NULL, " ,:\n\0");
+							y = atoi(param);
+		
+							param = strtok(NULL, " ,:\n\0");
+							z = atoi(param);
+	
+							ent = G_Spawn();
+					        ent->s.skinnum = 0;
+					        ent->solid = SOLID_NOT;
+						    VectorSet (ent->mins, 0, 0, 0);
+							VectorSet (ent->maxs, 0, 0, 0);
+							VectorSet (ent->s.origin, x, y, z);
+
+							gi.linkentity(ent);	
+
+							closestBlueSpawns[n] = ent;
+	
+							fgets(line, 256, f);
+							n++;
+						}
+
+						fclose(f);
+
+						return;
+					}
+				}
+			}
+
+			fclose(f);
+
+			hackedSpawns = 0;
+			
+			// Work out CTF spawns...
+			// Find 3 closest spawns to red flag
+
+			while(a < num_potential_spawns)
+			{
+				distance = SpawnPointDistance(potential_spawns[a], redFlag);
+				if(distance < closest)
+				{
+					best = a;
+					closest = distance;
+				}
+				a++;
+			}
+			// Found 1st...
+			closestRedSpawns[0] = potential_spawns[best];
+
+			closest = 2000000000;
+			a = 0;
+			best = 0;
+
+			while(a < num_potential_spawns)
+			{
+				if(potential_spawns[a] == closestRedSpawns[0])
+				{
+					a++;
+					continue;
+				}
+
+				distance = SpawnPointDistance(potential_spawns[a], redFlag);
+				if(distance < closest)
+				{
+					best = a;
+					closest = distance;
+				}
+				a++;
+			}
+			// Found 2nd...
+			closestRedSpawns[1] = potential_spawns[best];
+	
+			closest = 2000000000;
+			a = 0;
+			best = 0;
+
+			while(a < num_potential_spawns)
+			{
+				if(potential_spawns[a] == closestRedSpawns[0])
+				{
+					a++;
+					continue;
+				}
+
+				if(potential_spawns[a] == closestRedSpawns[1])
+				{
+					a++;
+					continue;
+				}
+
+				distance = SpawnPointDistance(potential_spawns[a], redFlag);
+				if(distance < closest)
+				{
+					best = a;
+					closest = distance;
+				}
+				a++;
+			}
+			// Found 3rd...
+			closestRedSpawns[2] = potential_spawns[best];
+			
+			// Find 3 closest spawns to blue flag
+
+			closest = 2000000000;
+			a = 0;
+			best = 0;
+
+			while(a < num_potential_spawns)
+			{
+				distance = SpawnPointDistance(potential_spawns[a], blueFlag);
+				if(distance < closest)
+				{
+					best = a;
+					closest = distance;
+				}
+				a++;
+			}
+			// Found 1st...
+			closestBlueSpawns[0] = potential_spawns[best];
+
+			closest = 2000000000;
+			a = 0;
+			best = 0;
+
+			while(a < num_potential_spawns)
+			{
+				if(potential_spawns[a] == closestBlueSpawns[0])
+				{
+					a++;
+					continue;
+				}
+
+				distance = SpawnPointDistance(potential_spawns[a], blueFlag);
+				if(distance < closest)
+				{
+					best = a;
+					closest = distance;
+				}
+				a++;
+			}
+			// Found 2nd...
+			closestBlueSpawns[1] = potential_spawns[best];
+
+			closest = 2000000000;
+			a = 0;
+			best = 0;
+
+			while(a < num_potential_spawns)
+			{
+				if(potential_spawns[a] == closestBlueSpawns[0])
+				{
+					a++;
+					continue;
+				}
+
+				if(potential_spawns[a] == closestBlueSpawns[1])
+				{
+					a++;
+					continue;
+				}
+
+				distance = SpawnPointDistance(potential_spawns[a], blueFlag);
+				if(distance < closest)
+				{
+					best = a;
+					closest = distance;
+				}
+				a++;
+			}
+ 
+
+			// Found 3rd...
+			closestBlueSpawns[2] = potential_spawns[best];
+			
+			return;
+		}
+
+		for (l = 0; l < num_teams; l++)
     {
       teamplay_spawns[l] = NULL;
       teams_assigned[l] = false;

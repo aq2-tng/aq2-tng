@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // g_cmds.c
 //
-// $Id: g_cmds.c,v 1.5 2001/05/11 12:21:19 slicerdw Exp $
+// $Id: g_cmds.c,v 1.6 2001/05/11 16:07:25 mort Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_cmds.c,v $
+// Revision 1.6  2001/05/11 16:07:25  mort
+// Various CTF bits and pieces...
+//
 // Revision 1.5  2001/05/11 12:21:19  slicerdw
 // Commented old Location support ( ADF ) With the ML/ETE Compatible one
 //
@@ -609,6 +612,14 @@ void Cmd_Drop_f (edict_t *ent)
                 DropSpecialItem ( ent );
                 return;
         }
+
+		// AQ2:TNG - CTF
+		if ( stricmp(s, "flag") == 0)
+		{
+			DropFlag( ent );
+			return;
+		}
+
 
 // AQ:TNG - JBravo fixing ammo clip farming
 	if (ent->client->weaponstate == WEAPON_RELOADING)
@@ -1227,8 +1238,8 @@ void Cmd_Say_f (edict_t *ent, qboolean team, qboolean arg0, qboolean partner_msg
       //FIREBLADE
       if (teamplay->value && team_round_going)
 	{
-	  if ((ent->solid == SOLID_NOT || ent->deadflag == DEAD_DEAD) && 
-	      (other->solid != SOLID_NOT && other->deadflag != DEAD_DEAD))
+      if ((ent->solid == SOLID_NOT || ent->deadflag == DEAD_DEAD) && // AQ2:M - CTF
+        (other->solid != SOLID_NOT && other->deadflag != DEAD_DEAD) && !ctf->value)
 	    continue;
 	}
       //FIREBLADE             

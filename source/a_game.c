@@ -5,10 +5,13 @@
 // Zucchini (spikard@u.washington.edu) and Fireblade (ucs_brf@shsu.edu) 
 // (splat/bullethole/shell ejection code from original Action source)
 //
-// $Id: a_game.c,v 1.2 2001/05/11 12:21:18 slicerdw Exp $
+// $Id: a_game.c,v 1.3 2001/05/11 16:07:25 mort Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_game.c,v $
+// Revision 1.3  2001/05/11 16:07:25  mort
+// Various CTF bits and pieces...
+//
 // Revision 1.2  2001/05/11 12:21:18  slicerdw
 // Commented old Location support ( ADF ) With the ML/ETE Compatible one
 //
@@ -221,22 +224,24 @@ PrintMOTD (edict_t * ent)
 
       // Line for game type
       if (teamplay->value)
-	{
-	  if (use_3teams->value)
+	  {
+	    if (use_3teams->value)
 	    {
 	      server_type = "3 team game";
 	    }
-	  else if (!use_tourney->value)		// Added "->value", duh -TempFile
-
+		else if (ctf->value)
+		{
+		  server_type = "Capture the Flag"; // CTF
+		}
+	    else if (!use_tourney->value)		// Added "->value", duh -TempFile
 	    {
 	      server_type = "team game";
 	    }
-	  else
-	    server_type = "tourney";
-
-	}
+        else
+	      server_type = "tourney";
+	  }
       else
-	{
+	  {
 	  if ((int) dmflags->value & DF_MODELTEAMS)
 	    server_type = "deathmatch (teams by model)";
 	  else if ((int) dmflags->value & DF_SKINTEAMS)

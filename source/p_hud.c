@@ -1,12 +1,15 @@
 //-----------------------------------------------------------------------------
 // p_hud.c
 //
-// $Id: p_hud.c,v 1.1 2001/05/06 17:25:15 igor_rock Exp $
+// $Id: p_hud.c,v 1.2 2001/05/11 16:07:26 mort Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: p_hud.c,v $
-// Revision 1.1  2001/05/06 17:25:15  igor_rock
-// Initial revision
+// Revision 1.2  2001/05/11 16:07:26  mort
+// Various CTF bits and pieces...
+//
+// Revision 1.1.1.1  2001/05/06 17:25:15  igor_rock
+// This is the PG Bund Edition V1.25 with all stuff laying around here...
 //
 //-----------------------------------------------------------------------------
 
@@ -434,7 +437,21 @@ void G_SetStats (edict_t *ent)
   
   if (!ent->client->chase_mode)
     {
-      //
+      // AQ2:M - CTF
+	  if(ctf->value)
+	  {
+	    if(redFlagTaken)
+		  ent->client->ps.stats[STAT_REDFLAG_ICON] = gi.imageindex("i_ctf1t");
+		else
+		  ent->client->ps.stats[STAT_REDFLAG_ICON] = gi.imageindex("i_ctf1");
+
+		if(blueFlagTaken)
+		  ent->client->ps.stats[STAT_BLUEFLAG_ICON] = gi.imageindex("i_ctf2t");
+		else
+		  ent->client->ps.stats[STAT_BLUEFLAG_ICON] = gi.imageindex("i_ctf2");
+	  }
+
+	  //
       // health
       //
       ent->client->ps.stats[STAT_HEALTH_ICON] = level.pic_health;
@@ -470,7 +487,12 @@ void G_SetStats (edict_t *ent)
       else
 	ent->client->ps.stats[STAT_WEAPONS_ICON] = 0;
       
-      if ( ent->client->pers.inventory[ITEM_INDEX(FindItem(KEV_NAME))] )
+
+       if ( ent->client->pers.inventory[ITEM_INDEX(FindItem("Red Flag"))] ) // AQ2:M CTF
+    ent->client->ps.stats[STAT_ITEMS_ICON] = gi.imageindex(FindItem("Red Flag")->icon);
+       else if ( ent->client->pers.inventory[ITEM_INDEX(FindItem("Blue Flag"))] ) // AQ2:M CTF
+    ent->client->ps.stats[STAT_ITEMS_ICON] = gi.imageindex(FindItem("Blue Flag")->icon);
+       if ( ent->client->pers.inventory[ITEM_INDEX(FindItem(KEV_NAME))] )
 	ent->client->ps.stats[STAT_ITEMS_ICON] = gi.imageindex(FindItem(KEV_NAME)->icon);
       else if ( ent->client->pers.inventory[ITEM_INDEX(FindItem(LASER_NAME))] )
 	ent->client->ps.stats[STAT_ITEMS_ICON] = gi.imageindex(FindItem(LASER_NAME)->icon);     

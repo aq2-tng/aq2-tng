@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // g_weapon.c
 //
-// $Id: p_weapon.c,v 1.2 2001/05/07 01:38:51 ra Exp $
+// $Id: p_weapon.c,v 1.3 2001/05/11 16:07:26 mort Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: p_weapon.c,v $
+// Revision 1.3  2001/05/11 16:07:26  mort
+// Various CTF bits and pieces...
+//
 // Revision 1.2  2001/05/07 01:38:51  ra
 //
 //
@@ -816,8 +819,17 @@ void temp_think_specweap( edict_t* ent )
         }
                 else if ( teamplay->value && !allweapon->value)
                 {
+					// AQ2:M - CTF
+					if(ctf->value) // AQ2:M - CTF
+					{
+			                ent->think = G_FreeEdict;
+							ent->nextthink = level.time + ctf_item_remove_time->value; // AQ2:M - CTF
+					}
+					else
+					{
                         ent->nextthink = level.time + 1000;
                         ent->think = PlaceHolder;
+					}
                 }
                 else // allweapon set
                 {
@@ -1719,7 +1731,8 @@ void Weapon_Generic (edict_t *ent, int FRAME_ACTIVATE_LAST, int FRAME_FIRE_LAST,
         {
                 if ( ((ent->client->latched_buttons|ent->client->buttons) & BUTTON_ATTACK) 
 //FIREBLADE
-                        && (ent->solid != SOLID_NOT || ent->deadflag == DEAD_DEAD) && !lights_camera_action)
+                        && (ent->solid != SOLID_NOT || ent->deadflag == DEAD_DEAD) && !lights_camera_action
+						&& !((ctf->value) && (ent->flags & FL_GODMODE))) // aq:m
 //FIREBLADE
                 {
                         ent->client->latched_buttons &= ~BUTTON_ATTACK;

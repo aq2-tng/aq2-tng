@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // p_client.c
 //
-// $Id: p_client.c,v 1.9 2001/05/11 12:21:19 slicerdw Exp $
+// $Id: p_client.c,v 1.10 2001/05/11 16:07:26 mort Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: p_client.c,v $
+// Revision 1.10  2001/05/11 16:07:26  mort
+// Various CTF bits and pieces...
+//
 // Revision 1.9  2001/05/11 12:21:19  slicerdw
 // Commented old Location support ( ADF ) With the ML/ETE Compatible one
 //
@@ -517,7 +520,28 @@ void ClientObituary (edict_t *self, edict_t *inflictor, edict_t *attacker)
   int             special = 0;
   int                             n; 
   
-  if (coop->value && attacker->client)
+		if(ctf->value) // AQ2:M - CTF
+		{
+			self->client->respawn_time = level.time + ctf_player_respawn_time->value;
+			// No death messages in ctf
+			if(attacker == self)
+				Subtract_Frag( self );//self->client->resp.score--;
+			else if(attacker)
+			{
+				if(attacker->client)
+				{
+					Add_Frag(self->client->attacker );//attacker->client->resp.score++;
+			        if(self->client->pers.inventory[ITEM_INDEX(FindItem("Red Flag"))]) // 2nd frag for killing flag carrier
+						attacker->client->resp.score += 2;
+					else if(self->client->pers.inventory[ITEM_INDEX(FindItem("Blue Flag"))]) // 2nd frag for killing flag carrier
+						attacker->client->resp.score += 2;
+				}
+			}
+
+			return;
+		}
+
+	if (coop->value && attacker->client)
     meansOfDeath |= MOD_FRIENDLY_FIRE;
 
 if (attacker && attacker != self && attacker->client && OnSameTeam (self, attacker))
@@ -1240,6 +1264,16 @@ void TossItemsOnDeath( edict_t *ent )
         {
                 EjectItem( ent, item );
         }
+
+		// AQ2:M CTF
+        item = FindItem("Red Flag");
+        if ( ent->client->pers.inventory[ITEM_INDEX(item)] > 0 )
+                EjectItem( ent, item );
+
+        item = FindItem("Blue Flag");
+        if ( ent->client->pers.inventory[ITEM_INDEX(item)] > 0)
+                EjectItem( ent, item );
+
 // special items
 
 #if 0
@@ -1385,6 +1419,7 @@ void player_die (edict_t *self, edict_t *inflictor, edict_t *attacker, int damag
         }
 
         self->s.modelindex2 = 0;        // remove linked weapon model
+		self->s.modelindex3 = 0; // AQ2:M CTF remove linked flag model
 
         self->s.angles[0] = 0;
         self->s.angles[2] = 0;
@@ -1404,7 +1439,10 @@ void player_die (edict_t *self, edict_t *inflictor, edict_t *attacker, int damag
         self->svflags |= SVF_DEADMONSTER;
         if (!self->deadflag)
         {
-                self->client->respawn_time = level.time + 1.0;
+				if(ctf->value)
+					self->client->respawn_time = level.time + ctf_player_respawn_time->value;
+				else
+	                self->client->respawn_time = level.time + 1.0;
                 LookAtKiller (self, inflictor, attacker);
                 self->client->ps.pmove.pm_type = PM_DEAD;
                 ClientObituary (self, inflictor, attacker);
@@ -2021,12 +2059,14 @@ void CleanBodies()
         }
 }
 
+void EquipClient( edict_t *ent ); // AQ2:M - CTF - Definition of EquipClient function
+
 void respawn (edict_t *self)
 {
         if (deathmatch->value || coop->value)
         {
 //FIREBLADE
-                if (self->solid != SOLID_NOT || self->deadflag == DEAD_DEAD)
+                if ((self->solid != SOLID_NOT || self->deadflag == DEAD_DEAD) && !ctf->value)
 //FIREBLADE
                         CopyToBodyQue (self);
                 PutClientInServer (self);
@@ -2044,6 +2084,14 @@ void respawn (edict_t *self)
 //                self->client->ps.pmove.pm_time = 14;
 
                 self->client->respawn_time = level.time;
+
+				// AQ2:M - CTF
+				// Equip the client and put on god mode
+				if(ctf->value)
+				{
+					EquipClient(self);
+					self->flags |= FL_GODMODE;
+				}
 
                 return;
         }
@@ -2513,6 +2561,14 @@ void PutClientInServer (edict_t *ent)
         ent->watertype = 0;
         ent->flags &= ~FL_NO_KNOCKBACK;
         ent->svflags &= ~SVF_DEADMONSTER;
+
+		if(ctf->value)
+		{
+			ent->solid = SOLID_TRIGGER; // For trigger stuff..
+			ent->client->respawn_time = level.time + 2; // 2 seconds "not-solid"
+		}
+
+
 //FIREBLADE
         if (!teamplay->value || ent->client->resp.team != NOTEAM)
         {
@@ -2753,6 +2809,13 @@ void ClientBegin (edict_t *ent)
         int             i;
 
         ent->client = game.clients + (ent - g_edicts - 1);
+
+		ent->s.modelindex3 = 0; // AQ2:TNG - CTF Make sure the player doesn't look like he has the flag
+		ent->client->hasSpawned = 0; // AQ2:TNG - CTF Clear hasSpawned
+        
+		// clear inventory AQ:TNG - CTF - Clears the flag... 
+        memset(ent->client->pers.inventory, 0, sizeof(ent->client->pers.inventory));
+
         // clear modes of weapons
         /*
 		ent->client->resp.mk23_mode = 0;
@@ -3712,6 +3775,12 @@ void ClientBeginServerFrame (edict_t *ent)
         VectorCopy (ent->s.angles, client->ps.viewangles);
         VectorCopy (ent->s.angles, client->v_angle);
         gi.linkentity(ent);
+
+		if(ctf->value && started && (ent->client->resp.team != NOTEAM))
+		{
+		  respawn(ent);
+       	}
+
       }
 //FIREBLADE
       else

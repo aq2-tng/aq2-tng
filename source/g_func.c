@@ -1,12 +1,15 @@
 //-----------------------------------------------------------------------------
 // g_func.c
 //
-// $Id: g_func.c,v 1.1 2001/05/06 17:31:10 igor_rock Exp $
+// $Id: g_func.c,v 1.2 2001/05/11 16:07:25 mort Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_func.c,v $
-// Revision 1.1  2001/05/06 17:31:10  igor_rock
-// Initial revision
+// Revision 1.2  2001/05/11 16:07:25  mort
+// Various CTF bits and pieces...
+//
+// Revision 1.1.1.1  2001/05/06 17:31:10  igor_rock
+// This is the PG Bund Edition V1.25 with all stuff laying around here...
 //
 //-----------------------------------------------------------------------------
 
@@ -1151,7 +1154,15 @@ void door_blocked  (edict_t *self, edict_t *other)
                 // if it's still there, nuke it
                 if (other)
                 {
-                        // zucc we don't need explosions
+ 					// AQ2:M - CTF
+					if(stricmp(other->item->classname, "item_redflag") == 0 ||
+					stricmp(other->item->classname, "item_blueflag") == 0)
+					{
+						// leave the poor flag alone
+						return;
+					}
+					
+					// zucc we don't need explosions
                         Handle_Unique_Items(other);
                         if ( other )
                                 G_FreeEdict(other);

@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // g_local.h -- local definitions for game module
 //
-// $Id: g_local.h,v 1.8 2001/05/11 12:21:19 slicerdw Exp $
+// $Id: g_local.h,v 1.9 2001/05/11 16:07:25 mort Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_local.h,v $
+// Revision 1.9  2001/05/11 16:07:25  mort
+// Various CTF bits and pieces...
+//
 // Revision 1.8  2001/05/11 12:21:19  slicerdw
 // Commented old Location support ( ADF ) With the ML/ETE Compatible one
 //
@@ -49,6 +52,7 @@
 #include "a_game.h"
 #include "a_menu.h"
 #include "a_radio.h"
+#include "a_ctf.h"
 //FIREBLADE
 
 //PG BUND - BEGIN
@@ -1366,6 +1370,9 @@ struct gclient_s
     // This is set to 0 if no zooming shall be done, and is set to 0 after zooming
     // is done.
     //TempFile
+
+	//AQ2:TNG - CTF
+	int hasSpawned; // Flag saying whether this client has spawned
 
   };
 

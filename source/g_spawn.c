@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // g_spawn.c
 //
-// $Id: g_spawn.c,v 1.2 2001/05/11 12:21:19 slicerdw Exp $
+// $Id: g_spawn.c,v 1.3 2001/05/11 16:07:25 mort Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_spawn.c,v $
+// Revision 1.3  2001/05/11 16:07:25  mort
+// Various CTF bits and pieces...
+//
 // Revision 1.2  2001/05/11 12:21:19  slicerdw
 // Commented old Location support ( ADF ) With the ML/ETE Compatible one
 //
@@ -815,6 +818,12 @@ void SpawnEntities (char *mapname, char *entities, char *spawnpoint)
 	fclose(f);
 	gi.dprintf("Found %d locations.\n",count);
 
+	// AQ2:TNG - Load ctf locations
+	if(ctf->value)
+	{
+		spawnFlags(mapname);
+	}
+
 
 }
 
@@ -1230,6 +1239,150 @@ char *dm_noscore_statusbar =
 ;
 // END FB
 
+// AQ2:CTF
+/* ctf status bar - Mort: */
+char *ctf_statusbar =
+"yb     -24 "
+
+// health
+"xv     0 "
+"hnum "
+"xv     50 "
+"pic 0 "
+
+// ammo
+"if 2 "
+"       xv      100 "
+"       anum "
+"       xv      150 "
+"       pic 2 "
+"endif "
+
+
+/*
+// armor
+"if 4 "
+"       xv      200 "
+"       rnum "
+"       xv      250 "
+"       pic 4 "
+"endif "
+*/
+// selected item
+"if 6 "
+"       xv      296 "
+"       pic 6 "
+"endif "
+
+"yb     -50 "
+
+// picked up item
+"if 7 "
+"       xv      0 "
+"       pic 7 "
+"       xv      26 "
+"       yb      -42 "
+"       stat_string 8 "
+"       yb      -50 "
+"endif "
+
+/*
+// timer
+"if 9 "
+"       xv      246 "
+"       num     2       10 "
+"       xv      296 "
+"       pic     9 "
+"endif "
+*/
+//  help / weapon icon
+"if 11 "
+"       xv      148 "
+"       pic     11 "
+"endif "
+
+// zucc
+// clip(s)
+"if 16 "
+"       xv      0 "
+"       yv      0 "
+"       yb      -24 "
+"       xr      -60 "
+"       num 2   17 "
+"       xr      -24 "
+"       pic 16 "
+"endif "
+
+// zucc special item ( vest etc )
+"if 19 "
+"       xv      0 "
+"       yv      0 "
+"       yb      -72 "
+"       xr      -24 "
+"       pic 19 "
+"endif "
+
+// zucc special weapon
+"if 20 "
+"       xv      0 "
+"       yv      0 "
+"       yb      -48 "
+"       xr      -24 "
+"       pic 20 "
+"endif "
+
+// zucc grenades
+
+"if 28 "
+"       xv      0 "
+"               yv              0 "
+"               yb              -96 "
+"               xr              -60 "
+"       num 2 29 "
+"       xr      -24 "
+"       pic 28 "
+"endif "
+
+"if 21 "
+  "xv 0 "
+  "yb -58 "
+  "string \"Viewing\" "
+  "xv 64 "
+  "stat_string 21 "
+"endif "
+
+// sniper graphic/icon
+
+"if 18 "
+"       xr      0 "
+"       yb      0 "
+"       xv      0 "
+"       yv      0 "
+"       pic 18 "
+"endif "
+
+// flags
+
+"if 30"
+"		xr      -24 "
+"		yt      30 "
+"       pic 30 "
+"endif"
+
+"if 31"
+"		xr     -48 "
+"		yt      30 "
+"       pic 31 "
+"endif"
+
+
+//  frags
+"xr     -50 "
+"yt 2 "
+"num 3 14"
+
+;
+
 
 /*QUAKED worldspawn (0 0 0) ?
 
@@ -1292,6 +1445,10 @@ void SP_worldspawn (edict_t *ent)
 //FIREBLADE
 	{
         	// status bar program
+			if(ctf->value)
+			{
+				gi.configstring (CS_STATUSBAR, ctf_statusbar);
+			}
         	if (deathmatch->value)
 //FIREBLADE
 		{
@@ -1444,6 +1601,20 @@ void SP_worldspawn (edict_t *ent)
         gi.modelindex ("models/objects/gibs/chest/tris.md2");
         gi.modelindex ("models/objects/gibs/skull/tris.md2");
         gi.modelindex ("models/objects/gibs/head2/tris.md2");
+
+		// AQ2:M - CTF stuff :)
+		if(ctf->value)
+		{
+			gi.soundindex("ctf/flagret.wav");
+			gi.soundindex("ctf/flagcap.wav");
+			gi.soundindex("ctf/flagtk.wav");
+			gi.modelindex("models/flags/flag1.md2");
+			gi.modelindex("models/flags/flag2.md2");
+			gi.imageindex("i_ctf1");
+			gi.imageindex("i_ctf1t");
+			gi.imageindex("i_ctf2");
+			gi.imageindex("i_ctf2t");
+		}
 
 //
 // Setup light animation tables. 'a' is total darkness, 'z' is doublebright.

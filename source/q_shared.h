@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // q_shared.h -- included first by ALL program modules
 //
-// $Id: q_shared.h,v 1.2 2001/05/07 08:32:17 mort Exp $
+// $Id: q_shared.h,v 1.3 2001/05/11 16:07:26 mort Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: q_shared.h,v $
+// Revision 1.3  2001/05/11 16:07:26  mort
+// Various CTF bits and pieces...
+//
 // Revision 1.2  2001/05/07 08:32:17  mort
 // Basic CTF code
 // No spawns etc
@@ -1159,6 +1162,9 @@ temp_event_t;
 
 #define STAT_TEAM3_PIC			30
 #define STAT_TEAM3_SCORE		31
+
+#define STAT_REDFLAG_ICON				30 // AQ2:CTF
+#define STAT_BLUEFLAG_ICON              31 // AQ2:CTF
 
 #define MAX_STATS                       32
 

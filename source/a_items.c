@@ -3,12 +3,15 @@
 // Zoid.
 // - zucc
 //
-// $Id: a_items.c,v 1.1 2001/05/06 17:24:25 igor_rock Exp $
+// $Id: a_items.c,v 1.2 2001/05/11 16:07:25 mort Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_items.c,v $
-// Revision 1.1  2001/05/06 17:24:25  igor_rock
-// Initial revision
+// Revision 1.2  2001/05/11 16:07:25  mort
+// Various CTF bits and pieces...
+//
+// Revision 1.1.1.1  2001/05/06 17:24:25  igor_rock
+// This is the PG Bund Edition V1.25 with all stuff laying around here...
 //
 //-----------------------------------------------------------------------------
 
@@ -145,7 +148,11 @@ MakeTouchSpecThink (edict_t * ent)
     }
   else if (teamplay->value && !allitem->value)
     {
-      ent->nextthink = level.time + 60;
+	  // AQ2:M - CTF
+	  if(ctf->value) // AQ2:M - CTF
+		ent->nextthink = level.time + ctf_item_remove_time->value; // AQ2:M - CTF
+	  else
+		ent->nextthink = level.time + 60;
       ent->think = G_FreeEdict;
     }
   else				// allitem->value is set

@@ -1,12 +1,15 @@
 //-----------------------------------------------------------------------------
 // g_weapon.c
 //
-// $Id: g_weapon.c,v 1.1 2001/05/06 17:30:24 igor_rock Exp $
+// $Id: g_weapon.c,v 1.2 2001/05/11 16:07:26 mort Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_weapon.c,v $
-// Revision 1.1  2001/05/06 17:30:24  igor_rock
-// Initial revision
+// Revision 1.2  2001/05/11 16:07:26  mort
+// Various CTF bits and pieces...
+//
+// Revision 1.1.1.1  2001/05/06 17:30:24  igor_rock
+// This is the PG Bund Edition V1.25 with all stuff laying around here...
 //
 //-----------------------------------------------------------------------------
 
@@ -1335,6 +1338,9 @@ void kick_attack (edict_t * ent )
                                         if (lights_camera_action)
                                                 return;
                                         
+										if ((ent->flags & FL_GODMODE) && ctf->value) // AQ2:M - Stop The Attack
+												return;
+
                                         if (tr.ent != ent && tr.ent->client && ent->client &&
                                                 tr.ent->client->resp.team == ent->client->resp.team)
                                                 return;

@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // g_svcmds.c
 //
-// $Id: g_svcmds.c,v 1.3 2001/05/07 22:03:15 slicerdw Exp $
+// $Id: g_svcmds.c,v 1.4 2001/05/11 16:07:25 mort Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_svcmds.c,v $
+// Revision 1.4  2001/05/11 16:07:25  mort
+// Various CTF bits and pieces...
+//
 // Revision 1.3  2001/05/07 22:03:15  slicerdw
 // Added sv stuffcmd
 //
@@ -426,6 +429,29 @@ void    ServerCommand (void)
 				SVCmd_CheckCheats_f();
 		else if (Q_stricmp (cmd, "stuffcmd") == 0)
                 SVCmd_stuffcmd_f();
+		// AQ2:M - CTF
+		else if(Q_stricmp (cmd, "k_moveflag") == 0)
+		{	
+			SVCmd_MoveFlag();
+		}
+		else if(Q_stricmp (cmd, "k_movespawn") == 0)
+		{	
+			SVCmd_MoveSpawn();
+		}
+		else if(Q_stricmp (cmd, "k_removespawns") == 0)
+		{	
+			SVCmd_RemoveSpawns();
+		}
+		else if(Q_stricmp (cmd, "k_showflagpos") == 0)
+		{
+			gi.dprintf("Red flag: %d %d %d\nBlue flag: %d %d %d\n",
+				(int)redFlagLocation[0],
+				(int)redFlagLocation[1],
+				(int)redFlagLocation[2],
+				(int)blueFlagLocation[0],
+				(int)blueFlagLocation[1],
+				(int)blueFlagLocation[2]);
+		}
         else
 				gi.cprintf (NULL, PRINT_HIGH, "Unknown server command \"%s\"\n", cmd);
 }

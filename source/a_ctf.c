@@ -3,24 +3,37 @@
 #include "g_local.h"
 #include "a_ctf.h"
 
-//AQ2:M CTF
+// Locations
 vec3_t redFlagLocation;
 vec3_t blueFlagLocation;
 
+// Taken flags
 int redFlagTaken = 0;
 int blueFlagTaken = 0;
 
+// Flag entitys
 edict_t *redFlag;
 edict_t *blueFlag;
+// Spawn entitys
+edict_t *closestRedSpawns[3]; // AQ2:M - CTF
+edict_t *closestBlueSpawns[3]; // AQ2:M - CTF
 
+// Started flag
+int started = 0;
+
+// Hacked spawn flag
+int hackedSpawns;
+
+// Flag animation
 int flagFrames[] = 
 { 173, 174, 175, 176, 177, 178, 179, 180, 181, 182, 183, 184, 185, 186 };
-
 int firstFlagFrame = 173;
 int lastFlagFrame = 186;
 
+// droptofloor delcaration
 void droptofloor (edict_t *ent);
 
+// Flag think function
 void flagThink(edict_t *self)
 {
 	self->s.frame++;
@@ -356,4 +369,365 @@ void DropFlag ( edict_t* ent )
 		redFlag = Drop_Item (ent, FindItem("Red Flag"));
 		ent->s.modelindex3 = 0;
 	}
+}
+
+void ForceSpawn(edict_t *ent) // AQ2:M - CTF
+{
+	// AQ2:M - CTF
+	// Spawn straight away - make sure they ent alive already too :P
+	if(ctf->value)
+	{
+		if(started)
+		{
+			if(ent->client->hasSpawned == 0)
+			{
+				ent->client->resp.last_killed_target = NULL;
+				ent->client->resp.last_damaged_part = 0;
+				ent->client->hasSpawned = 1;
+
+				PutClientInServer(ent);
+				AddToTransparentList(ent);
+
+				ent->solid = SOLID_TRIGGER; // For trigger stuff..
+				ent->client->respawn_time = level.time + 2; // 2 seconds "not-solid"
+			}
+		}
+	}
+//	if((ctf->value && started && (ent->deadflag || ent->client->pers.spectator)) || (!ent->hasSpawned && started))
+//	{
+//	}
+}
+
+
+void SVCmd_MoveFlag()
+{
+	// Move flag command...
+	char *var;
+	float pos;
+    char name[MAX_OSPATH];
+	FILE *f;
+	cvar_t *game;
+
+	if(gi.argc() != 6)
+	{
+		gi.cprintf (NULL, PRINT_HIGH, "Unknown server command \"k_moveflag\"\n");
+		return;
+    }
+
+	var = gi.argv(2);
+
+	if(Q_stricmp (var, "red") == 0)
+	{
+		// Red flag...
+		var = gi.argv(3);
+		pos = atof(var);
+		redFlagLocation[0] = pos;
+		var = gi.argv(4);
+		pos = atof(var);
+		redFlagLocation[1] = pos;
+		var = gi.argv(5);
+		pos = atof(var);
+		redFlagLocation[2] = pos;
+
+		if(redFlag)
+			if(redFlag->inuse)
+				G_FreeEdict(redFlag);
+
+		SpawnRedFlag();
+	}
+	else if(Q_stricmp (var, "blue") == 0)
+	{
+		var = gi.argv(3);
+		pos = atof(var);
+		blueFlagLocation[0] = pos;
+		var = gi.argv(4);
+		pos = atof(var);
+		blueFlagLocation[1] = pos;
+		var = gi.argv(5);
+		pos = atof(var);
+		blueFlagLocation[2] = pos;
+
+		if(blueFlag)
+			if(blueFlag->inuse)
+				G_FreeEdict(blueFlag);
+
+		SpawnBlueFlag();
+	}
+	else
+	{
+		gi.cprintf (NULL, PRINT_HIGH, "Unknown server command \"k_moveflag\"\n");
+		return;
+	}
+
+	// Write the file.
+    game = gi.cvar("game", "", 0);
+
+    if (!*game->string)
+		sprintf (name, "%s/aqm/%s.flg", GAMEVERSION, level.mapname);
+    else
+		sprintf (name, "%s/aqm/%s.flg", game->string, level.mapname);
+
+    gi.cprintf (NULL, PRINT_HIGH, "Writing %s.\n", name);
+
+    f = fopen (name, "w");
+    if (!f)
+    {
+		gi.cprintf (NULL, PRINT_HIGH, "Couldn't open %s\n", name);
+        return;
+    }
+
+	fprintf (f, "%d %d %d %d %d %d\n", 
+		(int)redFlagLocation[0],
+		(int)redFlagLocation[1],
+		(int)redFlagLocation[2],
+		(int)blueFlagLocation[0],
+		(int)blueFlagLocation[1],
+		(int)blueFlagLocation[2]);
+
+	if(hackedSpawns)
+	{
+		int n = 0;
+		while(n < 3)
+		{
+			if(closestRedSpawns[n])
+			{
+				if(closestRedSpawns[n]->inuse)
+				{
+					fprintf (f, "%d %d %d\n",
+						closestRedSpawns[n]->s.origin[0],
+						closestRedSpawns[n]->s.origin[1],
+						closestRedSpawns[n]->s.origin[2]);
+
+					n++;
+					continue;
+				}
+			}
+
+			fprintf (f, "#\n");
+			n++;
+		}
+
+
+		n = 0;
+		while(n < 3)
+		{
+			if(closestBlueSpawns[n])
+			{
+				if(closestBlueSpawns[n]->inuse)
+				{
+					fprintf (f, "%d %d %d\n",
+						closestBlueSpawns[n]->s.origin[0],
+						closestBlueSpawns[n]->s.origin[1],
+						closestBlueSpawns[n]->s.origin[2]);
+					
+					n++;
+					continue;
+				}
+			}
+
+			fprintf (f, "#\n");
+			n++;
+		}
+	}
+
+	fclose (f);
+}
+
+void SVCmd_MoveSpawn()
+{
+	// Move flag command...
+	char *var;
+    char name[MAX_OSPATH];
+	FILE *f;
+	int spawn;
+	cvar_t *game;
+
+	if(gi.argc() != 7)
+	{
+		gi.cprintf (NULL, PRINT_HIGH, "Unknown server command \"k_movespawn\"\n");
+		return;
+    }
+
+	var = gi.argv(2);
+
+	if(Q_stricmp (var, "red") == 0)
+	{
+		// Red spawn...
+		edict_t *ent;
+
+		var = gi.argv(3);
+		spawn = atoi(var);
+
+		if(spawn > 2 || spawn < 0)
+		{
+			gi.cprintf (NULL, PRINT_HIGH, "Unknown server command \"k_movespawn\"\n");
+			return;
+ 		}
+
+		ent = G_Spawn();
+		ent->s.skinnum = 0;
+		ent->solid = SOLID_NOT;
+		VectorSet (ent->mins, 0, 0, 0);
+		VectorSet (ent->maxs, 0, 0, 0);
+
+		var = gi.argv(4);
+		ent->s.origin[0] = atoi(var);
+		var = gi.argv(5);
+		ent->s.origin[1] = atoi(var);
+		var = gi.argv(6);
+		ent->s.origin[2] = atoi(var);
+
+		closestRedSpawns[spawn] = ent;
+
+		gi.linkentity(ent);
+	}
+	else if(Q_stricmp (var, "blue") == 0)
+	{
+		// Blue spawn...
+		edict_t *ent;
+
+		var = gi.argv(3);
+		spawn = atoi(var);
+
+		if(spawn > 2 || spawn < 0)
+		{
+			gi.cprintf (NULL, PRINT_HIGH, "Unknown server command \"k_movespawn\"\n");
+			return;
+ 		}
+
+		ent = G_Spawn();
+		ent->s.skinnum = 0;
+		ent->solid = SOLID_NOT;
+		VectorSet (ent->mins, 0, 0, 0);
+		VectorSet (ent->maxs, 0, 0, 0);
+
+		var = gi.argv(4);
+		ent->s.origin[0] = atoi(var);
+		var = gi.argv(5);
+		ent->s.origin[1] = atoi(var);
+		var = gi.argv(6);
+		ent->s.origin[2] = atoi(var);
+
+		closestBlueSpawns[spawn] = ent;
+
+		gi.linkentity(ent);
+	}
+	else
+	{
+		gi.cprintf (NULL, PRINT_HIGH, "Unknown server command \"k_movespawn\"\n");
+		return;
+	}
+
+	// Write the file.
+    game = gi.cvar("game", "", 0);
+
+    if (!*game->string)
+		sprintf (name, "%s/aqm/%s.flg", GAMEVERSION, level.mapname);
+    else
+		sprintf (name, "%s/aqm/%s.flg", game->string, level.mapname);
+
+    gi.cprintf (NULL, PRINT_HIGH, "Writing %s.\n", name);
+
+    f = fopen (name, "w");
+    if (!f)
+    {
+		gi.cprintf (NULL, PRINT_HIGH, "Couldn't open %s\n", name);
+        return;
+    }
+
+	fprintf (f, "%d %d %d %d %d %d\n", 
+		(int)redFlagLocation[0],
+		(int)redFlagLocation[1],
+		(int)redFlagLocation[2],
+		(int)blueFlagLocation[0],
+		(int)blueFlagLocation[1],
+		(int)blueFlagLocation[2]);
+
+	hackedSpawns = 1;
+
+	if(hackedSpawns)
+	{
+		int n = 0;
+		while(n < 3)
+		{
+			if(closestRedSpawns[n])
+			{
+				if(closestRedSpawns[n]->inuse)
+				{
+					fprintf (f, "%d %d %d\n",
+						(int)closestRedSpawns[n]->s.origin[0],
+						(int)closestRedSpawns[n]->s.origin[1],
+						(int)closestRedSpawns[n]->s.origin[2]);
+
+					n++;
+					continue;
+				}
+			}
+
+			fprintf (f, "#\n");
+			n++;
+		}
+
+
+		n = 0;
+		while(n < 3)
+		{
+			if(closestBlueSpawns[n])
+			{
+				if(closestBlueSpawns[n]->inuse)
+				{
+					fprintf (f, "%d %d %d\n",
+						(int)closestBlueSpawns[n]->s.origin[0],
+						(int)closestBlueSpawns[n]->s.origin[1],
+						(int)closestBlueSpawns[n]->s.origin[2]);
+					
+					n++;
+					continue;
+				}
+			}
+
+			fprintf (f, "#\n");
+			n++;
+		}
+	}
+
+	fclose (f);
+}
+
+void SVCmd_RemoveSpawns()
+{
+    char name[MAX_OSPATH];
+	FILE *f;
+	cvar_t *game;
+
+	// Write the file.
+    game = gi.cvar("game", "", 0);
+
+    if (!*game->string)
+		sprintf (name, "%s/aqm/%s.flg", GAMEVERSION, level.mapname);
+    else
+		sprintf (name, "%s/aqm/%s.flg", game->string, level.mapname);
+
+    gi.cprintf (NULL, PRINT_HIGH, "Writing %s.\n", name);
+
+    f = fopen (name, "w");
+    if (!f)
+    {
+		gi.cprintf (NULL, PRINT_HIGH, "Couldn't open %s\n", name);
+        return;
+    }
+
+	fprintf (f, "%d %d %d %d %d %d\n", 
+		(int)redFlagLocation[0],
+		(int)redFlagLocation[1],
+		(int)redFlagLocation[2],
+		(int)blueFlagLocation[0],
+		(int)blueFlagLocation[1],
+		(int)blueFlagLocation[2]);
+
+	hackedSpawns = 0;
+
+	fclose (f);
+
+	SetupTeamSpawnPoints();
 }
