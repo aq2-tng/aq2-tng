@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // Statistics Related Code
 //
-// $Id: tng_stats.c,v 1.21 2002/02/18 17:21:14 freud Exp $
+// $Id: tng_stats.c,v 1.22 2002/02/18 19:31:40 freud Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: tng_stats.c,v $
+// Revision 1.22  2002/02/18 19:31:40  freud
+// FPM fix.
+//
 // Revision 1.21  2002/02/18 17:21:14  freud
 // Changed Knife in stats to Slashing Knife
 //
@@ -488,7 +491,8 @@ A_ScoreboardEndLevel (edict_t * ent, edict_t * killer)
 	   100.0);
       else
 	accuracy = 0;
-      fpm = (((double) sortedscores[i] / (double) level.time) * 100.0);
+
+      fpm = (((double) sortedscores[i] / (double) ((level.framenum - game.clients[sorted[i]].resp.enterframe) / 10)) * 100.0);
       if (game.clients[sorted[i]].resp.damage_dealt < 1000000)
 	sprintf (damage, "%d", game.clients[sorted[i]].resp.damage_dealt);
       else
