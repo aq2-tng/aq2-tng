@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // g_save.c
 //
-// $Id: g_save.c,v 1.39 2001/09/30 03:09:34 ra Exp $
+// $Id: g_save.c,v 1.40 2001/10/18 12:04:44 deathwatch Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_save.c,v $
+// Revision 1.40  2001/10/18 12:04:44  deathwatch
+// Fixed sv_crlf's default (0 == dont allow)
+//
 // Revision 1.39  2001/09/30 03:09:34  ra
 // Removed new stats at end of rounds and created a new command to
 // do the same functionality.   Command is called "time"
@@ -456,7 +459,7 @@ InitGame (void)
   ff_afterround = gi.cvar ("ff_afterround", "1", 0);
   uvtime = gi.cvar ("uvtime", "40", CVAR_LATCH);
   sv_gib = gi.cvar ("sv_gib", "0", CVAR_LATCH);
-  sv_crlf = gi.cvar ("sv_crlf", "1", CVAR_LATCH);	// DW - Enabled this by default
+  sv_crlf = gi.cvar ("sv_crlf", "0", CVAR_LATCH); // 0 == DONT ALLOW IT
   vrot = gi.cvar ("vrot", "0", CVAR_LATCH);
   rrot = gi.cvar ("rrot", "0", CVAR_LATCH);
   llsound = gi.cvar ("llsound", "1", CVAR_LATCH);
