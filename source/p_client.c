@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // p_client.c
 //
-// $Id: p_client.c,v 1.10 2001/05/11 16:07:26 mort Exp $
+// $Id: p_client.c,v 1.11 2001/05/12 10:50:16 slicerdw Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: p_client.c,v $
+// Revision 1.11  2001/05/12 10:50:16  slicerdw
+// Fixed That Transparent List Thingy
+//
 // Revision 1.10  2001/05/11 16:07:26  mort
 // Various CTF bits and pieces...
 //
@@ -2085,10 +2088,13 @@ void respawn (edict_t *self)
 
                 self->client->respawn_time = level.time;
 
-				// AQ2:M - CTF
+				// AQ2:TNG - CTF
 				// Equip the client and put on god mode
 				if(ctf->value)
 				{
+//AQ2:TNG - Slicer : This will fix the transparent msg ( it was missing here) for ctf
+					AddToTransparentList(self);
+//AQ2:TNG END
 					EquipClient(self);
 					self->flags |= FL_GODMODE;
 				}
