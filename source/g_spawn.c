@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // g_spawn.c
 //
-// $Id: g_spawn.c,v 1.9 2001/05/12 19:27:17 mort Exp $
+// $Id: g_spawn.c,v 1.10 2001/05/12 19:29:28 mort Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_spawn.c,v $
+// Revision 1.10  2001/05/12 19:29:28  mort
+// Fixed more various map change bugs
+//
 // Revision 1.9  2001/05/12 19:27:17  mort
 // Fixed various map change bugs
 //
@@ -1442,6 +1445,7 @@ void SP_worldspawn (edict_t *ent)
 		// AQ2:TNG - CTF
 		loadedFlags = 0; // Fixes a bug with when the flags load
 		started = 0; 
+		hackedSpawns = 0;
 
         // reserve some spots for dead player bodies for coop / deathmatch
         InitBodyQue ();

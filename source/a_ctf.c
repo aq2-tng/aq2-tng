@@ -25,7 +25,7 @@ int started = 0;
 int loadedFlags = 0;
 
 // Hacked spawn flag
-int hackedSpawns;
+int hackedSpawns = 0;
 
 // Flag animation
 int flagFrames[] = 
@@ -309,6 +309,9 @@ void spawnFlags(char *mapname)
 
 	if(ctf->value)
 	{
+		redFlagTaken = 0;
+		blueFlagTaken = 0;
+
 		game = gi.cvar("game", "", 0);
 
 		if(!*game->string)
