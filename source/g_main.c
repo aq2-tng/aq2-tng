@@ -1,12 +1,17 @@
 //-----------------------------------------------------------------------------
 //
 //
-// $Id: g_main.c,v 1.1 2001/05/06 17:31:37 igor_rock Exp $
+// $Id: g_main.c,v 1.2 2001/05/07 08:32:17 mort Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_main.c,v $
-// Revision 1.1  2001/05/06 17:31:37  igor_rock
-// Initial revision
+// Revision 1.2  2001/05/07 08:32:17  mort
+// Basic CTF code
+// No spawns etc
+// Just the cvars and flag entity
+//
+// Revision 1.1.1.1  2001/05/06 17:31:37  igor_rock
+// This is the PG Bund Edition V1.25 with all stuff laying around here...
 //
 //-----------------------------------------------------------------------------
 
@@ -121,6 +126,14 @@ cvar_t  *allitem;
 cvar_t  *sv_shelloff;
 cvar_t  *bholelimit;
 cvar_t  *splatlimit;
+
+// Mort [BEGIN]
+cvar_t *ctf; // AQ2:M - CTF
+cvar_t *ctf_flag_respawn_time; // AQ2:M - CTF
+cvar_t *ctf_player_respawn_time; // AQ2:M - CTF
+cvar_t *ctf_item_remove_time; // AQ2:M - CTF
+cvar_t *ctf_effects; // AQ2:M - CTF
+// Mort [END]
 
 
 void SpawnEntities (char *mapname, char *entities, char *spawnpoint);

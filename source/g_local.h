@@ -1,10 +1,15 @@
 //-----------------------------------------------------------------------------
 // g_local.h -- local definitions for game module
 //
-// $Id: g_local.h,v 1.2 2001/05/07 02:05:36 ra Exp $
+// $Id: g_local.h,v 1.3 2001/05/07 08:32:17 mort Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_local.h,v $
+// Revision 1.3  2001/05/07 08:32:17  mort
+// Basic CTF code
+// No spawns etc
+// Just the cvars and flag entity
+//
 // Revision 1.2  2001/05/07 02:05:36  ra
 //
 //
@@ -622,6 +627,14 @@ extern cvar_t *llsound;
 extern cvar_t *cvote;
 //Igor[Rock] END
 
+// Mort BEGIN
+extern cvar_t *ctf; // CTF
+extern cvar_t *ctf_flag_respawn_time; // CTF
+extern cvar_t *ctf_player_respawn_time; // CTF
+extern cvar_t *ctf_item_remove_time; // CTF
+extern cvar_t *ctf_effects;
+// Mort END
+ 
 extern cvar_t *skill;
 extern cvar_t *fraglimit;
 extern cvar_t *timelimit;

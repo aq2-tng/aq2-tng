@@ -1,12 +1,17 @@
 //-----------------------------------------------------------------------------
 // g_save.c
 //
-// $Id: g_save.c,v 1.1 2001/05/06 17:29:57 igor_rock Exp $
+// $Id: g_save.c,v 1.2 2001/05/07 08:32:17 mort Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_save.c,v $
-// Revision 1.1  2001/05/06 17:29:57  igor_rock
-// Initial revision
+// Revision 1.2  2001/05/07 08:32:17  mort
+// Basic CTF code
+// No spawns etc
+// Just the cvars and flag entity
+//
+// Revision 1.1.1.1  2001/05/06 17:29:57  igor_rock
+// This is the PG Bund Edition V1.25 with all stuff laying around here...
 //
 //-----------------------------------------------------------------------------
 
@@ -237,6 +242,14 @@ void InitGame (void)
   llsound = gi.cvar("llsound", "1", CVAR_LATCH);
   cvote = gi.cvar("cvote", "0", CVAR_SERVERINFO);  
   //Igor[Rock] END
+
+  // Mort BEGIN
+	ctf = gi.cvar("ctf", "0", CVAR_SERVERINFO|CVAR_LATCH); // CTF - Default to OFF
+	ctf_flag_respawn_time = gi.cvar("ctf_flag_respawn_time", "120", CVAR_LATCH);
+ 	ctf_player_respawn_time = gi.cvar("ctf_player_respawn_time", "3", CVAR_LATCH); 
+	ctf_item_remove_time = gi.cvar("ctf_item_remove_time", "10", CVAR_LATCH);
+ 	ctf_effects = gi.cvar("ctf_effects", "1", CVAR_LATCH); 
+  // Mort END
   
   //FIREBLADE
   

@@ -1,12 +1,17 @@
 //-----------------------------------------------------------------------------
 // q_shared.h -- included first by ALL program modules
 //
-// $Id: q_shared.h,v 1.1 2001/05/06 17:24:07 igor_rock Exp $
+// $Id: q_shared.h,v 1.2 2001/05/07 08:32:17 mort Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: q_shared.h,v $
-// Revision 1.1  2001/05/06 17:24:07  igor_rock
-// Initial revision
+// Revision 1.2  2001/05/07 08:32:17  mort
+// Basic CTF code
+// No spawns etc
+// Just the cvars and flag entity
+//
+// Revision 1.1.1.1  2001/05/06 17:24:07  igor_rock
+// This is the PG Bund Edition V1.25 with all stuff laying around here...
 //
 //-----------------------------------------------------------------------------
 
@@ -1100,6 +1105,7 @@ temp_event_t;
 #define CHAN_VOICE              2
 #define CHAN_ITEM               3
 #define CHAN_BODY               4
+#define CHAN_FLAG				5 // AQ2:TNG - CTF - Make flag sounds use their own channel
 // modifier flags
 #define CHAN_NO_PHS_ADD         8	// send to all clients, not just ones in PHS (ATTN 0 will also do this)
 #define CHAN_RELIABLE           16	// send by reliable message, not datagram
