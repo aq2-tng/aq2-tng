@@ -1,10 +1,14 @@
 //-----------------------------------------------------------------------------
 // CTF related code
 //
-// $Id: a_ctf.c,v 1.10 2001/06/13 13:05:41 igor_rock Exp $
+// $Id: a_ctf.c,v 1.11 2001/06/15 14:18:07 igor_rock Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_ctf.c,v $
+// Revision 1.11  2001/06/15 14:18:07  igor_rock
+// corrected bug with destroyed flags (won't be destroyed anymore, instead they
+// return to the base).
+//
 // Revision 1.10  2001/06/13 13:05:41  igor_rock
 // corrected a minor error in CTFEffects
 //
@@ -1280,3 +1284,25 @@ void SP_info_teleport_destination (edict_t *ent)
 	ent->s.origin[2] += 16;
 }
 
+void CTFDestroyFlag (edict_t *self)
+{
+  //flags are important
+  if (ctf->value)
+    {
+      if (strcmp(self->classname, "item_flag_team1") == 0) {
+        CTFResetFlag(TEAM1); // this will free self!
+        gi.bprintf(PRINT_HIGH, "The %s flag has returned!\n",
+                   CTFTeamName(TEAM1));
+        return;
+      }
+      if (strcmp(self->classname, "item_flag_team2") == 0) {
+        CTFResetFlag(TEAM2); // this will free self!
+        gi.bprintf(PRINT_HIGH, "The %s flag has returned!\n",
+                   CTFTeamName(TEAM1));
+        return;
+      }
+    }
+
+  // just release it.
+  G_FreeEdict (self);
+}

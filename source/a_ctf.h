@@ -1,10 +1,14 @@
 //-----------------------------------------------------------------------------
 // CTF related definitions
 //
-// $Id: a_ctf.h,v 1.6 2001/06/13 07:55:17 igor_rock Exp $
+// $Id: a_ctf.h,v 1.7 2001/06/15 14:18:07 igor_rock Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_ctf.h,v $
+// Revision 1.7  2001/06/15 14:18:07  igor_rock
+// corrected bug with destroyed flags (won't be destroyed anymore, instead they
+// return to the base).
+//
 // Revision 1.6  2001/06/13 07:55:17  igor_rock
 // Re-Added a_match.h and a_match.c
 // Added CTF Header for a_ctf.h and a_ctf.c
@@ -68,6 +72,7 @@ void CTFFlagSetup (edict_t *ent);
 void CTFResetFlag(int team);
 void CTFFragBonuses(edict_t *targ, edict_t *inflictor, edict_t *attacker);
 void CTFCheckHurtCarrier(edict_t *targ, edict_t *attacker);
+void CTFDestroyFlag (edict_t *self);
 
 void CTFOpenJoinMenu(edict_t *ent);
 qboolean CTFStartClient(edict_t *ent);

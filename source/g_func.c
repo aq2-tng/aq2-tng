@@ -1,10 +1,14 @@
 //-----------------------------------------------------------------------------
 // g_func.c
 //
-// $Id: g_func.c,v 1.3 2001/05/31 16:58:14 igor_rock Exp $
+// $Id: g_func.c,v 1.4 2001/06/15 14:18:07 igor_rock Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_func.c,v $
+// Revision 1.4  2001/06/15 14:18:07  igor_rock
+// corrected bug with destroyed flags (won't be destroyed anymore, instead they
+// return to the base).
+//
 // Revision 1.3  2001/05/31 16:58:14  igor_rock
 // conflicts resolved
 //
@@ -452,11 +456,10 @@ void plat_blocked (edict_t *self, edict_t *other)
                 // if it's still there, nuke it
                 if (other)
                 {
-                        // zucc just free it, we don't need explosions
+                        // DestroyFlag frees items other than flags
                         Handle_Unique_Items(other);
                         if ( other )
-                                G_FreeEdict(other);
-                        //BecomeExplosion1 (other);
+                               CTFDestroyFlag (other);
                 }
                 return;
         }
@@ -1160,13 +1163,11 @@ void door_blocked  (edict_t *self, edict_t *other)
                 // if it's still there, nuke it
                 if (other)
                 {
-		  // zucc we don't need explosions
-                        Handle_Unique_Items(other);
-                        if ( other )
-                                G_FreeEdict(other);
-                        
-                //      BecomeExplosion1 (other);
-                }
+		  // DestroyFlag frees items other than flags
+		  Handle_Unique_Items(other);
+		  if ( other )
+		    CTFDestroyFlag (other);
+		}
                 return;
         }
 
@@ -1551,11 +1552,11 @@ void train_blocked (edict_t *self, edict_t *other)
                 // if it's still there, nuke it
                 if (other)
                 {
-                        Handle_Unique_Items(other);
-                        if ( other )
-                                G_FreeEdict(other);
-                        //BecomeExplosion1 (other);
-                }
+		  // DestroyFlag frees items other than flags
+		  Handle_Unique_Items(other);
+		  if ( other )
+		    CTFDestroyFlag (other);
+		}
                 return;
         }
 
@@ -2034,13 +2035,12 @@ void door_secret_blocked  (edict_t *self, edict_t *other)
                 T_Damage (other, self, self, vec3_origin, other->s.origin, vec3_origin, 100000, 1, 0, MOD_CRUSH);
                 // if it's still there, nuke it
                 if (other)
-                {
-                        // zucc no explosions
-                        Handle_Unique_Items(other);
-                        if ( other )
-                                G_FreeEdict(other);
-                //      BecomeExplosion1 (other);
-                }
+		  {
+		    // DestroyFlag frees items other than flags
+		    Handle_Unique_Items(other);
+		    if ( other )
+		      CTFDestroyFlag (other);
+		  }
                 return;
         }
 
