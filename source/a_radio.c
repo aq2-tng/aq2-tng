@@ -3,10 +3,13 @@
 // 
 // -Fireblade
 //
-// $Id: a_radio.c,v 1.4 2001/09/28 13:48:34 ra Exp $
+// $Id: a_radio.c,v 1.5 2002/03/26 21:49:01 ra Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_radio.c,v $
+// Revision 1.5  2002/03/26 21:49:01  ra
+// Bufferoverflow fixes
+//
 // Revision 1.4  2001/09/28 13:48:34  ra
 // I ran indent over the sources. All .c and .h files reindented.
 //
@@ -363,7 +366,7 @@ RadioBroadcast (edict_t * ent, int partner, char *msg)
   edict_t *other;
   radio_msg_t *radio_msgs;
   char msg_fullpath[2048], *base_path;
-  char msgname_num[8];
+  char msgname_num[8], filteredmsg[48];
   qboolean d;
 
   if (ent->deadflag == DEAD_DEAD || ent->solid == SOLID_NOT)
@@ -402,9 +405,11 @@ RadioBroadcast (edict_t * ent, int partner, char *msg)
   i = found = 0;
   msg_len = 0;
 
+  strncpy(filteredmsg, msg, sizeof(filteredmsg)-1);
+
   while (strcmp (radio_msgs[i].msg, "END"))
     {
-      if (!Q_stricmp (radio_msgs[i].msg, msg))
+      if (!Q_stricmp (radio_msgs[i].msg, filteredmsg))
 	{
 	  found = 1;
 	  sprintf (msg_fullpath, "%s%s.wav", base_path, radio_msgs[i].msg);
@@ -416,7 +421,7 @@ RadioBroadcast (edict_t * ent, int partner, char *msg)
 
   if (!found)
     {
-      gi.centerprintf (ent, "'%s' is not a valid radio message\n", msg);
+      gi.centerprintf (ent, "'%s' is not a valid radio message\n", filteredmsg);
       return;
     }
 
@@ -424,11 +429,11 @@ RadioBroadcast (edict_t * ent, int partner, char *msg)
     {
       gi.cprintf (NULL, PRINT_CHAT, "[%s RADIO] %s: %s\n",
 		  partner ? "PARTNER" : "TEAM",
-		  ent->client->pers.netname, msg);
+		  ent->client->pers.netname, filteredmsg);
     }
 
 //TempFile BEGIN
-  if (Q_stricmp (msg, "enemyd") == 0)
+  if (Q_stricmp (filteredmsg, "enemyd") == 0)
     {
       if ((ent->client->pers.num_kills > 1)
 	  && (ent->client->pers.num_kills <= 10))
@@ -446,7 +451,7 @@ RadioBroadcast (edict_t * ent, int partner, char *msg)
   //AQ2:TNG Slicer
   if (radio_repeat->value)
     {
-      if ((d = CheckForRepeat (ent, msg)) == false)
+      if ((d = CheckForRepeat (ent, filteredmsg)) == false)
 	return;
     }
 

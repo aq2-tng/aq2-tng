@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // g_cmds.c
 //
-// $Id: g_cmds.c,v 1.54 2002/03/25 18:32:11 freud Exp $
+// $Id: g_cmds.c,v 1.55 2002/03/26 21:49:01 ra Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_cmds.c,v $
+// Revision 1.55  2002/03/26 21:49:01  ra
+// Bufferoverflow fixes
+//
 // Revision 1.54  2002/03/25 18:32:11  freud
 // I'm being too productive.. New ghost command needs testing.
 //
@@ -349,6 +352,7 @@ void
 Cmd_Give_f (edict_t * ent)
 {
   char *name;
+  char fixedname[32];
   gitem_t *it;
   int index;
   int i;
@@ -370,7 +374,9 @@ Cmd_Give_f (edict_t * ent)
       return;
     }
 
-  name = gi.args ();
+  strncpy(fixedname, gi.args (), sizeof(fixedname)-1);
+  name = fixedname;
+//  name = gi.args ();
 
   if (Q_stricmp (name, "all") == 0)
     give_all = true;
@@ -504,7 +510,9 @@ Cmd_Give_f (edict_t * ent)
   it = FindItem (name);
   if (!it)
     {
-      name = gi.argv (1);
+      strncpy(fixedname, gi.argv (1), sizeof(fixedname)-1);
+      name = fixedname;
+//      name = gi.argv (1);
       it = FindItem (name);
       if (!it)
 	{

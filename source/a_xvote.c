@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // a_xvote.c
 //
-// $Id: a_xvote.c,v 1.2 2001/09/28 13:48:34 ra Exp $
+// $Id: a_xvote.c,v 1.3 2002/03/26 21:49:01 ra Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_xvote.c,v $
+// Revision 1.3  2002/03/26 21:49:01  ra
+// Bufferoverflow fixes
+//
 // Revision 1.2  2001/09/28 13:48:34  ra
 // I ran indent over the sources. All .c and .h files reindented.
 //
@@ -234,13 +237,16 @@ void
 vShowMenu (edict_t * ent, char *menu)
 {
   int i;
+  char fixedmenu[128];
+
+  strncpy(fixedmenu, menu, sizeof(fixedmenu)-1);
 
   if (ent->client->menu)
     {
       PMenu_Close (ent);
       return;
     }
-  if (!*menu)
+  if (!*fixedmenu)
     {
       // general menu
       if (xMenu_New (ent, "Menu", NULL, _AddVoteMenu) == false)
@@ -254,14 +260,14 @@ vShowMenu (edict_t * ent, char *menu)
       while (i < xvlistsize)
 	{
 	  if (xvotelist[i].DependsOn->value && xvotelist[i].VoteSelected
-	      && Q_stricmp (menu, xvotelist[i].VoteTitle) == 0)
+	      && Q_stricmp (fixedmenu, xvotelist[i].VoteTitle) == 0)
 	    {
 	      xvotelist[i].VoteSelected (ent, NULL);
 	      return;
 	    }
 	  i++;
 	}
-      gi.cprintf (ent, PRINT_MEDIUM, "No such menu: %s\n", menu);
+      gi.cprintf (ent, PRINT_MEDIUM, "No such menu: %s\n", fixedmenu);
     }
 }
 

@@ -3,10 +3,13 @@
 // Some of this is borrowed from Zoid's CTF (thanks Zoid)
 // -Fireblade
 //
-// $Id: a_team.c,v 1.80 2002/03/25 17:44:17 freud Exp $
+// $Id: a_team.c,v 1.81 2002/03/26 21:49:01 ra Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_team.c,v $
+// Revision 1.81  2002/03/26 21:49:01  ra
+// Bufferoverflow fixes
+//
 // Revision 1.80  2002/03/25 17:44:17  freud
 // Small fix
 //
@@ -823,6 +826,7 @@ Team_f (edict_t * ent)
 // AQ:TNG - JBravo fixing compilerwarnings.
   int desired_team = NOTEAM;
 // JBravo.
+  char team[24];
 
 //PG BUND - BEGIN (Tourney extension)
   if (use_tourney->value)
@@ -832,7 +836,9 @@ Team_f (edict_t * ent)
       return;
     }
 //PG BUND - END (Tourney extension)        
-  t = gi.args ();
+  strncpy (team, gi.args(), sizeof(team)-1);
+  t = team;
+//  t = gi.args ();
   if (!*t)
     {
       if (ctf->value)

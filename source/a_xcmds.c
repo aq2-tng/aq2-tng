@@ -4,10 +4,13 @@
 //
 // contains all new non standard command functions
 //
-// $Id: a_xcmds.c,v 1.11 2001/11/08 20:56:24 igor_rock Exp $
+// $Id: a_xcmds.c,v 1.12 2002/03/26 21:49:01 ra Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_xcmds.c,v $
+// Revision 1.12  2002/03/26 21:49:01  ra
+// Bufferoverflow fixes
+//
 // Revision 1.11  2001/11/08 20:56:24  igor_rock
 // - changed some things related to wp_flags
 // - corrected use_punch bug when player only has an empty weapon left
@@ -74,7 +77,7 @@ _Cmd_Rules_f (edict_t * self, char *argument)
   j = 0;
   strcpy (mbuf, "\n");
   if (*argument)
-    strcpy (section, argument);
+    strncpy (section, argument, sizeof(section)-1);
   else
     strcpy (section, "main");
 
