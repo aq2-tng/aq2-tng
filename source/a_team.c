@@ -3,10 +3,13 @@
 // Some of this is borrowed from Zoid's CTF (thanks Zoid)
 // -Fireblade
 //
-// $Id: a_team.c,v 1.30 2001/06/25 20:59:17 ra Exp $
+// $Id: a_team.c,v 1.31 2001/06/27 16:58:14 igor_rock Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_team.c,v $
+// Revision 1.31  2001/06/27 16:58:14  igor_rock
+// corrected some limchasecam bugs
+//
 // Revision 1.30  2001/06/25 20:59:17  ra
 //
 // Adding my clantag.
@@ -1512,6 +1515,30 @@ SpawnPlayers ()
 	  //AQ2:TNG END
 	  PutClientInServer (ent);
 	  AddToTransparentList (ent);
+	}
+    }
+
+  for (i = 0; i < game.maxclients; i++)
+    {
+      ent = &g_edicts[1 + i];
+      if (ent->inuse && (ent->client->resp.team != NOTEAM) && matchmode->value && limchasecam->value && (ent->client->resp.subteam != 0))
+	{
+	  ent->client->chase_target = NULL;
+	  GetChaseTarget(ent);
+	  if (ent->client->chase_target != NULL)
+	    {
+	      if (limchasecam->value == 2)
+		{
+		  ent->client->chase_mode = 1;
+		  UpdateChaseCam(ent);
+		  ent->client->chase_mode = 2;
+		}
+	      else
+		{
+		  ent->client->chase_mode = 1;
+		}
+	      UpdateChaseCam(ent);
+	    }
 	}
     }
 }

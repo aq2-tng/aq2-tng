@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // p_client.c
 //
-// $Id: p_client.c,v 1.35 2001/06/26 18:47:30 igor_rock Exp $
+// $Id: p_client.c,v 1.36 2001/06/27 16:58:14 igor_rock Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: p_client.c,v $
+// Revision 1.36  2001/06/27 16:58:14  igor_rock
+// corrected some limchasecam bugs
+//
 // Revision 1.35  2001/06/26 18:47:30  igor_rock
 // added ctf_respawn cvar
 //
@@ -3862,7 +3865,7 @@ void ClientBeginServerFrame (edict_t *ent)
         VectorCopy (ent->s.angles, client->v_angle);
         gi.linkentity(ent);
 
-	if (teamplay && limchasecam->value)
+	if (teamplay->value && limchasecam->value)
 	  {
 	    ent->client->chase_target = NULL;
 	    GetChaseTarget(ent);
