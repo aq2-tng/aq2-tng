@@ -111,6 +111,8 @@ D plummets to her death
 D plummets to his death
 D bleeds to death
 D died
+D is ready to play!
+D is no longer ready to play!
 G==== InitGame ====
 G==== ShutdownGame ====
 G====== Quake2 Initialized ======
@@ -129,6 +131,8 @@ GIt was a tie, no points awarded!
 GNot enough players to play!
 GMore than 50% map votes reached.
 GNext map was voted on and is
+GActual Scores are 
+GBoth Teams Must Be Ready!
 -couldn't exec
 -user sounds precached.
 -tourney events...
@@ -146,3 +150,6 @@ GNext map was voted on and is
 -Found 
 -SetupTeamSpawnPoints
 -NET_SendPacket
+S is now a substitute for 
+S is no longer 
+S is now 
