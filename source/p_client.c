@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // p_client.c
 //
-// $Id: p_client.c,v 1.24 2001/06/19 18:56:38 deathwatch Exp $
+// $Id: p_client.c,v 1.25 2001/06/19 21:10:05 igor_rock Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: p_client.c,v $
+// Revision 1.25  2001/06/19 21:10:05  igor_rock
+// changed the "is now known" message to the normal namelimit
+//
 // Revision 1.24  2001/06/19 18:56:38  deathwatch
 // New Last killed target system
 //
@@ -3065,6 +3068,10 @@ void ClientUserinfoChanged (edict_t *ent, char *userinfo)
   // on the initial update, we won't broadcast the message.
   if((Q_stricmp(ent->client->pers.netname, "") != 0)
      && (Q_stricmp(ent->client->pers.netname, s) != 0))
+  if (strlen(s) > sizeof(ent->client->pers.netname)-1)
+  {
+    s[sizeof(ent->client->pers.netname)-1] = 0;
+  }
   gi.bprintf(PRINT_MEDIUM, "%s is now known as %s.\n", ent->client->pers.netname, s); //TempFile
   strncpy (ent->client->pers.netname, s, sizeof(ent->client->pers.netname)-1);
   
