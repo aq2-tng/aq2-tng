@@ -4,10 +4,13 @@
 // Include file for use with radio stuff
 // -Fireblade
 //
-// $Id: a_radio.h,v 1.3 2001/09/28 13:48:34 ra Exp $
+// $Id: a_radio.h,v 1.4 2004/04/08 23:19:51 slicerdw Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_radio.h,v $
+// Revision 1.4  2004/04/08 23:19:51  slicerdw
+// Optimized some code, added a couple of features and fixed minor bugs
+//
 // Revision 1.3  2001/09/28 13:48:34  ra
 // I ran indent over the sources. All .c and .h files reindented.
 //
@@ -67,4 +70,4 @@ void Cmd_Deny_f (edict_t *);
 void Cmd_Unpartner_f (edict_t *);
 void PrecacheRadioSounds ();
 qboolean CheckForFlood (edict_t * ent);
-qboolean CheckForRepeat (edict_t * ent, char *msg);
+qboolean CheckForRepeat (edict_t * ent, int radioCode);

@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // Include for base Action game-related things
 //
-// $Id: a_game.h,v 1.22 2003/08/31 13:14:52 slicerdw Exp $
+// $Id: a_game.h,v 1.23 2004/04/08 23:19:51 slicerdw Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_game.h,v $
+// Revision 1.23  2004/04/08 23:19:51  slicerdw
+// Optimized some code, added a couple of features and fixed minor bugs
+//
 // Revision 1.22  2003/08/31 13:14:52  slicerdw
 // changed version from 3.00 to 2.8
 //
@@ -84,7 +87,8 @@
 #define TNG_VERSION2	"AQ2: The Next Generation 2.8"
 // AQ2:TNG Deathwatch End
 //AQ2:TNG Slicer This is the max players writen on last killed target
-#define MAX_LAST_KILLED 5
+//SLIC2
+#define MAX_LAST_KILLED 8
 //AQ2:TNG END
 
 extern char team1_name[];

@@ -3,10 +3,13 @@
 // 
 // -Fireblade
 //
-// $Id: a_radio.c,v 1.5 2002/03/26 21:49:01 ra Exp $
+// $Id: a_radio.c,v 1.6 2004/04/08 23:19:51 slicerdw Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_radio.c,v $
+// Revision 1.6  2004/04/08 23:19:51  slicerdw
+// Optimized some code, added a couple of features and fixed minor bugs
+//
 // Revision 1.5  2002/03/26 21:49:01  ra
 // Bufferoverflow fixes
 //
@@ -367,7 +370,6 @@ RadioBroadcast (edict_t * ent, int partner, char *msg)
   radio_msg_t *radio_msgs;
   char msg_fullpath[2048], *base_path;
   char msgname_num[8], filteredmsg[48];
-  qboolean d;
 
   if (ent->deadflag == DEAD_DEAD || ent->solid == SOLID_NOT)
     return;
@@ -450,15 +452,15 @@ RadioBroadcast (edict_t * ent, int partner, char *msg)
 //TempFile END
   //AQ2:TNG Slicer
   if (radio_repeat->value)
-    {
-      if ((d = CheckForRepeat (ent, filteredmsg)) == false)
-	return;
+    {  //SLIC2 Optimization
+      if (CheckForRepeat (ent, i) == false)
+		return;
     }
 
   if (radio_max->value)
     {
-      if ((d = CheckForFlood (ent)) == false)
-	return;
+      if (CheckForFlood (ent) == false)
+		return;
     }
 
 
@@ -823,94 +825,60 @@ Cmd_Say_partner_f (edict_t * ent)
 
   Cmd_Say_f (ent, false, false, true);
 }
-
-qboolean
-CheckForFlood (edict_t * ent)
+//SLIC2 Redesigned and optimized these two functions
+qboolean CheckForFlood(edict_t * ent)
 {
-  float d;
-  if (ent->client->resp.rd_mute)
-    {
-      if (ent->client->resp.rd_mute > level.time)
-	{
-	  //              gi.cprintf(ent,PRINT_HIGH,"You are STILL muted pall\n");
-	  return false;
+	//If he's muted..
+	if (ent->client->resp.rd_mute) {
+		if (ent->client->resp.rd_mute > level.time)	// Still muted..
+			return false;
+		else
+			ent->client->resp.rd_mute = 0;	// No longer muted..
 	}
-      else
-	{
-	  ent->client->resp.rd_mute = 0;
-
-	}
-    }
-
-  ent->client->resp.rd_whensaid++;
-  if (ent->client->resp.rd_whensaid > 9)
-    ent->client->resp.rd_whensaid = 9;
-  ent->client->resp.rd_when[ent->client->resp.rd_whensaid] = level.time;
-
-  if ((ent->client->resp.rd_whensaid + 1) == radio_max->value)
-    {
-      d =
-	ent->client->resp.rd_when[ent->client->resp.rd_whensaid] -
-	ent->client->resp.rd_when[0];
-      memset (&ent->client->resp.rd_when, 0,
-	      sizeof (ent->client->resp.rd_when));
-      ent->client->resp.rd_when[0] = level.time;
-      ent->client->resp.rd_whensaid = 0;
-      if (d < (radio_time->value))
-	{
-	  gi.cprintf (ent, PRINT_HIGH,
-		      "[FLOOD PROTECTION]: Flood Detected, you are silenced for %d secs\n",
-		      (int) radio_ban->value);
-	  ent->client->resp.rd_mute = level.time + radio_ban->value;
-	  return false;
-	}
-
-    }
-  return true;
-}
-
-qboolean
-CheckForRepeat (edict_t * ent, char *msg)
-{
-  char *s;
-
-  if (ent->client->resp.rd_mute)
-    {
-      if (ent->client->resp.rd_mute > level.time)
-	{
-	  //              gi.cprintf(ent,PRINT_HIGH,"You are STILL muted pall\n");
-	  return false;
-	}
-      else
-	{
-	  ent->client->resp.rd_mute = 0;
-
-	}
-    }
-  s = ent->client->resp.rd_rep;
-
-  if (*s && !strcmp (s, msg))
-    {
-      if ((level.time - ent->client->resp.rd_reptime) < 4)
-	{
-	  if (++ent->client->resp.rd_repcount >= radio_repeat->value)
-	    {
-	      if (ent->client->resp.rd_repcount == radio_repeat->value)
-		{
-		  gi.cprintf (ent, PRINT_HIGH,
-			      "[FLOOD PROTECTION]: Repeat Flood Detected, you are silenced for %d secs\n",
-			      (int) radio_ban->value);
-		  ent->client->resp.rd_mute = level.time + radio_ban->value;
+	if (!ent->client->resp.rd_Count) {
+		ent->client->resp.rd_time = level.time;
+		++ent->client->resp.rd_Count;
+	} else {
+		++ent->client->resp.rd_Count;
+		if (level.time - ent->client->resp.rd_time < radio_time->value) {
+			if (ent->client->resp.rd_Count >= radio_max->value) {
+				gi.cprintf (ent, PRINT_HIGH,
+					 "[RADIO FLOOD PROTECTION]: Flood Detected, you are silenced for %d secs\n",(int) radio_ban->value);
+				ent->client->resp.rd_mute = level.time + radio_ban->value;
+				return false;
+			}
+		} else {
+			ent->client->resp.rd_Count = 0;
 		}
-	      //ent->client->resp.rd_reptime = level.time;
-	      return false;
-	    }
 	}
-      else
-	ent->client->resp.rd_repcount = 0;
-      ent->client->resp.rd_reptime = level.time;
-    }
-  strncpy (ent->client->resp.rd_rep, msg, sizeof (ent->client->resp.rd_rep));
-  ent->client->resp.rd_reptime = level.time;
-  return true;
+
+	return true;
 }
+qboolean CheckForRepeat(edict_t * ent, int radioCode)
+{
+	//If he's muted..
+	if (ent->client->resp.rd_mute) {
+		if (ent->client->resp.rd_mute > level.time)	// Still muted..
+			return false;
+		else
+			ent->client->resp.rd_mute = 0;	// No longer muted..
+	}
+
+	if (ent->client->resp.rd_lastRadio == radioCode) {	//He's trying to repeat it..
+		if ((level.time - ent->client->resp.rd_repTime) < radio_repeat_time->value) {
+			if (++ent->client->resp.rd_repCount == radio_repeat->value) {	//Busted
+				gi.cprintf (ent, PRINT_HIGH,"[RADIO FLOOD PROTECTION]: Repeat Flood Detected, you are silenced for %d secs\n",(int) radio_ban->value);
+				ent->client->resp.rd_mute = level.time + radio_ban->value;
+				return false;
+			}
+		}
+		else
+			ent->client->resp.rd_repCount = 0;
+
+		ent->client->resp.rd_repTime = level.time;
+	}
+	ent->client->resp.rd_lastRadio = radioCode;
+	ent->client->resp.rd_repTime = level.time;
+	return true;
+}
+

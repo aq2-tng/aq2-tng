@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // g_weapon.c
 //
-// $Id: g_weapon.c,v 1.14 2003/02/10 02:12:25 ra Exp $
+// $Id: g_weapon.c,v 1.15 2004/04/08 23:19:51 slicerdw Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_weapon.c,v $
+// Revision 1.15  2004/04/08 23:19:51  slicerdw
+// Optimized some code, added a couple of features and fixed minor bugs
+//
 // Revision 1.14  2003/02/10 02:12:25  ra
 // Zcam fixes, kick crashbug in CTF fixed and some code cleanup.
 //
@@ -784,7 +787,7 @@ fire_shotgun (edict_t * self, vec3_t start, vec3_t aimdir, int damage,
 =================
 fire_blaster
 
-Fires a single blaster bolt.  Used by the blaster and hyper blaster.
+Fires a single blaster bolt.  Used by the blaster and hyperb blaster.
 =================
 */
 void
@@ -828,10 +831,10 @@ blaster_touch (edict_t * self, edict_t * other, cplane_t * plane,
 
   G_FreeEdict (self);
 }
-
+//SLIC2 changed argument name hyper to hyperb
 void
 fire_blaster (edict_t * self, vec3_t start, vec3_t dir, int damage, int speed,
-	      int effect, qboolean hyper)
+	      int effect, qboolean hyperb)
 {
   edict_t *bolt;
   trace_t tr;
@@ -860,7 +863,7 @@ fire_blaster (edict_t * self, vec3_t start, vec3_t dir, int damage, int speed,
   bolt->think = G_FreeEdict;
   bolt->dmg = damage;
   bolt->classname = "bolt";
-  if (hyper)
+  if (hyperb)
     bolt->spawnflags = 1;
   gi.linkentity (bolt);
 

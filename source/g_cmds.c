@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // g_cmds.c
 //
-// $Id: g_cmds.c,v 1.59 2003/06/15 21:43:53 igor Exp $
+// $Id: g_cmds.c,v 1.60 2004/04/08 23:19:51 slicerdw Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_cmds.c,v $
+// Revision 1.60  2004/04/08 23:19:51  slicerdw
+// Optimized some code, added a couple of features and fixed minor bugs
+//
 // Revision 1.59  2003/06/15 21:43:53  igor
 // added IRC client
 //
@@ -1982,6 +1985,15 @@ ClientCommand (edict_t * ent)
 //zucc
 //      else if (Q_stricmp (cmd, "laser") == 0)
 //              SP_LaserSight (ent);
+
+	//SLIC2
+
+	else if (Q_stricmp (cmd, "streak") == 0)
+    {
+	  gi.cprintf(ent,PRINT_HIGH,"Your Killing Streak is: %d\n",ent->client->resp.streak);
+      return;
+    }
+	//SLIC2
   else if (Q_stricmp (cmd, "reload") == 0)
     {
       Cmd_New_Reload_f (ent);

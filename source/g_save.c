@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // g_save.c
 //
-// $Id: g_save.c,v 1.64 2004/01/18 11:25:31 igor_rock Exp $
+// $Id: g_save.c,v 1.65 2004/04/08 23:19:51 slicerdw Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_save.c,v $
+// Revision 1.65  2004/04/08 23:19:51  slicerdw
+// Optimized some code, added a couple of features and fixed minor bugs
+//
 // Revision 1.64  2004/01/18 11:25:31  igor_rock
 // added flashgrenades
 //
@@ -591,10 +594,12 @@ InitGame (void)
   //TNG:Freud - ghosts
   use_ghosts = gi.cvar ("use_ghosts", "0", CVAR_LATCH);
 
-  radio_max = gi.cvar ("radio_max", "4", 0);
+  radio_max = gi.cvar ("radio_max", "3", 0);
   radio_time = gi.cvar ("radio_time", "2", 0);
   radio_ban = gi.cvar ("radio_ban", "15", 0);
-  radio_repeat = gi.cvar ("radio_repeat", "3", 0);
+    //SLIC2
+  radio_repeat_time = gi.cvar ("radio_repeat_time", "1", 0);
+  radio_repeat = gi.cvar ("radio_repeat", "2", 0);
   unique_weapons =
     gi.cvar ("weapons", teamplay->value ? "1" : "1", CVAR_SERVERINFO | CVAR_LATCH);	// zucc changed teamplay to 1
   unique_items = gi.cvar ("items", "1", CVAR_SERVERINFO | CVAR_LATCH);
@@ -603,9 +608,11 @@ InitGame (void)
   allweapon = gi.cvar ("allweapon", "0", CVAR_SERVERINFO);
   allitem = gi.cvar ("allitem", "0", CVAR_SERVERINFO);
   tgren = gi.cvar ("tgren", "0", CVAR_SERVERINFO);
-  flashgren = gi.cvar ("flashgren", "1", 0);
+//SLIC2
+  /*flashgren = gi.cvar ("flashgren", "1", 0);
   flashradius = gi.cvar ("flashradius", "300", 0);
-  flashtime = gi.cvar ("flashtime", "100", 0);
+  flashtime = gi.cvar ("flashtime", "100", 0);*/
+//SLIC2
   sv_shelloff = gi.cvar ("shelloff", "1", 0);
   bholelimit = gi.cvar ("bholelimit", "0", 0);
   splatlimit = gi.cvar ("splatlimit", "0", 0);

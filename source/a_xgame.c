@@ -16,10 +16,13 @@
 // you get compiler errors too, comment them out like
 // I'd done.
 //
-// $Id: a_xgame.c,v 1.18 2003/12/09 20:54:16 igor_rock Exp $
+// $Id: a_xgame.c,v 1.19 2004/04/08 23:19:51 slicerdw Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_xgame.c,v $
+// Revision 1.19  2004/04/08 23:19:51  slicerdw
+// Optimized some code, added a couple of features and fixed minor bugs
+//
 // Revision 1.18  2003/12/09 20:54:16  igor_rock
 // Say: added %M for teammate in line of sight (as %E does for enemies)
 //
@@ -1091,14 +1094,12 @@ GetEnemyPosition (edict_t * self, char *buf)
 //AQ2:TNG END
 
 //AQ2:TNG Slicer - New last killed target functions
+
+//SLIC2 Optimizations
 void
 ResetKills (edict_t * ent)
 {
-  int i;
-  for (i = 0; i < MAX_LAST_KILLED; i++)
-    {
-      ent->client->resp.last_killed_target[i] = NULL;
-    }
+	memset(ent->client->resp.last_killed_target, 0, sizeof(ent->client->resp.last_killed_target));
 }
 int
 ReadKilledPlayers (edict_t * ent)
@@ -1110,17 +1111,14 @@ ReadKilledPlayers (edict_t * ent)
   if (ent->client->resp.last_killed_target[0])
     {
       for (i = 0; i < MAX_LAST_KILLED; i++)
-	{
-	  if (ent->client->resp.last_killed_target[i])
-	    {
-	      results++;
-	    }
+		{
+		if (ent->client->resp.last_killed_target[i])
+			{
+			results++;
+			}
+		}
 	}
-      return results;
-
-    }
-  else
-    return -1;
+	return results;
 }
 
 void
@@ -1129,7 +1127,7 @@ AddKilledPlayer (edict_t * self, edict_t * ent)
   int kills;
 
   kills = ReadKilledPlayers (self);
-  if (kills == MAX_LAST_KILLED || kills == -1)	// if list is full wite on the first one
+  if (kills == MAX_LAST_KILLED-1 || kills == -1)	// if list is full write on the first one
     {
       self->client->resp.last_killed_target[0] = ent;
     }

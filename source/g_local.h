@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // g_local.h -- local definitions for game module
 //
-// $Id: g_local.h,v 1.67 2003/06/15 21:43:53 igor Exp $
+// $Id: g_local.h,v 1.68 2004/04/08 23:19:51 slicerdw Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_local.h,v $
+// Revision 1.68  2004/04/08 23:19:51  slicerdw
+// Optimized some code, added a couple of features and fixed minor bugs
+//
 // Revision 1.67  2003/06/15 21:43:53  igor
 // added IRC client
 //
@@ -871,6 +874,8 @@ extern cvar_t *radio_max;
 extern cvar_t *radio_time;
 extern cvar_t *radio_ban;
 extern cvar_t *radio_repeat;
+//SLIC2
+extern cvar_t *radio_repeat_time;
 
 extern cvar_t *hc_single;
 extern cvar_t *wp_flags;
@@ -1129,8 +1134,9 @@ void fire_bullet (edict_t * self, vec3_t start, vec3_t aimdir, int damage,
 		  int kick, int hspread, int vspread, int mod);
 void fire_shotgun (edict_t * self, vec3_t start, vec3_t aimdir, int damage,
 		   int kick, int hspread, int vspread, int count, int mod);
+//SLIC2 changed argument name hyper to hyperb
 void fire_blaster (edict_t * self, vec3_t start, vec3_t aimdir, int damage,
-		   int speed, int effect, qboolean hyper);
+		   int speed, int effect, qboolean hyperb);
 void fire_grenade (edict_t * self, vec3_t start, vec3_t aimdir, int damage,
 		   int speed, float timer, float damage_radius);
 void fire_grenade2 (edict_t * self, vec3_t start, vec3_t aimdir, int damage,
@@ -1407,12 +1413,20 @@ typedef struct
   int admin;
 
   int hc_mode;
-  float rd_mute;
+  //SLIC2 redesigning this
+  /*float rd_mute;
   float rd_when[10];
   int rd_whensaid;
   char rd_rep[96];
   int rd_repcount;
-  float rd_reptime;
+  float rd_reptime;*/
+  float rd_mute;	//Time to be muted
+  int rd_Count;		//Counter for the last msgs in "xx" secs allowed
+  float rd_time;	//Time for the first radio message of the ones to follow
+
+  int rd_lastRadio;	//Code of the last radio used
+  int rd_repCount;	//Counter for the number of repeated radio msgs
+  float rd_repTime;	//The time for the last repeated radio msg
 }
 client_respawn_t;
 

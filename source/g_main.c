@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 //
 //
-// $Id: g_main.c,v 1.72 2004/01/18 11:25:31 igor_rock Exp $
+// $Id: g_main.c,v 1.73 2004/04/08 23:19:51 slicerdw Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_main.c,v $
+// Revision 1.73  2004/04/08 23:19:51  slicerdw
+// Optimized some code, added a couple of features and fixed minor bugs
+//
 // Revision 1.72  2004/01/18 11:25:31  igor_rock
 // added flashgrenades
 //
@@ -356,9 +359,11 @@ cvar_t *unique_items;
 cvar_t *ir;
 cvar_t *knifelimit;
 cvar_t *tgren;
-cvar_t *flashgren;
+//SLIC2
+/*cvar_t *flashgren;
 cvar_t *flashradius;
-cvar_t *flashtime;
+cvar_t *flashtime;*/
+//SLIC2
 cvar_t *allweapon;
 cvar_t *allitem;
 cvar_t *sv_shelloff;
@@ -405,6 +410,9 @@ cvar_t *radio_max;		// max nr Radio and Voice requests
 cvar_t *radio_time;		// max nr of time for the radio_max
 cvar_t *radio_ban;		// silence for xx nr of secs
 cvar_t *radio_repeat;		// same as radio_max, only for repeats
+//SLIC2
+cvar_t *radio_repeat_time;
+
 cvar_t *use_classic;		// Used to reset spread/gren strength to 1.52
 
 void SpawnEntities (char *mapname, char *entities, char *spawnpoint);

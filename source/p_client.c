@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // p_client.c
 //
-// $Id: p_client.c,v 1.88 2003/10/01 19:24:14 igor_rock Exp $
+// $Id: p_client.c,v 1.89 2004/04/08 23:19:51 slicerdw Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: p_client.c,v $
+// Revision 1.89  2004/04/08 23:19:51  slicerdw
+// Optimized some code, added a couple of features and fixed minor bugs
+//
 // Revision 1.88  2003/10/01 19:24:14  igor_rock
 // corrected a smaller bug (thanks to nopcode for the bug report)
 //
@@ -331,7 +334,9 @@ void Add_Frag(edict_t * ent)
 	if (teamplay->value || (ent->client->resp.streak < 4)) {
 		ent->client->resp.score++;	// just 1 normal kill
 		// AQ:TNG Igor[Rock] changing sound dir
-		if (ent->client->resp.streak == 4 && use_rewards->value) {
+		//SLIC2
+		if (ent->client->resp.streak % 5 == 0 && use_rewards->value) {
+		//SLIC2
 			//AQ2:TNG - Igor removing newlines
 			sprintf(buf, "IMPRESSIVE %s!", ent->client->pers.netname);
 			//AQ2:TNG End removing newlines
@@ -340,8 +345,10 @@ void Add_Frag(edict_t * ent)
 			gi.dprintf("\n");
 			gi.sound(&g_edicts[0], CHAN_VOICE | CHAN_NO_PHS_ADD,
 				 gi.soundindex("tng/impressive.wav"), 1.0, ATTN_NONE, 0.0);
-		} else if (ent->client->resp.streak == 12 && use_rewards->value) {
-			sprintf(buf, "EXCELLENT %s!", ent->client->pers.netname);
+			//SLIC2
+		} else if (ent->client->resp.streak % 12 == 0 && use_rewards->value) {
+			sprintf(buf, "EXCELLENT %s (%dx)!", ent->client->pers.netname,ent->client->resp.streak/12);
+			//SLIC2
 			CenterPrintAll(buf);
 			//AQ2:TNG Freud adding newlines to the logfile
 			gi.dprintf("\n");
@@ -431,6 +438,7 @@ void Add_Frag(edict_t * ent)
 
 void Subtract_Frag(edict_t * ent)
 {
+
 	ent->client->resp.score--;
 	ent->client->resp.streak = 0;
 }
@@ -926,8 +934,12 @@ void ClientObituary(edict_t * self, edict_t * inflictor, edict_t * attacker)
 					// Fix on taught how to fly
 					if (!
 					    (teamplay->value && OnSameTeam(self, self->client->attacker)
-					     && !team_round_going))
-						Add_Frag(self->client->attacker);
+						&& !team_round_going)) {
+							//SLIC2
+							self->client->resp.streak = 0;
+							//SLIC2
+							Add_Frag(self->client->attacker);
+						}
 				}
 				//END FF ADD
 				//PG BUND - BEGIN 
@@ -1332,10 +1344,16 @@ void ClientObituary(edict_t * self, edict_t * inflictor, edict_t * attacker)
 							Subtract_Frag(attacker);	//attacker->client->resp.score--;
 						}
 					} else {
+	
 						//FIREBLADE
 						if (!teamplay->value || mod != MOD_TELEFRAG) {
 							Add_Frag(attacker);	//attacker->client->resp.score++;
 							attacker->client->pers.num_kills++;	//TempFile
+							//SLIC2
+							if(!teamplay->value || !OnSameTeam(self,attacker)) {
+								self->client->resp.streak = 0;
+							}
+							//SLIC2
 						}
 					}
 
@@ -1647,8 +1665,9 @@ void player_die(edict_t * self, edict_t * inflictor, edict_t * attacker, int dam
 	self->client->desired_fov = 90;
 	self->client->ps.fov = 90;
 	//FIREBLADE
-
-	self->client->resp.streak = 0;
+	//SLIC2: Removed this from here
+	//self->client->resp.streak = 0;
+	//SLIC2
 	Bandage(self);		// clear up the leg damage when dead sound?
 	self->client->bandage_stopped = 0;
 
@@ -1755,6 +1774,7 @@ This is only called when the game first initializes in single player,
 but is called after each death and level change in deathmatch
 ==============
 */
+// SLIC2 If pers structure gets memset to 0 lets cleannup unecessary initiations ( to 0 ) here
 void InitClientPersistant(gclient_t * client)
 {
 	gitem_t *item;
@@ -1814,12 +1834,12 @@ void InitClientPersistant(gclient_t * client)
 		client->curr_weap = MK23_NUM;
 	}
 	//AQ2:TNG - Slicer Moved This To Here
-	client->pers.num_kills = 0;
+	//client->pers.num_kills = 0;
 	//AQ2:TNG END
 // AQ2:TNG - JBravo adding UVtime
 	client->ctf_uvtime = 0;
 }
-
+// SLIC2 If resp structure gets memset to 0 lets cleannup unecessary initiations ( to 0 ) here
 void InitClientResp(gclient_t * client)
 {
 	int team = client->resp.team;
@@ -1858,45 +1878,45 @@ void InitClientResp(gclient_t * client)
 
 	//TempFile - BEGIN
 	client->resp.punch_desired = false;
-	client->resp.fire_time = 0;
-	client->resp.ignore_time = 0;
+	//client->resp.fire_time = 0;
+	//client->resp.ignore_time = 0;
+
 	//client->pers.num_kills = 0; AQ2:TNG Moved This to InitClientPersistant
 	//TempFile - END
 
 	//PG BUND - BEGIN
 //  client->resp.last_killed_target = NULL;
 //  ResetKills(ent);
-	client->resp.idletime = 0;
+	//client->resp.idletime = 0;
 	//PG BUND - END
 	//AQ2:TNG - Slicer : Reset Video Cheking vars
-	memset(client->resp.vidref, 0, sizeof(client->resp.vidref));
-	memset(client->resp.gldriver, 0, sizeof(client->resp.gldriver));
-	client->resp.gllockpvs = 0;
-	client->resp.glclear = 0;
+	//memset(client->resp.vidref, 0, sizeof(client->resp.vidref));
+	//memset(client->resp.gldriver, 0, sizeof(client->resp.gldriver));
+	//client->resp.gllockpvs = 0;
+	//client->resp.glclear = 0;
 	client->resp.gldynamic = 1;
-	client->resp.glmodulate = 0;
+	//client->resp.glmodulate = 0;
 	client->resp.checked = false;
-	memset(&client->resp.checktime, 0, sizeof(client->resp.checktime));
-	memset(&client->resp.rd_when, 0, sizeof(client->resp.rd_when));
-	memset(client->resp.rd_rep, 0, sizeof(client->resp.rd_rep));
-	client->resp.rd_whensaid = -1;
-	client->resp.rd_mute = 0;
-	client->resp.rd_repcount = 0;
-	client->resp.rd_reptime = 0;
+	//memset(&client->resp.checktime, 0, sizeof(client->resp.checktime));
+	//memset(&client->resp.rd_when, 0, sizeof(client->resp.rd_when));
+	//memset(client->resp.rd_rep, 0, sizeof(client->resp.rd_rep));
+	//client->resp.rd_mute = 0;
+	//client->resp.rd_repcount = 0;
+	//client->resp.rd_reptime = 0;
 	//AQ2:TNG END
 	//AQ2:TNG Slicer Last Damage Location
-	client->resp.last_damaged_part = 0;
-	client->resp.last_damaged_players[0] = '\0';
+	//client->resp.last_damaged_part = 0;
+	//client->resp.last_damaged_players[0] = '\0';
 	//AQ2:TNG END
 	//AQ2:TNG Slicer Moved this to here
-	client->resp.killed_teammates = 0;
-	client->resp.idletime = 0;
+	//client->resp.killed_teammates = 0;
+	//client->resp.idletime = 0;
 	//AQ2:TNG END
 	//AQ2:TNG Slicer - Matchmode
-	client->resp.subteam = 0;
-	client->resp.captain = 0;
-	client->resp.admin = 0;
-	client->resp.stat_mode_intermission = 0;
+	//client->resp.subteam = 0;
+	//client->resp.captain = 0;
+	//client->resp.admin = 0;
+	//client->resp.stat_mode_intermission = 0;
 	//AQ2:TNG END
 
 	// No automatic team join

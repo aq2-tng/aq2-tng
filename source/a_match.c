@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // Matchmode related code
 //
-// $Id: a_match.c,v 1.17 2003/06/15 21:43:53 igor Exp $
+// $Id: a_match.c,v 1.18 2004/04/08 23:19:51 slicerdw Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_match.c,v $
+// Revision 1.18  2004/04/08 23:19:51  slicerdw
+// Optimized some code, added a couple of features and fixed minor bugs
+//
 // Revision 1.17  2003/06/15 21:43:53  igor
 // added IRC client
 //
@@ -96,9 +99,8 @@ void SendScores()
 void Cmd_Kill_f(edict_t * ent);	// Used for killing people when they sub off
 void Cmd_Sub_f(edict_t * ent)
 {
-	char temp[1024];
+	char temp[256];
 
-	memset(temp, 0, sizeof(temp));
 	if (ent->client->resp.team == NOTEAM || !teamplay->value) {
 		gi.cprintf(ent, PRINT_HIGH, "You need to be on a team for that...\n");
 		return;
@@ -148,9 +150,8 @@ int CheckForCaptains(int cteam)
 void Cmd_Captain_f(edict_t * ent)
 {
 	int i;
-	char temp[1024];
+	char temp[256];
 
-	memset(temp, 0, sizeof(temp));
 	if (ent->client->resp.team == NOTEAM || !teamplay->value) {
 		gi.cprintf(ent, PRINT_HIGH, "You need to be on a team for that...\n");
 		return;
@@ -190,9 +191,8 @@ void Cmd_Captain_f(edict_t * ent)
 //extern int started; // AQ2:M - Matchmode - Used for ready command
 void Cmd_Ready_f(edict_t * ent)
 {
-	char temp[1024];
+	char temp[256];
 
-	memset(temp, 0, sizeof(temp));
 	if (ent->client->resp.captain == 0) {
 		gi.cprintf(ent, PRINT_HIGH, "You need to be a captain for that\n");
 		return;
@@ -229,8 +229,7 @@ void Cmd_Ready_f(edict_t * ent)
 void Cmd_Teamname_f(edict_t * ent)
 {
 	int i, u, team;
-	char temp[64];
-
+	char temp[128];
 	team = ent->client->resp.team;
 	if (ent->client->resp.captain == 0) {
 		gi.cprintf(ent, PRINT_HIGH, "You need to be a captain for that\n");
@@ -283,9 +282,7 @@ void Cmd_Teamskin_f(edict_t * ent)
 {
 	char *s;
 	int i, team;
-	char temp[32];
-
-	memset(temp, 0, sizeof(temp));
+	char temp[128];
 
 	team = ent->client->resp.team;
 	if (ent->client->resp.captain == 0) {
@@ -314,7 +311,7 @@ void Cmd_Teamskin_f(edict_t * ent)
 		return;
 	}
 	strncpy(temp, gi.argv(1), sizeof(temp));
-	temp[31] = 0;
+	temp[127] = 0;
 	if (team == 1) {
 		strcpy(team1_skin, temp);
 		sprintf(team1_skin_index, "../players/%s_i", team1_skin);
@@ -331,8 +328,7 @@ void Cmd_Teamskin_f(edict_t * ent)
 
 void Cmd_TeamLock_f(edict_t * ent, int a_switch)
 {
-	char msg[32];
-
+	char msg[128];
 	if (!mm_allowlock->value)
 		gi.cprintf(ent, PRINT_HIGH, "Team locking is disabled on this server\n");
 	else if (!ent->client->resp.team)

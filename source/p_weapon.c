@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // g_weapon.c
 //
-// $Id: p_weapon.c,v 1.19 2002/04/16 16:47:46 freud Exp $
+// $Id: p_weapon.c,v 1.20 2004/04/08 23:19:52 slicerdw Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: p_weapon.c,v $
+// Revision 1.20  2004/04/08 23:19:52  slicerdw
+// Optimized some code, added a couple of features and fixed minor bugs
+//
 // Revision 1.19  2002/04/16 16:47:46  freud
 // Fixed the use grenades, drop bandolier bug with use_buggy_bandolier 0
 //
@@ -2589,9 +2592,9 @@ BLASTER / HYPERBLASTER
 
 ======================================================================
 */
-
+//SLIC2 changed argument name hyper to hyperb
 void
-Blaster_Fire (edict_t * ent, vec3_t g_offset, int damage, qboolean hyper,
+Blaster_Fire (edict_t * ent, vec3_t g_offset, int damage, qboolean hyperb,
 	      int effect)
 {
   vec3_t forward, right;
@@ -2608,12 +2611,12 @@ Blaster_Fire (edict_t * ent, vec3_t g_offset, int damage, qboolean hyper,
   VectorScale (forward, -2, ent->client->kick_origin);
   ent->client->kick_angles[0] = -1;
 
-  fire_blaster (ent, start, forward, damage, 1000, effect, hyper);
+  fire_blaster (ent, start, forward, damage, 1000, effect, hyperb);
 
   // send muzzle flash
   gi.WriteByte (svc_muzzleflash);
   gi.WriteShort (ent - g_edicts);
-  if (hyper)
+  if (hyperb)
     gi.WriteByte (MZ_HYPERBLASTER | is_silenced);
   else
     gi.WriteByte (MZ_BLASTER | is_silenced);

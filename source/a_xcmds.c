@@ -4,10 +4,13 @@
 //
 // contains all new non standard command functions
 //
-// $Id: a_xcmds.c,v 1.14 2004/01/18 11:20:14 igor_rock Exp $
+// $Id: a_xcmds.c,v 1.15 2004/04/08 23:19:51 slicerdw Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_xcmds.c,v $
+// Revision 1.15  2004/04/08 23:19:51  slicerdw
+// Optimized some code, added a couple of features and fixed minor bugs
+//
 // Revision 1.14  2004/01/18 11:20:14  igor_rock
 // added flashgrenades
 //
@@ -181,7 +184,6 @@ Cmd_Voice_f (edict_t * self)
 {
   char *s;
   char fullpath[2048];
-  qboolean d;
   s = gi.args ();
   //check if no sound is given
   if (!*s)
@@ -209,16 +211,16 @@ Cmd_Voice_f (edict_t * self)
     return;
   strcpy (fullpath, PG_SNDPATH);
   strcat (fullpath, s);
-
-  if (radio_repeat->value)
+// SLIC2 Taking this out.
+  /*if (radio_repeat->value)
     {
       if ((d = CheckForRepeat (self, s)) == false)
 	return;
-    }
+    }*/
   if (radio_max->value)
     {
-      if ((d = CheckForFlood (self)) == false)
-	return;
+      if (CheckForFlood (self)== false)
+		return;
     }
   // AQ2:TNG Deathwatch - This should be IDLE not NORM
   gi.sound (self, CHAN_VOICE, gi.soundindex (fullpath), 1, ATTN_IDLE, 0);
@@ -419,7 +421,8 @@ Cmd_SaveFlags_f (edict_t * self)
 
   gi.cprintf (self, PRINT_MEDIUM, "\nFlag File saved.\n");
 }
-
+//SLIC2
+/*
 void Cmd_FlashGrenade_f(edict_t *ent)
 {
   if (ent->client->grenadeType == GRENADE_NORMAL) {
@@ -429,4 +432,4 @@ void Cmd_FlashGrenade_f(edict_t *ent)
     gi.cprintf(ent, PRINT_HIGH, "Standard grenades selected.\n");
     ent->client->grenadeType = GRENADE_NORMAL;
   }
-}
+}*/
