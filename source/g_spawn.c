@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // g_spawn.c
 //
-// $Id: g_spawn.c,v 1.21 2001/06/25 11:44:47 slicerdw Exp $
+// $Id: g_spawn.c,v 1.22 2001/06/26 11:41:39 igor_rock Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_spawn.c,v $
+// Revision 1.22  2001/06/26 11:41:39  igor_rock
+// removed the debug messages for flag and playerstart positions in ctf
+//
 // Revision 1.21  2001/06/25 11:44:47  slicerdw
 // New Video Check System - video_check and video_check_lockpvs no longer latched
 //
@@ -1988,25 +1991,25 @@ void ChangePlayerSpawns ()
 
   if (spot1)
     {
-      gi.dprintf ("Ersetze info_player_deathmatch auf <%f %f %f> durch info_player_team1\n", spot1->s.origin[0], spot1->s.origin[1], spot1->s.origin[2]);
+      // gi.dprintf ("Ersetze info_player_deathmatch auf <%f %f %f> durch info_player_team1\n", spot1->s.origin[0], spot1->s.origin[1], spot1->s.origin[2]);
       strcpy (spot1->classname, "info_player_team1");
     }
      
   if (spot2)
     {
-      gi.dprintf ("Ersetze info_player_deathmatch auf <%f %f %f> durch info_player_team2\n", spot2->s.origin[0], spot2->s.origin[1], spot2->s.origin[2]);
+      // gi.dprintf ("Ersetze info_player_deathmatch auf <%f %f %f> durch info_player_team2\n", spot2->s.origin[0], spot2->s.origin[1], spot2->s.origin[2]);
       strcpy (spot2->classname, "info_player_team2");
     }
 
   if (spot3)
     {
-      gi.dprintf ("Ersetze info_player_deathmatch auf <%f %f %f> durch info_player_team1\n", spot3->s.origin[0], spot3->s.origin[1], spot3->s.origin[2]);
+      // gi.dprintf ("Ersetze info_player_deathmatch auf <%f %f %f> durch info_player_team1\n", spot3->s.origin[0], spot3->s.origin[1], spot3->s.origin[2]);
       strcpy (spot3->classname, "info_player_team1");
     }
      
   if (spot4)
     {
-      gi.dprintf ("Ersetze info_player_deathmatch auf <%f %f %f> durch info_player_team2\n", spot4->s.origin[0], spot4->s.origin[1], spot4->s.origin[2]);
+      // gi.dprintf ("Ersetze info_player_deathmatch auf <%f %f %f> durch info_player_team2\n", spot4->s.origin[0], spot4->s.origin[1], spot4->s.origin[2]);
       strcpy (spot4->classname, "info_player_team2");
     }
 
