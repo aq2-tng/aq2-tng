@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // Include for Action team-related things
 //
-// $Id: a_team.h,v 1.3 2001/10/18 12:55:35 deathwatch Exp $
+// $Id: a_team.h,v 1.4 2001/11/03 17:31:15 ra Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_team.h,v $
+// Revision 1.4  2001/11/03 17:31:15  ra
+// Compiler warning fix.
+//
 // Revision 1.3  2001/10/18 12:55:35  deathwatch
 // Added roundtimeleft
 //
@@ -62,6 +65,7 @@ void AssignSkin (edict_t *, char *);
 void TallyEndOfLevelTeamScores (void);
 void CheckForUnevenTeams (void);
 void SetupTeamSpawnPoints ();
+int CheckTeamSpawnPoints ();
 void GetSpawnPoints ();
 void CleanBodies ();		// from p_client.c, removes all current dead bodies from map
 
