@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // p_client.c
 //
-// $Id: p_client.c,v 1.59 2002/01/23 13:08:32 ra Exp $
+// $Id: p_client.c,v 1.60 2002/01/24 11:38:01 ra Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: p_client.c,v $
+// Revision 1.60  2002/01/24 11:38:01  ra
+// Cleanups
+//
 // Revision 1.59  2002/01/23 13:08:32  ra
 // fixing tought how to fly bug
 //
@@ -2463,7 +2466,7 @@ player_die (edict_t * self, edict_t * inflictor, edict_t * attacker,
 
   // Gibbing on really hard HC hit
   if ( ((self->health < -35) && (meansOfDeath == MOD_HC)) ||
-	((self->health < -30) && (meansOfDeath == MOD_M3)) && (sv_gib->value) )
+	((self->health < -20) && (meansOfDeath == MOD_M3)) && (sv_gib->value) )
     {
       gi.sound (self, CHAN_BODY, gi.soundindex ("misc/udeath.wav"), 1,
 		ATTN_NORM, 0);
