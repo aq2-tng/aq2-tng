@@ -1,3 +1,10 @@
+##############################################################################
+#
+# This is the OLD changelog for the PG Bund Edition Release, on which AQ2-TNG
+# is based.
+#
+##############################################################################
+
 Action Quake: Edition
 Version 1.25 as of April 2, 2001
 
