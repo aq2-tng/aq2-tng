@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // p_client.c
 //
-// $Id: p_client.c,v 1.6 2001/05/07 20:06:45 igor_rock Exp $
+// $Id: p_client.c,v 1.7 2001/05/07 21:18:35 slicerdw Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: p_client.c,v $
+// Revision 1.7  2001/05/07 21:18:35  slicerdw
+// Added Video Checking System
+//
 // Revision 1.6  2001/05/07 20:06:45  igor_rock
 // changed sound dir from sound/rock to sound/tng
 //
@@ -1603,6 +1606,12 @@ void InitClientResp (gclient_t *client)
   client->resp.last_killed_target = NULL;
   client->resp.idletime = 0;
 //PG BUND - END
+  //AQ2:TNG - Slicer : Reset Video Cheking vars
+  	memset(client->resp.vidref,0,sizeof(client->resp.vidref));
+	memset(client->resp.gldriver,0,sizeof(client->resp.gldriver));
+	client->resp.checked = false;
+	client->resp.checktime = 0;
+	//AQ2:TNG END
 }
 
 /*
@@ -2706,6 +2715,9 @@ void ClientBeginDeathmatch (edict_t *ent)
         ent->client->resp.motd_refreshes = 1;
 //FIREBLADE
 
+		//AQ2:TNG - Slicer: Set time to check clients
+		ent->client->resp.checktime = (int)(level.time) + check_time->value;
+
         // make sure all view stuff is valid
         ClientEndServerFrame (ent);
 }
@@ -2801,7 +2813,61 @@ void ClientBegin (edict_t *ent)
         // make sure all view stuff is valid
         ClientEndServerFrame (ent);       
 }
+//AQ2:TNG Slicer 
+/*
+===========
+VideoCheckClient
 
+this is called to check Modulate values 
+===========
+*/
+void VideoCheckClient(edict_t *ent, float mod)
+{
+	if(Q_stricmp(ent->client->resp.vidref,"soft") == 0)
+		return;
+	if(Q_stricmp(ent->client->resp.gldriver,"3dfxgl") == 0)
+	{
+		if(mod > (float)(video_max_3dfx->value))
+		{
+			gi.cprintf(ent, PRINT_HIGH, "Your gl_modulate value is too high for this server. Max Allowed is %.1f\n",video_max_3dfx->value);
+			gi.bprintf(PRINT_HIGH, "%s is using a gl_modulated higher than allowed (%.1f)\n", ent->client->pers.netname,mod);
+			Kick_Client(ent);
+			return;
+		}
+       return;
+	}
+
+	if(Q_stricmp(ent->client->resp.gldriver,"opengl32") == 0)
+	{
+		
+		if(mod > (float)(video_max_opengl->value))
+		{
+			gi.cprintf(ent, PRINT_HIGH, "Your gl_modulate value is too high for this server. Max Allowed is %.1f\n",video_max_opengl->value);
+			gi.bprintf(PRINT_HIGH, "%s is using a gl_modulate higher than allowed (%.1f)\n", ent->client->pers.netname,mod);
+			Kick_Client(ent);
+			return;
+		}
+		return;
+	}
+	if(Q_stricmp(ent->client->resp.gldriver,"3dfxglam") == 0)
+	{
+		if(mod > (float)(video_max_3dfxam->value))
+		{
+			gi.cprintf(ent, PRINT_HIGH, "Your gl_modulate value is too high for this server. Max Allowed is %.1f\n",video_max_3dfxam->value);
+			gi.bprintf(PRINT_HIGH, "%s is using a gl_modulate higher than allowed (%.1f)\n", ent->client->pers.netname,mod);
+			Kick_Client(ent);
+			return;
+		}
+		return;
+	}
+	if(mod > (float)(video_max_opengl->value))
+		{
+			gi.cprintf(ent, PRINT_HIGH, "Your gl_modulate value is too high for this server. Max Allowed is %.1f\n",video_max_opengl->value);
+			gi.bprintf(PRINT_HIGH, "%s is using a gl_modulate higher than allowed (%.1f)\n", ent->client->pers.netname,mod);
+			Kick_Client(ent);
+			return;
+		}
+}
 /*
 ===========
 ClientUserInfoChanged
@@ -2815,7 +2881,7 @@ The game can override any of the settings in place
 void ClientUserinfoChanged (edict_t *ent, char *userinfo)
 {
         char    *s, *r;
-        int             playernum;
+        int             playernum,modulate,pvs;
 
         // check for malformed or illegal info strings
         if (!Info_Validate(userinfo))
@@ -2850,7 +2916,36 @@ void ClientUserinfoChanged (edict_t *ent, char *userinfo)
 		s = Info_ValueForKey(userinfo, "skin");
 	}
 // End $$ Skin server crash bug
+//AQ:TNG - Slicer Video Protections
+	if(video_check->value && ent->inuse)
+		{
 
+			if(ent->client->resp.vidref)
+			{
+				modulate = atoi(Info_ValueForKey (userinfo,"gl_modulate"));
+				if(modulate)
+					VideoCheckClient(ent,modulate);
+			}
+
+		}
+		if(video_check_lockpvs->value && ent->inuse)
+		{
+
+			if(ent->client->resp.vidref)
+			{
+				if(Q_stricmp(ent->client->resp.vidref,"soft")!= 0)
+				{
+					pvs = atoi(Info_ValueForKey (userinfo,"gl_lockpvs"));
+
+					if (pvs && pvs != 0)
+					{
+						gi.cprintf(ent, PRINT_HIGH, "This server does not allow using that value for gl_lockpvs, set it to '0'\n");
+						gi.bprintf(PRINT_HIGH, "%s was using an illegal setting\n", ent->client->pers.netname);
+						Kick_Client(ent);
+					}
+				}
+			}
+		}
 		playernum = ent-g_edicts-1;
 
         // combine name and skin into a configstring

@@ -4,12 +4,15 @@
 //
 // header file for a_xgame.c
 //
-// $Id: a_xgame.h,v 1.1 2001/05/06 17:25:24 igor_rock Exp $
+// $Id: a_xgame.h,v 1.2 2001/05/07 21:18:34 slicerdw Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_xgame.h,v $
-// Revision 1.1  2001/05/06 17:25:24  igor_rock
-// Initial revision
+// Revision 1.2  2001/05/07 21:18:34  slicerdw
+// Added Video Checking System
+//
+// Revision 1.1.1.1  2001/05/06 17:25:24  igor_rock
+// This is the PG Bund Edition V1.25 with all stuff laying around here...
 //
 //-----------------------------------------------------------------------------
 
@@ -75,3 +78,7 @@ void FixCubeData (loccube_t *);
 void DescListInit (char *mapname);
 void ParseSayText (edict_t * ent, char *text);
 qboolean GetPositionText (vec3_t, char *);	//TempFile we need this public (HUD!)
+
+//AQ2:TNG - Slicer 
+extern float next_cheat_check;
+void AntiCheat_CheckClient(edict_t *ent);

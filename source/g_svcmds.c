@@ -1,12 +1,15 @@
 //-----------------------------------------------------------------------------
 // g_svcmds.c
 //
-// $Id: g_svcmds.c,v 1.1 2001/05/06 17:31:45 igor_rock Exp $
+// $Id: g_svcmds.c,v 1.2 2001/05/07 21:18:35 slicerdw Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_svcmds.c,v $
-// Revision 1.1  2001/05/06 17:31:45  igor_rock
-// Initial revision
+// Revision 1.2  2001/05/07 21:18:35  slicerdw
+// Added Video Checking System
+//
+// Revision 1.1.1.1  2001/05/06 17:31:45  igor_rock
+// This is the PG Bund Edition V1.25 with all stuff laying around here...
 //
 //-----------------------------------------------------------------------------
 
@@ -326,6 +329,8 @@ void    ServerCommand (void)
 				SVCmd_Nextmap_f (gi.argv(2)); // Added by Black Cross
 		else if (Q_stricmp (cmd, "reloadmotd") == 0)
 				SVCmd_ReloadMOTD_f();
+		else if (Q_stricmp (cmd, "checkcheats") == 0)
+				SVCmd_CheckCheats_f();
         else
 				gi.cprintf (NULL, PRINT_HIGH, "Unknown server command \"%s\"\n", cmd);
 }
@@ -429,3 +434,27 @@ void UnBan_TeamKillers (void)
 }
 //AZEROV
 
+// AQ2:TNG - Slicer
+/*
+=================
+SVCmd_CheckCheats_f
+
+Checks every client for Video 
+=================
+*/
+void SVCmd_CheckCheats_f (void)
+{
+	edict_t *ent;
+	int i;
+
+	//go through each client and check things
+	for (i=0; i<game.maxclients; i++)
+    {
+    	ent = &g_edicts[1+i];
+		if (!ent->inuse || !ent->client)
+			continue;
+		AntiCheat_CheckClient(ent);
+    }
+}
+
+// AQ2:TNG END

@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 //
 //
-// $Id: g_main.c,v 1.2 2001/05/07 08:32:17 mort Exp $
+// $Id: g_main.c,v 1.3 2001/05/07 21:18:35 slicerdw Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_main.c,v $
+// Revision 1.3  2001/05/07 21:18:35  slicerdw
+// Added Video Checking System
+//
 // Revision 1.2  2001/05/07 08:32:17  mort
 // Basic CTF code
 // No spawns etc
@@ -134,6 +137,16 @@ cvar_t *ctf_player_respawn_time; // AQ2:M - CTF
 cvar_t *ctf_item_remove_time; // AQ2:M - CTF
 cvar_t *ctf_effects; // AQ2:M - CTF
 // Mort [END]
+//AQ2:TNG - Slicer 
+cvar_t  *check_time;
+cvar_t	*video_check;
+cvar_t 	*video_checktime;	
+cvar_t 	*video_max_3dfx;
+cvar_t 	*video_max_3dfxam;
+cvar_t 	*video_max_opengl;
+cvar_t  *video_force_restart;
+cvar_t  *video_check_lockpvs;
+//AQ2:TNG END
 
 
 void SpawnEntities (char *mapname, char *entities, char *spawnpoint);
@@ -565,7 +578,19 @@ void G_RunFrame (void)
   //FIREBLADE
   CheckNeedPass();
   //FIREBLADE
+  //AQ2:TNG - Slicer : This will update the clients gl_driver and vid_ref
   
+		// check for cheat checking
+		if ((int)(video_checktime->value) > 5 && (video_check->value || video_check_lockpvs->value))
+		{
+			if (level.time > next_cheat_check)
+			{
+				SVCmd_CheckCheats_f();
+				next_cheat_check = level.time + video_checktime->value;
+			}
+		}
+	//AQ2:TNG END
+
   // build the playerstate_t structures for all players
   ClientEndServerFrames ();
 }

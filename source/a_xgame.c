@@ -16,12 +16,15 @@
 // you get compiler errors too, comment them out like
 // I'd done.
 //
-// $Id: a_xgame.c,v 1.1 2001/05/06 17:25:24 igor_rock Exp $
+// $Id: a_xgame.c,v 1.2 2001/05/07 21:18:34 slicerdw Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_xgame.c,v $
-// Revision 1.1  2001/05/06 17:25:24  igor_rock
-// Initial revision
+// Revision 1.2  2001/05/07 21:18:34  slicerdw
+// Added Video Checking System
+//
+// Revision 1.1.1.1  2001/05/06 17:25:24  igor_rock
+// This is the PG Bund Edition V1.25 with all stuff laying around here...
 //
 //-----------------------------------------------------------------------------
 
@@ -638,5 +641,19 @@ ParseSayText (edict_t * ent, char *text)
 
   strncpy (text, buf, 225);
   text[225] = 0;		// in case it's 225
+
+}
+
+// AQ2:TNG - Slicer Video Checks
+
+float	next_cheat_check;
+
+void AntiCheat_CheckClient (edict_t *ent)
+{
+    //check for gl_modulate?
+    if (video_check->value || video_check_lockpvs->value)
+		//user tells server what value he is using
+		// (then ClientCommand will handle it)
+		stuffcmd(ent, "%cpsi $vid_ref $gl_driver\n");
 
 }

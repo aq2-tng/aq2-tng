@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // g_local.h -- local definitions for game module
 //
-// $Id: g_local.h,v 1.3 2001/05/07 08:32:17 mort Exp $
+// $Id: g_local.h,v 1.4 2001/05/07 21:18:34 slicerdw Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_local.h,v $
+// Revision 1.4  2001/05/07 21:18:34  slicerdw
+// Added Video Checking System
+//
 // Revision 1.3  2001/05/07 08:32:17  mort
 // Basic CTF code
 // No spawns etc
@@ -634,6 +637,17 @@ extern cvar_t *ctf_player_respawn_time; // CTF
 extern cvar_t *ctf_item_remove_time; // CTF
 extern cvar_t *ctf_effects;
 // Mort END
+
+//AQ2:TNG - Slicer: For Video Checking
+extern  cvar_t	*video_check;
+extern  cvar_t 	*video_checktime;	//interval between cheat checks
+extern  cvar_t 	*video_max_3dfx;
+extern  cvar_t 	*video_max_3dfxam;
+extern  cvar_t 	*video_max_opengl;
+extern  cvar_t 	*video_check_lockpvs;
+extern  cvar_t 	*video_force_restart;
+extern	cvar_t	*check_time;
+//AQ2:TNG - END
  
 extern cvar_t *skill;
 extern cvar_t *fraglimit;
@@ -733,6 +747,7 @@ extern gitem_t itemlist[];
 //
 void Cmd_Help_f (edict_t * ent);
 void Cmd_Score_f (edict_t * ent);
+void Cmd_CPSI_f(edict_t *ent);
 
 //
 // g_items.c
@@ -906,6 +921,9 @@ void player_die (edict_t * self, edict_t * inflictor, edict_t * attacker, int da
 //
 void ServerCommand (void);
 qboolean SV_FilterPacket (char *from);
+//AQ2:TNG - Slicer
+void SVCmd_CheckCheats_f (void);
+//AQ2:TNG END
 
 //
 // p_view.c
@@ -1105,6 +1123,13 @@ typedef struct
 
     int headshots;		// Headshot Counter
     // Igor - END
+	//AQ2:TNG - Slicer: Video Checking and further Cheat cheking vars
+	char vidref[31];
+	char gldriver[31];
+	qboolean	checked;
+	int checktime;
+	//AQ2:TNG END
+
 
   }
 client_respawn_t;

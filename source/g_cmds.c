@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // g_cmds.c
 //
-// $Id: g_cmds.c,v 1.3 2001/05/07 02:05:36 ra Exp $
+// $Id: g_cmds.c,v 1.4 2001/05/07 21:18:34 slicerdw Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_cmds.c,v $
+// Revision 1.4  2001/05/07 21:18:34  slicerdw
+// Added Video Checking System
+//
 // Revision 1.3  2001/05/07 02:05:36  ra
 //
 //
@@ -1442,10 +1445,21 @@ void ClientCommand (edict_t *ent)
 				Cmd_Lens_f(ent);
 
 //TempFile - END
+		//AQ:TNG Slicer : Video Checks
+		else if (Q_stricmp(cmd, "%cpsi") == 0)
+			Cmd_CPSI_f(ent);
 
 //FIREBLADE
         else    // anything that doesn't match a command will be a chat
                 Cmd_Say_f (ent, false, true, false);
 }
 
+ // AQ2:TNG - Slicer : Video Check
+void Cmd_CPSI_f(edict_t *ent)
+{
+	strcpy(ent->client->resp.vidref,gi.argv(1));
+	ent->client->resp.vidref[30] = 0;
+	strcpy(ent->client->resp.gldriver,gi.argv(2));
+	ent->client->resp.gldriver[30] = 0;
 
+}

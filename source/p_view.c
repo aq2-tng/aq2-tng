@@ -1,12 +1,15 @@
 //-----------------------------------------------------------------------------
 // p_view.c
 //
-// $Id: p_view.c,v 1.1 2001/05/06 17:24:10 igor_rock Exp $
+// $Id: p_view.c,v 1.2 2001/05/07 21:18:35 slicerdw Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: p_view.c,v $
-// Revision 1.1  2001/05/06 17:24:10  igor_rock
-// Initial revision
+// Revision 1.2  2001/05/07 21:18:35  slicerdw
+// Added Video Checking System
+//
+// Revision 1.1.1.1  2001/05/06 17:24:10  igor_rock
+// This is the PG Bund Edition V1.25 with all stuff laying around here...
 //
 //-----------------------------------------------------------------------------
 
@@ -24,6 +27,9 @@ float   xyspeed;
 float   bobmove;
 int             bobcycle;               // odd cycles are right foot going forward
 float   bobfracsin;             // sin(bobfrac*M_PI)
+
+//AQ2:TNG - Slicer: needed var
+float	next_cheat_check;
 
 /*
 ===============
@@ -1136,10 +1142,64 @@ void ClientEndServerFrame (edict_t *ent)
 {
   float   bobtime;
   int             i;
+  char player_name[30];
+  char temp[40];
   //        int             damage; // zucc for bleeding
-
+  
   current_player = ent;
   current_client = ent->client;
+	
+  //AQ2:TNG - Slicer : Stuffs the client x seconds after he enters the server, needed for Video check
+  if(!ent->client->resp.checked)
+  {
+	  gi.dprintf("checking..\n");
+	  if (ent->client->resp.checktime <= (int)(level.time))
+	  {
+		
+		ent->client->resp.checked = true;
+		memset(player_name,0,sizeof(player_name));
+		memset(temp,0,sizeof(temp));
+		gi.dprintf("true\n");
+		if(video_check->value)
+		{
+				AntiCheat_CheckClient(ent);
+				gi.dprintf("Anticheat sent\n");
+				next_cheat_check = level.time + video_checktime->value;
+				gi.dprintf("next_cheat_check is set\n");
+		}
+
+		if(video_check_lockpvs->value || video_check->value)
+		{
+	
+			strcpy(player_name,ent->client->pers.netname);
+			stuffcmd(ent,"name #%&\n");
+			gi.dprintf("Name copied and sent\n");
+		}
+		if(video_check_lockpvs->value)
+		{
+			stuffcmd(ent,"set gl_lockpvs $gl_lockpvs u\n");
+		}
+
+		if(video_check->value)
+		{
+			stuffcmd(ent,"set gl_modulate $gl_modulate u\n");
+		}
+  
+		if(video_check_lockpvs->value || video_check->value)
+		{
+
+			sprintf(temp, "name \"%s\"\n",player_name);
+			stuffcmd(ent,temp);
+		}
+		if(video_force_restart->value && video_check->value)
+		{
+			stuffcmd(ent,"vid_restart\n");
+		}
+	
+	  }
+//AQ2:TNG End
+	  
+  }
 
   //FIREBLADE - Unstick avoidance stuff.
   if (ent->solid == SOLID_TRIGGER && !lights_camera_action)
