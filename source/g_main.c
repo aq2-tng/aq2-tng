@@ -1,10 +1,14 @@
 //-----------------------------------------------------------------------------
 //
 //
-// $Id: g_main.c,v 1.66 2002/03/30 17:20:59 ra Exp $
+// $Id: g_main.c,v 1.67 2002/08/12 09:36:34 freud Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_main.c,v $
+// Revision 1.67  2002/08/12 09:36:34  freud
+// Fixed the maxclients = 20 bug. G_RunEntity was not run if maxclients
+// 20, very weird code.. :)
+//
 // Revision 1.66  2002/03/30 17:20:59  ra
 // New cvar use_buggy_bandolier to control behavior of dropping bando and grenades
 //
@@ -920,7 +924,7 @@ G_RunFrame (void)
 	    }
 	}
 
-  if (i > 0 && i <= maxclients->value)
+  	if (i > 0 && i <= maxclients->value)
 	{
 		if (!(level.framenum % 80)) 
 		    stuffcmd(ent, "cmd_stat_mode $stat_mode\n");
@@ -931,8 +935,7 @@ G_RunFrame (void)
 	  continue;
 	}
 
-	if (maxclients->value != 20) // TNG Stats, Added if
-		G_RunEntity (ent);
+	G_RunEntity (ent);
   }
 
   // see if it is time to end a deathmatch
