@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 //
 //
-// $Id: g_main.c,v 1.70 2003/06/15 21:43:53 igor Exp $
+// $Id: g_main.c,v 1.71 2003/06/16 18:16:06 igor Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_main.c,v $
+// Revision 1.71  2003/06/16 18:16:06  igor
+// added IRC_poll to enable IRC mode (i had overseen it the first time)
+//
 // Revision 1.70  2003/06/15 21:43:53  igor
 // added IRC client
 //
@@ -902,6 +905,9 @@ G_RunFrame (void)
 
   // choose a client for monsters to target this frame
   AI_SetSightClient ();
+
+  // IRC poll
+  IRC_poll ();
 
   //AQ2:TNG - Slicer Matchmode code
   //if (matchmode->value && (team_game_going && team_round_going))
