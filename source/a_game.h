@@ -1,19 +1,25 @@
 //-----------------------------------------------------------------------------
 // Include for base Action game-related things
 //
-// $Id: a_game.h,v 1.1 2001/05/06 17:24:24 igor_rock Exp $
+// $Id: a_game.h,v 1.2 2001/05/12 17:36:33 deathwatch Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_game.h,v $
-// Revision 1.1  2001/05/06 17:24:24  igor_rock
-// Initial revision
+// Revision 1.2  2001/05/12 17:36:33  deathwatch
+// Edited the version variables and updated the menus. Added variables:
+// ACTION_VERSION, TNG_VERSION and TNG_VERSION2
+//
+// Revision 1.1.1.1  2001/05/06 17:24:24  igor_rock
+// This is the PG Bund Edition V1.25 with all stuff laying around here...
 //
 //-----------------------------------------------------------------------------
 
 
-// Igor[Rock] BEGIN
-#define ACTION_VERSION  "1.52 PB 1.25"
-// Igor[Rock] END
+// AQ2:TNG Deathwatch - Updated the Version variables to show TNG Stuff
+#define ACTION_VERSION  "1.52 TNG 2.0"
+#define TNG_VERSION		"AQ2: The Next Generation"
+#define TNG_VERSION2	"AQ2: The Next Generation v2.0"
+// AQ2:TNG Deathwatch End
 
 extern char team1_name[];
 extern char team2_name[];

@@ -5,10 +5,14 @@
 // Zucchini (spikard@u.washington.edu) and Fireblade (ucs_brf@shsu.edu) 
 // (splat/bullethole/shell ejection code from original Action source)
 //
-// $Id: a_game.c,v 1.3 2001/05/11 16:07:25 mort Exp $
+// $Id: a_game.c,v 1.4 2001/05/12 17:36:33 deathwatch Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_game.c,v $
+// Revision 1.4  2001/05/12 17:36:33  deathwatch
+// Edited the version variables and updated the menus. Added variables:
+// ACTION_VERSION, TNG_VERSION and TNG_VERSION2
+//
 // Revision 1.3  2001/05/11 16:07:25  mort
 // Various CTF bits and pieces...
 //
@@ -202,10 +206,12 @@ PrintMOTD (edict_t * ent)
    */
 
   // 3 lines for version number & website (third blank)
-  strcpy (msg_buf, "Welcome to AQ2:Edition v" ACTION_VERSION "\n"
-	  "http://action.gametown.de/\n"
+// AQ2:TNG Deathwatch Edited this
+  strcpy (msg_buf, "Welcome to " TNG_VERSION2 "\n"
+	  "http://www,aq2tng.barrysworld.net/\n"
 	  "\n");
   lines = 3;
+// AQ2:TNG END
 
   if (!skipmotd->value)
     {

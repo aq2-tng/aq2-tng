@@ -3,10 +3,14 @@
 // Some of this is borrowed from Zoid's CTF (thanks Zoid)
 // -Fireblade
 //
-// $Id: a_team.c,v 1.9 2001/05/12 14:52:47 mort Exp $
+// $Id: a_team.c,v 1.10 2001/05/12 17:36:33 deathwatch Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_team.c,v $
+// Revision 1.10  2001/05/12 17:36:33  deathwatch
+// Edited the version variables and updated the menus. Added variables:
+// ACTION_VERSION, TNG_VERSION and TNG_VERSION2
+//
 // Revision 1.9  2001/05/12 14:52:47  mort
 // Fixed bug of people being able to respawn when choosing a new item
 //
@@ -358,39 +362,43 @@ DoAGoodie (edict_t * ent, pmenu_t * p)
 }
 //PG BUND END
 
+// AQ2:TNG Deathwatch - Just for slicer :)
+void
+SlicersCat (edict_t * ent, pmenu_t * p)
+{
+  gi.cprintf (ent, PRINT_HIGH, "sLiCeR [dW] couldn't have done it without his cat!\n");
+  gi.sound (ent, CHAN_VOICE, gi.soundindex ("gladiator/sight.wav"), 1, ATTN_NORM, 0);
+}
+// AQ2:TNG End
+
+// AQ2:TNG Deathwatch - Editing all menus to show the correct credits, version, names, locations, urls, etc
 pmenu_t creditsmenu[] =
 {
-  {"*Action Quake 2 v" ACTION_VERSION, PMENU_ALIGN_CENTER, NULL, NULL},
+  {"*"TNG_VERSION, PMENU_ALIGN_CENTER, NULL, NULL},
   {"------------------------------", PMENU_ALIGN_CENTER, NULL, NULL},
-  {"*Head Design, Original Programming", PMENU_ALIGN_CENTER, NULL, NULL},
-  {"Sam 'Cail' Thompson", PMENU_ALIGN_CENTER, NULL, NULL},
-  {"*Sounds, Second-In-Command", PMENU_ALIGN_CENTER, NULL, NULL},
-  {"Patrick 'Bartender' Mills", PMENU_ALIGN_CENTER, NULL, NULL},
-  {"*Original Programming", PMENU_ALIGN_CENTER, NULL, NULL},
-  {"Nathan 'Pietro' Kovner", PMENU_ALIGN_CENTER, NULL, NULL},
-  {"Michael 'Siris' Taylor", PMENU_ALIGN_CENTER, NULL, NULL},
-  {"*Skins, Etc", PMENU_ALIGN_CENTER, NULL, NULL},
-  {"Jon 'Vain' Delee", PMENU_ALIGN_CENTER, NULL, NULL},
-  {"*Levels", PMENU_ALIGN_CENTER, NULL, NULL},
-  {"Evan 'Ace12GA' Prentice", PMENU_ALIGN_CENTER, NULL, NULL},
-  {"*Models, Skins, Etc", PMENU_ALIGN_CENTER, NULL, NULL},
-  {"Minh 'Gooseman' Le", PMENU_ALIGN_CENTER, NULL, NULL},
-  {"Dallas 'Suislide' Frank", PMENU_ALIGN_CENTER, NULL, NULL},
-  {"*Action 1.5 ('Axshun') Programming", PMENU_ALIGN_CENTER, NULL, NULL},
-  {"Carl 'Zucchini' Schedvin", PMENU_ALIGN_CENTER, NULL, NULL},
-  {"Bob 'Fireblade' Farmer", PMENU_ALIGN_CENTER, NULL, NULL},
-
-//PG BUND BEGIN
-  {"*PB Edition by PG BUND[Rock]", PMENU_ALIGN_CENTER, NULL, DoAGoodie},
-  {"*=DIE=TempFile and Igor[Rock]", PMENU_ALIGN_CENTER, NULL, DoAGoodie},
+  {"*Design Team", PMENU_ALIGN_CENTER, NULL, NULL},
+  {"Deathwatch", PMENU_ALIGN_CENTER, NULL, DoAGoodie},  
+  {"Igor[ROCK]", PMENU_ALIGN_CENTER, NULL, DoAGoodie},
+  {"JBravo", PMENU_ALIGN_CENTER, NULL, DoAGoodie},
+  {"Mort", PMENU_ALIGN_CENTER, NULL, DoAGoodie},
+  {"sLiCeR [dW]", PMENU_ALIGN_CENTER, NULL, SlicersCat},
+  {"*Credits", PMENU_ALIGN_CENTER, NULL, NULL},
+  {"(in no particular order)", PMENU_ALIGN_CENTER, NULL, NULL},
+  {"Clan ROCK, Clan dW, Clan DP,", PMENU_ALIGN_CENTER, NULL, NULL},
+  {"Davross, Zarjazz, Killerbee,", PMENU_ALIGN_CENTER, NULL, NULL},
+  {"Rookie[ROCK], PG Bund, Palmtree,", PMENU_ALIGN_CENTER, NULL, NULL},
+  {"Tempfile, Elvis", PMENU_ALIGN_CENTER, NULL, NULL},
+  {NULL, PMENU_ALIGN_LEFT, NULL, NULL},
   {"Return to main menu", PMENU_ALIGN_CENTER, NULL, CreditsReturnToMain},
   {"TAB to exit menu", PMENU_ALIGN_CENTER, NULL, NULL},
+  {NULL, PMENU_ALIGN_LEFT, NULL, NULL},
+  {"*"TNG_VERSION2, PMENU_ALIGN_RIGHT, NULL, NULL},
 //PG BUND END
 };
 
 pmenu_t weapmenu[] =
 {
-  {"*Action Quake 2", PMENU_ALIGN_CENTER, NULL, NULL},
+  {"*"TNG_VERSION, PMENU_ALIGN_CENTER, NULL, NULL},
   {"--------------", PMENU_ALIGN_CENTER, NULL, NULL},
   {"Select your weapon", PMENU_ALIGN_CENTER, NULL, NULL},
   {NULL, PMENU_ALIGN_LEFT, NULL, NULL},
@@ -407,12 +415,12 @@ pmenu_t weapmenu[] =
   {"ENTER to select", PMENU_ALIGN_LEFT, NULL, NULL},
   {"TAB to exit menu", PMENU_ALIGN_LEFT, NULL, NULL},
   {NULL, PMENU_ALIGN_LEFT, NULL, NULL},
-  {"v" ACTION_VERSION, PMENU_ALIGN_RIGHT, NULL, NULL},
+  {"*"TNG_VERSION2, PMENU_ALIGN_RIGHT, NULL, NULL},
 };
 
 pmenu_t itemmenu[] =
 {
-  {"*Action Quake 2", PMENU_ALIGN_CENTER, NULL, NULL},
+  {"*"TNG_VERSION, PMENU_ALIGN_CENTER, NULL, NULL},
   {"--------------", PMENU_ALIGN_CENTER, NULL, NULL},
   {"Select your item", PMENU_ALIGN_CENTER, NULL, NULL},
   {NULL, PMENU_ALIGN_LEFT, NULL, NULL},
@@ -427,12 +435,12 @@ pmenu_t itemmenu[] =
   {"ENTER to select", PMENU_ALIGN_LEFT, NULL, NULL},
   {"TAB to exit menu", PMENU_ALIGN_LEFT, NULL, NULL},
   {NULL, PMENU_ALIGN_LEFT, NULL, NULL},
-  {"v" ACTION_VERSION, PMENU_ALIGN_RIGHT, NULL, NULL},
+  {"*"TNG_VERSION2, PMENU_ALIGN_RIGHT, NULL, NULL},
 };
 
 pmenu_t joinmenu[] =
 {
-  {"*Action Quake 2", PMENU_ALIGN_CENTER, NULL, NULL},
+  {"*"TNG_VERSION, PMENU_ALIGN_CENTER, NULL, NULL},
   {NULL /* lvl name */ , PMENU_ALIGN_CENTER, NULL, NULL},
   {NULL, PMENU_ALIGN_CENTER, NULL, NULL},
   {NULL /* team 1 */ , PMENU_ALIGN_LEFT, NULL, JoinTeam1},
@@ -447,9 +455,9 @@ pmenu_t joinmenu[] =
   {"Use [ and ] to move cursor", PMENU_ALIGN_LEFT, NULL, NULL},
   {"ENTER to select", PMENU_ALIGN_LEFT, NULL, NULL},
   {"TAB to exit menu", PMENU_ALIGN_LEFT, NULL, NULL},
-  {"v" ACTION_VERSION, PMENU_ALIGN_RIGHT, NULL, NULL},
+  {"*"TNG_VERSION2, PMENU_ALIGN_RIGHT, NULL, NULL},
 };
-
+// AQ2:TNG End
 void
 CreditsMenu (edict_t * ent, pmenu_t * p)
 {
