@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // p_client.c
 //
-// $Id: p_client.c,v 1.71 2002/02/18 23:25:42 freud Exp $
+// $Id: p_client.c,v 1.72 2002/02/18 23:38:05 freud Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: p_client.c,v $
+// Revision 1.72  2002/02/18 23:38:05  freud
+// PING PONG..
+//
 // Revision 1.71  2002/02/18 23:25:42  freud
 // More tweaks
 //
@@ -2768,7 +2771,7 @@ InitClientResp (gclient_t * client)
   client->resp.captain = 0;
   client->resp.admin = 0;
   client->resp.stat_mode_intermission = 0;
-  client->resp.last_pong = level.time - 100;
+  client->resp.last_pong = level.time + 300;
   //AQ2:TNG END
 
   // No automatic team join
