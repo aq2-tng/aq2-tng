@@ -7,8 +7,12 @@ Changes in TNG
 From 2.5
 * Fixed invdrop weapon farming in any teamplay mode
 * Toggle for the Statistics screen when a map ends (stats_endmap)
-* Toggle to display stats when a round or map ends (stats_afterround)
-* Stats command followed by player name will display someone else's stats
+* Toggle to record stats between rounds (stats_afterround)
+* Stats list shows average accuracy for each player including player ID
+* Stats command followed by player ID will display someone else's stats
++ auto_join cvar toggle for forced joins to the team players were on last map
++ auto_equip cvar toggle for forced weapons from last map on players
++ Stat_mode user variable which automaticly sends stats to players at round/map end
 + Updated Stats Code
 + Fixed ff_afterround
 + Showing health icon on screen when bandaging (thanks to Dome)
