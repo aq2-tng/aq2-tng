@@ -1,10 +1,15 @@
 //-----------------------------------------------------------------------------
 // p_client.c
 //
-// $Id: p_client.c,v 1.3 2001/05/06 20:29:21 ra Exp $
+// $Id: p_client.c,v 1.4 2001/05/07 01:44:07 ra Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: p_client.c,v $
+// Revision 1.4  2001/05/07 01:44:07  ra
+//
+//
+// Add a fix for the $$ skin crashing the server.
+//
 // Revision 1.3  2001/05/06 20:29:21  ra
 //
 //
@@ -2820,6 +2825,14 @@ void ClientUserinfoChanged (edict_t *ent, char *userinfo)
 
         // set skin
         s = Info_ValueForKey (userinfo, "skin");        
+
+// AQ:TNG - JBravo fixing $$ Skin server crash bug
+	if (strstr(s, "$$")) {
+		Info_SetValueForKey(userinfo, "skin", "male/grunt");
+		s = Info_ValueForKey(userinfo, "skin");
+	}
+// End $$ Skin server crash bug
+
 		playernum = ent-g_edicts-1;
 
         // combine name and skin into a configstring
