@@ -1,0 +1,100 @@
+// Config Voting
+use_cvote "0"
+cvote_pass "50"
+cvote_need "0"
+cvote_min "1"
+configlistname "configlist.ini"
+
+// Kick Voting
+use_kickvote "1"
+kickvote_tempban "1"
+kickvote_pass "75"
+kickvote_need "0"
+kickvote_min "4"
+vk_public "0"
+
+// Map Voting
+use_mapvote "1"
+mv_public "0"
+mapvote_pass "50"
+mapvote_need "0"
+mapvote_min "1"
+mapvote_waittime "8"
+maplistname "config/maplist.ini"
+
+// Flood Protection
+flood_waitdelay "10"
+flood_persecond "4"
+flood_msgs "4"
+
+// Darkmatch     
+darkmatch "0"
+day_cycle "10"
+
+// Radio Flood Protection
+radio_repeat "3"
+radio_ban "15"
+radio_time "2"
+radio_max "4"
+
+// Serverinfo Variables containing Team Scores
+t1 "0"
+t2 "0"
+t3 "0"
+
+// Matchmode
+matchmode "0"
+mm_adminpwd "0"
+mm_forceteamtalk "0"
+mm_allowlock "1"
+
+// Weapon/Item Banning
+itm_flags "63"
+wp_flags "511"
+dmweapon "MK23 Pistol"
+
+// Video Checking
+video_checktime "15"
+video_check_glclear "0"
+video_check_lockpvs "0"
+video_force_restart "0"
+video_max_opengl "3.0"
+video_max_3dfxam "1.5"
+video_max_3dfx "1.5"
+video_check "0"
+check_time "3"
+
+// Announcer
+use_warnings "1"
+use_rewards "1"
+
+// Rotation Modes
+rrot "0"
+vrot "0"
+
+// CTF
+ctf "0"
+ctf_respawn "4"
+ctf_dropflag "1"
+capturelimit "0"
+uvtime "40"
+
+// Misc
+use_classic "0"
+use_punch "1"
+hc_single "1"
+new_irvision "0"
+llsound "1"
+sv_crlf "0"
+sv_gib "1"
+ff_afterround "1"
+punishkills "1"
+use_3teams "0"
+use_tourney "0"
+ppl_idletime "15"
+use_voice "1"
+auto_join "0"
+auto_equip "0"
+use_oldspawns "0"
+use_ghosts "0"
+use_buggy_bandolier "0"
