@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // Statistics Related Code
 //
-// $Id: tng_stats.c,v 1.20 2002/02/17 21:48:56 freud Exp $
+// $Id: tng_stats.c,v 1.21 2002/02/18 17:21:14 freud Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: tng_stats.c,v $
+// Revision 1.21  2002/02/18 17:21:14  freud
+// Changed Knife in stats to Slashing Knife
+//
 // Revision 1.20  2002/02/17 21:48:56  freud
 // Changed/Fixed allignment of Scoreboard
 //
@@ -139,7 +142,7 @@ void Cmd_Stats_f (edict_t *targetent, char *arg)
 				else if (y == MOD_DUAL)
 					sprintf(current_weapon, "Dual Pistols      ");
 				else if (y == MOD_KNIFE)
-					sprintf(current_weapon, "Knife             ");
+					sprintf(current_weapon, "Slashing Knife    ");
 				else if (y == MOD_KNIFE_THROWN)
 					sprintf(current_weapon, "Thrown Knife      ");
 				else if (y == MOD_M4)
