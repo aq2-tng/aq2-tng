@@ -3,10 +3,13 @@
 // Some of this is borrowed from Zoid's CTF (thanks Zoid)
 // -Fireblade
 //
-// $Id: a_team.c,v 1.17 2001/05/31 16:58:14 igor_rock Exp $
+// $Id: a_team.c,v 1.18 2001/06/01 19:18:42 slicerdw Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_team.c,v $
+// Revision 1.18  2001/06/01 19:18:42  slicerdw
+// Added Matchmode Code
+//
 // Revision 1.17  2001/05/31 16:58:14  igor_rock
 // conflicts resolved
 //
@@ -791,7 +794,17 @@ JoinTeam (edict_t * ent, int desired_team, int skip_menuclose)
       PutClientInServer (ent);
       AddToTransparentList (ent);
     }
-
+	//AQ2:TNG - Slicer MAtchmode
+	if(matchmode->value)
+	{
+		if(ent->client->resp.captain == 1)  
+			team1ready = 0;
+		else if(ent->client->resp.captain == 2)
+			team2ready = 0;
+		ent->client->resp.subteam = 0; //SLICER: If a player joins or changes teams, the subteam resets....
+        ent->client->resp.captain = 0; //SLICER: Same here
+    }
+  //AQ2:TNG END
   if (!skip_menuclose)
     OpenWeaponMenu (ent);
 }
@@ -1260,6 +1273,13 @@ BothTeamsHavePlayers ()
   int onteam1 = 0, onteam2 = 0, onteam3 = 0, i;
   edict_t *ent;
 
+  //AQ2:TNG Slicer Matchmode
+  if(matchmode->value)
+	{
+		if(!team1ready || !team2ready)
+		return 0;
+	}
+  //AQ2:TNG END
   if (use_tourney->value)
     {
       return (LastOpponent > 1);
@@ -1270,9 +1290,9 @@ BothTeamsHavePlayers ()
       ent = &g_edicts[1 + i];
       if (!ent->inuse)
 	continue;
-      if (game.clients[i].resp.team == TEAM1)
+      if (game.clients[i].resp.team == TEAM1 && game.clients[i].resp.subteam == 0)
 	onteam1++;
-      else if (game.clients[i].resp.team == TEAM2)
+      else if (game.clients[i].resp.team == TEAM2 && game.clients[i].resp.subteam == 0)
 	onteam2++;
       else if (game.clients[i].resp.team == TEAM3)
 	onteam3++;
@@ -1650,7 +1670,19 @@ WonGame (int winner)
 
   if (timelimit->value)
     {
-      if (level.time >= timelimit->value * 60)
+	  // AQ2:M - Matchmode
+		if(matchmode->value)
+		{
+			if (matchtime >= timelimit->value*60)
+			{
+				gi.bprintf (PRINT_HIGH, "Match is over, waiting for next map vote...\n");
+                team1ready = team2ready = team_round_going =
+				team_round_countdown = team_game_going = matchtime = 0;
+				MakeAllLivePlayersObservers();
+				return 1;
+			}
+		}
+      if (!matchmode->value && level.time >= timelimit->value * 60)
 	{
 	  gi.bprintf (PRINT_HIGH, "Timelimit hit.\n");
 	  EndDMLevel ();
@@ -1675,10 +1707,21 @@ WonGame (int winner)
 	{
 	  if (team1_score >= roundlimit->value || team2_score >= roundlimit->value)
 	    {
-	      gi.bprintf (PRINT_HIGH, "Roundlimit hit.\n");
-	      EndDMLevel ();
-	      team_round_going = team_round_countdown = team_game_going = 0;
-	      return 1;
+		  if(matchmode->value)
+		  {
+			gi.bprintf (PRINT_HIGH, "Match is over, waiting for next map, please vote a new one..\n");
+                team1ready = team2ready = team_round_going =
+				team_round_countdown = team_game_going = matchtime = 0;
+				MakeAllLivePlayersObservers();
+				return 1;
+		  }
+		  else
+		  {
+	 	      gi.bprintf (PRINT_HIGH, "Roundlimit hit.\n");
+		      EndDMLevel ();
+			  team_round_going = team_round_countdown = team_game_going = 0;
+	          return 1;
+		  }
 	    }
 	}
     }
@@ -1744,8 +1787,19 @@ CheckTeamRules ()
 	}
       else
 	{
-	  CenterPrintAll ("Not enough players to play!\n");
-	  MakeAllLivePlayersObservers ();
+	  if(matchmode->value)
+	  {
+		if(team1ready && team2ready)
+			CenterPrintAll("Not enough players to play!\n");
+		else
+			CenterPrintAll("Both Teams Must Be Ready!\n");
+		MakeAllLivePlayersObservers();
+	  }
+	  else
+	  {
+		CenterPrintAll ("Not enough players to play!\n");
+		MakeAllLivePlayersObservers ();
+	  }
 	}
     }
   else
@@ -1776,7 +1830,20 @@ CheckTeamRules ()
     {
       if (timelimit->value)
 	  {
-	    if (level.time >= timelimit->value * 60)
+		// AQ2:TNG - Slicer : Matchmode
+		if(matchmode->value)
+		{
+			if (matchtime >= timelimit->value*60)
+			{
+				gi.bprintf (PRINT_HIGH, "Match is over, waiting for next map vote...\n");
+                team1ready = team2ready = team_round_going =
+				team_round_countdown = team_game_going = matchtime = 0;
+				MakeAllLivePlayersObservers();
+				return;
+			}
+		}
+		//AQ2:TNG END
+	    if (!matchmode->value && level.time >= timelimit->value * 60)
 	    {
 	      gi.bprintf (PRINT_HIGH, "Timelimit hit.\n");
 	      EndDMLevel ();
@@ -1999,6 +2066,7 @@ A_Scoreboard (edict_t * ent)
 // Maximum number of lines of scores to put under each team's header.
 #define MAX_SCORES_PER_TEAM 9
 
+//AQ2:TNG - Slicer Modified Scores for Match Mode
 void
 A_ScoreboardMessage (edict_t * ent, edict_t * killer)
 {
@@ -2017,6 +2085,9 @@ A_ScoreboardMessage (edict_t * ent, edict_t * killer)
       int totalalive[TEAM_TOP], totalaliveprinted[TEAM_TOP];
       int stoppedat[TEAM_TOP];
       int name_pos[TEAM_TOP];
+	  int TotalPrinted[TEAM_TOP];
+	  int TotalSubsPrinted[TEAM_TOP];
+	  int secs,mins;
 
       deadview = (ent->solid == SOLID_NOT ||
 		  ent->deadflag == DEAD_DEAD ||
@@ -2024,7 +2095,8 @@ A_ScoreboardMessage (edict_t * ent, edict_t * killer)
 
       ent->client->ps.stats[STAT_TEAM_HEADER] = gi.imageindex ("tag3");
 
-      total[TEAM1] = total[TEAM2] = total[TEAM3] = 0;
+      total[TEAM1] = total[TEAM2] = total[TEAM3] = TotalPrinted[TEAM1] =
+	  TotalPrinted[TEAM2] = TotalSubsPrinted[TEAM1] = TotalSubsPrinted[TEAM2] = 0;
       totalalive[TEAM1] = totalalive[TEAM2] = totalalive[TEAM3] = 0;
       totalscore[TEAM1] = totalscore[TEAM2] = totalscore[TEAM3] = 0;
 
@@ -2304,11 +2376,17 @@ A_ScoreboardMessage (edict_t * ent, edict_t * killer)
 		  // AQ truncates names at 12, not sure why, except maybe to conserve scoreboard
 		  // string space?  skipping that "feature".  -FB
 
-		  sprintf (string + strlen (string),
-			   "xv 0 yv %d string%s \"%s\" ",
-			   42 + i * 8,
-		    deadview ? (cl_ent->solid == SOLID_NOT ? "" : "2") : "",
-			   game.clients[sorted[TEAM1][i]].pers.netname);
+	if(game.clients[sorted[TEAM1][i]].resp.subteam == 0 && game.clients[sorted[TEAM1][i]].resp.team == TEAM1)
+		{
+			TotalPrinted[TEAM1]++;
+			sprintf(string+strlen(string), 
+			     "xv 0 yv %d string%s \"%s%s\" ",  
+   				  34 + TotalPrinted[TEAM1] * 8,
+				  deadview ? (cl_ent->solid == SOLID_NOT ? "" : "2") : "",
+				  game.clients[sorted[TEAM1][i]].resp.captain ? "@" : "",
+				  game.clients[sorted[TEAM1][i]].pers.netname);
+		}
+
 		}
 
 	      if (i < total[TEAM2] && stoppedat[TEAM2] == -1)	// print next team 2 member...
@@ -2323,11 +2401,17 @@ A_ScoreboardMessage (edict_t * ent, edict_t * killer)
 		  // AQ truncates names at 12, not sure why, except maybe to conserve scoreboard
 		  // string space?  skipping that "feature".  -FB
 
-		  sprintf (string + strlen (string),
-			   "xv 160 yv %d string%s \"%s\" ",
-			   42 + i * 8,
-		    deadview ? (cl_ent->solid == SOLID_NOT ? "" : "2") : "",
-			   game.clients[sorted[TEAM2][i]].pers.netname);
+	if(game.clients[sorted[TEAM2][i]].resp.subteam == 0 && game.clients[sorted[TEAM2][i]].resp.team == TEAM2)
+		{
+			TotalPrinted[TEAM2]++;
+			sprintf(string+strlen(string), 
+			     "xv 160 yv %d string%s \"%s%s\" ",  
+   				  34 + TotalPrinted[TEAM2] * 8,
+				  deadview ? (cl_ent->solid == SOLID_NOT ? "" : "2") : "",
+				  game.clients[sorted[TEAM2][i]].resp.captain ? "@" : "",
+				  game.clients[sorted[TEAM2][i]].pers.netname);
+		}
+
 		}
 
 	      len = strlen (string);
@@ -2367,7 +2451,73 @@ A_ScoreboardMessage (edict_t * ent, edict_t * killer)
 			   totalalive[TEAM2] - totalaliveprinted[TEAM2],
 			   total[TEAM2] - stoppedat[TEAM2]);
 		}
-	    }
+	   }
+	  if(matchmode->value)
+		{
+			int u,j,temp;
+			for (i = 0; i < game.maxclients; i++)
+			{
+				cl_ent = g_edicts + 1 + i;
+                if (!cl_ent->inuse)
+					continue;
+				u = 50 + TotalPrinted[TEAM1] * 8;
+				j = 50 + TotalPrinted[TEAM2] * 8;
+				if(u > j)
+					temp = u;
+				else if(u < j)
+					temp = j;
+				else if(u == j)
+					temp = u;
+				sprintf(string+strlen(string), 
+                   "xv 0 yv %d string2 \"Subs:\" ",temp);
+				sprintf(string+strlen(string), 
+                   "xv 160 yv %d string2 \"Subs:\" ",temp);
+				
+				if(game.clients[i].resp.subteam == TEAM1)
+				{
+					TotalSubsPrinted[TEAM1]++;
+					sprintf(string+strlen(string), 
+                       "xv 0 yv %d string \"%s%s\" ",  
+        				temp + (TotalSubsPrinted[TEAM1]) *8,
+						game.clients[i].resp.captain ? "@" : "",
+                        game.clients[i].pers.netname);
+				}
+
+				if(game.clients[i].resp.subteam == TEAM2)
+				{
+					TotalSubsPrinted[TEAM2]++;
+					sprintf(string+strlen(string), 
+					   "xv 160 yv %d string \"%s%s\" ",  
+					   temp + (TotalSubsPrinted[TEAM2]) * 8,
+					  	game.clients[i].resp.captain ? "@" : "",
+					   game.clients[i].pers.netname);
+				}
+
+					
+				}
+				u = (temp + 16) + TotalSubsPrinted[TEAM1] * 8;
+				j = (temp + 16) + TotalSubsPrinted[TEAM2] * 8;
+				if(u > j)
+					temp = u;
+				else if(u < j)
+					temp = j;
+				else if(u == j)
+					temp = u;
+				sprintf(string+strlen(string), 
+                        "xv 0 yv %d string2 \"%s\" ",temp,
+					   team1ready ? "Team Ready" : "Team Not Ready");
+				sprintf(string+strlen(string), 
+                     "xv 160 yv %d string2 \"%s\" ",temp,
+					team2ready ? "Team Ready" : "Team Not Ready");
+
+				mins = matchtime/60;
+				secs = matchtime-(mins*60);
+				sprintf(string+strlen(string), 
+                     "xv 65 yv %d string \"Time Elapsed: %d:%02d\" ",
+				temp+16,mins,secs);
+										
+				}
+
 	}
 
     }

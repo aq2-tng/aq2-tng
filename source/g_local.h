@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // g_local.h -- local definitions for game module
 //
-// $Id: g_local.h,v 1.15 2001/05/31 16:58:14 igor_rock Exp $
+// $Id: g_local.h,v 1.16 2001/06/01 19:18:42 slicerdw Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_local.h,v $
+// Revision 1.16  2001/06/01 19:18:42  slicerdw
+// Added Matchmode Code
+//
 // Revision 1.15  2001/05/31 16:58:14  igor_rock
 // conflicts resolved
 //
@@ -108,9 +111,15 @@
 
 //Black Cross
 #include "a_vote.h"
+
+//AQ2:TNG Slicer - Matchmode
+#include "a_match.h"
+//AQ2:TNG END
 //AQ:TNG Slicer - This was missing
 #define getEnt(entnum) (edict_t *)((char *)globals.edicts + (globals.edict_size * entnum))
 //AQ:TNG END
+
+
 // the "gameversion" client command will print this plus compile date
 #define GAMEVERSION     "action"
 
@@ -707,7 +716,9 @@ extern  cvar_t 	*video_check_lockpvs;
 extern  cvar_t 	*video_force_restart;
 extern	cvar_t	*check_time;
 //AQ2:TNG - END
-
+//AQ2:TNG Slicer - Matchmode 
+extern  cvar_t  *matchmode;
+//AQ2:TNG END
 // AQ2:TNG Deathwatch Single Barreled HC
 extern  cvar_t  *hc_single;
 // AQ2:TNG Deathwatch
@@ -1206,6 +1217,10 @@ typedef struct
 	//AQ2:TNG - Slicer Last Damage Location
 	int last_damaged_part;
 	//AQ2:TNG - END
+	//AQ2:TNG - Slicer Matchmode code
+	int captain;
+	int subteam;
+	//AQ2:TNG END
 	// AQ2:TNG Deathwatch - HC Single Barreled HC
 	int	hc_mode;
 	// AQ2:TNG END

@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 //
 //
-// $Id: g_main.c,v 1.8 2001/05/31 16:58:14 igor_rock Exp $
+// $Id: g_main.c,v 1.9 2001/06/01 19:18:42 slicerdw Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_main.c,v $
+// Revision 1.9  2001/06/01 19:18:42  slicerdw
+// Added Matchmode Code
+//
 // Revision 1.8  2001/05/31 16:58:14  igor_rock
 // conflicts resolved
 //
@@ -190,6 +193,9 @@ cvar_t *hc_single;
 cvar_t *wp_flags;
 cvar_t *itm_flags;
 //AQ2:TNG end adding flags
+//AQ2:TNG Slicer - Matchmode 
+cvar_t  *matchmode;
+//AQ2:TNG END
 
 void SpawnEntities (char *mapname, char *entities, char *spawnpoint);
 void ClientThink (edict_t *ent, usercmd_t *cmd);
@@ -583,6 +589,9 @@ void G_RunFrame (void)
   // choose a client for monsters to target this frame
   AI_SetSightClient ();
   
+  //AQ2:TNG - Slicer Matchmode code
+  if(matchmode->value && team_game_going)
+	matchtime = matchtime + 0.1;
   // exit intermissions
   
   if (level.exitintermission)

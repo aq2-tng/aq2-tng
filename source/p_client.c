@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // p_client.c
 //
-// $Id: p_client.c,v 1.21 2001/05/31 16:58:14 igor_rock Exp $
+// $Id: p_client.c,v 1.22 2001/06/01 19:18:42 slicerdw Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: p_client.c,v $
+// Revision 1.22  2001/06/01 19:18:42  slicerdw
+// Added Matchmode Code
+//
 // Revision 1.21  2001/05/31 16:58:14  igor_rock
 // conflicts resolved
 //
@@ -1738,6 +1741,10 @@ void InitClientResp (gclient_t *client)
   //AQ2:TNG Slicer Moved this to here
   client->resp.killed_teammates = 0;
   client->resp.idletime = 0;
+  //AQ2:TNG END
+  //AQ2:TNG Slicer - Matchmode
+  client->resp.subteam = 0;
+  client->resp.captain = 0;
   //AQ2:TNG END
   
   // No automatic team join

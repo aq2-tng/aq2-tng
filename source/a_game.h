@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // Include for base Action game-related things
 //
-// $Id: a_game.h,v 1.2 2001/05/12 17:36:33 deathwatch Exp $
+// $Id: a_game.h,v 1.3 2001/06/01 19:18:42 slicerdw Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_game.h,v $
+// Revision 1.3  2001/06/01 19:18:42  slicerdw
+// Added Matchmode Code
+//
 // Revision 1.2  2001/05/12 17:36:33  deathwatch
 // Edited the version variables and updated the menus. Added variables:
 // ACTION_VERSION, TNG_VERSION and TNG_VERSION2
@@ -16,9 +19,9 @@
 
 
 // AQ2:TNG Deathwatch - Updated the Version variables to show TNG Stuff
-#define ACTION_VERSION  "1.52 TNG 2.0"
+#define ACTION_VERSION  "1.52 TNG 2.1"
 #define TNG_VERSION		"AQ2: The Next Generation"
-#define TNG_VERSION2	"AQ2: The Next Generation v2.0"
+#define TNG_VERSION2	"AQ2: The Next Generation v2.1"
 // AQ2:TNG Deathwatch End
 
 extern char team1_name[];

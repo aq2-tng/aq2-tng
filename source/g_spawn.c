@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // g_spawn.c
 //
-// $Id: g_spawn.c,v 1.14 2001/05/31 16:58:14 igor_rock Exp $
+// $Id: g_spawn.c,v 1.15 2001/06/01 19:18:42 slicerdw Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_spawn.c,v $
+// Revision 1.15  2001/06/01 19:18:42  slicerdw
+// Added Matchmode Code
+//
 // Revision 1.14  2001/05/31 16:58:14  igor_rock
 // conflicts resolved
 //
@@ -713,7 +716,37 @@ void SpawnEntities (char *mapname, char *entities, char *spawnpoint)
   int u;
   //	placedata_t temp;
   //AQ2:TNG END
-  
+  //AQ2:TNG Slicer Forcing Teamplay on and ctf off with matchmode
+  if(matchmode->value)
+  {
+      // Make sure teamplay is enabled
+     if(!teamplay->value)
+	{
+	  gi.dprintf("Matchmode Enabled - Forcing teamplay on\n");
+	  teamplay->value = 1;
+	  strcpy(teamplay->string,"1");
+	}
+	  if(ctf->value)
+	{
+	  gi.dprintf("Matchmode Enabled - Forcing CTF off\n");
+	  ctf->value = 0;
+	  strcpy(ctf->string,"0");
+	}
+	  if(use_3teams->value)
+	{
+	  gi.dprintf("Matchmode Enabled - Forcing 3Teams off\n");
+	  use_3teams->value = 0;
+	  strcpy(use_3teams->string,"0");
+	}
+	  if(use_tourney->value)
+	{
+	  gi.dprintf("Matchmode Enabled - Forcing Tourney off\n");
+	  use_tourney->value = 0;
+	  strcpy(use_tourney->string,"0");
+	}
+
+  }
+  //AQ2:TNG END
   if(ctf->value)
     {
       // Make sure teamplay is enabled
@@ -722,6 +755,18 @@ void SpawnEntities (char *mapname, char *entities, char *spawnpoint)
 	  gi.dprintf("CTF Enabled - Forcing teamplay on\n");
 	  teamplay->value = 1;
 	  strcpy(teamplay->string,"1");
+	}
+	 if(use_3teams->value)
+	{
+	  gi.dprintf("CTF Enabled - Forcing 3Teams off\n");
+	  use_3teams->value = 0;
+	  strcpy(use_3teams->string,"0");
+	}
+	  if(use_tourney->value)
+	{
+	  gi.dprintf("CTF Enabled - Forcing Tourney off\n");
+	  use_tourney->value = 0;
+	  strcpy(use_tourney->string,"0");
 	}
     }
 
@@ -1519,7 +1564,10 @@ void SP_worldspawn (edict_t *ent)
         ent->solid = SOLID_BSP;
         ent->inuse = true;                      // since the world doesn't use G_Spawn()
         ent->s.modelindex = 1;          // world model is always index 1
-
+		
+		// AQ2:TNG - Slicer matchmode ready reset
+		team1ready = team2ready = 0;
+		matchtime = 0;
         //---------------
 
         // reserve some spots for dead player bodies for coop / deathmatch

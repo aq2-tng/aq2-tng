@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // g_save.c
 //
-// $Id: g_save.c,v 1.13 2001/05/31 16:58:14 igor_rock Exp $
+// $Id: g_save.c,v 1.14 2001/06/01 19:18:42 slicerdw Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_save.c,v $
+// Revision 1.14  2001/06/01 19:18:42  slicerdw
+// Added Matchmode Code
+//
 // Revision 1.13  2001/05/31 16:58:14  igor_rock
 // conflicts resolved
 //
@@ -334,6 +337,9 @@ void InitGame (void)
 	// 63 = ITF_SIL | ITF_SLIP | ITF_BAND | ITF_KEV | ITF_LASER | ITF_HELM
 	itm_flags = gi.cvar("itm_flags", "63", 0);
 	//AQ2:TNG End adding flags
+	//AQ2:TNG Slicer - Matchmode 
+	matchmode = gi.cvar("matchmode", "0",CVAR_SERVERINFO|CVAR_LATCH);
+//AQ2:TNG END
   
   //FIREBLADE
   
