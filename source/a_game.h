@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // Include for base Action game-related things
 //
-// $Id: a_game.h,v 1.20 2003/06/15 15:34:32 igor Exp $
+// $Id: a_game.h,v 1.21 2003/06/16 18:15:23 igor Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_game.h,v $
+// Revision 1.21  2003/06/16 18:15:23  igor
+// changed the version to 2.8
+//
 // Revision 1.20  2003/06/15 15:34:32  igor
 // - removed the zcam code from this branch (see other branch)
 // - added fixes from 2.72 (source only) version
@@ -73,7 +76,7 @@
 
 
 // AQ2:TNG Deathwatch - Updated the Version variables to show TNG Stuff
-#define ACTION_VERSION  "1.52 TNG 2.72"
+#define ACTION_VERSION  "1.52 TNG 2.8"
 #define TNG_VERSION		"AQ2: The Next Generation"
 #define TNG_VERSION2	"AQ2: The Next Generation v3.00"
 // AQ2:TNG Deathwatch End
