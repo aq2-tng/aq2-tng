@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // Statistics Related Code
 //
-// $Id: tng_stats.c,v 1.25 2002/02/26 23:09:20 freud Exp $
+// $Id: tng_stats.c,v 1.26 2002/03/15 19:28:36 deathwatch Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: tng_stats.c,v $
+// Revision 1.26  2002/03/15 19:28:36  deathwatch
+// Updated with stats rifle name fix
+//
 // Revision 1.25  2002/02/26 23:09:20  freud
 // Stats <playerid> not working, fixed.
 //
@@ -156,13 +159,13 @@ void Cmd_Stats_f (edict_t *targetent, char *arg)
 				else if (y == MOD_KNIFE)
 					sprintf(current_weapon, "Slashing Knife    ");
 				else if (y == MOD_KNIFE_THROWN)
-					sprintf(current_weapon, "Thrown Knife      ");
+					sprintf(current_weapon, "Throwing Knife    ");
 				else if (y == MOD_M4)
-					sprintf(current_weapon, "M4 Assault Riffle ");
+					sprintf(current_weapon, "M4 Assault Rifle  ");
 				else if (y == MOD_MP5)
 					sprintf(current_weapon, "MP5 Submachinegun ");
 				else if (y == MOD_SNIPER)
-					sprintf(current_weapon, "Sniper Riffle     ");
+					sprintf(current_weapon, "Sniper Rifle      ");
 				else if (y == MOD_HC)
 					sprintf(current_weapon, "Handcannon        ");
 				else if (y == MOD_M3)

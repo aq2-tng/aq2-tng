@@ -5,6 +5,7 @@ Changes in TNG
 * = major bug fix
 
 From 2.6
+- Fixed a typo in the stats
 
 From 2.5
 + Stats list shows average accuracy for each player including player ID
