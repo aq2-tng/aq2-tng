@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // p_client.c
 //
-// $Id: p_client.c,v 1.76 2002/03/25 18:32:11 freud Exp $
+// $Id: p_client.c,v 1.77 2002/03/25 18:57:36 freud Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: p_client.c,v $
+// Revision 1.77  2002/03/25 18:57:36  freud
+// Added maximum number of stored player sessions (ghosts)
+//
 // Revision 1.76  2002/03/25 18:32:11  freud
 // I'm being too productive.. New ghost command needs testing.
 //
@@ -4396,42 +4399,39 @@ ClientDisconnect (edict_t * ent)
 void
 CreateGhost (edict_t * ent)
 {
+  if (num_ghost_players < MAX_CLIENTS) {
 
-  sprintf(ghost_players[num_ghost_players].ipaddr, "%s", ent->client->ipaddr);
-  sprintf(ghost_players[num_ghost_players].netname, "%s", ent->client->pers.netname);
+  	sprintf(ghost_players[num_ghost_players].ipaddr, "%s", ent->client->ipaddr);
+  	sprintf(ghost_players[num_ghost_players].netname, "%s", ent->client->pers.netname);
 
-  // Score
-  ghost_players[num_ghost_players].score = ent->client->resp.score;
-  ghost_players[num_ghost_players].damage_dealt = ent->client->resp.damage_dealt;
-  ghost_players[num_ghost_players].kills = ent->client->resp.kills;
+  	// Score
+  	ghost_players[num_ghost_players].score = ent->client->resp.score;
+  	ghost_players[num_ghost_players].damage_dealt = ent->client->resp.damage_dealt;
+  	ghost_players[num_ghost_players].kills = ent->client->resp.kills;
 
-  // Teamplay variables
-  if (teamplay->value) {
-  	ghost_players[num_ghost_players].weapon = ent->client->resp.weapon;
-  	ghost_players[num_ghost_players].item = ent->client->resp.item;
-  	ghost_players[num_ghost_players].team = ent->client->resp.team;
-  }
+  	// Teamplay variables
+  	if (teamplay->value) {
+  		ghost_players[num_ghost_players].weapon = ent->client->resp.weapon;
+  		ghost_players[num_ghost_players].item = ent->client->resp.item;
+  		ghost_players[num_ghost_players].team = ent->client->resp.team;
+  	}
 
-  // Statistics
-  ghost_players[num_ghost_players].headshots = ent->client->resp.headshots;
-  ghost_players[num_ghost_players].legshots = ent->client->resp.legshots;
-  ghost_players[num_ghost_players].stomachshots = ent->client->resp.stomachshots;
-  ghost_players[num_ghost_players].chestshots = ent->client->resp.chestshots;
+  	// Statistics
+  	ghost_players[num_ghost_players].headshots = ent->client->resp.headshots;
+  	ghost_players[num_ghost_players].legshots = ent->client->resp.legshots;
+  	ghost_players[num_ghost_players].stomachshots = ent->client->resp.stomachshots;
+  	ghost_players[num_ghost_players].chestshots = ent->client->resp.chestshots;
 
-  ghost_players[num_ghost_players].stats_shots_t = ent->client->resp.stats_shots_t;
-  ghost_players[num_ghost_players].stats_shots_h = ent->client->resp.stats_shots_h;
+  	ghost_players[num_ghost_players].stats_shots_t = ent->client->resp.stats_shots_t;
+  	ghost_players[num_ghost_players].stats_shots_h = ent->client->resp.stats_shots_h;
 
-  memcpy(ghost_players[num_ghost_players].stats_shots, ent->client->resp.stats_shots, sizeof(ent->client->resp.stats_shots));
-  memcpy(ghost_players[num_ghost_players].stats_hits, ent->client->resp.stats_hits, sizeof(ent->client->resp.stats_hits));
-  memcpy(ghost_players[num_ghost_players].stats_headshot, ent->client->resp.stats_headshot, sizeof(ent->client->resp.stats_headshot));
-/*
-  ghost_players[num_ghost_players].stats_shots = ent->client->resp.stats_shots;
-  ghost_players[num_ghost_players].stats_hits = ent->client->resp.stats_hits;
-  ghost_players[num_ghost_players].stats_headshot =  ent->client->resp.stats_headshot;
-*/
-
+  	memcpy(ghost_players[num_ghost_players].stats_shots, ent->client->resp.stats_shots, sizeof(ent->client->resp.stats_shots));
+  	memcpy(ghost_players[num_ghost_players].stats_hits, ent->client->resp.stats_hits, sizeof(ent->client->resp.stats_hits));
   
-  num_ghost_players++;
+  	num_ghost_players++;
+  } else {
+	gi.dprintf("Maximum number of ghosts reached.\n");
+  }
 	
 }
 
