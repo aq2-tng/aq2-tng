@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // g_svcmds.c
 //
-// $Id: g_svcmds.c,v 1.12 2002/01/22 16:55:49 deathwatch Exp $
+// $Id: g_svcmds.c,v 1.13 2002/03/28 15:32:47 ra Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_svcmds.c,v $
+// Revision 1.13  2002/03/28 15:32:47  ra
+// No softmapping during LCA
+//
 // Revision 1.12  2002/01/22 16:55:49  deathwatch
 // fixed a bug with rrot which would make it override sv softmap (moved the dosoft check up in g_main.c
 // fixed a bug with rrot which would let it go to the same map (added an if near the end of the rrot statement in the EndDMLevel function)
@@ -464,11 +467,16 @@ void SVCmd_Softmap_f (void)
 		gi.cprintf(NULL, PRINT_HIGH, "Usage:  sv softmap <map>\n");
 		return;
 	}
+	if (lights_camera_action) {
+		gi.cprintf(NULL, PRINT_HIGH, "Please dont use sv softmap during LCA\n");
+		return;
+	}
+
 	gi.bprintf(PRINT_HIGH, "Console is setting map: %s\n", gi.argv(2));
-  dosoft=1;
-  Com_sprintf(level.nextmap, sizeof(level.nextmap), "%s", gi.argv(2));
-  EndDMLevel();
-  return;
+	dosoft=1;
+	Com_sprintf(level.nextmap, sizeof(level.nextmap), "%s", gi.argv(2));
+	EndDMLevel();
+	return;
 }
 
 /*
