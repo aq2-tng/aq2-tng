@@ -1,10 +1,14 @@
 //-----------------------------------------------------------------------------
 // p_client.c
 //
-// $Id: p_client.c,v 1.82 2002/09/04 11:23:10 ra Exp $
+// $Id: p_client.c,v 1.83 2002/12/30 12:58:16 igor_rock Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: p_client.c,v $
+// Revision 1.83  2002/12/30 12:58:16  igor_rock
+// - Corrected some comments (now it looks better)
+// - allweapon mode now recognizes wp_flags
+//
 // Revision 1.82  2002/09/04 11:23:10  ra
 // Added zcam to TNG and bumped version to 3.0
 //
@@ -2261,42 +2265,67 @@ void AllWeapons(edict_t * ent)
 
 	int i;
 	gitem_t *it;
-
+	
 	for (i = 0; i < game.num_items; i++) {
-		it = itemlist + i;
-		if (!it->pickup)
-			continue;
-		if (!(it->flags & IT_WEAPON))
-			continue;
-		ent->client->pers.inventory[i] = 1;
+	  it = itemlist + i;
+	  if (!it->pickup)
+	    continue;
+	  if (!(it->flags & IT_WEAPON))
+	    continue;
+	  if (!strcmp(it->pickup_name, MK23_NAME) && ((int) wp_flags->value & WPF_MK23)) {
+	    ent->client->pers.inventory[i] = 1;
+	    ent->client->mk23_rds = ent->client->mk23_max;
+	  }
+	  
+	  if (!strcmp(it->pickup_name, MP5_NAME) && ((int) wp_flags->value & WPF_MP5)) {
+	    ent->client->pers.inventory[i] = 1;
+	    ent->client->mp5_rds = ent->client->mp5_max;
+	  }
+	  
+	  if (!strcmp(it->pickup_name, M4_NAME) && ((int) wp_flags->value & WPF_M4)) {
+	    ent->client->pers.inventory[i] = 1;
+	    ent->client->m4_rds = ent->client->m4_max;	    
+	  }
+	  
+	  if (!strcmp(it->pickup_name, M3_NAME) && ((int) wp_flags->value & WPF_M3)) {
+	    ent->client->pers.inventory[i] = 1;
+	    ent->client->shot_rds = ent->client->shot_max;
+	  }
+	  
+	  if (!strcmp(it->pickup_name, HC_NAME) && ((int) wp_flags->value & WPF_HC)) {
+	    ent->client->pers.inventory[i] = 1;
+	    ent->client->cannon_rds = ent->client->cannon_max;
+	    ent->client->shot_rds = ent->client->shot_max;
+	  }
+	  
+	  if (!strcmp(it->pickup_name, SNIPER_NAME) && ((int) wp_flags->value & WPF_SNIPER)) {
+	    ent->client->pers.inventory[i] = 1;
+	    ent->client->sniper_rds = ent->client->sniper_max;
+	  }
+	  
+	  if (!strcmp(it->pickup_name, DUAL_NAME) && ((int) wp_flags->value & WPF_DUAL)) {
+	    ent->client->pers.inventory[i] = 1;
+	    ent->client->dual_rds = ent->client->dual_max;
+	  }
+	  
+	  if (!strcmp(it->pickup_name, KNIFE_NAME) && ((int) wp_flags->value & WPF_KNIFE)) {
+	    ent->client->pers.inventory[i] = 10;
+	  }
+	  
+	  if (!strcmp(it->pickup_name, GRENADE_NAME) && ((int) wp_flags->value & WPF_GRENADE)) {
+	    ent->client->pers.inventory[i] = tgren->value;
+	  }
+	  
 	}
-
+	
 	for (i = 0; i < game.num_items; i++) {
-		it = itemlist + i;
-		if (!it->pickup)
-			continue;
-		if (!(it->flags & IT_AMMO))
-			continue;
-		Add_Ammo(ent, it, 1000);
+	  it = itemlist + i;
+	  if (!it->pickup)
+	    continue;
+	  if (!(it->flags & IT_AMMO))
+	    continue;
+	  Add_Ammo(ent, it, 1000);
 	}
-
-	ent->client->mk23_rds = ent->client->mk23_max;
-	ent->client->dual_rds = ent->client->dual_max;
-	ent->client->mp5_rds = ent->client->mp5_max;
-	ent->client->m4_rds = ent->client->m4_max;
-	ent->client->shot_rds = ent->client->shot_max;
-	ent->client->sniper_rds = ent->client->sniper_max;
-	ent->client->cannon_rds = ent->client->cannon_max;
-
-	if (tgren->value <= 0)	// team grenades is turned off
-	{
-		it = FindItem(GRENADE_NAME);
-		ent->client->pers.inventory[ITEM_INDEX(it)] = 0;
-	}
-	// give them a reasonable number of knives
-	it = FindItem(KNIFE_NAME);
-	ent->client->pers.inventory[ITEM_INDEX(it)] = 10;
-
 }
 
 void AllItems(edict_t * ent)

@@ -5,10 +5,14 @@
 // Zucchini (spikard@u.washington.edu) and Fireblade (ucs_brf@shsu.edu) 
 // (splat/bullethole/shell ejection code from original Action source)
 //
-// $Id: a_game.c,v 1.11 2001/09/28 13:48:34 ra Exp $
+// $Id: a_game.c,v 1.12 2002/12/30 12:58:16 igor_rock Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_game.c,v $
+// Revision 1.12  2002/12/30 12:58:16  igor_rock
+// - Corrected some comments (now it looks better)
+// - allweapon mode now recognizes wp_flags
+//
 // Revision 1.11  2001/09/28 13:48:34  ra
 // I ran indent over the sources. All .c and .h files reindented.
 //
@@ -408,18 +412,17 @@ PrintMOTD (edict_t * ent)
       if (allitem->value || allweapon->value)
 	{
 	  sprintf (msg_buf + strlen (msg_buf), "Players receive %s%s%s\n",
-		   allweapon->value ? "all weapons" : "", (allweapon->value
-							   && allitem->
-							   value) ? " & " :
-		   "", allitem->value ? "all items" : "");
+		   allweapon->value ? "all weapons" : "",
+		   (allweapon->value && allitem->value) ? " &	 " : "",
+		   allitem->value ? "all items" : "");
 	  lines++;
 	}
-
+      
       /*
-         Are we using limchasecam?
+       * Are we using limchasecam?
        */
       if (limchasecam->value)
-	{
+	{	
 	  if ((int) limchasecam->value == 2)
 	    sprintf (msg_buf + strlen (msg_buf), "Chase Cam Disallowed\n");
 	  else
@@ -428,7 +431,7 @@ PrintMOTD (edict_t * ent)
 	}
 
       /*
-         Are the dmflags set to disallow Friendly Fire?
+       *  Are the dmflags set to disallow Friendly Fire?
        */
       if (teamplay->value && !((int) dmflags->value & DF_NO_FRIENDLY_FIRE))
 	{
@@ -437,13 +440,13 @@ PrintMOTD (edict_t * ent)
 	}
 
       /*
-         Are we using Low Lag Sounds?
-
-         if (llsound->value)
-         {
-         sprintf (msg_buf + strlen (msg_buf), "Low Lag Sounds Enabled\n");
-         lines++;
-         }
+       *  Are we using Low Lag Sounds?
+       *
+       *  if (llsound->value)
+       *  {
+       *  sprintf (msg_buf + strlen (msg_buf), "Low Lag Sounds Enabled\n");
+       *  lines++;
+       *  }
        */
 
       /*
