@@ -1,10 +1,14 @@
 //-----------------------------------------------------------------------------
 // g_save.c
 //
-// $Id: g_save.c,v 1.51 2002/02/17 20:10:09 freud Exp $
+// $Id: g_save.c,v 1.52 2002/02/18 18:25:51 ra Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_save.c,v $
+// Revision 1.52  2002/02/18 18:25:51  ra
+// Bumped version to 2.6, fixed ctf falling and kicking of players in ctf
+// uvtime
+//
 // Revision 1.51  2002/02/17 20:10:09  freud
 // Better naming of auto_items is auto_equip, requested by Deathwatch.
 //
@@ -494,7 +498,7 @@ InitGame (void)
   punishkills = gi.cvar ("punishkills", "1", 0);	//slicer
   mapvote_waittime = gi.cvar ("mapvote_waittime", "8", 0);
   ff_afterround = gi.cvar ("ff_afterround", "1", 0);
-  uvtime = gi.cvar ("uvtime", "40", CVAR_LATCH);
+  uvtime = gi.cvar ("uvtime", "40", 0);
   sv_gib = gi.cvar ("sv_gib", "1", 0);
   sv_crlf = gi.cvar ("sv_crlf", "0", CVAR_LATCH); // 0 == DONT ALLOW IT
   vrot = gi.cvar ("vrot", "0", 0);

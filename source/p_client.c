@@ -1,10 +1,14 @@
 //-----------------------------------------------------------------------------
 // p_client.c
 //
-// $Id: p_client.c,v 1.68 2002/02/18 17:17:21 freud Exp $
+// $Id: p_client.c,v 1.69 2002/02/18 18:25:51 ra Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: p_client.c,v $
+// Revision 1.69  2002/02/18 18:25:51  ra
+// Bumped version to 2.6, fixed ctf falling and kicking of players in ctf
+// uvtime
+//
 // Revision 1.68  2002/02/18 17:17:21  freud
 // Fixed the CTF leaving team bug. Also made the shield more efficient,
 // No falling damage.
@@ -3099,7 +3103,7 @@ body_die (edict_t * self, edict_t * inflictor, edict_t * attacker, int damage,
                         ThrowGib (self, "models/objects/gibs/sm_meat/tris.md2", damage, GIB_ORGANIC);
                 self->s.origin[2] -= 48;
                 ThrowClientHead (self, damage);*/
-      self->takedamage = DAMAGE_NO;
+		self->takedamage = DAMAGE_NO;
     }
 }
 

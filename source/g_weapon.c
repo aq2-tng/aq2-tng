@@ -1,10 +1,14 @@
 //-----------------------------------------------------------------------------
 // g_weapon.c
 //
-// $Id: g_weapon.c,v 1.11 2002/02/18 13:55:35 freud Exp $
+// $Id: g_weapon.c,v 1.12 2002/02/18 18:25:51 ra Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_weapon.c,v $
+// Revision 1.12  2002/02/18 18:25:51  ra
+// Bumped version to 2.6, fixed ctf falling and kicking of players in ctf
+// uvtime
+//
 // Revision 1.11  2002/02/18 13:55:35  freud
 // Added last damaged players %P
 //
@@ -1502,8 +1506,10 @@ kick_attack (edict_t * ent)
 		  if (lights_camera_action)
 		    return;
 // AQ2:TNG - JBravo adding UVtime
-		  if (ent->client->ctf_uvtime)
-		    return;
+		  if (ctf->value) {
+			if (ent->client->ctf_uvtime || tr.ent->client->ctf_uvtime)
+				return;
+		  }
 
 //                                        if (tr.ent != ent && tr.ent->client && ent->client &&
 //                                                tr.ent->client->resp.team == ent->client->resp.team)

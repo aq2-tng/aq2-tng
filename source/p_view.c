@@ -1,10 +1,14 @@
 //-----------------------------------------------------------------------------
 // p_view.c
 //
-// $Id: p_view.c,v 1.19 2001/12/24 18:06:05 slicerdw Exp $
+// $Id: p_view.c,v 1.20 2002/02/18 18:25:51 ra Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: p_view.c,v $
+// Revision 1.20  2002/02/18 18:25:51  ra
+// Bumped version to 2.6, fixed ctf falling and kicking of players in ctf
+// uvtime
+//
 // Revision 1.19  2001/12/24 18:06:05  slicerdw
 // changed dynamic check for darkmatch only
 //
@@ -619,6 +623,11 @@ P_FallingDamage (edict_t * ent)
 	  return;
 	}
     }
+  if (ctf->value) {
+	if (ent->client->ctf_uvtime > 0) {
+		return;
+	}
+  }
 
   // zucc look for slippers to avoid noise
   item = FindItem (SLIP_NAME);
