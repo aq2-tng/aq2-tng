@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // g_cmds.c
 //
-// $Id: g_cmds.c,v 1.42 2001/11/16 22:45:58 deathwatch Exp $
+// $Id: g_cmds.c,v 1.43 2001/11/29 16:04:29 deathwatch Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_cmds.c,v $
+// Revision 1.43  2001/11/29 16:04:29  deathwatch
+// Fixed the playerlist command
+//
 // Revision 1.42  2001/11/16 22:45:58  deathwatch
 // Fixed %me again
 //
@@ -1653,8 +1656,7 @@ Cmd_Say_f (edict_t * ent, qboolean team, qboolean arg0, qboolean partner_msg)
     }
 }
 
-void
-Cmd_PlayerList_f (edict_t * ent)
+void Cmd_PlayerList_f (edict_t * ent)
 {
   int i;
   char st[80];
@@ -1663,36 +1665,28 @@ Cmd_PlayerList_f (edict_t * ent)
 
   // connect time, ping, score, name
   *text = 0;
+
+	// Set the lines:
   for (i = 0, e2 = g_edicts + 1; i < maxclients->value; i++, e2++)
-    {
-      if (!e2->inuse)
-	continue;
+  {
+		if (!e2->inuse)
+			continue;
 
-      if (!teamplay->value || !noscore->value)
-	Com_sprintf (st, sizeof (st), "%02d:%02d %4d %3d %s%s\n",
-		     (level.framenum - e2->client->resp.enterframe) / 600,
-		     ((level.framenum - e2->client->resp.enterframe) % 600) /
-		     10, e2->client->ping, e2->client->resp.score,
-		     e2->client->pers.netname, (e2->solid == SOLID_NOT
-						&& e2->deadflag !=
-						DEAD_DEAD) ? " (spectator)" :
-		     "");
-      else
-	Com_sprintf (st, sizeof (st), "%02d:%02d %4d %s%s\n",
-		     (level.framenum - e2->client->resp.enterframe) / 600,
-		     ((level.framenum - e2->client->resp.enterframe) % 600) /
-		     10, e2->client->ping, e2->client->pers.netname,
-		     (e2->solid == SOLID_NOT
-		      && e2->deadflag != DEAD_DEAD) ? " (spectator)" : "");
+		if(limchasecam->value)
+			Com_sprintf (st, sizeof (st), "%02d:%02d %4d %3d %s\n",(level.framenum - e2->client->resp.enterframe) / 600,((level.framenum - e2->client->resp.enterframe) % 600) / 10, e2->client->ping, e2->client->resp.team, e2->client->pers.netname); // This shouldn't show player's being 'spectators' during games with limchasecam set and/or during matchmode
+    else if (!teamplay->value || !noscore->value)
+			Com_sprintf (st, sizeof (st), "%02d:%02d %4d %3d %s%s\n",(level.framenum - e2->client->resp.enterframe) / 600,((level.framenum - e2->client->resp.enterframe) % 600) / 10, e2->client->ping, e2->client->resp.score, e2->client->pers.netname, (e2->solid == SOLID_NOT && e2->deadflag != DEAD_DEAD) ? " (dead)" : ""); // replaced 'spectator' with 'dead'
+		else
+			Com_sprintf (st, sizeof (st), "%02d:%02d %4d %s%s\n",(level.framenum - e2->client->resp.enterframe) / 600, ((level.framenum - e2->client->resp.enterframe) % 600) / 10, e2->client->ping, e2->client->pers.netname, (e2->solid == SOLID_NOT && e2->deadflag != DEAD_DEAD) ? " (dead)" : ""); // replaced 'spectator' with 'dead'
 
-      if (strlen (text) + strlen (st) > sizeof (text) - 100)
-	{
-	  sprintf (text + strlen (text), "...\n");
-	  gi.cprintf (ent, PRINT_HIGH, "%s", text);
-	  return;
+    if (strlen (text) + strlen (st) > sizeof (text) - 100)
+		{
+			sprintf (text + strlen (text), "...\n");
+			gi.cprintf (ent, PRINT_HIGH, "%s", text);
+			return;
+		}
+    strcat (text, st);
 	}
-      strcat (text, st);
-    }
   gi.cprintf (ent, PRINT_HIGH, "%s", text);
 }
 
