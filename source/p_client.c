@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // p_client.c
 //
-// $Id: p_client.c,v 1.30 2001/06/21 00:05:30 slicerdw Exp $
+// $Id: p_client.c,v 1.31 2001/06/21 07:37:10 igor_rock Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: p_client.c,v $
+// Revision 1.31  2001/06/21 07:37:10  igor_rock
+// fixed some limchasecam bugs
+//
 // Revision 1.30  2001/06/21 00:05:30  slicerdw
 // New Video Check System done -  might need some revision but works..
 //
@@ -3596,19 +3599,27 @@ void ClientThink (edict_t *ent, usercmd_t *ucmd)
 	      //	team_round_going && (client->resp.team != NOTEAM) &&
 	      //	!(limchasecam->value == 2 && client->chase_mode == 2))
 	      // Limchasecam fix end
-	      if (client->chase_mode == 1)
+	      if ((limchasecam->value != 2) || (client->resp.team == NOTEAM))
 		{
-		  client->desired_fov = 90;
-		  client->ps.fov = 90;
-		  client->chase_mode++;
-		}
-	      else
-		{
-		  client->chase_mode = 0;
-		  client->chase_target = NULL;
-		  client->desired_fov = 90;
-		  client->ps.fov = 90;
-		  client->ps.pmove.pm_flags &= ~PMF_NO_PREDICTION;
+		  if (client->chase_mode == 1)
+		    {
+		      client->desired_fov = 90;
+		      client->ps.fov = 90;
+		      client->chase_mode++;
+		    }
+		  else if ((limchasecam->value != 1) || (client->resp.team == NOTEAM))
+		    {
+		      client->chase_mode = 0;
+		      client->chase_target = NULL;
+		      client->desired_fov = 90;
+		      client->ps.fov = 90;
+		      client->ps.pmove.pm_flags &= ~PMF_NO_PREDICTION;
+		    }
+		  else
+		    {
+		      client->chase_mode = 1;
+		      UpdateChaseCam(ent);
+		    }
 		}
 	    }
 	  else
@@ -3617,7 +3628,14 @@ void ClientThink (edict_t *ent, usercmd_t *ucmd)
 	      GetChaseTarget(ent);
 	      if (client->chase_target != NULL)
 		{
-		  client->chase_mode = 1;
+		  if (limchasecam->value == 2)
+		    {
+		      client->chase_mode = 2;
+		    }
+		  else
+		    {
+		      client->chase_mode = 1;
+		    }
 		  UpdateChaseCam(ent);
 		}
 	    }
