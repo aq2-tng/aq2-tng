@@ -4,12 +4,12 @@
 
 void Cmd_Stats_f(edict_t *ent)
 {
-	/* Variables Used:																	*
-	 * stats_shots_t - Total nr of Shots								*
-	 * stats_shots_m - Total nr of Misses								*
-	 * stats_shots_h - Total nr of Hits									*
-	 * stats_shots_hd - Total nr of Headshots						*
-	 *																									*/
+	/* Variables Used:				*
+	 * stats_shots_t - Total nr of Shots		*
+	 * stats_shots_m - Total nr of Misses		*
+	 * stats_shots_h - Total nr of Hits		*
+	 * stats_shots_hd - Total nr of Headshots	*
+	 *						*/
 
 	double perc_hit, perc_miss, accuracy, perc_hd;
 	int total, hits, misses, headshots;
@@ -36,3 +36,4 @@ void Cmd_Stats_f(edict_t *ent)
 	gi.cprintf(ent, PRINT_HIGH, "Ÿ\n\n");
 
 }
+
