@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 //
 //
-// $Id: g_main.c,v 1.27 2001/08/18 01:28:06 deathwatch Exp $
+// $Id: g_main.c,v 1.28 2001/08/18 15:22:28 deathwatch Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_main.c,v $
+// Revision 1.28  2001/08/18 15:22:28  deathwatch
+// fixed the if in CycleLights to prevent the lights from cycling in other modes
+//
 // Revision 1.27  2001/08/18 01:28:06  deathwatch
 // Fixed some stats stuff, added darkmatch + day_cycle, cleaned up several files, restructured ClientCommand
 //
@@ -616,7 +619,7 @@ float day_next_cycle=10.0;
 
 void CycleLights() {
 	
-	if(!darkmatch->value == 3 || day_cycle->value == 0)
+	if(!(darkmatch->value == 3) || (day_cycle->value == 0))
 		return;
 	
 
