@@ -1,7 +1,7 @@
 #-----------------------------------------------------------------------------
 # Action makefile 
 #
-# $Id: Makefile,v 1.3 2001/05/08 20:23:54 igor_rock Exp $
+# $Id: Makefile,v 1.4 2001/05/11 20:15:51 ra Exp $
 #
 # Intended for gcc/Linux, may need modifying for other platforms
 # Adapted by PG BUND from Black Cross makefile
@@ -10,6 +10,11 @@
 # (needs still some testing/modification for the dist-targets)
 #-----------------------------------------------------------------------------
 # $Log: Makefile,v $
+# Revision 1.4  2001/05/11 20:15:51  ra
+#
+#
+# Make make clean also remove the .so or .dll file.
+#
 # Revision 1.3  2001/05/08 20:23:54  igor_rock
 # added the depend information (will change more often...)
 #
@@ -72,7 +77,7 @@ game$(ARCH).$(SHLIBEXT) : $(GAME_OBJS)
 #############################################################################
 
 clean:
-	-rm -f $(GAME_OBJS)
+	-rm -f $(GAME_OBJS) game$(ARCH).$(SHLIBEXT)
 
 olddepend:
 	gcc -MM $(GAME_OBJS:.o=.c)
