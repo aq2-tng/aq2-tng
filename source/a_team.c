@@ -3,10 +3,13 @@
 // Some of this is borrowed from Zoid's CTF (thanks Zoid)
 // -Fireblade
 //
-// $Id: a_team.c,v 1.67 2002/01/24 02:24:56 deathwatch Exp $
+// $Id: a_team.c,v 1.68 2002/01/24 10:39:32 ra Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_team.c,v $
+// Revision 1.68  2002/01/24 10:39:32  ra
+// Removed an old debugging statement
+//
 // Revision 1.67  2002/01/24 02:24:56  deathwatch
 // Major update to Stats code (thanks to Freud)
 // new cvars:
@@ -3446,8 +3449,6 @@ SetupTeamSpawnPoints ()
       teamplay_spawns[l] = NULL;
       teams_assigned[l] = false;
     }
-
-  gi.dprintf("Hi!  Im in SetupTeamSpawnPoints()\n");
 
   SelectRandomTeamplaySpawnPoint (0, teams_assigned);
   SelectFarTeamplaySpawnPoint (1, teams_assigned);
