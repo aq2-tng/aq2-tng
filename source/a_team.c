@@ -3,10 +3,14 @@
 // Some of this is borrowed from Zoid's CTF (thanks Zoid)
 // -Fireblade
 //
-// $Id: a_team.c,v 1.86 2002/03/28 20:53:45 deathwatch Exp $
+// $Id: a_team.c,v 1.87 2002/04/01 14:00:08 freud Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_team.c,v $
+// Revision 1.87  2002/04/01 14:00:08  freud
+// After extensive checking I think I have found the spawn bug in the new
+// system.
+//
 // Revision 1.86  2002/03/28 20:53:45  deathwatch
 // updated credits (forgot QNI in the clan list)
 //
@@ -3726,7 +3730,7 @@ NS_SelectRandomTeamplaySpawnPoint (int team, qboolean teams_assigned[])
 // TNG:Freud
 // NS_SelectFarTeamplaySpawnPoint
 // Selects farthest teamplay spawn point from available spawns.
-void
+qboolean
 NS_SelectFarTeamplaySpawnPoint (int team, qboolean teams_assigned[])
 {
   int u, x, y, z, spawn_to_use, preferred_spawn_points, num_already_used,
@@ -3808,7 +3812,7 @@ NS_SelectFarTeamplaySpawnPoint (int team, qboolean teams_assigned[])
   }
   if (num_usable < 1) {
 	NS_SetupTeamSpawnPoints ();
-	return;
+	return false;
   }
 
   spawn_to_use = newrand (num_usable);
@@ -3829,6 +3833,8 @@ NS_SelectFarTeamplaySpawnPoint (int team, qboolean teams_assigned[])
     }
 
   gi.TagFree (spawn_distances);
+
+  return true;
 }
 
 // TNG:Freud
@@ -3838,7 +3844,10 @@ void
 NS_SetupTeamSpawnPoints ()
 {
   qboolean teams_assigned[MAX_TEAMS];
-  int l;
+  int l, no_teams;
+
+  // Number of teams fixed too 2 for new spawns
+  no_teams = 2;
 
   for (l = 0; l < num_teams; l++)
     {
@@ -3849,10 +3858,11 @@ NS_SetupTeamSpawnPoints ()
   if (NS_SelectRandomTeamplaySpawnPoint (NS_randteam, teams_assigned) == false)
 	return;
 
-  for (l = 0;l < num_teams;l++) {
+  for (l = 0;l < no_teams;l++) {
 	// TNG:Freud disabled 3teams for new spawning system.
-	if (l != NS_randteam && l != 2)
-		NS_SelectFarTeamplaySpawnPoint (l, teams_assigned);
+	if (l != NS_randteam)
+		if (NS_SelectFarTeamplaySpawnPoint (l, teams_assigned) == false)
+			return;
   }
 
 }

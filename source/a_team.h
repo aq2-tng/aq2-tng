@@ -1,10 +1,14 @@
 //-----------------------------------------------------------------------------
 // Include for Action team-related things
 //
-// $Id: a_team.h,v 1.8 2002/03/28 11:46:03 freud Exp $
+// $Id: a_team.h,v 1.9 2002/04/01 14:00:08 freud Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_team.h,v $
+// Revision 1.9  2002/04/01 14:00:08  freud
+// After extensive checking I think I have found the spawn bug in the new
+// system.
+//
 // Revision 1.8  2002/03/28 11:46:03  freud
 // stat_mode 2 and timelimit 0 did not show stats at end of round.
 // Added lock/unlock.
@@ -91,7 +95,7 @@ void CenterPrintAll (char *msg);
 
 //TNG:Freud - new spawning system
 void NS_GetSpawnPoints ();
-void NS_SelectFarTeamplaySpawnPoint (int team, qboolean teams_assigned[]);
+qboolean NS_SelectFarTeamplaySpawnPoint (int team, qboolean teams_assigned[]);
 void NS_SetupTeamSpawnPoints ();
 
 typedef struct spawn_distances_s
