@@ -1,10 +1,16 @@
 //-----------------------------------------------------------------------------
 // p_client.c
 //
-// $Id: p_client.c,v 1.46 2001/08/19 01:22:25 deathwatch Exp $
+// $Id: p_client.c,v 1.47 2001/09/02 20:33:34 deathwatch Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: p_client.c,v $
+// Revision 1.47  2001/09/02 20:33:34  deathwatch
+// Added use_classic and fixed an issue with ff_afterround, also updated version
+// nr and cleaned up some commands.
+//
+// Updated the VC Project to output the release build correctly.
+//
 // Revision 1.46  2001/08/19 01:22:25  deathwatch
 // cleaned the formatting of some files
 //
@@ -611,6 +617,679 @@ qboolean IsNeutral (edict_t *ent)
 //  the fact that live players shouldn't receive them in teamplay.  -FB
 void PrintDeathMessage(char *msg, edict_t *gibee)
 {
+	int j;
+	edict_t *other;
+        
+	if (!teamplay->value)
+	{
+		gi.bprintf(PRINT_MEDIUM, msg);
+		return;
+	}
+        
+	if (dedicated->value)
+		gi.cprintf(NULL, PRINT_MEDIUM, "%s", msg);
+
+	// First, let's print the message for gibee and its attacker. -TempFile
+	gi.cprintf(gibee, PRINT_MEDIUM, "%s", msg);
+	gi.cprintf(gibee->client->attacker, PRINT_MEDIUM, "%s", msg);
+
+	for (j = 1; j <= game.maxclients; j++)
+	{
+		other = &g_edicts[j];
+		if (!other->inuse || !other->client)
+			continue;
+
+		// only print if he's NOT gibee, NOT attacker, and NOT alive! -TempFile
+		if (other != gibee && other != gibee->client->attacker && team_round_going && other->solid == SOLID_NOT)
+			gi.cprintf(other, PRINT_MEDIUM, "%s", msg);
+	}
+}
+
+void ClientObituary (edict_t *self, edict_t *inflictor, edict_t *attacker)
+{
+  int             mod;
+  int             loc;
+  char            *message;
+  char            *message2;
+  char            death_msg[2048];  // enough in all situations? -FB
+  qboolean        ff;
+  int             special = 0;
+  int                             n; 
+  
+  if (coop->value && attacker->client)
+		meansOfDeath |= MOD_FRIENDLY_FIRE;
+  
+  if (attacker && attacker != self && attacker->client && OnSameTeam (self, attacker))
+    meansOfDeath |= MOD_FRIENDLY_FIRE;
+  
+  if (deathmatch->value || coop->value)
+	{
+		ff = meansOfDeath & MOD_FRIENDLY_FIRE;
+		mod = meansOfDeath & ~MOD_FRIENDLY_FIRE;
+		loc = locOfDeath; // useful for location based hits
+		message = NULL;
+		message2 = "";
+      
+		switch (mod)
+		{
+			case MOD_BREAKINGGLASS:
+				message = "ate too much glass";
+				break;
+			case MOD_SUICIDE:
+				message = "is done with the world";
+				break;
+			case MOD_FALLING:
+				// moved falling to the end
+				if (self->client->push_timeout)
+					special = 1;
+				//message = "hit the ground hard, real hard";
+				if (IsNeutral(self))
+					message = "plummets to its death";
+				else if (IsFemale(self))
+					message = "plummets to her death";
+				else
+					message = "plummets to his death";
+				break;          
+			case MOD_CRUSH:
+				message = "was flattened";
+				break;
+			case MOD_WATER:
+				message = "sank like a rock";
+				break;
+			case MOD_SLIME:
+				message = "melted";
+				break;
+			case MOD_LAVA:
+				message = "does a back flip into the lava";
+				break;
+			case MOD_EXPLOSIVE:
+			case MOD_BARREL:
+				message = "blew up";
+				break;
+			case MOD_EXIT:
+				message = "found a way out";
+				break;
+			case MOD_TARGET_LASER:
+				message = "saw the light";
+				break;
+			case MOD_TARGET_BLASTER:
+				message = "got blasted";
+				break;
+			case MOD_BOMB:
+			case MOD_SPLASH:
+			case MOD_TRIGGER_HURT:
+				message = "was in the wrong place";
+				break;
+		}
+
+		if (attacker == self)
+		{
+			switch (mod)
+	    {
+				case MOD_HELD_GRENADE:
+					message = "tried to put the pin back in";
+					break;
+				case MOD_HG_SPLASH:
+					if (IsNeutral(self))
+						message = "didn't throw its grenade far enough";                      
+					if (IsFemale(self))
+						message = "didn't throw her grenade far enough";
+					else
+						message = "didn't throw his grenade far enough";
+					break;
+				case MOD_G_SPLASH:
+					if (IsNeutral(self))
+						message = "tripped on its own grenade";
+					else if (IsFemale(self))
+						message = "tripped on her own grenade";
+					else
+						message = "tripped on his own grenade";
+					break;
+				case MOD_R_SPLASH:
+					if (IsNeutral(self))
+						message = "blew itself up";
+					else if (IsFemale(self))
+						message = "blew herself up";
+					else
+						message = "blew himself up";
+					break;
+				case MOD_BFG_BLAST:
+					message = "should have used a smaller gun";
+					break;
+				default:
+					if (IsNeutral(self))
+						message = "killed itself";
+					else if (IsFemale(self))
+						message = "killed herself";
+					else
+						message = "killed himself";
+					break;
+			}
+		}
+
+		if (message && !special)
+		{
+			sprintf(death_msg, "%s %s\n", self->client->pers.netname, message);
+			PrintDeathMessage(death_msg, self);
+
+			// AQ:TNG - JBravo: Since it's op to teamkill after rounds, why not plummet?
+			if(deathmatch->value) {
+				if(teamplay->value) {
+					if(team_round_going) {
+						Subtract_Frag(self);
+					}
+					else {
+						if(!ff_afterround->value) {
+							Subtract_Frag(self);
+						}
+					}
+				}
+				else {
+					Subtract_Frag(self);
+				}
+			}
+
+
+/*
+			if ((deathmatch->value && !teamplay->value) || (teamplay->value && (team_round_going && ff_afterround->value))) {
+			// End ok to plummet after rounds...
+				Subtract_Frag( self );//self->client->resp.score--;
+			}
+*/
+			self->enemy = NULL;
+			return;
+		}
+		else if ( special ) // handle falling with an attacker set
+		{
+			if ( self->client->attacker && self->client->attacker->client && (self->client->attacker->client != self->client))
+			{
+				sprintf(death_msg, "%s was taught how to fly by %s\n", self->client->pers.netname, self->client->attacker->client->pers.netname );
+				PrintDeathMessage(death_msg, self);
+				AddKilledPlayer(self->client->attacker, self);
+      
+	      //MODIFIED FOR FF -FB
+				if (!((int)dmflags->value & DF_NO_FRIENDLY_FIRE) && OnSameTeam(self, self->client->attacker) && (team_round_going && ff_afterround->value) && teamplay->value) // AQ:TNG - JBravo adding FF after rounds
+				{
+					if (!teamplay->value || team_round_going)
+					{
+						// AQ:TNG - JBravo adding tkok
+						self->enemy = self->client->attacker;
+						// End adding tkok
+						Add_TeamKill(self->client->attacker);
+						Subtract_Frag( self->client->attacker );//attacker->client->resp.score--;
+					}
+				}
+				else
+				{
+					if (!teamplay->value || mod != MOD_TELEFRAG)
+						Add_Frag(self->client->attacker); //attacker->client->resp.score++;
+				}
+				//END FF ADD
+				//PG BUND - BEGIN 
+				// self->client->attacker->client->resp.last_killed_target = self;
+				AddKilledPlayer(self,self);
+				//PG BUND - END 
+			}
+			else
+			{
+				if (IsNeutral(self))
+					sprintf(death_msg, "%s plummets to its death\n", self->client->pers.netname);
+				else if (IsFemale(self))
+					sprintf(death_msg, "%s plummets to her death\n", self->client->pers.netname);
+				else
+					sprintf(death_msg, "%s plummets to his death\n", self->client->pers.netname);
+      
+				PrintDeathMessage(death_msg, self);
+				if (deathmatch->value)
+					Subtract_Frag(self);//self->client->resp.score--;
+				self->enemy = NULL;
+			}
+			return;
+		}
+#if 0
+		// handle bleeding, not used because bleeding doesn't get set
+		if ( mod == MOD_BLEEDING )              
+		{
+			sprintf(death_msg, "%s bleeds to death\n", self->client->pers.netname);
+			PrintDeathMessage(death_msg, self);
+			return; 
+		}
+#endif
+      
+		self->enemy = attacker;
+    if (attacker && attacker->client)
+		{
+			//PG BUND - BEGIN 
+			//	  attacker->client->resp.last_killed_target = self;
+			AddKilledPlayer(attacker,self);
+			//PG BUND - END 
+  
+		  switch (mod)
+		  {
+				case MOD_MK23:	// zucc
+					switch (loc)
+					{
+						case LOC_HDAM:
+							if (IsNeutral(self))
+								message = " has a hole in its head from";
+							else if (IsFemale(self))
+								message = " has a hole in her head from";
+							else
+								message = " has a hole in his head from";
+								message2 = "'s Mark 23 pistol";
+							break;
+						case LOC_CDAM:
+							message = " loses a vital chest organ thanks to";
+							message2 = "'s Mark 23 pistol";
+							break;
+						case LOC_SDAM:
+							if (IsNeutral(self))
+								message = " loses its lunch to";
+							else if (IsFemale(self))
+								message = " loses her lunch to";
+								else
+								message = " loses his lunch to";
+							message2 = "'s .45 caliber pistol round";
+							break;
+						case LOC_LDAM:
+							message = " is legless because of";
+							message2 = "'s .45 caliber pistol round";
+							break;
+						default:
+							message = " was shot by";
+							message2 = "'s Mark 23 Pistol";
+					}
+					break;
+				case MOD_MP5:
+					switch (loc)
+					{
+						case LOC_HDAM:
+							message = "'s brains are on the wall thanks to";
+							message2 = "'s 10mm MP5/10 round";
+							break;
+						case LOC_CDAM:
+							message = " feels some chest pain via";
+							message2 = "'s MP5/10 Submachinegun";
+							break;
+						case LOC_SDAM:
+							message = " needs some Pepto Bismol after";
+							message2 = "'s 10mm MP5 round";
+							break;
+						case LOC_LDAM:
+							if (IsNeutral(self))
+								message = " had its legs blown off thanks to";
+							else if (IsFemale(self))
+								message = " had her legs blown off thanks to";
+							else
+								message = " had his legs blown off thanks to";
+							message2 = "'s MP5/10 Submachinegun";
+							break;
+						default:
+							message = " was shot by";
+							message2 = "'s MP5/10 Submachinegun";
+					}
+					break;
+				case MOD_M4:
+					switch (loc)
+					{
+						case LOC_HDAM:
+							message = " had a makeover by";
+							message2 = "'s M4 Assault Rifle";
+							break;
+						case LOC_CDAM:
+							message = " feels some heart burn thanks to";
+							message2 = "'s M4 Assault Rifle";
+							break;
+						case LOC_SDAM:
+							message = " has an upset stomach thanks to";
+							message2 = "'s M4 Assault Rifle";
+							break;
+						case LOC_LDAM:
+							message = " is now shorter thanks to";
+							message2 = "'s M4 Assault Rifle";
+							break;
+						default:
+							message = " was shot by";
+							message2 = "'s M4 Assault Rifle";
+					}
+					break;
+		    case MOD_M3:
+			    n = rand() % 2 + 1;
+					if (n == 1)
+					{
+						message = " accepts"; message2 = "'s M3 Super 90 Assault Shotgun in hole-y matrimony";
+					}
+					else
+					{
+						message = " is full of buckshot from"; message2 = "'s M3 Super 90 Assault Shotgun";
+					}
+					break;        
+		    case MOD_HC:
+					n = rand() % 2 + 1;
+				  if (n == 1)
+					{
+						if(attacker->client->resp.hc_mode) // AQ2:TNG Deathwatch - Single Barreled HC Death Messages
+				    {
+					    message = " underestimated";
+							message2 = "'s single barreled handcannon shot";
+						}
+						else
+						{
+							message = " ate";
+							message2 = "'s sawed-off 12 gauge";
+						}
+					}
+					else
+					{
+						if(attacker->client->resp.hc_mode) // AQ2:TNG Deathwatch - Single Barreled HC Death Messages
+						{
+							message = " won't be able to pass a metal detector anymore thanks to";
+							message2 = "'s single barreled handcannon shot";
+						}
+						else
+						{
+							message = " is full of buckshot from";
+							message2 = "'s sawed off shotgun";
+						}
+					}
+					break;
+		    case MOD_SNIPER:
+					switch (loc)
+					{
+						case LOC_HDAM:
+							if (self->client->ps.fov < 90)
+							{
+								if (IsNeutral(self))
+									message = " saw the sniper bullet go through its scope thanks to";
+								else if (IsFemale(self))
+									message = " saw the sniper bullet go through her scope thanks to";
+								else 
+									message = " saw the sniper bullet go through his scope thanks to";
+							}
+							else
+								message = " caught a sniper bullet between the eyes from";
+	  					break;
+						case LOC_CDAM:
+							message = " was picked off by";
+							break;
+						case LOC_SDAM:
+							message = " was sniped in the stomach by";
+							break;
+						case LOC_LDAM:
+							message = " was shot in the legs by";
+							break;
+						default:
+							message = "was sniped by";
+							//message2 = "'s Sniper Rifle";
+					}
+					break;
+				case MOD_DUAL:
+					switch (loc)
+					{
+						case LOC_HDAM:
+							message = " was trepanned by";
+							message2 = "'s akimbo Mark 23 pistols";
+							break;
+						case LOC_CDAM:
+							message = " was John Woo'd by";
+							//message2 = "'s .45 caliber pistol round";
+							break;
+						case LOC_SDAM:
+							message = " needs some new kidneys thanks to";
+							message2 = "'s akimbo Mark 23 pistols";
+							break;
+						case LOC_LDAM:
+							message = " was shot in the legs by";
+							message2 = "'s akimbo Mark 23 pistols";
+							break;                
+						default:
+							message = " was shot by";
+							message2 = "'s pair of Mark 23 Pistols";
+					}
+					break;
+				case MOD_KNIFE:
+					switch (loc)
+					{                                 
+						case LOC_HDAM:
+							if (IsNeutral(self))
+								message = " had its throat slit by";                                                                  
+							else if (IsFemale(self))
+								message = " had her throat slit by";                                                                  
+							else 
+								message = " had his throat slit by";                                                                  
+							break;
+						case LOC_CDAM:
+							message = " had open heart surgery, compliments of";                                                                    
+							break;
+						case LOC_SDAM:
+							message = " was gutted by";                                                                     
+							break;
+						case LOC_LDAM:
+							message = " was stabbed repeatedly in the legs by";                                                                     
+							break;
+						default:
+							message = " was slashed apart by";
+							message2 = "'s Combat Knife";
+					}
+					break;
+				case MOD_KNIFE_THROWN:
+					switch (loc)
+					{
+						case LOC_HDAM:                                                                  
+							message = " caught";
+							if (IsNeutral(self))
+								message2 = "'s flying knife with its forehead";
+							else if (IsFemale(self))
+								message2 = "'s flying knife with her forehead";
+							else
+								message2 = "'s flying knife with his forehead";
+							break;
+						case LOC_CDAM:
+							message = "'s ribs don't help against";
+							message2 = "'s flying knife";
+							break;
+						case LOC_SDAM:
+							if (IsNeutral(self))
+								message = " sees the contents of its own stomach thanks to";
+							else if (IsFemale(self))
+								message = " sees the contents of her own stomach thanks to";
+							else
+								message = " sees the contents of his own stomach thanks to";
+							message2 = "'s flying knife";
+							break;
+						case LOC_LDAM:
+							if (IsNeutral(self))
+								message = " had its legs cut off thanks to";
+							else if (IsFemale(self))
+								message = " had her legs cut off thanks to"; 
+							else
+								message = " had his legs cut off thanks to";                                                                                                                                    
+							message2 = "'s flying knife";
+							break;
+						default:
+							message = " was hit by";
+							message2 = "'s flying Combat Knife";                    
+					}     
+					break;
+				case MOD_GAS:
+					message = "sucks down some toxic gas thanks to";
+					break;                    
+				case MOD_KICK:
+					n = rand() % 3 + 1;
+					if (n == 1)
+					{         
+						if (IsNeutral(self))
+							message = " got its ass kicked by";
+						else if (IsFemale(self))
+							message = " got her ass kicked by";
+						else
+							message = " got his ass kicked by";
+					}
+					else if (n == 2)
+					{
+						if (IsNeutral(self))
+						{
+							message = " couldn't remove"; 
+							message2 = "'s boot from its ass";
+						}
+						else if (IsFemale(self))
+						{
+							message = " couldn't remove"; 
+							message2 = "'s boot from her ass";
+						}
+						else
+						{
+							message = " couldn't remove"; 
+							message2 = "'s boot from his ass";
+						}
+					}
+					else
+					{
+						if (IsNeutral(self))
+						{
+							message = " had a Bruce Lee put on it by"; message2 = ", with a quickness";
+						}
+						else if (IsFemale(self))
+						{
+							message = " had a Bruce Lee put on her by"; message2 = ", with a quickness";
+						}
+						else
+						{
+							message = " had a Bruce Lee put on him by"; message2 = ", with a quickness";
+						}
+					}                 
+					break;
+		    case MOD_PUNCH:
+					n = rand() % 3 + 1;
+					if (n == 1)
+					{
+						message = " got a free facelift by";
+					}
+					else if (n == 2)
+					{
+						message = " was knocked out by";
+					}
+					else
+					{
+						message = " caught";
+						message2 = "'s iron fist";
+					}                 
+					break;
+				case MOD_BLASTER:
+					message = "was blasted by";
+					break;
+				case MOD_SHOTGUN:
+					message = "was gunned down by";
+					break;
+				case MOD_SSHOTGUN:
+					message = "was blown away by";
+					message2 = "'s super shotgun";
+					break;
+				case MOD_MACHINEGUN:
+					message = "was machinegunned by";
+					break;
+				case MOD_CHAINGUN:
+					message = "was cut in half by";
+					message2 = "'s chaingun";
+					break;
+				case MOD_GRENADE:
+					message = "was popped by";
+					message2 = "'s grenade";
+					break;
+				case MOD_G_SPLASH:
+					message = "was shredded by";
+					message2 = "'s shrapnel";
+					break;
+				case MOD_ROCKET:
+					message = "ate";
+					message2 = "'s rocket";
+					break;
+				case MOD_R_SPLASH:
+					message = "almost dodged";
+					message2 = "'s rocket";
+					break;
+				case MOD_HYPERBLASTER:
+					message = "was melted by";
+					message2 = "'s hyperblaster";
+					break;
+				case MOD_RAILGUN:
+					message = "was railed by";
+					break;
+				case MOD_BFG_LASER:
+					message = "saw the pretty lights from";
+					message2 = "'s BFG";
+					break;
+				case MOD_BFG_BLAST:
+					message = "was disintegrated by";
+					message2 = "'s BFG blast";
+					break;
+				case MOD_BFG_EFFECT:
+					message = "couldn't hide from";
+					message2 = "'s BFG";
+					break;
+				case MOD_HANDGRENADE:
+					message = " caught";
+					message2 = "'s handgrenade";
+					break;
+				case MOD_HG_SPLASH:
+					message = " didn't see";
+					message2 = "'s handgrenade";
+					break;
+				case MOD_HELD_GRENADE:
+					message = " feels";
+					message2 = "'s pain";
+					break;
+				case MOD_TELEFRAG:
+					message = " tried to invade";
+					message2 = "'s personal space";
+					break;
+			} //end of case (mod)
+  
+			if (message)
+			{
+	      //FIREBLADE
+				sprintf(death_msg, "%s%s %s%s\n", self->client->pers.netname, message, attacker->client->pers.netname, message2);
+				PrintDeathMessage(death_msg, self);     
+				//FIREBLADE
+				if (deathmatch->value)
+				{
+					if (ff)
+					{
+						if (!teamplay->value || team_round_going)
+						{
+							// AQ:TNG - JBravo adding tkok
+							self->enemy = attacker;
+							// End adding tkok
+							Add_TeamKill(attacker);
+							Subtract_Frag( attacker );//attacker->client->resp.score--;
+						}
+					}
+					else
+					{
+						//FIREBLADE
+						if (!teamplay->value || mod != MOD_TELEFRAG)
+						{
+							Add_Frag(attacker );//attacker->client->resp.score++;
+							attacker->client->pers.num_kills++;	//TempFile
+						}
+					}
+	  
+				} // if(deathmatch->value)
+				return;
+			} // if(message)
+		}
+	}
+ 
+	sprintf(death_msg, "%s died\n", self->client->pers.netname);
+	PrintDeathMessage(death_msg, self);
+
+	if (deathmatch->value)
+		Subtract_Frag( self );//self->client->resp.score--;
+}
+
+/*
+void PrintDeathMessage(char *msg, edict_t *gibee)
+{
         int j;
         edict_t *other;
         
@@ -993,7 +1672,7 @@ void ClientObituary (edict_t *self, edict_t *inflictor, edict_t *attacker)
 		message = " is full of buckshot from"; message2 = "'s sawed off shotgun";
 		}
 		break;    
-	      */
+	      
 	      // AQ2:TNG End
 	      
 	    case MOD_SNIPER:
@@ -1303,6 +1982,7 @@ void ClientObituary (edict_t *self, edict_t *inflictor, edict_t *attacker)
   if (deathmatch->value)
     Subtract_Frag( self );//self->client->resp.score--;
 }
+*/
 
 void Touch_Item (edict_t *ent, edict_t *other, cplane_t *plane, csurface_t *surf);
 
@@ -1643,7 +2323,11 @@ void player_die (edict_t *self, edict_t *inflictor, edict_t *attacker, int damag
 	      ) )
 	  {
 	    self->client->ps.gunframe = 0;
-	    fire_grenade2 (self, self->s.origin, tv(0,0,0), GRENADE_DAMRAD, 0, 2, GRENADE_DAMRAD*2, false);
+	    					// Reset Grenade Damage to 1.52 when requested:
+					if(use_classic->value)
+						fire_grenade2 (self, self->s.origin, tv(0,0,0), 170, 0, 2, 170*2, false);
+					else
+						fire_grenade2 (self, self->s.origin, tv(0,0,0), GRENADE_DAMRAD, 0, 2, GRENADE_DAMRAD*2, false);
 	  }
 	
         //zucc no gibbing

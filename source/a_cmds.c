@@ -4,10 +4,16 @@
 //
 // laser sight patch, by Geza Beladi
 //
-// $Id: a_cmds.c,v 1.13 2001/08/18 18:45:19 deathwatch Exp $
+// $Id: a_cmds.c,v 1.14 2001/09/02 20:33:34 deathwatch Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_cmds.c,v $
+// Revision 1.14  2001/09/02 20:33:34  deathwatch
+// Added use_classic and fixed an issue with ff_afterround, also updated version
+// nr and cleaned up some commands.
+//
+// Updated the VC Project to output the release build correctly.
+//
 // Revision 1.13  2001/08/18 18:45:19  deathwatch
 // Edited the Flashlight movement code to the Lasersight's movement code, its probably better
 // and I added checks for darkmatch/being dead/being a spectator for its use
@@ -723,7 +729,12 @@ Cmd_Bandage_f (edict_t * ent)
 		  && ent->client->ps.gunframe <= GRENADE_THROW_LAST)))
 	{
 	  ent->client->ps.gunframe = 0;
-	  fire_grenade2 (ent, ent->s.origin, tv (0, 0, 0), GRENADE_DAMRAD, 0, 2, GRENADE_DAMRAD * 2, false);
+
+		if(use_classic->value)
+			fire_grenade2 (ent, ent->s.origin, tv (0, 0, 0), 170, 0, 2, 170 * 2, false);
+		else
+			fire_grenade2 (ent, ent->s.origin, tv (0, 0, 0), GRENADE_DAMRAD, 0, 2, GRENADE_DAMRAD * 2, false);
+
 	  item = FindItem (GRENADE_NAME);
 	  ent->client->pers.inventory[ITEM_INDEX (item)]--;
 	  if (ent->client->pers.inventory[ITEM_INDEX (item)] <= 0)

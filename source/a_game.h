@@ -1,10 +1,16 @@
 //-----------------------------------------------------------------------------
 // Include for base Action game-related things
 //
-// $Id: a_game.h,v 1.10 2001/08/15 14:50:48 slicerdw Exp $
+// $Id: a_game.h,v 1.11 2001/09/02 20:33:34 deathwatch Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_game.h,v $
+// Revision 1.11  2001/09/02 20:33:34  deathwatch
+// Added use_classic and fixed an issue with ff_afterround, also updated version
+// nr and cleaned up some commands.
+//
+// Updated the VC Project to output the release build correctly.
+//
 // Revision 1.10  2001/08/15 14:50:48  slicerdw
 // Added Flood protections to Radio & Voice, Fixed the sniper bug AGAIN
 //
@@ -34,9 +40,9 @@
 
 
 // AQ2:TNG Deathwatch - Updated the Version variables to show TNG Stuff
-#define ACTION_VERSION  "1.52 TNG 2.0b3"
+#define ACTION_VERSION  "1.52 TNG 2.1"
 #define TNG_VERSION		"AQ2: The Next Generation"
-#define TNG_VERSION2	"AQ2: The Next Generation v2.0b3"
+#define TNG_VERSION2	"AQ2: The Next Generation v2.1"
 // AQ2:TNG Deathwatch End
 //AQ2:TNG Slicer This is the max players writen on last killed target
 #define MAX_LAST_KILLED 5

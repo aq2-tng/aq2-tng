@@ -1,10 +1,16 @@
 //-----------------------------------------------------------------------------
 //
 //
-// $Id: g_main.c,v 1.28 2001/08/18 15:22:28 deathwatch Exp $
+// $Id: g_main.c,v 1.29 2001/09/02 20:33:34 deathwatch Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_main.c,v $
+// Revision 1.29  2001/09/02 20:33:34  deathwatch
+// Added use_classic and fixed an issue with ff_afterround, also updated version
+// nr and cleaned up some commands.
+//
+// Updated the VC Project to output the release build correctly.
+//
 // Revision 1.28  2001/08/18 15:22:28  deathwatch
 // fixed the if in CycleLights to prevent the lights from cycling in other modes
 //
@@ -225,6 +231,7 @@ cvar_t  *radio_max; // max nr Radio and Voice requests
 cvar_t	*radio_time; // max nr of time for the radio_max
 cvar_t	*radio_ban; // silence for xx nr of secs
 cvar_t	*radio_repeat; // same as radio_max, only for repeats
+cvar_t	*use_classic; // Used to reset spread/gren strength to 1.52
 
 void SpawnEntities (char *mapname, char *entities, char *spawnpoint);
 void ClientThink (edict_t *ent, usercmd_t *cmd);

@@ -1,10 +1,16 @@
 //-----------------------------------------------------------------------------
 // g_weapon.c
 //
-// $Id: p_weapon.c,v 1.8 2001/08/17 21:31:37 deathwatch Exp $
+// $Id: p_weapon.c,v 1.9 2001/09/02 20:33:34 deathwatch Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: p_weapon.c,v $
+// Revision 1.9  2001/09/02 20:33:34  deathwatch
+// Added use_classic and fixed an issue with ff_afterround, also updated version
+// nr and cleaned up some commands.
+//
+// Updated the VC Project to output the release build correctly.
+//
 // Revision 1.8  2001/08/17 21:31:37  deathwatch
 // Added support for stats
 //
@@ -1046,7 +1052,12 @@ void Drop_Weapon (edict_t *ent, gitem_t *item)
                                                                                                         || ((ent->client->ps.gunframe >= GRENADE_THROW_FIRST && ent->client->ps.gunframe <= GRENADE_THROW_LAST)) ) 
                                                 {
                                                         ent->client->ps.gunframe = 0;
-                                                        fire_grenade2 (ent, ent->s.origin, tv(0,0,0), GRENADE_DAMRAD, 0, 2, GRENADE_DAMRAD*2, false);
+                                                        																												// Reset Grenade Damage to 1.52 when requested:
+																												if(use_classic->value)
+																													fire_grenade2 (ent, ent->s.origin, tv(0,0,0), 170, 0, 2, 170*2, false);
+																												else
+																													fire_grenade2 (ent, ent->s.origin, tv(0,0,0), GRENADE_DAMRAD, 0, 2, GRENADE_DAMRAD*2, false);
+
                                                         item = FindItem(GRENADE_NAME);
                                                         ent->client->pers.inventory[ITEM_INDEX(item)]--;
                                                         ent->client->newweapon = FindItem(MK23_NAME);
@@ -2119,7 +2130,12 @@ void weapon_grenade_fire (edict_t *ent, qboolean held)
 
         timer = ent->client->grenade_time - level.time;
         speed = GRENADE_MINSPEED + (GRENADE_TIMER - timer) * ((GRENADE_MAXSPEED - GRENADE_MINSPEED) / GRENADE_TIMER);
-        fire_grenade2 (ent, start, forward, GRENADE_DAMRAD, speed, timer, GRENADE_DAMRAD*2, held);
+
+				// Reset Grenade Damage to 1.52 when requested:
+				if(use_classic->value)
+					fire_grenade2 (ent, start, forward, 170, speed, timer, 170*2, held);
+				else
+					fire_grenade2 (ent, start, forward, GRENADE_DAMRAD, speed, timer, GRENADE_DAMRAD*2, held);
 
         if (! ( (int)dmflags->value & DF_INFINITE_AMMO ) )
                 ent->client->pers.inventory[ent->client->ammo_index]--;
@@ -3146,7 +3162,13 @@ void MP5_Fire(edict_t *ent)
                 else
                         height = 0;
         
-                
+
+        // If requested, use 1.52 spread
+				if(use_classic->value)
+					spread = 250;
+				else
+					spread = MP5_SPREAD;
+				
         //If the user isn't pressing the attack button, advance the frame and go away....
         if (!(ent->client->buttons & BUTTON_ATTACK) && !(ent->client->burst) )
         {
@@ -3848,6 +3870,11 @@ void Dual_Fire(edict_t *ent)
         else
                 height = 0;
         
+        // Reset spread to 1.52 when requested
+				if(use_classic->value)
+					spread = 300;
+				else
+					spread = DUAL_SPREAD;
         
         spread = AdjustSpread( ent, spread );
         
@@ -4543,6 +4570,12 @@ void gas_fire (edict_t *ent )
         
         radius = damage + 40;
 
+				// Reset Grenade Damage to 1.52 when requested:
+				if(use_classic->value)
+					damage = 170;
+				else
+					damage = GRENADE_DAMRAD;
+
         VectorSet(offset, 8, 8, ent->viewheight-8);
         AngleVectors (ent->client->v_angle, forward, right, NULL);
         P_ProjectSource (ent->client, ent->s.origin, offset, forward, right, start);
@@ -4556,7 +4589,11 @@ void gas_fire (edict_t *ent )
         else
                 speed = 920;
         
-        fire_grenade2 (ent, start, forward, GRENADE_DAMRAD, speed, timer, GRENADE_DAMRAD*2, false);
+				// Reset Grenade Damage to 1.52 when requested:
+        if(use_classic->value)
+					fire_grenade2 (ent, start, forward, 170, speed, timer, 170*2, false);
+				else
+					fire_grenade2 (ent, start, forward, GRENADE_DAMRAD, speed, timer, GRENADE_DAMRAD*2, false);
 
 
         
@@ -4762,7 +4799,12 @@ void Weapon_Gas (edict_t *ent)
                         || ( ent->client->ps.gunframe >= GRENADE_THROW_FIRST
                         && ent->client->ps.gunframe <= GRENADE_THROW_LAST ) ) )
                 {
-                        fire_grenade2 (ent, ent->s.origin, tv(0,0,0), GRENADE_DAMRAD, 0, 2, GRENADE_DAMRAD*2, false);
+                        // Reset Grenade Damage to 1.52 when requested:
+												if(use_classic->value)
+													fire_grenade2 (ent, ent->s.origin, tv(0,0,0), 170, 0, 2, 170*2, false);
+												else
+													fire_grenade2 (ent, ent->s.origin, tv(0,0,0), GRENADE_DAMRAD, 0, 2, GRENADE_DAMRAD*2, false);
+
                         item = FindItem(GRENADE_NAME);
                         ent->client->pers.inventory[ITEM_INDEX(item)]--;
                         if ( ent->client->pers.inventory[ITEM_INDEX(item)] <= 0 )

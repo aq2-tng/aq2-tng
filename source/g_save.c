@@ -1,10 +1,16 @@
 //-----------------------------------------------------------------------------
 // g_save.c
 //
-// $Id: g_save.c,v 1.33 2001/08/18 01:28:06 deathwatch Exp $
+// $Id: g_save.c,v 1.34 2001/09/02 20:33:34 deathwatch Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_save.c,v $
+// Revision 1.34  2001/09/02 20:33:34  deathwatch
+// Added use_classic and fixed an issue with ff_afterround, also updated version
+// nr and cleaned up some commands.
+//
+// Updated the VC Project to output the release build correctly.
+//
 // Revision 1.33  2001/08/18 01:28:06  deathwatch
 // Fixed some stats stuff, added darkmatch + day_cycle, cleaned up several files, restructured ClientCommand
 //
@@ -391,6 +397,7 @@ void InitGame (void)
   splatlimit				= gi.cvar ("splatlimit", "0", 0);
 	darkmatch					= gi.cvar("darkmatch", "0", CVAR_LATCH); // Darkmatch
 	day_cycle					= gi.cvar("day_cycle", "90", 0); // Darkmatch cycle time.
+	use_classic				= gi.cvar("use_classic", "0", 0); // Reset Spread and Grenade Strength to 1.52
   
   CGF_SFX_InstallGlassSupport();   // william for CGF (glass fx)
   
