@@ -1,10 +1,14 @@
 //-----------------------------------------------------------------------------
 // g_local.h -- local definitions for game module
 //
-// $Id: g_local.h,v 1.45 2001/12/23 16:30:50 ra Exp $
+// $Id: g_local.h,v 1.46 2001/12/23 21:19:41 deathwatch Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_local.h,v $
+// Revision 1.46  2001/12/23 21:19:41  deathwatch
+// Updated stats with location and average
+// cleaned it up a bit as well
+//
 // Revision 1.45  2001/12/23 16:30:50  ra
 // 2.5 ready. New stats from Freud. HC and shotgun gibbing seperated.
 //
@@ -1278,7 +1282,11 @@ typedef struct
   qboolean punch_desired;	//controlled in ClientThink
 
   int hs_streak;		// Headshots in a Row
+
   int headshots;		// Headshot Counter
+	int legshots;		// Legshot Counter
+	int stomachshots;		// Stomachshot Counter
+	int chestshots;		// Chestshot Counter
 
   int stats_shots_t;		// Total nr of shots for TNG Stats
   int stats_shots_h;		// Total nr of hits for TNG Stats
@@ -1310,6 +1318,10 @@ typedef struct
   int stats_knife_shots_t;	// Total nr of shots for TNG Stats
   int stats_knife_shots_h;	// Total nr of hits for TNG Stats
   int stats_knife_shots_hd;	// Total nr of headshots for TNG Stats
+
+  int stats_tknife_shots_t;	// Total nr of shots for TNG Stats
+  int stats_tknife_shots_h;	// Total nr of hits for TNG Stats
+  int stats_tknife_shots_hd;	// Total nr of headshots for TNG Stats
 
   int stats_hc_shots_t;		// Total nr of shots for TNG Stats
   int stats_hc_shots_h;		// Total nr of hits for TNG Stats

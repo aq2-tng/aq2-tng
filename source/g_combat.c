@@ -1,10 +1,14 @@
 //-----------------------------------------------------------------------------
 // g_combat.c
 //
-// $Id: g_combat.c,v 1.16 2001/12/23 16:30:50 ra Exp $
+// $Id: g_combat.c,v 1.17 2001/12/23 21:19:41 deathwatch Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_combat.c,v $
+// Revision 1.17  2001/12/23 21:19:41  deathwatch
+// Updated stats with location and average
+// cleaned it up a bit as well
+//
 // Revision 1.16  2001/12/23 16:30:50  ra
 // 2.5 ready. New stats from Freud. HC and shotgun gibbing seperated.
 //
@@ -792,21 +796,18 @@ T_Damage (edict_t * targ, edict_t * inflictor, edict_t * attacker, vec3_t dir,
 
           if ((attacker->client) && (mod == MOD_M4))
             attacker->client->resp.stats_m4_shots_h++;
-
           if ((attacker->client) && (mod == MOD_MP5))
             attacker->client->resp.stats_mp5_shots_h++;
-
           if ((attacker->client) && (mod == MOD_SNIPER))
             attacker->client->resp.stats_sniper_shots_h++;
-
           if ((attacker->client) && (mod == MOD_MK23))
             attacker->client->resp.stats_pistol_shots_h++;
-
           if ((attacker->client) && (mod == MOD_DUAL))
             attacker->client->resp.stats_dual_shots_h++;
-
-          if ((attacker->client) && ((mod == MOD_KNIFE)  || (mod == MOD_KNIFE_THROWN)))
+          if ((attacker->client) && (mod == MOD_KNIFE))
             attacker->client->resp.stats_knife_shots_h++;
+          if ((attacker->client) && (mod == MOD_KNIFE_THROWN))
+            attacker->client->resp.stats_tknife_shots_h++;
 // TNG Stats END
 
 
@@ -865,25 +866,21 @@ T_Damage (edict_t * targ, edict_t * inflictor, edict_t * attacker, vec3_t dir,
 	      if (head_success)
 		{
 		  if (attacker->client)
-		    {
-
-                      if (mod == MOD_KNIFE || mod == MOD_KNIFE_THROWN)
-                        attacker->client->resp.stats_knife_shots_hd++;
-
-                      if (mod == MOD_M4)
-                        attacker->client->resp.stats_m4_shots_hd++;
-            
-                      if (mod == MOD_MP5)
-                        attacker->client->resp.stats_mp5_shots_hd++;
-            
-                      if (mod == MOD_SNIPER)
-                        attacker->client->resp.stats_sniper_shots_hd++;
-            
-                      if (mod == MOD_MK23)
-                        attacker->client->resp.stats_pistol_shots_hd++;
-            
-                      if (mod == MOD_DUAL)
-                        attacker->client->resp.stats_dual_shots_hd++;
+		  {
+         if (mod == MOD_KNIFE)
+	         attacker->client->resp.stats_knife_shots_hd++;
+         if (mod == MOD_KNIFE_THROWN)
+           attacker->client->resp.stats_tknife_shots_hd++;
+         if (mod == MOD_M4)
+           attacker->client->resp.stats_m4_shots_hd++;
+         if (mod == MOD_MP5)
+           attacker->client->resp.stats_mp5_shots_hd++;
+         if (mod == MOD_SNIPER)
+           attacker->client->resp.stats_sniper_shots_hd++;
+         if (mod == MOD_MK23)
+           attacker->client->resp.stats_pistol_shots_hd++;
+         if (mod == MOD_DUAL)
+           attacker->client->resp.stats_dual_shots_hd++;
             
 		      //AQ2:TNG Slicer Last Damage Location
 		      attacker->client->resp.last_damaged_part = LOC_HDAM;
@@ -989,6 +986,7 @@ T_Damage (edict_t * targ, edict_t * inflictor, edict_t * attacker, vec3_t dir,
 		  //AQ2:TNG Slicer Last Damage Location
 		  attacker->client->resp.last_damaged_part = LOC_LDAM;
 		  //AQ2:TNG END
+			attacker->client->resp.legshots++; // TNG Stats
 		}
 	      else if (z_rel < STOMACH_DAMAGE)
 		{
@@ -1009,6 +1007,7 @@ T_Damage (edict_t * targ, edict_t * inflictor, edict_t * attacker, vec3_t dir,
 		  //AQ2:TNG Slicer Last Damage Location
 		  attacker->client->resp.last_damaged_part = LOC_SDAM;
 		  //AQ2:TNG END
+			attacker->client->resp.stomachshots++; // TNG Stats
 		}
 	      else		//(z_rel < CHEST_DAMAGE)
 		{
@@ -1079,6 +1078,7 @@ T_Damage (edict_t * targ, edict_t * inflictor, edict_t * attacker, vec3_t dir,
 		  //AQ2:TNG Slicer Last Damage Location
 		  attacker->client->resp.last_damaged_part = LOC_CDAM;
 		  //AQ2:TNG END
+			attacker->client->resp.chestshots++; // TNG Stats
 
 		}
 	      /*else

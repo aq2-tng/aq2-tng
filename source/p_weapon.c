@@ -1,10 +1,14 @@
 //-----------------------------------------------------------------------------
 // g_weapon.c
 //
-// $Id: p_weapon.c,v 1.12 2001/12/23 16:30:51 ra Exp $
+// $Id: p_weapon.c,v 1.13 2001/12/23 21:19:41 deathwatch Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: p_weapon.c,v $
+// Revision 1.13  2001/12/23 21:19:41  deathwatch
+// Updated stats with location and average
+// cleaned it up a bit as well
+//
 // Revision 1.12  2001/12/23 16:30:51  ra
 // 2.5 ready. New stats from Freud. HC and shotgun gibbing seperated.
 //
@@ -4838,7 +4842,7 @@ Knife_Fire (edict_t * ent)
 	  // zucc was at 1250, dropping speed to 1200
 	  knife_throw (ent, start, forward, damage, 1200);
           ent->client->resp.stats_shots_t += 1;	// TNG Stats, +1 hit
-          ent->client->resp.stats_knife_shots_t += 1;	// TNG Stats, +1 hit
+          ent->client->resp.stats_tknife_shots_t += 1;	// TNG Stats, +1 hit
 	  return 0;
 	}
       else
@@ -4861,7 +4865,7 @@ Knife_Fire (edict_t * ent)
 
       knife_throw (ent, start, forward, damage, 1200);
       ent->client->resp.stats_shots_t += 1;	// TNG Stats, +1 hit
-      ent->client->resp.stats_knife_shots_t += 1;	// TNG Stats, +1 hit
+      ent->client->resp.stats_tknife_shots_t += 1;	// TNG Stats, +1 hit
 
       // 
     }

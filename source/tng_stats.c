@@ -11,24 +11,22 @@ Cmd_Stats_f (edict_t * ent)
    * headshots     - Total nr of Headshots        *
    *                                              */
 
-  double perc_hit, perc_hd;
-  int total, hits, misses, headshots;
+  double perc_hit;
+  int total, hits;
   char str_perc_hit[10], str_shots_h[10], str_shots_t[10];
 
-  gi.cprintf (ent, PRINT_HIGH,
-	      "\nŸ\n");
-  gi.cprintf (ent, PRINT_HIGH,
-              "Weapon        Accuracy Hits/Shots  Headshots\n");
-  gi.cprintf (ent, PRINT_HIGH,
-	      "\nŸ\n");
+	// Global Stats:
+	total = ent->client->resp.stats_m4_shots_t + ent->client->resp.stats_mp5_shots_t + ent->client->resp.stats_shotgun_shots_t + ent->client->resp.stats_sniper_shots_t + ent->client->resp.stats_knife_shots_t + ent->client->resp.stats_tknife_shots_t + ent->client->resp.stats_hc_shots_t + ent->client->resp.stats_pistol_shots_t + ent->client->resp.stats_dual_shots_t;
+	hits = ent->client->resp.stats_m4_shots_h + ent->client->resp.stats_mp5_shots_h + ent->client->resp.stats_shotgun_shots_h + ent->client->resp.stats_sniper_shots_h + ent->client->resp.stats_knife_shots_h + ent->client->resp.stats_tknife_shots_h + ent->client->resp.stats_hc_shots_h + ent->client->resp.stats_pistol_shots_h + ent->client->resp.stats_dual_shots_h;
 
-
-
-  if (ent->client->resp.stats_m4_shots_t != 0)
+	if(total != 0) {
+		gi.cprintf (ent, PRINT_HIGH, "\n Statistics Ÿ\n");
+		gi.cprintf (ent, PRINT_HIGH, "Weapon        Accuracy Hits/Shots  Headshots\n");
+	  if (ent->client->resp.stats_m4_shots_t != 0)
     {
 
       perc_hit = (((double) ent->client->resp.stats_m4_shots_h / (double) ent->client->resp.stats_m4_shots_t) * 100.0);	// Percentage of shots that hit
-      perc_hd = (((double) headshots / (double) total) * 100.0);	// Percentage of total shots that are headshots
+      //perc_hd = (((double) headshots / (double) total) * 100.0);	// Percentage of total shots that are headshots
 
 
       if ( perc_hit >= 100 ) {
@@ -63,15 +61,14 @@ Cmd_Stats_f (edict_t * ent)
         sprintf(str_shots_t, "%i    ", ent->client->resp.stats_m4_shots_t);
       }
 
-      gi.cprintf(ent, PRINT_HIGH,
-                   "M4            %s  %s/%s  %i\n", str_perc_hit, str_shots_h, str_shots_t, ent->client->resp.stats_m4_shots_hd);
+      gi.cprintf(ent, PRINT_HIGH, "M4            %s  %s/%s  %i\n", str_perc_hit, str_shots_h, str_shots_t, ent->client->resp.stats_m4_shots_hd);
 
     }
 
-  if (ent->client->resp.stats_mp5_shots_t != 0)
+		if (ent->client->resp.stats_mp5_shots_t != 0)
     {
       perc_hit = (((double) ent->client->resp.stats_mp5_shots_h / (double) ent->client->resp.stats_mp5_shots_t) * 100.0);	// Percentage of shots that hit
-      perc_hd = (((double) headshots / (double) total) * 100.0);	// Percentage of total shots that are headshots
+      //perc_hd = (((double) headshots / (double) total) * 100.0);	// Percentage of total shots that are headshots
 
       if ( perc_hit >= 100 ) {
         sprintf(str_perc_hit, "%.2f", perc_hit);
@@ -105,14 +102,13 @@ Cmd_Stats_f (edict_t * ent)
         sprintf(str_shots_t, "%i    ", ent->client->resp.stats_mp5_shots_t);
       }
 
-      gi.cprintf(ent, PRINT_HIGH,
-                   "MP5           %s  %s/%s  %i\n", str_perc_hit, str_shots_h, str_shots_t, ent->client->resp.stats_mp5_shots_hd);
+      gi.cprintf(ent, PRINT_HIGH, "MP5           %s  %s/%s  %i\n", str_perc_hit, str_shots_h, str_shots_t, ent->client->resp.stats_mp5_shots_hd);
     }
 
-  if (ent->client->resp.stats_sniper_shots_t != 0)
+		if (ent->client->resp.stats_sniper_shots_t != 0)
     {
       perc_hit = (((double) ent->client->resp.stats_sniper_shots_h / (double) ent->client->resp.stats_sniper_shots_t) * 100.0);	// Percentage of shots that hit
-      perc_hd = (((double) headshots / (double) total) * 100.0);	// Percentage of total shots that are headshots
+      //perc_hd = (((double) headshots / (double) total) * 100.0);	// Percentage of total shots that are headshots
 
       if ( perc_hit >= 100 ) {
         sprintf(str_perc_hit, "%.2f", perc_hit);
@@ -146,15 +142,14 @@ Cmd_Stats_f (edict_t * ent)
         sprintf(str_shots_t, "%i    ", ent->client->resp.stats_sniper_shots_t);
       }
 
-      gi.cprintf(ent, PRINT_HIGH,
-                   "Sniper        %s  %s/%s  %i\n", str_perc_hit, str_shots_h, str_shots_t, ent->client->resp.stats_sniper_shots_hd);
+      gi.cprintf(ent, PRINT_HIGH, "Sniper        %s  %s/%s  %i\n", str_perc_hit, str_shots_h, str_shots_t, ent->client->resp.stats_sniper_shots_hd);
 
     }
 
-  if (ent->client->resp.stats_shotgun_shots_t != 0)
+		if (ent->client->resp.stats_shotgun_shots_t != 0)
     {
       perc_hit = (((double) ent->client->resp.stats_shotgun_shots_h / (double) ent->client->resp.stats_shotgun_shots_t) * 100.0);	// Percentage of shots that hit
-      perc_hd = (((double) headshots / (double) total) * 100.0);	// Percentage of total shots that are headshots
+      //perc_hd = (((double) headshots / (double) total) * 100.0);	// Percentage of total shots that are headshots
 
       if ( perc_hit >= 100 ) {
         sprintf(str_perc_hit, "%.2f", perc_hit);
@@ -188,14 +183,13 @@ Cmd_Stats_f (edict_t * ent)
         sprintf(str_shots_t, "%i    ", ent->client->resp.stats_shotgun_shots_t);
       }
 
-      gi.cprintf(ent, PRINT_HIGH,
-                   "Shotgun       %s  %s/%s  %i\n", str_perc_hit, str_shots_h, str_shots_t, ent->client->resp.stats_shotgun_shots_hd);
+      gi.cprintf(ent, PRINT_HIGH, "Shotgun       %s  %s/%s  %i\n", str_perc_hit, str_shots_h, str_shots_t, ent->client->resp.stats_shotgun_shots_hd);
     }
 
-  if (ent->client->resp.stats_pistol_shots_t != 0)
+		if (ent->client->resp.stats_pistol_shots_t != 0)
     {
       perc_hit = (((double) ent->client->resp.stats_pistol_shots_h / (double) ent->client->resp.stats_pistol_shots_t) * 100.0);	// Percentage of shots that hit
-      perc_hd = (((double) headshots / (double) total) * 100.0);	// Percentage of total shots that are headshots
+      //perc_hd = (((double) headshots / (double) total) * 100.0);	// Percentage of total shots that are headshots
 
       if ( perc_hit >= 100 ) {
         sprintf(str_perc_hit, "%.2f", perc_hit);
@@ -229,14 +223,13 @@ Cmd_Stats_f (edict_t * ent)
         sprintf(str_shots_t, "%i    ", ent->client->resp.stats_pistol_shots_t);
       }
 
-      gi.cprintf(ent, PRINT_HIGH,
-                   "Pistol        %s  %s/%s  %i\n", str_perc_hit, str_shots_h, str_shots_t, ent->client->resp.stats_pistol_shots_hd);
+      gi.cprintf(ent, PRINT_HIGH, "Pistol        %s  %s/%s  %i\n", str_perc_hit, str_shots_h, str_shots_t, ent->client->resp.stats_pistol_shots_hd);
     }
 
-  if (ent->client->resp.stats_dual_shots_t != 0)
+		if (ent->client->resp.stats_dual_shots_t != 0)
     {
       perc_hit = (((double) ent->client->resp.stats_dual_shots_h / (double) ent->client->resp.stats_dual_shots_t) * 100.0);	// Percentage of shots that hit
-      perc_hd = (((double) headshots / (double) total) * 100.0);	// Percentage of total shots that are headshots
+      //perc_hd = (((double) headshots / (double) total) * 100.0);	// Percentage of total shots that are headshots
 
       if ( perc_hit >= 100 ) {
         sprintf(str_perc_hit, "%.2f", perc_hit);
@@ -270,14 +263,13 @@ Cmd_Stats_f (edict_t * ent)
         sprintf(str_shots_t, "%i    ", ent->client->resp.stats_dual_shots_t);
       }
 
-      gi.cprintf(ent, PRINT_HIGH,
-                   "Dual Pistol   %s  %s/%s  %i\n", str_perc_hit, str_shots_h, str_shots_t, ent->client->resp.stats_dual_shots_hd);
+      gi.cprintf(ent, PRINT_HIGH, "Dual Pistol   %s  %s/%s  %i\n", str_perc_hit, str_shots_h, str_shots_t, ent->client->resp.stats_dual_shots_hd);
     }
 
-  if (ent->client->resp.stats_knife_shots_t != 0)
+		if (ent->client->resp.stats_knife_shots_t != 0)
     {
       perc_hit = (((double) ent->client->resp.stats_knife_shots_h / (double) ent->client->resp.stats_knife_shots_t) * 100.0);	// Percentage of shots that hit
-      perc_hd = (((double) headshots / (double) total) * 100.0);	// Percentage of total shots that are headshots
+      //perc_hd = (((double) headshots / (double) total) * 100.0);	// Percentage of total shots that are headshots
 
       if ( perc_hit >= 100 ) {
         sprintf(str_perc_hit, "%.2f", perc_hit);
@@ -311,14 +303,53 @@ Cmd_Stats_f (edict_t * ent)
         sprintf(str_shots_t, "%i    ", ent->client->resp.stats_knife_shots_t);
       }
 
-      gi.cprintf(ent, PRINT_HIGH,
-                   "Knives        %s  %s/%s  %i\n", str_perc_hit, str_shots_h, str_shots_t, ent->client->resp.stats_knife_shots_hd);
+      gi.cprintf(ent, PRINT_HIGH, "Knife         %s  %s/%s  %i\n", str_perc_hit, str_shots_h, str_shots_t, ent->client->resp.stats_knife_shots_hd);
     }
 
-  if (ent->client->resp.stats_hc_shots_t != 0)
+		if (ent->client->resp.stats_tknife_shots_t != 0)
+    {
+      perc_hit = (((double) ent->client->resp.stats_tknife_shots_h / (double) ent->client->resp.stats_tknife_shots_t) * 100.0);	// Percentage of shots that hit
+      //perc_hd = (((double) headshots / (double) total) * 100.0);	// Percentage of total shots that are headshots
+
+      if ( perc_hit >= 100 ) {
+        sprintf(str_perc_hit, "%.2f", perc_hit);
+      } else if ( perc_hit >= 10 ) {
+        sprintf(str_perc_hit, " %.2f", perc_hit);
+      } else {
+        sprintf(str_perc_hit, "  %.2f", perc_hit);
+      }
+
+      if ( ent->client->resp.stats_tknife_shots_h >= 10000 ) {
+        sprintf(str_shots_h, "%i", ent->client->resp.stats_tknife_shots_h);
+      } else if ( ent->client->resp.stats_tknife_shots_h >= 1000 ) {
+        sprintf(str_shots_h, " %i", ent->client->resp.stats_tknife_shots_h);
+      } else if ( ent->client->resp.stats_tknife_shots_h >= 100 ) {
+        sprintf(str_shots_h, "  %i", ent->client->resp.stats_tknife_shots_h);
+      } else if ( ent->client->resp.stats_tknife_shots_h >= 10 ) {
+        sprintf(str_shots_h, "   %i", ent->client->resp.stats_tknife_shots_h);
+      } else {
+        sprintf(str_shots_h, "    %i", ent->client->resp.stats_tknife_shots_h);
+      }
+
+      if ( ent->client->resp.stats_knife_shots_t >= 10000 ) {
+        sprintf(str_shots_t, "%i", ent->client->resp.stats_tknife_shots_t);
+      } else if ( ent->client->resp.stats_tknife_shots_t >= 1000 ) {
+        sprintf(str_shots_t, "%i ", ent->client->resp.stats_tknife_shots_t);
+      } else if ( ent->client->resp.stats_tknife_shots_t >= 100 ) {
+        sprintf(str_shots_t, "%i  ", ent->client->resp.stats_tknife_shots_t);
+      } else if ( ent->client->resp.stats_tknife_shots_t >= 10 ) {
+        sprintf(str_shots_t, "%i   ", ent->client->resp.stats_tknife_shots_t);
+      } else {
+        sprintf(str_shots_t, "%i    ", ent->client->resp.stats_tknife_shots_t);
+      }
+
+      gi.cprintf(ent, PRINT_HIGH, "Thrown Knife  %s  %s/%s  %i\n", str_perc_hit, str_shots_h, str_shots_t, ent->client->resp.stats_tknife_shots_hd);
+    }
+
+		if (ent->client->resp.stats_hc_shots_t != 0)
     {
       perc_hit = (((double) ent->client->resp.stats_hc_shots_h / (double) ent->client->resp.stats_hc_shots_t) * 100.0);	// Percentage of shots that hit
-      perc_hd = (((double) headshots / (double) total) * 100.0);	// Percentage of total shots that are headshots
+      //perc_hd = (((double) headshots / (double) total) * 100.0);	// Percentage of total shots that are headshots
 
       if ( perc_hit >= 100 ) {
         sprintf(str_perc_hit, "%.2f", perc_hit);
@@ -352,12 +383,73 @@ Cmd_Stats_f (edict_t * ent)
         sprintf(str_shots_t, "%i    ", ent->client->resp.stats_hc_shots_t);
       }
 
-      gi.cprintf(ent, PRINT_HIGH,
-                   "Handcannon    %s  %s/%s  %i\n", str_perc_hit, str_shots_h, str_shots_t, ent->client->resp.stats_hc_shots_hd);
+      gi.cprintf(ent, PRINT_HIGH, "Handcannon    %s  %s/%s  %i\n", str_perc_hit, str_shots_h, str_shots_t, ent->client->resp.stats_hc_shots_hd);
     }
-    gi.cprintf (ent, PRINT_HIGH,
-	      "\nŸ\n");
+    gi.cprintf (ent, PRINT_HIGH, "\nŸ\n");
 
+		// Final Part
+		gi.cprintf (ent, PRINT_HIGH, "Location                            Accuracy\n");
+	
+		if ( ent->client->resp.headshots != 0 ) {
+			perc_hit = (((double) ent->client->resp.headshots / (double) total) * 100.0);	// Percentage of total that are headshots
+
+			if ( perc_hit >= 100 )
+				sprintf(str_perc_hit, "%.2f", perc_hit);
+			else if ( perc_hit >= 10 )
+				sprintf(str_perc_hit, " %.2f", perc_hit);
+			else
+				sprintf(str_perc_hit, "  %.2f", perc_hit);
+			
+			gi.cprintf (ent, PRINT_HIGH, "Head                              %i  (%s)\n", ent->client->resp.headshots, str_perc_hit); // Total Headshots
+		}
+		if ( ent->client->resp.chestshots != 0 ) {
+			perc_hit = (((double) ent->client->resp.chestshots / (double) total) * 100.0);	// Percentage of total that are chestshots
+
+			if ( perc_hit >= 100 )
+				sprintf(str_perc_hit, "%.2f", perc_hit);
+			else if ( perc_hit >= 10 )
+				sprintf(str_perc_hit, " %.2f", perc_hit);
+			else
+				sprintf(str_perc_hit, "  %.2f", perc_hit);
+			
+			gi.cprintf (ent, PRINT_HIGH, "Chest                             %i  (%s)\n", ent->client->resp.chestshots, str_perc_hit); // Total Chestshots
+		}
+		if ( ent->client->resp.stomachshots != 0 ) {
+			perc_hit = (((double) ent->client->resp.stomachshots / (double) total) * 100.0);	// Percentage of total that are stomachshots
+
+			if ( perc_hit >= 100 ) 
+				sprintf(str_perc_hit, "%.2f", perc_hit);
+			else if ( perc_hit >= 10 )
+				sprintf(str_perc_hit, " %.2f", perc_hit);
+			else 
+				sprintf(str_perc_hit, "  %.2f", perc_hit);
+    
+			gi.cprintf (ent, PRINT_HIGH, "Stomach                           %i  (%s)\n", ent->client->resp.stomachshots, str_perc_hit); // Total Stomachshots
+		}
+		if ( ent->client->resp.legshots != 0 ) {
+			perc_hit = (((double) ent->client->resp.legshots / (double) total) * 100.0);	// Percentage of total that are legshots
+
+			if ( perc_hit >= 100 ) 
+				sprintf(str_perc_hit, "%.2f", perc_hit);
+			else if ( perc_hit >= 10 ) 
+				sprintf(str_perc_hit, " %.2f", perc_hit);
+			else 
+				sprintf(str_perc_hit, "  %.2f", perc_hit);
+			
+			gi.cprintf (ent, PRINT_HIGH, "Legs                              %i  (%s)\n", ent->client->resp.legshots, str_perc_hit); // Total Legshots
+		}
+		gi.cprintf (ent, PRINT_HIGH, "\n");
+		if(total != 0) {
+			if(hits != 0)
+				perc_hit = (((double) hits / (double) total) * 100.0);
+			else
+				perc_hit = 0.0;
+
+			sprintf(str_perc_hit, "%.2f", perc_hit);
+			gi.cprintf (ent, PRINT_HIGH, "Average Accuracy:                       %s\n", str_perc_hit); // Average
+			gi.cprintf (ent, PRINT_HIGH, "\nŸ\n");
+		}
+	}
 }
 
 void
