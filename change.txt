@@ -5,6 +5,10 @@ Changes in TNG
 * = major bug fix
 
 From 2.8
++ Optimized Radio/Voice Flood protection and added radio_repeat_time cvar
++ Increased Max filled players for %K to 8
+- Some code optimization and bug fixes
++ enhanced Impressives/Excellents rewards and no longer does 'after round TK' ruins the count
 + stuffcmd now reports to player console if used (to prevent admin cheating)
 + Say: Added %M for teammate in line of sight (like %E for enemy in line of sight)
 + ignorepart command added.
