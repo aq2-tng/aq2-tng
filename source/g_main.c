@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 //
 //
-// $Id: g_main.c,v 1.56 2002/02/18 20:33:48 freud Exp $
+// $Id: g_main.c,v 1.57 2002/02/18 23:17:55 freud Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_main.c,v $
+// Revision 1.57  2002/02/18 23:17:55  freud
+// Polling tweaks for PINGs
+//
 // Revision 1.56  2002/02/18 20:33:48  freud
 // PING PONG Change polling times
 //
@@ -905,7 +908,7 @@ G_RunFrame (void)
 
 		if (ping_timeout->value) {
 			int pt_real;
-			pt_real = ping_timeout->value * 5;
+			pt_real = ping_timeout->value * 3;
 			if (!(level.framenum % pt_real))
 				stuffcmd(ent, "pingpong\n");
 		}
