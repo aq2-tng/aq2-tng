@@ -1,7 +1,7 @@
 #-----------------------------------------------------------------------------
 # Action makefile 
 #
-# $Id: Makefile,v 1.15 2001/08/17 22:05:17 ra Exp $
+# $Id: Makefile,v 1.16 2001/08/18 17:16:58 ra Exp $
 #
 # Intended for gcc/Linux, may need modifying for other platforms
 # Adapted by PG BUND from Black Cross makefile
@@ -10,6 +10,9 @@
 # (needs still some testing/modification for the dist-targets)
 #-----------------------------------------------------------------------------
 # $Log: Makefile,v $
+# Revision 1.16  2001/08/18 17:16:58  ra
+# Fixed makefile to know about tng_flashlight
+#
 # Revision 1.15  2001/08/17 22:05:17  ra
 # Added new tng_stats files to the makefile and coverted them out of DOS format
 #
@@ -106,7 +109,8 @@ GAME_OBJS = \
 	g_combat.o g_func.o g_items.o g_main.o g_misc.o g_monster.o \
 	g_phys.o g_save.o g_spawn.o g_svcmds.o g_target.o g_trigger.o \
 	g_turret.o g_utils.o g_weapon.o g_xmisc.o m_move.o \
-	p_client.o p_hud.o p_trail.o p_view.o p_weapon.o q_shared.o tng_stats.o
+	p_client.o p_hud.o p_trail.o p_view.o p_weapon.o q_shared.o \
+	tng_stats.o tng_flashlight.o
 
 game$(ARCH).$(SHLIBEXT) : $(GAME_OBJS)
 	$(CC) $(CFLAGS) $(SHLIBLDFLAGS) -o $@ $(GAME_OBJS)
