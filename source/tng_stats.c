@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // Statistics Related Code
 //
-// $Id: tng_stats.c,v 1.29 2002/04/01 15:30:38 freud Exp $
+// $Id: tng_stats.c,v 1.30 2002/04/01 16:08:59 freud Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: tng_stats.c,v $
+// Revision 1.30  2002/04/01 16:08:59  freud
+// Fix in hits/shots counter for each weapon
+//
 // Revision 1.29  2002/04/01 15:30:38  freud
 // Small stat fix
 //
@@ -166,7 +169,7 @@ void Cmd_Stats_f (edict_t *targetent, char *arg)
 					perc_hit = (((double) ent->client->resp.stats_hits[y] /
 					(double) ent->client->resp.stats_shots[y]) * 100.0);	// Percentage of shots that hit
 
-      					gi.cprintf(targetent, PRINT_HIGH, "%s %6.2f  %5i/%-5i    %i\n", current_weapon, perc_hit, ent->client->resp.stats_shots_h, ent->client->resp.stats_shots_t, ent->client->resp.stats_headshot[y]); 
+      					gi.cprintf(targetent, PRINT_HIGH, "%s %6.2f  %5i/%-5i    %i\n", current_weapon, perc_hit, ent->client->resp.stats_shots[y], ent->client->resp.stats_hits[y], ent->client->resp.stats_headshot[y]); 
 				}
 			}
     		} else {
