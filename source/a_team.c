@@ -3,10 +3,13 @@
 // Some of this is borrowed from Zoid's CTF (thanks Zoid)
 // -Fireblade
 //
-// $Id: a_team.c,v 1.76 2002/02/23 18:52:36 freud Exp $
+// $Id: a_team.c,v 1.77 2002/02/27 16:07:13 deathwatch Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_team.c,v $
+// Revision 1.77  2002/02/27 16:07:13  deathwatch
+// Updated Credits menu
+//
 // Revision 1.76  2002/02/23 18:52:36  freud
 // Added myself to the credits menu :)
 //
@@ -572,8 +575,7 @@ CreditsReturnToMain (edict_t * ent, pmenu_t * p)
 void
 DoAGoodie (edict_t * ent, pmenu_t * p)
 {
-  gi.sound (ent, CHAN_VOICE, gi.soundindex ("boss3/bs3srch3.wav"), 1,
-	    ATTN_IDLE, 0);
+  gi.sound (ent, CHAN_VOICE, gi.soundindex ("boss3/bs3idle1.wav"), 1, ATTN_IDLE, 0);
 }
 
 //PG BUND END
@@ -583,8 +585,7 @@ void
 RockClan (edict_t * ent, pmenu_t * p)
 {
   gi.cprintf (ent, PRINT_HIGH, "Let's Rock! http://www.rock-clan.de/\n");
-  gi.sound (ent, CHAN_VOICE, gi.soundindex ("user/letsrock.wav"), 1,
-	    ATTN_IDLE, 0);
+  gi.sound (ent, CHAN_VOICE, gi.soundindex ("user/letsrock.wav"), 1, ATTN_IDLE, 0);
 }
 
 // AQ2:TNG - End Rock-Sound
@@ -593,13 +594,18 @@ RockClan (edict_t * ent, pmenu_t * p)
 void
 SlicersCat (edict_t * ent, pmenu_t * p)
 {
-  gi.cprintf (ent, PRINT_HIGH,
-	      "sLiCeR [dW] couldn't have done it without his cat!\n");
-  gi.sound (ent, CHAN_VOICE, gi.soundindex ("makron/laf4.wav"), 1, ATTN_IDLE,
-	    0);
+  gi.cprintf (ent, PRINT_HIGH,"sLiCeR [dW] couldn't have done it without his cat!\n");
+  gi.sound (ent, CHAN_VOICE, gi.soundindex ("makron/laf4.wav"), 1, ATTN_IDLE, 0);
 }
-
 // AQ2:TNG End
+
+// AQ2:TNG Deathwatch - Just for QNI ppl
+void
+QuakeNigguhz (edict_t * ent, pmenu_t * p)
+{
+  gi.cprintf (ent, PRINT_HIGH,"For all the homies!\n");
+  gi.sound (ent, CHAN_VOICE, gi.soundindex ("world/xian1.wav"), 1, ATTN_IDLE, 0);
+}
 
 // AQ2:TNG Deathwatch - Editing all menus to show the correct credits, version, names, locations, urls, etc
 pmenu_t creditsmenu[] = {
@@ -608,21 +614,21 @@ pmenu_t creditsmenu[] = {
   {"*Design Team", PMENU_ALIGN_LEFT, NULL, NULL},
   {NULL, PMENU_ALIGN_LEFT, NULL, NULL},
   {"Deathwatch", PMENU_ALIGN_LEFT, NULL, DoAGoodie},
+	{"Elviz", PMENU_ALIGN_LEFT, NULL, DoAGoodie},
+	{"Freud [QNI]", PMENU_ALIGN_LEFT, NULL, QuakeNigguhz},
   {"Igor[Rock]", PMENU_ALIGN_LEFT, NULL, RockClan},
-  {"JBravo[QNI]", PMENU_ALIGN_LEFT, NULL, DoAGoodie},
-  {"Mort", PMENU_ALIGN_LEFT, NULL, DoAGoodie},
+  {"JBravo[QNI]", PMENU_ALIGN_LEFT, NULL, QuakeNigguhz},
   {"sLiCeR [dW]", PMENU_ALIGN_LEFT, NULL, SlicersCat},
-  {"Freud [QNI]", PMENU_ALIGN_LEFT, NULL, DoAGoodie},
   {NULL, PMENU_ALIGN_LEFT, NULL, NULL},
   {"*Credits", PMENU_ALIGN_LEFT, NULL, NULL},
   {"(in no particular order)", PMENU_ALIGN_LEFT, NULL, NULL},
   {NULL, PMENU_ALIGN_LEFT, NULL, NULL},
-  {"Clan Rock, Clan dW,", PMENU_ALIGN_LEFT, NULL, NULL},
-  {"Clan DP, Davross, Kobra,", PMENU_ALIGN_LEFT, NULL, NULL},
-  {"Zarjazz, Killerbee,", PMENU_ALIGN_LEFT, NULL, NULL},
-  {"Rookie[Rock], ICE-M", PMENU_ALIGN_LEFT, NULL, NULL},
-  {"PG Bund[Rock], Elvis,", PMENU_ALIGN_LEFT, NULL, NULL},
-  {"Tempfile, Palmtree,", PMENU_ALIGN_LEFT, NULL, NULL},
+  {"Clan Rock, dW & DP,", PMENU_ALIGN_LEFT, NULL, NULL},
+  {"Kobra, Zarjazz,", PMENU_ALIGN_LEFT, NULL, NULL},
+  {"Killerbee, Rookie[Rock],", PMENU_ALIGN_LEFT, NULL, NULL},
+  {"PG Bund[Rock], Mort,", PMENU_ALIGN_LEFT, NULL, NULL},
+  {"ICE-M, Palmtree,", PMENU_ALIGN_LEFT, NULL, NULL},
+	{"Tempfile, Blackmonk", PMENU_ALIGN_LEFT, NULL, NULL},
   {NULL, PMENU_ALIGN_LEFT, NULL, NULL},
   {"Return to main menu", PMENU_ALIGN_LEFT, NULL, CreditsReturnToMain},
   {"TAB to exit menu", PMENU_ALIGN_LEFT, NULL, NULL},
