@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // g_cmds.c
 //
-// $Id: g_cmds.c,v 1.53 2002/02/19 09:32:47 freud Exp $
+// $Id: g_cmds.c,v 1.54 2002/03/25 18:32:11 freud Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_cmds.c,v $
+// Revision 1.54  2002/03/25 18:32:11  freud
+// I'm being too productive.. New ghost command needs testing.
+//
 // Revision 1.53  2002/02/19 09:32:47  freud
 // Removed PING PONGs from CVS, not fit for release.
 //
@@ -2186,6 +2189,11 @@ ClientCommand (edict_t * ent)
 	else if (Q_stricmp (cmd, "stat_mode") == 0 || Q_stricmp (cmd, "cmd_stat_mode") == 0)
 	{
 		Cmd_Statmode_f (ent, gi.argv (1));
+		return;
+	}
+	else if (Q_stricmp (cmd, "ghost") == 0)
+	{
+		Cmd_Ghost_f (ent);
 		return;
 	}
   else				// anything that doesn't match a command will be a chat

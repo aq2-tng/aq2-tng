@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 //
 //
-// $Id: g_main.c,v 1.60 2002/03/25 15:16:24 freud Exp $
+// $Id: g_main.c,v 1.61 2002/03/25 18:32:11 freud Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_main.c,v $
+// Revision 1.61  2002/03/25 18:32:11  freud
+// I'm being too productive.. New ghost command needs testing.
+//
 // Revision 1.60  2002/03/25 15:16:24  freud
 // use_newspawns had a typo in g_main.c fixed.
 //
@@ -373,6 +376,10 @@ void InitGame (void);
 void G_RunFrame (void);
 
 int dosoft;
+
+
+gghost_t ghost_players[MAX_CLIENTS];
+int num_ghost_players;
 
 
 //===================================================================

@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // g_spawn.c
 //
-// $Id: g_spawn.c,v 1.33 2002/03/24 22:45:54 freud Exp $
+// $Id: g_spawn.c,v 1.34 2002/03/25 18:32:11 freud Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_spawn.c,v $
+// Revision 1.34  2002/03/25 18:32:11  freud
+// I'm being too productive.. New ghost command needs testing.
+//
 // Revision 1.33  2002/03/24 22:45:54  freud
 // New spawn code again, bad commit last time..
 //
@@ -405,6 +408,8 @@ spawn_t spawns[] = {
 */
   {NULL, NULL}
 };
+
+extern int num_ghost_players;
 
 
 /*
@@ -959,6 +964,8 @@ SpawnEntities (char *mapname, char *entities, char *spawnpoint)
   G_FindTeams ();
 
   PlayerTrail_Init ();
+
+  num_ghost_players = 0;
 
   //TNG:Freud - New spawning system
   if (teamplay->value && use_newspawns->value && !use_3teams->value)

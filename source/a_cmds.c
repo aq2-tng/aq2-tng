@@ -4,10 +4,13 @@
 //
 // laser sight patch, by Geza Beladi
 //
-// $Id: a_cmds.c,v 1.26 2002/03/25 16:34:39 freud Exp $
+// $Id: a_cmds.c,v 1.27 2002/03/25 18:32:11 freud Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_cmds.c,v $
+// Revision 1.27  2002/03/25 18:32:11  freud
+// I'm being too productive.. New ghost command needs testing.
+//
 // Revision 1.26  2002/03/25 16:34:39  freud
 // Cmd_Time changes. When timelimit is 0 it says timelimit disables instead of
 // displaying 0 minutes 0 seconds left.
@@ -106,6 +109,8 @@
 
 #include "g_local.h"
 
+extern gghost_t ghost_players[MAX_CLIENTS];
+extern int num_ghost_players;
 
 
 extern void P_ProjectSource (gclient_t * client, vec3_t point,
@@ -1334,4 +1339,56 @@ void Cmd_AutoRecord_f(edict_t * ent)
 
   stuffcmd(ent, recstr);
 	return; // see if it makes the compiler happy
+}
+
+/*
+TNG:Freud
+Cmd_Ghost_f
+
+Person gets frags/kills/damage/weapon/item/team/stats back if he disconnected
+*/
+void Cmd_Ghost_f (edict_t * ent)
+{
+  int x;
+  qboolean found = false;
+
+  if (num_ghost_players == 0) {
+  	gi.cprintf(ent, PRINT_HIGH, "No ghost match found\n");
+	return;
+  }
+
+  for (x = 0;x < num_ghost_players;x++) {
+	if (found == true) {
+		ghost_players[x - 1] = ghost_players[x];
+	} else if (strcmp(ghost_players[x].ipaddr, ent->client->ipaddr) == 0 &&
+		strcmp(ghost_players[x].netname, ent->client->pers.netname) == 0) {
+		found = true;
+		gi.cprintf(ent, PRINT_HIGH, "Welcome back %s\n", ent->client->pers.netname);
+		ent->client->resp.score = ghost_players[x].score;
+		ent->client->resp.kills = ghost_players[x].kills;
+		ent->client->resp.damage_dealt = ghost_players[x].damage_dealt;
+		if (teamplay->value) {
+			if (ghost_players[x].team && ghost_players[x].team != NOTEAM)
+				JoinTeam (ent, ghost_players[x].team, 1);
+			ent->client->resp.weapon = ghost_players[x].weapon;
+			ent->client->resp.item = ghost_players[x].item;
+		}
+
+		ent->client->resp.headshots = ghost_players[x].headshots;
+		ent->client->resp.legshots = ghost_players[x].legshots;
+		ent->client->resp.stomachshots = ghost_players[x].stomachshots;
+		ent->client->resp.chestshots = ghost_players[x].chestshots;
+		ent->client->resp.stats_shots_t = ghost_players[x].stats_shots_t;
+		ent->client->resp.stats_shots_h = ghost_players[x].stats_shots_h;
+
+		memcpy(ent->client->resp.stats_shots, ghost_players[x].stats_shots, sizeof(ghost_players[x].stats_shots));
+		memcpy(ent->client->resp.stats_hits, ghost_players[x].stats_hits, sizeof(ghost_players[x].stats_hits));
+		memcpy(ent->client->resp.stats_headshot, ghost_players[x].stats_headshot, sizeof(ghost_players[x].stats_headshot));
+	}
+  }
+  if (found == true) {
+	num_ghost_players--;
+  } else {
+  	gi.cprintf(ent, PRINT_HIGH, "No ghost match found\n");
+  }
 }

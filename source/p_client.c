@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // p_client.c
 //
-// $Id: p_client.c,v 1.75 2002/02/23 18:33:52 freud Exp $
+// $Id: p_client.c,v 1.76 2002/03/25 18:32:11 freud Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: p_client.c,v $
+// Revision 1.76  2002/03/25 18:32:11  freud
+// I'm being too productive.. New ghost command needs testing.
+//
 // Revision 1.75  2002/02/23 18:33:52  freud
 // Fixed newline bug with announcer (EXCELLENT.. 1 FRAG LEFT) for logfiles
 //
@@ -271,6 +274,9 @@ void ClientUserinfoChanged (edict_t * ent, char *userinfo);
 void ClientDisconnect (edict_t * ent);
 void SP_misc_teleporter_dest (edict_t * ent);
 void CopyToBodyQue (edict_t * ent);
+
+extern gghost_t ghost_players[MAX_CLIENTS];
+extern int num_ghost_players;
 
 void
 Add_Frag (edict_t * ent)
@@ -4357,6 +4363,8 @@ ClientDisconnect (edict_t * ent)
   TourneyRemovePlayer (ent);
   vClientDisconnect (ent);	// client voting disconnect
 
+  CreateGhost(ent);
+
   if (ctf->value)
     CTFDeadDropFlag (ent);
 
@@ -4384,6 +4392,49 @@ ClientDisconnect (edict_t * ent)
       CheckForUnevenTeams ();
     }
 }
+
+void
+CreateGhost (edict_t * ent)
+{
+
+  sprintf(ghost_players[num_ghost_players].ipaddr, "%s", ent->client->ipaddr);
+  sprintf(ghost_players[num_ghost_players].netname, "%s", ent->client->pers.netname);
+
+  // Score
+  ghost_players[num_ghost_players].score = ent->client->resp.score;
+  ghost_players[num_ghost_players].damage_dealt = ent->client->resp.damage_dealt;
+  ghost_players[num_ghost_players].kills = ent->client->resp.kills;
+
+  // Teamplay variables
+  if (teamplay->value) {
+  	ghost_players[num_ghost_players].weapon = ent->client->resp.weapon;
+  	ghost_players[num_ghost_players].item = ent->client->resp.item;
+  	ghost_players[num_ghost_players].team = ent->client->resp.team;
+  }
+
+  // Statistics
+  ghost_players[num_ghost_players].headshots = ent->client->resp.headshots;
+  ghost_players[num_ghost_players].legshots = ent->client->resp.legshots;
+  ghost_players[num_ghost_players].stomachshots = ent->client->resp.stomachshots;
+  ghost_players[num_ghost_players].chestshots = ent->client->resp.chestshots;
+
+  ghost_players[num_ghost_players].stats_shots_t = ent->client->resp.stats_shots_t;
+  ghost_players[num_ghost_players].stats_shots_h = ent->client->resp.stats_shots_h;
+
+  memcpy(ghost_players[num_ghost_players].stats_shots, ent->client->resp.stats_shots, sizeof(ent->client->resp.stats_shots));
+  memcpy(ghost_players[num_ghost_players].stats_hits, ent->client->resp.stats_hits, sizeof(ent->client->resp.stats_hits));
+  memcpy(ghost_players[num_ghost_players].stats_headshot, ent->client->resp.stats_headshot, sizeof(ent->client->resp.stats_headshot));
+/*
+  ghost_players[num_ghost_players].stats_shots = ent->client->resp.stats_shots;
+  ghost_players[num_ghost_players].stats_hits = ent->client->resp.stats_hits;
+  ghost_players[num_ghost_players].stats_headshot =  ent->client->resp.stats_headshot;
+*/
+
+  
+  num_ghost_players++;
+	
+}
+
 
 
 //==============================================================

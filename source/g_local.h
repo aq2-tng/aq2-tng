@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // g_local.h -- local definitions for game module
 //
-// $Id: g_local.h,v 1.57 2002/03/24 22:45:53 freud Exp $
+// $Id: g_local.h,v 1.58 2002/03/25 18:32:11 freud Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_local.h,v $
+// Revision 1.58  2002/03/25 18:32:11  freud
+// I'm being too productive.. New ghost command needs testing.
+//
 // Revision 1.57  2002/03/24 22:45:53  freud
 // New spawn code again, bad commit last time..
 //
@@ -1739,6 +1742,30 @@ struct edict_s
   xmenu_t *x_menu;
 };
 
+typedef struct
+{
+	char ipaddr[100];
+	char netname[16];
+	int score;
+	int kills;
+	int damage_dealt;
+	int headshots;
+	int legshots;
+	int stomachshots;
+	int chestshots;
+	int stats_shots_t;
+	int stats_shots_h;
+
+	int stats_shots[5000];
+	int stats_hits[5000];
+	int stats_headshot[5000];
+	int team;
+	gitem_t *weapon;
+	gitem_t *item;
+}
+gghost_t;
+
+void CreateGhost (edict_t * ent);
 
 //zucc
 void LaserSightThink (edict_t * self);
