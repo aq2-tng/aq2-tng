@@ -1,10 +1,14 @@
 //-----------------------------------------------------------------------------
 //
 //
-// $Id: g_main.c,v 1.36 2001/11/08 10:05:09 igor_rock Exp $
+// $Id: g_main.c,v 1.37 2001/11/09 23:58:12 deathwatch Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_main.c,v $
+// Revision 1.37  2001/11/09 23:58:12  deathwatch
+// Fiixed the %me command to display '[DEAD]' properly
+// Added the resetting of the teamXscore cvars at the exitlevel function where the team scores are reset as well. (not sure if that is correct)
+//
 // Revision 1.36  2001/11/08 10:05:09  igor_rock
 // day/night changing smoothened
 // changed default for day_cycle to 10 (because of more steps)
@@ -695,6 +699,10 @@ ExitLevel (void)
       team1_score = 0;
       team2_score = 0;
       team3_score = 0;
+			// AQ2 TNG - Reset serverinfo score cvars too
+			team1score->value = 0;
+			team2score->value = 0;
+			team3score->value = 0;
     }
   //FIREBLADE
   if (ctf->value)
