@@ -3,7 +3,7 @@
  * (c) 2001 by Stefan Giesen aka Igor[Rock]
  * All rights reserved
  *
- * $Id: tngbot.c,v 1.7 2001/12/08 15:46:39 igor_rock Exp $
+ * $Id: tngbot.c,v 1.8 2001/12/08 15:53:05 igor_rock Exp $
  *
  *----------------------------------------------------------------------------
  * Usage: tngbot <ircserver>[:port] <channelname> <nickname>
@@ -35,6 +35,9 @@
  *
  *----------------------------------------------------------------------------
  * $Log: tngbot.c,v $
+ * Revision 1.8  2001/12/08 15:53:05  igor_rock
+ * corrected a wrong offset
+ *
  * Revision 1.7  2001/12/08 15:46:39  igor_rock
  * added the private message command "cycle" so the bot disconencts and
  * restarts after a 15 sec pause.
@@ -348,7 +351,7 @@ int parse_input (char *inbuf)
 		write (sock, outbuf, strlen(outbuf));
 	      }
 	    } else if (strncmp (&inbuf[pos1], "cycle ", 6) == 0) {
-	      pos1 += 3;
+	      pos1 += 6;
 	      if (strncmp (&inbuf[pos1], password, strlen (password)) == 0) {
 		ret = 1;
 	      }
