@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // g_save.c
 //
-// $Id: g_save.c,v 1.54 2002/02/19 09:32:47 freud Exp $
+// $Id: g_save.c,v 1.55 2002/02/26 23:13:41 freud Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_save.c,v $
+// Revision 1.55  2002/02/26 23:13:41  freud
+// Added tgren and use_classic to serverinfo string
+//
 // Revision 1.54  2002/02/19 09:32:47  freud
 // Removed PING PONGs from CVS, not fit for release.
 //
@@ -556,13 +559,13 @@ InitGame (void)
   knifelimit = gi.cvar ("knifelimit", "40", 0);
   allweapon = gi.cvar ("allweapon", "0", CVAR_SERVERINFO);
   allitem = gi.cvar ("allitem", "0", CVAR_SERVERINFO);
-  tgren = gi.cvar ("tgren", "0", 0);
+  tgren = gi.cvar ("tgren", "0", CVAR_SERVERINFO);
   sv_shelloff = gi.cvar ("shelloff", "1", 0);
   bholelimit = gi.cvar ("bholelimit", "0", 0);
   splatlimit = gi.cvar ("splatlimit", "0", 0);
   darkmatch = gi.cvar ("darkmatch", "0", CVAR_LATCH);	// Darkmatch
   day_cycle = gi.cvar ("day_cycle", "10", 0);	// Darkmatch cycle time.
-  use_classic = gi.cvar ("use_classic", "0", 0);	// Reset Spread and Grenade Strength to 1.52
+  use_classic = gi.cvar ("use_classic", "0", CVAR_SERVERINFO);	// Reset Spread and Grenade Strength to 1.52
 
   CGF_SFX_InstallGlassSupport ();	// william for CGF (glass fx)
 
