@@ -3,10 +3,13 @@
 // Some of this is borrowed from Zoid's CTF (thanks Zoid)
 // -Fireblade
 //
-// $Id: a_team.c,v 1.59 2001/11/16 13:01:39 deathwatch Exp $
+// $Id: a_team.c,v 1.60 2001/11/25 19:09:25 slicerdw Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_team.c,v $
+// Revision 1.60  2001/11/25 19:09:25  slicerdw
+// Fixed Matchtime
+//
 // Revision 1.59  2001/11/16 13:01:39  deathwatch
 // Fixed 'no team wins' sound - it wont play now with use_warnings 0
 // Precaching misc/flashlight.wav
@@ -1860,7 +1863,7 @@ WonGame (int winner)
 	  if (matchtime >= timelimit->value * 60)
 	    {
 	      SendScores ();
-	      team1ready = team2ready = team_round_going =
+	      ingame = team1ready = team2ready = team_round_going =
 		team_round_countdown = team_game_going = matchtime = 0;
 	      MakeAllLivePlayersObservers ();
 	      return 1;
@@ -1897,7 +1900,7 @@ WonGame (int winner)
 	      if (matchmode->value)
 		{
 		  SendScores ();
-		  team1ready = team2ready = team_round_going =
+		  ingame = team1ready = team2ready = team_round_going =
 		    team_round_countdown = team_game_going = matchtime = 0;
 		  MakeAllLivePlayersObservers ();
 		  return 1;
@@ -1998,6 +2001,9 @@ CheckTeamRules ()
       if (BothTeamsHavePlayers ())
 	{
 	  team_game_going = 1;
+	  //AQ2:TNG SLICER
+	  ingame = 1;
+	  //AQ2:TNG SLICER END
 	  StartLCA ();
 	}
       else
@@ -2006,8 +2012,10 @@ CheckTeamRules ()
 	    {
 	      if (team1ready && team2ready)
 		CenterPrintAll ("Not enough players to play!\n");
-	      else
+		  else{
 		CenterPrintAll ("Both Teams Must Be Ready!\n");
+		ingame = 0;
+		  }
 	      MakeAllLivePlayersObservers ();
 	    }
 	  else
@@ -2052,7 +2060,7 @@ CheckTeamRules ()
 	      if (matchtime >= timelimit->value * 60)
 		{
 		  SendScores ();
-		  team1ready = team2ready = team_round_going =
+		  ingame = team1ready = team2ready = team_round_going =
 		    team_round_countdown = team_game_going = matchtime = 0;
 		  MakeAllLivePlayersObservers ();
 		  return;

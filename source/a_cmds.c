@@ -4,10 +4,13 @@
 //
 // laser sight patch, by Geza Beladi
 //
-// $Id: a_cmds.c,v 1.20 2001/11/03 17:21:57 deathwatch Exp $
+// $Id: a_cmds.c,v 1.21 2001/11/25 19:09:25 slicerdw Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_cmds.c,v $
+// Revision 1.21  2001/11/25 19:09:25  slicerdw
+// Fixed Matchtime
+//
 // Revision 1.20  2001/11/03 17:21:57  deathwatch
 // Fixed something in the time command, removed the .. message from the voice command, fixed the vote spamming with mapvote, removed addpoint command (old pb command that wasnt being used). Some cleaning up of the source at a few points.
 //
@@ -1254,7 +1257,7 @@ Cmd_TKOk (edict_t * ent)
 void
 Cmd_Time (edict_t * ent)
 {
-  int mins, secs, remaining, rmins, rsecs, round;
+  int mins, secs, remaining, rmins, rsecs;
 
      if(matchmode->value) {
 			gi.cprintf (ent, PRINT_HIGH, "This server is running in matchmode. See the scoreboard for the time.\n");

@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 //
 //
-// $Id: g_main.c,v 1.38 2001/11/10 14:00:14 deathwatch Exp $
+// $Id: g_main.c,v 1.39 2001/11/25 19:09:25 slicerdw Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_main.c,v $
+// Revision 1.39  2001/11/25 19:09:25  slicerdw
+// Fixed Matchtime
+//
 // Revision 1.38  2001/11/10 14:00:14  deathwatch
 // Fixed resetting of teamXscores
 //
@@ -767,7 +770,8 @@ G_RunFrame (void)
   AI_SetSightClient ();
 
   //AQ2:TNG - Slicer Matchmode code
-  if (matchmode->value && (team_game_going && team_round_going))
+  //if (matchmode->value && (team_game_going && team_round_going))
+	if(matchmode->value && (team_game_going && ingame))
     matchtime = matchtime + 0.1;
   // exit intermissions
 

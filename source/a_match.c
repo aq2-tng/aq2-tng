@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // Matchmode related code
 //
-// $Id: a_match.c,v 1.9 2001/09/28 15:44:29 ra Exp $
+// $Id: a_match.c,v 1.10 2001/11/25 19:09:25 slicerdw Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_match.c,v $
+// Revision 1.10  2001/11/25 19:09:25  slicerdw
+// Fixed Matchtime
+//
 // Revision 1.9  2001/09/28 15:44:29  ra
 // Removing Bill Gate's fingers from a_match.c
 //
@@ -28,6 +31,8 @@
 float matchtime = 0;
 int team1ready = 0;
 int team2ready = 0;
+int ingame = 0;
+
 void
 SendWorldMsg (char *s, int sound, int center)
 {
