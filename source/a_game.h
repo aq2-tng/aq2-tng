@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // Include for base Action game-related things
 //
-// $Id: a_game.h,v 1.7 2001/06/21 00:05:30 slicerdw Exp $
+// $Id: a_game.h,v 1.8 2001/07/15 20:54:20 slicerdw Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_game.h,v $
+// Revision 1.8  2001/07/15 20:54:20  slicerdw
+// Added a function to clean bodies "cleanbodies" and a "entcount" for test porpuses
+//
 // Revision 1.7  2001/06/21 00:05:30  slicerdw
 // New Video Check System done -  might need some revision but works..
 //
@@ -25,9 +28,9 @@
 
 
 // AQ2:TNG Deathwatch - Updated the Version variables to show TNG Stuff
-#define ACTION_VERSION  "1.52 TNG 2.1"
+#define ACTION_VERSION  "1.52 TNG 2.0b1"
 #define TNG_VERSION		"AQ2: The Next Generation"
-#define TNG_VERSION2	"AQ2: The Next Generation v2.1"
+#define TNG_VERSION2	"AQ2: The Next Generation v2.0b1"
 // AQ2:TNG Deathwatch End
 //AQ2:TNG Slicer This is the max players writen on last killed target
 #define MAX_LAST_KILLED 5

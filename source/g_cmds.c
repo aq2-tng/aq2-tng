@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // g_cmds.c
 //
-// $Id: g_cmds.c,v 1.21 2001/06/25 12:39:38 slicerdw Exp $
+// $Id: g_cmds.c,v 1.22 2001/07/15 20:54:20 slicerdw Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_cmds.c,v $
+// Revision 1.22  2001/07/15 20:54:20  slicerdw
+// Added a function to clean bodies "cleanbodies" and a "entcount" for test porpuses
+//
 // Revision 1.21  2001/06/25 12:39:38  slicerdw
 // Cleaning up something i left behind..
 //
@@ -1554,6 +1557,23 @@ void Cmd_PlayerList_f(edict_t *ent)
       gi.cprintf(ent, PRINT_HIGH, "%s", text);
 }
 
+//SLICER
+void Cmd_Ent_Count_f (edict_t *ent)
+{
+	int		x;
+	edict_t	*e;
+
+	x=0;
+
+	for (e=g_edicts;e < &g_edicts[globals.num_edicts] ; e++)
+	{
+		if(e->inuse)
+			x++;
+	}
+
+	gi.cprintf(ent,PRINT_HIGH,"%d entities counted\n",x);
+}
+//SLICER END
 
 /*
 =================
@@ -1774,6 +1794,10 @@ void ClientCommand (edict_t *ent)
 			else
 			 Cmd_Say_f (ent, false, true, false);
 		}
+		else if (Q_stricmp (cmd, "entcount") == 0)		//Slicer
+		Cmd_Ent_Count_f (ent);	
+			else if (Q_stricmp (cmd, "cleanbodies") == 0)		//Slicer
+		CleanBodies ();	
 
 //AQ2:TNG END
 //FIREBLADE
