@@ -4,10 +4,13 @@
 //
 // header file for a_xcmd.c
 //
-// $Id: a_xcmds.h,v 1.2 2001/05/11 12:21:18 slicerdw Exp $
+// $Id: a_xcmds.h,v 1.3 2001/05/14 12:26:12 slicerdw Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_xcmds.h,v $
+// Revision 1.3  2001/05/14 12:26:12  slicerdw
+// Uncommented the lens command
+//
 // Revision 1.2  2001/05/11 12:21:18  slicerdw
 // Commented old Location support ( ADF ) With the ML/ETE Compatible one
 //
@@ -48,8 +51,9 @@ void Cmd_PrintCubeState_f (edict_t *);
 void Cmd_AddCube_f (edict_t *);
 void Cmd_AbortCube_f (edict_t *);
 
-void Cmd_Lens_f (edict_t *);
+
 
 //TempFile - END
 */
 //AQ2:TNG END
+void Cmd_Lens_f (edict_t *);
