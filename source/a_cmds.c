@@ -4,10 +4,13 @@
 //
 // laser sight patch, by Geza Beladi
 //
-// $Id: a_cmds.c,v 1.9 2001/07/30 16:04:37 igor_rock Exp $
+// $Id: a_cmds.c,v 1.10 2001/08/06 12:13:07 slicerdw Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_cmds.c,v $
+// Revision 1.10  2001/08/06 12:13:07  slicerdw
+// Fixed the Sniper Weapon plus reloading bug
+//
 // Revision 1.9  2001/07/30 16:04:37  igor_rock
 // - changed the message for disallowed items (it said "Weapon not...")
 //
@@ -560,7 +563,9 @@ Cmd_Weapon_f (edict_t * ent)
 
   ent->client->resp.weapon_after_bandage_warned = false;
 
-  if (ent->client->weaponstate == WEAPON_FIRING || ent->client->weaponstate == WEAPON_BUSY)
+  if (ent->client->weaponstate == WEAPON_FIRING
+	  || ent->client->weaponstate == WEAPON_BUSY
+	  || ent->client->weaponstate == WEAPON_RELOADING)
     {
       //gi.cprintf(ent, PRINT_HIGH, "Try again when you aren't using your weapon.\n");
       ent->client->weapon_attempts++;
