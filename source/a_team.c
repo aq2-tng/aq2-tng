@@ -3,10 +3,13 @@
 // Some of this is borrowed from Zoid's CTF (thanks Zoid)
 // -Fireblade
 //
-// $Id: a_team.c,v 1.84 2002/03/28 12:10:11 freud Exp $
+// $Id: a_team.c,v 1.85 2002/03/28 13:34:01 deathwatch Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_team.c,v $
+// Revision 1.85  2002/03/28 13:34:01  deathwatch
+// updated credits
+//
 // Revision 1.84  2002/03/28 12:10:11  freud
 // Removed unused variables (compiler warnings).
 // Added cvar mm_allowlock.
@@ -616,7 +619,6 @@ RockClan (edict_t * ent, pmenu_t * p)
   gi.cprintf (ent, PRINT_HIGH, "Let's Rock! http://www.rock-clan.de/\n");
   gi.sound (ent, CHAN_VOICE, gi.soundindex ("user/letsrock.wav"), 1, ATTN_IDLE, 0);
 }
-
 // AQ2:TNG - End Rock-Sound
 
 // AQ2:TNG Deathwatch - Just for slicer :)
@@ -657,7 +659,8 @@ pmenu_t creditsmenu[] = {
   {"Killerbee, Rookie[Rock],", PMENU_ALIGN_LEFT, NULL, NULL},
   {"PG Bund[Rock], Mort,", PMENU_ALIGN_LEFT, NULL, NULL},
   {"ICE-M, Palmtree,", PMENU_ALIGN_LEFT, NULL, NULL},
-	{"Tempfile, Blackmonk", PMENU_ALIGN_LEFT, NULL, NULL},
+	{"Tempfile, Blackmonk,", PMENU_ALIGN_LEFT, NULL, NULL},
+	{"Dome, Papst", PMENU_ALIGN_LEFT, NULL, NULL},
   {NULL, PMENU_ALIGN_LEFT, NULL, NULL},
   {"Return to main menu", PMENU_ALIGN_LEFT, NULL, CreditsReturnToMain},
   {"TAB to exit menu", PMENU_ALIGN_LEFT, NULL, NULL},
