@@ -4,10 +4,13 @@
 //
 // this module contains all new functions regarding g_misc.c
 //
-// $Id: g_xmisc.c,v 1.5 2003/02/10 02:12:25 ra Exp $
+// $Id: g_xmisc.c,v 1.6 2004/01/02 11:58:08 igor_rock Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_xmisc.c,v $
+// Revision 1.6  2004/01/02 11:58:08  igor_rock
+// corrected punch bug, you weren't able to punch teammates even if FF was on
+//
 // Revision 1.5  2003/02/10 02:12:25  ra
 // Zcam fixes, kick crashbug in CTF fixed and some code cleanup.
 //
@@ -65,12 +68,13 @@ void punch_attack(edict_t * ent)
 						if (tr.ent->client && tr.ent->client->ctf_uvtime)
 							return;
 					}
-					if ((tr.ent != ent) && (tr.ent->client && ent->client) &&
+					if ((tr.ent != ent) && tr.ent->client && ent->client &&
 					    (tr.ent->client->resp.team == ent->client->resp.team) &&
-					    team_round_going)
-						return;
-					if (!ff_afterround->value)
-						return;
+					    team_round_going && ((int) dmflags->value && DF_NO_FRIENDLY_FIRE)) {
+					  if (!ff_afterround->value) {
+					    return;
+					  }
+					}
 				}
 				if (tr.ent->health <= 0)
 					return;
