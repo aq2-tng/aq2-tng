@@ -3,10 +3,16 @@
 // Zoid.
 // - zucc
 //
-// $Id: a_items.c,v 1.3 2001/05/15 15:49:14 igor_rock Exp $
+// $Id: a_items.c,v 1.4 2001/05/31 16:58:14 igor_rock Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_items.c,v $
+// Revision 1.4  2001/05/31 16:58:14  igor_rock
+// conflicts resolved
+//
+// Revision 1.3.2.1  2001/05/20 15:17:31  igor_rock
+// removed the old ctf code completly
+//
 // Revision 1.3  2001/05/15 15:49:14  igor_rock
 // added itm_flags for deathmatch
 //
@@ -166,11 +172,7 @@ MakeTouchSpecThink (edict_t * ent)
     }
   else if (teamplay->value && !allitem->value)
     {
-	  // AQ2:M - CTF
-	  if(ctf->value) // AQ2:M - CTF
-		ent->nextthink = level.time + ctf_item_remove_time->value; // AQ2:M - CTF
-	  else
-		ent->nextthink = level.time + 60;
+      ent->nextthink = level.time + 60;
       ent->think = G_FreeEdict;
     }
   else				// allitem->value is set

@@ -1,10 +1,34 @@
 //-----------------------------------------------------------------------------
 // g_save.c
 //
-// $Id: g_save.c,v 1.12 2001/05/19 19:33:19 igor_rock Exp $
+// $Id: g_save.c,v 1.13 2001/05/31 16:58:14 igor_rock Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_save.c,v $
+// Revision 1.13  2001/05/31 16:58:14  igor_rock
+// conflicts resolved
+//
+// Revision 1.12.2.5  2001/05/27 13:44:07  igor_rock
+// corredted the bug with gi.cvar and ctf_dropflag (mixed paremeters)
+//
+// Revision 1.12.2.4  2001/05/27 13:41:57  igor_rock
+// added ctf_dropflag (default: 1)
+//
+// Revision 1.12.2.3  2001/05/25 18:59:52  igor_rock
+// Added CTF Mode completly :)
+// Support for .flg files is still missing, but with "real" CTF maps like
+// tq2gtd1 the ctf works fine.
+// (I hope that all other modes still work, just tested DM and teamplay)
+//
+// Revision 1.12.2.2  2001/05/20 18:54:19  igor_rock
+// added original ctf code snippets from zoid. lib compilesand runs but
+// doesn't function the right way.
+// Jsut committing these to have a base to return to if something wents
+// awfully wrong.
+//
+// Revision 1.12.2.1  2001/05/20 15:17:31  igor_rock
+// removed the old ctf code completly
+//
 // Revision 1.12  2001/05/19 19:33:19  igor_rock
 // changed itm_flags and wp_flags to Non-CVAR_LATCH (so you can change them without restart
 //
@@ -228,6 +252,7 @@ void InitGame (void)
   dmflags = gi.cvar ("dmflags", "0", CVAR_SERVERINFO);
   fraglimit = gi.cvar ("fraglimit", "0", CVAR_SERVERINFO);
   timelimit = gi.cvar ("timelimit", "0", CVAR_SERVERINFO);
+  capturelimit = gi.cvar ("capturelimit", "0", CVAR_SERVERINFO);
   password = gi.cvar ("password", "", CVAR_USERINFO);
   filterban = gi.cvar("filterban", "1", 0);
   //FIREBLADE
@@ -268,6 +293,10 @@ void InitGame (void)
   use_3teams = gi.cvar("use_3teams", "0", CVAR_SERVERINFO|CVAR_LATCH);
   use_kickvote = gi.cvar("use_kickvote", "1",0);//slicer
   use_mapvote = gi.cvar("use_mapvote", "1", 0);  //slicer
+  ctf = gi.cvar("ctf", "1", CVAR_SERVERINFO|CVAR_LATCH);
+  ctf_forcejoin = gi.cvar("ctf_forcejoin", "", 0);
+  ctf_mode = gi.cvar("ctf_mode", "", 0);
+  ctf_dropflag = gi.cvar("ctf_dropflag", "1", 0);
   //PG BUND - END
 
 // AQ:TNG - JBravo adding public voting and punishkills.
@@ -287,14 +316,6 @@ void InitGame (void)
   llsound = gi.cvar("llsound", "1", CVAR_LATCH);
   cvote = gi.cvar("cvote", "0", CVAR_SERVERINFO);  
   //Igor[Rock] END
-
-  // Mort BEGIN
-	ctf = gi.cvar("ctf", "0", CVAR_SERVERINFO|CVAR_LATCH); // CTF - Default to OFF
-	ctf_flag_respawn_time = gi.cvar("ctf_flag_respawn_time", "120", CVAR_LATCH);
- 	ctf_player_respawn_time = gi.cvar("ctf_player_respawn_time", "3", CVAR_LATCH); 
-	ctf_item_remove_time = gi.cvar("ctf_item_remove_time", "10", CVAR_LATCH);
- 	ctf_effects = gi.cvar("ctf_effects", "1", CVAR_LATCH); 
-  // Mort END
 	//AQ2:TNG - Slicer
 	check_time = gi.cvar("check_time", "3", 0);
 	video_check = gi.cvar("video_check", "0", CVAR_LATCH);
@@ -368,9 +389,12 @@ void InitGame (void)
   game.maxclients = maxclients->value;
   game.clients = gi.TagMalloc (game.maxclients * sizeof(game.clients[0]), TAG_GAME);
   globals.num_edicts = game.maxclients+1;
+
+  if (ctf->value)
+    CTFInit();
+
   //PG BUND - must be at end of gameinit:
   vInitGame();
-  
 }
 
 //=========================================================

@@ -1,10 +1,28 @@
 //-----------------------------------------------------------------------------
 // p_hud.c
 //
-// $Id: p_hud.c,v 1.2 2001/05/11 16:07:26 mort Exp $
+// $Id: p_hud.c,v 1.3 2001/05/31 16:58:14 igor_rock Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: p_hud.c,v $
+// Revision 1.3  2001/05/31 16:58:14  igor_rock
+// conflicts resolved
+//
+// Revision 1.2.2.3  2001/05/25 18:59:52  igor_rock
+// Added CTF Mode completly :)
+// Support for .flg files is still missing, but with "real" CTF maps like
+// tq2gtd1 the ctf works fine.
+// (I hope that all other modes still work, just tested DM and teamplay)
+//
+// Revision 1.2.2.2  2001/05/20 18:54:19  igor_rock
+// added original ctf code snippets from zoid. lib compilesand runs but
+// doesn't function the right way.
+// Jsut committing these to have a base to return to if something wents
+// awfully wrong.
+//
+// Revision 1.2.2.1  2001/05/20 15:17:31  igor_rock
+// removed the old ctf code completly
+//
 // Revision 1.2  2001/05/11 16:07:26  mort
 // Various CTF bits and pieces...
 //
@@ -85,7 +103,9 @@ void BeginIntermission (edict_t *targ)
     return;         // already activated
   
   //FIREBLADE
-  if (teamplay->value)
+  if (ctf->value)
+    CTFCalcScores();
+  else if (teamplay->value)
     TallyEndOfLevelTeamScores();
   //FIREBLADE
   
@@ -206,10 +226,15 @@ void DeathmatchScoreboardMessage (edict_t *ent, edict_t *killer)
   char    *tag;
   
   //FIREBLADE
-  if (teamplay->value && !use_tourney->value) {
-    A_ScoreboardMessage (ent, killer);
+  if (ctf->value) {
+    CTFScoreboardMessage (ent, killer);
     return;
   }
+  else
+    if (teamplay->value && !use_tourney->value) {
+      A_ScoreboardMessage (ent, killer);
+      return;
+    }
   //FIREBLADE
   
   // sort the clients by score
@@ -437,21 +462,7 @@ void G_SetStats (edict_t *ent)
   
   if (!ent->client->chase_mode)
     {
-      // AQ2:M - CTF
-	  if(ctf->value)
-	  {
-	    if(redFlagTaken)
-		  ent->client->ps.stats[STAT_REDFLAG_ICON] = gi.imageindex("i_ctf1t");
-		else
-		  ent->client->ps.stats[STAT_REDFLAG_ICON] = gi.imageindex("i_ctf1");
-
-		if(blueFlagTaken)
-		  ent->client->ps.stats[STAT_BLUEFLAG_ICON] = gi.imageindex("i_ctf2t");
-		else
-		  ent->client->ps.stats[STAT_BLUEFLAG_ICON] = gi.imageindex("i_ctf2");
-	  }
-
-	  //
+      //
       // health
       //
       ent->client->ps.stats[STAT_HEALTH_ICON] = level.pic_health;
@@ -487,11 +498,6 @@ void G_SetStats (edict_t *ent)
       else
 	ent->client->ps.stats[STAT_WEAPONS_ICON] = 0;
       
-
-       if ( ent->client->pers.inventory[ITEM_INDEX(FindItem("Red Flag"))] ) // AQ2:M CTF
-    ent->client->ps.stats[STAT_ITEMS_ICON] = gi.imageindex(FindItem("Red Flag")->icon);
-       else if ( ent->client->pers.inventory[ITEM_INDEX(FindItem("Blue Flag"))] ) // AQ2:M CTF
-    ent->client->ps.stats[STAT_ITEMS_ICON] = gi.imageindex(FindItem("Blue Flag")->icon);
        if ( ent->client->pers.inventory[ITEM_INDEX(FindItem(KEV_NAME))] )
 	ent->client->ps.stats[STAT_ITEMS_ICON] = gi.imageindex(FindItem(KEV_NAME)->icon);
       else if ( ent->client->pers.inventory[ITEM_INDEX(FindItem(LASER_NAME))] )
@@ -730,7 +736,10 @@ void G_SetStats (edict_t *ent)
   SetIDView(ent);
   
   //FIREBLADE
-  if (teamplay->value)
-    A_Scoreboard(ent);
+  if (ctf->value)
+    SetCTFStats(ent);
+  else
+    if (teamplay->value)
+      A_Scoreboard(ent);
   //FIREBLADE
 }

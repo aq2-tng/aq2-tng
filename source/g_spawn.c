@@ -1,10 +1,45 @@
 //-----------------------------------------------------------------------------
 // g_spawn.c
 //
-// $Id: g_spawn.c,v 1.13 2001/05/15 15:49:14 igor_rock Exp $
+// $Id: g_spawn.c,v 1.14 2001/05/31 16:58:14 igor_rock Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_spawn.c,v $
+// Revision 1.14  2001/05/31 16:58:14  igor_rock
+// conflicts resolved
+//
+// Revision 1.13.2.8  2001/05/31 15:15:52  igor_rock
+// added a parameter check for sscanf
+//
+// Revision 1.13.2.7  2001/05/31 06:47:51  igor_rock
+// - removed crash bug with non exisitng flag files
+// - added new commands "setflag1", "setflag2" and "saveflags" to create
+//   .flg files
+//
+// Revision 1.13.2.6  2001/05/27 17:24:10  igor_rock
+// changed spawnpoint behavior in CTF
+//
+// Revision 1.13.2.5  2001/05/27 16:11:10  igor_rock
+// added function to replace nearest spawnpoint to flag through info_player_teamX
+//
+// Revision 1.13.2.4  2001/05/27 11:47:53  igor_rock
+// added .flg file support and timelimit bug fix
+//
+// Revision 1.13.2.3  2001/05/25 18:59:52  igor_rock
+// Added CTF Mode completly :)
+// Support for .flg files is still missing, but with "real" CTF maps like
+// tq2gtd1 the ctf works fine.
+// (I hope that all other modes still work, just tested DM and teamplay)
+//
+// Revision 1.13.2.2  2001/05/20 18:54:19  igor_rock
+// added original ctf code snippets from zoid. lib compilesand runs but
+// doesn't function the right way.
+// Jsut committing these to have a base to return to if something wents
+// awfully wrong.
+//
+// Revision 1.13.2.1  2001/05/20 15:17:31  igor_rock
+// removed the old ctf code completly
+//
 // Revision 1.13  2001/05/15 15:49:14  igor_rock
 // added itm_flags for deathmatch
 //
@@ -178,6 +213,8 @@ void SP_turret_driver (edict_t *self);
 
 //zucc - item replacement function
 void CheckItem(edict_t *ent, gitem_t *item);
+int LoadFlagsFromFile (char *mapname);
+void ChangePlayerSpawns ();
 
 //AQ2:TNG - Slicer New location code
 int ml_count = 0;
@@ -197,6 +234,9 @@ spawn_t spawns[] = {
         {"info_player_deathmatch", SP_info_player_deathmatch},
         {"info_player_coop", SP_info_player_coop},
         {"info_player_intermission", SP_info_player_intermission},
+
+	{"info_player_team1", SP_info_player_team1},
+        {"info_player_team2", SP_info_player_team2},
 
         {"func_plat", SP_func_plat},
         {"func_button", SP_func_button},
@@ -260,6 +300,10 @@ spawn_t spawns[] = {
 
         {"misc_explobox", SP_misc_explobox},
         {"misc_banner", SP_misc_banner},
+
+	{"misc_ctf_banner", SP_misc_ctf_banner},
+        {"misc_ctf_small_banner", SP_misc_ctf_small_banner},
+
         {"misc_satellite_dish", SP_misc_satellite_dish},
         // monster {"misc_actor", SP_misc_actor},
         {"misc_gib_arm", SP_misc_gib_arm},
@@ -273,6 +317,8 @@ spawn_t spawns[] = {
         {"misc_strogg_ship", SP_misc_strogg_ship},
         {"misc_teleporter", SP_misc_teleporter},
         {"misc_teleporter_dest", SP_misc_teleporter_dest},
+        {"trigger_teleport", SP_trigger_teleport},
+        {"info_teleport_destination", SP_info_teleport_destination},
         {"misc_blackhole", SP_misc_blackhole},
         {"misc_eastertank", SP_misc_eastertank},
         {"misc_easterchick", SP_misc_easterchick},
@@ -338,13 +384,18 @@ void ED_CallSpawn (edict_t *ent)
                 if (!strcmp(item->classname, ent->classname))
                 {       // found it
 //FIREBLADE
-                        if (!teamplay->value)
-                        {
-//FIREBLADE
-                                if ( item->flags == IT_AMMO || item->flags == IT_WEAPON )
-                                        SpawnItem (ent, item);
-                        }
-                
+		  if (!teamplay->value)
+		    {
+		      //FIREBLADE
+		      if ( item->flags == IT_AMMO || item->flags == IT_WEAPON || item->flags == IT_FLAG)
+			SpawnItem (ent, item);
+		    }
+		  else if (ctf->value)
+		    {
+                      if ( item->flags == IT_FLAG )
+                        SpawnItem (ent, item);
+		    }
+		  
                         return;
                 }
                 // zucc - BD's item replacement idea
@@ -418,10 +469,14 @@ void CheckItem(edict_t *ent, gitem_t *item)
                         ent->classname = item->classname = sp_item[i][1];
 //FIREBLADE                     
                         if (!teamplay->value)
-                        {
-//FIREBLADE
-                                SpawnItem(ent,item);
-                        }
+			  {
+			    //FIREBLADE
+			    SpawnItem(ent,item);
+			  }
+			//else if (ctf->value)
+			//  {
+			//    SpawnItem(ent,item);
+			//  }
                         //We found it, so don't waste time looking for more.
                         //gi.bprintf(PRINT_HIGH,"Found %s\nReplaced with %s\n",ent->classname,test);
                         return;
@@ -643,241 +698,245 @@ parsing textual entity definitions out of an ent file.
 */
 void SpawnEntities (char *mapname, char *entities, char *spawnpoint)
 {
-        edict_t         *ent;
-        int                     inhibit;
-        char            *com_token;
-        int                     i;
-        float           skill_level;
-//AQ2:TNG New Location Code
-		char locfile[256];
-		char line[256];
-		FILE *f;
-		int readmore, x,y,z,rx,ry,rz,count;
-		char *locationstr, *param;
-		cvar_t *game_cvar;
-		int u;
-	//	placedata_t temp;
-//AQ2:TNG END
-
-//AQ2:M CTF
-		if(ctf->value)
-		{
-			// Make sure teamplay is enabled
-			if(!teamplay->value)
-			{
-				gi.dprintf("CTF Enabled - Forcing teamplay on\n");
-				teamplay->value = 1;
-				strcpy(teamplay->string,"1");
-			}
-		}
-//AQ2:M CTF
-
-        skill_level = floor (skill->value);
-        if (skill_level < 0)
-                skill_level = 0;
-        if (skill_level > 3)
-                skill_level = 3;
-        if (skill->value != skill_level)
-                gi.cvar_forceset("skill", va("%f", skill_level));
-
-        SaveClientData ();
-
-        gi.FreeTags (TAG_LEVEL);
-
-        memset (&level, 0, sizeof(level));
-        memset (g_edicts, 0, game.maxentities * sizeof (g_edicts[0]));
-
-        strncpy (level.mapname, mapname, sizeof(level.mapname)-1);
-        strncpy (game.spawnpoint, spawnpoint, sizeof(game.spawnpoint)-1);
-
-        // set client fields on player ents
-        for (i=0 ; i<game.maxclients ; i++)
-                g_edicts[i+1].client = game.clients + i;
-
-        ent = NULL;
-        inhibit = 0;
-
-// parse ents
-        while (1)
-        {
-                // parse the opening brace      
-                com_token = COM_Parse (&entities);
-                if (!entities)
-                        break;
-                if (com_token[0] != '{')
-                        gi.error ("ED_LoadFromFile: found %s when expecting {",com_token);
-
-                if (!ent)
-                        ent = g_edicts;
-                else
-                        ent = G_Spawn ();
-                entities = ED_ParseEdict (entities, ent);
-
-                // yet another map hack
-                if (!Q_stricmp(level.mapname, "command") && !stricmp(ent->classname, "trigger_once") && !stricmp(ent->model, "*27"))
-                        ent->spawnflags &= ~SPAWNFLAG_NOT_HARD;
-
-                // remove things (except the world) from different skill levels or deathmatch
-                if (ent != g_edicts)
-                {
-                        if (deathmatch->value)
-                        {
-                                if ( ent->spawnflags & SPAWNFLAG_NOT_DEATHMATCH )
-                                {
-                                        G_FreeEdict (ent);      
-                                        inhibit++;
-                                        continue;
-                                }
-                        }
-                        else
-                        {
-                                if ( /* ((coop->value) && (ent->spawnflags & SPAWNFLAG_NOT_COOP)) || */
-                                        ((skill->value == 0) && (ent->spawnflags & SPAWNFLAG_NOT_EASY)) ||
-                                        ((skill->value == 1) && (ent->spawnflags & SPAWNFLAG_NOT_MEDIUM)) ||
-                                        (((skill->value == 2) || (skill->value == 3)) && (ent->spawnflags & SPAWNFLAG_NOT_HARD))
-                                        )
-                                        {
-                                                G_FreeEdict (ent);      
-                                                inhibit++;
-                                                continue;
-                                        }
-                        }
-
-                        ent->spawnflags &= ~(SPAWNFLAG_NOT_EASY|SPAWNFLAG_NOT_MEDIUM|SPAWNFLAG_NOT_HARD|SPAWNFLAG_NOT_COOP|SPAWNFLAG_NOT_DEATHMATCH);
-                }
-
-                ED_CallSpawn (ent);
-        }       
-
-        gi.dprintf ("%i entities inhibited\n", inhibit);
-
-        G_FindTeams ();
-
-        PlayerTrail_Init ();
-
-//FIREBLADE
-        if (!teamplay->value)
-        {
-//FIREBLADE
-                //zucc for special items
-                SetupSpecSpawn();
-        }
-
-	// AQ2:TNG - Load ctf locations
-	if(ctf->value)
+  edict_t         *ent;
+  int                     inhibit;
+  char            *com_token;
+  int                     i;
+  float           skill_level;
+  //AQ2:TNG New Location Code
+  char locfile[256];
+  char line[256];
+  FILE *f;
+  int readmore, x,y,z,rx,ry,rz,count;
+  char *locationstr, *param;
+  cvar_t *game_cvar;
+  int u;
+  //	placedata_t temp;
+  //AQ2:TNG END
+  
+  if(ctf->value)
+    {
+      // Make sure teamplay is enabled
+      if(!teamplay->value)
 	{
-		spawnFlags(mapname);
+	  gi.dprintf("CTF Enabled - Forcing teamplay on\n");
+	  teamplay->value = 1;
+	  strcpy(teamplay->string,"1");
 	}
-	
-	//AQ2:TNG Slicer - New location  code
-	memset(ml_build,0,sizeof(ml_build));
-	memset(ml_creator,0,sizeof(ml_creator));
+    }
 
-
-	game_cvar = gi.cvar("game", "", 0);
-
-	if(!*game_cvar->string)
-		sprintf(locfile, "%s/tng/%s.aqg", GAMEVERSION, mapname);
-	else
-		sprintf(locfile, "%s/tng/%s.aqg", game_cvar->string, mapname);
-
-	f = fopen(locfile,"rt");
-	if (!f)
+  skill_level = floor (skill->value);
+  if (skill_level < 0)
+    skill_level = 0;
+  if (skill_level > 3)
+    skill_level = 3;
+  if (skill->value != skill_level)
+    gi.cvar_forceset("skill", va("%f", skill_level));
+  
+  SaveClientData ();
+  
+  gi.FreeTags (TAG_LEVEL);
+  
+  memset (&level, 0, sizeof(level));
+  memset (g_edicts, 0, game.maxentities * sizeof (g_edicts[0]));
+  
+  strncpy (level.mapname, mapname, sizeof(level.mapname)-1);
+  strncpy (game.spawnpoint, spawnpoint, sizeof(game.spawnpoint)-1);
+  
+  // set client fields on player ents
+  for (i=0 ; i<game.maxclients ; i++)
+    g_edicts[i+1].client = game.clients + i;
+  
+  ent = NULL;
+  inhibit = 0;
+  
+  // parse ents
+  while (1)
+    {
+      // parse the opening brace      
+      com_token = COM_Parse (&entities);
+      if (!entities)
+	break;
+      if (com_token[0] != '{')
+	gi.error ("ED_LoadFromFile: found %s when expecting {",com_token);
+      
+      if (!ent)
+	ent = g_edicts;
+      else
+	ent = G_Spawn ();
+      entities = ED_ParseEdict (entities, ent);
+      
+      // yet another map hack
+      if (!Q_stricmp(level.mapname, "command") && !stricmp(ent->classname, "trigger_once") && !stricmp(ent->model, "*27"))
+	ent->spawnflags &= ~SPAWNFLAG_NOT_HARD;
+      
+      // remove things (except the world) from different skill levels or deathmatch
+      if (ent != g_edicts)
 	{
-		ml_count = 0;	
-		gi.dprintf("No location file for %s\n",mapname);
-		return;
+	  if (deathmatch->value)
+	    {
+	      if ( ent->spawnflags & SPAWNFLAG_NOT_DEATHMATCH )
+		{
+		  G_FreeEdict (ent);      
+		  inhibit++;
+		  continue;
+		}
+	    }
+	  else
+	    {
+	      if ( /* ((coop->value) && (ent->spawnflags & SPAWNFLAG_NOT_COOP)) || */
+		  ((skill->value == 0) && (ent->spawnflags & SPAWNFLAG_NOT_EASY)) ||
+		  ((skill->value == 1) && (ent->spawnflags & SPAWNFLAG_NOT_MEDIUM)) ||
+		  (((skill->value == 2) || (skill->value == 3)) && (ent->spawnflags & SPAWNFLAG_NOT_HARD))
+		  )
+		{
+		  G_FreeEdict (ent);      
+		  inhibit++;
+		  continue;
+		}
+	    }
+	  
+	  ent->spawnflags &= ~(SPAWNFLAG_NOT_EASY|SPAWNFLAG_NOT_MEDIUM|SPAWNFLAG_NOT_HARD|SPAWNFLAG_NOT_COOP|SPAWNFLAG_NOT_DEATHMATCH);
 	}
+      
+      ED_CallSpawn (ent);
+    }       
+  
+  gi.dprintf ("%i entities inhibited\n", inhibit);
 
-	gi.dprintf("Location file: %s\n",mapname);
-		
-	readmore = 1;
-	count = 0;
+  // AQ2:TNG Igor adding .flg files
+  if (((!G_Find (NULL, FOFS(classname), "item_flag_team1")) || (!G_Find (NULL, FOFS(classname), "item_flag_team2"))) && ctf->value)
+    {
+    gi.dprintf ("No native CTF map, loading flag positions from file\n");
+    if (LoadFlagsFromFile (mapname))
+      ChangePlayerSpawns ();
+    }
+  // AQ2:TNG End adding .flg files
+  
+  G_FindTeams ();
+  
+  PlayerTrail_Init ();
+  
+  //FIREBLADE
+  if (!teamplay->value)
+    {
+      //FIREBLADE
+      //zucc for special items
+      SetupSpecSpawn();
+    }
+  //  else if (ctf->value)
+  //  {
+  //    SetupSpecSpawn();
+  //  }
 
-	
-	while (readmore)
+  //AQ2:TNG Slicer - New location  code
+  memset(ml_build,0,sizeof(ml_build));
+  memset(ml_creator,0,sizeof(ml_creator));
+  
+  
+  game_cvar = gi.cvar("game", "", 0);
+  
+  if(!*game_cvar->string)
+    sprintf(locfile, "%s/tng/%s.aqg", GAMEVERSION, mapname);
+  else
+    sprintf(locfile, "%s/tng/%s.aqg", game_cvar->string, mapname);
+  
+  f = fopen(locfile,"rt");
+  if (!f)
+    {
+      ml_count = 0;	
+      gi.dprintf("No location file for %s\n",mapname);
+      return;
+    }
+  
+  gi.dprintf("Location file: %s\n",mapname);
+  
+  readmore = 1;
+  count = 0;
+  
+  while (readmore)
+    {
+      readmore = ( fgets(line,256,f) != NULL );
+      param = strtok(line, " :\n\0");
+      if(line[0] == '#' && line[2] == 'C')
 	{
-		readmore = ( fgets(line,256,f) != NULL );
-		param = strtok(line, " :\n\0");
-        if(line[0] == '#' && line[2] == 'C')
-		{
-			u = 0;
-			for(i=10;line[i]!='\n';i++)
-			{
-				ml_creator[u] = line[i];
-				u++;
-			}
-		}
-		if(line[0] == '#' && line[2] == 'B')
-		{
-			u = 0;
-			for(i=8;line[i]!='\n';i++)
-			{
-				if(line[i] != ' ')
-				{
-				ml_build[u] = line[i];
-				u++;
-				}
-			}
-			
-		}
-		ml_build[5] = 0;
-		ml_creator[100] = 0;
-
-		// TODO: better support for file comments
-		if (!param || param[0] == '#')
-		{
-			continue;
-		}
-
-
-		x = atoi(param);
-				
-		param = strtok(NULL, " :\n\0");
-		if (!param) continue;
-		y = atoi(param);
-
-		param = strtok(NULL, " :\n\0");
-		if (!param) continue;
-		z = atoi(param);
-
-		param = strtok(NULL, " :\n\0");
-		if (!param) continue;
-		rx = atoi(param);
-
-		param = strtok(NULL, " :\n\0");
-		if (!param) continue;
-		ry = atoi(param);
-
-		param = strtok(NULL, " :\n\0");
-		if (!param) continue;
-		rz = atoi(param);
-
-		param = strtok(NULL, "\n\0");
-		if (!param) continue;
-		locationstr = param;
-
-		locationbase[count].x = x;
-		locationbase[count].y = y;
-		locationbase[count].z = z;
-		locationbase[count].rx = rx;
-		locationbase[count].ry = ry;
-		locationbase[count].rz = rz;
-		strcpy(locationbase[count].desc, locationstr);
-
-		count++;
-				
-		if (count >= MAX_LOCATIONS_IN_BASE)
-		{
-			gi.dprintf("Cannot read more than %d locations.\n",MAX_LOCATIONS_IN_BASE);
-			break;
-		}
+	  u = 0;
+	  for(i=10;line[i]!='\n';i++)
+	    {
+	      ml_creator[u] = line[i];
+	      u++;
+	    }
 	}
-
-	ml_count = count;
-	fclose(f);
-	gi.dprintf("Found %d locations.\n",count);
-
+      if(line[0] == '#' && line[2] == 'B')
+	{
+	  u = 0;
+	  for(i=8;line[i]!='\n';i++)
+	    {
+	      if(line[i] != ' ')
+		{
+		  ml_build[u] = line[i];
+		  u++;
+		}
+	    }
+	  
+	}
+      ml_build[5] = 0;
+      ml_creator[100] = 0;
+      
+      // TODO: better support for file comments
+      if (!param || param[0] == '#')
+	{
+	  continue;
+	}
+      
+      
+      x = atoi(param);
+      
+      param = strtok(NULL, " :\n\0");
+      if (!param) continue;
+      y = atoi(param);
+      
+      param = strtok(NULL, " :\n\0");
+      if (!param) continue;
+      z = atoi(param);
+      
+      param = strtok(NULL, " :\n\0");
+      if (!param) continue;
+      rx = atoi(param);
+      
+      param = strtok(NULL, " :\n\0");
+      if (!param) continue;
+      ry = atoi(param);
+      
+      param = strtok(NULL, " :\n\0");
+      if (!param) continue;
+      rz = atoi(param);
+      
+      param = strtok(NULL, "\n\0");
+      if (!param) continue;
+      locationstr = param;
+      
+      locationbase[count].x = x;
+      locationbase[count].y = y;
+      locationbase[count].z = z;
+      locationbase[count].rx = rx;
+      locationbase[count].ry = ry;
+      locationbase[count].rz = rz;
+      strcpy(locationbase[count].desc, locationstr);
+      
+      count++;
+      
+      if (count >= MAX_LOCATIONS_IN_BASE)
+	{
+	  gi.dprintf("Cannot read more than %d locations.\n",MAX_LOCATIONS_IN_BASE);
+	  break;
+	}
+    }
+  
+  ml_count = count;
+  fclose(f);
+  gi.dprintf("Found %d locations.\n",count);
+  
 }
 
 
@@ -1292,8 +1351,6 @@ char *dm_noscore_statusbar =
 ;
 // END FB
 
-// AQ2:CTF
-/* ctf status bar - Mort: */
 char *ctf_statusbar =
 "yb     -24 "
 
@@ -1348,7 +1405,7 @@ char *ctf_statusbar =
 "       pic     9 "
 "endif "
 */
-//  help / weapon icon
+//  help / weapon icon 
 "if 11 "
 "       xv      148 "
 "       pic     11 "
@@ -1414,26 +1471,35 @@ char *ctf_statusbar =
 "       pic 18 "
 "endif "
 
-// flags
-
-"if 30"
-"		xr      -24 "
-"		yt      30 "
-"       pic 30 "
-"endif"
-
-"if 31"
-"		xr     -48 "
-"		yt      30 "
-"       pic 31 "
-"endif"
-
-
 //  frags
 "xr     -50 "
 "yt 2 "
-"num 3 14"
+"num 3 14 "
 
+// Red Team
+"yb -164 "
+"if 24 "
+  "xr -24 "
+  "pic 24 "
+"endif "
+"xr -60 "
+"num 2 26 "
+
+// Blue Team
+"yb -140 "
+"if 25 "
+  "xr -24 "
+  "pic 25 "
+"endif "
+"xr -60 "
+"num 2 27 "
+
+// Flag carried
+"if 23 "
+  "yt 26 "
+  "xr -24 "
+  "pic 23 "
+"endif "
 ;
 
 
@@ -1455,11 +1521,6 @@ void SP_worldspawn (edict_t *ent)
         ent->s.modelindex = 1;          // world model is always index 1
 
         //---------------
-
-		// AQ2:TNG - CTF
-		loadedFlags = 0; // Fixes a bug with when the flags load
-		started = 0; 
-		hackedSpawns = 0;
 
         // reserve some spots for dead player bodies for coop / deathmatch
         InitBodyQue ();
@@ -1503,27 +1564,35 @@ void SP_worldspawn (edict_t *ent)
 //FIREBLADE
 	{
         	// status bar program
-			if(ctf->value)
-			{
-				gi.configstring (CS_STATUSBAR, ctf_statusbar);
-			}
-        	else if (deathmatch->value)
-//FIREBLADE
-		{
-			if (noscore->value && teamplay->value)
-			{
-               	 	gi.configstring (CS_STATUSBAR, dm_noscore_statusbar);
-			}
-				else
-			{
-               	 	gi.configstring (CS_STATUSBAR, dm_statusbar);
-			}
-		}
-//FIREBLADE
-        	else
-                	gi.configstring (CS_STATUSBAR, single_statusbar);
+	  if (deathmatch->value)
+	    //FIREBLADE
+	    {
+	      if (ctf->value) {
+		gi.configstring (CS_STATUSBAR, ctf_statusbar);
+		//precaches
+		gi.imageindex("sbfctf1");
+		gi.imageindex("sbfctf2");
+		gi.imageindex("i_ctf1");
+		gi.imageindex("i_ctf2");
+		gi.imageindex("i_ctf1d");
+		gi.imageindex("i_ctf2d");
+		gi.imageindex("i_ctf1t");
+		gi.imageindex("i_ctf2t");
+	      } else
+		if (noscore->value && teamplay->value)
+		  {
+		    gi.configstring (CS_STATUSBAR, dm_noscore_statusbar);
+		  }
+		else
+		  {
+		    gi.configstring (CS_STATUSBAR, dm_statusbar);
+		  }
+	    }
+	  //FIREBLADE
+	  else
+	    gi.configstring (CS_STATUSBAR, single_statusbar);
 	}
-
+	
         //---------------
 
 
@@ -1559,6 +1628,12 @@ void SP_worldspawn (edict_t *ent)
                         exit(1);
                 }
                 gi.imageindex(team2_skin_index);
+                if (team3_skin_index[0] == 0)
+                {
+                        gi.dprintf("No skin was specified for team 3 in config file.  Exiting.\n");
+                        exit(1);
+                }
+                gi.imageindex(team3_skin_index);
         }
 
 	// AQ2:TNG - Igor adding precache for sounds
@@ -1679,20 +1754,6 @@ void SP_worldspawn (edict_t *ent)
         gi.modelindex ("models/objects/gibs/skull/tris.md2");
         gi.modelindex ("models/objects/gibs/head2/tris.md2");
 
-		// AQ2:M - CTF stuff :)
-		if(ctf->value)
-		{
-			gi.soundindex("ctf/flagret.wav");
-			gi.soundindex("ctf/flagcap.wav");
-			gi.soundindex("ctf/flagtk.wav");
-			gi.modelindex("models/flags/flag1.md2");
-			gi.modelindex("models/flags/flag2.md2");
-			gi.imageindex("i_ctf1");
-			gi.imageindex("i_ctf1t");
-			gi.imageindex("i_ctf2");
-			gi.imageindex("i_ctf2t");
-		}
-
 //
 // Setup light animation tables. 'a' is total darkness, 'z' is doublebright.
 //
@@ -1745,3 +1806,138 @@ void SP_worldspawn (edict_t *ent)
 //FB 6/2/99
 }
 
+int LoadFlagsFromFile (char *mapname)
+{
+  FILE    *fp;
+  char     buf[1024];
+  int      bs;
+  int      i;
+  edict_t *ent;
+  vec3_t   position;
+  
+  sprintf (buf, "%s/tng/%s.flg", GAMEVERSION, mapname);
+  fp = fopen (buf, "r");
+  if (!fp)
+    {
+      gi.dprintf ("Warning: No flag definition file for map %s.\n", mapname);
+      return 0;
+    }
+  
+  i = 0;
+  while (fgets (buf, 1000, fp) != NULL)
+    {
+      //first remove trailing spaces
+      for (bs = strlen (buf);
+	   bs > 0 && (buf[bs - 1] == '\r' || buf[bs - 1] == '\n' || buf[bs - 1] == ' ');
+	   bs--)
+	buf[bs - 1] = '\0';
+      
+      //check if it's a valid line
+      if ((bs > 0 && strncmp (buf, "#", 1) != 0 && strncmp (buf, "//", 2) != 0) && i < 2)
+	{
+	  //a little bit dirty... :)
+	  if (sscanf (buf, "<%f %f %f>", &position[0], &position[1], &position[2]) != 3)
+	    return (0);
+	  ent = G_Spawn ();
+	  
+	  ent->spawnflags &= ~(SPAWNFLAG_NOT_EASY|SPAWNFLAG_NOT_MEDIUM|SPAWNFLAG_NOT_HARD|SPAWNFLAG_NOT_COOP|SPAWNFLAG_NOT_DEATHMATCH);
+	  ent->s.origin[0] = position[0];
+	  ent->s.origin[1] = position[1];
+	  ent->s.origin[2] = position[2];
+	  if (!i)  // Red Flag
+	    {
+	      ent->classname = ED_NewString ("item_flag_team1");
+	    }
+	  else     // Blue Flag
+	    {
+	      ent->classname = ED_NewString ("item_flag_team2");
+	    }
+	  
+	  ED_CallSpawn (ent);
+	  i++;
+	}
+    }
+  
+  fclose (fp);
+
+  return (1);
+}
+
+// This function changes the nearest two spawnpoint from each flag
+// to info_player_teamX, so the other team won't restart
+// beneath the flag of the other team
+void ChangePlayerSpawns ()
+{
+  edict_t  *flag1, *flag2;
+  edict_t  *spot, *spot1, *spot2, *spot3, *spot4;
+  float    range, range1, range2, range3, range4;
+  vec3_t   v;
+
+  spot = NULL;
+  flag1 = flag2 = NULL;
+  range1 = range2 = range3 = range4 = 99999;
+  spot1 = spot2 = spot3 = spot4 = NULL;
+
+  flag1 = G_Find (flag1, FOFS(classname), "item_flag_team1");
+  flag2 = G_Find (flag2, FOFS(classname), "item_flag_team2");
+
+  while ((spot = G_Find (spot, FOFS(classname), "info_player_deathmatch")) != NULL)
+    {
+      VectorSubtract (spot->s.origin, flag1->s.origin, v);
+      range = VectorLength (v);
+
+      if (range < range1)
+	{
+	  range3= range1;
+	  spot3 = spot1;
+	  range1 = range;
+	  spot1 = spot;
+	}
+      else if (range < range3)
+	{
+	  range3 = range;
+	  spot3 = spot;
+	}
+
+      VectorSubtract (spot->s.origin, flag2->s.origin, v);
+      range = VectorLength (v);
+
+      if (range < range2)
+	{
+	  range4 = range2;
+	  spot4 = spot2;
+	  range2 = range;
+	  spot2 = spot;
+	}
+      else if (range < range4)
+	{
+	  range4 = range;
+	  spot4 = spot;
+	}
+    }
+
+  if (spot1)
+    {
+      gi.dprintf ("Ersetze info_player_deathmatch auf <%f %f %f> durch info_player_team1\n", spot1->s.origin[0], spot1->s.origin[1], spot1->s.origin[2]);
+      strcpy (spot1->classname, "info_player_team1");
+    }
+     
+  if (spot2)
+    {
+      gi.dprintf ("Ersetze info_player_deathmatch auf <%f %f %f> durch info_player_team2\n", spot2->s.origin[0], spot2->s.origin[1], spot2->s.origin[2]);
+      strcpy (spot2->classname, "info_player_team2");
+    }
+
+  if (spot3)
+    {
+      gi.dprintf ("Ersetze info_player_deathmatch auf <%f %f %f> durch info_player_team1\n", spot3->s.origin[0], spot3->s.origin[1], spot3->s.origin[2]);
+      strcpy (spot3->classname, "info_player_team1");
+    }
+     
+  if (spot4)
+    {
+      gi.dprintf ("Ersetze info_player_deathmatch auf <%f %f %f> durch info_player_team2\n", spot4->s.origin[0], spot4->s.origin[1], spot4->s.origin[2]);
+      strcpy (spot4->classname, "info_player_team2");
+    }
+
+}

@@ -1,10 +1,16 @@
 //-----------------------------------------------------------------------------
 // g_func.c
 //
-// $Id: g_func.c,v 1.2 2001/05/11 16:07:25 mort Exp $
+// $Id: g_func.c,v 1.3 2001/05/31 16:58:14 igor_rock Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_func.c,v $
+// Revision 1.3  2001/05/31 16:58:14  igor_rock
+// conflicts resolved
+//
+// Revision 1.2.2.1  2001/05/20 15:17:31  igor_rock
+// removed the old ctf code completly
+//
 // Revision 1.2  2001/05/11 16:07:25  mort
 // Various CTF bits and pieces...
 //
@@ -1154,15 +1160,7 @@ void door_blocked  (edict_t *self, edict_t *other)
                 // if it's still there, nuke it
                 if (other)
                 {
- 					// AQ2:M - CTF
-					if(stricmp(other->item->classname, "item_redflag") == 0 ||
-					stricmp(other->item->classname, "item_blueflag") == 0)
-					{
-						// leave the poor flag alone
-						return;
-					}
-					
-					// zucc we don't need explosions
+		  // zucc we don't need explosions
                         Handle_Unique_Items(other);
                         if ( other )
                                 G_FreeEdict(other);

@@ -1,10 +1,31 @@
 //-----------------------------------------------------------------------------
 // g_local.h -- local definitions for game module
 //
-// $Id: g_local.h,v 1.14 2001/05/14 21:10:16 igor_rock Exp $
+// $Id: g_local.h,v 1.15 2001/05/31 16:58:14 igor_rock Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_local.h,v $
+// Revision 1.15  2001/05/31 16:58:14  igor_rock
+// conflicts resolved
+//
+// Revision 1.14.2.4  2001/05/25 18:59:52  igor_rock
+// Added CTF Mode completly :)
+// Support for .flg files is still missing, but with "real" CTF maps like
+// tq2gtd1 the ctf works fine.
+// (I hope that all other modes still work, just tested DM and teamplay)
+//
+// Revision 1.14.2.3  2001/05/20 18:54:19  igor_rock
+// added original ctf code snippets from zoid. lib compilesand runs but
+// doesn't function the right way.
+// Jsut committing these to have a base to return to if something wents
+// awfully wrong.
+//
+// Revision 1.14.2.2  2001/05/20 15:54:43  igor_rock
+// added ctf variables and include, "ctf_team" (zoid) changes to "team" (aq2:tng)
+//
+// Revision 1.14.2.1  2001/05/20 15:17:31  igor_rock
+// removed the old ctf code completly
+//
 // Revision 1.14  2001/05/14 21:10:16  igor_rock
 // added wp_flags support (and itm_flags skeleton - doesn't disturb in the moment)
 //
@@ -73,7 +94,6 @@
 #include "a_game.h"
 #include "a_menu.h"
 #include "a_radio.h"
-#include "a_ctf.h"
 //FIREBLADE
 
 //PG BUND - BEGIN
@@ -296,6 +316,7 @@ gitem_armor_t;
 #define IT_KEY                  16
 #define IT_POWERUP              32
 #define IT_ITEM                 64
+#define IT_FLAG                 128
 
 typedef struct gitem_s
   {
@@ -676,14 +697,6 @@ extern cvar_t *llsound;
 extern cvar_t *cvote;
 //Igor[Rock] END
 
-// Mort BEGIN
-extern cvar_t *ctf; // CTF
-extern cvar_t *ctf_flag_respawn_time; // CTF
-extern cvar_t *ctf_player_respawn_time; // CTF
-extern cvar_t *ctf_item_remove_time; // CTF
-extern cvar_t *ctf_effects;
-// Mort END
-
 //AQ2:TNG - Slicer: For Video Checking
 extern  cvar_t	*video_check;
 extern  cvar_t 	*video_checktime;	//interval between cheat checks
@@ -707,6 +720,7 @@ extern  cvar_t  *itm_flags;
 extern cvar_t *skill;
 extern cvar_t *fraglimit;
 extern cvar_t *timelimit;
+extern cvar_t *capturelimit;
 extern cvar_t *password;
 extern cvar_t *g_select_empty;
 extern cvar_t *dedicated;
@@ -1111,6 +1125,11 @@ typedef struct
     //FIREBLADE
 
     int team;			// team the player is on
+    int ctf_state;
+    float ctf_lasthurtcarrier;
+    float ctf_lastreturnedflag;
+    float ctf_flagsince;
+    float ctf_lastfraggedcarrier;
 
     int joined_team;		// last frame # at which the player joined a team
 
@@ -1578,10 +1597,6 @@ struct edict_s
     int classnum;
     // PG BUND
     xmenu_t *x_menu;
-
-	//AQ2:TNG - CTF
-	int hasSpawned; // Flag saying whether this client has spawned
-
   };
 
 
@@ -1757,3 +1772,5 @@ extern placedata_t locationbase[];
 extern char ml_build[5];
 extern char ml_creator[100];
 //AQ2:TNG END
+
+#include "a_ctf.h"

@@ -4,10 +4,24 @@
 //
 // contains all new non standard command functions
 //
-// $Id: a_xcmds.c,v 1.3 2001/05/13 01:23:01 deathwatch Exp $
+// $Id: a_xcmds.c,v 1.4 2001/05/31 16:58:14 igor_rock Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_xcmds.c,v $
+// Revision 1.4  2001/05/31 16:58:14  igor_rock
+// conflicts resolved
+//
+// Revision 1.3.2.2  2001/05/31 06:47:51  igor_rock
+// - removed crash bug with non exisitng flag files
+// - added new commands "setflag1", "setflag2" and "saveflags" to create
+//   .flg files
+//
+// Revision 1.3.2.1  2001/05/25 18:59:52  igor_rock
+// Added CTF Mode completly :)
+// Support for .flg files is still missing, but with "real" CTF maps like
+// tq2gtd1 the ctf works fine.
+// (I hope that all other modes still work, just tested DM and teamplay)
+//
 // Revision 1.3  2001/05/13 01:23:01  deathwatch
 // Added Single Barreled Handcannon mode, made the menus and scoreboards
 // look nicer and made the voice command a bit less loud.
@@ -85,7 +99,8 @@ void
 Cmd_Punch_f (edict_t * self)
 {
   if (self->deadflag == DEAD_DEAD || self->solid == SOLID_NOT)
-    return;
+      return;
+
   // animation moved to punch_attack() in a_xgame.c
   // punch_attack is now called in ClientThink after evaluation punch_desired
   // for "no punch when firing" stuff - TempFile
@@ -289,3 +304,60 @@ Cmd_PrintCubeState_f (edict_t * self)
 // TempFile - END
 */
 //AQ2:TNG END
+
+// Variables for new flags
+
+char flagpos1[256] = { 0 };
+char flagpos2[256] = { 0 };
+
+//sets red flag position - cheats must be enabled!
+void
+Cmd_SetFlag1_f (edict_t * self)
+{
+     sprintf(flagpos1, "<%.2f %.2f %.2f>", self->s.origin[0], self->s.origin[1], self->s.origin[2]);
+     gi.cprintf(self, PRINT_MEDIUM, "\nRed Flag added at %s.\n", flagpos1);
+}
+
+//sets blue flag position - cheats must be enabled!
+void
+Cmd_SetFlag2_f (edict_t * self)
+{
+     sprintf(flagpos2, "<%.2f %.2f %.2f>", self->s.origin[0], self->s.origin[1], self->s.origin[2]);
+     gi.cprintf(self, PRINT_MEDIUM, "\nBlue Flag added at %s.\n", flagpos2);
+}
+
+//Save flag definition file - cheats must be enabled!
+void
+Cmd_SaveFlags_f (edict_t * self)
+{
+  FILE *fp;
+
+  char buf[1024];
+
+  if (!(flagpos1[0] && flagpos2[0])) 
+    {
+    gi.cprintf (self, PRINT_MEDIUM, "You only can save flag positions when you've already set them\n");
+    return;
+    }
+
+  sprintf(buf, "%s/tng/%s.flg", GAMEVERSION, level.mapname);
+  fp = fopen(buf, "w");
+  if (fp == NULL)
+    {
+      gi.cprintf(self, PRINT_MEDIUM, "\nError accessing flg file %s.\n", buf);
+      return;
+    }
+  sprintf (buf, "# %s\n", level.mapname);
+  fputs(buf, fp);
+  sprintf(buf, "%s\n", flagpos1);
+  fputs(buf, fp);
+  sprintf(buf, "%s\n", flagpos2);
+  fputs(buf, fp);
+  fclose(fp);
+
+  flagpos1[0] = 0;
+  flagpos2[0] = 0;
+
+  gi.cprintf(self, PRINT_MEDIUM, "\nFlag File saved.\n");
+}
+

@@ -1,12 +1,30 @@
 //-----------------------------------------------------------------------------
 // p_view.c
 //
-// $Id: p_view.c,v 1.6 2001/05/20 15:00:19 slicerdw Exp $
+// $Id: p_view.c,v 1.7 2001/05/31 16:58:14 igor_rock Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: p_view.c,v $
+// Revision 1.7  2001/05/31 16:58:14  igor_rock
+// conflicts resolved
+//
 // Revision 1.6  2001/05/20 15:00:19  slicerdw
 // Some minor fixes and changings on Video Checking system
+//
+// Revision 1.5.2.3  2001/05/25 18:59:52  igor_rock
+// Added CTF Mode completly :)
+// Support for .flg files is still missing, but with "real" CTF maps like
+// tq2gtd1 the ctf works fine.
+// (I hope that all other modes still work, just tested DM and teamplay)
+//
+// Revision 1.5.2.2  2001/05/20 18:54:19  igor_rock
+// added original ctf code snippets from zoid. lib compilesand runs but
+// doesn't function the right way.
+// Jsut committing these to have a base to return to if something wents
+// awfully wrong.
+//
+// Revision 1.5.2.1  2001/05/20 15:17:31  igor_rock
+// removed the old ctf code completly
 //
 // Revision 1.5  2001/05/11 16:07:26  mort
 // Various CTF bits and pieces...
@@ -827,6 +845,9 @@ void G_SetClientEffects (edict_t *ent)
     }
   }
 
+  if (ctf->value)
+    CTFEffects(ent);
+  
   if (ent->client->quad_framenum > level.framenum)
   {
     remaining = ent->client->quad_framenum - level.framenum;
@@ -1204,72 +1225,35 @@ void ClientEndServerFrame (edict_t *ent)
 	
 	  }
 //AQ2:TNG End
-	  
+  
   }
-
-  // AQ2:TNG - CTF
-  if(ctf->value)
-	  checkForCap(ent);
 
   //FIREBLADE - Unstick avoidance stuff.
   if (ent->solid == SOLID_TRIGGER && !lights_camera_action)
-  {       
-	  if(ctf->value) // AQ2:M - CTF
-	  {
-		  if(ent->client->respawn_time < level.time) // Make use of a variable :)
-		  {
-				edict_t *overlap;
-		
-				// Get rid of god mode
-				ent->flags &= ~FL_GODMODE;
-
-			    if ((overlap = FindOverlap(ent, NULL)) == NULL)
-			    {
-				   ent->solid = SOLID_BBOX;
-				   gi.linkentity(ent);
-				   RemoveFromTransparentList(ent);
-			    }
-			    else
-				{
-					do
-					{
-				        if (overlap->solid == SOLID_BBOX)
-				        {
-							overlap->solid = SOLID_TRIGGER;
-							gi.linkentity(overlap);
-							AddToTransparentList(overlap);
-						}
-						overlap = FindOverlap(ent, overlap);
-					} while (overlap != NULL);
-				}		  
-		  }
-	  }
-	  else
-	  {
-			edict_t *overlap;
-			if ((overlap = FindOverlap(ent, NULL)) == NULL)
-		    {
-				ent->solid = SOLID_BBOX;
-				gi.linkentity(ent);
-				RemoveFromTransparentList(ent);
-			}
-			else
-			{
-				do
-				{
-					if (overlap->solid == SOLID_BBOX)
-					{
-						overlap->solid = SOLID_TRIGGER;
-						gi.linkentity(overlap);
-						AddToTransparentList(overlap);
-					}
-					overlap = FindOverlap(ent, overlap);
-				} while (overlap != NULL);
-			}
-	  }
-  }
+    {       
+      edict_t *overlap;
+      if ((overlap = FindOverlap(ent, NULL)) == NULL)
+	{
+	  ent->solid = SOLID_BBOX;
+	  gi.linkentity(ent);
+	  RemoveFromTransparentList(ent);
+	}
+      else
+	{
+	  do
+	    {
+	      if (overlap->solid == SOLID_BBOX)
+		{
+		  overlap->solid = SOLID_TRIGGER;
+		  gi.linkentity(overlap);
+		  AddToTransparentList(overlap);
+		}
+	      overlap = FindOverlap(ent, overlap);
+	    } while (overlap != NULL);
+	}		  
+    }
   //FIREBLADE
-
+  
   //
   // If the origin or velocity have changed since ClientThink(),
   // update the pmove values.  This will happen when the client

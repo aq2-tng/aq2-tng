@@ -1,10 +1,25 @@
 //-----------------------------------------------------------------------------
 // g_weapon.c
 //
-// $Id: p_weapon.c,v 1.4 2001/05/13 01:23:01 deathwatch Exp $
+// $Id: p_weapon.c,v 1.5 2001/05/31 16:58:14 igor_rock Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: p_weapon.c,v $
+// Revision 1.5  2001/05/31 16:58:14  igor_rock
+// conflicts resolved
+//
+// Revision 1.4.2.3  2001/05/27 17:24:10  igor_rock
+// changed spawnpoint behavior in CTF
+//
+// Revision 1.4.2.2  2001/05/25 18:59:53  igor_rock
+// Added CTF Mode completly :)
+// Support for .flg files is still missing, but with "real" CTF maps like
+// tq2gtd1 the ctf works fine.
+// (I hope that all other modes still work, just tested DM and teamplay)
+//
+// Revision 1.4.2.1  2001/05/20 15:17:32  igor_rock
+// removed the old ctf code completly
+//
 // Revision 1.4  2001/05/13 01:23:01  deathwatch
 // Added Single Barreled Handcannon mode, made the menus and scoreboards
 // look nicer and made the voice command a bit less loud.
@@ -815,31 +830,28 @@ static void SpawnSpecWeap(gitem_t *item, edict_t *spot)
 
 void temp_think_specweap( edict_t* ent )
 {
-        ent->touch = Touch_Item;
-        if (deathmatch->value && !teamplay->value && !allweapon->value )
-        {
-                ent->nextthink = level.time + 74;
-                ent->think = ThinkSpecWeap;
-        }
-                else if ( teamplay->value && !allweapon->value)
-                {
-					// AQ2:M - CTF
-					if(ctf->value) // AQ2:M - CTF
-					{
-			                ent->think = G_FreeEdict;
-							ent->nextthink = level.time + ctf_item_remove_time->value; // AQ2:M - CTF
-					}
-					else
-					{
-                        ent->nextthink = level.time + 1000;
-                        ent->think = PlaceHolder;
-					}
-                }
-                else // allweapon set
-                {
-                        ent->nextthink = level.time + 1;
-                        ent->think = G_FreeEdict;
-                }
+  ent->touch = Touch_Item;
+
+  if (ctf->value)
+    {
+      ent->nextthink = level.time + 20;
+      ent->think = ThinkSpecWeap;
+    }
+  else if (deathmatch->value && !teamplay->value && !allweapon->value )
+    {
+      ent->nextthink = level.time + 74;
+      ent->think = ThinkSpecWeap;
+    }
+  else if ( teamplay->value && !allweapon->value)
+    {
+      ent->nextthink = level.time + 1000;
+      ent->think = PlaceHolder;
+    }
+  else // allweapon set
+    {
+      ent->nextthink = level.time + 1;
+      ent->think = G_FreeEdict;
+    }
 }
 
 
@@ -1735,8 +1747,7 @@ void Weapon_Generic (edict_t *ent, int FRAME_ACTIVATE_LAST, int FRAME_FIRE_LAST,
         {
                 if ( ((ent->client->latched_buttons|ent->client->buttons) & BUTTON_ATTACK) 
 //FIREBLADE
-                        && (ent->solid != SOLID_NOT || ent->deadflag == DEAD_DEAD) && !lights_camera_action
-						&& !((ctf->value) && (ent->flags & FL_GODMODE))) // aq:m
+                        && (ent->solid != SOLID_NOT || ent->deadflag == DEAD_DEAD) && !lights_camera_action)
 //FIREBLADE
                 {
                         ent->client->latched_buttons &= ~BUTTON_ATTACK;

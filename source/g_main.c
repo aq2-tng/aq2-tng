@@ -1,10 +1,28 @@
 //-----------------------------------------------------------------------------
 //
 //
-// $Id: g_main.c,v 1.7 2001/05/14 21:10:16 igor_rock Exp $
+// $Id: g_main.c,v 1.8 2001/05/31 16:58:14 igor_rock Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_main.c,v $
+// Revision 1.8  2001/05/31 16:58:14  igor_rock
+// conflicts resolved
+//
+// Revision 1.7.2.3  2001/05/25 18:59:52  igor_rock
+// Added CTF Mode completly :)
+// Support for .flg files is still missing, but with "real" CTF maps like
+// tq2gtd1 the ctf works fine.
+// (I hope that all other modes still work, just tested DM and teamplay)
+//
+// Revision 1.7.2.2  2001/05/20 18:54:19  igor_rock
+// added original ctf code snippets from zoid. lib compilesand runs but
+// doesn't function the right way.
+// Jsut committing these to have a base to return to if something wents
+// awfully wrong.
+//
+// Revision 1.7.2.1  2001/05/20 15:17:31  igor_rock
+// removed the old ctf code completly
+//
 // Revision 1.7  2001/05/14 21:10:16  igor_rock
 // added wp_flags support (and itm_flags skeleton - doesn't disturb in the moment)
 //
@@ -111,6 +129,7 @@ cvar_t  *dmflags;
 cvar_t  *skill;
 cvar_t  *fraglimit;
 cvar_t  *timelimit;
+cvar_t  *capturelimit;
 cvar_t  *password;
 cvar_t  *maxclients;
 cvar_t  *maxentities;
@@ -154,13 +173,6 @@ cvar_t  *sv_shelloff;
 cvar_t  *bholelimit;
 cvar_t  *splatlimit;
 
-// Mort [BEGIN]
-cvar_t *ctf; // AQ2:M - CTF
-cvar_t *ctf_flag_respawn_time; // AQ2:M - CTF
-cvar_t *ctf_player_respawn_time; // AQ2:M - CTF
-cvar_t *ctf_item_remove_time; // AQ2:M - CTF
-cvar_t *ctf_effects; // AQ2:M - CTF
-// Mort [END]
 //AQ2:TNG - Slicer 
 cvar_t  *check_time;
 cvar_t	*video_check;
@@ -487,6 +499,12 @@ void CheckDMRules (void)
       //PG BUND - END
     }
   
+  if (ctf->value) {
+    if (CTFCheckRules()) {
+      EndDMLevel ();
+    }
+  }  
+
   if (fraglimit->value)
     {
       for (i=0 ; i<maxclients->value ; i++)
@@ -541,6 +559,10 @@ void ExitLevel (void)
       team3_score = 0;
     }
   //FIREBLADE
+  if (ctf->value)
+    {
+      CTFInit();
+    }
 }
 
 /*

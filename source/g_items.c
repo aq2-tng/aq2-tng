@@ -1,10 +1,31 @@
 //-----------------------------------------------------------------------------
 // g_itmes.c
 //
-// $Id: g_items.c,v 1.4 2001/05/15 15:49:14 igor_rock Exp $
+// $Id: g_items.c,v 1.5 2001/05/31 16:58:14 igor_rock Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_items.c,v $
+// Revision 1.5  2001/05/31 16:58:14  igor_rock
+// conflicts resolved
+//
+// Revision 1.4.2.4  2001/05/26 13:04:34  igor_rock
+// added some sound to the precache list for flags
+//
+// Revision 1.4.2.3  2001/05/25 18:59:52  igor_rock
+// Added CTF Mode completly :)
+// Support for .flg files is still missing, but with "real" CTF maps like
+// tq2gtd1 the ctf works fine.
+// (I hope that all other modes still work, just tested DM and teamplay)
+//
+// Revision 1.4.2.2  2001/05/20 18:54:19  igor_rock
+// added original ctf code snippets from zoid. lib compilesand runs but
+// doesn't function the right way.
+// Jsut committing these to have a base to return to if something wents
+// awfully wrong.
+//
+// Revision 1.4.2.1  2001/05/20 15:17:31  igor_rock
+// removed the old ctf code completly
+//
 // Revision 1.4  2001/05/15 15:49:14  igor_rock
 // added itm_flags for deathmatch
 //
@@ -136,18 +157,26 @@ void DoRespawn (edict_t *ent)
                 edict_t *master;
                 int     count;
                 int choice;
-
+		
                 master = ent->teammaster;
-
-                for (count = 0, ent = master; ent; ent = ent->chain, count++)
-                        ;
-
-                choice = rand() % count;
-
-                for (count = 0, ent = master; count < choice; ent = ent->chain, count++)
-                        ;
+		
+		//in ctf, when we are weapons stay, only the master of a team of weapons
+		//is spawned
+                // if (ctf->value &&
+		//    ((int)dmflags->value & DF_WEAPONS_STAY) &&
+		//    master->item && (master->item->flags & IT_WEAPON))
+		//  ent = master;
+                //else {
+		for (count = 0, ent = master; ent; ent = ent->chain, count++)
+		  ;
+		
+		choice = rand() % count;
+		
+		for (count = 0, ent = master; count < choice; ent = ent->chain, count++)
+		  ;
+		//}
         }
-
+	
         ent->svflags &= ~SVF_NOCLIENT;
         ent->solid = SOLID_TRIGGER;
         gi.linkentity (ent);
@@ -200,15 +229,6 @@ qboolean Pickup_Powerup (edict_t *ent, edict_t *other)
 //zucc pickup function for special items
 qboolean Pickup_Special ( edict_t *ent, edict_t *other )
 {
-	// AQ2:M - CTF - Special code for flag...
-	if(stricmp(ent->item->classname, "item_redflag") == 0 ||
-		stricmp(ent->item->classname, "item_blueflag") == 0)
-	{
-		other->client->pers.inventory[ITEM_INDEX(ent->item)]++;
-
-		return true;
-	}
-
 	if ( other->client->unique_item_total >= unique_items->value )
                 return false;
         else
@@ -943,22 +963,8 @@ void Touch_Item (edict_t *ent, edict_t *other, cplane_t *plane, csurface_t *surf
                 if (ent->item->use)
                         other->client->pers.selected_item = other->client->ps.stats[STAT_SELECTED_ITEM] = ITEM_INDEX(ent->item);
 
-				// AQ2:M - CTF
-				if(stricmp(ent->item->classname, "item_redflag") == 0 ||
-					stricmp(ent->item->classname, "item_blueflag") == 0)
-				{
-					// Make sure the flag is treated "properly"
-
-					if(ent->touch != flagTouch)
-					{
-						ent->touch = flagTouch;
-						flagTouch(ent, other, plane, surf);
-					}
-
-	                gi.sound(other, CHAN_FLAG | CHAN_RELIABLE, gi.soundindex(ent->item->pickup_sound), 1, ATTN_NONE, 0);
-				}
-				else
-					gi.sound(other, CHAN_ITEM, gi.soundindex(ent->item->pickup_sound), 1, ATTN_NORM, 0);
+		else
+		  gi.sound(other, CHAN_ITEM, gi.soundindex(ent->item->pickup_sound), 1, ATTN_NORM, 0);
         }
 
         if (!(ent->spawnflags & ITEM_TARGETS_USED))
@@ -986,43 +992,16 @@ static void drop_temp_touch (edict_t *ent, edict_t *other, cplane_t *plane, csur
         if (other == ent->owner)
                 return;
 
-		// AQ2:M - CTF
-		if(stricmp(ent->item->classname, "item_redflag") == 0 ||
-			stricmp(ent->item->classname, "item_blueflag") == 0)
-		{
-//			flagTouch(ent, other, plane, surf);
-			return;
-		}
-
         Touch_Item (ent, other, plane, surf);
 }
 
 static void drop_make_touchable (edict_t *ent)
 {
- 	    // AQ2:M - CTF
-	if(stricmp(ent->item->classname, "item_redflag") == 0 ||
-		stricmp(ent->item->classname, "item_blueflag") == 0)
-	{
-		ent->think = returnFlag;
-		ent->nextthink = level.time + ctf_flag_respawn_time->value;
-		ent->touch = flagTouch;
-		ent->solid = SOLID_TRIGGER;
-		ent->owner = 0;
-
-		gi.linkentity(ent); 
-
-		return;
-	}
-
 	ent->touch = Touch_Item;
-        if (deathmatch->value || ctf->value) // AQ2:M - CTF
+        if (deathmatch->value)
         {
-			if(ctf->value) // AQ2:M - CTF
-				ent->nextthink = level.time + ctf_item_remove_time->value; // AQ2:M - CTF // AQ2:M - CTF
-			else // AQ2:M - CTF
-				ent->nextthink = level.time + 119;
-
-			ent->think = G_FreeEdict;
+	  ent->nextthink = level.time + 119;
+	  ent->think = G_FreeEdict;
         }
 }
 
@@ -1055,12 +1034,7 @@ edict_t *Drop_Item (edict_t *ent, gitem_t *item)
         dropped->solid = SOLID_TRIGGER;
         dropped->movetype = MOVETYPE_TOSS;  
         
- 		// aq2:m - ctf
-		if(stricmp(dropped->classname, "item_redflag") == 0 ||
-					stricmp(dropped->classname, "item_blueflag") == 0)
-			dropped->solid = SOLID_BBOX;
-
-		dropped->touch = drop_temp_touch;
+	dropped->touch = drop_temp_touch;
         dropped->owner = ent;
 
         if (ent->client)
@@ -1467,13 +1441,30 @@ void SpawnItem (edict_t *ent, gitem_t *item)
                 item->drop = NULL;
         }
 
+	//Don't spawn the flags unless enabled
+        if (!ctf->value &&
+	    (strcmp(ent->classname, "item_flag_team1") == 0 ||
+	     strcmp(ent->classname, "item_flag_team2") == 0)) {
+	  G_FreeEdict(ent);
+	  return;
+        }
+	
         ent->item = item;
         ent->nextthink = level.time + 2 * FRAMETIME;    // items start after other solids
         ent->think = droptofloor;
         ent->s.effects = item->world_model_flags;
         ent->s.renderfx = RF_GLOW;
         if (ent->model)
-                gi.modelindex (ent->model);
+	  gi.modelindex (ent->model);
+	
+	//flags are server animated and have special handling
+	if (ctf->value)
+	  {
+	    if (strcmp(ent->classname, "item_flag_team1") == 0 ||
+		strcmp(ent->classname, "item_flag_team2") == 0) {
+	      ent->think = CTFFlagSetup;
+	    }
+	  }
 }
 
 //======================================================================
@@ -2876,49 +2867,50 @@ tank commander's head
 /* precache */ ""
         },
 
-		// AQ2:M - CTF - FLAGS
-		{
-                "item_redflag",
-                        Pickup_Special,
-                        NULL,
-                        Drop_Special,
-                        NULL,
-                        "ctf/flagtk.wav", // sound
-                        "models/flags/flag1.md2",
-                        0,
-                        NULL,
-/* icon */              "i_ctf1",
-/* pickup */    "Red Flag",
-/* width */             2,
-                        1,
-                        NULL,
-                        IT_ITEM,
-                        NULL,
-                        0,
-    
-		},
+	/*QUAKED item_flag_team1 (1 0.2 0) (-16 -16 -24) (16 16 32)
+	 */
+        {
+                "item_flag_team1",
+                CTFPickup_Flag,
+                NULL,
+                CTFDrop_Flag, //Should this be null if we don't want players to drop it manually?
+                NULL,
+                "tng/flagtk.wav",
+                "models/flags/flag1.md2", EF_FLAG1,
+                NULL,
+		/* icon */              "i_ctf1",
+		/* pickup */    "Red Flag",
+		/* width */             2,
+                0,
+                NULL,
+                IT_FLAG,
+                NULL,
+                0,
+		/* precache */ "tng/flagcap.wav tng/flagret.wav"
+        },
+ 
+	/*QUAKED item_flag_team2 (1 0.2 0) (-16 -16 -24) (16 16 32)
+	 */
+        {
+                "item_flag_team2",
+                CTFPickup_Flag,
+                NULL,
+                CTFDrop_Flag, //Should this be null if we don't want players to drop it manually?
+                NULL,
+                "tng/flagtk.wav",
+                "models/flags/flag2.md2", EF_FLAG2,
+                NULL,
+		/* icon */              "i_ctf2",
+		/* pickup */    "Blue Flag",
+		/* width */             2,
+                0,
+                NULL,
+                IT_FLAG,
+                NULL,
+                0,
+		/* precache */ "tng/flagcap.wav tng/flagret.wav"
+        },
 
-		{
-                "item_blueflag",
-                        Pickup_Special,
-                        NULL,
-                        Drop_Special,
-                        NULL,
-                        "ctf/flagtk.wav", // sound
-                        "models/flags/flag2.md2",
-                        0,
-                        NULL,
-/* icon */              "i_ctf2",
-/* pickup */    "Blue Flag",
-/* width */             2,
-                        2,
-                        NULL,
-                        IT_ITEM,
-                        NULL,
-                        0,
-    
-		},
-        
 		// end of list marker
         {NULL}
 };

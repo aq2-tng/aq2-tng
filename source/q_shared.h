@@ -1,10 +1,22 @@
 //-----------------------------------------------------------------------------
 // q_shared.h -- included first by ALL program modules
 //
-// $Id: q_shared.h,v 1.3 2001/05/11 16:07:26 mort Exp $
+// $Id: q_shared.h,v 1.4 2001/05/31 16:58:14 igor_rock Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: q_shared.h,v $
+// Revision 1.4  2001/05/31 16:58:14  igor_rock
+// conflicts resolved
+//
+// Revision 1.3.2.2  2001/05/25 18:59:53  igor_rock
+// Added CTF Mode completly :)
+// Support for .flg files is still missing, but with "real" CTF maps like
+// tq2gtd1 the ctf works fine.
+// (I hope that all other modes still work, just tested DM and teamplay)
+//
+// Revision 1.3.2.1  2001/05/20 15:17:32  igor_rock
+// removed the old ctf code completly
+//
 // Revision 1.3  2001/05/11 16:07:26  mort
 // Various CTF bits and pieces...
 //
@@ -1108,7 +1120,6 @@ temp_event_t;
 #define CHAN_VOICE              2
 #define CHAN_ITEM               3
 #define CHAN_BODY               4
-#define CHAN_FLAG				5 // AQ2:TNG - CTF - Make flag sounds use their own channel
 // modifier flags
 #define CHAN_NO_PHS_ADD         8	// send to all clients, not just ones in PHS (ATTN 0 will also do this)
 #define CHAN_RELIABLE           16	// send by reliable message, not datagram
@@ -1149,7 +1160,7 @@ temp_event_t;
 
 //FIREBLADE
 #define STAT_TEAM_HEADER                22
-// 23 available
+#define STAT_FLAG_PIC                   23
 #define STAT_TEAM1_PIC                  24
 #define STAT_TEAM2_PIC                  25
 #define STAT_TEAM1_SCORE                26
@@ -1163,8 +1174,8 @@ temp_event_t;
 #define STAT_TEAM3_PIC			30
 #define STAT_TEAM3_SCORE		31
 
-#define STAT_REDFLAG_ICON				30 // AQ2:CTF
-#define STAT_BLUEFLAG_ICON              31 // AQ2:CTF
+#define STAT_TEAM1_HEADER               30
+#define STAT_TEAM2_HEADER               31
 
 #define MAX_STATS                       32
 

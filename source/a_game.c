@@ -5,10 +5,22 @@
 // Zucchini (spikard@u.washington.edu) and Fireblade (ucs_brf@shsu.edu) 
 // (splat/bullethole/shell ejection code from original Action source)
 //
-// $Id: a_game.c,v 1.6 2001/05/13 11:29:25 igor_rock Exp $
+// $Id: a_game.c,v 1.7 2001/05/31 16:58:14 igor_rock Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_game.c,v $
+// Revision 1.7  2001/05/31 16:58:14  igor_rock
+// conflicts resolved
+//
+// Revision 1.6.2.2  2001/05/25 18:59:52  igor_rock
+// Added CTF Mode completly :)
+// Support for .flg files is still missing, but with "real" CTF maps like
+// tq2gtd1 the ctf works fine.
+// (I hope that all other modes still work, just tested DM and teamplay)
+//
+// Revision 1.6.2.1  2001/05/20 15:17:31  igor_rock
+// removed the old ctf code completly
+//
 // Revision 1.6  2001/05/13 11:29:25  igor_rock
 // corrected spelling error in inernet address (www, instead www.)
 //
@@ -237,24 +249,24 @@ PrintMOTD (edict_t * ent)
 
       // Line for game type
       if (teamplay->value)
-	  {
-	    if (use_3teams->value)
+	{
+	  if (ctf->value)
+	    {
+	      server_type = "Capture the Flag";
+	    }
+	  else if (use_3teams->value)
 	    {
 	      server_type = "3 Team Teamplay";
 	    }
-		else if (ctf->value)
-		{
-		  server_type = "Capture the Flag"; // CTF
-		}
-	    else if (!use_tourney->value)		// Added "->value", duh -TempFile
+	  else if (!use_tourney->value)		// Added "->value", duh -TempFile
 	    {
 	      server_type = "Teamplay";
 	    }
-        else
-	      server_type = "Tourney";
-	  }
+	  else
+	    server_type = "Tourney";
+	}
       else
-	  {
+	{
 	  if ((int) dmflags->value & DF_MODELTEAMS)
 	    server_type = "Deathmatch (Teams by Model)";
 	  else if ((int) dmflags->value & DF_SKINTEAMS)
@@ -279,7 +291,7 @@ PrintMOTD (edict_t * ent)
       lines++;
 
       // Teamplay: 3 lines for round limit/round time limit, and menu instructions
-      if (teamplay->value)
+      if (teamplay->value && !ctf->value)
 	{
 	  if ((int) roundlimit->value)
 	    sprintf (msg_buf + strlen (msg_buf), "Roundlimit: %d", (int) roundlimit->value);
@@ -289,6 +301,15 @@ PrintMOTD (edict_t * ent)
 	    sprintf (msg_buf + strlen (msg_buf), "  Roundtimelimit: %d\n", (int) roundtimelimit->value);
 	  else
 	    strcat (msg_buf, "  Roundtimelimit: none\n");
+	  lines++;
+	}
+
+      if (ctf->value)
+	{
+	  if ((int) capturelimit->value)
+	    sprintf (msg_buf + strlen (msg_buf), "  Capturelimit: %d\n", (int) capturelimit->value);
+	  else
+	    strcat (msg_buf, "  Capturelimit: none\n");
 	  lines++;
 	}
 

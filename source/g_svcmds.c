@@ -1,10 +1,22 @@
 //-----------------------------------------------------------------------------
 // g_svcmds.c
 //
-// $Id: g_svcmds.c,v 1.4 2001/05/11 16:07:25 mort Exp $
+// $Id: g_svcmds.c,v 1.5 2001/05/31 16:58:14 igor_rock Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_svcmds.c,v $
+// Revision 1.5  2001/05/31 16:58:14  igor_rock
+// conflicts resolved
+//
+// Revision 1.4.2.2  2001/05/25 18:59:52  igor_rock
+// Added CTF Mode completly :)
+// Support for .flg files is still missing, but with "real" CTF maps like
+// tq2gtd1 the ctf works fine.
+// (I hope that all other modes still work, just tested DM and teamplay)
+//
+// Revision 1.4.2.1  2001/05/20 15:17:31  igor_rock
+// removed the old ctf code completly
+//
 // Revision 1.4  2001/05/11 16:07:25  mort
 // Various CTF bits and pieces...
 //
@@ -349,36 +361,36 @@ void SVCmd_stuffcmd_f ()
 			if(Q_stricmp(user,"team1")==0)
 			{
 				if((int)(teamplay->value)==0)
-				{
-                    gi.cprintf(NULL, PRINT_HIGH, "Not in Teamplay mode\n");
-					return;
-				}
+				  {
+				    gi.cprintf(NULL, PRINT_HIGH, "Not in Teamplay mode\n");
+				    return;
+				  }
 				ent = getEnt(i);
 				if((int)(ent->client->resp.team)==1 && ent->inuse)
-				stuffcmd(ent, text);
+				  stuffcmd(ent, text);
 			}
 			if(Q_stricmp(user,"team2")==0)
-			{
-				if((int)(teamplay->value)==0)
-				{
-                    gi.cprintf(NULL, PRINT_HIGH, "Not in Teamplay mode\n");
-					return;
-				}
-				ent = getEnt(i);
-				if((int)(ent->client->resp.team)==2 && ent->inuse)
-				stuffcmd(ent, text);
-			}
-				if(Q_stricmp(user,"all")==0)
-			{
-				ent = getEnt(i);
-				if(ent->inuse)
-				stuffcmd(ent, text);
-			}
+			  {
+			    if((int)(teamplay->value)==0)
+			      {
+				gi.cprintf(NULL, PRINT_HIGH, "Not in Teamplay mode\n");
+				return;
+			      }
+			    ent = getEnt(i);
+			    if((int)(ent->client->resp.team)==2 && ent->inuse)
+			      stuffcmd(ent, text);
+			  }
+			if(Q_stricmp(user,"all")==0)
+			  {
+			    ent = getEnt(i);
+			    if(ent->inuse)
+			      stuffcmd(ent, text);
+			  }
 		}
 		return;
 	}
 	else{
-	for (u=0;u<strlen(user);u++)
+	  for (u=0;u<strlen(user);u++)
 			if(!isdigit(user[u])){
 				gi.cprintf(NULL, PRINT_HIGH, "Usage:  stuffcmd <user id> <text>\n");
 				return;
@@ -429,29 +441,6 @@ void    ServerCommand (void)
 				SVCmd_CheckCheats_f();
 		else if (Q_stricmp (cmd, "stuffcmd") == 0)
                 SVCmd_stuffcmd_f();
-		// AQ2:M - CTF
-		else if(Q_stricmp (cmd, "k_moveflag") == 0)
-		{	
-			SVCmd_MoveFlag();
-		}
-		else if(Q_stricmp (cmd, "k_movespawn") == 0)
-		{	
-			SVCmd_MoveSpawn();
-		}
-		else if(Q_stricmp (cmd, "k_removespawns") == 0)
-		{	
-			SVCmd_RemoveSpawns();
-		}
-		else if(Q_stricmp (cmd, "k_showflagpos") == 0)
-		{
-			gi.dprintf("Red flag: %d %d %d\nBlue flag: %d %d %d\n",
-				(int)redFlagLocation[0],
-				(int)redFlagLocation[1],
-				(int)redFlagLocation[2],
-				(int)blueFlagLocation[0],
-				(int)blueFlagLocation[1],
-				(int)blueFlagLocation[2]);
-		}
         else
 				gi.cprintf (NULL, PRINT_HIGH, "Unknown server command \"%s\"\n", cmd);
 }

@@ -1,12 +1,33 @@
 //-----------------------------------------------------------------------------
 // g_cmds.c
 //
-// $Id: g_cmds.c,v 1.9 2001/05/20 15:00:19 slicerdw Exp $
+// $Id: g_cmds.c,v 1.10 2001/05/31 16:58:14 igor_rock Exp $
+// $Id: g_cmds.c,v 1.10 2001/05/31 16:58:14 igor_rock Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_cmds.c,v $
+// Revision 1.10  2001/05/31 16:58:14  igor_rock
+// conflicts resolved
+//
 // Revision 1.9  2001/05/20 15:00:19  slicerdw
 // Some minor fixes and changings on Video Checking system
+//
+// Revision 1.8.2.4  2001/05/31 06:47:51  igor_rock
+// - removed crash bug with non exisitng flag files
+// - added new commands "setflag1", "setflag2" and "saveflags" to create
+//   .flg files
+//
+// Revision 1.8.2.3  2001/05/27 13:33:37  igor_rock
+// added flag drop command ("drop flag")
+//
+// Revision 1.8.2.2  2001/05/25 18:59:52  igor_rock
+// Added CTF Mode completly :)
+// Support for .flg files is still missing, but with "real" CTF maps like
+// tq2gtd1 the ctf works fine.
+// (I hope that all other modes still work, just tested DM and teamplay)
+//
+// Revision 1.8.2.1  2001/05/20 15:17:31  igor_rock
+// removed the old ctf code completly
 //
 // Revision 1.8  2001/05/13 14:55:11  igor_rock
 // corrected the lens command which was commented out in error
@@ -624,13 +645,11 @@ void Cmd_Drop_f (edict_t *ent)
                 return;
         }
 
-		// AQ2:TNG - CTF
-		if ( stricmp(s, "flag") == 0)
-		{
-			DropFlag( ent );
-			return;
-		}
-
+	if ( stricmp(s, "flag") == 0 )
+	  {
+	    CTFDrop_Flag (ent, NULL);
+	    return;
+	  }
 
 // AQ:TNG - JBravo fixing ammo clip farming
 	if (ent->client->weaponstate == WEAPON_RELOADING)
@@ -690,15 +709,15 @@ void Cmd_Inven_f (edict_t *ent)
 
 //FIREBLADE
         if (teamplay->value)
-        {
-                if (ent->client->resp.team == NOTEAM)
-                        OpenJoinMenu(ent);
-                        else
-                        OpenWeaponMenu(ent);
-                return;
-        }
-//FIREBLADE
-
+	  {
+	    if (ent->client->resp.team == NOTEAM)
+	      OpenJoinMenu(ent);
+	    else
+	      OpenWeaponMenu(ent);
+	    return;
+	  }
+	//FIREBLADE
+	
         cl->showinventory = true;
 
         gi.WriteByte (svc_inventory);
@@ -1262,8 +1281,8 @@ void Cmd_Say_f (edict_t *ent, qboolean team, qboolean arg0, qboolean partner_msg
       //FIREBLADE
       if (teamplay->value && team_round_going)
 	{
-      if ((ent->solid == SOLID_NOT || ent->deadflag == DEAD_DEAD) && // AQ2:M - CTF
-        (other->solid != SOLID_NOT && other->deadflag != DEAD_DEAD) && !ctf->value)
+      if ((ent->solid == SOLID_NOT || ent->deadflag == DEAD_DEAD) &&
+        (other->solid != SOLID_NOT && other->deadflag != DEAD_DEAD))
 	    continue;
 	}
       //FIREBLADE             
@@ -1455,6 +1474,12 @@ void ClientCommand (edict_t *ent)
                 Cmd_Voice_f(ent);
         else if (Q_stricmp(cmd, "addpoint") == 0 && sv_cheats->value)
                 Cmd_Addpoint_f(ent); // See TF's additions below
+        else if (Q_stricmp(cmd, "setflag1") == 0 && sv_cheats->value)
+                Cmd_SetFlag1_f(ent);
+        else if (Q_stricmp(cmd, "setflag2") == 0 && sv_cheats->value)
+                Cmd_SetFlag2_f(ent);
+        else if (Q_stricmp(cmd, "saveflags") == 0 && sv_cheats->value)
+                Cmd_SaveFlags_f(ent);
         else if (Q_stricmp(cmd, "punch") == 0)
                 Cmd_Punch_f(ent);
         else if (Q_stricmp(cmd, "menu") == 0)

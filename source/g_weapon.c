@@ -1,10 +1,22 @@
 //-----------------------------------------------------------------------------
 // g_weapon.c
 //
-// $Id: g_weapon.c,v 1.2 2001/05/11 16:07:26 mort Exp $
+// $Id: g_weapon.c,v 1.3 2001/05/31 16:58:14 igor_rock Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_weapon.c,v $
+// Revision 1.3  2001/05/31 16:58:14  igor_rock
+// conflicts resolved
+//
+// Revision 1.2.2.2  2001/05/20 18:54:19  igor_rock
+// added original ctf code snippets from zoid. lib compilesand runs but
+// doesn't function the right way.
+// Jsut committing these to have a base to return to if something wents
+// awfully wrong.
+//
+// Revision 1.2.2.1  2001/05/20 15:17:31  igor_rock
+// removed the old ctf code completly
+//
 // Revision 1.2  2001/05/11 16:07:26  mort
 // Various CTF bits and pieces...
 //
@@ -1210,9 +1222,15 @@ void bfg_think (edict_t *self)
 
                 if (!(ent->svflags & SVF_MONSTER) && (!ent->client) && (strcmp(ent->classname, "misc_explobox") != 0))
                         continue;
-
+		//AQ2:TNG Igor not quite sure about this (FIXME)
+                //don't target players in CTF
+                if (ctf->value && ent->client &&
+		    self->owner->client &&
+		    ent->client->resp.team == self->owner->client->resp.team)
+		  continue;
+		//AQ2:TNG End
                 VectorMA (ent->absmin, 0.5, ent->size, point);
-
+		
                 VectorSubtract (point, self->s.origin, dir);
                 VectorNormalize (dir);
 
@@ -1338,9 +1356,6 @@ void kick_attack (edict_t * ent )
                                         if (lights_camera_action)
                                                 return;
                                         
-										if ((ent->flags & FL_GODMODE) && ctf->value) // AQ2:M - Stop The Attack
-												return;
-
                                         if (tr.ent != ent && tr.ent->client && ent->client &&
                                                 tr.ent->client->resp.team == ent->client->resp.team)
                                                 return;

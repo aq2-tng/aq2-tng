@@ -4,10 +4,18 @@
 //
 // header file for a_xgame.c
 //
-// $Id: a_xgame.h,v 1.4 2001/05/11 12:21:18 slicerdw Exp $
+// $Id: a_xgame.h,v 1.5 2001/05/31 16:58:14 igor_rock Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_xgame.h,v $
+// Revision 1.5  2001/05/31 16:58:14  igor_rock
+// conflicts resolved
+//
+// Revision 1.4.2.1  2001/05/31 06:47:51  igor_rock
+// - removed crash bug with non exisitng flag files
+// - added new commands "setflag1", "setflag2" and "saveflags" to create
+//   .flg files
+//
 // Revision 1.4  2001/05/11 12:21:18  slicerdw
 // Commented old Location support ( ADF ) With the ML/ETE Compatible one
 //
@@ -96,3 +104,7 @@ void AntiCheat_CheckClient(edict_t *ent);
 void GetLastDamagedPart(edict_t *self, char *buf);
 void GetEnemyPosition (edict_t * self, char *buf);
 //AQ2:TNG END
+
+void Cmd_SetFlag1_f(edict_t *self);
+void Cmd_SetFlag2_f(edict_t *self);
+void Cmd_SaveFlags_f(edict_t *self);

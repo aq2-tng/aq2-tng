@@ -4,10 +4,16 @@
 //
 // laser sight patch, by Geza Beladi
 //
-// $Id: a_cmds.c,v 1.4 2001/05/13 01:23:01 deathwatch Exp $
+// $Id: a_cmds.c,v 1.5 2001/05/31 16:58:14 igor_rock Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_cmds.c,v $
+// Revision 1.5  2001/05/31 16:58:14  igor_rock
+// conflicts resolved
+//
+// Revision 1.4.2.1  2001/05/20 15:17:31  igor_rock
+// removed the old ctf code completly
+//
 // Revision 1.4  2001/05/13 01:23:01  deathwatch
 // Added Single Barreled Handcannon mode, made the menus and scoreboards
 // look nicer and made the voice command a bit less loud.
@@ -992,21 +998,6 @@ Cmd_Choose_f (edict_t * ent)
       return;
     }
   gi.cprintf (ent, PRINT_HIGH, "Weapon selected: %s\nItem selected: %s\n", (ent->client->resp.weapon)->pickup_name, (ent->client->resp.item)->pickup_name);
-
-  // AQ2:TNG - CTF Checking
-	if(ctf->value)
-	{
-		if(stricmp(s, LASER_NAME) == 0)
-			ForceSpawn(ent); // AQ2:M - CTF
-		else if(stricmp(s, KEV_NAME) == 0)
-			ForceSpawn(ent); // AQ2:M - CTF
-		else if(stricmp(s, SIL_NAME) == 0)
-			ForceSpawn(ent); // AQ2:M - CTF
-		else if(stricmp(s, BAND_NAME) == 0)
-			ForceSpawn(ent); // AQ2:M - CTF
-		else if(stricmp(s, SLIP_NAME) == 0)
-			ForceSpawn(ent); // AQ2:M - CTF
-	}
 
 }
 

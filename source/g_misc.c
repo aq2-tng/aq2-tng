@@ -1,12 +1,27 @@
 //-----------------------------------------------------------------------------
 // g_misc.c
 //
-// $Id: g_misc.c,v 1.1 2001/05/06 17:31:21 igor_rock Exp $
+// $Id: g_misc.c,v 1.2 2001/05/31 16:58:14 igor_rock Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_misc.c,v $
-// Revision 1.1  2001/05/06 17:31:21  igor_rock
-// Initial revision
+// Revision 1.2  2001/05/31 16:58:14  igor_rock
+// conflicts resolved
+//
+// Revision 1.1.1.1.2.2  2001/05/25 18:59:52  igor_rock
+// Added CTF Mode completly :)
+// Support for .flg files is still missing, but with "real" CTF maps like
+// tq2gtd1 the ctf works fine.
+// (I hope that all other modes still work, just tested DM and teamplay)
+//
+// Revision 1.1.1.1.2.1  2001/05/20 18:54:19  igor_rock
+// added original ctf code snippets from zoid. lib compilesand runs but
+// doesn't function the right way.
+// Jsut committing these to have a base to return to if something wents
+// awfully wrong.
+//
+// Revision 1.1.1.1  2001/05/06 17:31:21  igor_rock
+// This is the PG Bund Edition V1.25 with all stuff laying around here...
 //
 //-----------------------------------------------------------------------------
 
@@ -300,12 +315,28 @@ void ThrowDebris (edict_t *self, char *modelname, float speed, vec3_t origin)
 
 void BecomeExplosion1 (edict_t *self)
 {
-        gi.WriteByte (svc_temp_entity);
-        gi.WriteByte (TE_EXPLOSION1);
-        gi.WritePosition (self->s.origin);
-        gi.multicast (self->s.origin, MULTICAST_PVS);
-
-        G_FreeEdict (self);
+  //flags are important
+  if (ctf->value)
+    {
+      if (strcmp(self->classname, "item_flag_team1") == 0) {
+	CTFResetFlag(TEAM1); // this will free self!
+	gi.bprintf(PRINT_HIGH, "The %s flag has returned!\n",
+		   CTFTeamName(TEAM1));
+	return;
+      }
+      if (strcmp(self->classname, "item_flag_team2") == 0) {
+	CTFResetFlag(TEAM2); // this will free self!
+	gi.bprintf(PRINT_HIGH, "The %s flag has returned!\n",
+		   CTFTeamName(TEAM1));
+	return;
+      }
+    }
+  gi.WriteByte (svc_temp_entity);
+  gi.WriteByte (TE_EXPLOSION1);
+  gi.WritePosition (self->s.origin);
+  gi.multicast (self->s.origin, MULTICAST_PVS);
+  
+  G_FreeEdict (self);
 }
 
 

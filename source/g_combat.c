@@ -1,10 +1,28 @@
 //-----------------------------------------------------------------------------
 // g_combat.c
 //
-// $Id: g_combat.c,v 1.6 2001/05/20 12:54:18 igor_rock Exp $
+// $Id: g_combat.c,v 1.7 2001/05/31 16:58:14 igor_rock Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_combat.c,v $
+// Revision 1.7  2001/05/31 16:58:14  igor_rock
+// conflicts resolved
+//
+// Revision 1.6.2.3  2001/05/25 18:59:52  igor_rock
+// Added CTF Mode completly :)
+// Support for .flg files is still missing, but with "real" CTF maps like
+// tq2gtd1 the ctf works fine.
+// (I hope that all other modes still work, just tested DM and teamplay)
+//
+// Revision 1.6.2.2  2001/05/20 18:54:19  igor_rock
+// added original ctf code snippets from zoid. lib compilesand runs but
+// doesn't function the right way.
+// Jsut committing these to have a base to return to if something wents
+// awfully wrong.
+//
+// Revision 1.6.2.1  2001/05/20 15:17:31  igor_rock
+// removed the old ctf code completly
+//
 // Revision 1.6  2001/05/20 12:54:18  igor_rock
 // Removed newlines from Centered Messages like "Impressive"
 //
@@ -393,6 +411,12 @@ void M_ReactToDamage (edict_t *targ, edict_t *attacker)
 
 qboolean CheckTeamDamage (edict_t *targ, edict_t *attacker)
 {
+  //AQ2:TNG Igor isn't quite sure if the next statement really belongs here... (FIXME) commented it out (friendly fire already does it, hm?)
+  //  if (ctf->value && targ->client && attacker->client)
+  //  if (targ->client->resp.team == attacker->client->resp.team &&
+  //	targ != attacker)
+  //      return true;
+  //AQ2:TNG End
   //FIXME make the next line real and uncomment this block
   // if ((ability to damage a teammate == OFF) && (targ's team == attacker's team))
   return false;
@@ -625,10 +649,6 @@ void T_Damage (edict_t *targ, edict_t *inflictor, edict_t *attacker, vec3_t dir,
   if (!targ->takedamage)
     return;
   
-  // AQ2:TNG - CTF - Now... what is the point in being god if we can get hurt?
-  if (targ->flags & FL_GODMODE)
-	return;
-
 //FIREBLADE
   if (teamplay->value && mod != MOD_TELEFRAG)
     {
@@ -1074,7 +1094,11 @@ void T_Damage (edict_t *targ, edict_t *inflictor, edict_t *attacker, vec3_t dir,
 	    take = (int)(take/2); // balances out difference in how action and axshun handle damage/bleeding
 	    
 	    }
-  */              
+  */
+
+  if (ctf->value)
+    CTFCheckHurtCarrier(targ, attacker);
+  
   // do the damage
   if (take)
     {               
