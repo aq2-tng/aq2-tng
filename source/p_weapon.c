@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // g_weapon.c
 //
-// $Id: p_weapon.c,v 1.18 2002/03/27 15:16:56 freud Exp $
+// $Id: p_weapon.c,v 1.19 2002/04/16 16:47:46 freud Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: p_weapon.c,v $
+// Revision 1.19  2002/04/16 16:47:46  freud
+// Fixed the use grenades, drop bandolier bug with use_buggy_bandolier 0
+//
 // Revision 1.18  2002/03/27 15:16:56  freud
 // Original 1.52 spawn code implemented for use_newspawns 0.
 // Teamplay, when dropping bandolier, your drop the grenades.
@@ -720,6 +723,10 @@ ChangeWeapon (edict_t * ent)
     }
   else if (stricmp (ent->client->pers.weapon->pickup_name, GRENADE_NAME) == 0)
     {
+      // Fix the "use grenades;drop bandolier" bug, caused infinite grenades.
+      if (teamplay->value && ent->client->pers.inventory[ITEM_INDEX (FindItem (GRENADE_NAME))] == 0)
+                      ent->client->pers.inventory[ITEM_INDEX (FindItem (GRENADE_NAME))] = 1;
+
       ent->client->curr_weap = GRENADE_NUM;
     }
 
