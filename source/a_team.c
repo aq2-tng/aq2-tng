@@ -3,10 +3,13 @@
 // Some of this is borrowed from Zoid's CTF (thanks Zoid)
 // -Fireblade
 //
-// $Id: a_team.c,v 1.69 2002/02/01 12:54:08 ra Exp $
+// $Id: a_team.c,v 1.70 2002/02/03 01:07:28 freud Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_team.c,v $
+// Revision 1.70  2002/02/03 01:07:28  freud
+// more fixes with stats
+//
 // Revision 1.69  2002/02/01 12:54:08  ra
 // messin with stat_mode
 //
@@ -1841,7 +1844,7 @@ int WonGame (int winner)
   char arg[64];
  
   gi.bprintf (PRINT_HIGH, "The round is over:\n");
-  arg[0] = 0;
+  arg[0] = '\0';
 
 	for (i = 0; i < game.maxclients; i++)
 	{

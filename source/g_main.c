@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 //
 //
-// $Id: g_main.c,v 1.49 2002/02/01 15:02:43 freud Exp $
+// $Id: g_main.c,v 1.50 2002/02/03 01:07:28 freud Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_main.c,v $
+// Revision 1.50  2002/02/03 01:07:28  freud
+// more fixes with stats
+//
 // Revision 1.49  2002/02/01 15:02:43  freud
 // More stat_mode fixes, stat_mode 1 would overflow clients at EndDMLevel.
 //
@@ -473,7 +476,7 @@ void EndDMLevel (void)
 
   // TNG Stats:
   // Reuse ltm for stats.
-  ltm[0] = 0;
+  ltm[0] = '\0';
   for (i = 0; i < game.maxclients; i++) {
 	cl_ent = &g_edicts[1 + i];
 	if (cl_ent->inuse && cl_ent->client->resp.stat_mode == 1)
