@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // g_combat.c
 //
-// $Id: g_combat.c,v 1.25 2002/04/01 15:16:06 freud Exp $
+// $Id: g_combat.c,v 1.26 2002/04/01 15:47:51 freud Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_combat.c,v $
+// Revision 1.26  2002/04/01 15:47:51  freud
+// Typo fixed for statistics
+//
 // Revision 1.25  2002/04/01 15:16:06  freud
 // Stats code redone, tng_stats now much more smarter. Removed a few global
 // variables regarding stats code and added kevlar hits to stats.
@@ -1102,7 +1105,7 @@ T_Damage (edict_t * targ, edict_t * inflictor, edict_t * attacker, vec3_t dir,
 		if (targ->client->pers.inventory[ITEM_INDEX (item)]) {
 			attacker->client->resp.last_damaged_part = LOC_KVLR_VEST;
 			if (!teamplay->value || team_round_going || stats_afterround->value)
-				attacker->client->resp.stats_locations[LOC_CDAM]++; // TNG Stats
+				attacker->client->resp.stats_locations[LOC_KVLR_VEST]++; // TNG Stats
 		} else {
 			attacker->client->resp.last_damaged_part = LOC_CDAM;
 			if (!teamplay->value || team_round_going || stats_afterround->value)
