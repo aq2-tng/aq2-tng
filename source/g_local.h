@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // g_local.h -- local definitions for game module
 //
-// $Id: g_local.h,v 1.18 2001/06/13 08:00:25 igor_rock Exp $
+// $Id: g_local.h,v 1.19 2001/06/13 08:39:13 igor_rock Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_local.h,v $
+// Revision 1.19  2001/06/13 08:39:13  igor_rock
+// changed "cvote" to "use_cvote" (like the other votecvars)
+//
 // Revision 1.18  2001/06/13 08:00:25  igor_rock
 // corrected stupid error (wrong changes committed)
 //
@@ -710,7 +713,7 @@ extern cvar_t *vrot;
 extern cvar_t *rrot;
 extern cvar_t *strtwpn;
 extern cvar_t *llsound;
-extern cvar_t *cvote;
+extern cvar_t *use_cvote;
 //Igor[Rock] END
 
 //AQ2:TNG - Slicer: For Video Checking

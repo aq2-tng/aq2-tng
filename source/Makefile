@@ -1,7 +1,7 @@
 #-----------------------------------------------------------------------------
 # Action makefile 
 #
-# $Id: Makefile,v 1.8 2001/06/13 08:00:25 igor_rock Exp $
+# $Id: Makefile,v 1.9 2001/06/13 08:39:13 igor_rock Exp $
 #
 # Intended for gcc/Linux, may need modifying for other platforms
 # Adapted by PG BUND from Black Cross makefile
@@ -10,6 +10,9 @@
 # (needs still some testing/modification for the dist-targets)
 #-----------------------------------------------------------------------------
 # $Log: Makefile,v $
+# Revision 1.9  2001/06/13 08:39:13  igor_rock
+# changed "cvote" to "use_cvote" (like the other votecvars)
+#
 # Revision 1.8  2001/06/13 08:00:25  igor_rock
 # corrected stupid error (wrong changes committed)
 #
@@ -146,7 +149,7 @@ a_ban.o: /usr/include/sys/select.h /usr/include/bits/select.h
 a_ban.o: /usr/include/bits/sigset.h /usr/include/sys/sysmacros.h
 a_ban.o: /usr/include/alloca.h game.h a_team.h a_game.h a_menu.h a_radio.h
 a_ban.o: a_xcmds.h a_xgame.h g_xmisc.h a_tourney.h a_xvote.h a_xmenu.h
-a_ban.o: a_ban.h a_vote.h a_ctf.h
+a_ban.o: a_ban.h a_vote.h a_match.h a_ctf.h
 a_cmds.o: g_local.h /usr/include/ctype.h /usr/include/features.h
 a_cmds.o: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h
 a_cmds.o: /usr/include/bits/types.h
@@ -165,7 +168,7 @@ a_cmds.o: /usr/include/sys/select.h /usr/include/bits/select.h
 a_cmds.o: /usr/include/bits/sigset.h /usr/include/sys/sysmacros.h
 a_cmds.o: /usr/include/alloca.h game.h a_team.h a_game.h a_menu.h a_radio.h
 a_cmds.o: a_xcmds.h a_xgame.h g_xmisc.h a_tourney.h a_xvote.h a_xmenu.h
-a_cmds.o: a_ban.h a_vote.h a_ctf.h
+a_cmds.o: a_ban.h a_vote.h a_match.h a_ctf.h
 a_ctf.o: g_local.h /usr/include/ctype.h /usr/include/features.h
 a_ctf.o: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h
 a_ctf.o: /usr/include/bits/types.h
@@ -184,7 +187,7 @@ a_ctf.o: /usr/include/sys/select.h /usr/include/bits/select.h
 a_ctf.o: /usr/include/bits/sigset.h /usr/include/sys/sysmacros.h
 a_ctf.o: /usr/include/alloca.h game.h a_team.h a_game.h a_menu.h a_radio.h
 a_ctf.o: a_xcmds.h a_xgame.h g_xmisc.h a_tourney.h a_xvote.h a_xmenu.h
-a_ctf.o: a_ban.h a_vote.h a_ctf.h
+a_ctf.o: a_ban.h a_vote.h a_match.h a_ctf.h
 a_doorkick.o: g_local.h /usr/include/ctype.h /usr/include/features.h
 a_doorkick.o: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h
 a_doorkick.o: /usr/include/bits/types.h
@@ -204,7 +207,7 @@ a_doorkick.o: /usr/include/bits/select.h /usr/include/bits/sigset.h
 a_doorkick.o: /usr/include/sys/sysmacros.h /usr/include/alloca.h game.h
 a_doorkick.o: a_team.h a_game.h a_menu.h a_radio.h a_xcmds.h a_xgame.h
 a_doorkick.o: g_xmisc.h a_tourney.h a_xvote.h a_xmenu.h a_ban.h a_vote.h
-a_doorkick.o: a_ctf.h
+a_doorkick.o: a_match.h a_ctf.h
 a_game.o: g_local.h /usr/include/ctype.h /usr/include/features.h
 a_game.o: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h
 a_game.o: /usr/include/bits/types.h
@@ -223,7 +226,7 @@ a_game.o: /usr/include/sys/select.h /usr/include/bits/select.h
 a_game.o: /usr/include/bits/sigset.h /usr/include/sys/sysmacros.h
 a_game.o: /usr/include/alloca.h game.h a_team.h a_game.h a_menu.h a_radio.h
 a_game.o: a_xcmds.h a_xgame.h g_xmisc.h a_tourney.h a_xvote.h a_xmenu.h
-a_game.o: a_ban.h a_vote.h a_ctf.h cgf_sfx_glass.h
+a_game.o: a_ban.h a_vote.h a_match.h a_ctf.h cgf_sfx_glass.h
 a_items.o: g_local.h /usr/include/ctype.h /usr/include/features.h
 a_items.o: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h
 a_items.o: /usr/include/bits/types.h
@@ -242,7 +245,26 @@ a_items.o: /usr/include/sys/select.h /usr/include/bits/select.h
 a_items.o: /usr/include/bits/sigset.h /usr/include/sys/sysmacros.h
 a_items.o: /usr/include/alloca.h game.h a_team.h a_game.h a_menu.h a_radio.h
 a_items.o: a_xcmds.h a_xgame.h g_xmisc.h a_tourney.h a_xvote.h a_xmenu.h
-a_items.o: a_ban.h a_vote.h a_ctf.h
+a_items.o: a_ban.h a_vote.h a_match.h a_ctf.h
+a_match.o: g_local.h /usr/include/ctype.h /usr/include/features.h
+a_match.o: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h
+a_match.o: /usr/include/bits/types.h
+a_match.o: /usr/lib/gcc-lib/i486-linux/2.7.2.3/include/stddef.h
+a_match.o: /usr/include/endian.h /usr/include/bits/endian.h q_shared.h
+a_match.o: /usr/include/assert.h /usr/include/math.h
+a_match.o: /usr/include/bits/huge_val.h /usr/include/bits/mathdef.h
+a_match.o: /usr/include/bits/mathcalls.h
+a_match.o: /usr/lib/gcc-lib/i486-linux/2.7.2.3/include/float.h
+a_match.o: /usr/include/stdio.h
+a_match.o: /usr/lib/gcc-lib/i486-linux/2.7.2.3/include/stdarg.h
+a_match.o: /usr/include/libio.h /usr/include/_G_config.h
+a_match.o: /usr/include/bits/stdio_lim.h /usr/include/string.h
+a_match.o: /usr/include/stdlib.h /usr/include/sys/types.h /usr/include/time.h
+a_match.o: /usr/include/sys/select.h /usr/include/bits/select.h
+a_match.o: /usr/include/bits/sigset.h /usr/include/sys/sysmacros.h
+a_match.o: /usr/include/alloca.h game.h a_team.h a_game.h a_menu.h a_radio.h
+a_match.o: a_xcmds.h a_xgame.h g_xmisc.h a_tourney.h a_xvote.h a_xmenu.h
+a_match.o: a_ban.h a_vote.h a_match.h a_ctf.h
 a_menu.o: g_local.h /usr/include/ctype.h /usr/include/features.h
 a_menu.o: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h
 a_menu.o: /usr/include/bits/types.h
@@ -261,7 +283,7 @@ a_menu.o: /usr/include/sys/select.h /usr/include/bits/select.h
 a_menu.o: /usr/include/bits/sigset.h /usr/include/sys/sysmacros.h
 a_menu.o: /usr/include/alloca.h game.h a_team.h a_game.h a_menu.h a_radio.h
 a_menu.o: a_xcmds.h a_xgame.h g_xmisc.h a_tourney.h a_xvote.h a_xmenu.h
-a_menu.o: a_ban.h a_vote.h a_ctf.h
+a_menu.o: a_ban.h a_vote.h a_match.h a_ctf.h
 a_radio.o: g_local.h /usr/include/ctype.h /usr/include/features.h
 a_radio.o: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h
 a_radio.o: /usr/include/bits/types.h
@@ -280,7 +302,7 @@ a_radio.o: /usr/include/sys/select.h /usr/include/bits/select.h
 a_radio.o: /usr/include/bits/sigset.h /usr/include/sys/sysmacros.h
 a_radio.o: /usr/include/alloca.h game.h a_team.h a_game.h a_menu.h a_radio.h
 a_radio.o: a_xcmds.h a_xgame.h g_xmisc.h a_tourney.h a_xvote.h a_xmenu.h
-a_radio.o: a_ban.h a_vote.h a_ctf.h
+a_radio.o: a_ban.h a_vote.h a_match.h a_ctf.h
 a_team.o: g_local.h /usr/include/ctype.h /usr/include/features.h
 a_team.o: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h
 a_team.o: /usr/include/bits/types.h
@@ -299,7 +321,7 @@ a_team.o: /usr/include/sys/select.h /usr/include/bits/select.h
 a_team.o: /usr/include/bits/sigset.h /usr/include/sys/sysmacros.h
 a_team.o: /usr/include/alloca.h game.h a_team.h a_game.h a_menu.h a_radio.h
 a_team.o: a_xcmds.h a_xgame.h g_xmisc.h a_tourney.h a_xvote.h a_xmenu.h
-a_team.o: a_ban.h a_vote.h a_ctf.h cgf_sfx_glass.h
+a_team.o: a_ban.h a_vote.h a_match.h a_ctf.h cgf_sfx_glass.h
 a_tourney.o: g_local.h /usr/include/ctype.h /usr/include/features.h
 a_tourney.o: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h
 a_tourney.o: /usr/include/bits/types.h
@@ -319,7 +341,7 @@ a_tourney.o: /usr/include/bits/select.h /usr/include/bits/sigset.h
 a_tourney.o: /usr/include/sys/sysmacros.h /usr/include/alloca.h game.h
 a_tourney.o: a_team.h a_game.h a_menu.h a_radio.h a_xcmds.h a_xgame.h
 a_tourney.o: g_xmisc.h a_tourney.h a_xvote.h a_xmenu.h a_ban.h a_vote.h
-a_tourney.o: a_ctf.h
+a_tourney.o: a_match.h a_ctf.h
 a_vote.o: g_local.h /usr/include/ctype.h /usr/include/features.h
 a_vote.o: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h
 a_vote.o: /usr/include/bits/types.h
@@ -338,7 +360,7 @@ a_vote.o: /usr/include/sys/select.h /usr/include/bits/select.h
 a_vote.o: /usr/include/bits/sigset.h /usr/include/sys/sysmacros.h
 a_vote.o: /usr/include/alloca.h game.h a_team.h a_game.h a_menu.h a_radio.h
 a_vote.o: a_xcmds.h a_xgame.h g_xmisc.h a_tourney.h a_xvote.h a_xmenu.h
-a_vote.o: a_ban.h a_vote.h a_ctf.h
+a_vote.o: a_ban.h a_vote.h a_match.h a_ctf.h
 a_xcmds.o: g_local.h /usr/include/ctype.h /usr/include/features.h
 a_xcmds.o: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h
 a_xcmds.o: /usr/include/bits/types.h
@@ -357,7 +379,7 @@ a_xcmds.o: /usr/include/sys/select.h /usr/include/bits/select.h
 a_xcmds.o: /usr/include/bits/sigset.h /usr/include/sys/sysmacros.h
 a_xcmds.o: /usr/include/alloca.h game.h a_team.h a_game.h a_menu.h a_radio.h
 a_xcmds.o: a_xcmds.h a_xgame.h g_xmisc.h a_tourney.h a_xvote.h a_xmenu.h
-a_xcmds.o: a_ban.h a_vote.h a_ctf.h m_player.h
+a_xcmds.o: a_ban.h a_vote.h a_match.h a_ctf.h m_player.h
 a_xgame.o: g_local.h /usr/include/ctype.h /usr/include/features.h
 a_xgame.o: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h
 a_xgame.o: /usr/include/bits/types.h
@@ -376,7 +398,7 @@ a_xgame.o: /usr/include/sys/select.h /usr/include/bits/select.h
 a_xgame.o: /usr/include/bits/sigset.h /usr/include/sys/sysmacros.h
 a_xgame.o: /usr/include/alloca.h game.h a_team.h a_game.h a_menu.h a_radio.h
 a_xgame.o: a_xcmds.h a_xgame.h g_xmisc.h a_tourney.h a_xvote.h a_xmenu.h
-a_xgame.o: a_ban.h a_vote.h a_ctf.h
+a_xgame.o: a_ban.h a_vote.h a_match.h a_ctf.h
 a_xmenu.o: g_local.h /usr/include/ctype.h /usr/include/features.h
 a_xmenu.o: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h
 a_xmenu.o: /usr/include/bits/types.h
@@ -395,7 +417,7 @@ a_xmenu.o: /usr/include/sys/select.h /usr/include/bits/select.h
 a_xmenu.o: /usr/include/bits/sigset.h /usr/include/sys/sysmacros.h
 a_xmenu.o: /usr/include/alloca.h game.h a_team.h a_game.h a_menu.h a_radio.h
 a_xmenu.o: a_xcmds.h a_xgame.h g_xmisc.h a_tourney.h a_xvote.h a_xmenu.h
-a_xmenu.o: a_ban.h a_vote.h a_ctf.h
+a_xmenu.o: a_ban.h a_vote.h a_match.h a_ctf.h
 a_xvote.o: g_local.h /usr/include/ctype.h /usr/include/features.h
 a_xvote.o: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h
 a_xvote.o: /usr/include/bits/types.h
@@ -414,7 +436,7 @@ a_xvote.o: /usr/include/sys/select.h /usr/include/bits/select.h
 a_xvote.o: /usr/include/bits/sigset.h /usr/include/sys/sysmacros.h
 a_xvote.o: /usr/include/alloca.h game.h a_team.h a_game.h a_menu.h a_radio.h
 a_xvote.o: a_xcmds.h a_xgame.h g_xmisc.h a_tourney.h a_xvote.h a_xmenu.h
-a_xvote.o: a_ban.h a_vote.h a_ctf.h
+a_xvote.o: a_ban.h a_vote.h a_match.h a_ctf.h
 g_ai.o: g_local.h /usr/include/ctype.h /usr/include/features.h
 g_ai.o: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h
 g_ai.o: /usr/include/bits/types.h
@@ -433,7 +455,7 @@ g_ai.o: /usr/include/sys/select.h /usr/include/bits/select.h
 g_ai.o: /usr/include/bits/sigset.h /usr/include/sys/sysmacros.h
 g_ai.o: /usr/include/alloca.h game.h a_team.h a_game.h a_menu.h a_radio.h
 g_ai.o: a_xcmds.h a_xgame.h g_xmisc.h a_tourney.h a_xvote.h a_xmenu.h a_ban.h
-g_ai.o: a_vote.h a_ctf.h
+g_ai.o: a_vote.h a_match.h a_ctf.h
 g_chase.o: g_local.h /usr/include/ctype.h /usr/include/features.h
 g_chase.o: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h
 g_chase.o: /usr/include/bits/types.h
@@ -452,7 +474,7 @@ g_chase.o: /usr/include/sys/select.h /usr/include/bits/select.h
 g_chase.o: /usr/include/bits/sigset.h /usr/include/sys/sysmacros.h
 g_chase.o: /usr/include/alloca.h game.h a_team.h a_game.h a_menu.h a_radio.h
 g_chase.o: a_xcmds.h a_xgame.h g_xmisc.h a_tourney.h a_xvote.h a_xmenu.h
-g_chase.o: a_ban.h a_vote.h a_ctf.h
+g_chase.o: a_ban.h a_vote.h a_match.h a_ctf.h
 g_cmds.o: g_local.h /usr/include/ctype.h /usr/include/features.h
 g_cmds.o: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h
 g_cmds.o: /usr/include/bits/types.h
@@ -471,7 +493,7 @@ g_cmds.o: /usr/include/sys/select.h /usr/include/bits/select.h
 g_cmds.o: /usr/include/bits/sigset.h /usr/include/sys/sysmacros.h
 g_cmds.o: /usr/include/alloca.h game.h a_team.h a_game.h a_menu.h a_radio.h
 g_cmds.o: a_xcmds.h a_xgame.h g_xmisc.h a_tourney.h a_xvote.h a_xmenu.h
-g_cmds.o: a_ban.h a_vote.h a_ctf.h m_player.h
+g_cmds.o: a_ban.h a_vote.h a_match.h a_ctf.h m_player.h
 g_combat.o: g_local.h /usr/include/ctype.h /usr/include/features.h
 g_combat.o: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h
 g_combat.o: /usr/include/bits/types.h
@@ -491,7 +513,7 @@ g_combat.o: /usr/include/bits/select.h /usr/include/bits/sigset.h
 g_combat.o: /usr/include/sys/sysmacros.h /usr/include/alloca.h game.h
 g_combat.o: a_team.h a_game.h a_menu.h a_radio.h a_xcmds.h a_xgame.h
 g_combat.o: g_xmisc.h a_tourney.h a_xvote.h a_xmenu.h a_ban.h a_vote.h
-g_combat.o: a_ctf.h cgf_sfx_glass.h
+g_combat.o: a_match.h a_ctf.h cgf_sfx_glass.h
 g_func.o: g_local.h /usr/include/ctype.h /usr/include/features.h
 g_func.o: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h
 g_func.o: /usr/include/bits/types.h
@@ -510,7 +532,7 @@ g_func.o: /usr/include/sys/select.h /usr/include/bits/select.h
 g_func.o: /usr/include/bits/sigset.h /usr/include/sys/sysmacros.h
 g_func.o: /usr/include/alloca.h game.h a_team.h a_game.h a_menu.h a_radio.h
 g_func.o: a_xcmds.h a_xgame.h g_xmisc.h a_tourney.h a_xvote.h a_xmenu.h
-g_func.o: a_ban.h a_vote.h a_ctf.h
+g_func.o: a_ban.h a_vote.h a_match.h a_ctf.h
 g_items.o: g_local.h /usr/include/ctype.h /usr/include/features.h
 g_items.o: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h
 g_items.o: /usr/include/bits/types.h
@@ -529,7 +551,7 @@ g_items.o: /usr/include/sys/select.h /usr/include/bits/select.h
 g_items.o: /usr/include/bits/sigset.h /usr/include/sys/sysmacros.h
 g_items.o: /usr/include/alloca.h game.h a_team.h a_game.h a_menu.h a_radio.h
 g_items.o: a_xcmds.h a_xgame.h g_xmisc.h a_tourney.h a_xvote.h a_xmenu.h
-g_items.o: a_ban.h a_vote.h a_ctf.h
+g_items.o: a_ban.h a_vote.h a_match.h a_ctf.h
 g_main.o: g_local.h /usr/include/ctype.h /usr/include/features.h
 g_main.o: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h
 g_main.o: /usr/include/bits/types.h
@@ -548,7 +570,7 @@ g_main.o: /usr/include/sys/select.h /usr/include/bits/select.h
 g_main.o: /usr/include/bits/sigset.h /usr/include/sys/sysmacros.h
 g_main.o: /usr/include/alloca.h game.h a_team.h a_game.h a_menu.h a_radio.h
 g_main.o: a_xcmds.h a_xgame.h g_xmisc.h a_tourney.h a_xvote.h a_xmenu.h
-g_main.o: a_ban.h a_vote.h a_ctf.h
+g_main.o: a_ban.h a_vote.h a_match.h a_ctf.h
 g_misc.o: g_local.h /usr/include/ctype.h /usr/include/features.h
 g_misc.o: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h
 g_misc.o: /usr/include/bits/types.h
@@ -567,7 +589,7 @@ g_misc.o: /usr/include/sys/select.h /usr/include/bits/select.h
 g_misc.o: /usr/include/bits/sigset.h /usr/include/sys/sysmacros.h
 g_misc.o: /usr/include/alloca.h game.h a_team.h a_game.h a_menu.h a_radio.h
 g_misc.o: a_xcmds.h a_xgame.h g_xmisc.h a_tourney.h a_xvote.h a_xmenu.h
-g_misc.o: a_ban.h a_vote.h a_ctf.h cgf_sfx_glass.h
+g_misc.o: a_ban.h a_vote.h a_match.h a_ctf.h cgf_sfx_glass.h
 g_monster.o: g_local.h /usr/include/ctype.h /usr/include/features.h
 g_monster.o: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h
 g_monster.o: /usr/include/bits/types.h
@@ -587,7 +609,7 @@ g_monster.o: /usr/include/bits/select.h /usr/include/bits/sigset.h
 g_monster.o: /usr/include/sys/sysmacros.h /usr/include/alloca.h game.h
 g_monster.o: a_team.h a_game.h a_menu.h a_radio.h a_xcmds.h a_xgame.h
 g_monster.o: g_xmisc.h a_tourney.h a_xvote.h a_xmenu.h a_ban.h a_vote.h
-g_monster.o: a_ctf.h
+g_monster.o: a_match.h a_ctf.h
 g_phys.o: g_local.h /usr/include/ctype.h /usr/include/features.h
 g_phys.o: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h
 g_phys.o: /usr/include/bits/types.h
@@ -606,7 +628,7 @@ g_phys.o: /usr/include/sys/select.h /usr/include/bits/select.h
 g_phys.o: /usr/include/bits/sigset.h /usr/include/sys/sysmacros.h
 g_phys.o: /usr/include/alloca.h game.h a_team.h a_game.h a_menu.h a_radio.h
 g_phys.o: a_xcmds.h a_xgame.h g_xmisc.h a_tourney.h a_xvote.h a_xmenu.h
-g_phys.o: a_ban.h a_vote.h a_ctf.h cgf_sfx_glass.h
+g_phys.o: a_ban.h a_vote.h a_match.h a_ctf.h cgf_sfx_glass.h
 g_save.o: g_local.h /usr/include/ctype.h /usr/include/features.h
 g_save.o: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h
 g_save.o: /usr/include/bits/types.h
@@ -625,7 +647,7 @@ g_save.o: /usr/include/sys/select.h /usr/include/bits/select.h
 g_save.o: /usr/include/bits/sigset.h /usr/include/sys/sysmacros.h
 g_save.o: /usr/include/alloca.h game.h a_team.h a_game.h a_menu.h a_radio.h
 g_save.o: a_xcmds.h a_xgame.h g_xmisc.h a_tourney.h a_xvote.h a_xmenu.h
-g_save.o: a_ban.h a_vote.h a_ctf.h cgf_sfx_glass.h
+g_save.o: a_ban.h a_vote.h a_match.h a_ctf.h cgf_sfx_glass.h
 g_spawn.o: g_local.h /usr/include/ctype.h /usr/include/features.h
 g_spawn.o: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h
 g_spawn.o: /usr/include/bits/types.h
@@ -644,7 +666,7 @@ g_spawn.o: /usr/include/sys/select.h /usr/include/bits/select.h
 g_spawn.o: /usr/include/bits/sigset.h /usr/include/sys/sysmacros.h
 g_spawn.o: /usr/include/alloca.h game.h a_team.h a_game.h a_menu.h a_radio.h
 g_spawn.o: a_xcmds.h a_xgame.h g_xmisc.h a_tourney.h a_xvote.h a_xmenu.h
-g_spawn.o: a_ban.h a_vote.h a_ctf.h
+g_spawn.o: a_ban.h a_vote.h a_match.h a_ctf.h
 g_svcmds.o: g_local.h /usr/include/ctype.h /usr/include/features.h
 g_svcmds.o: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h
 g_svcmds.o: /usr/include/bits/types.h
@@ -664,7 +686,7 @@ g_svcmds.o: /usr/include/bits/select.h /usr/include/bits/sigset.h
 g_svcmds.o: /usr/include/sys/sysmacros.h /usr/include/alloca.h game.h
 g_svcmds.o: a_team.h a_game.h a_menu.h a_radio.h a_xcmds.h a_xgame.h
 g_svcmds.o: g_xmisc.h a_tourney.h a_xvote.h a_xmenu.h a_ban.h a_vote.h
-g_svcmds.o: a_ctf.h
+g_svcmds.o: a_match.h a_ctf.h
 g_target.o: g_local.h /usr/include/ctype.h /usr/include/features.h
 g_target.o: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h
 g_target.o: /usr/include/bits/types.h
@@ -684,7 +706,7 @@ g_target.o: /usr/include/bits/select.h /usr/include/bits/sigset.h
 g_target.o: /usr/include/sys/sysmacros.h /usr/include/alloca.h game.h
 g_target.o: a_team.h a_game.h a_menu.h a_radio.h a_xcmds.h a_xgame.h
 g_target.o: g_xmisc.h a_tourney.h a_xvote.h a_xmenu.h a_ban.h a_vote.h
-g_target.o: a_ctf.h
+g_target.o: a_match.h a_ctf.h
 g_trigger.o: g_local.h /usr/include/ctype.h /usr/include/features.h
 g_trigger.o: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h
 g_trigger.o: /usr/include/bits/types.h
@@ -704,7 +726,7 @@ g_trigger.o: /usr/include/bits/select.h /usr/include/bits/sigset.h
 g_trigger.o: /usr/include/sys/sysmacros.h /usr/include/alloca.h game.h
 g_trigger.o: a_team.h a_game.h a_menu.h a_radio.h a_xcmds.h a_xgame.h
 g_trigger.o: g_xmisc.h a_tourney.h a_xvote.h a_xmenu.h a_ban.h a_vote.h
-g_trigger.o: a_ctf.h
+g_trigger.o: a_match.h a_ctf.h
 g_turret.o: g_local.h /usr/include/ctype.h /usr/include/features.h
 g_turret.o: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h
 g_turret.o: /usr/include/bits/types.h
@@ -724,7 +746,7 @@ g_turret.o: /usr/include/bits/select.h /usr/include/bits/sigset.h
 g_turret.o: /usr/include/sys/sysmacros.h /usr/include/alloca.h game.h
 g_turret.o: a_team.h a_game.h a_menu.h a_radio.h a_xcmds.h a_xgame.h
 g_turret.o: g_xmisc.h a_tourney.h a_xvote.h a_xmenu.h a_ban.h a_vote.h
-g_turret.o: a_ctf.h
+g_turret.o: a_match.h a_ctf.h
 g_utils.o: g_local.h /usr/include/ctype.h /usr/include/features.h
 g_utils.o: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h
 g_utils.o: /usr/include/bits/types.h
@@ -743,7 +765,7 @@ g_utils.o: /usr/include/sys/select.h /usr/include/bits/select.h
 g_utils.o: /usr/include/bits/sigset.h /usr/include/sys/sysmacros.h
 g_utils.o: /usr/include/alloca.h game.h a_team.h a_game.h a_menu.h a_radio.h
 g_utils.o: a_xcmds.h a_xgame.h g_xmisc.h a_tourney.h a_xvote.h a_xmenu.h
-g_utils.o: a_ban.h a_vote.h a_ctf.h
+g_utils.o: a_ban.h a_vote.h a_match.h a_ctf.h
 g_weapon.o: g_local.h /usr/include/ctype.h /usr/include/features.h
 g_weapon.o: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h
 g_weapon.o: /usr/include/bits/types.h
@@ -763,7 +785,7 @@ g_weapon.o: /usr/include/bits/select.h /usr/include/bits/sigset.h
 g_weapon.o: /usr/include/sys/sysmacros.h /usr/include/alloca.h game.h
 g_weapon.o: a_team.h a_game.h a_menu.h a_radio.h a_xcmds.h a_xgame.h
 g_weapon.o: g_xmisc.h a_tourney.h a_xvote.h a_xmenu.h a_ban.h a_vote.h
-g_weapon.o: a_ctf.h cgf_sfx_glass.h
+g_weapon.o: a_match.h a_ctf.h cgf_sfx_glass.h
 g_xmisc.o: g_local.h /usr/include/ctype.h /usr/include/features.h
 g_xmisc.o: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h
 g_xmisc.o: /usr/include/bits/types.h
@@ -782,7 +804,7 @@ g_xmisc.o: /usr/include/sys/select.h /usr/include/bits/select.h
 g_xmisc.o: /usr/include/bits/sigset.h /usr/include/sys/sysmacros.h
 g_xmisc.o: /usr/include/alloca.h game.h a_team.h a_game.h a_menu.h a_radio.h
 g_xmisc.o: a_xcmds.h a_xgame.h g_xmisc.h a_tourney.h a_xvote.h a_xmenu.h
-g_xmisc.o: a_ban.h a_vote.h a_ctf.h m_player.h
+g_xmisc.o: a_ban.h a_vote.h a_match.h a_ctf.h m_player.h
 m_move.o: g_local.h /usr/include/ctype.h /usr/include/features.h
 m_move.o: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h
 m_move.o: /usr/include/bits/types.h
@@ -801,7 +823,7 @@ m_move.o: /usr/include/sys/select.h /usr/include/bits/select.h
 m_move.o: /usr/include/bits/sigset.h /usr/include/sys/sysmacros.h
 m_move.o: /usr/include/alloca.h game.h a_team.h a_game.h a_menu.h a_radio.h
 m_move.o: a_xcmds.h a_xgame.h g_xmisc.h a_tourney.h a_xvote.h a_xmenu.h
-m_move.o: a_ban.h a_vote.h a_ctf.h
+m_move.o: a_ban.h a_vote.h a_match.h a_ctf.h
 p_client.o: g_local.h /usr/include/ctype.h /usr/include/features.h
 p_client.o: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h
 p_client.o: /usr/include/bits/types.h
@@ -821,7 +843,7 @@ p_client.o: /usr/include/bits/select.h /usr/include/bits/sigset.h
 p_client.o: /usr/include/sys/sysmacros.h /usr/include/alloca.h game.h
 p_client.o: a_team.h a_game.h a_menu.h a_radio.h a_xcmds.h a_xgame.h
 p_client.o: g_xmisc.h a_tourney.h a_xvote.h a_xmenu.h a_ban.h a_vote.h
-p_client.o: a_ctf.h m_player.h cgf_sfx_glass.h
+p_client.o: a_match.h a_ctf.h m_player.h cgf_sfx_glass.h
 p_hud.o: g_local.h /usr/include/ctype.h /usr/include/features.h
 p_hud.o: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h
 p_hud.o: /usr/include/bits/types.h
@@ -840,7 +862,7 @@ p_hud.o: /usr/include/sys/select.h /usr/include/bits/select.h
 p_hud.o: /usr/include/bits/sigset.h /usr/include/sys/sysmacros.h
 p_hud.o: /usr/include/alloca.h game.h a_team.h a_game.h a_menu.h a_radio.h
 p_hud.o: a_xcmds.h a_xgame.h g_xmisc.h a_tourney.h a_xvote.h a_xmenu.h
-p_hud.o: a_ban.h a_vote.h a_ctf.h
+p_hud.o: a_ban.h a_vote.h a_match.h a_ctf.h
 p_trail.o: g_local.h /usr/include/ctype.h /usr/include/features.h
 p_trail.o: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h
 p_trail.o: /usr/include/bits/types.h
@@ -859,7 +881,7 @@ p_trail.o: /usr/include/sys/select.h /usr/include/bits/select.h
 p_trail.o: /usr/include/bits/sigset.h /usr/include/sys/sysmacros.h
 p_trail.o: /usr/include/alloca.h game.h a_team.h a_game.h a_menu.h a_radio.h
 p_trail.o: a_xcmds.h a_xgame.h g_xmisc.h a_tourney.h a_xvote.h a_xmenu.h
-p_trail.o: a_ban.h a_vote.h a_ctf.h
+p_trail.o: a_ban.h a_vote.h a_match.h a_ctf.h
 p_view.o: g_local.h /usr/include/ctype.h /usr/include/features.h
 p_view.o: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h
 p_view.o: /usr/include/bits/types.h
@@ -878,7 +900,7 @@ p_view.o: /usr/include/sys/select.h /usr/include/bits/select.h
 p_view.o: /usr/include/bits/sigset.h /usr/include/sys/sysmacros.h
 p_view.o: /usr/include/alloca.h game.h a_team.h a_game.h a_menu.h a_radio.h
 p_view.o: a_xcmds.h a_xgame.h g_xmisc.h a_tourney.h a_xvote.h a_xmenu.h
-p_view.o: a_ban.h a_vote.h a_ctf.h m_player.h
+p_view.o: a_ban.h a_vote.h a_match.h a_ctf.h m_player.h
 p_weapon.o: g_local.h /usr/include/ctype.h /usr/include/features.h
 p_weapon.o: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h
 p_weapon.o: /usr/include/bits/types.h
@@ -898,7 +920,7 @@ p_weapon.o: /usr/include/bits/select.h /usr/include/bits/sigset.h
 p_weapon.o: /usr/include/sys/sysmacros.h /usr/include/alloca.h game.h
 p_weapon.o: a_team.h a_game.h a_menu.h a_radio.h a_xcmds.h a_xgame.h
 p_weapon.o: g_xmisc.h a_tourney.h a_xvote.h a_xmenu.h a_ban.h a_vote.h
-p_weapon.o: a_ctf.h m_player.h
+p_weapon.o: a_match.h a_ctf.h m_player.h
 q_shared.o: q_shared.h /usr/include/assert.h /usr/include/features.h
 q_shared.o: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h
 q_shared.o: /usr/include/math.h /usr/include/bits/huge_val.h

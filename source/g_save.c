@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // g_save.c
 //
-// $Id: g_save.c,v 1.17 2001/06/06 18:57:14 slicerdw Exp $
+// $Id: g_save.c,v 1.18 2001/06/13 08:39:13 igor_rock Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_save.c,v $
+// Revision 1.18  2001/06/13 08:39:13  igor_rock
+// changed "cvote" to "use_cvote" (like the other votecvars)
+//
 // Revision 1.17  2001/06/06 18:57:14  slicerdw
 // Some tweaks on Ctf and related things
 //
@@ -320,7 +323,7 @@ void InitGame (void)
   vrot = gi.cvar("vrot", "0", CVAR_LATCH);
   rrot = gi.cvar("rrot", "0", CVAR_LATCH);
   llsound = gi.cvar("llsound", "1", CVAR_LATCH);
-  cvote = gi.cvar("cvote", "0", CVAR_SERVERINFO);  
+  use_cvote = gi.cvar("use_cvote", "0", CVAR_SERVERINFO);  
   //Igor[Rock] END
 	//AQ2:TNG - Slicer
 	check_time = gi.cvar("check_time", "3", 0);

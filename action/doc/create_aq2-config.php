@@ -2,7 +2,7 @@
   //-----------------------------------------------------------------------------
   // create_aq2-config.php
   //-----------------------------------------------------------------------------
-  // $Id: create_aq2-config.php,v 1.3 2001/05/31 17:01:48 igor_rock Exp $
+  // $Id: create_aq2-config.php,v 1.4 2001/06/13 08:39:13 igor_rock Exp $
   //-----------------------------------------------------------------------------
 
   // Do some checks for illegal game modes
@@ -130,7 +130,7 @@
   print "// Voting\n";
   print "//-----------------------------------------------------------------------------\n";
   print "";
-  print "set cvote $data[cvote]\n";
+  print "set use_cvote $data[use_cvote]\n";
   print "set cvote_min $data[cvote_min]\n";
   print "set cvote_need $data[cvote_need]\n";
   print "set cvote_pass $data[cvote_pass]\n";

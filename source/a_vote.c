@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // a_vote.c
 //
-// $Id: a_vote.c,v 1.2 2001/05/12 20:58:22 ra Exp $
+// $Id: a_vote.c,v 1.3 2001/06/13 08:39:13 igor_rock Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_vote.c,v $
+// Revision 1.3  2001/06/13 08:39:13  igor_rock
+// changed "cvote" to "use_cvote" (like the other votecvars)
+//
 // Revision 1.2  2001/05/12 20:58:22  ra
 //
 //
@@ -1278,7 +1281,7 @@ _InitConfiglist (ini_t * ini)
 {
   char buf[1024];
 
-  // note that this is done whether we have set "cvote" or not!
+  // note that this is done whether we have set "use_cvote" or not!
   config_votes = NULL;
   config_num_configs = 0;
   config_num_votes = 0;
@@ -1286,7 +1289,7 @@ _InitConfiglist (ini_t * ini)
   config_need_to_check_votes = true;
   ReadConfiglistFile ();
 
-  cvote = gi.cvar ("cvote", "0", CVAR_SERVERINFO);
+  use_cvote = gi.cvar ("use_cvote", "0", CVAR_SERVERINFO);
 
   cvote_min = gi.cvar ("cvote_min",
 		 ReadIniStr (ini, CONFIGVOTESECTION, "cvote_min", buf, "1"),
@@ -1297,7 +1300,7 @@ _InitConfiglist (ini_t * ini)
   cvote_pass = gi.cvar ("cvote_pass",
 	       ReadIniStr (ini, CONFIGVOTESECTION, "cvote_pass", buf, "50"),
 			CVAR_LATCH);
-  return (cvote);
+  return (use_cvote);
 }
 
 //---------------

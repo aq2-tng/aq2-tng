@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 //
 //
-// $Id: g_main.c,v 1.9 2001/06/01 19:18:42 slicerdw Exp $
+// $Id: g_main.c,v 1.10 2001/06/13 08:39:13 igor_rock Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_main.c,v $
+// Revision 1.10  2001/06/13 08:39:13  igor_rock
+// changed "cvote" to "use_cvote" (like the other votecvars)
+//
 // Revision 1.9  2001/06/01 19:18:42  slicerdw
 // Added Matchmode Code
 //
@@ -120,7 +123,7 @@ cvar_t   *vrot;
 cvar_t   *rrot;
 cvar_t   *strtwpn;
 cvar_t   *llsound;
-cvar_t   *cvote;
+cvar_t   *use_cvote;
 //Igor[Rock] END
 
 //Black Cross - Begin
