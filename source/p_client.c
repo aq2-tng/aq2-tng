@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // p_client.c
 //
-// $Id: p_client.c,v 1.39 2001/08/06 03:00:49 ra Exp $
+// $Id: p_client.c,v 1.40 2001/08/06 13:41:41 slicerdw Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: p_client.c,v $
+// Revision 1.40  2001/08/06 13:41:41  slicerdw
+// Added a fix for ctf..
+//
 // Revision 1.39  2001/08/06 03:00:49  ra
 // Added FF after rounds. Please someone look at the EVIL if statments for me :)
 //
@@ -3206,7 +3209,14 @@ qboolean ClientConnect (edict_t *ent, char *userinfo)
 //EEK
 
 	ResetKills(ent);
-
+//AQ2:TNG Slicer adding a fix ?
+	if(ctf->value)
+	{
+		ent->solid = SOLID_NOT;
+		ent->client->resp.team = NOTEAM;
+		ent->deadflag = DEAD_DEAD;
+	}
+	//AQ2:TNG END
 //FIREBLADE
 // We're not going to attempt to support reconnection...
 
