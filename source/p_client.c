@@ -1,12 +1,12 @@
 //-----------------------------------------------------------------------------
 // p_client.c
 //
-// $Id: p_client.c,v 1.28 2001/06/20 21:20:30 slicerdw Exp $
+// $Id: p_client.c,v 1.29 2001/06/20 21:43:26 slicerdw Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: p_client.c,v $
-// Revision 1.28  2001/06/20 21:20:30  slicerdw
-// Added new Video System and a few tweaks to vars :\
+// Revision 1.29  2001/06/20 21:43:26  slicerdw
+// New Video Checking system - Bug fixed
 //
 // Revision 1.27  2001/06/20 07:21:21  igor_rock
 // added use_warnings to enable/disable time/frags left msgs

@@ -1,12 +1,12 @@
 //-----------------------------------------------------------------------------
 // g_spawn.c
 //
-// $Id: g_spawn.c,v 1.17 2001/06/20 21:20:30 slicerdw Exp $
+// $Id: g_spawn.c,v 1.18 2001/06/20 21:43:26 slicerdw Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_spawn.c,v $
-// Revision 1.17  2001/06/20 21:20:30  slicerdw
-// Added new Video System and a few tweaks to vars :\
+// Revision 1.18  2001/06/20 21:43:26  slicerdw
+// New Video Checking system - Bug fixed
 //
 // Revision 1.16  2001/06/13 09:43:49  igor_rock
 // if ctf is enabled, friendly fire automatically set to off (ff doesn't make any sense in ctf)

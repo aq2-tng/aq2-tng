@@ -16,12 +16,12 @@
 // you get compiler errors too, comment them out like
 // I'd done.
 //
-// $Id: a_xgame.c,v 1.7 2001/06/20 21:20:29 slicerdw Exp $
+// $Id: a_xgame.c,v 1.8 2001/06/20 21:43:26 slicerdw Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_xgame.c,v $
-// Revision 1.7  2001/06/20 21:20:29  slicerdw
-// Added new Video System and a few tweaks to vars :\
+// Revision 1.8  2001/06/20 21:43:26  slicerdw
+// New Video Checking system - Bug fixed
 //
 // Revision 1.6  2001/06/19 18:56:38  deathwatch
 // New Last killed target system

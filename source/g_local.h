@@ -1,12 +1,12 @@
 //-----------------------------------------------------------------------------
 // g_local.h -- local definitions for game module
 //
-// $Id: g_local.h,v 1.23 2001/06/20 21:20:30 slicerdw Exp $
+// $Id: g_local.h,v 1.24 2001/06/20 21:43:26 slicerdw Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_local.h,v $
-// Revision 1.23  2001/06/20 21:20:30  slicerdw
-// Added new Video System and a few tweaks to vars :\
+// Revision 1.24  2001/06/20 21:43:26  slicerdw
+// New Video Checking system - Bug fixed
 //
 // Revision 1.22  2001/06/20 07:21:21  igor_rock
 // added use_warnings to enable/disable time/frags left msgs

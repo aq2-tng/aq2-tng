@@ -1,12 +1,12 @@
 //-----------------------------------------------------------------------------
 // p_view.c
 //
-// $Id: p_view.c,v 1.9 2001/06/20 21:20:30 slicerdw Exp $
+// $Id: p_view.c,v 1.10 2001/06/20 21:43:26 slicerdw Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: p_view.c,v $
-// Revision 1.9  2001/06/20 21:20:30  slicerdw
-// Added new Video System and a few tweaks to vars :\
+// Revision 1.10  2001/06/20 21:43:26  slicerdw
+// New Video Checking system - Bug fixed
 //
 // Revision 1.8  2001/06/18 12:36:40  igor_rock
 // added new irvision mode (with reddish screen and alpha blend) and corresponding
