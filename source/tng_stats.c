@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // Statistics Related Code
 //
-// $Id: tng_stats.c,v 1.32 2002/04/03 15:05:03 freud Exp $
+// $Id: tng_stats.c,v 1.33 2004/05/18 20:35:45 slicerdw Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: tng_stats.c,v $
+// Revision 1.33  2004/05/18 20:35:45  slicerdw
+// Fixed a bug on stats command
+//
 // Revision 1.32  2002/04/03 15:05:03  freud
 // My indenting broke something, rolled the source back.
 //
@@ -117,9 +120,14 @@ void Cmd_Stats_f (edict_t *targetent, char *arg)
 			return;
 		}
 		i = atoi (arg);
-		ent = &g_edicts[1 + i];
-		if (i >= game.maxclients || !ent->inuse)
+		//SLIC2
+		if(i < 0 || i >= game.maxclients)
 			ent = targetent;
+		else
+			ent = &g_edicts[1 + i];
+		if (!ent->inuse)
+			ent = targetent;
+		//SLIC2 END
 
 	} else {
 		ent = targetent;
