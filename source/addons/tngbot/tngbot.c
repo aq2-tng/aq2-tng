@@ -3,7 +3,7 @@
  * (c) 2001 by Stefan Giesen aka Igor[Rock]
  * All rights reserved
  *
- * $Id: tngbot.c,v 1.1 2001/11/29 17:58:31 igor_rock Exp $
+ * $Id: tngbot.c,v 1.2 2001/11/29 18:30:48 igor_rock Exp $
  *
  *----------------------------------------------------------------------------
  * Usage: tngbot <ircserver>[:port] <channelname> <nickname>
@@ -35,6 +35,9 @@
  *
  *----------------------------------------------------------------------------
  * $Log: tngbot.c,v $
+ * Revision 1.2  2001/11/29 18:30:48  igor_rock
+ * corrected a smaller bug
+ *
  * Revision 1.1  2001/11/29 17:58:31  igor_rock
  * TNG IRC Bot - First Version
  *
@@ -58,7 +61,7 @@
 #define IRC_PORT 6667
 #define BUFLEN   2048
 
-#define BLACK   "1"
+#define GREY   "14"
 #define BLUE   "12"
 #define GREEN   "3"
 #define RED     "4"
@@ -157,7 +160,7 @@ void colorize (char *inbuf, char *outbuf)
 	for (from = 0, to = strlen(outbuf); from < found; from++, to++) {
 	  outbuf[to] = inbuf[from];
 	}
-	sprintf (&outbuf[to], "%c%s%s%c%s", 0x03, BLACK, &filtertxt[i][1], 0x03, BLUE);
+	sprintf (&outbuf[to], "%c%s%s%c%s", 0x03, GREY, &filtertxt[i][1], 0x03, BLUE);
 	from += strlen (&filtertxt[i][1]);
 	to = strlen(outbuf);
 	if (inbuf[from] == ' ') {
@@ -168,7 +171,7 @@ void colorize (char *inbuf, char *outbuf)
 	while ((inbuf[from] != ' ') && inbuf[from]){
 	  outbuf[to++] = inbuf[from++];
 	}
-	sprintf (&outbuf[to], "%c%s%s", 0x03, BLACK, &inbuf[from]);
+	sprintf (&outbuf[to], "%c%s%s", 0x03, GREY, &inbuf[from]);
 	done = 1;
 	break;
 
@@ -177,17 +180,17 @@ void colorize (char *inbuf, char *outbuf)
 	for (from = 0, to = strlen(outbuf); from < found; from++, to++) {
 	  outbuf[to] = inbuf[from];
 	}
-	sprintf (&outbuf[to], "%c%s%s\n", 0x03, BLACK, &filtertxt[i][1]);
+	sprintf (&outbuf[to], "%c%s%s\n", 0x03, GREY, &filtertxt[i][1]);
 	done = 1;
 	break;
 
       case 'G':
-	sprintf (outbuf, "%c%s%s%c%s\n", 0x03, RED, inbuf, 0x03, BLACK);
+	sprintf (outbuf, "%c%s%s%c%s\n", 0x03, RED, inbuf, 0x03, GREY);
 	done = 1;
 	break;
 
       case 'S':
-	sprintf (outbuf, "%c%s%s%c%s\n", 0x03, ORANGE, inbuf, 0x03, BLACK);
+	sprintf (outbuf, "%c%s%s%c%s\n", 0x03, ORANGE, inbuf, 0x03, GREY);
 	done = 1;
 	break;
 
@@ -200,7 +203,8 @@ void colorize (char *inbuf, char *outbuf)
 	done = 1;
 	break;
       }
-      
+
+      i = filteranz;
     }
   }
   
@@ -209,7 +213,7 @@ void colorize (char *inbuf, char *outbuf)
       ;
     if (i && (i < strlen(inbuf))) {
       if (inbuf[i-1] == ':') {
-	sprintf (outbuf, "%c%s%s%c%s\n", 0x03, GREEN, inbuf, 0x03, BLACK);
+	sprintf (outbuf, "%c%s%s%c%s\n", 0x03, GREEN, inbuf, 0x03, GREY);
 	done = 1;
       }
     }
