@@ -4,10 +4,13 @@
 //
 // contains all new non standard command functions
 //
-// $Id: a_xcmds.c,v 1.4 2001/05/31 16:58:14 igor_rock Exp $
+// $Id: a_xcmds.c,v 1.5 2001/07/13 00:34:52 slicerdw Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_xcmds.c,v $
+// Revision 1.5  2001/07/13 00:34:52  slicerdw
+// Adjusted Punch command
+//
 // Revision 1.4  2001/05/31 16:58:14  igor_rock
 // conflicts resolved
 //
@@ -98,7 +101,10 @@ Cmd_Menu_f (edict_t * self)
 void
 Cmd_Punch_f (edict_t * self)
 {
-  if (self->deadflag == DEAD_DEAD || self->solid == SOLID_NOT)
+  if (self->deadflag == DEAD_DEAD
+	  || self->solid == SOLID_NOT
+	  || self->client->resp.sniper_mode != SNIPER_1X
+	  || self->client->weaponstate != WEAPON_READY)
       return;
 
   // animation moved to punch_attack() in a_xgame.c
