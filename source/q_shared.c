@@ -1,12 +1,15 @@
 //-----------------------------------------------------------------------------
 // q_shared.c
 //
-// $Id: q_shared.c,v 1.1 2001/05/06 17:24:20 igor_rock Exp $
+// $Id: q_shared.c,v 1.2 2001/08/19 01:22:25 deathwatch Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: q_shared.c,v $
-// Revision 1.1  2001/05/06 17:24:20  igor_rock
-// Initial revision
+// Revision 1.2  2001/08/19 01:22:25  deathwatch
+// cleaned the formatting of some files
+//
+// Revision 1.1.1.1  2001/05/06 17:24:20  igor_rock
+// This is the PG Bund Edition V1.25 with all stuff laying around here...
 //
 //-----------------------------------------------------------------------------
 
@@ -1409,5 +1412,3 @@ void Info_SetValueForKey (char *s, char *key, char *value)
 }
 
 //====================================================================
-
-

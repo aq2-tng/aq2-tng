@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // p_view.c
 //
-// $Id: p_view.c,v 1.14 2001/08/18 20:51:55 deathwatch Exp $
+// $Id: p_view.c,v 1.15 2001/08/19 01:22:25 deathwatch Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: p_view.c,v $
+// Revision 1.15  2001/08/19 01:22:25  deathwatch
+// cleaned the formatting of some files
+//
 // Revision 1.14  2001/08/18 20:51:55  deathwatch
 // Messing with the colours of the flashlight and the person using the
 // flashlight
@@ -902,8 +905,8 @@ void G_SetClientEffects (edict_t *ent)
   }
 	// TNG Flashlight
 	if((darkmatch->value) && (ent->client) && (ent->flashlight)) {
-		ent->s.effects |= EF_YELLOWSHELL; // no good one? :/
-		//ent->s.renderfx |= RF_MINLIGHT;
+		//ent->s.effects |= EF_YELLOWSHELL; // no good one? :/
+		ent->s.renderfx |= RF_FULLBRIGHT;
 	}
 }
 

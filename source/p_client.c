@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // p_client.c
 //
-// $Id: p_client.c,v 1.45 2001/08/17 21:31:37 deathwatch Exp $
+// $Id: p_client.c,v 1.46 2001/08/19 01:22:25 deathwatch Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: p_client.c,v $
+// Revision 1.46  2001/08/19 01:22:25  deathwatch
+// cleaned the formatting of some files
+//
 // Revision 1.45  2001/08/17 21:31:37  deathwatch
 // Added support for stats
 //
@@ -3197,82 +3200,70 @@ loadgames will.
 */
 qboolean ClientConnect (edict_t *ent, char *userinfo)
 {
-        char    *value, *ipaddr;
-        char ipaddr_buf[100];
+	char	*value, *ipaddr;
+  char	ipaddr_buf[100];
 
-        // check to see if they are on the banned IP list
-        ipaddr = Info_ValueForKey (userinfo, "ip");
-//FIREBLADE
+	// check to see if they are on the banned IP list
+	ipaddr = Info_ValueForKey (userinfo, "ip");
+	
 	if (strlen(ipaddr) > sizeof(ipaddr_buf)-1)
 		gi.dprintf("ipaddr_buf length exceeded\n");
         strncpy(ipaddr_buf, ipaddr, 99);
         ipaddr_buf[99] = 0;
-//FIREBLADE
 
-// FROM 3.20  -FB
-        if (SV_FilterPacket(ipaddr)) {
-                Info_SetValueForKey(userinfo, "rejmsg", "Banned.");
-                return false;
-        }
 
-        // check for a password
-        value = Info_ValueForKey (userinfo, "password");
-        if (*password->string && strcmp(password->string, "none") && 
-                        strcmp(password->string, value)) {
-                Info_SetValueForKey(userinfo, "rejmsg", "Password required or incorrect.");
-                return false;
-        }
-// ^^^
+	if (SV_FilterPacket(ipaddr)) {
+		Info_SetValueForKey(userinfo, "rejmsg", "Banned.");
+		return false;
+	}
+				
+	// check for a password
+	value = Info_ValueForKey (userinfo, "password");
+	
+	if (*password->string && strcmp(password->string, "none") && strcmp(password->string, value)) {
+		Info_SetValueForKey(userinfo, "rejmsg", "Password required or incorrect.");
+		return false;
+	}
       
-        if (vClientConnect(ent, userinfo) == false)
-          return false;
-        // they can connect
-        ent->client = game.clients + (ent - g_edicts - 1);
-//AZEROV
-	ent->client->team_kills = 0;
-//AZEROV
+	if (vClientConnect(ent, userinfo) == false)
+		return false;
+        
+	// they can connect
+	ent->client = game.clients + (ent - g_edicts - 1);
 
-//EEK
+	ent->client->team_kills = 0;
 	ent->client->team_wounds = 0;
 	ent->client->team_wounds_before = 0;
-//EEK
 
 	ResetKills(ent);
 
-//FIREBLADE
-// We're not going to attempt to support reconnection...
 
-        if (ent->inuse == true)
-        {
-          ClientDisconnect(ent);
-          ent->inuse = false;
-        }       
-//FIREBLADE
+	// We're not going to attempt to support reconnection...
+	if (ent->inuse == true)
+	{
+		ClientDisconnect(ent);
+		ent->inuse = false;
+	}
 
+	if (ent->inuse == false)
+	{
+		// clear the respawning variables
+		InitClientResp (ent->client);
+		if (!game.autosaved || !ent->client->pers.weapon)
+			InitClientPersistant (ent->client);
+	}
 
-        // if there is already a body waiting for us (a loadgame), just
-        // take it, otherwise spawn one from scratch
-        if (ent->inuse == false)
-        {
-                // clear the respawning variables
-                InitClientResp (ent->client);
-                if (!game.autosaved || !ent->client->pers.weapon)
-                        InitClientPersistant (ent->client);
-        }
+	ClientUserinfoChanged (ent, userinfo);
 
-        ClientUserinfoChanged (ent, userinfo);
+	if (game.maxclients > 1)
+		gi.dprintf ("%s@%s connected\n",ent->client->pers.netname, ipaddr_buf);
 
-        if (game.maxclients > 1)
-                gi.dprintf ("%s@%s connected\n",ent->client->pers.netname, ipaddr_buf);
-//EEK
-		strncpy(ent->client->ipaddr, ipaddr_buf, sizeof(ent->client->ipaddr));
-//EEK
+	strncpy(ent->client->ipaddr, ipaddr_buf, sizeof(ent->client->ipaddr));
 
-// FROM 3.20 -FB
-        ent->svflags = 0;
-// ^^^
-        ent->client->pers.connected = true;
-        return true;
+	ent->svflags = 0;
+	
+	ent->client->pers.connected = true;
+	return true;
 }
 
 /*
@@ -3285,41 +3276,42 @@ Will not be called between levels.
 */
 void ClientDisconnect (edict_t *ent)
 {
-        int             playernum, i;
-        edict_t *etemp;
+	int			playernum, i;
+  edict_t	*etemp;
 
-        if (!ent->client)
-                return;
+  if (!ent->client)
+		return;
 
-        // drop items if they are alive/not observer
-        if ( ent->solid != SOLID_NOT )
-                TossItemsOnDeath(ent);
+	// drop items if they are alive/not observer
+  if ( ent->solid != SOLID_NOT )
+		TossItemsOnDeath(ent);
         
-        // zucc free the lasersight if applicable
-        if (ent->lasersight)
-                SP_LaserSight(ent, NULL);
+	// zucc free the lasersight if applicable
+	if (ent->lasersight)
+		SP_LaserSight(ent, NULL);
 
-//FIREBLADE
-        if (teamplay->value && ent->solid == SOLID_TRIGGER)
-                RemoveFromTransparentList(ent);
-//FIREBLADE
+	// TNG Free Flashlight
+	if (ent->flashlight)
+		FL_make(ent);
 
-        ent->lasersight = NULL;
+	if (teamplay->value && ent->solid == SOLID_TRIGGER)
+		RemoveFromTransparentList(ent);
 
-        gi.bprintf (PRINT_HIGH, "%s disconnected\n", ent->client->pers.netname);
+	ent->lasersight = NULL;
 
-        // go clear any clients that have this guy as their attacker
+	gi.bprintf (PRINT_HIGH, "%s disconnected\n", ent->client->pers.netname);
 
-        for( i=1; i<=maxclients->value; i++ )                   
-        {               
-          if ( (etemp=&g_edicts[i]) && etemp->inuse)
-          {
-            if ( etemp->client->attacker == ent )
-              etemp->client->attacker = NULL;
-// AQ:TNG - JBravo adding tkok
-            if (etemp->enemy == ent)
-              etemp->enemy = NULL;
-// end tkok
+	// go clear any clients that have this guy as their attacker
+
+	for( i=1; i<=maxclients->value; i++ )
+	{               
+		if ( (etemp=&g_edicts[i]) && etemp->inuse)
+		{
+			if ( etemp->client->attacker == ent )
+				etemp->client->attacker = NULL;
+					if (etemp->enemy == ent) // AQ:TNG - JBravo adding tkok
+						etemp->enemy = NULL;
+
 			//AQ2:TNG SLICER this is not needed
 			/*
 //PG BUND - BEGIN 
@@ -3331,27 +3323,23 @@ void ClientDisconnect (edict_t *ent)
 //PG BUND - END
 */ 
 			//AQ2:TNG END
-          }
-        }
+		}
+	}
 
-        
-//PG BUND - BEGIN 
-  TourneyRemovePlayer(ent);
-  // client voting disconnect
-  vClientDisconnect(ent);
-//PG BUND - END 
+	TourneyRemovePlayer(ent);
+  vClientDisconnect(ent); // client voting disconnect
         
   if (ctf->value)
     CTFDeadDropFlag(ent);
   
   if (!teamplay->value)
-    {  //FB 5/31/99
-      // send effect
-      gi.WriteByte (svc_muzzleflash);
-      gi.WriteShort (ent-g_edicts);
-      gi.WriteByte (MZ_LOGOUT);
-      gi.multicast (ent->s.origin, MULTICAST_PVS);
-    }
+	{ 
+		// send effect
+		gi.WriteByte (svc_muzzleflash);
+		gi.WriteShort (ent-g_edicts);
+		gi.WriteByte (MZ_LOGOUT);
+		gi.multicast (ent->s.origin, MULTICAST_PVS);
+	}
   
   gi.unlinkentity (ent);
   ent->s.modelindex = 0;
@@ -3363,12 +3351,10 @@ void ClientDisconnect (edict_t *ent)
   playernum = ent-g_edicts-1;
   gi.configstring (CS_PLAYERSKINS+playernum, "");
   
-  //FIREBLADE
   if (teamplay->value && !use_tourney->value)
-    {
-      CheckForUnevenTeams();
-    }
-  //FIREBLADE
+	{
+		CheckForUnevenTeams();
+	}
 }
 
 
@@ -3452,34 +3438,34 @@ void ClientThink (edict_t *ent, usercmd_t *ucmd)
       client->resp.cmd_angles[1] = SHORT2ANGLE(ucmd->angles[1]);
       client->resp.cmd_angles[2] = SHORT2ANGLE(ucmd->angles[2]);
     } 
-  else 
+		else 
     {
       // ^^^
       // set up for pmove
       memset (&pm, 0, sizeof(pm));
       if (ent->movetype == MOVETYPE_NOCLIP)
-	client->ps.pmove.pm_type = PM_SPECTATOR;
+				client->ps.pmove.pm_type = PM_SPECTATOR;
       else if (ent->s.modelindex != 255)
-	client->ps.pmove.pm_type = PM_GIB;
+				client->ps.pmove.pm_type = PM_GIB;
       else if (ent->deadflag)
-	client->ps.pmove.pm_type = PM_DEAD;
+				client->ps.pmove.pm_type = PM_DEAD;
       else
-	client->ps.pmove.pm_type = PM_NORMAL;
+				client->ps.pmove.pm_type = PM_NORMAL;
       
       client->ps.pmove.gravity = sv_gravity->value;
       
       pm.s = client->ps.pmove;     
       for (i=0 ; i<3 ; i++)
-	{
-	  pm.s.origin[i] = ent->s.origin[i]*8;
-	  pm.s.velocity[i] = ent->velocity[i] * 8;
-	}
+			{
+				pm.s.origin[i] = ent->s.origin[i]*8;
+				pm.s.velocity[i] = ent->velocity[i] * 8;
+			}
       
       if (memcmp(&client->old_pmove, &pm.s, sizeof(pm.s)))
-	{
-	  pm.snapinitial = true;
-	  //      gi.dprintf ("pmove changed!\n");
-	}
+			{
+				pm.snapinitial = true;
+				//      gi.dprintf ("pmove changed!\n");
+			}
       
       pm.cmd = *ucmd;
       
@@ -3490,12 +3476,12 @@ void ClientThink (edict_t *ent, usercmd_t *ucmd)
       
       //FB 6/3/99 - info from Mikael Lindh from AQ:G
       if (pm.maxs[2] == 4)
-	{
-	  ent->maxs[2] = CROUCHING_MAXS2;
-	  pm.maxs[2] = CROUCHING_MAXS2;
-	  ent->viewheight = CROUCHING_VIEWHEIGHT;
-	  pm.viewheight = (float)ent->viewheight;
-	}
+			{
+				ent->maxs[2] = CROUCHING_MAXS2;
+				pm.maxs[2] = CROUCHING_MAXS2;
+				ent->viewheight = CROUCHING_VIEWHEIGHT;
+				pm.viewheight = (float)ent->viewheight;
+			}
       //FB 6/3/99
       
       // save results of pmove
@@ -3504,31 +3490,31 @@ void ClientThink (edict_t *ent, usercmd_t *ucmd)
       
       // really stopping jumping with leg damage
       if ( ent->client->leg_damage && ent->groundentity && pm.s.velocity[2] > 10 )
-	{
-	  pm.s.velocity[2] = 0.0;
-	}
+			{
+				pm.s.velocity[2] = 0.0;
+			}
       
       for (i=0 ; i<3 ; i++)
-	{
-	  ent->s.origin[i] = pm.s.origin[i]*0.125;
-	  ent->velocity[i] = pm.s.velocity[i]*0.125;
-	}
+			{
+				ent->s.origin[i] = pm.s.origin[i]*0.125;
+				ent->velocity[i] = pm.s.velocity[i]*0.125;
+			}
       
       // zucc stumbling associated with leg damage
       if (level.framenum % 6  <= 2)
-	{                                        
-	  //Slow down code FOO/zucc
-	  for (i=0 ; i<3 ; i++)
-	    {
-	      if ( ent->client->leg_damage && ((i < 2) || (ent->velocity[2] > 0)) && (ent->groundentity && pm.groundentity) )
-		ent->velocity[i] /= 4*ent->client->leghits; //FOO       
-	    }
-	  if (level.framenum % (6*12) == 0 && ent->client->leg_damage > 1)
-	    gi.sound (ent, CHAN_BODY, gi.soundindex(va("*pain100_1.wav")), 1, ATTN_NORM, 0);
-	  ent->velocity[0] = (float)((int)(ent->velocity[0]*8))/8;
-	  ent->velocity[1] = (float)((int)(ent->velocity[1]*8))/8;
-	  ent->velocity[2] = (float)((int)(ent->velocity[2]*8))/8;
-	}
+			{                                        
+				//Slow down code FOO/zucc
+				for (i=0 ; i<3 ; i++)
+				{
+					if ( ent->client->leg_damage && ((i < 2) || (ent->velocity[2] > 0)) && (ent->groundentity && pm.groundentity) )
+						ent->velocity[i] /= 4*ent->client->leghits; //FOO       
+				}
+				if (level.framenum % (6*12) == 0 && ent->client->leg_damage > 1)
+					gi.sound (ent, CHAN_BODY, gi.soundindex(va("*pain100_1.wav")), 1, ATTN_NORM, 0);
+				ent->velocity[0] = (float)((int)(ent->velocity[0]*8))/8;
+				ent->velocity[1] = (float)((int)(ent->velocity[1]*8))/8;
+				ent->velocity[2] = (float)((int)(ent->velocity[2]*8))/8;
+			}
       
       /*
 	if ( ent->client->leg_damage )

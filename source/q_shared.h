@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // q_shared.h -- included first by ALL program modules
 //
-// $Id: q_shared.h,v 1.6 2001/08/18 20:51:55 deathwatch Exp $
+// $Id: q_shared.h,v 1.7 2001/08/19 01:22:25 deathwatch Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: q_shared.h,v $
+// Revision 1.7  2001/08/19 01:22:25  deathwatch
+// cleaned the formatting of some files
+//
 // Revision 1.6  2001/08/18 20:51:55  deathwatch
 // Messing with the colours of the flashlight and the person using the
 // flashlight
@@ -339,8 +342,7 @@ void Com_Printf (char *msg,...);
 #define CVAR_ARCHIVE            1	// set to cause it to be saved to vars.rc
 #define CVAR_USERINFO           2	// added to userinfo  when changed
 #define CVAR_SERVERINFO         4	// added to serverinfo when changed
-#define CVAR_NOSET              8	// don't allow change from console at all,
-// but can be set from the command line
+#define CVAR_NOSET              8	// don't allow change from console at all, but can be set from the command line
 #define CVAR_LATCH              16	// save changes until server restart
 
 // nothing outside the Cvar_*() functions should modify these fields!
@@ -519,7 +521,7 @@ typedef enum
     // no acceleration or turning
     PM_DEAD,
     PM_GIB,			// different bounding box
-     PM_FREEZE
+    PM_FREEZE
   }
 pmtype_t;
 
@@ -692,7 +694,6 @@ pmove_t;
 #define EF_FLYG          0x60507800	// A few flies with a light, greenish yello crust
 #define EF_YELLOW_CRUST  0x10300070	// Yellow crust with a of smoke & yellow particles
 #define EF_BACKRED       0x90900900	// The Usual is black fly maham, but with a red light peeking through.
-
 
 // entity_state_t->renderfx flags
 #define RF_MINLIGHT             1	// allways have some light (viewmodel)
