@@ -1,10 +1,14 @@
 //-----------------------------------------------------------------------------
 // q_shared.h -- included first by ALL program modules
 //
-// $Id: q_shared.h,v 1.5 2001/08/18 17:14:04 deathwatch Exp $
+// $Id: q_shared.h,v 1.6 2001/08/18 20:51:55 deathwatch Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: q_shared.h,v $
+// Revision 1.6  2001/08/18 20:51:55  deathwatch
+// Messing with the colours of the flashlight and the person using the
+// flashlight
+//
 // Revision 1.5  2001/08/18 17:14:04  deathwatch
 // Flashlight Added (not done yet, needs to prevent DEAD ppl from using it,
 // the glow should be white and a bit smaller if possible and the daiper needs
@@ -688,9 +692,6 @@ pmove_t;
 #define EF_FLYG          0x60507800	// A few flies with a light, greenish yello crust
 #define EF_YELLOW_CRUST  0x10300070	// Yellow crust with a of smoke & yellow particles
 #define EF_BACKRED       0x90900900	// The Usual is black fly maham, but with a red light peeking through.
-
-
-
 
 
 // entity_state_t->renderfx flags

@@ -40,7 +40,7 @@ void FL_make(edict_t *self)
 	self->flashlight->classname = "flashlight";
 	self->flashlight->s.modelindex = gi.modelindex ("sprites/sight2.sp2");
 	self->flashlight->s.skinnum = 0;
-	self->flashlight->s.effects |= EF_PLASMA;		// Other effects can be used here, such as flag1, but these look corney and dull. Try stuff and tell me if you find anything cool (EF_HYPERBLASTER)
+	self->flashlight->s.effects |= EF_HYPERBLASTER;		// Other effects can be used here, such as flag1, but these look corney and dull. Try stuff and tell me if you find anything cool (EF_HYPERBLASTER)
 	self->flashlight->think = FL_think;
 	self->flashlight->nextthink = level.time + 0.1;
 }

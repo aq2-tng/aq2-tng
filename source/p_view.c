@@ -1,10 +1,14 @@
 //-----------------------------------------------------------------------------
 // p_view.c
 //
-// $Id: p_view.c,v 1.13 2001/08/06 14:38:45 ra Exp $
+// $Id: p_view.c,v 1.14 2001/08/18 20:51:55 deathwatch Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: p_view.c,v $
+// Revision 1.14  2001/08/18 20:51:55  deathwatch
+// Messing with the colours of the flashlight and the person using the
+// flashlight
+//
 // Revision 1.13  2001/08/06 14:38:45  ra
 // Adding UVtime for ctf
 //
@@ -896,6 +900,11 @@ void G_SetClientEffects (edict_t *ent)
 	else
 		ent->s.renderfx |= RF_SHELL_GREEN;
   }
+	// TNG Flashlight
+	if((darkmatch->value) && (ent->client) && (ent->flashlight)) {
+		ent->s.effects |= EF_YELLOWSHELL; // no good one? :/
+		//ent->s.renderfx |= RF_MINLIGHT;
+	}
 }
 
 
