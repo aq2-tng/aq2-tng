@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // g_local.h -- local definitions for game module
 //
-// $Id: g_local.h,v 1.38 2001/09/28 13:44:23 slicerdw Exp $
+// $Id: g_local.h,v 1.39 2001/09/28 13:48:34 ra Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_local.h,v $
+// Revision 1.39  2001/09/28 13:48:34  ra
+// I ran indent over the sources. All .c and .h files reindented.
+//
 // Revision 1.38  2001/09/28 13:44:23  slicerdw
 // Several Changes / improvements
 //
@@ -177,9 +180,9 @@
 #include	"a_ban.h"
 #include	"a_vote.h"
 #include	"a_match.h"
-#include "tng_stats.h" // Adding TNG Stats File
-#define		getEnt(entnum)	(edict_t *)((char *)globals.edicts + (globals.edict_size * entnum)) //AQ:TNG Slicer - This was missing
-#define		GAMEVERSION			"action" // the "gameversion" client command will print this plus compile date
+#include "tng_stats.h"		// Adding TNG Stats File
+#define		getEnt(entnum)	(edict_t *)((char *)globals.edicts + (globals.edict_size * entnum))	//AQ:TNG Slicer - This was missing
+#define		GAMEVERSION			"action"	// the "gameversion" client command will print this plus compile date
 
 // protocol bytes that can be directly added to messages
 #define svc_muzzleflash         1
@@ -231,37 +234,37 @@
 #define BODY_QUEUE_SIZE  8
 
 typedef enum
-  {
-    DAMAGE_NO,
-    DAMAGE_YES,			// will take damage if hit
-    DAMAGE_AIM			// auto targeting recognizes this
-  }
+{
+  DAMAGE_NO,
+  DAMAGE_YES,			// will take damage if hit
+  DAMAGE_AIM			// auto targeting recognizes this
+}
 damage_t;
 
 typedef enum
-  {
-    WEAPON_READY,
-    WEAPON_ACTIVATING,
-    WEAPON_DROPPING,
-    WEAPON_FIRING,
-    
-    WEAPON_END_MAG,
-    WEAPON_RELOADING,
-    WEAPON_BURSTING,
-    WEAPON_BUSY,		// used by sniper rifle when engaging zoom, if I want to make laser sight toggle on/off  this could be used for that too...
-    WEAPON_BANDAGING
-  }
+{
+  WEAPON_READY,
+  WEAPON_ACTIVATING,
+  WEAPON_DROPPING,
+  WEAPON_FIRING,
+
+  WEAPON_END_MAG,
+  WEAPON_RELOADING,
+  WEAPON_BURSTING,
+  WEAPON_BUSY,			// used by sniper rifle when engaging zoom, if I want to make laser sight toggle on/off  this could be used for that too...
+  WEAPON_BANDAGING
+}
 weaponstate_t;
 
 typedef enum
-  {
-    AMMO_BULLETS,
-    AMMO_SHELLS,
-    AMMO_ROCKETS,
-    AMMO_GRENADES,
-    AMMO_CELLS,
-    AMMO_SLUGS
-  }
+{
+  AMMO_BULLETS,
+  AMMO_SHELLS,
+  AMMO_ROCKETS,
+  AMMO_GRENADES,
+  AMMO_CELLS,
+  AMMO_SLUGS
+}
 ammo_t;
 
 
@@ -342,31 +345,31 @@ ammo_t;
 
 // edict->movetype values
 typedef enum
-  {
-    MOVETYPE_NONE,				// never moves
-    MOVETYPE_NOCLIP,			// origin and angles change with no interaction
-    MOVETYPE_PUSH,				// no clip to world, push on box contact
-    MOVETYPE_STOP,				// no clip to world, stops on box contact
+{
+  MOVETYPE_NONE,		// never moves
+  MOVETYPE_NOCLIP,		// origin and angles change with no interaction
+  MOVETYPE_PUSH,		// no clip to world, push on box contact
+  MOVETYPE_STOP,		// no clip to world, stops on box contact
 
-    MOVETYPE_WALK,				// gravity
-    MOVETYPE_STEP,				// gravity, special edge handling
-    MOVETYPE_FLY,
-    MOVETYPE_TOSS,				// gravity
-    MOVETYPE_FLYMISSILE,	// extra size to monsters
-    MOVETYPE_BOUNCE,
-    MOVETYPE_BLOOD
-  }
+  MOVETYPE_WALK,		// gravity
+  MOVETYPE_STEP,		// gravity, special edge handling
+  MOVETYPE_FLY,
+  MOVETYPE_TOSS,		// gravity
+  MOVETYPE_FLYMISSILE,		// extra size to monsters
+  MOVETYPE_BOUNCE,
+  MOVETYPE_BLOOD
+}
 movetype_t;
 
 
 
 typedef struct
 {
-    int		base_count;
-    int		max_count;
-    float normal_protection;
-    float energy_protection;
-    int		armor;
+  int base_count;
+  int max_count;
+  float normal_protection;
+  float energy_protection;
+  int armor;
 }
 gitem_armor_t;
 
@@ -383,27 +386,27 @@ gitem_armor_t;
 
 typedef struct gitem_s
 {
-    char *classname;		// spawning name
+  char *classname;		// spawning name
 
     qboolean (*pickup) (struct edict_s * ent, struct edict_s * other);
-    void (*use) (struct edict_s * ent, struct gitem_s * item);
-    void (*drop) (struct edict_s * ent, struct gitem_s * item);
-    void (*weaponthink) (struct edict_s * ent);
-    char *pickup_sound;
-    char *world_model;
-    int world_model_flags;
-    char *view_model;
+  void (*use) (struct edict_s * ent, struct gitem_s * item);
+  void (*drop) (struct edict_s * ent, struct gitem_s * item);
+  void (*weaponthink) (struct edict_s * ent);
+  char *pickup_sound;
+  char *world_model;
+  int world_model_flags;
+  char *view_model;
 
-    // client side info
-    char	*icon;
-    char	*pickup_name;	// for printing on pickup
-    int		count_width;	// number of digits to display by icon
-    int		quantity;			// for ammo how much, for weapons how much is used per shot
-    char	*ammo;				// for weapons
-    int		flags;				// IT_* flags
-    void	*info;
-    int		tag;
-    char	*precaches;		// string of all models, sounds, and images this item will use
+  // client side info
+  char *icon;
+  char *pickup_name;		// for printing on pickup
+  int count_width;		// number of digits to display by icon
+  int quantity;			// for ammo how much, for weapons how much is used per shot
+  char *ammo;			// for weapons
+  int flags;			// IT_* flags
+  void *info;
+  int tag;
+  char *precaches;		// string of all models, sounds, and images this item will use
 }
 gitem_t;
 
@@ -413,29 +416,29 @@ gitem_t;
 // the server.ssv file for savegames
 //
 typedef struct
-  {
-    char helpmessage1[512];
-    char helpmessage2[512];
-    int helpchanged;		// flash F1 icon if non 0, play sound and increment only if 1, 2, or 3
+{
+  char helpmessage1[512];
+  char helpmessage2[512];
+  int helpchanged;		// flash F1 icon if non 0, play sound and increment only if 1, 2, or 3
 
-    gclient_t *clients;		// [maxclients]
+  gclient_t *clients;		// [maxclients]
 
-    // can't store spawnpoint in level, because
-    // it would get overwritten by the savegame restore
-    char spawnpoint[512];	// needed for coop respawns
+  // can't store spawnpoint in level, because
+  // it would get overwritten by the savegame restore
+  char spawnpoint[512];		// needed for coop respawns
 
-    // store latched cvars here that we want to get at often
-    int maxclients;
-    int maxentities;
+  // store latched cvars here that we want to get at often
+  int maxclients;
+  int maxentities;
 
-    // cross level triggers
-    int serverflags;
+  // cross level triggers
+  int serverflags;
 
-    // items
-    int num_items;
+  // items
+  int num_items;
 
-    qboolean autosaved;
-  }
+  qboolean autosaved;
+}
 game_locals_t;
 
 
@@ -444,56 +447,56 @@ game_locals_t;
 // it is read/written to the level.sav file for savegames
 //
 typedef struct
-  {
-    int framenum;
-    float time;
+{
+  int framenum;
+  float time;
 
-    char level_name[MAX_QPATH];	// the descriptive name (Outer Base, etc)
+  char level_name[MAX_QPATH];	// the descriptive name (Outer Base, etc)
 
-    char mapname[MAX_QPATH];	// the server name (base1, etc)
+  char mapname[MAX_QPATH];	// the server name (base1, etc)
 
-    char nextmap[MAX_QPATH];	// go here when fraglimit is hit
-    //+
+  char nextmap[MAX_QPATH];	// go here when fraglimit is hit
+  //+
 
-    char tempmap[MAX_QPATH];	//PG BUND
-    // intermission state
+  char tempmap[MAX_QPATH];	//PG BUND
+  // intermission state
 
-    float intermissiontime;	// time the intermission was started
+  float intermissiontime;	// time the intermission was started
 
-    char *changemap;
-    int exitintermission;
-    vec3_t intermission_origin;
-    vec3_t intermission_angle;
+  char *changemap;
+  int exitintermission;
+  vec3_t intermission_origin;
+  vec3_t intermission_angle;
 
-    edict_t *sight_client;	// changed once each frame for coop games
+  edict_t *sight_client;	// changed once each frame for coop games
 
-    edict_t *sight_entity;
-    int sight_entity_framenum;
-    edict_t *sound_entity;
-    int sound_entity_framenum;
-    edict_t *sound2_entity;
-    int sound2_entity_framenum;
+  edict_t *sight_entity;
+  int sight_entity_framenum;
+  edict_t *sound_entity;
+  int sound_entity_framenum;
+  edict_t *sound2_entity;
+  int sound2_entity_framenum;
 
-    int pic_health;
+  int pic_health;
 
-    int total_secrets;
-    int found_secrets;
+  int total_secrets;
+  int found_secrets;
 
-    int total_goals;
-    int found_goals;
+  int total_goals;
+  int found_goals;
 
-    int total_monsters;
-    int killed_monsters;
+  int total_monsters;
+  int killed_monsters;
 
-    edict_t *current_entity;	// entity running from G_RunFrame
+  edict_t *current_entity;	// entity running from G_RunFrame
 
-    int body_que;		// dead bodies
+  int body_que;			// dead bodies
 
-    int power_cubes;		// ugly necessity for coop
+  int power_cubes;		// ugly necessity for coop
 
-    int specspawn;		// determines if initial spawning has occured
+  int specspawn;		// determines if initial spawning has occured
 
-  }
+}
 level_locals_t;
 
 
@@ -501,111 +504,111 @@ level_locals_t;
 // can be set from the editor, but aren't actualy present
 // in edict_t during gameplay
 typedef struct
-  {
-    // world vars
-    char *sky;
-    float skyrotate;
-    vec3_t skyaxis;
-    char *nextmap;
+{
+  // world vars
+  char *sky;
+  float skyrotate;
+  vec3_t skyaxis;
+  char *nextmap;
 
-    int lip;
-    int distance;
-    int height;
-    char *noise;
-    float pausetime;
-    char *item;
-    char *gravity;
+  int lip;
+  int distance;
+  int height;
+  char *noise;
+  float pausetime;
+  char *item;
+  char *gravity;
 
-    float minyaw;
-    float maxyaw;
-    float minpitch;
-    float maxpitch;
-  }
+  float minyaw;
+  float maxyaw;
+  float minpitch;
+  float maxpitch;
+}
 spawn_temp_t;
 
 
 typedef struct
-  {
-    // fixed data
-    vec3_t start_origin;
-    vec3_t start_angles;
-    vec3_t end_origin;
-    vec3_t end_angles;
+{
+  // fixed data
+  vec3_t start_origin;
+  vec3_t start_angles;
+  vec3_t end_origin;
+  vec3_t end_angles;
 
-    int sound_start;
-    int sound_middle;
-    int sound_end;
+  int sound_start;
+  int sound_middle;
+  int sound_end;
 
-    float accel;
-    float speed;
-    float decel;
-    float distance;
+  float accel;
+  float speed;
+  float decel;
+  float distance;
 
-    float wait;
+  float wait;
 
-    // state data
-    int state;
-    vec3_t dir;
-    float current_speed;
-    float move_speed;
-    float next_speed;
-    float remaining_distance;
-    float decel_distance;
-    void (*endfunc) (edict_t *);
-  }
+  // state data
+  int state;
+  vec3_t dir;
+  float current_speed;
+  float move_speed;
+  float next_speed;
+  float remaining_distance;
+  float decel_distance;
+  void (*endfunc) (edict_t *);
+}
 moveinfo_t;
 
 
 typedef struct
-  {
-    void (*aifunc) (edict_t * self, float dist);
-    float dist;
-    void (*thinkfunc) (edict_t * self);
-  }
+{
+  void (*aifunc) (edict_t * self, float dist);
+  float dist;
+  void (*thinkfunc) (edict_t * self);
+}
 mframe_t;
 
 typedef struct
-  {
-    int firstframe;
-    int lastframe;
-    mframe_t *frame;
-    void (*endfunc) (edict_t * self);
-  }
+{
+  int firstframe;
+  int lastframe;
+  mframe_t *frame;
+  void (*endfunc) (edict_t * self);
+}
 mmove_t;
 
 typedef struct
-  {
-    mmove_t *currentmove;
-    int aiflags;
-    int nextframe;
-    float scale;
+{
+  mmove_t *currentmove;
+  int aiflags;
+  int nextframe;
+  float scale;
 
-    void (*stand) (edict_t * self);
-    void (*idle) (edict_t * self);
-    void (*search) (edict_t * self);
-    void (*walk) (edict_t * self);
-    void (*run) (edict_t * self);
-    void (*dodge) (edict_t * self, edict_t * other, float eta);
-    void (*attack) (edict_t * self);
-    void (*melee) (edict_t * self);
-    void (*sight) (edict_t * self, edict_t * other);
-      qboolean (*checkattack) (edict_t * self);
+  void (*stand) (edict_t * self);
+  void (*idle) (edict_t * self);
+  void (*search) (edict_t * self);
+  void (*walk) (edict_t * self);
+  void (*run) (edict_t * self);
+  void (*dodge) (edict_t * self, edict_t * other, float eta);
+  void (*attack) (edict_t * self);
+  void (*melee) (edict_t * self);
+  void (*sight) (edict_t * self, edict_t * other);
+    qboolean (*checkattack) (edict_t * self);
 
-    float pausetime;
-    float attack_finished;
+  float pausetime;
+  float attack_finished;
 
-    vec3_t saved_goal;
-    float search_time;
-    float trail_time;
-    vec3_t last_sighting;
-    int attack_state;
-    int lefty;
-    float idle_time;
-    int linkcount;
+  vec3_t saved_goal;
+  float search_time;
+  float trail_time;
+  vec3_t last_sighting;
+  int attack_state;
+  int lefty;
+  float idle_time;
+  int linkcount;
 
-    int power_armor_type;
-    int power_armor_power;
-  }
+  int power_armor_type;
+  int power_armor_power;
+}
 monsterinfo_t;
 
 
@@ -735,20 +738,20 @@ extern cvar_t *use_cvote;
 extern cvar_t *new_irvision;
 extern cvar_t *use_rewards;
 extern cvar_t *use_warnings;
-extern cvar_t	*video_check; //AQ2:TNG - Slicer: For Video Checking
+extern cvar_t *video_check;	//AQ2:TNG - Slicer: For Video Checking
 extern cvar_t *video_checktime;	//interval between cheat checks
 extern cvar_t *video_max_3dfx;
 extern cvar_t *video_max_3dfxam;
 extern cvar_t *video_max_opengl;
 extern cvar_t *video_check_lockpvs;
 extern cvar_t *video_force_restart;
-extern cvar_t	*check_time;
+extern cvar_t *check_time;
 extern cvar_t *matchmode;
-extern cvar_t	*darkmatch;
-extern cvar_t	*day_cycle; // If darkmatch is on, this value is the nr of seconds between each interval (day, dusk, night, dawn)
+extern cvar_t *darkmatch;
+extern cvar_t *day_cycle;	// If darkmatch is on, this value is the nr of seconds between each interval (day, dusk, night, dawn)
 
-extern cvar_t *hearall; // used in match mode
-extern cvar_t  *mm_forceteamtalk;
+extern cvar_t *hearall;		// used in match mode
+extern cvar_t *mm_forceteamtalk;
 extern cvar_t *mm_adminpwd;
 
 extern cvar_t *team1score;
@@ -758,14 +761,14 @@ extern cvar_t *team3score;
 extern cvar_t *use_punch;
 
 extern cvar_t *radio_max;
-extern cvar_t	*radio_time;
-extern cvar_t	*radio_ban;
-extern cvar_t	*radio_repeat;
+extern cvar_t *radio_time;
+extern cvar_t *radio_ban;
+extern cvar_t *radio_repeat;
 
 extern cvar_t *hc_single;
 extern cvar_t *wp_flags;
 extern cvar_t *itm_flags;
-extern cvar_t	*use_classic; // Use_classic resets weapon balance to 1.52
+extern cvar_t *use_classic;	// Use_classic resets weapon balance to 1.52
 
 extern cvar_t *skill;
 extern cvar_t *fraglimit;
@@ -829,29 +832,29 @@ extern cvar_t *bholelimit;
 #define FFL_NOSPAWN             2
 
 typedef enum
-  {
-    F_INT,
-    F_FLOAT,
-    F_LSTRING,			// string on disk, pointer in memory, TAG_LEVEL
-    F_GSTRING,			// string on disk, pointer in memory, TAG_GAME
-    F_VECTOR,
-    F_ANGLEHACK,
-    F_EDICT,			// index on disk, pointer in memory
-    F_ITEM,			// index on disk, pointer in memory
-    F_CLIENT,			// index on disk, pointer in memory
-    F_FUNCTION,
-    F_MMOVE,
-    F_IGNORE
-  }
+{
+  F_INT,
+  F_FLOAT,
+  F_LSTRING,			// string on disk, pointer in memory, TAG_LEVEL
+  F_GSTRING,			// string on disk, pointer in memory, TAG_GAME
+  F_VECTOR,
+  F_ANGLEHACK,
+  F_EDICT,			// index on disk, pointer in memory
+  F_ITEM,			// index on disk, pointer in memory
+  F_CLIENT,			// index on disk, pointer in memory
+  F_FUNCTION,
+  F_MMOVE,
+  F_IGNORE
+}
 fieldtype_t;
 
 typedef struct
-  {
-    char *name;
-    int ofs;
-    fieldtype_t type;
-    int flags;
-  }
+{
+  char *name;
+  int ofs;
+  fieldtype_t type;
+  int flags;
+}
 field_t;
 
 
@@ -863,8 +866,8 @@ extern gitem_t itemlist[];
 //
 void Cmd_Help_f (edict_t * ent);
 void Cmd_Score_f (edict_t * ent);
-void Cmd_CPSI_f(edict_t *ent);
-void Cmd_VidRef_f(edict_t *ent);	
+void Cmd_CPSI_f (edict_t * ent);
+void Cmd_VidRef_f (edict_t * ent);
 //
 // g_items.c
 //
@@ -883,13 +886,15 @@ int ArmorIndex (edict_t * ent);
 int PowerArmorType (edict_t * ent);
 gitem_t *GetItemByIndex (int index);
 qboolean Add_Ammo (edict_t * ent, gitem_t * item, int count);
-void Touch_Item (edict_t * ent, edict_t * other, cplane_t * plane, csurface_t * surf);
+void Touch_Item (edict_t * ent, edict_t * other, cplane_t * plane,
+		 csurface_t * surf);
 
 //
 // g_utils.c
 //
 qboolean KillBox (edict_t * ent);
-void G_ProjectSource (vec3_t point, vec3_t distance, vec3_t forward, vec3_t right, vec3_t result);
+void G_ProjectSource (vec3_t point, vec3_t distance, vec3_t forward,
+		      vec3_t right, vec3_t result);
 edict_t *G_Find (edict_t * from, int fieldofs, char *match);
 edict_t *findradius (edict_t * from, vec3_t org, float rad);
 edict_t *G_PickTarget (char *targetname);
@@ -916,8 +921,11 @@ void vectoangles (vec3_t vec, vec3_t angles);
 //
 qboolean OnSameTeam (edict_t * ent1, edict_t * ent2);
 qboolean CanDamage (edict_t * targ, edict_t * inflictor);
-void T_Damage (edict_t * targ, edict_t * inflictor, edict_t * attacker, vec3_t dir, vec3_t point, vec3_t normal, int damage, int knockback, int dflags, int mod);
-void T_RadiusDamage (edict_t * inflictor, edict_t * attacker, float damage, edict_t * ignore, float radius, int mod);
+void T_Damage (edict_t * targ, edict_t * inflictor, edict_t * attacker,
+	       vec3_t dir, vec3_t point, vec3_t normal, int damage,
+	       int knockback, int dflags, int mod);
+void T_RadiusDamage (edict_t * inflictor, edict_t * attacker, float damage,
+		     edict_t * ignore, float radius, int mod);
 
 // damage flags
 #define DAMAGE_RADIUS                   0x00000001	// damage was indirect
@@ -938,13 +946,23 @@ void T_RadiusDamage (edict_t * inflictor, edict_t * attacker, float damage, edic
 //
 // g_monster.c
 //
-void monster_fire_bullet (edict_t * self, vec3_t start, vec3_t dir, int damage, int kick, int hspread, int vspread, int flashtype);
-void monster_fire_shotgun (edict_t * self, vec3_t start, vec3_t aimdir, int damage, int kick, int hspread, int vspread, int count, int flashtype);
-void monster_fire_blaster (edict_t * self, vec3_t start, vec3_t dir, int damage, int speed, int flashtype, int effect);
-void monster_fire_grenade (edict_t * self, vec3_t start, vec3_t aimdir, int damage, int speed, int flashtype);
-void monster_fire_rocket (edict_t * self, vec3_t start, vec3_t dir, int damage, int speed, int flashtype);
-void monster_fire_railgun (edict_t * self, vec3_t start, vec3_t aimdir, int damage, int kick, int flashtype);
-void monster_fire_bfg (edict_t * self, vec3_t start, vec3_t aimdir, int damage, int speed, int kick, float damage_radius, int flashtype);
+void monster_fire_bullet (edict_t * self, vec3_t start, vec3_t dir,
+			  int damage, int kick, int hspread, int vspread,
+			  int flashtype);
+void monster_fire_shotgun (edict_t * self, vec3_t start, vec3_t aimdir,
+			   int damage, int kick, int hspread, int vspread,
+			   int count, int flashtype);
+void monster_fire_blaster (edict_t * self, vec3_t start, vec3_t dir,
+			   int damage, int speed, int flashtype, int effect);
+void monster_fire_grenade (edict_t * self, vec3_t start, vec3_t aimdir,
+			   int damage, int speed, int flashtype);
+void monster_fire_rocket (edict_t * self, vec3_t start, vec3_t dir,
+			  int damage, int speed, int flashtype);
+void monster_fire_railgun (edict_t * self, vec3_t start, vec3_t aimdir,
+			   int damage, int kick, int flashtype);
+void monster_fire_bfg (edict_t * self, vec3_t start, vec3_t aimdir,
+		       int damage, int speed, int kick, float damage_radius,
+		       int flashtype);
 void M_droptofloor (edict_t * ent);
 void monster_think (edict_t * self);
 void walkmonster_start (edict_t * self);
@@ -986,23 +1004,40 @@ qboolean FacingIdeal (edict_t * self);
 //
 // g_weapon.c
 //
-void ThrowDebris (edict_t * self, char *modelname, float speed, vec3_t origin);
+void ThrowDebris (edict_t * self, char *modelname, float speed,
+		  vec3_t origin);
 qboolean fire_hit (edict_t * self, vec3_t aim, int damage, int kick);
-void fire_bullet (edict_t * self, vec3_t start, vec3_t aimdir, int damage, int kick, int hspread, int vspread, int mod);
-void fire_shotgun (edict_t * self, vec3_t start, vec3_t aimdir, int damage, int kick, int hspread, int vspread, int count, int mod);
-void fire_blaster (edict_t * self, vec3_t start, vec3_t aimdir, int damage, int speed, int effect, qboolean hyper);
-void fire_grenade (edict_t * self, vec3_t start, vec3_t aimdir, int damage, int speed, float timer, float damage_radius);
-void fire_grenade2 (edict_t * self, vec3_t start, vec3_t aimdir, int damage, int speed, float timer, float damage_radius, qboolean held);
-void fire_rocket (edict_t * self, vec3_t start, vec3_t dir, int damage, int speed, float damage_radius, int radius_damage);
-void fire_rail (edict_t * self, vec3_t start, vec3_t aimdir, int damage, int kick);
-void fire_bfg (edict_t * self, vec3_t start, vec3_t dir, int damage, int speed, float damage_radius);
+void fire_bullet (edict_t * self, vec3_t start, vec3_t aimdir, int damage,
+		  int kick, int hspread, int vspread, int mod);
+void fire_shotgun (edict_t * self, vec3_t start, vec3_t aimdir, int damage,
+		   int kick, int hspread, int vspread, int count, int mod);
+void fire_blaster (edict_t * self, vec3_t start, vec3_t aimdir, int damage,
+		   int speed, int effect, qboolean hyper);
+void fire_grenade (edict_t * self, vec3_t start, vec3_t aimdir, int damage,
+		   int speed, float timer, float damage_radius);
+void fire_grenade2 (edict_t * self, vec3_t start, vec3_t aimdir, int damage,
+		    int speed, float timer, float damage_radius,
+		    qboolean held);
+void fire_rocket (edict_t * self, vec3_t start, vec3_t dir, int damage,
+		  int speed, float damage_radius, int radius_damage);
+void fire_rail (edict_t * self, vec3_t start, vec3_t aimdir, int damage,
+		int kick);
+void fire_bfg (edict_t * self, vec3_t start, vec3_t dir, int damage,
+	       int speed, float damage_radius);
 
 // zucc
-int knife_attack (edict_t * self, vec3_t start, vec3_t aimdir, int damage, int kick);
-void knife_throw (edict_t * self, vec3_t start, vec3_t dir, int damage, int speed);
-void fire_bullet_sparks (edict_t * self, vec3_t start, vec3_t aimdir, int damage, int kick, int hspread, int vspread, int mod);
-void fire_bullet_sniper (edict_t * self, vec3_t start, vec3_t aimdir, int damage, int kick, int hspread, int vspread, int mod);
-void fire_grenade3 (edict_t * self, vec3_t start, vec3_t aimdir, int damage, int speed);
+int knife_attack (edict_t * self, vec3_t start, vec3_t aimdir, int damage,
+		  int kick);
+void knife_throw (edict_t * self, vec3_t start, vec3_t dir, int damage,
+		  int speed);
+void fire_bullet_sparks (edict_t * self, vec3_t start, vec3_t aimdir,
+			 int damage, int kick, int hspread, int vspread,
+			 int mod);
+void fire_bullet_sniper (edict_t * self, vec3_t start, vec3_t aimdir,
+			 int damage, int kick, int hspread, int vspread,
+			 int mod);
+void fire_grenade3 (edict_t * self, vec3_t start, vec3_t aimdir, int damage,
+		    int speed);
 
 //
 // g_ptrail.c
@@ -1030,7 +1065,8 @@ void ClientBeginServerFrame (edict_t * ent);
 // g_player.c
 //
 void player_pain (edict_t * self, edict_t * other, float kick, int damage);
-void player_die (edict_t * self, edict_t * inflictor, edict_t * attacker, int damage, vec3_t point);
+void player_die (edict_t * self, edict_t * inflictor, edict_t * attacker,
+		 int damage, vec3_t point);
 
 //
 // g_svcmds.c
@@ -1038,7 +1074,7 @@ void player_die (edict_t * self, edict_t * inflictor, edict_t * attacker, int da
 void ServerCommand (void);
 qboolean SV_FilterPacket (char *from);
 //AQ2:TNG - Slicer
-void Kick_Client (edict_t *ent);
+void Kick_Client (edict_t * ent);
 //AQ2:TNG END
 
 //
@@ -1104,514 +1140,516 @@ void GetChaseTarget (edict_t * ent);
 
 // client data that stays across multiple level loads
 typedef struct
-  {
-    char userinfo[MAX_INFO_STRING];
-    char netname[16];
-    int hand;
+{
+  char userinfo[MAX_INFO_STRING];
+  char netname[16];
+  int hand;
 
-    qboolean connected;		// a loadgame will leave valid entities that
-    // just don't have a connection yet
+  qboolean connected;		// a loadgame will leave valid entities that
+  // just don't have a connection yet
 
-    // values saved and restored from edicts when changing levels
-    int health;
-    int max_health;
-    qboolean powerArmorActive;
+  // values saved and restored from edicts when changing levels
+  int health;
+  int max_health;
+  qboolean powerArmorActive;
 
-    int selected_item;
-    int inventory[MAX_ITEMS];
+  int selected_item;
+  int inventory[MAX_ITEMS];
 
-    // ammo capacities
-    int max_bullets;
-    int max_shells;
-    int max_rockets;
-    int max_grenades;
-    int max_cells;
-    int max_slugs;
+  // ammo capacities
+  int max_bullets;
+  int max_shells;
+  int max_rockets;
+  int max_grenades;
+  int max_cells;
+  int max_slugs;
 
-    gitem_t *weapon;
-    gitem_t *lastweapon;
+  gitem_t *weapon;
+  gitem_t *lastweapon;
 
-    int power_cubes;		// used for tracking the cubes in coop games
+  int power_cubes;		// used for tracking the cubes in coop games
 
-    int score;			// for calculating total unit score in coop games
+  int score;			// for calculating total unit score in coop games
 
-    //FIREBLADE
-    qboolean spectator;
-    int firing_style;
-    //FIREBLADE
+  //FIREBLADE
+  qboolean spectator;
+  int firing_style;
+  //FIREBLADE
 
-    int num_kills;		//TempFile
+  int num_kills;		//TempFile
 
-  }
+}
 client_persistant_t;
 
 // client data that stays across deathmatch respawns
 typedef struct
-  {
-    client_persistant_t coop_respawn;	// what to set client->pers to on a respawn
+{
+  client_persistant_t coop_respawn;	// what to set client->pers to on a respawn
 
-    int enterframe;		// level.framenum the client entered the game
+  int enterframe;		// level.framenum the client entered the game
 
-    int score;			// frags, etc
+  int score;			// frags, etc
 
-    vec3_t cmd_angles;		// angles sent over in the last command
+  vec3_t cmd_angles;		// angles sent over in the last command
 
-    int game_helpchanged;
-    int helpchanged;
-    int sniper_mode;		//level of zoom
+  int game_helpchanged;
+  int helpchanged;
+  int sniper_mode;		//level of zoom
 
-    int kills;			// real kills
+  int kills;			// real kills
 
-    int damage_dealt;		// keep track of damage dealt by player to other players
+  int damage_dealt;		// keep track of damage dealt by player to other players
 
-    int streak;			// kills in a row
+  int streak;			// kills in a row
 
-    gitem_t *item;		// item for teamplay
+  gitem_t *item;		// item for teamplay
 
-    gitem_t *weapon;		// weapon for teamplay
+  gitem_t *weapon;		// weapon for teamplay
 
-    int team;			// team the player is on
-    int ctf_state;
-    float ctf_lasthurtcarrier;
-    float ctf_lastreturnedflag;
-    float ctf_flagsince;
-    float ctf_lastfraggedcarrier;
+  int team;			// team the player is on
+  int ctf_state;
+  float ctf_lasthurtcarrier;
+  float ctf_lastreturnedflag;
+  float ctf_flagsince;
+  float ctf_lastfraggedcarrier;
 
-    int joined_team;		// last frame # at which the player joined a team
+  int joined_team;		// last frame # at which the player joined a team
 
-    // radio/partners stuff...
-    int radio_delay;
-    radio_queue_entry_t radio_queue[MAX_RADIO_QUEUE_SIZE];
-    int radio_queue_size;
-    edict_t *radio_partner;	// current partner
-    edict_t *partner_last_offered_to;	// last person I offered a partnership to
-    edict_t *partner_last_offered_from;		// last person I received a partnership offer from
-    edict_t *partner_last_denied_from;	// last person I denied a partnership offer from
-    // end of radio/partners stuff...
+  // radio/partners stuff...
+  int radio_delay;
+  radio_queue_entry_t radio_queue[MAX_RADIO_QUEUE_SIZE];
+  int radio_queue_size;
+  edict_t *radio_partner;	// current partner
+  edict_t *partner_last_offered_to;	// last person I offered a partnership to
+  edict_t *partner_last_offered_from;	// last person I received a partnership offer from
+  edict_t *partner_last_denied_from;	// last person I denied a partnership offer from
+  // end of radio/partners stuff...
 
-    int motd_refreshes;
-    int last_motd_refresh;
-    edict_t *last_chase_target;	// last person they chased, to resume at the same place later...
+  int motd_refreshes;
+  int last_motd_refresh;
+  edict_t *last_chase_target;	// last person they chased, to resume at the same place later...
 
-    edict_t *last_killed_target[MAX_LAST_KILLED];
-    int killed_teammates;
-    int idletime;
-    int tourneynumber;
-    edict_t *kickvote;
-    ignorelist_t ignorelist;
+  edict_t *last_killed_target[MAX_LAST_KILLED];
+  int killed_teammates;
+  int idletime;
+  int tourneynumber;
+  edict_t *kickvote;
+  ignorelist_t ignorelist;
 
-    char *mapvote;		// pointer to map voted on (if any)
-    char *cvote;		// pointer to config voted on (if any)
+  char *mapvote;		// pointer to map voted on (if any)
+  char *cvote;			// pointer to config voted on (if any)
 
-    int mk23_mode;		// firing mode, semi or auto
-    int mp5_mode;
-    int m4_mode;
-    int knife_mode;
-    int grenade_mode;
-    int id;			// id command on or off
-    int ir;			// ir on or off (only matters if player has ir device, currently bandolier)
+  int mk23_mode;		// firing mode, semi or auto
+  int mp5_mode;
+  int m4_mode;
+  int knife_mode;
+  int grenade_mode;
+  int id;			// id command on or off
+  int ir;			// ir on or off (only matters if player has ir device, currently bandolier)
 
-    qboolean radio_partner_mode;	// 'radio' command using team or partner
-    qboolean radio_gender;	// radiogender
-    qboolean radio_power_off;	// radio_power
+  qboolean radio_partner_mode;	// 'radio' command using team or partner
+  qboolean radio_gender;	// radiogender
+  qboolean radio_power_off;	// radio_power
 
-    int fire_time;
-    int ignore_time;		// framenum when the player called ignore - to prevent spamming
+  int fire_time;
+  int ignore_time;		// framenum when the player called ignore - to prevent spamming
 
-    qboolean weapon_after_bandage_warned;	// to fix message bug when calling weapon while bandaging
-    qboolean punch_desired;	//controlled in ClientThink
+  qboolean weapon_after_bandage_warned;	// to fix message bug when calling weapon while bandaging
+  qboolean punch_desired;	//controlled in ClientThink
 
-    int hs_streak;		// Headshots in a Row
-    int headshots;		// Headshot Counter
+  int hs_streak;		// Headshots in a Row
+  int headshots;		// Headshot Counter
 
-		int stats_shots_t; // Total nr of shots for TNG Stats
-		int stats_shots_h; // Total nr of hits for TNG Stats
-		int stats_shots_hd; // Total nr of headshots for TNG Stats
-	
-		//AQ2:TNG - Slicer: Video Checking and further Cheat cheking vars
-		char	vidref[16];
-		char	gldriver[16];
-		float gllockpvs;
-		float glmodulate;
-		qboolean	checked;
-		float checktime[3];
-		int		last_damaged_part;
-		//AQ2:TNG - Slicer Matchmode code
-		int		captain;
-		int		subteam;
-		int     admin;
+  int stats_shots_t;		// Total nr of shots for TNG Stats
+  int stats_shots_h;		// Total nr of hits for TNG Stats
+  int stats_shots_hd;		// Total nr of headshots for TNG Stats
 
-		int		hc_mode;
-		float rd_mute;
-		float rd_when[10];
-		int		rd_whensaid;
-		char	rd_rep[96];
-		int		rd_repcount;
-		float rd_reptime;
+  //AQ2:TNG - Slicer: Video Checking and further Cheat cheking vars
+  char vidref[16];
+  char gldriver[16];
+  float gllockpvs;
+  float glmodulate;
+  qboolean checked;
+  float checktime[3];
+  int last_damaged_part;
+  //AQ2:TNG - Slicer Matchmode code
+  int captain;
+  int subteam;
+  int admin;
+
+  int hc_mode;
+  float rd_mute;
+  float rd_when[10];
+  int rd_whensaid;
+  char rd_rep[96];
+  int rd_repcount;
+  float rd_reptime;
 }
 client_respawn_t;
 
 // this structure is cleared on each PutClientInServer(),
 // except for 'client->pers'
 struct gclient_s
-  {
-    // known to server
-    player_state_t ps;		// communicated by server to clients
+{
+  // known to server
+  player_state_t ps;		// communicated by server to clients
 
-    int ping;
+  int ping;
 
-    // private to game
-    client_persistant_t pers;
-    client_respawn_t resp;
-    pmove_state_t old_pmove;	// for detecting out-of-pmove changes
+  // private to game
+  client_persistant_t pers;
+  client_respawn_t resp;
+  pmove_state_t old_pmove;	// for detecting out-of-pmove changes
 
-    qboolean showscores;	// set layout stat
-    //FIREBLADE
+  qboolean showscores;		// set layout stat
+  //FIREBLADE
 
-    int rate;			// their "rate" setting
+  int rate;			// their "rate" setting
 
-    int scoreboardnum;
-    //FIREBLADE
-    qboolean showinventory;	// set layout stat
+  int scoreboardnum;
+  //FIREBLADE
+  qboolean showinventory;	// set layout stat
 
-    qboolean showhelp;
-    qboolean showhelpicon;
+  qboolean showhelp;
+  qboolean showhelpicon;
 
-    int ammo_index;
+  int ammo_index;
 
-    int buttons;
-    int oldbuttons;
-    int latched_buttons;
+  int buttons;
+  int oldbuttons;
+  int latched_buttons;
 
-    qboolean weapon_thunk;
+  qboolean weapon_thunk;
 
-    gitem_t *newweapon;
+  gitem_t *newweapon;
 
-    // sum up damage over an entire frame, so
-    // shotgun blasts give a single big kick
-    int damage_armor;		// damage absorbed by armor
+  // sum up damage over an entire frame, so
+  // shotgun blasts give a single big kick
+  int damage_armor;		// damage absorbed by armor
 
-    int damage_parmor;		// damage absorbed by power armor
+  int damage_parmor;		// damage absorbed by power armor
 
-    int damage_blood;		// damage taken out of health
+  int damage_blood;		// damage taken out of health
 
-    int damage_knockback;	// impact damage
+  int damage_knockback;		// impact damage
 
-    vec3_t damage_from;		// origin for vector calculation
+  vec3_t damage_from;		// origin for vector calculation
 
-    float killer_yaw;		// when dead, look at killer
+  float killer_yaw;		// when dead, look at killer
 
-    weaponstate_t weaponstate;
-    vec3_t kick_angles;		// weapon kicks
+  weaponstate_t weaponstate;
+  vec3_t kick_angles;		// weapon kicks
 
-    vec3_t kick_origin;
-    float v_dmg_roll, v_dmg_pitch, v_dmg_time;	// damage kicks
+  vec3_t kick_origin;
+  float v_dmg_roll, v_dmg_pitch, v_dmg_time;	// damage kicks
 
-    float fall_time, fall_value;	// for view drop on fall
+  float fall_time, fall_value;	// for view drop on fall
 
-    float damage_alpha;
-    float bonus_alpha;
-    vec3_t damage_blend;
-    vec3_t v_angle;		// aiming direction
+  float damage_alpha;
+  float bonus_alpha;
+  vec3_t damage_blend;
+  vec3_t v_angle;		// aiming direction
 
-    float bobtime;		// so off-ground doesn't change it
+  float bobtime;		// so off-ground doesn't change it
 
-    vec3_t oldviewangles;
-    vec3_t oldvelocity;
+  vec3_t oldviewangles;
+  vec3_t oldvelocity;
 
-    float next_drown_time;
-    int old_waterlevel;
-    int breather_sound;
+  float next_drown_time;
+  int old_waterlevel;
+  int breather_sound;
 
-    int machinegun_shots;	// for weapon raising
+  int machinegun_shots;		// for weapon raising
 
-    // animation vars
-    int anim_end;
-    int anim_priority;
-    qboolean anim_duck;
-    qboolean anim_run;
+  // animation vars
+  int anim_end;
+  int anim_priority;
+  qboolean anim_duck;
+  qboolean anim_run;
 
-    // powerup timers
-    float quad_framenum;
-    float invincible_framenum;
-    float breather_framenum;
-    float enviro_framenum;
+  // powerup timers
+  float quad_framenum;
+  float invincible_framenum;
+  float breather_framenum;
+  float enviro_framenum;
 
-    qboolean grenade_blew_up;
-    float grenade_time;
-    int silencer_shots;
-    int weapon_sound;
+  qboolean grenade_blew_up;
+  float grenade_time;
+  int silencer_shots;
+  int weapon_sound;
 
-    float pickup_msg_time;
+  float pickup_msg_time;
 
-    float flood_locktill;	// locked from talking
+  float flood_locktill;		// locked from talking
 
-    float flood_when[10];	// when messages were said
+  float flood_when[10];		// when messages were said
 
-    int flood_whenhead;		// head pointer for when said
+  int flood_whenhead;		// head pointer for when said
 
-    float respawn_time;		// can respawn when time > this
-    // zucc
-    // weapon ammo information
+  float respawn_time;		// can respawn when time > this
+  // zucc
+  // weapon ammo information
 
-    int mk23_max;
-    int mk23_rds;
+  int mk23_max;
+  int mk23_rds;
 
-    int dual_max;
-    int dual_rds;
-    int shot_max;
-    int shot_rds;
-    int sniper_max;
-    int sniper_rds;
+  int dual_max;
+  int dual_rds;
+  int shot_max;
+  int shot_rds;
+  int sniper_max;
+  int sniper_rds;
 
-    int mp5_max;
-    int mp5_rds;
+  int mp5_max;
+  int mp5_rds;
 
-    int m4_max;
-    int m4_rds;
+  int m4_max;
+  int m4_rds;
 
-    int cannon_max;
-    int cannon_rds;
-    int knife_max;
+  int cannon_max;
+  int cannon_rds;
+  int knife_max;
 
-    int grenade_max;
-    int curr_weap;		// uses NAME_NUM values
+  int grenade_max;
+  int curr_weap;		// uses NAME_NUM values
 
-    int fired;			// keep track of semi auto
-    int burst;			// remember if player is bursting or not
-    int fast_reload;		// for shotgun/sniper rifle
-    int idle_weapon;		// how many frames to keep our weapon idle
-    int desired_fov;		// what fov does the player want? (via zooming)
+  int fired;			// keep track of semi auto
+  int burst;			// remember if player is bursting or not
+  int fast_reload;		// for shotgun/sniper rifle
+  int idle_weapon;		// how many frames to keep our weapon idle
+  int desired_fov;		// what fov does the player want? (via zooming)
 
-    int unique_weapon_total;
-    int unique_item_total;
-    int drop_knife;
-    int knife_sound;		// we attack several times when slashing but only want 1 sound
+  int unique_weapon_total;
+  int unique_item_total;
+  int drop_knife;
+  int knife_sound;		// we attack several times when slashing but only want 1 sound
 
-    int no_sniper_display;
-    int bandaging;
-    int leg_damage;
-    int leg_dam_count;
-    int leg_noise;
-    int leghits;
-    int bleeding;		//remaining points to bleed away
-    int bleed_remain;
-    int bleedloc;
-    vec3_t bleedloc_offset;	// location of bleeding (from origin)
-    vec3_t bleednorm;
-    float bleeddelay;		// how long until we bleed again
+  int no_sniper_display;
+  int bandaging;
+  int leg_damage;
+  int leg_dam_count;
+  int leg_noise;
+  int leghits;
+  int bleeding;			//remaining points to bleed away
+  int bleed_remain;
+  int bleedloc;
+  vec3_t bleedloc_offset;	// location of bleeding (from origin)
+  vec3_t bleednorm;
+  float bleeddelay;		// how long until we bleed again
 
-    int bandage_stopped;
-    int have_laser;
+  int bandage_stopped;
+  int have_laser;
 
-    int doortoggle;		// set by player with opendoor command
+  int doortoggle;		// set by player with opendoor command
 
-    edict_t *attacker;		// keep track of the last person to hit us
-    int attacker_mod;		// and how they hit us
-    int attacker_loc;		// location of the hit
+  edict_t *attacker;		// keep track of the last person to hit us
+  int attacker_mod;		// and how they hit us
+  int attacker_loc;		// location of the hit
 
-    int push_timeout;		// timeout for how long an attacker will get fall death credit
+  int push_timeout;		// timeout for how long an attacker will get fall death credit
 
-    int jumping;
+  int jumping;
 
-    int reload_attempts;
-    int weapon_attempts;
+  int reload_attempts;
+  int weapon_attempts;
 
-    qboolean inmenu;		// in menu
-    pmenuhnd_t *menu;		// current menu
+  qboolean inmenu;		// in menu
+  pmenuhnd_t *menu;		// current menu
 
-    edict_t *chase_target;
-    qboolean update_chase;
-    int chase_mode;
-    
-		qboolean autoreloading;	//used for dual -> mk23 change with reloading
-    
-    // Number of team kills this game
-    int team_kills;
-    
-    //EEK
-    // Number of teammate woundings this game and a "before attack" tracker
-    int team_wounds;
-    int team_wounds_before;
-    int ff_warning;
+  edict_t *chase_target;
+  qboolean update_chase;
+  int chase_mode;
 
-    // IP address of this host to be collected at Connection time.
-    // (getting at it later seems to be unreliable)
-    char ipaddr[100];		// changed to 100  -FB
+  qboolean autoreloading;	//used for dual -> mk23 change with reloading
 
-    int desired_zoom;		//either 0, 1, 2, 4 or 6. This is set to 0 if no zooming shall be done, and is set to 0 after zooming is done.
+  // Number of team kills this game
+  int team_kills;
 
-		int ctf_uvtime; // AQ2:TNG - JBravo adding UVtime
+  //EEK
+  // Number of teammate woundings this game and a "before attack" tracker
+  int team_wounds;
+  int team_wounds_before;
+  int ff_warning;
+
+  // IP address of this host to be collected at Connection time.
+  // (getting at it later seems to be unreliable)
+  char ipaddr[100];		// changed to 100  -FB
+
+  int desired_zoom;		//either 0, 1, 2, 4 or 6. This is set to 0 if no zooming shall be done, and is set to 0 after zooming is done.
+
+  int ctf_uvtime;		// AQ2:TNG - JBravo adding UVtime
 };
 
 
 struct edict_s
-  {
-    entity_state_t s;
-    struct gclient_s *client;	// NULL if not a player
-    // the server expects the first part
-    // of gclient_s to be a player_state_t
-    // but the rest of it is opaque
+{
+  entity_state_t s;
+  struct gclient_s *client;	// NULL if not a player
+  // the server expects the first part
+  // of gclient_s to be a player_state_t
+  // but the rest of it is opaque
 
-    qboolean inuse;
-    int linkcount;
+  qboolean inuse;
+  int linkcount;
 
-    // FIXME: move these fields to a server private sv_entity_t
-    link_t area;		// linked to a division node or leaf
+  // FIXME: move these fields to a server private sv_entity_t
+  link_t area;			// linked to a division node or leaf
 
-    int num_clusters;		// if -1, use headnode instead
+  int num_clusters;		// if -1, use headnode instead
 
-    int clusternums[MAX_ENT_CLUSTERS];
-    int headnode;		// unused if num_clusters != -1
+  int clusternums[MAX_ENT_CLUSTERS];
+  int headnode;			// unused if num_clusters != -1
 
-    int areanum, areanum2;
+  int areanum, areanum2;
 
-    //================================
+  //================================
 
-    int svflags;
-    vec3_t mins, maxs;
-    vec3_t absmin, absmax, size;
-    solid_t solid;
-    int clipmask;
-    edict_t *owner;
+  int svflags;
+  vec3_t mins, maxs;
+  vec3_t absmin, absmax, size;
+  solid_t solid;
+  int clipmask;
+  edict_t *owner;
 
 
-    // DO NOT MODIFY ANYTHING ABOVE THIS, THE SERVER
-    // EXPECTS THE FIELDS IN THAT ORDER!
+  // DO NOT MODIFY ANYTHING ABOVE THIS, THE SERVER
+  // EXPECTS THE FIELDS IN THAT ORDER!
 
-    //================================
-    int movetype;
-    int flags;
+  //================================
+  int movetype;
+  int flags;
 
-    char *model;
-    float freetime;		// sv.time when the object was freed
+  char *model;
+  float freetime;		// sv.time when the object was freed
 
-    //
-    // only used locally in game, not by server
-    //
-    char *message;
-    char *classname;
-    int spawnflags;
+  //
+  // only used locally in game, not by server
+  //
+  char *message;
+  char *classname;
+  int spawnflags;
 
-    float timestamp;
+  float timestamp;
 
-    float angle;		// set in qe3, -1 = up, -2 = down
+  float angle;			// set in qe3, -1 = up, -2 = down
 
-    char *target;
-    char *targetname;
-    char *killtarget;
-    char *team;
-    char *pathtarget;
-    char *deathtarget;
-    char *combattarget;
-    edict_t *target_ent;
+  char *target;
+  char *targetname;
+  char *killtarget;
+  char *team;
+  char *pathtarget;
+  char *deathtarget;
+  char *combattarget;
+  edict_t *target_ent;
 
-    float speed, accel, decel;
-    vec3_t movedir;
-    vec3_t pos1, pos2;
+  float speed, accel, decel;
+  vec3_t movedir;
+  vec3_t pos1, pos2;
 
-    vec3_t velocity;
-    vec3_t avelocity;
-    int mass;
-    float air_finished;
-    float gravity;		// per entity gravity multiplier (1.0 is normal) use for lowgrav artifact, flares
+  vec3_t velocity;
+  vec3_t avelocity;
+  int mass;
+  float air_finished;
+  float gravity;		// per entity gravity multiplier (1.0 is normal) use for lowgrav artifact, flares
 
-    edict_t *goalentity;
-    edict_t *movetarget;
-    float yaw_speed;
-    float ideal_yaw;
+  edict_t *goalentity;
+  edict_t *movetarget;
+  float yaw_speed;
+  float ideal_yaw;
 
-    float nextthink;
-    void (*prethink) (edict_t * ent);
-    void (*think) (edict_t * self);
-    void (*blocked) (edict_t * self, edict_t * other);	//move to moveinfo?
+  float nextthink;
+  void (*prethink) (edict_t * ent);
+  void (*think) (edict_t * self);
+  void (*blocked) (edict_t * self, edict_t * other);	//move to moveinfo?
 
-    void (*touch) (edict_t * self, edict_t * other, cplane_t * plane, csurface_t * surf);
-    void (*use) (edict_t * self, edict_t * other, edict_t * activator);
-    void (*pain) (edict_t * self, edict_t * other, float kick, int damage);
-    void (*die) (edict_t * self, edict_t * inflictor, edict_t * attacker, int damage, vec3_t point);
+  void (*touch) (edict_t * self, edict_t * other, cplane_t * plane,
+		 csurface_t * surf);
+  void (*use) (edict_t * self, edict_t * other, edict_t * activator);
+  void (*pain) (edict_t * self, edict_t * other, float kick, int damage);
+  void (*die) (edict_t * self, edict_t * inflictor, edict_t * attacker,
+	       int damage, vec3_t point);
 
-    float touch_debounce_time;	// are all these legit?  do we need more/less of them?
+  float touch_debounce_time;	// are all these legit?  do we need more/less of them?
 
-    float pain_debounce_time;
-    float damage_debounce_time;
-    float fly_sound_debounce_time;	//move to clientinfo
+  float pain_debounce_time;
+  float damage_debounce_time;
+  float fly_sound_debounce_time;	//move to clientinfo
 
-    float last_move_time;
+  float last_move_time;
 
-    int health;
-    int max_health;
-    int gib_health;
-    int deadflag;
-    qboolean show_hostile;
+  int health;
+  int max_health;
+  int gib_health;
+  int deadflag;
+  qboolean show_hostile;
 
-    float powerarmor_time;
+  float powerarmor_time;
 
-    char *map;			// target_changelevel
+  char *map;			// target_changelevel
 
-    int viewheight;		// height above origin where eyesight is determined
+  int viewheight;		// height above origin where eyesight is determined
 
-    int takedamage;
-    int dmg;
-    int radius_dmg;
-    float dmg_radius;
-    int sounds;			//make this a spawntemp var?
+  int takedamage;
+  int dmg;
+  int radius_dmg;
+  float dmg_radius;
+  int sounds;			//make this a spawntemp var?
 
-    int count;
+  int count;
 
-    edict_t *chain;
-    edict_t *enemy;
-    edict_t *oldenemy;
-    edict_t *activator;
-    edict_t *groundentity;
-    int groundentity_linkcount;
-    edict_t *teamchain;
-    edict_t *teammaster;
+  edict_t *chain;
+  edict_t *enemy;
+  edict_t *oldenemy;
+  edict_t *activator;
+  edict_t *groundentity;
+  int groundentity_linkcount;
+  edict_t *teamchain;
+  edict_t *teammaster;
 
-    edict_t *mynoise;		// can go in client only
+  edict_t *mynoise;		// can go in client only
 
-    edict_t *mynoise2;
+  edict_t *mynoise2;
 
-    int noise_index;
-    int noise_index2;
-    float volume;
-    float attenuation;
+  int noise_index;
+  int noise_index2;
+  float volume;
+  float attenuation;
 
-    // timing variables
-    float wait;
-    float delay;		// before firing targets
+  // timing variables
+  float wait;
+  float delay;			// before firing targets
 
-    float random;
+  float random;
 
-    float teleport_time;
+  float teleport_time;
 
-    int watertype;
-    int waterlevel;
+  int watertype;
+  int waterlevel;
 
-    vec3_t move_origin;
-    vec3_t move_angles;
+  vec3_t move_origin;
+  vec3_t move_angles;
 
-    // move this to clientinfo?
-    int light_level;
+  // move this to clientinfo?
+  int light_level;
 
-    int style;			// also used as areaportal number
+  int style;			// also used as areaportal number
 
-    gitem_t *item;		// for bonus items
+  gitem_t *item;		// for bonus items
 
-    // common data blocks
-    moveinfo_t moveinfo;
-    monsterinfo_t monsterinfo;
+  // common data blocks
+  moveinfo_t moveinfo;
+  monsterinfo_t monsterinfo;
 
-    // laser
-    edict_t *lasersight;
-		// TNG Flashlight
-		edict_t *flashlight;
-    // action
-    qboolean splatted;
-    int classnum;
-    // PG BUND
-    xmenu_t *x_menu;
-  };
+  // laser
+  edict_t *lasersight;
+  // TNG Flashlight
+  edict_t *flashlight;
+  // action
+  qboolean splatted;
+  int classnum;
+  // PG BUND
+  xmenu_t *x_menu;
+};
 
 
 //zucc
@@ -1626,14 +1664,14 @@ void Cmd_Bandage_f (edict_t * ent);
 void Cmd_ID_f (edict_t * ent);
 void Cmd_IR_f (edict_t * ent);
 void Cmd_Choose_f (edict_t * ent);
-void Cmd_TKOk (edict_t *ent); // AQ:TNG - JBravo adding tkok
+void Cmd_TKOk (edict_t * ent);	// AQ:TNG - JBravo adding tkok
 void DropSpecialWeapon (edict_t * ent);
 void ReadySpecialWeapon (edict_t * ent);
 void DropSpecialItem (edict_t * ent);
 void Bandage (edict_t * ent);
-void ShowGun (edict_t * ent); // hentai's vwep function added by zucc
-void FL_think (edict_t *self); // TNG Flashlight
-void FL_make(edict_t *self); // TNG Flashlight
+void ShowGun (edict_t * ent);	// hentai's vwep function added by zucc
+void FL_think (edict_t * self);	// TNG Flashlight
+void FL_make (edict_t * self);	// TNG Flashlight
 
 // spec functions
 void SetupSpecSpawn (void);
@@ -1649,7 +1687,8 @@ void TransparentListSet (solid_t solid_type);
 
 //local to g_combat but needed in p_view
 void SpawnDamage (int type, vec3_t origin, vec3_t normal, int damage);
-void Killed (edict_t * targ, edict_t * inflictor, edict_t * attacker, int damage, vec3_t point);
+void Killed (edict_t * targ, edict_t * inflictor, edict_t * attacker,
+	     int damage, vec3_t point);
 
 void Add_Frag (edict_t * ent);
 void Subtract_Frag (edict_t * ent);
@@ -1757,18 +1796,19 @@ void AddSplat (edict_t * self, vec3_t point, trace_t * tr);
 #define GRENADE_DAMRAD  250
 
 //AQ2:TNG - Slicer New location support
-#define MAX_LOCATIONS_IN_BASE		256 // Max amount of locations
+#define MAX_LOCATIONS_IN_BASE		256	// Max amount of locations
 // location structure
 typedef struct
 {
-	int x;
-	int y;
-	int z;
-	int rx;
-	int ry;
-	int rz;
-	char desc[128];
-} placedata_t;
+  int x;
+  int y;
+  int z;
+  int rx;
+  int ry;
+  int rz;
+  char desc[128];
+}
+placedata_t;
 
 // Externals for accessing location structures
 extern int ml_count;

@@ -1,12 +1,15 @@
 //-----------------------------------------------------------------------------
 // a_xmenu.c
 //
-// $Id: a_xmenu.c,v 1.1 2001/05/06 17:25:35 igor_rock Exp $
+// $Id: a_xmenu.c,v 1.2 2001/09/28 13:48:34 ra Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_xmenu.c,v $
-// Revision 1.1  2001/05/06 17:25:35  igor_rock
-// Initial revision
+// Revision 1.2  2001/09/28 13:48:34  ra
+// I ran indent over the sources. All .c and .h files reindented.
+//
+// Revision 1.1.1.1  2001/05/06 17:25:35  igor_rock
+// This is the PG Bund Edition V1.25 with all stuff laying around here...
 //
 //-----------------------------------------------------------------------------
 
@@ -14,24 +17,25 @@
 
 #define X_MENU ent->x_menu
 
-static XMENU_TITLE xRaw[] =
-{
+static XMENU_TITLE xRaw[] = {
   "€‚",		// double line
-   "previous page",
+  "previous page",
   "next page",
   "Use [ and ] to move cursor",
   "ENTER to select, TAB to exit",
   "",	// single line
-   "€‚"	// double line
+  "€‚"	// double line
 };
 
 qboolean
-xMenu_Add (edict_t * ent, char *name, void (*SelectFunc) (edict_t * ent, pmenu_t * p))
+xMenu_Add (edict_t * ent, char *name,
+	   void (*SelectFunc) (edict_t * ent, pmenu_t * p))
 {
   if (X_MENU->xmenucount < XMENU_TOTAL_ENTRIES)
     {
       if (name)
-	strncpy (X_MENU->xmenuentries[X_MENU->xmenucount].name, name, XMENU_TITLE_MAX - 1);
+	strncpy (X_MENU->xmenuentries[X_MENU->xmenucount].name, name,
+		 XMENU_TITLE_MAX - 1);
       else
 	X_MENU->xmenuentries[X_MENU->xmenucount].name[0] = '\0';
       X_MENU->xmenuentries[X_MENU->xmenucount].SelectFunc = SelectFunc;
@@ -142,7 +146,8 @@ xMenu_Set (edict_t * ent)
 }
 
 qboolean
-xMenu_New (edict_t * ent, char *title, char *subtitle, void (*DoAddMenu) (edict_t * ent, int fromix))
+xMenu_New (edict_t * ent, char *title, char *subtitle,
+	   void (*DoAddMenu) (edict_t * ent, int fromix))
 {
   if (!DoAddMenu)
     return false;
@@ -168,7 +173,8 @@ xMenu_New (edict_t * ent, char *title, char *subtitle, void (*DoAddMenu) (edict_
   if (subtitle)
     strncpy (X_MENU->xmenuentries[1].name, subtitle, XMENU_TITLE_MAX - 1);
   else
-    strncpy (X_MENU->xmenuentries[1].name, "make your choice", XMENU_TITLE_MAX - 1);
+    strncpy (X_MENU->xmenuentries[1].name, "make your choice",
+	     XMENU_TITLE_MAX - 1);
 
   X_MENU->xmenuentries[0].SelectFunc = NULL;
   X_MENU->xmenuentries[1].SelectFunc = NULL;

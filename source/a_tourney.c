@@ -1,12 +1,15 @@
 //-----------------------------------------------------------------------------
 // a_tourney.c
 //
-// $Id: a_tourney.c,v 1.1 2001/05/06 17:24:40 igor_rock Exp $
+// $Id: a_tourney.c,v 1.2 2001/09/28 13:48:34 ra Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_tourney.c,v $
-// Revision 1.1  2001/05/06 17:24:40  igor_rock
-// Initial revision
+// Revision 1.2  2001/09/28 13:48:34  ra
+// I ran indent over the sources. All .c and .h files reindented.
+//
+// Revision 1.1.1.1  2001/05/06 17:24:40  igor_rock
+// This is the PG Bund Edition V1.25 with all stuff laying around here...
 //
 //-----------------------------------------------------------------------------
 
@@ -40,7 +43,8 @@ _tourneyparseerror (parse_t parse, char *msg, char *atoken)
     sprintf (buf, msg, atoken);
   else
     strcpy (buf, msg);
-  gi.dprintf ("Error in " TOURNEYINI " at line %i: %s.\n", parse.lnumber, buf);
+  gi.dprintf ("Error in " TOURNEYINI " at line %i: %s.\n", parse.lnumber,
+	      buf);
 }
 
 void
@@ -66,8 +70,7 @@ _tourneysetsection (tourneyindex_t * ti, int clevel)
 }
 
 //format: set [starttime/startspawn/endtime] at [time]
-qboolean
-_tourneyset (parse_t parse, int clevel, int cevent)
+qboolean _tourneyset (parse_t parse, int clevel, int cevent)
 {
   char *mytok;
   int toknr;
@@ -90,7 +93,9 @@ _tourneyset (parse_t parse, int clevel, int cevent)
 	    {
 	      if (clevel != 1)
 		{
-		  _tourneyparseerror (parse, "%s is only supported in section [START]", mytok);
+		  _tourneyparseerror (parse,
+				      "%s is only supported in section [START]",
+				      mytok);
 		  toknr = 1000;
 
 		}
@@ -102,7 +107,8 @@ _tourneyset (parse_t parse, int clevel, int cevent)
 	    }
 	  else
 	    {
-	      _tourneyparseerror (parse, "not supported set option %s", mytok);
+	      _tourneyparseerror (parse, "not supported set option %s",
+				  mytok);
 	      toknr = 1000;
 	    }
 	  break;
@@ -138,8 +144,7 @@ _tourneyset (parse_t parse, int clevel, int cevent)
 }
 
 //format: play [sound] at [time]
-qboolean
-_tourneyplay (parse_t parse, int clevel, int cevent)
+qboolean _tourneyplay (parse_t parse, int clevel, int cevent)
 {
   char *mytok;
   int toknr;
@@ -188,8 +193,7 @@ _tourneyplay (parse_t parse, int clevel, int cevent)
 }
 
 //format: print ["text"] at [time]
-qboolean
-_tourneyprint (parse_t parse, int clevel, int cevent)
+qboolean _tourneyprint (parse_t parse, int clevel, int cevent)
 {
   char *mytok;
   int toknr;
@@ -250,7 +254,8 @@ TourneyTimeEvent (TOURNEYTIME ttime, int attime)
 	  if (t_eventlist[i].taction == A_PLAY)
 	    {
 	      gi.sound (&g_edicts[0], CHAN_VOICE | CHAN_NO_PHS_ADD,
-		  gi.soundindex (t_eventlist[i].info), 1.0, ATTN_NONE, 0.0);
+			gi.soundindex (t_eventlist[i].info), 1.0, ATTN_NONE,
+			0.0);
 	    }
 	  else if (t_eventlist[i].taction == A_PRINT)
 	    {
@@ -403,7 +408,8 @@ TourneyRemovePlayer (edict_t * player)
       dummy = g_edicts + i;
       if (dummy->inuse)
 	{
-	  if (dummy->client->resp.tourneynumber > player->client->resp.tourneynumber)
+	  if (dummy->client->resp.tourneynumber >
+	      player->client->resp.tourneynumber)
 	    dummy->client->resp.tourneynumber--;
 	}
     }
@@ -428,7 +434,8 @@ TourneyWinner (edict_t * player)
     {
       //new winner, so we have to cycle the numbers    
       oldnumberone = TourneyFindPlayer (1);
-      oldnumberone->client->resp.tourneynumber = player->client->resp.tourneynumber;
+      oldnumberone->client->resp.tourneynumber =
+	player->client->resp.tourneynumber;
       player->client->resp.tourneynumber = 1;
     }
 
@@ -439,8 +446,7 @@ TourneyWinner (edict_t * player)
 
 //sets new round, returns wether enough players are available
 //or not
-qboolean
-TourneyNewRound (void)
+qboolean TourneyNewRound (void)
 {
   char buf[4096];
   edict_t *dummy;
@@ -471,7 +477,8 @@ TourneyNewRound (void)
     }
   else
     {
-      gi.dprintf ("Tourney Error: cannot find NextOpponent (%i)!\n", NextOpponent);
+      gi.dprintf ("Tourney Error: cannot find NextOpponent (%i)!\n",
+		  NextOpponent);
       strcat (buf, "(unknown)");
     }
 

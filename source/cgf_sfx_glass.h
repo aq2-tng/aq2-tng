@@ -17,12 +17,15 @@
 /*                                                                          */
 /******* http://www.botepidemic.com/aid/cgf for CGF for Action Quake2 *******/
 //
-// $Id: cgf_sfx_glass.h,v 1.1 2001/05/06 17:29:34 igor_rock Exp $
+// $Id: cgf_sfx_glass.h,v 1.2 2001/09/28 13:48:34 ra Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: cgf_sfx_glass.h,v $
-// Revision 1.1  2001/05/06 17:29:34  igor_rock
-// Initial revision
+// Revision 1.2  2001/09/28 13:48:34  ra
+// I ran indent over the sources. All .c and .h files reindented.
+//
+// Revision 1.1.1.1  2001/05/06 17:29:34  igor_rock
+// This is the PG Bund Edition V1.25 with all stuff laying around here...
 //
 //-----------------------------------------------------------------------------
 
@@ -57,18 +60,17 @@ int CGF_SFX_IsBreakableGlassEnabled ();
 // returns whether breakable glass is enabled (cvar breakableglass)
 
 
-void CGF_SFX_TestBreakableGlassAndRemoveIfNot_Think (edict_t * aPossibleGlassEntity);
+void CGF_SFX_TestBreakableGlassAndRemoveIfNot_Think (edict_t *
+						     aPossibleGlassEntity);
 // initial think function for all func_explosives
 // because we cannot verify the contents of the entity unless the entity
 // has been spawned, we need to first introduce the entity, and remove
 // it later (level.time == 0.1) if required
 
 
-void CGF_SFX_ShootBreakableGlass (edict_t * aGlassPane,
-				  edict_t * anAttacker,
+void CGF_SFX_ShootBreakableGlass (edict_t * aGlassPane, edict_t * anAttacker,
 				  /*trace_t */ void *tr,
-				  int mod
-);
+				  int mod);
 // shoot thru glass - depending on bullet types and
 // random effects, glass just emits fragments, or breaks
 

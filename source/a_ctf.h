@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // CTF related definitions
 //
-// $Id: a_ctf.h,v 1.9 2001/08/08 12:42:22 slicerdw Exp $
+// $Id: a_ctf.h,v 1.10 2001/09/28 13:48:34 ra Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_ctf.h,v $
+// Revision 1.10  2001/09/28 13:48:34  ra
+// I ran indent over the sources. All .c and .h files reindented.
+//
 // Revision 1.9  2001/08/08 12:42:22  slicerdw
 // Ctf Should finnaly be fixed now, lets hope so
 //
@@ -21,10 +24,12 @@
 //
 //-----------------------------------------------------------------------------
 
-typedef enum {
-	CTF_STATE_START,
-	CTF_STATE_PLAYING
-} ctfstate_t;
+typedef enum
+{
+  CTF_STATE_START,
+  CTF_STATE_PLAYING
+}
+ctfstate_t;
 
 extern cvar_t *ctf;
 extern cvar_t *ctf_forcejoin;
@@ -59,39 +64,39 @@ extern cvar_t *ctf_respawn;
 
 #define CTF_AUTO_FLAG_RETURN_TIMEOUT		30	// number of seconds before dropped flag auto-returns
 
-void CTFInit(void);
+void CTFInit (void);
 
-void SP_info_player_team1(edict_t *self);
-void SP_info_player_team2(edict_t *self);
+void SP_info_player_team1 (edict_t * self);
+void SP_info_player_team2 (edict_t * self);
 
-char *CTFTeamName(int team);
-char *CTFOtherTeamName(int team);
-void CTFAssignTeam(gclient_t *who);
-edict_t *SelectCTFSpawnPoint (edict_t *ent);
-qboolean CTFPickup_Flag(edict_t *ent, edict_t *other);
-void CTFDrop_Flag(edict_t *ent, gitem_t *item);
-void CTFEffects(edict_t *player);
-void CTFCalcScores(void);
-void SetCTFStats(edict_t *ent);
-void CTFDeadDropFlag(edict_t *self);
-void CTFScoreboardMessage (edict_t *ent, edict_t *killer);
-void CTFFlagSetup (edict_t *ent);
-void CTFResetFlag(int team);
-void CTFFragBonuses(edict_t *targ, edict_t *inflictor, edict_t *attacker);
-void CTFCheckHurtCarrier(edict_t *targ, edict_t *attacker);
-void CTFDestroyFlag (edict_t *self);
+char *CTFTeamName (int team);
+char *CTFOtherTeamName (int team);
+void CTFAssignTeam (gclient_t * who);
+edict_t *SelectCTFSpawnPoint (edict_t * ent);
+qboolean CTFPickup_Flag (edict_t * ent, edict_t * other);
+void CTFDrop_Flag (edict_t * ent, gitem_t * item);
+void CTFEffects (edict_t * player);
+void CTFCalcScores (void);
+void SetCTFStats (edict_t * ent);
+void CTFDeadDropFlag (edict_t * self);
+void CTFScoreboardMessage (edict_t * ent, edict_t * killer);
+void CTFFlagSetup (edict_t * ent);
+void CTFResetFlag (int team);
+void CTFFragBonuses (edict_t * targ, edict_t * inflictor, edict_t * attacker);
+void CTFCheckHurtCarrier (edict_t * targ, edict_t * attacker);
+void CTFDestroyFlag (edict_t * self);
 
-void CTFOpenJoinMenu(edict_t *ent);
-qboolean CTFStartClient(edict_t *ent);
+void CTFOpenJoinMenu (edict_t * ent);
+qboolean CTFStartClient (edict_t * ent);
 
-qboolean CTFCheckRules(void);
+qboolean CTFCheckRules (void);
 
-void SP_misc_ctf_banner (edict_t *ent);
-void SP_misc_ctf_small_banner (edict_t *ent);
+void SP_misc_ctf_banner (edict_t * ent);
+void SP_misc_ctf_small_banner (edict_t * ent);
 
 extern char *ctf_statusbar;
 
-void SP_trigger_teleport (edict_t *ent);
-void SP_info_teleport_destination (edict_t *ent);
+void SP_trigger_teleport (edict_t * ent);
+void SP_info_teleport_destination (edict_t * ent);
 
 void ResetPlayers ();

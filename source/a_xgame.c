@@ -16,10 +16,13 @@
 // you get compiler errors too, comment them out like
 // I'd done.
 //
-// $Id: a_xgame.c,v 1.11 2001/07/16 19:02:06 ra Exp $
+// $Id: a_xgame.c,v 1.12 2001/09/28 13:48:34 ra Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_xgame.c,v $
+// Revision 1.12  2001/09/28 13:48:34  ra
+// I ran indent over the sources. All .c and .h files reindented.
+//
 // Revision 1.11  2001/07/16 19:02:06  ra
 // Fixed compilerwarnings (-g -Wall).  Only one remains.
 //
@@ -356,8 +359,7 @@ DetermineViewedEnemy (edict_t * ent)
       d = DotProduct (forward, dir);
       if (d > bd && loc_CanSee (ent, who) &&
 	  who->solid != SOLID_NOT &&
-	  who->deadflag != DEAD_DEAD &&
-	  !OnSameTeam (who, ent))
+	  who->deadflag != DEAD_DEAD && !OnSameTeam (who, ent))
 	{
 	  bd = d;
 	  best = who;
@@ -655,40 +657,40 @@ ParseSayText (edict_t * ent, char *text)
 	      p += 2;
 	      continue;
 //AQ2:TNG Slicer - New Location Code
-		  /*
-	    case 'L':
-	      GetOwnPosition (ent, infobuf);
-	      strcpy (pbuf, infobuf);
-	      pbuf = SeekBufEnd (pbuf);
-	      p += 2;
-	      continue;
+	      /*
+	         case 'L':
+	         GetOwnPosition (ent, infobuf);
+	         strcpy (pbuf, infobuf);
+	         pbuf = SeekBufEnd (pbuf);
+	         p += 2;
+	         continue;
+	         case 'S':
+	         GetViewedPosition (ent, infobuf);
+	         strcpy (pbuf, infobuf);
+	         pbuf = SeekBufEnd (pbuf);
+	         p += 2;
+	         continue;
+	       */
 	    case 'S':
-	      GetViewedPosition (ent, infobuf);
+	      GetSightedLocation (ent, infobuf);
 	      strcpy (pbuf, infobuf);
 	      pbuf = SeekBufEnd (pbuf);
 	      p += 2;
 	      continue;
-		  */
-		case 'S':
-		    GetSightedLocation(ent, infobuf);
-			strcpy(pbuf, infobuf);
-			pbuf = SeekBufEnd(pbuf);
-			p += 2;
-			continue;
-		case 'L':
-			GetPlayerLocation(ent, infobuf);
-			strcpy(pbuf, infobuf);
-			pbuf = SeekBufEnd(pbuf);
-			p += 2;
-			continue;
-	//AQ2:TNG Slicer Last Damage Location
-		case 'D':
-		  GetLastDamagedPart(ent, infobuf);
-		  strcpy(pbuf, infobuf);
-		  pbuf = SeekBufEnd(pbuf);
-		  p += 2;
-		 continue;
-		 //AQ2:TNG END
+	    case 'L':
+	      GetPlayerLocation (ent, infobuf);
+	      strcpy (pbuf, infobuf);
+	      pbuf = SeekBufEnd (pbuf);
+	      p += 2;
+	      continue;
+	      //AQ2:TNG Slicer Last Damage Location
+	    case 'D':
+	      GetLastDamagedPart (ent, infobuf);
+	      strcpy (pbuf, infobuf);
+	      pbuf = SeekBufEnd (pbuf);
+	      p += 2;
+	      continue;
+	      //AQ2:TNG END
 	    }
 	}
       *pbuf++ = *p++;
@@ -703,7 +705,7 @@ ParseSayText (edict_t * ent, char *text)
 
 // AQ2:TNG - Slicer Video Checks
 
-//float	next_cheat_check;
+//float next_cheat_check;
 
 
 /*
@@ -713,190 +715,222 @@ VideoCheckClient
 
 ===========
 */
-void VideoCheckClient(edict_t *ent)
+void
+VideoCheckClient (edict_t * ent)
 {
-	if(!ent->client->resp.vidref)
-		return;
-		
-	if(video_check_lockpvs->value)
-	{
-		if(ent->client->resp.gllockpvs !=0)
-		{
-			gi.cprintf(ent, PRINT_HIGH, "This server does not allow using that value for gl_lockpvs, set it to '0'\n");
-			gi.bprintf(PRINT_HIGH, "%s was using an illegal setting\n", ent->client->pers.netname);
-			Kick_Client(ent);
-			return;
+  if (!ent->client->resp.vidref)
+    return;
 
-		}
+  if (video_check_lockpvs->value)
+    {
+      if (ent->client->resp.gllockpvs != 0)
+	{
+	  gi.cprintf (ent, PRINT_HIGH,
+		      "This server does not allow using that value for gl_lockpvs, set it to '0'\n");
+	  gi.bprintf (PRINT_HIGH, "%s was using an illegal setting\n",
+		      ent->client->pers.netname);
+	  Kick_Client (ent);
+	  return;
+
 	}
-	//Starting Modulate checks
+    }
+  //Starting Modulate checks
 
 
-	if(Q_stricmp(ent->client->resp.gldriver,"3dfxgl") == 0)
+  if (Q_stricmp (ent->client->resp.gldriver, "3dfxgl") == 0)
+    {
+      if (ent->client->resp.glmodulate > video_max_3dfx->value)
 	{
-		if(ent->client->resp.glmodulate > video_max_3dfx->value)
-		{
-			gi.cprintf(ent, PRINT_HIGH, "Your gl_modulate value is too high for this server. Max Allowed is %.1f\n",video_max_3dfx->value);
-			gi.bprintf(PRINT_HIGH, "%s is using a gl_modulated higher than allowed (%.1f)\n", ent->client->pers.netname,ent->client->resp.glmodulate);
-			Kick_Client(ent);
-			return;
-		}
-       return;
+	  gi.cprintf (ent, PRINT_HIGH,
+		      "Your gl_modulate value is too high for this server. Max Allowed is %.1f\n",
+		      video_max_3dfx->value);
+	  gi.bprintf (PRINT_HIGH,
+		      "%s is using a gl_modulated higher than allowed (%.1f)\n",
+		      ent->client->pers.netname,
+		      ent->client->resp.glmodulate);
+	  Kick_Client (ent);
+	  return;
 	}
+      return;
+    }
 
-	if(Q_stricmp(ent->client->resp.gldriver,"opengl32") == 0)
+  if (Q_stricmp (ent->client->resp.gldriver, "opengl32") == 0)
+    {
+
+      if (ent->client->resp.glmodulate > video_max_opengl->value)
 	{
-		
-		if(ent->client->resp.glmodulate >video_max_opengl->value)
-		{
-			gi.cprintf(ent, PRINT_HIGH, "Your gl_modulate value is too high for this server. Max Allowed is %.1f\n",video_max_opengl->value);
-			gi.bprintf(PRINT_HIGH, "%s is using a gl_modulate higher than allowed (%.1f)\n", ent->client->pers.netname,ent->client->resp.glmodulate);
-			Kick_Client(ent);
-			return;
-		}
-		return;
+	  gi.cprintf (ent, PRINT_HIGH,
+		      "Your gl_modulate value is too high for this server. Max Allowed is %.1f\n",
+		      video_max_opengl->value);
+	  gi.bprintf (PRINT_HIGH,
+		      "%s is using a gl_modulate higher than allowed (%.1f)\n",
+		      ent->client->pers.netname,
+		      ent->client->resp.glmodulate);
+	  Kick_Client (ent);
+	  return;
 	}
-	if(Q_stricmp(ent->client->resp.gldriver,"3dfxglam") == 0)
+      return;
+    }
+  if (Q_stricmp (ent->client->resp.gldriver, "3dfxglam") == 0)
+    {
+      if (ent->client->resp.glmodulate > video_max_3dfxam->value)
 	{
-		if(ent->client->resp.glmodulate > video_max_3dfxam->value)
-		{
-			gi.cprintf(ent, PRINT_HIGH, "Your gl_modulate value is too high for this server. Max Allowed is %.1f\n",video_max_3dfxam->value);
-			gi.bprintf(PRINT_HIGH, "%s is using a gl_modulate higher than allowed (%.1f)\n", ent->client->pers.netname,ent->client->resp.glmodulate);
-			Kick_Client(ent);
-			return;
-		}
-		return;
+	  gi.cprintf (ent, PRINT_HIGH,
+		      "Your gl_modulate value is too high for this server. Max Allowed is %.1f\n",
+		      video_max_3dfxam->value);
+	  gi.bprintf (PRINT_HIGH,
+		      "%s is using a gl_modulate higher than allowed (%.1f)\n",
+		      ent->client->pers.netname,
+		      ent->client->resp.glmodulate);
+	  Kick_Client (ent);
+	  return;
 	}
-	if(ent->client->resp.glmodulate > video_max_opengl->value)
-		{
-			gi.cprintf(ent, PRINT_HIGH, "Your gl_modulate value is too high for this server. Max Allowed is %.1f\n",video_max_opengl->value);
-			gi.bprintf(PRINT_HIGH, "%s is using a gl_modulate higher than allowed (%.1f)\n", ent->client->pers.netname,ent->client->resp.glmodulate);
-			Kick_Client(ent);
-			return;
-		}
+      return;
+    }
+  if (ent->client->resp.glmodulate > video_max_opengl->value)
+    {
+      gi.cprintf (ent, PRINT_HIGH,
+		  "Your gl_modulate value is too high for this server. Max Allowed is %.1f\n",
+		  video_max_opengl->value);
+      gi.bprintf (PRINT_HIGH,
+		  "%s is using a gl_modulate higher than allowed (%.1f)\n",
+		  ent->client->pers.netname, ent->client->resp.glmodulate);
+      Kick_Client (ent);
+      return;
+    }
 }
 
 //AQ2:TNG - Slicer : Last Damage Location
-void GetLastDamagedPart(edict_t *self, char *buf)
+void
+GetLastDamagedPart (edict_t * self, char *buf)
 {
-	if(self->client->resp.last_damaged_part == 0)
-				strcpy(buf, "nothing");
-	else if(self->client->resp.last_damaged_part == LOC_HDAM)
-	{
-		strcpy(buf, "head");
-		self->client->resp.last_damaged_part = 0;
-	}
-	else if(self->client->resp.last_damaged_part == LOC_CDAM)
-			{
-		strcpy(buf, "chest");
-		self->client->resp.last_damaged_part = 0;
-	}
-	else if(self->client->resp.last_damaged_part == LOC_SDAM)
-		{
-		strcpy(buf, "stomach");
-		self->client->resp.last_damaged_part = 0;
-	}
-	else if(self->client->resp.last_damaged_part == LOC_LDAM)
-	{
-		strcpy(buf, "legs");
-		self->client->resp.last_damaged_part = 0;
-	}
-	else
-		strcpy(buf,"nothing"); // Just in case
+  if (self->client->resp.last_damaged_part == 0)
+    strcpy (buf, "nothing");
+  else if (self->client->resp.last_damaged_part == LOC_HDAM)
+    {
+      strcpy (buf, "head");
+      self->client->resp.last_damaged_part = 0;
+    }
+  else if (self->client->resp.last_damaged_part == LOC_CDAM)
+    {
+      strcpy (buf, "chest");
+      self->client->resp.last_damaged_part = 0;
+    }
+  else if (self->client->resp.last_damaged_part == LOC_SDAM)
+    {
+      strcpy (buf, "stomach");
+      self->client->resp.last_damaged_part = 0;
+    }
+  else if (self->client->resp.last_damaged_part == LOC_LDAM)
+    {
+      strcpy (buf, "legs");
+      self->client->resp.last_damaged_part = 0;
+    }
+  else
+    strcpy (buf, "nothing");	// Just in case
 }
+
 //AQ2:TNG END
 
 // Gets the location string of a location (xo,yo,zo)
 // Modifies the the location areas by value of "mod"
 // in the coord-inside-area tests
 //
-qboolean GetLocation(int xo, int yo, int zo, int mod, char *buf)
+qboolean
+GetLocation (int xo, int yo, int zo, int mod, char *buf)
 {
-	int count;
-	int lx,ly,lz,rlx,rly,rlz;
+  int count;
+  int lx, ly, lz, rlx, rly, rlz;
 
-	count = ml_count;
-	while(count--) {
+  count = ml_count;
+  while (count--)
+    {
 
-		// get next location from location base
-		lx = locationbase[count].x;
-		ly = locationbase[count].y;
-		lz = locationbase[count].z;
-		rlx = locationbase[count].rx;
-		rly = locationbase[count].ry;
-		rlz = locationbase[count].rz;
-		
-		// Default X-range 1500
-		if (!rlx)
-		{
-			rlx = 1500;
-		}
+      // get next location from location base
+      lx = locationbase[count].x;
+      ly = locationbase[count].y;
+      lz = locationbase[count].z;
+      rlx = locationbase[count].rx;
+      rly = locationbase[count].ry;
+      rlz = locationbase[count].rz;
 
-		// Default Y-range 1500
-		if (!rly)
-		{
-			rly = 1500;
-		}
-
-		// Test if the (xo,yo,zo) is inside the location
-		if (xo >= lx - rlx - mod && xo <= lx + rlx - mod &&
-			yo >= ly - rly - mod && yo <= ly + rly - mod)
-		{
-			if (rlz && (zo < lz - rlz - mod || zo > lz + rlz + mod))
-				continue;
-			
-			strcpy(buf,locationbase[count].desc);
-			
-			return true;
-		}
+      // Default X-range 1500
+      if (!rlx)
+	{
+	  rlx = 1500;
 	}
 
-	strcpy(buf,"around");
-	return false;
+      // Default Y-range 1500
+      if (!rly)
+	{
+	  rly = 1500;
+	}
+
+      // Test if the (xo,yo,zo) is inside the location
+      if (xo >= lx - rlx - mod && xo <= lx + rlx - mod &&
+	  yo >= ly - rly - mod && yo <= ly + rly - mod)
+	{
+	  if (rlz && (zo < lz - rlz - mod || zo > lz + rlz + mod))
+	    continue;
+
+	  strcpy (buf, locationbase[count].desc);
+
+	  return true;
+	}
+    }
+
+  strcpy (buf, "around");
+  return false;
 }
 
 // Get the player location
 //
-qboolean GetPlayerLocation(edict_t *self, char *buf)
+qboolean
+GetPlayerLocation (edict_t * self, char *buf)
 {
-	int xo,yo,zo;
-	
-	xo = self->s.origin[0]; 
-	yo = self->s.origin[1];
-	zo = self->s.origin[2]; 
+  int xo, yo, zo;
 
-	if(GetLocation(xo,yo,zo,0,buf) == false)
-		return false;
-	else
-		return true;
+  xo = self->s.origin[0];
+  yo = self->s.origin[1];
+  zo = self->s.origin[2];
+
+  if (GetLocation (xo, yo, zo, 0, buf) == false)
+    return false;
+  else
+    return true;
 }
 
 // Get the sighted location
 //
-void GetSightedLocation(edict_t *self, char *buf)
+void
+GetSightedLocation (edict_t * self, char *buf)
 {
-	vec3_t  start,forward,right,end,up,offset;
-	int xo,yo,zo;
-	trace_t tr;
+  vec3_t start, forward, right, end, up, offset;
+  int xo, yo, zo;
+  trace_t tr;
 
-	AngleVectors (self->client->v_angle, forward, right, up);
-        
-	VectorSet(offset,24 , 8, self->viewheight);
-	P_ProjectSource (self->client, self->s.origin, offset, forward, right, start);
-	VectorMA(start,8192,forward,end);
+  AngleVectors (self->client->v_angle, forward, right, up);
 
-	PRETRACE();
-    	tr = gi.trace (start,NULL,NULL, end,self,CONTENTS_SOLID|CONTENTS_MONSTER|CONTENTS_DEADMONSTER);
-    	POSTTRACE();
+  VectorSet (offset, 24, 8, self->viewheight);
+  P_ProjectSource (self->client, self->s.origin, offset, forward, right,
+		   start);
+  VectorMA (start, 8192, forward, end);
 
-	xo = tr.endpos[0];
-	yo = tr.endpos[1];
-	zo = tr.endpos[2];
+  PRETRACE ();
+  tr =
+    gi.trace (start, NULL, NULL, end, self,
+	      CONTENTS_SOLID | CONTENTS_MONSTER | CONTENTS_DEADMONSTER);
+  POSTTRACE ();
 
-	GetLocation(xo,yo,zo,10,buf);
+  xo = tr.endpos[0];
+  yo = tr.endpos[1];
+  zo = tr.endpos[2];
+
+  GetLocation (xo, yo, zo, 10, buf);
 }
 
-void GetEnemyPosition (edict_t * self, char *buf)
+void
+GetEnemyPosition (edict_t * self, char *buf)
 {
   edict_t *the_enemy;
   vec3_t rel_pos;
@@ -951,88 +985,99 @@ void GetEnemyPosition (edict_t * self, char *buf)
 	    }
 	  else
 	    strcat (buf, ", on the same level");
-	  }
 	}
+    }
   else
     {
       strcpy (buf, "somewhere");
     }
 }
+
 //AQ2:TNG END
 
 //AQ2:TNG Slicer - New last killed target functions
-void ResetKills (edict_t *ent)
+void
+ResetKills (edict_t * ent)
 {
-	int i;
-	for(i=0;i<MAX_LAST_KILLED;i++)
-	{
-		ent->client->resp.last_killed_target[i] = NULL;
-	}
+  int i;
+  for (i = 0; i < MAX_LAST_KILLED; i++)
+    {
+      ent->client->resp.last_killed_target[i] = NULL;
+    }
 }
-int ReadKilledPlayers (edict_t * ent)
+int
+ReadKilledPlayers (edict_t * ent)
 {
-	int results;
-	int i;
+  int results;
+  int i;
 
-	results = -1;
-	if(ent->client->resp.last_killed_target[0])
+  results = -1;
+  if (ent->client->resp.last_killed_target[0])
+    {
+      for (i = 0; i < MAX_LAST_KILLED; i++)
 	{
-		for (i=0;i<MAX_LAST_KILLED;i++)
+	  if (ent->client->resp.last_killed_target[i])
+	    {
+	      results++;
+	    }
+	}
+      return results;
+
+    }
+  else
+    return -1;
+}
+
+void
+AddKilledPlayer (edict_t * self, edict_t * ent)
+{
+  int kills;
+
+  kills = ReadKilledPlayers (self);
+  if (kills == MAX_LAST_KILLED || kills == -1)	// if list is full wite on the first one
+    {
+      self->client->resp.last_killed_target[0] = ent;
+    }
+  else
+    {
+      self->client->resp.last_killed_target[kills + 1] = ent;
+    }
+
+}
+void
+GetLastKilledTarget (edict_t * self, char *buf)
+{
+  int kills, i;
+
+  kills = ReadKilledPlayers (self);
+
+  if (kills >= 0)
+    {
+      strcpy (buf,
+	      self->client->resp.last_killed_target[0]->client->pers.netname);
+      if (kills > 0)
+	{
+	  for (i = 1; i < kills + 1; i++)
+	    {
+	      if (i == kills)
 		{
-			if (ent->client->resp.last_killed_target[i])
-			{
-				results++;
-			}
+		  strcat (buf, " and ");
+		  strcat (buf,
+			  self->client->resp.last_killed_target[i]->client->
+			  pers.netname);
 		}
-		return results;
-
-	}
-	else
-		return -1;
-}
-void AddKilledPlayer (edict_t * self, edict_t * ent)
-{
-	int kills;
-
-	kills = ReadKilledPlayers(self);
-	if(kills == MAX_LAST_KILLED || kills == -1) // if list is full wite on the first one
-	{
-		self->client->resp.last_killed_target[0] = ent;
-	}
-	else
-	{
-		self->client->resp.last_killed_target[kills+1] = ent;
-	}
-
-}
-void GetLastKilledTarget (edict_t * self, char *buf)
-{
-	int kills,i;
-
-	kills = ReadKilledPlayers(self);
-	
-	if(kills >= 0)
-	{
-		strcpy(buf,self->client->resp.last_killed_target[0]->client->pers.netname);
-		if (kills >0)
+	      else
 		{
-			for(i=1;i<kills+1;i++)
-			{
-				if(i == kills)
-				{
-					strcat(buf," and ");
-					strcat(buf,self->client->resp.last_killed_target[i]->client->pers.netname);
-				}
-				else
-				{
-					strcat(buf,", ");
-					strcat(buf,self->client->resp.last_killed_target[i]->client->pers.netname);
-				}
-			}
+		  strcat (buf, ", ");
+		  strcat (buf,
+			  self->client->resp.last_killed_target[i]->client->
+			  pers.netname);
 		}
-		ResetKills(self);
+	    }
 	}
-	else
+      ResetKills (self);
+    }
+  else
     {
       strcpy (buf, "nobody");
     }

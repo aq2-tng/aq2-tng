@@ -1,12 +1,15 @@
 //-----------------------------------------------------------------------------
 // Include for Action team-related things
 //
-// $Id: a_team.h,v 1.1 2001/05/06 17:24:27 igor_rock Exp $
+// $Id: a_team.h,v 1.2 2001/09/28 13:48:34 ra Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_team.h,v $
-// Revision 1.1  2001/05/06 17:24:27  igor_rock
-// Initial revision
+// Revision 1.2  2001/09/28 13:48:34  ra
+// I ran indent over the sources. All .c and .h files reindented.
+//
+// Revision 1.1.1.1  2001/05/06 17:24:27  igor_rock
+// This is the PG Bund Edition V1.25 with all stuff laying around here...
 //
 //-----------------------------------------------------------------------------
 
@@ -68,17 +71,17 @@ void PrintTransparentList ();
 void CenterPrintAll (char *msg);
 
 typedef struct spawn_distances_s
-  {
-    float distance;
-    edict_t *s;
-  }
+{
+  float distance;
+  edict_t *s;
+}
 spawn_distances_t;
 
 typedef struct transparent_list_s
-  {
-    edict_t *ent;
-    struct transparent_list_s *next;
-  }
+{
+  edict_t *ent;
+  struct transparent_list_s *next;
+}
 transparent_list_t;
 
 

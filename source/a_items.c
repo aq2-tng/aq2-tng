@@ -3,10 +3,13 @@
 // Zoid.
 // - zucc
 //
-// $Id: a_items.c,v 1.5 2001/07/18 15:19:11 slicerdw Exp $
+// $Id: a_items.c,v 1.6 2001/09/28 13:48:34 ra Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_items.c,v $
+// Revision 1.6  2001/09/28 13:48:34  ra
+// I ran indent over the sources. All .c and .h files reindented.
+//
 // Revision 1.5  2001/07/18 15:19:11  slicerdw
 // Time for weapons and items dissapearing is set to "6" to prevent lag on ctf
 //
@@ -36,9 +39,9 @@
 // time before they will get respawned
 #define SPEC_TECH_TIMEOUT       60
 
-char *tnames[] =
-{
-  "item_quiet", "item_slippers", "item_vest", "item_band", "item_lasersight", "item_helmet",
+char *tnames[] = {
+  "item_quiet", "item_slippers", "item_vest", "item_band", "item_lasersight",
+    "item_helmet",
   NULL
 };
 
@@ -127,13 +130,18 @@ SpawnSpecs (edict_t * ent)
 	{
 	  //AQ2:TNG - Igor adding itm_flags
 	  if (
-	      (((int)itm_flags->value & ITF_SIL) && (strcmp(tnames[i], "item_quiet") == 0)) || 
-	      (((int)itm_flags->value & ITF_SLIP) && (strcmp(tnames[i], "item_slippers") == 0)) ||
-	      (((int)itm_flags->value & ITF_KEV) && (strcmp(tnames[i], "item_vest") == 0)) ||
-	      (((int)itm_flags->value & ITF_BAND) && (strcmp(tnames[i], "item_band") == 0)) ||
-	      (((int)itm_flags->value & ITF_LASER) && (strcmp(tnames[i], "item_lasersight") == 0)) ||
-	      (((int)itm_flags->value & ITF_HELM) && (strcmp(tnames[i], "item_helmet") == 0))
-	      )
+	      (((int) itm_flags->value & ITF_SIL)
+	       && (strcmp (tnames[i], "item_quiet") == 0))
+	      || (((int) itm_flags->value & ITF_SLIP)
+		  && (strcmp (tnames[i], "item_slippers") == 0))
+	      || (((int) itm_flags->value & ITF_KEV)
+		  && (strcmp (tnames[i], "item_vest") == 0))
+	      || (((int) itm_flags->value & ITF_BAND)
+		  && (strcmp (tnames[i], "item_band") == 0))
+	      || (((int) itm_flags->value & ITF_LASER)
+		  && (strcmp (tnames[i], "item_lasersight") == 0))
+	      || (((int) itm_flags->value & ITF_HELM)
+		  && (strcmp (tnames[i], "item_helmet") == 0)))
 	    {
 	      //gi.dprintf("Spawning special item '%s'.\n", tnames[i]);
 	      SpawnSpec (spec, spot);
@@ -175,17 +183,17 @@ MakeTouchSpecThink (edict_t * ent)
     }
   else if (teamplay->value && !allitem->value)
     {
-	      //AQ2:TNG - Slicer This works for Special Items 
-	  if(ctf->value)
-	  {
-		ent->nextthink = level.time + 6;
-		ent->think = G_FreeEdict;
-	  }
-	  else
-	  {
-      ent->nextthink = level.time + 60;
-      ent->think = G_FreeEdict;
-	  }
+      //AQ2:TNG - Slicer This works for Special Items 
+      if (ctf->value)
+	{
+	  ent->nextthink = level.time + 6;
+	  ent->think = G_FreeEdict;
+	}
+      else
+	{
+	  ent->nextthink = level.time + 60;
+	  ent->think = G_FreeEdict;
+	}
     }
   else				// allitem->value is set
 

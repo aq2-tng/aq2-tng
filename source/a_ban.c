@@ -1,12 +1,15 @@
 //-----------------------------------------------------------------------------
 // a_ban.c
 //
-// $Id: a_ban.c,v 1.1 2001/05/06 17:24:07 igor_rock Exp $
+// $Id: a_ban.c,v 1.2 2001/09/28 13:48:34 ra Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_ban.c,v $
-// Revision 1.1  2001/05/06 17:24:07  igor_rock
-// Initial revision
+// Revision 1.2  2001/09/28 13:48:34  ra
+// I ran indent over the sources. All .c and .h files reindented.
+//
+// Revision 1.1.1.1  2001/05/06 17:24:07  igor_rock
+// This is the PG Bund Edition V1.25 with all stuff laying around here...
 //
 //-----------------------------------------------------------------------------
 
@@ -29,8 +32,7 @@ InitBanList (void)
   memset (banlist, 0, sizeof (banlist_t));
 }
 
-qboolean
-NameInUse (edict_t * self, char *s)
+qboolean NameInUse (edict_t * self, char *s)
 {
   int i;
   edict_t *other;
@@ -84,8 +86,7 @@ MakeLegalName (edict_t * self, char *s)
     }
 }
 
-qboolean
-ipstr (char *s)
+qboolean ipstr (char *s)
 {
   int i;
   char *p;
@@ -112,8 +113,7 @@ ipstr (char *s)
   return false;
 }
 
-qboolean
-AddToBanList (char *ip)
+qboolean AddToBanList (char *ip)
 {
   if (ipstr (ip) == false);
   //gi.dprintf("banned ip: %s\n", ip);
@@ -123,8 +123,7 @@ AddToBanList (char *ip)
   return true;
 }
 
-qboolean
-IsOnBanList (char *ip)
+qboolean IsOnBanList (char *ip)
 {
   int i;
 
@@ -138,8 +137,7 @@ IsOnBanList (char *ip)
   return false;
 }
 
-qboolean
-Checkban (edict_t * ent, char *userinfo)
+qboolean Checkban (edict_t * ent, char *userinfo)
 {
   char *p;
   banstr ipaddr;

@@ -3,10 +3,13 @@
 // 
 // -Fireblade
 //
-// $Id: a_radio.c,v 1.3 2001/09/05 14:33:57 slicerdw Exp $
+// $Id: a_radio.c,v 1.4 2001/09/28 13:48:34 ra Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_radio.c,v $
+// Revision 1.4  2001/09/28 13:48:34  ra
+// I ran indent over the sources. All .c and .h files reindented.
+//
 // Revision 1.3  2001/09/05 14:33:57  slicerdw
 // Added Fix's from the 2.1 release
 //
@@ -20,12 +23,12 @@
 
 #include "g_local.h"
 
-void Cmd_Say_f (edict_t * ent, qboolean team, qboolean arg0, qboolean partner_msg);
+void Cmd_Say_f (edict_t * ent, qboolean team, qboolean arg0,
+		qboolean partner_msg);
 
 // Each of the possible radio messages and their length
 
-radio_msg_t male_radio_msgs[] =
-{
+radio_msg_t male_radio_msgs[] = {
   {"1", 6},
   {"2", 6},
   {"3", 8},
@@ -54,8 +57,7 @@ radio_msg_t male_radio_msgs[] =
   {"END", 0},			// end of list delimiter
 };
 
-radio_msg_t female_radio_msgs[] =
-{
+radio_msg_t female_radio_msgs[] = {
   {"1", 5},
   {"2", 5},
   {"3", 5},
@@ -115,7 +117,9 @@ DeleteFirstRadioQueueEntry (edict_t * ent)
 
   if (ent->client->resp.radio_queue_size <= 0)
     {
-      gi.dprintf ("DeleteFirstRadioQueueEntry: attempt to delete without any entries\n");
+      gi.
+	dprintf
+	("DeleteFirstRadioQueueEntry: attempt to delete without any entries\n");
       return;
     }
 
@@ -136,7 +140,9 @@ DeleteRadioQueueEntry (edict_t * ent, int entry_num)
 
   if (ent->client->resp.radio_queue_size <= entry_num)
     {
-      gi.dprintf ("DeleteRadioQueueEntry: attempt to delete out of range queue entry\n");
+      gi.
+	dprintf
+	("DeleteRadioQueueEntry: attempt to delete out of range queue entry\n");
       return;
     }
 
@@ -207,16 +213,20 @@ RadioThink (edict_t * ent)
       from = ent->client->resp.radio_queue[0].from_player;
 
       if (!ent->client->resp.radio_queue[0].click &&
-	  (!from->inuse || from->solid == SOLID_NOT || from->deadflag == DEAD_DEAD))
+	  (!from->inuse || from->solid == SOLID_NOT
+	   || from->deadflag == DEAD_DEAD))
 	{
 	  if (ent->client->resp.radio_queue[0].from_gender)
 	    {
-	      strcpy (ent->client->resp.radio_queue[0].soundfile, RADIO_DEATH_FEMALE);
-	      ent->client->resp.radio_queue[0].length = RADIO_DEATH_FEMALE_LEN;
+	      strcpy (ent->client->resp.radio_queue[0].soundfile,
+		      RADIO_DEATH_FEMALE);
+	      ent->client->resp.radio_queue[0].length =
+		RADIO_DEATH_FEMALE_LEN;
 	    }
 	  else
 	    {
-	      strcpy (ent->client->resp.radio_queue[0].soundfile, RADIO_DEATH_MALE);
+	      strcpy (ent->client->resp.radio_queue[0].soundfile,
+		      RADIO_DEATH_MALE);
 	      ent->client->resp.radio_queue[0].length = RADIO_DEATH_MALE_LEN;
 	    }
 
@@ -230,7 +240,8 @@ RadioThink (edict_t * ent)
 	    }
 	}
 
-      sprintf (snd_play_cmd, "play %s", ent->client->resp.radio_queue[0].soundfile);
+      sprintf (snd_play_cmd, "play %s",
+	       ent->client->resp.radio_queue[0].soundfile);
       stuffcmd (ent, snd_play_cmd);
       ent->client->resp.radio_queue[0].now_playing = 1;
       ent->client->resp.radio_delay = ent->client->resp.radio_queue[0].length;
@@ -252,21 +263,26 @@ TotalNonClickMessagesInQueue (edict_t * ent)
 }
 
 void
-AppendRadioMsgToQueue (edict_t * ent, char *msg, int len, int click, edict_t * from_player)
+AppendRadioMsgToQueue (edict_t * ent, char *msg, int len, int click,
+		       edict_t * from_player)
 {
   radio_queue_entry_t *newentry;
 
   if (ent->client->resp.radio_queue_size >= MAX_RADIO_QUEUE_SIZE)
     {
-      gi.dprintf ("AppendRadioMsgToQueue: Maximum radio queue size exceeded\n");
+      gi.
+	dprintf
+	("AppendRadioMsgToQueue: Maximum radio queue size exceeded\n");
       return;
     }
 
-  newentry = &(ent->client->resp.radio_queue[ent->client->resp.radio_queue_size]);
+  newentry =
+    &(ent->client->resp.radio_queue[ent->client->resp.radio_queue_size]);
 
   if (strlen (msg) + 1 > MAX_SOUNDFILE_PATH_LEN)
     {
-      gi.dprintf ("Radio sound file path (%s) exceeded maximum length\n", msg);
+      gi.dprintf ("Radio sound file path (%s) exceeded maximum length\n",
+		  msg);
       *(msg + MAX_SOUNDFILE_PATH_LEN - 1) = 0;
     }
   strcpy (newentry->soundfile, msg);
@@ -280,25 +296,32 @@ AppendRadioMsgToQueue (edict_t * ent, char *msg, int len, int click, edict_t * f
 }
 
 void
-InsertRadioMsgInQueueBeforeClick (edict_t * ent, char *msg, int len, edict_t * from_player)
+InsertRadioMsgInQueueBeforeClick (edict_t * ent, char *msg, int len,
+				  edict_t * from_player)
 {
   radio_queue_entry_t *newentry;
 
   if (ent->client->resp.radio_queue_size >= MAX_RADIO_QUEUE_SIZE)
     {
-      gi.dprintf ("InsertRadioMsgInQueueBeforeClick: Maximum radio queue size exceeded\n");
+      gi.
+	dprintf
+	("InsertRadioMsgInQueueBeforeClick: Maximum radio queue size exceeded\n");
       return;
     }
 
-  memcpy (&(ent->client->resp.radio_queue[ent->client->resp.radio_queue_size]),
-   &(ent->client->resp.radio_queue[ent->client->resp.radio_queue_size - 1]),
-	  sizeof (radio_queue_entry_t));
+  memcpy (&
+	  (ent->client->resp.radio_queue[ent->client->resp.radio_queue_size]),
+	  &(ent->client->resp.
+	    radio_queue[ent->client->resp.radio_queue_size - 1]),
+sizeof (radio_queue_entry_t));
 
-  newentry = &(ent->client->resp.radio_queue[ent->client->resp.radio_queue_size - 1]);
+  newentry =
+    &(ent->client->resp.radio_queue[ent->client->resp.radio_queue_size - 1]);
 
   if (strlen (msg) + 1 > MAX_SOUNDFILE_PATH_LEN)
     {
-      gi.dprintf ("Radio sound file path (%s) exceeded maximum length\n", msg);
+      gi.dprintf ("Radio sound file path (%s) exceeded maximum length\n",
+		  msg);
       *(msg + MAX_SOUNDFILE_PATH_LEN - 1) = 0;
     }
   strcpy (newentry->soundfile, msg);
@@ -318,9 +341,11 @@ AddRadioMsg (edict_t * ent, char *msg, int len, edict_t * from_player)
       (ent->client->resp.radio_queue[0].click &&
        ent->client->resp.radio_queue_size == 1))
     {
-      AppendRadioMsgToQueue (ent, RADIO_CLICK, RADIO_CLICK_LEN, 1, from_player);
+      AppendRadioMsgToQueue (ent, RADIO_CLICK, RADIO_CLICK_LEN, 1,
+			     from_player);
       AppendRadioMsgToQueue (ent, msg, len, 0, from_player);
-      AppendRadioMsgToQueue (ent, RADIO_CLICK, RADIO_CLICK_LEN, 1, from_player);
+      AppendRadioMsgToQueue (ent, RADIO_CLICK, RADIO_CLICK_LEN, 1,
+			     from_player);
     }
   else				// we have some msgs in it already...
 
@@ -399,14 +424,14 @@ RadioBroadcast (edict_t * ent, int partner, char *msg)
     {
       gi.cprintf (NULL, PRINT_CHAT, "[%s RADIO] %s: %s\n",
 		  partner ? "PARTNER" : "TEAM",
-		  ent->client->pers.netname,
-		  msg);
+		  ent->client->pers.netname, msg);
     }
 
 //TempFile BEGIN
   if (Q_stricmp (msg, "enemyd") == 0)
     {
-      if ((ent->client->pers.num_kills > 1) && (ent->client->pers.num_kills <= 10))
+      if ((ent->client->pers.num_kills > 1)
+	  && (ent->client->pers.num_kills <= 10))
 	{
 	  // If we are reporting enemy down, add the number of kills.
 	  sprintf (msgname_num, "%i", ent->client->pers.num_kills);
@@ -418,18 +443,18 @@ RadioBroadcast (edict_t * ent, int partner, char *msg)
       ent->client->pers.num_kills = 0;
     }
 //TempFile END
-	//AQ2:TNG Slicer
-    if(radio_repeat->value)
-  {
-	  	if((d = CheckForRepeat(ent,msg))==false)
-			return;
-  }
+  //AQ2:TNG Slicer
+  if (radio_repeat->value)
+    {
+      if ((d = CheckForRepeat (ent, msg)) == false)
+	return;
+    }
 
-  if(radio_max->value)
-  {
-	if((d = CheckForFlood(ent))==false)
-		return;
-  }
+  if (radio_max->value)
+    {
+      if ((d = CheckForFlood (ent)) == false)
+	return;
+    }
 
 
   //AQ2:TNG END
@@ -482,7 +507,8 @@ Cmd_Radiogender_f (edict_t * ent)
   if (arg == NULL || !strlen (arg))
     {
       if (ent->client->resp.radio_gender)
-	gi.cprintf (ent, PRINT_HIGH, "Radio gender currently set to female\n");
+	gi.cprintf (ent, PRINT_HIGH,
+		    "Radio gender currently set to female\n");
       else
 	gi.cprintf (ent, PRINT_HIGH, "Radio gender currently set to male\n");
       return;
@@ -500,7 +526,8 @@ Cmd_Radiogender_f (edict_t * ent)
     }
   else
     {
-      gi.cprintf (ent, PRINT_HIGH, "Invalid gender selection, try 'male' or 'female'\n");
+      gi.cprintf (ent, PRINT_HIGH,
+		  "Invalid gender selection, try 'male' or 'female'\n");
     }
 }
 
@@ -538,7 +565,8 @@ Cmd_Channel_f (edict_t * ent)
 
     }
 
-  ent->client->resp.radio_partner_mode = !ent->client->resp.radio_partner_mode;
+  ent->client->resp.radio_partner_mode =
+    !ent->client->resp.radio_partner_mode;
   if (ent->client->resp.radio_partner_mode)
     {
       gi.centerprintf (ent, "Channel set to 1, partner channel\n");
@@ -586,8 +614,7 @@ DetermineViewedTeammate (edict_t * ent)
       d = DotProduct (forward, dir);
       if (d > bd && loc_CanSee (ent, who) &&
 	  who->solid != SOLID_NOT &&
-	  who->deadflag != DEAD_DEAD &&
-	  OnSameTeam (who, ent))
+	  who->deadflag != DEAD_DEAD && OnSameTeam (who, ent))
 	{
 	  bd = d;
 	  best = who;
@@ -628,7 +655,7 @@ Cmd_Partner_f (edict_t * ent)
   if (ent->client->resp.radio_partner)
     {
       gi.centerprintf (ent, "You already have a partner, %s\n",
-		     ent->client->resp.radio_partner->client->pers.netname);
+		       ent->client->resp.radio_partner->client->pers.netname);
       return;
     }
 
@@ -642,15 +669,18 @@ Cmd_Partner_f (edict_t * ent)
 
   if (target->client->resp.radio_partner)
     {
-      gi.centerprintf (ent, "%s already has a partner\n", target->client->pers.netname);
+      gi.centerprintf (ent, "%s already has a partner\n",
+		       target->client->pers.netname);
       return;
     }
 
   if (target->client->resp.partner_last_offered_to == ent &&
       ent->client->resp.partner_last_offered_from == target)
     {
-      gi.centerprintf (ent, "%s is now your partner\n", target->client->pers.netname);
-      gi.centerprintf (target, "%s is now your partner\n", ent->client->pers.netname);
+      gi.centerprintf (ent, "%s is now your partner\n",
+		       target->client->pers.netname);
+      gi.centerprintf (target, "%s is now your partner\n",
+		       ent->client->pers.netname);
       ent->client->resp.radio_partner = target;
       target->client->resp.radio_partner = ent;
       ent->client->resp.partner_last_offered_from = NULL;
@@ -674,7 +704,8 @@ Cmd_Partner_f (edict_t * ent)
       else
 	genderstr = "him";
 
-      gi.centerprintf (ent, "Already awaiting confirmation from %s\n", genderstr);
+      gi.centerprintf (ent, "Already awaiting confirmation from %s\n",
+		       genderstr);
       return;
     }
 
@@ -685,8 +716,10 @@ Cmd_Partner_f (edict_t * ent)
   else
     genderstr = "him";
 
-  gi.centerprintf (ent, "Awaiting confirmation from %s\n", target->client->pers.netname);
-  gi.centerprintf (target, "%s offers to be your partner\n"
+  gi.centerprintf (ent, "Awaiting confirmation from %s\n",
+		   target->client->pers.netname);
+  gi.centerprintf (target,
+		   "%s offers to be your partner\n"
 		   "To accept:\nView %s and use the 'partner' command\n"
 		   "To deny:\nUse the 'deny' command\n",
 		   ent->client->pers.netname, genderstr);
@@ -752,8 +785,7 @@ Cmd_Deny_f (edict_t * ent)
   target = ent->client->resp.partner_last_offered_from;
   if (target && target->inuse)
     {
-      gi.centerprintf (ent, "You denied %s\n",
-		       target->client->pers.netname);
+      gi.centerprintf (ent, "You denied %s\n", target->client->pers.netname);
       gi.centerprintf (target, "%s has denied you\n",
 		       ent->client->pers.netname);
       ent->client->resp.partner_last_denied_from = target;
@@ -786,85 +818,94 @@ Cmd_Say_partner_f (edict_t * ent)
 
   Cmd_Say_f (ent, false, false, true);
 }
-qboolean CheckForFlood(edict_t *ent)
+
+qboolean
+CheckForFlood (edict_t * ent)
 {
-	float d;
-	 if(ent->client->resp.rd_mute) 
-	 {
-		 if(ent->client->resp.rd_mute > level.time)
-		 {
-	//		gi.cprintf(ent,PRINT_HIGH,"You are STILL muted pall\n");
-			return false;
-		 }
-		 else
-		 {
-			ent->client->resp.rd_mute = 0;
-
-		 }
-	 }
-
-	 ent->client->resp.rd_whensaid++;
-	 if(ent->client->resp.rd_whensaid>9)
-		ent->client->resp.rd_whensaid = 9;
-	 ent->client->resp.rd_when[ent->client->resp.rd_whensaid] = level.time;
-
-	 if((ent->client->resp.rd_whensaid + 1) == radio_max->value)
-	 {
-		  d = ent->client->resp.rd_when[ent->client->resp.rd_whensaid] - ent->client->resp.rd_when[0];
-		  memset (&ent->client->resp.rd_when, 0, sizeof(ent->client->resp.rd_when));
-		  ent->client->resp.rd_when[0] = level.time;
-		  ent->client->resp.rd_whensaid = 0;
-		  if (d < (radio_time->value))
-		  {
-			  gi.cprintf(ent,PRINT_HIGH,"[FLOOD PROTECTION]: Flood Detected, you are silenced for %d secs\n",(int)radio_ban->value);
-			  ent->client->resp.rd_mute = level.time + radio_ban->value;
-			  return false;
-		  }
+  float d;
+  if (ent->client->resp.rd_mute)
+    {
+      if (ent->client->resp.rd_mute > level.time)
+	{
+	  //              gi.cprintf(ent,PRINT_HIGH,"You are STILL muted pall\n");
+	  return false;
+	}
+      else
+	{
+	  ent->client->resp.rd_mute = 0;
 
 	}
-	 return true;
+    }
+
+  ent->client->resp.rd_whensaid++;
+  if (ent->client->resp.rd_whensaid > 9)
+    ent->client->resp.rd_whensaid = 9;
+  ent->client->resp.rd_when[ent->client->resp.rd_whensaid] = level.time;
+
+  if ((ent->client->resp.rd_whensaid + 1) == radio_max->value)
+    {
+      d =
+	ent->client->resp.rd_when[ent->client->resp.rd_whensaid] -
+	ent->client->resp.rd_when[0];
+      memset (&ent->client->resp.rd_when, 0,
+	      sizeof (ent->client->resp.rd_when));
+      ent->client->resp.rd_when[0] = level.time;
+      ent->client->resp.rd_whensaid = 0;
+      if (d < (radio_time->value))
+	{
+	  gi.cprintf (ent, PRINT_HIGH,
+		      "[FLOOD PROTECTION]: Flood Detected, you are silenced for %d secs\n",
+		      (int) radio_ban->value);
+	  ent->client->resp.rd_mute = level.time + radio_ban->value;
+	  return false;
+	}
+
+    }
+  return true;
 }
 
-qboolean CheckForRepeat(edict_t *ent,char *msg)
+qboolean
+CheckForRepeat (edict_t * ent, char *msg)
 {
-	char *s;
-	
-	if(ent->client->resp.rd_mute) 
-	 {
-		 if(ent->client->resp.rd_mute > level.time)
-		 {
-	//		gi.cprintf(ent,PRINT_HIGH,"You are STILL muted pall\n");
-			return false;
-		 }
-		 else
-		 {
-			ent->client->resp.rd_mute = 0;
+  char *s;
 
-		 }
-	 }
-	s = ent->client->resp.rd_rep;
-	
-	if ( *s && !strcmp(s,msg) )
+  if (ent->client->resp.rd_mute)
+    {
+      if (ent->client->resp.rd_mute > level.time)
 	{
-		if ((level.time - ent->client->resp.rd_reptime) < 4)
-		{
-			if (++ent->client->resp.rd_repcount >= radio_repeat->value)
-			{
-				if (ent->client->resp.rd_repcount == radio_repeat->value)
-				{
-					gi.cprintf(ent, PRINT_HIGH,
-						"[FLOOD PROTECTION]: Repeat Flood Detected, you are silenced for %d secs\n",(int)radio_ban->value);
-					ent->client->resp.rd_mute = level.time + radio_ban->value;
-				}
-			//ent->client->resp.rd_reptime = level.time;
-				return false;
-			}
-		}
-		else
-			ent->client->resp.rd_repcount = 0;
-			ent->client->resp.rd_reptime = level.time;
+	  //              gi.cprintf(ent,PRINT_HIGH,"You are STILL muted pall\n");
+	  return false;
 	}
-	strncpy(ent->client->resp.rd_rep,msg,sizeof(ent->client->resp.rd_rep));
-	ent->client->resp.rd_reptime = level.time;
-	return true;
+      else
+	{
+	  ent->client->resp.rd_mute = 0;
+
+	}
+    }
+  s = ent->client->resp.rd_rep;
+
+  if (*s && !strcmp (s, msg))
+    {
+      if ((level.time - ent->client->resp.rd_reptime) < 4)
+	{
+	  if (++ent->client->resp.rd_repcount >= radio_repeat->value)
+	    {
+	      if (ent->client->resp.rd_repcount == radio_repeat->value)
+		{
+		  gi.cprintf (ent, PRINT_HIGH,
+			      "[FLOOD PROTECTION]: Repeat Flood Detected, you are silenced for %d secs\n",
+			      (int) radio_ban->value);
+		  ent->client->resp.rd_mute = level.time + radio_ban->value;
+		}
+	      //ent->client->resp.rd_reptime = level.time;
+	      return false;
+	    }
+	}
+      else
+	ent->client->resp.rd_repcount = 0;
+      ent->client->resp.rd_reptime = level.time;
+    }
+  strncpy (ent->client->resp.rd_rep, msg, sizeof (ent->client->resp.rd_rep));
+  ent->client->resp.rd_reptime = level.time;
+  return true;
 }

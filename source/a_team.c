@@ -3,10 +3,13 @@
 // Some of this is borrowed from Zoid's CTF (thanks Zoid)
 // -Fireblade
 //
-// $Id: a_team.c,v 1.46 2001/09/28 13:44:23 slicerdw Exp $
+// $Id: a_team.c,v 1.47 2001/09/28 13:48:34 ra Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_team.c,v $
+// Revision 1.47  2001/09/28 13:48:34  ra
+// I ran indent over the sources. All .c and .h files reindented.
+//
 // Revision 1.46  2001/09/28 13:44:23  slicerdw
 // Several Changes / improvements
 //
@@ -235,7 +238,9 @@ AddToTransparentList (edict_t * ent)
 {
   transparent_list_t *p, *n;
 
-  n = (transparent_list_t *) gi.TagMalloc (sizeof (transparent_list_t), TAG_GAME);
+  n =
+    (transparent_list_t *) gi.TagMalloc (sizeof (transparent_list_t),
+					 TAG_GAME);
   if (n == NULL)
     {
       gi.dprintf ("Out of memory\n");
@@ -292,7 +297,9 @@ RemoveFromTransparentList (edict_t * ent)
 	}
     }
 
-  gi.dprintf ("Warning: attempt to RemoveFromTransparentList when not in it\n");
+  gi.
+    dprintf
+    ("Warning: attempt to RemoveFromTransparentList when not in it\n");
 }
 
 void
@@ -479,8 +486,10 @@ CreditsReturnToMain (edict_t * ent, pmenu_t * p)
 void
 DoAGoodie (edict_t * ent, pmenu_t * p)
 {
-  gi.sound (ent, CHAN_VOICE, gi.soundindex ("boss3/bs3srch3.wav"), 1, ATTN_IDLE, 0);
+  gi.sound (ent, CHAN_VOICE, gi.soundindex ("boss3/bs3srch3.wav"), 1,
+	    ATTN_IDLE, 0);
 }
+
 //PG BUND END
 
 // AQ2:TNG - Igor adding the Rock-Sound ;-)
@@ -488,27 +497,31 @@ void
 RockClan (edict_t * ent, pmenu_t * p)
 {
   gi.cprintf (ent, PRINT_HIGH, "Let's Rock! http://www.rock-clan.de/\n");
-  gi.sound (ent, CHAN_VOICE, gi.soundindex ("user/letsrock.wav"), 1, ATTN_IDLE, 0);
+  gi.sound (ent, CHAN_VOICE, gi.soundindex ("user/letsrock.wav"), 1,
+	    ATTN_IDLE, 0);
 }
+
 // AQ2:TNG - End Rock-Sound
 
 // AQ2:TNG Deathwatch - Just for slicer :)
 void
 SlicersCat (edict_t * ent, pmenu_t * p)
 {
-  gi.cprintf (ent, PRINT_HIGH, "sLiCeR [dW] couldn't have done it without his cat!\n");
-  gi.sound (ent, CHAN_VOICE, gi.soundindex ("makron/laf4.wav"), 1, ATTN_IDLE, 0);
+  gi.cprintf (ent, PRINT_HIGH,
+	      "sLiCeR [dW] couldn't have done it without his cat!\n");
+  gi.sound (ent, CHAN_VOICE, gi.soundindex ("makron/laf4.wav"), 1, ATTN_IDLE,
+	    0);
 }
+
 // AQ2:TNG End
 
 // AQ2:TNG Deathwatch - Editing all menus to show the correct credits, version, names, locations, urls, etc
-pmenu_t creditsmenu[] =
-{
-  {"*"TNG_VERSION, PMENU_ALIGN_CENTER, NULL, NULL},
+pmenu_t creditsmenu[] = {
+  {"*" TNG_VERSION, PMENU_ALIGN_CENTER, NULL, NULL},
   {"ùûûûûûûûûûûûûûûûûûûûûûûûûûü", PMENU_ALIGN_CENTER, NULL, NULL},
   {"*Design Team", PMENU_ALIGN_LEFT, NULL, NULL},
   {NULL, PMENU_ALIGN_LEFT, NULL, NULL},
-  {"Deathwatch", PMENU_ALIGN_LEFT, NULL, DoAGoodie},  
+  {"Deathwatch", PMENU_ALIGN_LEFT, NULL, DoAGoodie},
   {"Igor[Rock]", PMENU_ALIGN_LEFT, NULL, RockClan},
   {"JBravo[QNI]", PMENU_ALIGN_LEFT, NULL, DoAGoodie},
   {"Mort", PMENU_ALIGN_LEFT, NULL, DoAGoodie},
@@ -522,76 +535,74 @@ pmenu_t creditsmenu[] =
   {"Zarjazz, Killerbee,", PMENU_ALIGN_LEFT, NULL, NULL},
   {"Rookie[Rock], ICE-M", PMENU_ALIGN_LEFT, NULL, NULL},
   {"PG Bund[Rock], Elvis,", PMENU_ALIGN_LEFT, NULL, NULL},
-  {"Tempfile, Palmtree,", PMENU_ALIGN_LEFT, NULL, NULL},  
+  {"Tempfile, Palmtree,", PMENU_ALIGN_LEFT, NULL, NULL},
   {NULL, PMENU_ALIGN_LEFT, NULL, NULL},
   {"Return to main menu", PMENU_ALIGN_LEFT, NULL, CreditsReturnToMain},
   {"TAB to exit menu", PMENU_ALIGN_LEFT, NULL, NULL},
   {NULL, PMENU_ALIGN_LEFT, NULL, NULL},
-  {"v"ACTION_VERSION, PMENU_ALIGN_RIGHT, NULL, NULL},
+  {"v" ACTION_VERSION, PMENU_ALIGN_RIGHT, NULL, NULL},
 //PG BUND END
 };
 
-pmenu_t weapmenu[] =
-{
-  {"*"TNG_VERSION, PMENU_ALIGN_CENTER, NULL, NULL},
+pmenu_t weapmenu[] = {
+  {"*" TNG_VERSION, PMENU_ALIGN_CENTER, NULL, NULL},
   {"ùûûûûûûûûûûûûûûûûûûûûûûûûûü", PMENU_ALIGN_CENTER, NULL, NULL},
   {"Select your Weapon", PMENU_ALIGN_CENTER, NULL, NULL},
   {NULL, PMENU_ALIGN_LEFT, NULL, NULL},
   //AQ2:TNG - Igor adding wp_flags
-  {NULL, PMENU_ALIGN_LEFT, NULL, NULL}, // "MP5/10 Submachinegun", SelectWeapon2
-  {NULL, PMENU_ALIGN_LEFT, NULL, NULL}, // "M3 Super90 Assault Shotgun", SelectWeapon3
-  {NULL, PMENU_ALIGN_LEFT, NULL, NULL}, // "Handcannon", SelectWeapon4
-  {NULL, PMENU_ALIGN_LEFT, NULL, NULL}, // "SSG 3000 Sniper Rifle", SelectWeapon5
-  {NULL, PMENU_ALIGN_LEFT, NULL, NULL}, // "M4 Assault Rifle", SelectWeapon6
-  {NULL, PMENU_ALIGN_LEFT, NULL, NULL}, // "Combat Knives", SelectWeapon0
-  {NULL, PMENU_ALIGN_LEFT, NULL, NULL}, // "Akimbo Pistols", SelectWeapon9
+  {NULL, PMENU_ALIGN_LEFT, NULL, NULL},	// "MP5/10 Submachinegun", SelectWeapon2
+  {NULL, PMENU_ALIGN_LEFT, NULL, NULL},	// "M3 Super90 Assault Shotgun", SelectWeapon3
+  {NULL, PMENU_ALIGN_LEFT, NULL, NULL},	// "Handcannon", SelectWeapon4
+  {NULL, PMENU_ALIGN_LEFT, NULL, NULL},	// "SSG 3000 Sniper Rifle", SelectWeapon5
+  {NULL, PMENU_ALIGN_LEFT, NULL, NULL},	// "M4 Assault Rifle", SelectWeapon6
+  {NULL, PMENU_ALIGN_LEFT, NULL, NULL},	// "Combat Knives", SelectWeapon0
+  {NULL, PMENU_ALIGN_LEFT, NULL, NULL},	// "Akimbo Pistols", SelectWeapon9
   //AQ2:TNG End adding wp_flags
   {NULL, PMENU_ALIGN_LEFT, NULL, NULL},
   //AQ2:TNG - Slicer: changing this
   //{"Leave Team", PMENU_ALIGN_LEFT, NULL, LeaveTeams},
   {"Return to Main Menu", PMENU_ALIGN_LEFT, NULL, CreditsReturnToMain},
   {NULL, PMENU_ALIGN_LEFT, NULL, NULL},
-    //AQ2:TNG END
+  //AQ2:TNG END
   {"Use [ and ] to move cursor", PMENU_ALIGN_LEFT, NULL, NULL},
   {"ENTER to select", PMENU_ALIGN_LEFT, NULL, NULL},
   {"TAB to exit menu", PMENU_ALIGN_LEFT, NULL, NULL},
   {NULL, PMENU_ALIGN_LEFT, NULL, NULL},
-  {"v"ACTION_VERSION, PMENU_ALIGN_RIGHT, NULL, NULL},
+  {"v" ACTION_VERSION, PMENU_ALIGN_RIGHT, NULL, NULL},
 };
 
-pmenu_t itemmenu[] =
-{
-  {"*"TNG_VERSION, PMENU_ALIGN_CENTER, NULL, NULL},
+pmenu_t itemmenu[] = {
+  {"*" TNG_VERSION, PMENU_ALIGN_CENTER, NULL, NULL},
   {"ùûûûûûûûûûûûûûûûûûûûûûûûûûü", PMENU_ALIGN_CENTER, NULL, NULL},
   {"Select your Item", PMENU_ALIGN_CENTER, NULL, NULL},
   {NULL, PMENU_ALIGN_LEFT, NULL, NULL},
   //AQ2:TNG Igor adding itm_flags
-  {NULL, PMENU_ALIGN_LEFT, NULL, NULL}, // "Kevlar Vest", SelectItem1
-  {NULL, PMENU_ALIGN_LEFT, NULL, NULL}, // "Laser Sight", SelectItem2
-  {NULL, PMENU_ALIGN_LEFT, NULL, NULL}, // "Stealth Slippers", SelectItem3
-  {NULL, PMENU_ALIGN_LEFT, NULL, NULL}, // "Silencer", SelectItem4
-  {NULL, PMENU_ALIGN_LEFT, NULL, NULL}, // "Bandolier", SelectItem5
-  {NULL, PMENU_ALIGN_LEFT, NULL, NULL}, // "Kevlar Helmet", SelectItem6
+  {NULL, PMENU_ALIGN_LEFT, NULL, NULL},	// "Kevlar Vest", SelectItem1
+  {NULL, PMENU_ALIGN_LEFT, NULL, NULL},	// "Laser Sight", SelectItem2
+  {NULL, PMENU_ALIGN_LEFT, NULL, NULL},	// "Stealth Slippers", SelectItem3
+  {NULL, PMENU_ALIGN_LEFT, NULL, NULL},	// "Silencer", SelectItem4
+  {NULL, PMENU_ALIGN_LEFT, NULL, NULL},	// "Bandolier", SelectItem5
+  {NULL, PMENU_ALIGN_LEFT, NULL, NULL},	// "Kevlar Helmet", SelectItem6
   //AQ2:TNG end adding itm_flags
   {NULL, PMENU_ALIGN_LEFT, NULL, NULL},
   {"Use [ and ] to move cursor", PMENU_ALIGN_LEFT, NULL, NULL},
   {"ENTER to select", PMENU_ALIGN_LEFT, NULL, NULL},
   {"TAB to exit menu", PMENU_ALIGN_LEFT, NULL, NULL},
   {NULL, PMENU_ALIGN_LEFT, NULL, NULL},
-  {"v"ACTION_VERSION, PMENU_ALIGN_RIGHT, NULL, NULL},
+  {"v" ACTION_VERSION, PMENU_ALIGN_RIGHT, NULL, NULL},
 };
 //AQ2:TNG - slicer
 void
 VotingMenu (edict_t * ent, pmenu_t * p)
 {
   PMenu_Close (ent);
-  vShowMenu(ent,"");
+  vShowMenu (ent, "");
 
 }
+
 //AQ2:TNG END
-pmenu_t joinmenu[] =
-{
-  {"*"TNG_VERSION, PMENU_ALIGN_CENTER, NULL, NULL},
+pmenu_t joinmenu[] = {
+  {"*" TNG_VERSION, PMENU_ALIGN_CENTER, NULL, NULL},
   {"ùûûûûûûûûûûûûûûûûûûûûûûûûûü", PMENU_ALIGN_CENTER, NULL, NULL},
   {NULL /* lvl name */ , PMENU_ALIGN_CENTER, NULL, NULL},
   {NULL, PMENU_ALIGN_CENTER, NULL, NULL},
@@ -643,28 +654,31 @@ AssignSkin (edict_t * ent, char *s)
   int playernum = ent - g_edicts - 1;
   char *p;
   char t[64];
-  
+
   if (ctf->value)
     {
-      Com_sprintf(t, sizeof(t), "%s", s);
-      if ((p = strrchr(t, '/')) != NULL)
+      Com_sprintf (t, sizeof (t), "%s", s);
+      if ((p = strrchr (t, '/')) != NULL)
 	p[1] = 0;
       else
-	strcpy(t, "male/");
+	strcpy (t, "male/");
 
       switch (ent->client->resp.team)
 	{
 	case TEAM1:
-	  gi.configstring (CS_PLAYERSKINS+playernum, va("%s\\%s%s",
-							ent->client->pers.netname, t, CTF_TEAM1_SKIN) );
+	  gi.configstring (CS_PLAYERSKINS + playernum, va ("%s\\%s%s",
+							   ent->client->pers.
+							   netname, t,
+							   CTF_TEAM1_SKIN));
 	  break;
 	case TEAM2:
-	  gi.configstring (CS_PLAYERSKINS+playernum,
-			   va ("%s\\%s%s", ent->client->pers.netname, t, CTF_TEAM2_SKIN) );
+	  gi.configstring (CS_PLAYERSKINS + playernum,
+			   va ("%s\\%s%s", ent->client->pers.netname, t,
+			       CTF_TEAM2_SKIN));
 	  break;
 	default:
-	  gi.configstring (CS_PLAYERSKINS+playernum,
-			   va ("%s\\%s", ent->client->pers.netname, s) );
+	  gi.configstring (CS_PLAYERSKINS + playernum,
+			   va ("%s\\%s", ent->client->pers.netname, s));
 	  break;
 	}
     }
@@ -673,16 +687,19 @@ AssignSkin (edict_t * ent, char *s)
       switch (ent->client->resp.team)
 	{
 	case TEAM1:
-	  gi.configstring (CS_PLAYERSKINS + playernum, 
-			   va ("%s\\%s", ent->client->pers.netname, team1_skin));
+	  gi.configstring (CS_PLAYERSKINS + playernum,
+			   va ("%s\\%s", ent->client->pers.netname,
+			       team1_skin));
 	  break;
 	case TEAM2:
 	  gi.configstring (CS_PLAYERSKINS + playernum,
-			   va ("%s\\%s", ent->client->pers.netname, team2_skin));
+			   va ("%s\\%s", ent->client->pers.netname,
+			       team2_skin));
 	  break;
 	case TEAM3:
 	  gi.configstring (CS_PLAYERSKINS + playernum,
-			   va ("%s\\%s", ent->client->pers.netname, team3_skin));
+			   va ("%s\\%s", ent->client->pers.netname,
+			       team3_skin));
 	  break;
 	default:
 	  gi.configstring (CS_PLAYERSKINS + playernum,
@@ -703,7 +720,8 @@ Team_f (edict_t * ent)
 //PG BUND - BEGIN (Tourney extension)
   if (use_tourney->value)
     {
-      gi.cprintf (ent, PRINT_MEDIUM, "Currently running tourney mod, team selection is disabled.");
+      gi.cprintf (ent, PRINT_MEDIUM,
+		  "Currently running tourney mod, team selection is disabled.");
       return;
     }
 //PG BUND - END (Tourney extension)        
@@ -726,7 +744,8 @@ Team_f (edict_t * ent)
 
   if (level.framenum < (ent->client->resp.joined_team + 50))
     {
-      gi.cprintf (ent, PRINT_HIGH, "You must wait 5 seconds before changing teams again.\n");
+      gi.cprintf (ent, PRINT_HIGH,
+		  "You must wait 5 seconds before changing teams again.\n");
       return;
     }
 
@@ -760,9 +779,9 @@ Team_f (edict_t * ent)
     }
   else if (ctf->value)
     {
-      if (Q_stricmp(t, "red") == 0)
+      if (Q_stricmp (t, "red") == 0)
 	desired_team = TEAM1;
-      else if (Q_stricmp(t, "blue") == 0)
+      else if (Q_stricmp (t, "blue") == 0)
 	desired_team = TEAM2;
     }
   else
@@ -794,8 +813,10 @@ UnevenTeamsMsg (int whichteam, int uneven_amount, char *opponent)
 	{
 	  if (e->client->resp.team == whichteam)
 	    {
-	      gi.cprintf (e, PRINT_HIGH, "Your team now has %d more player%s than %s.\n",
-		    uneven_amount, uneven_amount == 1 ? "" : "s", opponent);
+	      gi.cprintf (e, PRINT_HIGH,
+			  "Your team now has %d more player%s than %s.\n",
+			  uneven_amount, uneven_amount == 1 ? "" : "s",
+			  opponent);
 	      stuffcmd (e, "play misc/comp_up.wav");
 	    }
 	}
@@ -873,25 +894,26 @@ JoinTeam (edict_t * ent, int desired_team, int skip_menuclose)
 
   CheckForUnevenTeams ();
   //AQ2:TNG - Slicer added the ctf->value coz teamplay people were spawning....
-  if (ctf->value && team_round_going && (ent->inuse && ent->client->resp.team != NOTEAM))
+  if (ctf->value && team_round_going
+      && (ent->inuse && ent->client->resp.team != NOTEAM))
     {
-  //    ent->client->resp.last_killed_target = NULL;
-	  ResetKills(ent);
+      //    ent->client->resp.last_killed_target = NULL;
+      ResetKills (ent);
       //AQ2:TNG Slicer Last Damage Location
       ent->client->resp.last_damaged_part = 0;
       //AQ2:TNG END
       PutClientInServer (ent);
       AddToTransparentList (ent);
     }
-	//AQ2:TNG - Slicer Matchmode
-	if(matchmode->value)
-	{
-		if(ent->client->resp.captain == 1)  
-			team1ready = 0;
-		else if(ent->client->resp.captain == 2)
-			team2ready = 0;
-		ent->client->resp.subteam = 0; //SLICER: If a player joins or changes teams, the subteam resets....
-        ent->client->resp.captain = 0; //SLICER: Same here
+  //AQ2:TNG - Slicer Matchmode
+  if (matchmode->value)
+    {
+      if (ent->client->resp.captain == 1)
+	team1ready = 0;
+      else if (ent->client->resp.captain == 2)
+	team2ready = 0;
+      ent->client->resp.subteam = 0;	//SLICER: If a player joins or changes teams, the subteam resets....
+      ent->client->resp.captain = 0;	//SLICER: Same here
     }
   //AQ2:TNG END
   if (!skip_menuclose)
@@ -939,8 +961,7 @@ void
 OpenItemMenu (edict_t * ent)
 {
   //AQ2:TNG - Igor adding itm_flags
-  static char *menu_itemnames[] =
-  {
+  static char *menu_itemnames[] = {
     "Kevlar Vest",
     "Laser Sight",
     "Stealth Slippers",
@@ -953,54 +974,54 @@ OpenItemMenu (edict_t * ent)
   if (itm_flags->value != 0)
     {
       pos = 4;
-      if ((int)itm_flags->value & ITF_KEV)
+      if ((int) itm_flags->value & ITF_KEV)
 	{
 	  itemmenu[pos].text = menu_itemnames[0];
 	  itemmenu[pos].SelectFunc = SelectItem1;
 	  pos++;
 	}
-      
-      if ((int)itm_flags->value & ITF_LASER)
+
+      if ((int) itm_flags->value & ITF_LASER)
 	{
 	  itemmenu[pos].text = menu_itemnames[1];
 	  itemmenu[pos].SelectFunc = SelectItem2;
 	  pos++;
 	}
-      
-      if ((int)itm_flags->value & ITF_SLIP)
+
+      if ((int) itm_flags->value & ITF_SLIP)
 	{
 	  itemmenu[pos].text = menu_itemnames[2];
 	  itemmenu[pos].SelectFunc = SelectItem3;
 	  pos++;
 	}
-      
-      if ((int)itm_flags->value & ITF_SIL)
+
+      if ((int) itm_flags->value & ITF_SIL)
 	{
 	  itemmenu[pos].text = menu_itemnames[3];
 	  itemmenu[pos].SelectFunc = SelectItem4;
 	  pos++;
 	}
-      
-      if ((int)itm_flags->value & ITF_BAND)
+
+      if ((int) itm_flags->value & ITF_BAND)
 	{
 	  itemmenu[pos].text = menu_itemnames[4];
 	  itemmenu[pos].SelectFunc = SelectItem5;
 	  pos++;
 	}
-      
-      if ((int)itm_flags->value & ITF_HELM)
+
+      if ((int) itm_flags->value & ITF_HELM)
 	{
 	  itemmenu[pos].text = menu_itemnames[5];
 	  itemmenu[pos].SelectFunc = SelectItem6;
 	  pos++;
 	}
-      
-      for (;pos < 10; pos++)
+
+      for (; pos < 10; pos++)
 	{
 	  itemmenu[pos].text = NULL;
 	  itemmenu[pos].SelectFunc = NULL;
 	}
-      
+
       //AQ2:TNG End adding itm_flags
       PMenu_Open (ent, itemmenu, 4, sizeof (itemmenu) / sizeof (pmenu_t));
     }
@@ -1014,8 +1035,7 @@ void
 OpenWeaponMenu (edict_t * ent)
 {
   //AQ2:TNG - Igor adding wp_flags
-  static char *menu_weapnames[] =
-  {
+  static char *menu_weapnames[] = {
     "MP5/10 Submachinegun",
     "M3 Super90 Assault Shotgun",
     "Handcannon",
@@ -1026,70 +1046,70 @@ OpenWeaponMenu (edict_t * ent)
   };
   int pos;
 
-  if ((int)wp_flags->value & ~(WPF_MK23 | WPF_GRENADE))
-  {
-		pos = 4;
-    if ((int)wp_flags->value & WPF_MP5)
-		{
-			weapmenu[pos].text = menu_weapnames[0];
-			weapmenu[pos].SelectFunc = SelectWeapon2;
-			pos++;
-		}
-      
-    if ((int)wp_flags->value & WPF_M3)
-		{
-			weapmenu[pos].text = menu_weapnames[1];
-			weapmenu[pos].SelectFunc = SelectWeapon3;
-			pos++;
-		}
-      
-    if ((int)wp_flags->value & WPF_HC)
-		{
-			weapmenu[pos].text = menu_weapnames[2];
-			weapmenu[pos].SelectFunc = SelectWeapon4;
-			pos++;
-		}
-      
-    if ((int)wp_flags->value & WPF_SNIPER)
-		{
-			weapmenu[pos].text = menu_weapnames[3];
-			weapmenu[pos].SelectFunc = SelectWeapon5;
-			pos++;
-		}
-      
-    if ((int)wp_flags->value & WPF_M4)
-		{
-			weapmenu[pos].text = menu_weapnames[4];
-			weapmenu[pos].SelectFunc = SelectWeapon6;
-			pos++;
-		}
-      
-    if ((int)wp_flags->value & WPF_KNIFE)
-		{
-			weapmenu[pos].text = menu_weapnames[5];
-			weapmenu[pos].SelectFunc = SelectWeapon0;
-			pos++;
-		}
-      
-    if ((int)wp_flags->value & WPF_DUAL)
-		{
-			weapmenu[pos].text = menu_weapnames[6];
-			weapmenu[pos].SelectFunc = SelectWeapon9;
-			pos++;
-		}
-      
-    for (;pos < 11; pos++)
-		{
-			weapmenu[pos].text = NULL;
-			weapmenu[pos].SelectFunc = NULL;
-		}
-      
-    PMenu_Open (ent, weapmenu, 4, sizeof (weapmenu) / sizeof (pmenu_t));
+  if ((int) wp_flags->value & ~(WPF_MK23 | WPF_GRENADE))
+    {
+      pos = 4;
+      if ((int) wp_flags->value & WPF_MP5)
+	{
+	  weapmenu[pos].text = menu_weapnames[0];
+	  weapmenu[pos].SelectFunc = SelectWeapon2;
+	  pos++;
 	}
+
+      if ((int) wp_flags->value & WPF_M3)
+	{
+	  weapmenu[pos].text = menu_weapnames[1];
+	  weapmenu[pos].SelectFunc = SelectWeapon3;
+	  pos++;
+	}
+
+      if ((int) wp_flags->value & WPF_HC)
+	{
+	  weapmenu[pos].text = menu_weapnames[2];
+	  weapmenu[pos].SelectFunc = SelectWeapon4;
+	  pos++;
+	}
+
+      if ((int) wp_flags->value & WPF_SNIPER)
+	{
+	  weapmenu[pos].text = menu_weapnames[3];
+	  weapmenu[pos].SelectFunc = SelectWeapon5;
+	  pos++;
+	}
+
+      if ((int) wp_flags->value & WPF_M4)
+	{
+	  weapmenu[pos].text = menu_weapnames[4];
+	  weapmenu[pos].SelectFunc = SelectWeapon6;
+	  pos++;
+	}
+
+      if ((int) wp_flags->value & WPF_KNIFE)
+	{
+	  weapmenu[pos].text = menu_weapnames[5];
+	  weapmenu[pos].SelectFunc = SelectWeapon0;
+	  pos++;
+	}
+
+      if ((int) wp_flags->value & WPF_DUAL)
+	{
+	  weapmenu[pos].text = menu_weapnames[6];
+	  weapmenu[pos].SelectFunc = SelectWeapon9;
+	  pos++;
+	}
+
+      for (; pos < 11; pos++)
+	{
+	  weapmenu[pos].text = NULL;
+	  weapmenu[pos].SelectFunc = NULL;
+	}
+
+      PMenu_Open (ent, weapmenu, 4, sizeof (weapmenu) / sizeof (pmenu_t));
+    }
   else
-  {
-		OpenItemMenu (ent);
-	}
+    {
+      OpenItemMenu (ent);
+    }
   //AQ2:TNG End adding wp_flags
 }
 
@@ -1113,12 +1133,12 @@ UpdateJoinMenu (edict_t * ent)
       joinmenu[8].SelectFunc = NULL;
       if (ctf_forcejoin->string && *ctf_forcejoin->string)
 	{
-	  if (stricmp(ctf_forcejoin->string, "red") == 0)
+	  if (stricmp (ctf_forcejoin->string, "red") == 0)
 	    {
 	      joinmenu[6].text = NULL;
 	      joinmenu[6].SelectFunc = NULL;
-	    } 
-	  else if (stricmp(ctf_forcejoin->string, "blue") == 0)
+	    }
+	  else if (stricmp (ctf_forcejoin->string, "blue") == 0)
 	    {
 	      joinmenu[4].text = NULL;
 	      joinmenu[4].SelectFunc = NULL;
@@ -1227,6 +1247,7 @@ UpdateJoinMenu (edict_t * ent)
 	return TEAM1;
     }
 }
+
 // AQ2:TNG END
 
 
@@ -1234,7 +1255,7 @@ void
 OpenJoinMenu (edict_t * ent)
 {
   int team;
-  
+
   //PG BUND - BEGIN (Tourney extension)
   if (use_tourney->value)
     {
@@ -1242,7 +1263,7 @@ OpenJoinMenu (edict_t * ent)
       return;
     }
   //PG BUND - END (Tourney extension)
-  
+
   team = UpdateJoinMenu (ent);
   if (team == TEAM1)
     team = 4;
@@ -1269,8 +1290,7 @@ member_array (char *str, char *arr[], int num_elems)
 void
 CleanLevel ()
 {
-  char *remove_classnames[] =
-  {
+  char *remove_classnames[] = {
     "weapon_Mk23",
     "weapon_MP5",
     "weapon_M4",
@@ -1302,8 +1322,7 @@ CleanLevel ()
   base = 1 + maxclients->value + BODY_QUEUE_SIZE;
   ent = g_edicts + base;
   for (i = 1 + maxclients->value + BODY_QUEUE_SIZE;
-       i < globals.num_edicts;
-       i++, ent++)
+       i < globals.num_edicts; i++, ent++)
     {
       if (!ent->classname)
 	continue;
@@ -1320,8 +1339,7 @@ CleanLevel ()
   CGF_SFX_RebuildAllBrokenGlass ();
 }
 
-qboolean
-StartClient (edict_t * ent)
+qboolean StartClient (edict_t * ent)
 {
   if (ent->client->resp.team != NOTEAM)
     return false;
@@ -1356,18 +1374,17 @@ CenterPrintAll (char *msg)
     }
 }
 
-qboolean
-BothTeamsHavePlayers ()
+qboolean BothTeamsHavePlayers ()
 {
   int onteam1 = 0, onteam2 = 0, onteam3 = 0, i;
   edict_t *ent;
 
   //AQ2:TNG Slicer Matchmode
-  if(matchmode->value)
-	{
-		if(!team1ready || !team2ready)
-		return 0;
-	}
+  if (matchmode->value)
+    {
+      if (!team1ready || !team2ready)
+	return 0;
+    }
   //AQ2:TNG END
   if (use_tourney->value)
     {
@@ -1379,9 +1396,11 @@ BothTeamsHavePlayers ()
       ent = &g_edicts[1 + i];
       if (!ent->inuse)
 	continue;
-      if (game.clients[i].resp.team == TEAM1 && game.clients[i].resp.subteam == 0)
+      if (game.clients[i].resp.team == TEAM1
+	  && game.clients[i].resp.subteam == 0)
 	onteam1++;
-      else if (game.clients[i].resp.team == TEAM2 && game.clients[i].resp.subteam == 0)
+      else if (game.clients[i].resp.team == TEAM2
+	       && game.clients[i].resp.subteam == 0)
 	onteam2++;
       else if (game.clients[i].resp.team == TEAM3)
 	onteam3++;
@@ -1389,8 +1408,7 @@ BothTeamsHavePlayers ()
 
   if (use_3teams->value)
     return ((onteam1 > 0 && onteam2 > 0) ||
-	    (onteam1 > 0 && onteam3 > 0) ||
-	    (onteam2 > 0 && onteam3 > 0));
+	    (onteam1 > 0 && onteam3 > 0) || (onteam2 > 0 && onteam3 > 0));
   else
     return (onteam1 > 0 && onteam2 > 0);
 }
@@ -1409,8 +1427,7 @@ CheckForWinner ()
 	  ent = &g_edicts[1 + i];
 	  if (!ent->inuse)
 	    continue;
-	  if (game.clients[i].resp.team == TEAM1 &&
-	      ent->solid != SOLID_NOT)
+	  if (game.clients[i].resp.team == TEAM1 && ent->solid != SOLID_NOT)
 	    onteam1++;
 	  else if (game.clients[i].resp.team == TEAM2 &&
 		   ent->solid != SOLID_NOT)
@@ -1419,10 +1436,11 @@ CheckForWinner ()
 		   ent->solid != SOLID_NOT)
 	    onteam3++;
 	}
-      
+
       if (use_3teams->value)
 	{
-	  if ((onteam1 > 0 && onteam2 > 0) || (onteam2 > 0 && onteam3 > 0) || (onteam1 > 0 && onteam3 > 0))
+	  if ((onteam1 > 0 && onteam2 > 0) || (onteam2 > 0 && onteam3 > 0)
+	      || (onteam1 > 0 && onteam3 > 0))
 	    return WINNER_NONE;
 	  else if (onteam1 == 0 && onteam2 == 0 && onteam3 == 0)
 	    return WINNER_TIE;
@@ -1555,10 +1573,11 @@ SpawnPlayers ()
   for (i = 0; i < game.maxclients; i++)
     {
       ent = &g_edicts[1 + i];
-      if (ent->inuse && ent->client->resp.team != NOTEAM && ent->client->resp.subteam == 0)
+      if (ent->inuse && ent->client->resp.team != NOTEAM
+	  && ent->client->resp.subteam == 0)
 	{
-	 // ent->client->resp.last_killed_target = NULL;
-		ResetKills(ent);
+	  // ent->client->resp.last_killed_target = NULL;
+	  ResetKills (ent);
 	  //AQ2:TNG Slicer Last Damage Location
 	  ent->client->resp.last_damaged_part = 0;
 	  //AQ2:TNG END
@@ -1570,23 +1589,24 @@ SpawnPlayers ()
   for (i = 0; i < game.maxclients; i++)
     {
       ent = &g_edicts[1 + i];
-      if (ent->inuse && (ent->client->resp.team != NOTEAM) && matchmode->value && limchasecam->value && (ent->client->resp.subteam != 0))
+      if (ent->inuse && (ent->client->resp.team != NOTEAM) && matchmode->value
+	  && limchasecam->value && (ent->client->resp.subteam != 0))
 	{
 	  ent->client->chase_target = NULL;
-	  GetChaseTarget(ent);
+	  GetChaseTarget (ent);
 	  if (ent->client->chase_target != NULL)
 	    {
 	      if (limchasecam->value == 2)
 		{
 		  ent->client->chase_mode = 1;
-		  UpdateChaseCam(ent);
+		  UpdateChaseCam (ent);
 		  ent->client->chase_mode = 2;
 		}
 	      else
 		{
 		  ent->client->chase_mode = 1;
 		}
-	      UpdateChaseCam(ent);
+	      UpdateChaseCam (ent);
 	    }
 	}
     }
@@ -1627,21 +1647,20 @@ FindOverlap (edict_t * ent, edict_t * last_overlap)
   edict_t *other;
   vec3_t diff;
 
-  for (i = last_overlap ? last_overlap - g_edicts : 0; i < game.maxclients; i++)
+  for (i = last_overlap ? last_overlap - g_edicts : 0; i < game.maxclients;
+       i++)
     {
       other = &g_edicts[i + 1];
 
       if (!other->inuse || other->client->resp.team == NOTEAM
 	  || other == ent
-	  || other->solid == SOLID_NOT
-	  || other->deadflag == DEAD_DEAD)
+	  || other->solid == SOLID_NOT || other->deadflag == DEAD_DEAD)
 	continue;
 
       VectorSubtract (ent->s.origin, other->s.origin, diff);
 
       if (diff[0] >= -33 && diff[0] <= 33 &&
-	  diff[1] >= -33 && diff[1] <= 33 &&
-	  diff[2] >= -65 && diff[2] <= 65)
+	  diff[1] >= -33 && diff[1] <= 33 && diff[2] >= -65 && diff[2] <= 65)
 	return other;
     }
 
@@ -1712,7 +1731,7 @@ WonGame (int winner)
       gi.bprintf (PRINT_HIGH, "It was a tie, no points awarded!\n");
       // AQ:TNG Igor[Rock] changing sound dir
       gi.sound (&g_edicts[0], CHAN_VOICE | CHAN_NO_PHS_ADD,
-	      gi.soundindex ("tng/no_team_wins.wav"), 1.0, ATTN_NONE, 0.0);
+		gi.soundindex ("tng/no_team_wins.wav"), 1.0, ATTN_NONE, 0.0);
       // end of changing sound dir
     }
   else
@@ -1724,7 +1743,8 @@ WonGame (int winner)
 	      player = TourneyFindPlayer (1);
 	      if (player)
 		{
-		  gi.bprintf (PRINT_HIGH, "%s was victorious!\n", player->client->pers.netname);
+		  gi.bprintf (PRINT_HIGH, "%s was victorious!\n",
+			      player->client->pers.netname);
 		  TourneyWinner (player);
 		}
 	    }
@@ -1733,11 +1753,12 @@ WonGame (int winner)
 	      gi.bprintf (PRINT_HIGH, "%s won!\n", TeamName (TEAM1));
 	      // AQ:TNG Igor[Rock] changing sound dir
 	      gi.sound (&g_edicts[0], CHAN_VOICE | CHAN_NO_PHS_ADD,
-		gi.soundindex ("tng/team1_wins.wav"), 1.0, ATTN_NONE, 0.0);
+			gi.soundindex ("tng/team1_wins.wav"), 1.0, ATTN_NONE,
+			0.0);
 	      // end of changing sound dir
 	      team1_score++;
-		  team1score->value = team1_score;
-		  itoa(team1_score,team1score->string,10);
+	      team1score->value = team1_score;
+	      itoa (team1_score, team1score->string, 10);
 	    }
 	}
       else if (winner == WINNER_TEAM2)
@@ -1747,7 +1768,8 @@ WonGame (int winner)
 	      player = TourneyFindPlayer (NextOpponent);
 	      if (player)
 		{
-		  gi.bprintf (PRINT_HIGH, "%s was victorious!\n", player->client->pers.netname);
+		  gi.bprintf (PRINT_HIGH, "%s was victorious!\n",
+			      player->client->pers.netname);
 		  TourneyWinner (player);
 		}
 	    }
@@ -1756,11 +1778,12 @@ WonGame (int winner)
 	      gi.bprintf (PRINT_HIGH, "%s won!\n", TeamName (TEAM2));
 	      // AQ:TNG Igor[Rock] changing sound dir
 	      gi.sound (&g_edicts[0], CHAN_VOICE | CHAN_NO_PHS_ADD,
-			gi.soundindex ("tng/team2_wins.wav"), 1.0, ATTN_NONE, 0.0);
+			gi.soundindex ("tng/team2_wins.wav"), 1.0, ATTN_NONE,
+			0.0);
 	      // end of changing sound dir
 	      team2_score++;
-		  team2score->value = team2_score;
-		  itoa(team2_score,team2score->string,10);
+	      team2score->value = team2_score;
+	      itoa (team2_score, team2score->string, 10);
 	    }
 	}
       else if (use_3teams->value)
@@ -1770,7 +1793,8 @@ WonGame (int winner)
 	      player = TourneyFindPlayer (NextOpponent);
 	      if (player)
 		{
-		  gi.bprintf (PRINT_HIGH, "%s was victorious!\n", player->client->pers.netname);
+		  gi.bprintf (PRINT_HIGH, "%s was victorious!\n",
+			      player->client->pers.netname);
 		  TourneyWinner (player);
 		}
 	    }
@@ -1779,28 +1803,29 @@ WonGame (int winner)
 	      gi.bprintf (PRINT_HIGH, "%s won!\n", TeamName (TEAM3));
 	      // AQ:TNG Igor[Rock] changing sound dir
 	      gi.sound (&g_edicts[0], CHAN_VOICE | CHAN_NO_PHS_ADD,
-		gi.soundindex ("tng/team3_wins.wav"), 1.0, ATTN_NONE, 0.0);
+			gi.soundindex ("tng/team3_wins.wav"), 1.0, ATTN_NONE,
+			0.0);
 	      // end of changing sound dir
 	      team3score->value = team3_score;
-		  itoa(team3_score,team3score->string,10);
+	      itoa (team3_score, team3score->string, 10);
 	    }
 	}
     }
 
   if (timelimit->value)
     {
-	  // AQ2:M - Matchmode
-		if(matchmode->value)
-		{
-			if (matchtime >= timelimit->value*60)
-			{
-				SendScores();
-                team1ready = team2ready = team_round_going =
-				team_round_countdown = team_game_going = matchtime = 0;
-				MakeAllLivePlayersObservers();
-				return 1;
-			}
-		}
+      // AQ2:M - Matchmode
+      if (matchmode->value)
+	{
+	  if (matchtime >= timelimit->value * 60)
+	    {
+	      SendScores ();
+	      team1ready = team2ready = team_round_going =
+		team_round_countdown = team_game_going = matchtime = 0;
+	      MakeAllLivePlayersObservers ();
+	      return 1;
+	    }
+	}
       if (!matchmode->value && level.time >= timelimit->value * 60)
 	{
 	  gi.bprintf (PRINT_HIGH, "Timelimit hit.\n");
@@ -1814,7 +1839,9 @@ WonGame (int winner)
     {
       if (use_3teams->value)
 	{
-	  if (team1_score >= roundlimit->value || team2_score >= roundlimit->value || team3_score >= roundlimit->value)
+	  if (team1_score >= roundlimit->value
+	      || team2_score >= roundlimit->value
+	      || team3_score >= roundlimit->value)
 	    {
 	      gi.bprintf (PRINT_HIGH, "Roundlimit hit.\n");
 	      EndDMLevel ();
@@ -1824,23 +1851,25 @@ WonGame (int winner)
 	}
       else
 	{
-	  if (team1_score >= roundlimit->value || team2_score >= roundlimit->value)
+	  if (team1_score >= roundlimit->value
+	      || team2_score >= roundlimit->value)
 	    {
-		  if(matchmode->value)
-		  {
-			SendScores();
-		    team1ready = team2ready = team_round_going =
-			team_round_countdown = team_game_going = matchtime = 0;
-			MakeAllLivePlayersObservers();
-			return 1;
-		  }
-		  else
-		  {
-	 	      gi.bprintf (PRINT_HIGH, "Roundlimit hit.\n");
-		      EndDMLevel ();
-			  team_round_going = team_round_countdown = team_game_going = 0;
-	          return 1;
-		  }
+	      if (matchmode->value)
+		{
+		  SendScores ();
+		  team1ready = team2ready = team_round_going =
+		    team_round_countdown = team_game_going = matchtime = 0;
+		  MakeAllLivePlayersObservers ();
+		  return 1;
+		}
+	      else
+		{
+		  gi.bprintf (PRINT_HIGH, "Roundlimit hit.\n");
+		  EndDMLevel ();
+		  team_round_going = team_round_countdown = team_game_going =
+		    0;
+		  return 1;
+		}
 	    }
 	}
     }
@@ -1879,22 +1908,31 @@ CheckTeamRules ()
     }
 
 // AQ2:TNG - JBravo adding UVtime
-	for (i = 0; i < maxclients->value; i++) {
-		if (!g_edicts[i+1].inuse)
-			continue;
-		if (game.clients[i].ctf_uvtime > 0) {
-			game.clients[i].ctf_uvtime--;
-			if(!game.clients[i].ctf_uvtime && team_round_going) {
-				gi.centerprintf(&g_edicts[i+1], "ACTION!");
-			} else {
-				if (game.clients[i].ctf_uvtime % 10 == 0) {
-					gi.centerprintf(&g_edicts[i+1], "Shield %d", game.clients[i].ctf_uvtime / 10);
-				}
-			}
-		} else {
-			game.clients[i].ctf_uvtime = 0;
+  for (i = 0; i < maxclients->value; i++)
+    {
+      if (!g_edicts[i + 1].inuse)
+	continue;
+      if (game.clients[i].ctf_uvtime > 0)
+	{
+	  game.clients[i].ctf_uvtime--;
+	  if (!game.clients[i].ctf_uvtime && team_round_going)
+	    {
+	      gi.centerprintf (&g_edicts[i + 1], "ACTION!");
+	    }
+	  else
+	    {
+	      if (game.clients[i].ctf_uvtime % 10 == 0)
+		{
+		  gi.centerprintf (&g_edicts[i + 1], "Shield %d",
+				   game.clients[i].ctf_uvtime / 10);
 		}
+	    }
 	}
+      else
+	{
+	  game.clients[i].ctf_uvtime = 0;
+	}
+    }
 
   if (lights_camera_action)
     {
@@ -1924,19 +1962,19 @@ CheckTeamRules ()
 	}
       else
 	{
-	  if(matchmode->value)
-	  {
-		if(team1ready && team2ready)
-			CenterPrintAll("Not enough players to play!\n");
-		else
-			CenterPrintAll("Both Teams Must Be Ready!\n");
-		MakeAllLivePlayersObservers();
-	  }
-	  else
-	  {
+	  if (matchmode->value)
+	    {
+	      if (team1ready && team2ready)
 		CenterPrintAll ("Not enough players to play!\n");
-		MakeAllLivePlayersObservers ();
-	  }
+	      else
+		CenterPrintAll ("Both Teams Must Be Ready!\n");
+	      MakeAllLivePlayersObservers ();
+	    }
+	  else
+	    {
+	      CenterPrintAll ("Not enough players to play!\n");
+	      MakeAllLivePlayersObservers ();
+	    }
 	}
     }
   else
@@ -1953,7 +1991,8 @@ CheckTeamRules ()
 	      if (team_round_countdown == 101)
 		{
 		  gi.sound (&g_edicts[0], CHAN_VOICE | CHAN_NO_PHS_ADD,
-		     gi.soundindex ("world/10_0.wav"), 1.0, ATTN_NONE, 0.0);
+			    gi.soundindex ("world/10_0.wav"), 1.0, ATTN_NONE,
+			    0.0);
 		}
 	    }
 	}
@@ -1963,62 +2002,62 @@ CheckTeamRules ()
   if (rulecheckfrequency % 15 && !checked_tie)
     return;
 
-    if (!team_round_going)
+  if (!team_round_going)
     {
       if (timelimit->value)
-	  {
-		// AQ2:TNG - Slicer : Matchmode
-		if(matchmode->value)
+	{
+	  // AQ2:TNG - Slicer : Matchmode
+	  if (matchmode->value)
+	    {
+	      if (matchtime >= timelimit->value * 60)
 		{
-			if (matchtime >= timelimit->value*60)
-			{
-				SendScores();
-                team1ready = team2ready = team_round_going =
-				team_round_countdown = team_game_going = matchtime = 0;
-				MakeAllLivePlayersObservers();
-				return;
-			}
+		  SendScores ();
+		  team1ready = team2ready = team_round_going =
+		    team_round_countdown = team_game_going = matchtime = 0;
+		  MakeAllLivePlayersObservers ();
+		  return;
 		}
-		//AQ2:TNG END
-	    if (!matchmode->value && level.time >= timelimit->value * 60)
+	    }
+	  //AQ2:TNG END
+	  if (!matchmode->value && level.time >= timelimit->value * 60)
 	    {
 	      gi.bprintf (PRINT_HIGH, "Timelimit hit.\n");
-		  if(ctf->value)
-			  ResetPlayers();
+	      if (ctf->value)
+		ResetPlayers ();
 	      EndDMLevel ();
 	      team_round_going = team_round_countdown = team_game_going = 0;
 	      return;
 	    }
-	  }
+	}
 
 //PG BUND - BEGIN
       if (vCheckVote () == true)
-	  {
-	    EndDMLevel ();
-	    team_round_going = team_round_countdown = team_game_going = 0;
-	    return;
-	  }
+	{
+	  EndDMLevel ();
+	  team_round_going = team_round_countdown = team_game_going = 0;
+	  return;
+	}
 //PG BUND - END
 
       if (!team_round_countdown)
-	  {
-	    if (BothTeamsHavePlayers ())
+	{
+	  if (BothTeamsHavePlayers ())
 	    {
 	      if (use_tourney->value)
-		  {
-		    TourneyNewRound ();
-		    team_round_countdown = TourneySetTime (T_START);
-		    TourneyTimeEvent (T_START, team_round_countdown);
-		  }
+		{
+		  TourneyNewRound ();
+		  team_round_countdown = TourneySetTime (T_START);
+		  TourneyTimeEvent (T_START, team_round_countdown);
+		}
 	      else
-		  {
-		    CenterPrintAll ("The round will begin in 20 seconds!\n");
-		    team_round_countdown = 201;
-		  }
+		{
+		  CenterPrintAll ("The round will begin in 20 seconds!\n");
+		  team_round_countdown = 201;
+		}
 	    }
-	  }
+	}
     }
-    else
+  else
     /* team_round_going */
     {
       if (ctf->value)
@@ -2030,7 +2069,7 @@ CheckTeamRules ()
 	      return;
 	    }
 	}
-      
+
       if ((winner = CheckForWinner ()) != WINNER_NONE)
 	{
 	  if (!checked_tie)
@@ -2070,7 +2109,8 @@ CheckTeamRules ()
 
 	    }
 	  // AQ:TNG Igor[Rock] changing sound dir
-	  else if (current_round_length > (roundtimelimit->value - 1) * 600 && use_warnings->value)
+	  else if (current_round_length > (roundtimelimit->value - 1) * 600
+		   && use_warnings->value)
 	    {
 	      if (timewarning < 2)
 		{
@@ -2078,11 +2118,13 @@ CheckTeamRules ()
 		  CenterPrintAll ("1 MINUTE LEFT...");
 		  //AQ2:TNG End removing newlines
 		  gi.sound (&g_edicts[0], CHAN_VOICE | CHAN_NO_PHS_ADD,
-		  gi.soundindex ("tng/1_minute.wav"), 1.0, ATTN_NONE, 0.0);
+			    gi.soundindex ("tng/1_minute.wav"), 1.0,
+			    ATTN_NONE, 0.0);
 		  timewarning = 2;
 		}
 	    }
-	  else if ((current_round_length > (roundtimelimit->value - 3) * 600) && use_warnings->value && (roundtimelimit->value >= 3))
+	  else if ((current_round_length > (roundtimelimit->value - 3) * 600)
+		   && use_warnings->value && (roundtimelimit->value >= 3))
 	    {
 	      if (timewarning < 1)
 		{
@@ -2090,19 +2132,20 @@ CheckTeamRules ()
 		  CenterPrintAll ("3 MINUTES LEFT...");
 		  //AQ2:TNG End removing newlines
 		  gi.sound (&g_edicts[0], CHAN_VOICE | CHAN_NO_PHS_ADD,
-		  gi.soundindex ("tng/3_minutes.wav"), 1.0, ATTN_NONE, 0.0);
+			    gi.soundindex ("tng/3_minutes.wav"), 1.0,
+			    ATTN_NONE, 0.0);
 		  timewarning = 1;
 		}
 	    }
 	  // end of changing sound dir
 	}
-      
+
       if (timelimit->value && ctf->value)
 	{
 	  if (level.time >= timelimit->value * 60)
 	    {
 	      gi.bprintf (PRINT_HIGH, "Timelimit hit.\n");
-		  ResetPlayers();
+	      ResetPlayers ();
 	      EndDMLevel ();
 	      team_round_going = team_round_countdown = team_game_going = 0;
 	      return;
@@ -2197,11 +2240,14 @@ A_Scoreboard (edict_t * ent)
 	}
       else
 	{
-	  ent->client->ps.stats[STAT_TEAM1_PIC] = gi.imageindex (team1_skin_index);
-	  ent->client->ps.stats[STAT_TEAM2_PIC] = gi.imageindex (team2_skin_index);
+	  ent->client->ps.stats[STAT_TEAM1_PIC] =
+	    gi.imageindex (team1_skin_index);
+	  ent->client->ps.stats[STAT_TEAM2_PIC] =
+	    gi.imageindex (team2_skin_index);
 	  if (use_3teams->value)
 	    {
-	      ent->client->ps.stats[STAT_TEAM3_PIC] = gi.imageindex (team3_skin_index);
+	      ent->client->ps.stats[STAT_TEAM3_PIC] =
+		gi.imageindex (team3_skin_index);
 	    }
 	}
 
@@ -2230,31 +2276,33 @@ A_ScoreboardMessage (edict_t * ent, edict_t * killer)
   if (ent->client->scoreboardnum == 1)
     {
       int team, len, deadview;
-      int sorted      [TEAM_TOP][MAX_CLIENTS];
+      int sorted[TEAM_TOP][MAX_CLIENTS];
       int sortedscores[TEAM_TOP][MAX_CLIENTS];
       int score;
-      int total     [TEAM_TOP];
-      int totalsubs [TEAM_TOP];
-      int subs      [TEAM_TOP];
+      int total[TEAM_TOP];
+      int totalsubs[TEAM_TOP];
+      int subs[TEAM_TOP];
       int totalscore[TEAM_TOP];
       int totalalive[TEAM_TOP];
       int totalaliveprinted[TEAM_TOP];
-      int stoppedat [TEAM_TOP];
-      int name_pos  [TEAM_TOP];
+      int stoppedat[TEAM_TOP];
+      int name_pos[TEAM_TOP];
       int secs, mins;
-      
-      deadview = (ent->solid == SOLID_NOT || ent->deadflag == DEAD_DEAD || !team_round_going);
+
+      deadview = (ent->solid == SOLID_NOT || ent->deadflag == DEAD_DEAD
+		  || !team_round_going);
 // AQ:TNG - Hack to keep scoreboard from revealing whos alive during matches - JBravo
-	if(limchasecam->value != 0) deadview=0;
+      if (limchasecam->value != 0)
+	deadview = 0;
 //
-      
+
       ent->client->ps.stats[STAT_TEAM_HEADER] = gi.imageindex ("tag3");
-      
-      total[TEAM1]            = total[TEAM2]            = total[TEAM3]      = 0;
-      totalalive[TEAM1]       = totalalive[TEAM2]       = totalalive[TEAM3] = 0;
-      totalscore[TEAM1]       = totalscore[TEAM2]       = totalscore[TEAM3] = 0;
-      totalsubs[TEAM1]        = totalsubs[TEAM2]        = 0;
-      
+
+      total[TEAM1] = total[TEAM2] = total[TEAM3] = 0;
+      totalalive[TEAM1] = totalalive[TEAM2] = totalalive[TEAM3] = 0;
+      totalscore[TEAM1] = totalscore[TEAM2] = totalscore[TEAM3] = 0;
+      totalsubs[TEAM1] = totalsubs[TEAM2] = 0;
+
       for (i = 0; i < game.maxclients; i++)
 	{
 	  cl_ent = g_edicts + 1 + i;
@@ -2262,7 +2310,7 @@ A_ScoreboardMessage (edict_t * ent, edict_t * killer)
 	    {
 	      continue;
 	    }
-	  
+
 	  if (game.clients[i].resp.team == NOTEAM)
 	    {
 	      continue;
@@ -2271,7 +2319,7 @@ A_ScoreboardMessage (edict_t * ent, edict_t * killer)
 	    {
 	      team = game.clients[i].resp.team;
 	    }
-	  
+
 	  if (!matchmode->value || (game.clients[i].resp.subteam == 0))
 	    {
 	      score = game.clients[i].resp.score;
@@ -2309,15 +2357,15 @@ A_ScoreboardMessage (edict_t * ent, edict_t * killer)
 	      totalalive[team]++;
 	    }
 	}
-      
+
       // I've shifted the scoreboard position 8 pixels to the left in Axshun so it works
       // correctly in 320x240 (Action's does not)--any problems with this?  -FB
       // Also going to center the team names.
-      
+
       name_pos[TEAM1] = ((20 - strlen (team1_name)) / 2) * 8;
       if (name_pos[TEAM1] < 0)
 	{
-	name_pos[TEAM1] = 0;
+	  name_pos[TEAM1] = 0;
 	}
 
       name_pos[TEAM2] = ((20 - strlen (team2_name)) / 2) * 8;
@@ -2331,7 +2379,7 @@ A_ScoreboardMessage (edict_t * ent, edict_t * killer)
 	{
 	  name_pos[TEAM3] = 0;
 	}
-      
+
       if (use_3teams->value)
 	{
 	  sprintf (string,
@@ -2341,7 +2389,8 @@ A_ScoreboardMessage (edict_t * ent, edict_t * killer)
 		   "xv -48 yv 28 string \"%4d/%-3d\" "
 		   "xv 10 yv 12 num 2 26 "
 		   "xv %d yv 0 string \"%s\" ",
-		   totalscore[TEAM1], total[TEAM1], name_pos[TEAM1] - 80, team1_name);
+		   totalscore[TEAM1], total[TEAM1], name_pos[TEAM1] - 80,
+		   team1_name);
 	  sprintf (string + strlen (string),
 		   // TEAM2
 		   "if 25 xv 80 yv 8 pic 25 endif "
@@ -2349,7 +2398,8 @@ A_ScoreboardMessage (edict_t * ent, edict_t * killer)
 		   "xv 112 yv 28 string \"%4d/%-3d\" "
 		   "xv 168 yv 12 num 2 27 "
 		   "xv %d yv 0 string \"%s\" ",
-		   totalscore[TEAM2], total[TEAM2], name_pos[TEAM2] + 80, team2_name);
+		   totalscore[TEAM2], total[TEAM2], name_pos[TEAM2] + 80,
+		   team2_name);
 	  sprintf (string + strlen (string),
 		   // TEAM3
 		   "if 30 xv 240 yv 8 pic 30 endif "
@@ -2357,18 +2407,20 @@ A_ScoreboardMessage (edict_t * ent, edict_t * killer)
 		   "xv 272 yv 28 string \"%4d/%-3d\" "
 		   "xv 328 yv 12 num 2 31 "
 		   "xv %d yv 0 string \"%s\" ",
-		   totalscore[TEAM3], total[TEAM3], name_pos[TEAM3] + 240, team3_name);
-	  
+		   totalscore[TEAM3], total[TEAM3], name_pos[TEAM3] + 240,
+		   team3_name);
+
 	  len = strlen (string);
-	  
-	  totalaliveprinted[TEAM1] = totalaliveprinted[TEAM2] = totalaliveprinted[TEAM3] = 0;
+
+	  totalaliveprinted[TEAM1] = totalaliveprinted[TEAM2] =
+	    totalaliveprinted[TEAM3] = 0;
 	  stoppedat[TEAM1] = stoppedat[TEAM2] = stoppedat[TEAM3] = -1;
-	  
+
 	  for (i = 0; i < (MAX_SCORES_PER_TEAM + 1); i++)
 	    {
 	      if (i >= total[TEAM1] && i >= total[TEAM2] && i >= total[TEAM3])
 		break;
-	      
+
 	      // ok, if we're approaching the "maxsize", then let's stop printing members of each
 	      // teams (if there's more than one member left to print in that team...)
 	      if (len > (maxsize - 100))
@@ -2389,145 +2441,161 @@ A_ScoreboardMessage (edict_t * ent, edict_t * killer)
 		  if (total[TEAM3] > MAX_SCORES_PER_TEAM)
 		    stoppedat[TEAM3] = i;
 		}
-	      
+
 	      if (i < total[TEAM1] && stoppedat[TEAM1] == -1)	// print next team 1 member...
-		
+
 		{
 		  cl = &game.clients[sorted[TEAM1][i]];
 		  cl_ent = g_edicts + 1 + sorted[TEAM1][i];
 		  if (cl_ent->solid != SOLID_NOT &&
 		      cl_ent->deadflag != DEAD_DEAD)
 		    totalaliveprinted[TEAM1]++;
-		  
+
 		  // AQ truncates names at 12, not sure why, except maybe to conserve scoreboard
 		  // string space?  skipping that "feature".  -FB
-		  
+
 		  sprintf (string + strlen (string),
 			   "xv -80 yv %d string%s \"%s\" ",
 			   42 + i * 8,
-			   deadview ? (cl_ent->solid == SOLID_NOT ? "" : "2") : "",
+			   deadview ? (cl_ent->solid ==
+				       SOLID_NOT ? "" : "2") : "",
 			   game.clients[sorted[TEAM1][i]].pers.netname);
 		}
-	      
+
 	      if (i < total[TEAM2] && stoppedat[TEAM2] == -1)	// print next team 2 member...
-		
+
 		{
 		  cl = &game.clients[sorted[TEAM2][i]];
 		  cl_ent = g_edicts + 1 + sorted[TEAM2][i];
 		  if (cl_ent->solid != SOLID_NOT &&
 		      cl_ent->deadflag != DEAD_DEAD)
 		    totalaliveprinted[TEAM2]++;
-		  
+
 		  // AQ truncates names at 12, not sure why, except maybe to conserve scoreboard
 		  // string space?  skipping that "feature".  -FB
-		  
+
 		  sprintf (string + strlen (string),
 			   "xv 80 yv %d string%s \"%s\" ",
 			   42 + i * 8,
-			   deadview ? (cl_ent->solid == SOLID_NOT ? "" : "2") : "",
+			   deadview ? (cl_ent->solid ==
+				       SOLID_NOT ? "" : "2") : "",
 			   game.clients[sorted[TEAM2][i]].pers.netname);
 		}
-	      
+
 	      if (i < total[TEAM3] && stoppedat[TEAM3] == -1)	// print next team 2 member...
-		
+
 		{
 		  cl = &game.clients[sorted[TEAM3][i]];
 		  cl_ent = g_edicts + 1 + sorted[TEAM3][i];
 		  if (cl_ent->solid != SOLID_NOT &&
 		      cl_ent->deadflag != DEAD_DEAD)
 		    totalaliveprinted[TEAM3]++;
-		  
+
 		  // AQ truncates names at 12, not sure why, except maybe to conserve scoreboard
 		  // string space?  skipping that "feature".  -FB
-		  
+
 		  sprintf (string + strlen (string),
 			   "xv 240 yv %d string%s \"%s\" ",
 			   42 + i * 8,
-			   deadview ? (cl_ent->solid == SOLID_NOT ? "" : "2") : "",
+			   deadview ? (cl_ent->solid ==
+				       SOLID_NOT ? "" : "2") : "",
 			   game.clients[sorted[TEAM3][i]].pers.netname);
 		}
-	      
+
 	      len = strlen (string);
 	    }
-	  
+
 	  // Print remaining players if we ran out of room...
 	  if (!deadview)	// live player viewing scoreboard...
 	    {
 	      if (stoppedat[TEAM1] > -1)
 		{
-		  sprintf (string + strlen (string), "xv -80 yv %d string \"..and %d more\" ",
-			   42 + (stoppedat[TEAM1] * 8), total[TEAM1] - stoppedat[TEAM1]);
+		  sprintf (string + strlen (string),
+			   "xv -80 yv %d string \"..and %d more\" ",
+			   42 + (stoppedat[TEAM1] * 8),
+			   total[TEAM1] - stoppedat[TEAM1]);
 		}
 	      if (stoppedat[TEAM2] > -1)
 		{
-		  sprintf (string + strlen (string), "xv 80 yv %d string \"..and %d more\" ",
-			   42 + (stoppedat[TEAM2] * 8), total[TEAM2] - stoppedat[TEAM2]);
+		  sprintf (string + strlen (string),
+			   "xv 80 yv %d string \"..and %d more\" ",
+			   42 + (stoppedat[TEAM2] * 8),
+			   total[TEAM2] - stoppedat[TEAM2]);
 		}
 	      if (stoppedat[TEAM3] > -1 && use_3teams->value)
 		{
-		  sprintf (string + strlen (string), "xv 240 yv %d string \"..and %d more\" ",
-			   42 + (stoppedat[TEAM3] * 8), total[TEAM3] - stoppedat[TEAM3]);
+		  sprintf (string + strlen (string),
+			   "xv 240 yv %d string \"..and %d more\" ",
+			   42 + (stoppedat[TEAM3] * 8),
+			   total[TEAM3] - stoppedat[TEAM3]);
 		}
 	    }
 	  else			// dead player viewing scoreboard...
-	    
+
 	    {
 	      if (stoppedat[TEAM1] > -1)
 		{
-		  sprintf (string + strlen (string), "xv -80 yv %d string%s \"..and %d/%d more\" ",
+		  sprintf (string + strlen (string),
+			   "xv -80 yv %d string%s \"..and %d/%d more\" ",
 			   42 + (stoppedat[TEAM1] * 8),
-			   (totalalive[TEAM1] - totalaliveprinted[TEAM1]) ? "2" : "",
+			   (totalalive[TEAM1] -
+			    totalaliveprinted[TEAM1]) ? "2" : "",
 			   totalalive[TEAM1] - totalaliveprinted[TEAM1],
 			   total[TEAM1] - stoppedat[TEAM1]);
 		}
 	      if (stoppedat[TEAM2] > -1)
 		{
-		  sprintf (string + strlen (string), "xv 80 yv %d string%s \"..and %d/%d more\" ",
+		  sprintf (string + strlen (string),
+			   "xv 80 yv %d string%s \"..and %d/%d more\" ",
 			   42 + (stoppedat[TEAM2] * 8),
-			   (totalalive[TEAM2] - totalaliveprinted[TEAM2]) ? "2" : "",
+			   (totalalive[TEAM2] -
+			    totalaliveprinted[TEAM2]) ? "2" : "",
 			   totalalive[TEAM2] - totalaliveprinted[TEAM2],
 			   total[TEAM2] - stoppedat[TEAM2]);
 		}
 	      if (stoppedat[TEAM3] > -1)
 		{
-		  sprintf (string + strlen (string), "xv 240 yv %d string%s \"..and %d/%d more\" ",
+		  sprintf (string + strlen (string),
+			   "xv 240 yv %d string%s \"..and %d/%d more\" ",
 			   42 + (stoppedat[TEAM3] * 8),
-			   (totalalive[TEAM3] - totalaliveprinted[TEAM3]) ? "2" : "",
+			   (totalalive[TEAM3] -
+			    totalaliveprinted[TEAM3]) ? "2" : "",
 			   totalalive[TEAM3] - totalaliveprinted[TEAM3],
 			   total[TEAM3] - stoppedat[TEAM3]);
 		}
 	    }
 	}
       else if (matchmode->value)
-	{	  
+	{
 	  sprintf (string,
 		   // TEAM1
 		   "if 24 xv 0 yv 8 pic 24 endif "
 		   "if 22 xv 32 yv 8 pic 22 endif "
 		   "xv 32 yv 28 string \"%4d/%2d/%-2d\" "
-		   "xv 96 yv 12 num 2 26 "
-		   "xv %d yv 0 string \"%s\" "
+		   "xv 96 yv 12 num 2 26 " "xv %d yv 0 string \"%s\" "
 		   // TEAM2
 		   "if 25 xv 160 yv 8 pic 25 endif "
 		   "if 22 xv 192 yv 8 pic 22 endif "
 		   "xv 192 yv 28 string \"%4d/%2d/%-2d\" "
 		   "xv 256 yv 12 num 2 27 "
 		   "xv %d yv 0 string \"%s\" ",
-		   totalscore[TEAM1], total[TEAM1], totalsubs[TEAM1], name_pos[TEAM1],       team1_name,
-		   totalscore[TEAM2], total[TEAM2], totalsubs[TEAM2], name_pos[TEAM2] + 160, team2_name  );
-	  
+		   totalscore[TEAM1], total[TEAM1], totalsubs[TEAM1],
+		   name_pos[TEAM1], team1_name, totalscore[TEAM2],
+		   total[TEAM2], totalsubs[TEAM2], name_pos[TEAM2] + 160,
+		   team2_name);
+
 	  len = strlen (string);
-	  
-	  totalaliveprinted[TEAM1] = totalaliveprinted[TEAM2] =  0;
-	  stoppedat[TEAM1]         = stoppedat[TEAM2]         = -1;
-	  
+
+	  totalaliveprinted[TEAM1] = totalaliveprinted[TEAM2] = 0;
+	  stoppedat[TEAM1] = stoppedat[TEAM2] = -1;
+
 	  for (i = 0; i < (MAX_SCORES_PER_TEAM - 2); i++)
 	    {
 	      if (i >= total[TEAM1] && i >= total[TEAM2])
 		{
 		  break;
 		}
-	      
+
 	      // ok, if we're approaching the "maxsize", then let's stop printing members of each
 	      // teams (if there's more than one member left to print in that team...)
 	      if (len > (maxsize - 100))
@@ -2537,7 +2605,7 @@ A_ScoreboardMessage (edict_t * ent, edict_t * killer)
 		  if (i < (total[TEAM2] - 1))
 		    stoppedat[TEAM2] = i;
 		}
-	      
+
 	      if (i == MAX_SCORES_PER_TEAM - 4)
 		{
 		  if (total[TEAM1] > MAX_SCORES_PER_TEAM - 3)
@@ -2545,87 +2613,102 @@ A_ScoreboardMessage (edict_t * ent, edict_t * killer)
 		  if (total[TEAM2] > MAX_SCORES_PER_TEAM - 3)
 		    stoppedat[TEAM2] = i;
 		}
-	      
+
 	      if (i < total[TEAM1] && stoppedat[TEAM1] == -1)	// print next team 1 member...
 		{
 		  cl = &game.clients[sorted[TEAM1][i]];
 		  cl_ent = g_edicts + 1 + sorted[TEAM1][i];
-		  if (cl_ent->solid != SOLID_NOT && cl_ent->deadflag != DEAD_DEAD)
+		  if (cl_ent->solid != SOLID_NOT
+		      && cl_ent->deadflag != DEAD_DEAD)
 		    {
 		      totalaliveprinted[TEAM1]++;
 		    }
-		  
+
 		  // AQ truncates names at 12, not sure why, except maybe to conserve scoreboard
 		  // string space?  skipping that "feature".  -FB
-		  
-		  sprintf(string+strlen(string), 
-			  "xv 0 yv %d string%s \"%s%s\" ",
-			  42 + i * 8,
-			  deadview ? (cl_ent->solid == SOLID_NOT ? "" : "2") : "",
-			  game.clients[sorted[TEAM1][i]].resp.captain ? "@" : "",
-			  game.clients[sorted[TEAM1][i]].pers.netname);
+
+		  sprintf (string + strlen (string),
+			   "xv 0 yv %d string%s \"%s%s\" ",
+			   42 + i * 8,
+			   deadview ? (cl_ent->solid ==
+				       SOLID_NOT ? "" : "2") : "",
+			   game.clients[sorted[TEAM1][i]].resp.
+			   captain ? "@" : "",
+			   game.clients[sorted[TEAM1][i]].pers.netname);
 		}
-	      
+
 	      if (i < total[TEAM2] && stoppedat[TEAM2] == -1)	// print next team 2 member...
 		{
 		  cl = &game.clients[sorted[TEAM2][i]];
 		  cl_ent = g_edicts + 1 + sorted[TEAM2][i];
-		  if (cl_ent->solid != SOLID_NOT && cl_ent->deadflag != DEAD_DEAD)
+		  if (cl_ent->solid != SOLID_NOT
+		      && cl_ent->deadflag != DEAD_DEAD)
 		    {
 		      totalaliveprinted[TEAM2]++;
 		    }
-		  
+
 		  // AQ truncates names at 12, not sure why, except maybe to conserve scoreboard
 		  // string space?  skipping that "feature".  -FB
-		  
-		  sprintf(string+strlen(string), 
-			  "xv 160 yv %d string%s \"%s%s\" ",  
-			  42 + i * 8,
-			  deadview ? (cl_ent->solid == SOLID_NOT ? "" : "2") : "",
-			  game.clients[sorted[TEAM2][i]].resp.captain ? "@" : "",
-			  game.clients[sorted[TEAM2][i]].pers.netname);
+
+		  sprintf (string + strlen (string),
+			   "xv 160 yv %d string%s \"%s%s\" ",
+			   42 + i * 8,
+			   deadview ? (cl_ent->solid ==
+				       SOLID_NOT ? "" : "2") : "",
+			   game.clients[sorted[TEAM2][i]].resp.
+			   captain ? "@" : "",
+			   game.clients[sorted[TEAM2][i]].pers.netname);
 		}
-	      
+
 	      len = strlen (string);
 	    }
-	  
+
 	  // Print remaining players if we ran out of room...
 	  if (!deadview)	// live player viewing scoreboard...
 	    {
 	      if (stoppedat[TEAM1] > -1)
 		{
-		  sprintf (string + strlen (string), "xv 0 yv %d string \" + %d more\" ",
-			   42 + (stoppedat[TEAM1] * 8), total[TEAM1] - stoppedat[TEAM1]);
+		  sprintf (string + strlen (string),
+			   "xv 0 yv %d string \" + %d more\" ",
+			   42 + (stoppedat[TEAM1] * 8),
+			   total[TEAM1] - stoppedat[TEAM1]);
 		}
 
 	      if (stoppedat[TEAM2] > -1)
 		{
-		  sprintf (string + strlen (string), "xv 160 yv %d string \" + %d more\" ",
-			   42 + (stoppedat[TEAM2] * 8), total[TEAM2] - stoppedat[TEAM2]);
+		  sprintf (string + strlen (string),
+			   "xv 160 yv %d string \" + %d more\" ",
+			   42 + (stoppedat[TEAM2] * 8),
+			   total[TEAM2] - stoppedat[TEAM2]);
 		}
 	    }
 	  else			// dead player viewing scoreboard...
 	    {
 	      if (stoppedat[TEAM1] > -1)
 		{
-		  sprintf (string + strlen (string), "xv 0 yv %d string%s \" + %d/%d more\" ",
+		  sprintf (string + strlen (string),
+			   "xv 0 yv %d string%s \" + %d/%d more\" ",
 			   42 + (stoppedat[TEAM1] * 8),
-			   (totalalive[TEAM1] - totalaliveprinted[TEAM1]) ? "2" : "",
+			   (totalalive[TEAM1] -
+			    totalaliveprinted[TEAM1]) ? "2" : "",
 			   totalalive[TEAM1] - totalaliveprinted[TEAM1],
 			   total[TEAM1] - stoppedat[TEAM1]);
 		}
 	      if (stoppedat[TEAM2] > -1)
 		{
-		  sprintf (string + strlen (string), "xv 160 yv %d string%s \" + %d/%d more\" ",
+		  sprintf (string + strlen (string),
+			   "xv 160 yv %d string%s \" + %d/%d more\" ",
 			   42 + (stoppedat[TEAM2] * 8),
-			   (totalalive[TEAM2] - totalaliveprinted[TEAM2]) ? "2" : "",
+			   (totalalive[TEAM2] -
+			    totalaliveprinted[TEAM2]) ? "2" : "",
 			   totalalive[TEAM2] - totalaliveprinted[TEAM2],
 			   total[TEAM2] - stoppedat[TEAM2]);
 		}
 	    }
-	  
-	  sprintf(string+strlen(string), "xv 0 yv 96 string2 \"Subs\" ");
-	  sprintf(string+strlen(string), "xv 160 yv 96 string2 \"Subs\" ");
+
+	  sprintf (string + strlen (string), "xv 0 yv 96 string2 \"Subs\" ");
+	  sprintf (string + strlen (string),
+		   "xv 160 yv 96 string2 \"Subs\" ");
 
 	  subs[TEAM1] = subs[TEAM2] = 0;
 
@@ -2634,50 +2717,55 @@ A_ScoreboardMessage (edict_t * ent, edict_t * killer)
 	      cl_ent = g_edicts + 1 + i;
 	      if (!cl_ent->inuse)
 		continue;
-	      
+
 	      if (game.clients[i].resp.subteam == TEAM1)
 		{
 		  if ((totalsubs[TEAM1] < 3) || !subs[TEAM1])
- 		    {
-		      sprintf(string+strlen(string), 
-			      "xv 0 yv %d string \"%s%s\" ",  
-			      104 + subs[TEAM1] * 8,
-			      game.clients[i].resp.captain ? "@" : "",
-			      game.clients[i].pers.netname);
+		    {
+		      sprintf (string + strlen (string),
+			       "xv 0 yv %d string \"%s%s\" ",
+			       104 + subs[TEAM1] * 8,
+			       game.clients[i].resp.captain ? "@" : "",
+			       game.clients[i].pers.netname);
 		    }
 		  else if (subs[TEAM1] < 2)
 		    {
-		      sprintf (string + strlen (string), "xv 0 yv %d string \" + %d more\" ",
+		      sprintf (string + strlen (string),
+			       "xv 0 yv %d string \" + %d more\" ",
 			       104 + subs[TEAM1] * 8, totalsubs[TEAM1] - 1);
 		    }
 		  subs[TEAM1]++;
 		}
-	      
+
 	      if (game.clients[i].resp.subteam == TEAM2)
 		{
 		  if ((totalsubs[TEAM2] < 3) || !subs[TEAM2])
 		    {
-		      sprintf(string+strlen(string), 
-			      "xv 160 yv %d string \"%s%s\" ",  
-			      104 + subs[TEAM2] * 8,
-			      game.clients[i].resp.captain ? "@" : "",
-			      game.clients[i].pers.netname);
+		      sprintf (string + strlen (string),
+			       "xv 160 yv %d string \"%s%s\" ",
+			       104 + subs[TEAM2] * 8,
+			       game.clients[i].resp.captain ? "@" : "",
+			       game.clients[i].pers.netname);
 		    }
 		  else if (subs[TEAM2] < 2)
 		    {
-		      sprintf (string + strlen (string), "xv 160 yv %d string \" + %d more\" ",
+		      sprintf (string + strlen (string),
+			       "xv 160 yv %d string \" + %d more\" ",
 			       104 + subs[TEAM2] * 8, totalsubs[TEAM2] - 1);
 		    }
 		  subs[TEAM2]++;
 		}
 	    }
-	      
-	  sprintf(string+strlen(string), "xv 39 yv 128 string2 \"%s\" ", team1ready ? "Ready" : "Not Ready");
-	  sprintf(string+strlen(string), "xv 196 yv 128 string2 \"%s\" ", team2ready ? "Ready" : "Not Ready");
-	  
-	  mins = matchtime/60;
-	  secs = matchtime-(mins*60);
-	  sprintf(string+strlen(string), "xv 112 yv 144 string \"Time: %d:%02d\" ", mins, secs);
+
+	  sprintf (string + strlen (string), "xv 39 yv 128 string2 \"%s\" ",
+		   team1ready ? "Ready" : "Not Ready");
+	  sprintf (string + strlen (string), "xv 196 yv 128 string2 \"%s\" ",
+		   team2ready ? "Ready" : "Not Ready");
+
+	  mins = matchtime / 60;
+	  secs = matchtime - (mins * 60);
+	  sprintf (string + strlen (string),
+		   "xv 112 yv 144 string \"Time: %d:%02d\" ", mins, secs);
 
 	}
       else
@@ -2687,27 +2775,27 @@ A_ScoreboardMessage (edict_t * ent, edict_t * killer)
 		   "if 24 xv 0 yv 8 pic 24 endif "
 		   "if 22 xv 32 yv 8 pic 22 endif "
 		   "xv 32 yv 28 string \"%4d/%-3d\" "
-		   "xv 90 yv 12 num 2 26 "
-		   "xv %d yv 0 string \"%s\" "
+		   "xv 90 yv 12 num 2 26 " "xv %d yv 0 string \"%s\" "
 		   // TEAM2
 		   "if 25 xv 160 yv 8 pic 25 endif "
 		   "if 22 xv 192 yv 8 pic 22 endif "
 		   "xv 192 yv 28 string \"%4d/%-3d\" "
 		   "xv 248 yv 12 num 2 27 "
 		   "xv %d yv 0 string \"%s\" ",
-		   totalscore[TEAM1], total[TEAM1], name_pos[TEAM1], team1_name,
-		   totalscore[TEAM2], total[TEAM2], name_pos[TEAM2] + 160, team2_name);
-	  
+		   totalscore[TEAM1], total[TEAM1], name_pos[TEAM1],
+		   team1_name, totalscore[TEAM2], total[TEAM2],
+		   name_pos[TEAM2] + 160, team2_name);
+
 	  len = strlen (string);
-	  
+
 	  totalaliveprinted[TEAM1] = totalaliveprinted[TEAM2] = 0;
 	  stoppedat[TEAM1] = stoppedat[TEAM2] = -1;
-	  
+
 	  for (i = 0; i < (MAX_SCORES_PER_TEAM + 1); i++)
 	    {
 	      if (i >= total[TEAM1] && i >= total[TEAM2])
 		break;
-	      
+
 	      // ok, if we're approaching the "maxsize", then let's stop printing members of each
 	      // teams (if there's more than one member left to print in that team...)
 	      if (len > (maxsize - 100))
@@ -2724,7 +2812,7 @@ A_ScoreboardMessage (edict_t * ent, edict_t * killer)
 		  if (total[TEAM2] > MAX_SCORES_PER_TEAM)
 		    stoppedat[TEAM2] = i;
 		}
-	      
+
 	      if (i < total[TEAM1] && stoppedat[TEAM1] == -1)	// print next team 1 member...
 		{
 		  cl = &game.clients[sorted[TEAM1][i]];
@@ -2732,17 +2820,18 @@ A_ScoreboardMessage (edict_t * ent, edict_t * killer)
 		  if (cl_ent->solid != SOLID_NOT &&
 		      cl_ent->deadflag != DEAD_DEAD)
 		    totalaliveprinted[TEAM1]++;
-		  
+
 		  // AQ truncates names at 12, not sure why, except maybe to conserve scoreboard
 		  // string space?  skipping that "feature".  -FB
-		  
-		  sprintf(string+strlen(string), 
-			  "xv 0 yv %d string%s \"%s\" ",  
-			  42 + i * 8,
-			  deadview ? (cl_ent->solid == SOLID_NOT ? "" : "2") : "",
-			  game.clients[sorted[TEAM1][i]].pers.netname);
+
+		  sprintf (string + strlen (string),
+			   "xv 0 yv %d string%s \"%s\" ",
+			   42 + i * 8,
+			   deadview ? (cl_ent->solid ==
+				       SOLID_NOT ? "" : "2") : "",
+			   game.clients[sorted[TEAM1][i]].pers.netname);
 		}
-	      
+
 	      if (i < total[TEAM2] && stoppedat[TEAM2] == -1)	// print next team 2 member...
 		{
 		  cl = &game.clients[sorted[TEAM2][i]];
@@ -2750,50 +2839,59 @@ A_ScoreboardMessage (edict_t * ent, edict_t * killer)
 		  if (cl_ent->solid != SOLID_NOT &&
 		      cl_ent->deadflag != DEAD_DEAD)
 		    totalaliveprinted[TEAM2]++;
-		  
+
 		  // AQ truncates names at 12, not sure why, except maybe to conserve scoreboard
 		  // string space?  skipping that "feature".  -FB
-		  
-		  sprintf(string+strlen(string), 
-			  "xv 160 yv %d string%s \"%s\" ",  
-			  42 + i * 8,
-			  deadview ? (cl_ent->solid == SOLID_NOT ? "" : "2") : "",
-			  game.clients[sorted[TEAM2][i]].pers.netname);
+
+		  sprintf (string + strlen (string),
+			   "xv 160 yv %d string%s \"%s\" ",
+			   42 + i * 8,
+			   deadview ? (cl_ent->solid ==
+				       SOLID_NOT ? "" : "2") : "",
+			   game.clients[sorted[TEAM2][i]].pers.netname);
 		}
-	      
+
 	      len = strlen (string);
 	    }
-	  
+
 	  // Print remaining players if we ran out of room...
 	  if (!deadview)	// live player viewing scoreboard...
 	    {
 	      if (stoppedat[TEAM1] > -1)
 		{
-		  sprintf (string + strlen (string), "xv 0 yv %d string \"..and %d more\" ",
-			   42 + (stoppedat[TEAM1] * 8), total[TEAM1] - stoppedat[TEAM1]);
+		  sprintf (string + strlen (string),
+			   "xv 0 yv %d string \"..and %d more\" ",
+			   42 + (stoppedat[TEAM1] * 8),
+			   total[TEAM1] - stoppedat[TEAM1]);
 		}
 	      if (stoppedat[TEAM2] > -1)
 		{
-		  sprintf (string + strlen (string), "xv 160 yv %d string \"..and %d more\" ",
-			   42 + (stoppedat[TEAM2] * 8), total[TEAM2] - stoppedat[TEAM2]);
+		  sprintf (string + strlen (string),
+			   "xv 160 yv %d string \"..and %d more\" ",
+			   42 + (stoppedat[TEAM2] * 8),
+			   total[TEAM2] - stoppedat[TEAM2]);
 		}
 	    }
 	  else			// dead player viewing scoreboard...
-	    
+
 	    {
 	      if (stoppedat[TEAM1] > -1)
 		{
-		  sprintf (string + strlen (string), "xv 0 yv %d string%s \"..and %d/%d more\" ",
+		  sprintf (string + strlen (string),
+			   "xv 0 yv %d string%s \"..and %d/%d more\" ",
 			   42 + (stoppedat[TEAM1] * 8),
-			   (totalalive[TEAM1] - totalaliveprinted[TEAM1]) ? "2" : "",
+			   (totalalive[TEAM1] -
+			    totalaliveprinted[TEAM1]) ? "2" : "",
 			   totalalive[TEAM1] - totalaliveprinted[TEAM1],
 			   total[TEAM1] - stoppedat[TEAM1]);
 		}
 	      if (stoppedat[TEAM2] > -1)
 		{
-		  sprintf (string + strlen (string), "xv 160 yv %d string%s \"..and %d/%d more\" ",
+		  sprintf (string + strlen (string),
+			   "xv 160 yv %d string%s \"..and %d/%d more\" ",
 			   42 + (stoppedat[TEAM2] * 8),
-			   (totalalive[TEAM2] - totalaliveprinted[TEAM2]) ? "2" : "",
+			   (totalalive[TEAM2] -
+			    totalaliveprinted[TEAM2]) ? "2" : "",
 			   totalalive[TEAM2] - totalaliveprinted[TEAM2],
 			   total[TEAM2] - stoppedat[TEAM2]);
 		}
@@ -2804,15 +2902,15 @@ A_ScoreboardMessage (edict_t * ent, edict_t * killer)
     {
       int total, score, ping;
       int sortedscores[MAX_CLIENTS], sorted[MAX_CLIENTS];
-      
+
       total = score = 0;
-      
+
       for (i = 0; i < game.maxclients; i++)
 	{
 	  cl_ent = g_edicts + 1 + i;
 	  if (!cl_ent->inuse)
 	    continue;
-	  
+
 	  score = game.clients[i].resp.score;
 	  if (noscore->value)
 	    {
@@ -2835,49 +2933,53 @@ A_ScoreboardMessage (edict_t * ent, edict_t * killer)
 	  sortedscores[j] = score;
 	  total++;
 	}
-	  if(matchmode->value)
-	  {
-	  strcpy (string, "xv 0 yv 32 string2 \"Frags Player          Time Ping Damage Team \" "
+      if (matchmode->value)
+	{
+	  strcpy (string,
+		  "xv 0 yv 32 string2 \"Frags Player          Time Ping Damage Team \" "
 		  "xv 0 yv 40 string2 \"ùûûûü ùûûûûûûûûûûûûûü ùûûü ùûûü ùûûûûü ùûûü\" ");
 
-	  }
-	  else
-	  {
-      
-      if (noscore->value)
-	// AQ2:TNG Deathwatch - Nice little bar
-	{
-	  strcpy (string, "xv 0 yv 32 string2 \"Player          Time Ping\" "
-		  "xv 0 yv 40 string2 \"ùûûûûûûûûûûûûûü ùûûü ùûûü\" ");
 	}
       else
 	{
-	  strcpy (string, "xv 0 yv 32 string2 \"Frags Player          Time Ping Damage Kills\" "
-		  "xv 0 yv 40 string2 \"ùûûûü ùûûûûûûûûûûûûûü ùûûü ùûûü ùûûûûü ùûûûü\" ");
+
+	  if (noscore->value)
+	    // AQ2:TNG Deathwatch - Nice little bar
+	    {
+	      strcpy (string,
+		      "xv 0 yv 32 string2 \"Player          Time Ping\" "
+		      "xv 0 yv 40 string2 \"ùûûûûûûûûûûûûûü ùûûü ùûûü\" ");
+	    }
+	  else
+	    {
+	      strcpy (string,
+		      "xv 0 yv 32 string2 \"Frags Player          Time Ping Damage Kills\" "
+		      "xv 0 yv 40 string2 \"ùûûûü ùûûûûûûûûûûûûûü ùûûü ùûûü ùûûûûü ùûûûü\" ");
+	    }
 	}
-	  }
       /*
-	{
-	strcpy (string, "xv 0 yv 32 string2 \"Player          Time Ping\" "
-	"xv 0 yv 40 string2 \"--------------- ---- ----\" ");
-	}
-	else
-	{
-	strcpy (string, "xv 0 yv 32 string2 \"Frags Player          Time Ping Damage Kills\" "
-	"xv 0 yv 40 string2 \"----- --------------- ---- ---- ------ -----\" ");
-	}
-      */
+         {
+         strcpy (string, "xv 0 yv 32 string2 \"Player          Time Ping\" "
+         "xv 0 yv 40 string2 \"--------------- ---- ----\" ");
+         }
+         else
+         {
+         strcpy (string, "xv 0 yv 32 string2 \"Frags Player          Time Ping Damage Kills\" "
+         "xv 0 yv 40 string2 \"----- --------------- ---- ---- ------ -----\" ");
+         }
+       */
       // AQ2:TNG END
-      
+
       for (i = 0; i < total; i++)
 	{
 	  ping = game.clients[sorted[i]].ping;
 	  if (ping > 999)
 	    ping = 999;
-	  if(matchmode->value)
-	  {
-		  	      if (game.clients[sorted[i]].resp.damage_dealt < 1000000)
-		sprintf (damage, "%d", game.clients[sorted[i]].resp.damage_dealt);
+	  if (matchmode->value)
+	    {
+	      if (game.clients[sorted[i]].resp.damage_dealt < 1000000)
+		sprintf (damage, "%d",
+			 game.clients[sorted[i]].resp.damage_dealt);
 	      else
 		strcpy (damage, "******");
 	      sprintf (string + strlen (string),
@@ -2885,58 +2987,64 @@ A_ScoreboardMessage (edict_t * ent, edict_t * killer)
 		       48 + i * 8,
 		       sortedscores[i],
 		       game.clients[sorted[i]].pers.netname,
-		       (level.framenum - game.clients[sorted[i]].resp.enterframe) / 600,
-		       ping, damage,
-			   game.clients[sorted[i]].resp.team == 0 ? "0" : (game.clients[sorted[i]].resp.team == 1 ? "1" : "2"),
-			   game.clients[sorted[i]].resp.captain == 0 ? "" : "C",
-			   game.clients[sorted[i]].resp.subteam == 0 ? "" : "S");
-	
-	  }
-	  else
-	  {
-	  if (noscore->value)
-	    {
-	      sprintf (string + strlen (string),
-		       "xv 0 yv %d string \"%-15s %4d %4d\" ",
-		       48 + i * 8,
-		       game.clients[sorted[i]].pers.netname,
-		       (level.framenum - game.clients[sorted[i]].resp.enterframe) / 600,
-		       ping);
+		       (level.framenum -
+			game.clients[sorted[i]].resp.enterframe) / 600, ping,
+		       damage,
+		       game.clients[sorted[i]].resp.team ==
+		       0 ? "0" : (game.clients[sorted[i]].resp.team ==
+				  1 ? "1" : "2"),
+		       game.clients[sorted[i]].resp.captain == 0 ? "" : "C",
+		       game.clients[sorted[i]].resp.subteam == 0 ? "" : "S");
+
 	    }
 	  else
 	    {
-	      if (game.clients[sorted[i]].resp.damage_dealt < 1000000)
-		sprintf (damage, "%d", game.clients[sorted[i]].resp.damage_dealt);
+	      if (noscore->value)
+		{
+		  sprintf (string + strlen (string),
+			   "xv 0 yv %d string \"%-15s %4d %4d\" ",
+			   48 + i * 8,
+			   game.clients[sorted[i]].pers.netname,
+			   (level.framenum -
+			    game.clients[sorted[i]].resp.enterframe) / 600,
+			   ping);
+		}
 	      else
-		strcpy (damage, "******");
-	      sprintf (string + strlen (string),
-		       "xv 0 yv %d string \"%5d %-15s %4d %4d %6s %5d\" ",
-		       48 + i * 8,
-		       sortedscores[i],
-		       game.clients[sorted[i]].pers.netname,
-		       (level.framenum - game.clients[sorted[i]].resp.enterframe) / 600,
-		       ping, damage, game.clients[sorted[i]].resp.kills);
+		{
+		  if (game.clients[sorted[i]].resp.damage_dealt < 1000000)
+		    sprintf (damage, "%d",
+			     game.clients[sorted[i]].resp.damage_dealt);
+		  else
+		    strcpy (damage, "******");
+		  sprintf (string + strlen (string),
+			   "xv 0 yv %d string \"%5d %-15s %4d %4d %6s %5d\" ",
+			   48 + i * 8,
+			   sortedscores[i],
+			   game.clients[sorted[i]].pers.netname,
+			   (level.framenum -
+			    game.clients[sorted[i]].resp.enterframe) / 600,
+			   ping, damage, game.clients[sorted[i]].resp.kills);
+		}
 	    }
-	  }
-	  if (strlen (string) > (maxsize - 100) &&
-	      i < (total - 2))
+	  if (strlen (string) > (maxsize - 100) && i < (total - 2))
 	    {
 	      sprintf (string + strlen (string),
 		       "xv 0 yv %d string \"..and %d more\" ",
-		       48 + (i + 1) * 8,
-		       (total - i - 1));
+		       48 + (i + 1) * 8, (total - i - 1));
 	      break;
 	    }
 	}
     }
-  
-  
+
+
   if (strlen (string) > 1023)	// for debugging...
     {
-      gi.dprintf ("Warning: scoreboard string neared or exceeded max length\nDump:\n%s\n---\n",
-		  string);
+      gi.
+	dprintf
+	("Warning: scoreboard string neared or exceeded max length\nDump:\n%s\n---\n",
+	 string);
     }
-  
+
   gi.WriteByte (svc_layout);
   gi.WriteString (string);
 }
@@ -2971,7 +3079,7 @@ TallyEndOfLevelTeamScores (void)
 edict_t *
 SelectTeamplaySpawnPoint (edict_t * ent)
 {
-	return teamplay_spawns[ent->client->resp.team - 1];
+  return teamplay_spawns[ent->client->resp.team - 1];
 }
 
 // SpawnPointDistance: 
@@ -3006,7 +3114,8 @@ GetSpawnPoints ()
       num_potential_spawns++;
     }
 
-  while ((spot = G_Find (spot, FOFS (classname), "info_player_deathmatch")) != NULL)
+  while ((spot = G_Find (spot, FOFS (classname), "info_player_deathmatch")) !=
+	 NULL)
     {
       potential_spawns[num_potential_spawns] = spot;
       num_potential_spawns++;
@@ -3067,7 +3176,9 @@ SelectRandomTeamplaySpawnPoint (int team, qboolean teams_assigned[])
 	{
 	  if (teams_assigned[y])
 	    {
-	      distance = SpawnPointDistance (potential_spawns[spawn_point], teamplay_spawns[y]);
+	      distance =
+		SpawnPointDistance (potential_spawns[spawn_point],
+				    teamplay_spawns[y]);
 	      if (distance == 0)
 		{
 		  ok = false;
@@ -3091,7 +3202,8 @@ SelectRandomTeamplaySpawnPoint (int team, qboolean teams_assigned[])
   if (i == test_teams)
     {
       gi.dprintf ("Warning: More teams than potential spawnpoints!\n");
-      if ((spot = G_Find (spot, FOFS (classname), "info_player_start")) != NULL)
+      if ((spot = G_Find (spot, FOFS (classname), "info_player_start")) !=
+	  NULL)
 	{
 	  teamplay_spawns[team] = spot;
 	}
@@ -3102,8 +3214,8 @@ SelectRandomTeamplaySpawnPoint (int team, qboolean teams_assigned[])
 void
 SelectFarTeamplaySpawnPoint (int team, qboolean teams_assigned[])
 {
-  int x, y, spawn_to_use, preferred_spawn_points, num_already_used, total_good_spawn_points,
-    test_teams;
+  int x, y, spawn_to_use, preferred_spawn_points, num_already_used,
+    total_good_spawn_points, test_teams;
   float closest_spawn_distance, distance;
   spawn_distances_t *spawn_distances;
 
@@ -3116,7 +3228,9 @@ SelectFarTeamplaySpawnPoint (int team, qboolean teams_assigned[])
       test_teams = 2;
     }
 
-  spawn_distances = (spawn_distances_t *) gi.TagMalloc (num_potential_spawns * sizeof (spawn_distances_t), TAG_GAME);
+  spawn_distances =
+    (spawn_distances_t *) gi.TagMalloc (num_potential_spawns *
+					sizeof (spawn_distances_t), TAG_GAME);
 
   num_already_used = 0;
   for (x = 0; x < num_potential_spawns; x++)
@@ -3127,7 +3241,8 @@ SelectFarTeamplaySpawnPoint (int team, qboolean teams_assigned[])
 	{
 	  if (teams_assigned[y])
 	    {
-	      distance = SpawnPointDistance (potential_spawns[x], teamplay_spawns[y]);
+	      distance =
+		SpawnPointDistance (potential_spawns[x], teamplay_spawns[y]);
 	      if (distance < closest_spawn_distance)
 		{
 		  closest_spawn_distance = distance;
@@ -3163,12 +3278,15 @@ SelectFarTeamplaySpawnPoint (int team, qboolean teams_assigned[])
 
   if (team < 0 || team >= MAX_TEAMS)
     {
-      gi.dprintf ("Out-of-range teams value in SelectFarTeamplaySpawnPoint, skipping...\n");
+      gi.
+	dprintf
+	("Out-of-range teams value in SelectFarTeamplaySpawnPoint, skipping...\n");
     }
   else
     {
       teams_assigned[team] = true;
-      teamplay_spawns[team] = spawn_distances[num_potential_spawns - spawn_to_use - 1].s;
+      teamplay_spawns[team] =
+	spawn_distances[num_potential_spawns - spawn_to_use - 1].s;
     }
 
   gi.TagFree (spawn_distances);
@@ -3196,7 +3314,10 @@ SetupTeamSpawnPoints ()
     {
       if (l < 0 || l >= MAX_TEAMS)
 	{
-	  gi.dprintf ("Warning: attempt to setup spawns for out-of-range team (%d)\n", l);
+	  gi.
+	    dprintf
+	    ("Warning: attempt to setup spawns for out-of-range team (%d)\n",
+	     l);
 	}
 
       if (firstassignment)

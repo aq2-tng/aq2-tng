@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // a_vote.c
 //
-// $Id: a_vote.c,v 1.8 2001/07/25 23:02:02 slicerdw Exp $
+// $Id: a_vote.c,v 1.9 2001/09/28 13:48:34 ra Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_vote.c,v $
+// Revision 1.9  2001/09/28 13:48:34  ra
+// I ran indent over the sources. All .c and .h files reindented.
+//
 // Revision 1.8  2001/07/25 23:02:02  slicerdw
 // Fixed the source, added the weapons and items capping to choose command
 //
@@ -52,7 +55,8 @@
 //==========================================================================
 
 void
-_printplayerlist (edict_t * self, char *buf, qboolean (*markthis) (edict_t * self, edict_t * other))
+_printplayerlist (edict_t * self, char *buf,
+		  qboolean (*markthis) (edict_t * self, edict_t * other))
 {
   int count, i;
   edict_t *other;
@@ -136,14 +140,16 @@ Cmd_Votemap_f (edict_t * ent, char *t)
   if (!*t)
     {
       gi.cprintf (ent, PRINT_HIGH,
-	       "You need an argument to the vote command (name of map).\n");
+		  "You need an argument to the vote command (name of map).\n");
       return;
     }
 
   // BEGIN Igor[Rock]
-  if (level.time < (float)mapvote_waittime->value)
+  if (level.time < (float) mapvote_waittime->value)
     {
-      gi.cprintf (ent, PRINT_HIGH, "Mapvote currently blocked - Please vote again in %d seconds\n", (int)((float)mapvote_waittime->value + 1.0 - level.time));
+      gi.cprintf (ent, PRINT_HIGH,
+		  "Mapvote currently blocked - Please vote again in %d seconds\n",
+		  (int) ((float) mapvote_waittime->value + 1.0 - level.time));
     }
   else
     {
@@ -152,17 +158,22 @@ Cmd_Votemap_f (edict_t * ent, char *t)
 	{
 	case 0:
 	  gi.cprintf (ent, PRINT_HIGH, "You have voted on map \"%s\"\n", t);
-	  if(mv_public->value)
-		gi.bprintf(PRINT_HIGH, "%s voted for \"%s\"\n", ent->client->pers.netname, t);
+	  if (mv_public->value)
+	    gi.bprintf (PRINT_HIGH, "%s voted for \"%s\"\n",
+			ent->client->pers.netname, t);
 	  break;
 	case 1:
-	  gi.cprintf (ent, PRINT_HIGH, "You have changed your vote to map \"%s\"\n", t);
-	  if(mv_public->value)
-		gi.bprintf(PRINT_HIGH, "%s changed his mind and voted for \"%s\"\n", ent->client->pers.netname, t);
+	  gi.cprintf (ent, PRINT_HIGH,
+		      "You have changed your vote to map \"%s\"\n", t);
+	  if (mv_public->value)
+	    gi.bprintf (PRINT_HIGH,
+			"%s changed his mind and voted for \"%s\"\n",
+			ent->client->pers.netname, t);
 	  break;
 	default:
 	  //error
-	  gi.cprintf (ent, PRINT_HIGH, "Map \"%s\" is not in the votelist!\n", t);
+	  gi.cprintf (ent, PRINT_HIGH, "Map \"%s\" is not in the votelist!\n",
+		      t);
 	  break;
 	}
       // BEGIN Igor[Rock]
@@ -186,15 +197,18 @@ Cmd_Maplist_f (edict_t * ent, char *dummy)
 
   most = MapWithMostVotes (&p_most);
 
-  sprintf (msg_buf, "List of maps that can be voted on:\nRequire more than %d%%%% votes (%.2f)\n\n",
-  (int) mapvote_pass->value, (float) ((float) mapvote_pass->value / 100.0));
+  sprintf (msg_buf,
+	   "List of maps that can be voted on:\nRequire more than %d%%%% votes (%.2f)\n\n",
+	   (int) mapvote_pass->value,
+	   (float) ((float) mapvote_pass->value / 100.0));
 
   lines = chars_on_line = 0;
   for (search = map_votes; search != NULL; search = search->next)
     {
 
       if (map_num_clients > 0)
-	p_test = (float) ((float) search->num_votes / (float) map_num_clients);
+	p_test =
+	  (float) ((float) search->num_votes / (float) map_num_clients);
 
       if (p_test >= 10.0)
 	len_mr = 11;
@@ -221,8 +235,7 @@ Cmd_Maplist_f (edict_t * ent, char *dummy)
       //          (search->num_allvotes * 100) / num_allvotes);
       //    }
       //    else {
-      sprintf (tmp_buf, "%s (%.2f)  ",
-	       search->mapname, p_test);
+      sprintf (tmp_buf, "%s (%.2f)  ", search->mapname, p_test);
 //    }
       //Igor[Rock] End
       strcat (msg_buf, tmp_buf);
@@ -234,18 +247,17 @@ Cmd_Maplist_f (edict_t * ent, char *dummy)
     strcat (msg_buf, "None!");
   else if (most != NULL)
     {
-      sprintf (tmp_buf, "\n\nMost votes: %s (%.2f)",
-	       most->mapname, p_most);
+      sprintf (tmp_buf, "\n\nMost votes: %s (%.2f)", most->mapname, p_most);
       strcat (msg_buf, tmp_buf);
     }
 
   strcat (msg_buf, "\n\n");
-  sprintf (tmp_buf, "%d/%d (%.2f%%%%) clients voted\n%d client%s minimum (%d%%%% required)",
+  sprintf (tmp_buf,
+	   "%d/%d (%.2f%%%%) clients voted\n%d client%s minimum (%d%%%% required)",
 	   map_num_votes, map_num_clients,
-	   (float) ((float) map_num_votes / (float) (map_num_clients > 0 ?
-						map_num_clients : 1) * 100),	// TempFile changed to percentual display
-	    (int) mapvote_min->value,
-	   (mapvote_min->value > 1 ? "s" : ""),
+	   (float) ((float) map_num_votes /
+		    (float) (map_num_clients > 0 ? map_num_clients : 1) * 100),	// TempFile changed to percentual display
+	   (int) mapvote_min->value, (mapvote_min->value > 1 ? "s" : ""),
 	   (int) mapvote_need->value);
   strcat (msg_buf, tmp_buf);
 
@@ -360,20 +372,19 @@ _MapExitLevel (char *NextMap)
 }
 
 //
-qboolean
-_CheckMapVotes (void)
+qboolean _CheckMapVotes (void)
 {
   if (_iCheckMapVotes () == true)
     {
-      gi.bprintf (PRINT_HIGH, "More than %i%% map votes reached.\n", (int) mapvote_pass->value);
+      gi.bprintf (PRINT_HIGH, "More than %i%% map votes reached.\n",
+		  (int) mapvote_pass->value);
       return true;
     }
   return false;
 }
 
 //
-qboolean
-_MostVotesStr (char *buf)
+qboolean _MostVotesStr (char *buf)
 {
   float p_most;
   votelist_t *most;
@@ -424,21 +435,22 @@ _InitMapVotelist (ini_t * ini)
   rrot = gi.cvar ("rrot", "0", CVAR_LATCH);
 //Igor[Rock] End
   mapvote_min = gi.cvar ("mapvote_min",
-		  ReadIniStr (ini, MAPVOTESECTION, "mapvote_min", buf, "1"),
-			 CVAR_LATCH);
-  mapvote_need = gi.cvar ("mapvote_need",
-		 ReadIniStr (ini, MAPVOTESECTION, "mapvote_need", buf, "0"),
-			  CVAR_LATCH);
-  mapvote_pass = gi.cvar ("mapvote_pass",
-		ReadIniStr (ini, MAPVOTESECTION, "mapvote_pass", buf, "50"),
-			  CVAR_LATCH);
+			 ReadIniStr (ini, MAPVOTESECTION, "mapvote_min", buf,
+				     "1"), CVAR_LATCH);
+  mapvote_need =
+    gi.cvar ("mapvote_need",
+	     ReadIniStr (ini, MAPVOTESECTION, "mapvote_need", buf, "0"),
+	     CVAR_LATCH);
+  mapvote_pass =
+    gi.cvar ("mapvote_pass",
+	     ReadIniStr (ini, MAPVOTESECTION, "mapvote_pass", buf, "50"),
+	     CVAR_LATCH);
   return (use_mapvote);
 }
 
 //---------------
 
-qboolean
-_iCheckMapVotes (void)
+qboolean _iCheckMapVotes (void)
 {
   static qboolean enough = false;
   float p;
@@ -449,7 +461,8 @@ _iCheckMapVotes (void)
 
   tmp = MapWithMostVotes (&p);
 
-  enough = (tmp != NULL && p >= (float) ((float) mapvote_pass->value / 100.0));
+  enough = (tmp != NULL
+	    && p >= (float) ((float) mapvote_pass->value / 100.0));
   if (map_num_clients < mapvote_min->value)
     enough = false;
   if (mapvote_need->value)
@@ -492,9 +505,11 @@ MapWithMostVotes (float *p)
   most = NULL;
   for (search = map_votes; search != NULL; search = search->next)
     {
-      if ((float) ((float) search->num_votes / (float) map_num_clients) > p_most)
+      if ((float) ((float) search->num_votes / (float) map_num_clients) >
+	  p_most)
 	{
-	  p_most = (float) ((float) search->num_votes / (float) map_num_clients);
+	  p_most =
+	    (float) ((float) search->num_votes / (float) map_num_clients);
 	  most = search;
 	}
     }
@@ -567,7 +582,8 @@ AddMapToMenu (edict_t * ent, int fromix)
     }
   while (search)
     {
-      prozent = (float) (((float) search->num_votes / (float) map_num_clients) * 100);
+      prozent =
+	(float) (((float) search->num_votes / (float) map_num_clients) * 100);
       i = 27 - strlen (search->mapname);
       if (prozent < 10.00)
 	i -= 6;
@@ -583,7 +599,8 @@ AddMapToMenu (edict_t * ent, int fromix)
       //+ Marker: Hier einbauen, daß die gewählte Karte markiert ist
       //  problem: '*' am anfang wird nicht berücksichtigt. - erledigt -
       //alt: sprintf(buffer, "%s%s%.1f%%", search->mapname, spc, prozent);
-      sprintf (buffer, "%s%s%s%.1f%%", ent->client->resp.mapvote == search->mapname ? "*" : "",
+      sprintf (buffer, "%s%s%s%.1f%%",
+	       ent->client->resp.mapvote == search->mapname ? "*" : "",
 	       search->mapname, spc, prozent);
 
 
@@ -632,7 +649,9 @@ ReadMaplistFile (void)
       if (num_maps <= 0)
 	return;
 
-      map_votes = (struct votelist_s *) gi.TagMalloc (sizeof (struct votelist_s), TAG_GAME);
+      map_votes =
+	(struct votelist_s *) gi.TagMalloc (sizeof (struct votelist_s),
+					    TAG_GAME);
       map_votes->mapname = map_rotation[0];
       map_votes->num_votes = 0;
       //Igor[Rock] BEGIN
@@ -643,7 +662,9 @@ ReadMaplistFile (void)
       list = map_votes;
       for (i = 1; i < num_maps; i++)
 	{
-	  tmp = (struct votelist_s *) gi.TagMalloc (sizeof (struct votelist_s), TAG_GAME);
+	  tmp =
+	    (struct votelist_s *) gi.TagMalloc (sizeof (struct votelist_s),
+						TAG_GAME);
 	  tmp->mapname = map_rotation[i];
 	  tmp->num_votes = 0;
 	  //Igor[Rock] BEGIN
@@ -662,16 +683,17 @@ ReadMaplistFile (void)
 	  //first remove trailing spaces
 	  for (bs = strlen (buf);
 	       bs > 0 &&
-	  (buf[bs - 1] == '\r' || buf[bs - 1] == '\n' || buf[bs - 1] == ' ');
-	       bs--)
+	       (buf[bs - 1] == '\r' || buf[bs - 1] == '\n'
+		|| buf[bs - 1] == ' '); bs--)
 	    buf[bs - 1] = '\0';
 	  if (bs > 0 &&
-	      strncmp (buf, "#", 1) != 0 &&
-	      strncmp (buf, "//", 2) != 0)
+	      strncmp (buf, "#", 1) != 0 && strncmp (buf, "//", 2) != 0)
 	    {
 	      if (i == 0)
 		{
-		  map_votes = (struct votelist_s *) gi.TagMalloc (sizeof (struct votelist_s), TAG_GAME);
+		  map_votes =
+		    (struct votelist_s *) gi.
+		    TagMalloc (sizeof (struct votelist_s), TAG_GAME);
 		  map_votes->mapname = gi.TagMalloc (bs + 1, TAG_GAME);
 		  strcpy (map_votes->mapname, buf);
 		  map_votes->num_votes = 0;
@@ -684,7 +706,9 @@ ReadMaplistFile (void)
 		}
 	      else
 		{
-		  tmp = (struct votelist_s *) gi.TagMalloc (sizeof (struct votelist_s), TAG_GAME);
+		  tmp =
+		    (struct votelist_s *) gi.
+		    TagMalloc (sizeof (struct votelist_s), TAG_GAME);
 		  tmp->mapname = gi.TagMalloc (bs + 1, TAG_GAME);
 		  strcpy (tmp->mapname, buf);
 		  tmp->num_votes = 0;
@@ -712,7 +736,9 @@ ReadMaplistFile (void)
       for (i = 0; fgets (buf, MAX_STR_LEN - 10, maplist_file) != NULL;)
 	{
 	  //first remove trailing spaces
-	  for (bs = strlen (buf); bs > 0 && (buf[bs - 1] == '\r' || buf[bs - 1] == '\n' || buf[bs - 1] == ' '); bs--)
+	  for (bs = strlen (buf);
+	       bs > 0 && (buf[bs - 1] == '\r' || buf[bs - 1] == '\n'
+			  || buf[bs - 1] == ' '); bs--)
 	    buf[bs - 1] = '\0';
 	  if (i == 0)
 	    {
@@ -724,7 +750,8 @@ ReadMaplistFile (void)
 		{
 		  if (!strncmp (tmp->mapname, buf, strlen (tmp->mapname)))
 		    {
-		      tmp->num_allvotes = atoi (&buf[strlen (tmp->mapname) + 1]);
+		      tmp->num_allvotes =
+			atoi (&buf[strlen (tmp->mapname) + 1]);
 		    }
 		}
 	    }
@@ -758,19 +785,25 @@ _SetKickVote (edict_t * ent, edict_t * target)
   if (ent->client->resp.kickvote == target)
     {
       ent->client->resp.kickvote = NULL;
-      gi.cprintf (ent, PRINT_MEDIUM, "Your kickvote on %s is removed\n", target->client->pers.netname);
-      if(vk_public->value)
-	gi.bprintf(PRINT_HIGH, "%s doesnt want to kick %s after all\n", ent->client->pers.netname, target->client->pers.netname);
+      gi.cprintf (ent, PRINT_MEDIUM, "Your kickvote on %s is removed\n",
+		  target->client->pers.netname);
+      if (vk_public->value)
+	gi.bprintf (PRINT_HIGH, "%s doesnt want to kick %s after all\n",
+		    ent->client->pers.netname, target->client->pers.netname);
     }
   else
     {
       if (ent->client->resp.kickvote)
-	gi.cprintf (ent, PRINT_MEDIUM, "Kickvote was changed to %s\n", target->client->pers.netname);
+	gi.cprintf (ent, PRINT_MEDIUM, "Kickvote was changed to %s\n",
+		    target->client->pers.netname);
       else
 	{
-	gi.cprintf (ent, PRINT_MEDIUM, "You voted on %s to be kicked\n", target->client->pers.netname);
-	if(vk_public->value)
-		gi.bprintf(PRINT_HIGH, "%s voted to kick %s\n", ent->client->pers.netname, target->client->pers.netname);
+	  gi.cprintf (ent, PRINT_MEDIUM, "You voted on %s to be kicked\n",
+		      target->client->pers.netname);
+	  if (vk_public->value)
+	    gi.bprintf (PRINT_HIGH, "%s voted to kick %s\n",
+			ent->client->pers.netname,
+			target->client->pers.netname);
 	}
       ent->client->resp.kickvote = target;
       kickvotechanged = true;
@@ -826,17 +859,20 @@ _InitKickVote (ini_t * ini)
   char buf[1024];
 
   kickvote_min = gi.cvar ("kickvote_min",
-		ReadIniStr (ini, KICKVOTESECTION, "kickvote_min", buf, "4"),
-			  CVAR_LATCH);
-  kickvote_need = gi.cvar ("kickvote_need",
-	       ReadIniStr (ini, KICKVOTESECTION, "kickvote_need", buf, "0"),
-			   CVAR_LATCH);
-  kickvote_pass = gi.cvar ("kickvote_pass",
-	      ReadIniStr (ini, KICKVOTESECTION, "kickvote_pass", buf, "75"),
-			   CVAR_LATCH);
-  kickvote_tempban = gi.cvar ("kickvote_tempban",
-	    ReadIniStr (ini, KICKVOTESECTION, "kickvote_tempban", buf, "1"),
-			      CVAR_LATCH);
+			  ReadIniStr (ini, KICKVOTESECTION, "kickvote_min",
+				      buf, "4"), CVAR_LATCH);
+  kickvote_need =
+    gi.cvar ("kickvote_need",
+	     ReadIniStr (ini, KICKVOTESECTION, "kickvote_need", buf, "0"),
+	     CVAR_LATCH);
+  kickvote_pass =
+    gi.cvar ("kickvote_pass",
+	     ReadIniStr (ini, KICKVOTESECTION, "kickvote_pass", buf, "75"),
+	     CVAR_LATCH);
+  kickvote_tempban =
+    gi.cvar ("kickvote_tempban",
+	     ReadIniStr (ini, KICKVOTESECTION, "kickvote_tempban", buf, "1"),
+	     CVAR_LATCH);
 
 
   kickvotechanged = false;
@@ -884,7 +920,8 @@ _CheckKickVote (void)
 	  for (j = 1; j <= game.maxclients; j++)
 	    {
 	      other = &g_edicts[j];
-	      if (other->client && other->inuse && other->client->resp.kickvote == target)
+	      if (other->client && other->inuse
+		  && other->client->resp.kickvote == target)
 		votes++;
 	    }
 	  if (votes > maxvotes)
@@ -958,8 +995,10 @@ _AddKickuserToMenu (edict_t * ent, int fromix)
       if (other->inuse && other != ent)
 	{
 	  //+ Marker: Hier gewählten markieren - erledigt -
-	  sprintf (buf, "%s%2i: %s%s", other == ent->client->resp.kickvote ? "*" : "", i,
-		   other->client->pers.netname, other == Mostkickvotes ? MostKickMarker : "");
+	  sprintf (buf, "%s%2i: %s%s",
+		   other == ent->client->resp.kickvote ? "*" : "", i,
+		   other->client->pers.netname,
+		   other == Mostkickvotes ? MostKickMarker : "");
 	  erg = xMenu_Add (ent, buf, _KickSelected);
 	}
       i++;
@@ -970,7 +1009,9 @@ void
 _KickVoteSelected (edict_t * ent, pmenu_t * p)
 {
   PMenu_Close (ent);
-  if (xMenu_New (ent, KICKMENUTITLE, "vote for a player to kick", _AddKickuserToMenu) == false)
+  if (xMenu_New
+      (ent, KICKMENUTITLE, "vote for a player to kick",
+       _AddKickuserToMenu) == false)
     gi.cprintf (ent, PRINT_MEDIUM, "No player to kick.\n");
 }
 
@@ -988,7 +1029,8 @@ Cmd_Votekick_f (edict_t * ent, char *argument)
   if (target && target != ent)
     _SetKickVote (ent, target);
   else
-    gi.cprintf (ent, PRINT_HIGH, "\nUse kicklist to see who can be kicked.\n");
+    gi.cprintf (ent, PRINT_HIGH,
+		"\nUse kicklist to see who can be kicked.\n");
 
 }
 
@@ -1012,14 +1054,14 @@ Cmd_Votekicknum_f (edict_t * ent, char *argument)
       if (target && target->client && target != ent && target->inuse)
 	_SetKickVote (ent, target);
       else
-	gi.cprintf (ent, PRINT_HIGH, "\nUse kicklist to see who can be kicked.\n");
+	gi.cprintf (ent, PRINT_HIGH,
+		    "\nUse kicklist to see who can be kicked.\n");
     }
   else
     gi.cprintf (ent, PRINT_HIGH, "\nUsed votekicknum with illegal number.\n");
 }
 
-qboolean
-_vkMarkThis (edict_t * self, edict_t * other)
+qboolean _vkMarkThis (edict_t * self, edict_t * other)
 {
   if (self->client->resp.kickvote == other)
     return true;
@@ -1043,7 +1085,8 @@ Cmd_Kicklist_f (edict_t * ent, char *argument)
 	   _numclients (),
 	   kickvote_need->value, Allkickvotes,
 	   kickvote_pass->value, Mostkickpercent,
-     Mostkickvotes == NULL ? "nobody" : Mostkickvotes->client->pers.netname,
+	   Mostkickvotes ==
+	   NULL ? "nobody" : Mostkickvotes->client->pers.netname,
 	   kickvote_tempban ? "will" : "won't");
   // double percent sign! cprintf will process them as format strings.
 
@@ -1084,14 +1127,16 @@ Cmd_Voteconfig_f (edict_t * ent, char *t)
   if (!*t)
     {
       gi.cprintf (ent, PRINT_HIGH,
-	    "You need an argument to the vote command (name of config).\n");
+		  "You need an argument to the vote command (name of config).\n");
       return;
     }
 
   // BEGIN Igor[Rock]
   if (level.time < 40.0)
     {
-      gi.cprintf (ent, PRINT_HIGH, "Configvote currently blocked - Please vote again in %d seconds\n", (int) (41.0 - level.time));
+      gi.cprintf (ent, PRINT_HIGH,
+		  "Configvote currently blocked - Please vote again in %d seconds\n",
+		  (int) (41.0 - level.time));
     }
   else
     {
@@ -1099,14 +1144,17 @@ Cmd_Voteconfig_f (edict_t * ent, char *t)
       switch (AddVoteToConfig (t, ent))
 	{
 	case 0:
-	  gi.cprintf (ent, PRINT_HIGH, "You have voted on config \"%s\"\n", t);
+	  gi.cprintf (ent, PRINT_HIGH, "You have voted on config \"%s\"\n",
+		      t);
 	  break;
 	case 1:
-	  gi.cprintf (ent, PRINT_HIGH, "You have changed your vote to config \"%s\"\n", t);
+	  gi.cprintf (ent, PRINT_HIGH,
+		      "You have changed your vote to config \"%s\"\n", t);
 	  break;
 	default:
 	  //error
-	  gi.cprintf (ent, PRINT_HIGH, "Config \"%s\" is not in the votelist!\n", t);
+	  gi.cprintf (ent, PRINT_HIGH,
+		      "Config \"%s\" is not in the votelist!\n", t);
 	  break;
 	}
       // BEGIN Igor[Rock]
@@ -1130,15 +1178,18 @@ Cmd_Configlist_f (edict_t * ent, char *dummy)
 
   most = ConfigWithMostVotes (&p_most);
 
-  sprintf (msg_buf, "List of configs that can be voted on:\nRequire more than %d%%%% votes (%.2f)\n\n",
-      (int) cvote_pass->value, (float) ((float) cvote_pass->value / 100.0));
+  sprintf (msg_buf,
+	   "List of configs that can be voted on:\nRequire more than %d%%%% votes (%.2f)\n\n",
+	   (int) cvote_pass->value,
+	   (float) ((float) cvote_pass->value / 100.0));
 
   lines = chars_on_line = 0;
   for (search = config_votes; search != NULL; search = search->next)
     {
 
       if (config_num_clients > 0)
-	p_test = (float) ((float) search->num_votes / (float) config_num_clients);
+	p_test =
+	  (float) ((float) search->num_votes / (float) config_num_clients);
 
       if (p_test >= 10.0)
 	len_mr = 11;
@@ -1155,8 +1206,7 @@ Cmd_Configlist_f (edict_t * ent, char *dummy)
 	  if (lines > 25)
 	    break;
 	}
-      sprintf (tmp_buf, "%s (%.2f)  ",
-	       search->configname, p_test);
+      sprintf (tmp_buf, "%s (%.2f)  ", search->configname, p_test);
       strcat (msg_buf, tmp_buf);
       chars_on_line += len_mr;
 
@@ -1172,12 +1222,13 @@ Cmd_Configlist_f (edict_t * ent, char *dummy)
     }
 
   strcat (msg_buf, "\n\n");
-  sprintf (tmp_buf, "%d/%d (%.2f%%%%) clients voted\n%d client%s minimum (%d%%%% required)",
+  sprintf (tmp_buf,
+	   "%d/%d (%.2f%%%%) clients voted\n%d client%s minimum (%d%%%% required)",
 	   config_num_votes, config_num_clients,
-       (float) ((float) config_num_votes / (float) (config_num_clients > 0 ?
-					     config_num_clients : 1) * 100),
-	   (int) cvote_min->value,
-	   (cvote_min->value > 1 ? "s" : ""),
+	   (float) ((float) config_num_votes /
+		    (float) (config_num_clients >
+			     0 ? config_num_clients : 1) * 100),
+	   (int) cvote_min->value, (cvote_min->value > 1 ? "s" : ""),
 	   (int) cvote_need->value);
   strcat (msg_buf, tmp_buf);
 
@@ -1226,11 +1277,14 @@ _ConfigExitLevel (char *NextMap)
     {
       strncpy (NextMap, map_votes->mapname, MAX_QPATH);
       voteconfig = ConfigWithMostVotes (NULL);
-      gi.bprintf (PRINT_HIGH, "A new config was voted on and is %s.\n", voteconfig->configname);
-      Com_sprintf (buf, sizeof (buf), "exec \"mode_%s.cfg\"\n", voteconfig->configname);
+      gi.bprintf (PRINT_HIGH, "A new config was voted on and is %s.\n",
+		  voteconfig->configname);
+      Com_sprintf (buf, sizeof (buf), "exec \"mode_%s.cfg\"\n",
+		   voteconfig->configname);
 
       //clear stats
-      for (voteconfig = config_votes; voteconfig != NULL; voteconfig = voteconfig->next)
+      for (voteconfig = config_votes; voteconfig != NULL;
+	   voteconfig = voteconfig->next)
 	{
 	  voteconfig->num_votes = 0;
 	}
@@ -1252,20 +1306,19 @@ _ConfigExitLevel (char *NextMap)
 }
 
 //
-qboolean
-_CheckConfigVotes (void)
+qboolean _CheckConfigVotes (void)
 {
   if (_iCheckConfigVotes () == true)
     {
-      gi.bprintf (PRINT_HIGH, "More than %i%% config votes reached.\n", (int) cvote_pass->value);
+      gi.bprintf (PRINT_HIGH, "More than %i%% config votes reached.\n",
+		  (int) cvote_pass->value);
       return true;
     }
   return false;
 }
 
 //
-qboolean
-_ConfigMostVotesStr (char *buf)
+qboolean _ConfigMostVotesStr (char *buf)
 {
   float p_most;
   configlist_t *most;
@@ -1313,21 +1366,22 @@ _InitConfiglist (ini_t * ini)
   use_cvote = gi.cvar ("use_cvote", "0", CVAR_SERVERINFO);
 
   cvote_min = gi.cvar ("cvote_min",
-		 ReadIniStr (ini, CONFIGVOTESECTION, "cvote_min", buf, "1"),
-		       CVAR_LATCH);
-  cvote_need = gi.cvar ("cvote_need",
-		ReadIniStr (ini, CONFIGVOTESECTION, "cvote_need", buf, "0"),
-			CVAR_LATCH);
-  cvote_pass = gi.cvar ("cvote_pass",
-	       ReadIniStr (ini, CONFIGVOTESECTION, "cvote_pass", buf, "50"),
-			CVAR_LATCH);
+		       ReadIniStr (ini, CONFIGVOTESECTION, "cvote_min", buf,
+				   "1"), CVAR_LATCH);
+  cvote_need =
+    gi.cvar ("cvote_need",
+	     ReadIniStr (ini, CONFIGVOTESECTION, "cvote_need", buf, "0"),
+	     CVAR_LATCH);
+  cvote_pass =
+    gi.cvar ("cvote_pass",
+	     ReadIniStr (ini, CONFIGVOTESECTION, "cvote_pass", buf, "50"),
+	     CVAR_LATCH);
   return (use_cvote);
 }
 
 //---------------
 
-qboolean
-_iCheckConfigVotes (void)
+qboolean _iCheckConfigVotes (void)
 {
   static qboolean enough = false;
   float p;
@@ -1381,9 +1435,11 @@ ConfigWithMostVotes (float *p)
   most = NULL;
   for (search = config_votes; search != NULL; search = search->next)
     {
-      if ((float) ((float) search->num_votes / (float) config_num_clients) > p_most)
+      if ((float) ((float) search->num_votes / (float) config_num_clients) >
+	  p_most)
 	{
-	  p_most = (float) ((float) search->num_votes / (float) config_num_clients);
+	  p_most =
+	    (float) ((float) search->num_votes / (float) config_num_clients);
 	  most = search;
 	}
     }
@@ -1456,7 +1512,9 @@ AddConfigToMenu (edict_t * ent, int fromix)
     }
   while (search)
     {
-      prozent = (float) (((float) search->num_votes / (float) config_num_clients) * 100);
+      prozent =
+	(float) (((float) search->num_votes / (float) config_num_clients) *
+		 100);
       i = 27 - strlen (search->configname);
       if (prozent < 10.00)
 	i -= 6;
@@ -1469,7 +1527,8 @@ AddConfigToMenu (edict_t * ent, int fromix)
       spc[i--] = '\0';
       while (i >= 0)
 	spc[i--] = ' ';
-      sprintf (buffer, "%s%s%s%.1f%%", ent->client->resp.cvote == search->configname ? "*" : "",
+      sprintf (buffer, "%s%s%s%.1f%%",
+	       ent->client->resp.cvote == search->configname ? "*" : "",
 	       search->configname, spc, prozent);
 
       if (xMenu_Add (ent, buffer, ConfigSelected) == true)
@@ -1518,16 +1577,17 @@ ReadConfiglistFile (void)
 	{
 	  //first remove trailing spaces
 	  for (bs = strlen (buf);
-	       bs > 0 && (buf[bs - 1] == '\r' || buf[bs - 1] == '\n' || buf[bs - 1] == ' ');
-	       bs--)
+	       bs > 0 && (buf[bs - 1] == '\r' || buf[bs - 1] == '\n'
+			  || buf[bs - 1] == ' '); bs--)
 	    buf[bs - 1] = '\0';
 	  if (bs > 0 &&
-	      strncmp (buf, "#", 1) != 0 &&
-	      strncmp (buf, "//", 2) != 0)
+	      strncmp (buf, "#", 1) != 0 && strncmp (buf, "//", 2) != 0)
 	    {
 	      if (i == 0)
 		{
-		  config_votes = (struct configlist_s *) gi.TagMalloc (sizeof (struct configlist_s), TAG_GAME);
+		  config_votes =
+		    (struct configlist_s *) gi.
+		    TagMalloc (sizeof (struct configlist_s), TAG_GAME);
 		  config_votes->configname = gi.TagMalloc (bs + 1, TAG_GAME);
 		  strcpy (config_votes->configname, buf);
 		  config_votes->num_votes = 0;
@@ -1537,7 +1597,9 @@ ReadConfiglistFile (void)
 		}
 	      else
 		{
-		  tmp = (struct configlist_s *) gi.TagMalloc (sizeof (struct configlist_s), TAG_GAME);
+		  tmp =
+		    (struct configlist_s *) gi.
+		    TagMalloc (sizeof (struct configlist_s), TAG_GAME);
 		  tmp->configname = gi.TagMalloc (bs + 1, TAG_GAME);
 		  strcpy (tmp->configname, buf);
 		  tmp->num_votes = 0;
@@ -1613,7 +1675,8 @@ _AddOrDelIgnoreSubject (edict_t * source, edict_t * subject, qboolean silent)
     return;
   if (!subject->client || !subject->inuse)
     {
-      gi.cprintf (source, PRINT_MEDIUM, "\nOnly valid clients may be added to ignore list!\n");
+      gi.cprintf (source, PRINT_MEDIUM,
+		  "\nOnly valid clients may be added to ignore list!\n");
       return;
     }
 
@@ -1623,7 +1686,8 @@ _AddOrDelIgnoreSubject (edict_t * source, edict_t * subject, qboolean silent)
       //subject is in ignore list, so delete it
       source->IGNORELIST[i] = NULL;
       if (!silent)
-	gi.cprintf (source, PRINT_MEDIUM, "\n%s was removed from ignore list.\n",
+	gi.cprintf (source, PRINT_MEDIUM,
+		    "\n%s was removed from ignore list.\n",
 		    subject->client->pers.netname);
 
       //Maybe this has to be taken out :)
@@ -1642,14 +1706,16 @@ _AddOrDelIgnoreSubject (edict_t * source, edict_t * subject, qboolean silent)
       if (!i)
 	{
 	  if (!silent)
-	    gi.cprintf (source, PRINT_MEDIUM, "\nSorry, ignore list is full!\n");
+	    gi.cprintf (source, PRINT_MEDIUM,
+			"\nSorry, ignore list is full!\n");
 	}
       else
 	{
 	  //we've found a place
 	  source->IGNORELIST[i] = subject;
 	  if (!silent)
-	    gi.cprintf (source, PRINT_MEDIUM, "\n%s was added to ignore list.\n",
+	    gi.cprintf (source, PRINT_MEDIUM,
+			"\n%s was added to ignore list.\n",
 			subject->client->pers.netname);
 
 	  //Maybe this has to be taken out :)
@@ -1698,12 +1764,14 @@ Cmd_Ignore_f (edict_t * self, char *s)
 	_AddOrDelIgnoreSubject (self, target, false);
       else
 	{
-	  gi.cprintf (self, PRINT_MEDIUM, "Wait 5 seconds before ignoring again.\n");
+	  gi.cprintf (self, PRINT_MEDIUM,
+		      "Wait 5 seconds before ignoring again.\n");
 	  return;
 	}
     }
   else
-    gi.cprintf (self, PRINT_MEDIUM, "\nUse ignorelist to see who can be ignored.\n");
+    gi.cprintf (self, PRINT_MEDIUM,
+		"\nUse ignorelist to see who can be ignored.\n");
 }
 
 //Ignores a player by number
@@ -1728,14 +1796,15 @@ Cmd_Ignorenum_f (edict_t * self, char *s)
       if (target && target->client && target != self && target->inuse)
 	_AddOrDelIgnoreSubject (self, target, false);
       else
-	gi.cprintf (self, PRINT_MEDIUM, "\nUse ignorelist to see who can be ignored.\n");
+	gi.cprintf (self, PRINT_MEDIUM,
+		    "\nUse ignorelist to see who can be ignored.\n");
     }
   else
-    gi.cprintf (self, PRINT_MEDIUM, "\nUsed ignorenum with illegal number.\n");
+    gi.cprintf (self, PRINT_MEDIUM,
+		"\nUsed ignorenum with illegal number.\n");
 }
 
-qboolean
-_ilMarkThis (edict_t * self, edict_t * other)
+qboolean _ilMarkThis (edict_t * self, edict_t * other)
 {
   if (IsInIgnoreList (self, other))
     return true;
@@ -1802,8 +1871,8 @@ _AddIgnoreuserToMenu (edict_t * ent, int fromix)
       if (other->inuse && other != ent)
 	{
 	  //+ Marker: Hier gewählten markieren - erledigt -
-	  sprintf (buf, "%s%2i: %s", IsInIgnoreList (ent, other) ? "*" : "", i,
-		   other->client->pers.netname);
+	  sprintf (buf, "%s%2i: %s", IsInIgnoreList (ent, other) ? "*" : "",
+		   i, other->client->pers.netname);
 	  erg = xMenu_Add (ent, buf, _IgnoreSelected);
 	}
       i++;
@@ -1814,7 +1883,9 @@ void
 _IgnoreVoteSelected (edict_t * ent, pmenu_t * p)
 {
   PMenu_Close (ent);
-  if (xMenu_New (ent, IGNOREMENUTITLE, "de-/select a player to ignore", _AddIgnoreuserToMenu) == false)
+  if (xMenu_New
+      (ent, IGNOREMENUTITLE, "de-/select a player to ignore",
+       _AddIgnoreuserToMenu) == false)
     gi.cprintf (ent, PRINT_MEDIUM, "No player to ignore.\n");
 }
 

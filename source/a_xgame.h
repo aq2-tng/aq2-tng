@@ -4,10 +4,13 @@
 //
 // header file for a_xgame.c
 //
-// $Id: a_xgame.h,v 1.7 2001/06/25 11:44:47 slicerdw Exp $
+// $Id: a_xgame.h,v 1.8 2001/09/28 13:48:34 ra Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_xgame.h,v $
+// Revision 1.8  2001/09/28 13:48:34  ra
+// I ran indent over the sources. All .c and .h files reindented.
+//
 // Revision 1.7  2001/06/25 11:44:47  slicerdw
 // New Video Check System - video_check and video_check_lockpvs no longer latched
 //
@@ -103,13 +106,13 @@ void ParseSayText (edict_t * ent, char *text);
 
 
 //AQ2:TNG - Slicer 
-qboolean GetPlayerLocation(edict_t *self, char *buf);
-void GetSightedLocation(edict_t *self, char *buf);
-void AntiCheat_CheckClient(edict_t *ent);
-void GetLastDamagedPart(edict_t *self, char *buf);
+qboolean GetPlayerLocation (edict_t * self, char *buf);
+void GetSightedLocation (edict_t * self, char *buf);
+void AntiCheat_CheckClient (edict_t * ent);
+void GetLastDamagedPart (edict_t * self, char *buf);
 void GetEnemyPosition (edict_t * self, char *buf);
 //AQ2:TNG END
 
-void Cmd_SetFlag1_f(edict_t *self);
-void Cmd_SetFlag2_f(edict_t *self);
-void Cmd_SaveFlags_f(edict_t *self);
+void Cmd_SetFlag1_f (edict_t * self);
+void Cmd_SetFlag2_f (edict_t * self);
+void Cmd_SaveFlags_f (edict_t * self);

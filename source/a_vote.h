@@ -1,12 +1,15 @@
 //-----------------------------------------------------------------------------
 // Voting stuff
 //
-// $Id: a_vote.h,v 1.1 2001/05/06 17:24:24 igor_rock Exp $
+// $Id: a_vote.h,v 1.2 2001/09/28 13:48:34 ra Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_vote.h,v $
-// Revision 1.1  2001/05/06 17:24:24  igor_rock
-// Initial revision
+// Revision 1.2  2001/09/28 13:48:34  ra
+// I ran indent over the sources. All .c and .h files reindented.
+//
+// Revision 1.1.1.1  2001/05/06 17:24:24  igor_rock
+// This is the PG Bund Edition V1.25 with all stuff laying around here...
 //
 //-----------------------------------------------------------------------------
 
@@ -14,13 +17,13 @@
 //==========================================================================
 
 typedef struct votelist_s
-  {
-    char *mapname;
-    int num_votes;
-    int num_allvotes;		// added by Igor[Rock]
+{
+  char *mapname;
+  int num_votes;
+  int num_allvotes;		// added by Igor[Rock]
 
-    struct votelist_s *next;
-  }
+  struct votelist_s *next;
+}
 votelist_t;
 
 #define MAPMENUTITLE "Mapmenu"
@@ -76,12 +79,12 @@ void _ClearIgnoreList (edict_t * ent);
 //==========================================================================
 
 typedef struct configlist_s
-  {
-    char *configname;
-    int num_votes;
+{
+  char *configname;
+  int num_votes;
 
-    struct configlist_s *next;
-  }
+  struct configlist_s *next;
+}
 configlist_t;
 
 #define CONFIGMENUTITLE "Configmenu"

@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // Include for base Action game-related things
 //
-// $Id: a_game.h,v 1.11 2001/09/02 20:33:34 deathwatch Exp $
+// $Id: a_game.h,v 1.12 2001/09/28 13:48:34 ra Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_game.h,v $
+// Revision 1.12  2001/09/28 13:48:34  ra
+// I ran indent over the sources. All .c and .h files reindented.
+//
 // Revision 1.11  2001/09/02 20:33:34  deathwatch
 // Added use_classic and fixed an issue with ff_afterround, also updated version
 // nr and cleaned up some commands.
@@ -84,11 +87,11 @@ void GetAmmo (edict_t * ent, char *buf);
 void GetNearbyTeammates (edict_t * self, char *buf);
 //PG BUND - END
 //AQ2:TNG SLICER  New Last killed enemy support
-void ResetKills (edict_t *ent);
+void ResetKills (edict_t * ent);
 int ReadKilledPlayers (edict_t * ent);
 void AddKilledPlayer (edict_t * self, edict_t * ent);
 void GetLastKilledTarget (edict_t * self, char *buf);
-void VideoCheckClient(edict_t *ent);
+void VideoCheckClient (edict_t * ent);
 //AQ2:TNG END
 //TempFile
 void GetLastLoss (edict_t * self, char *buf, char team);

@@ -4,10 +4,13 @@
 //
 // contains all new non standard command functions
 //
-// $Id: a_xcmds.c,v 1.7 2001/09/28 13:44:23 slicerdw Exp $
+// $Id: a_xcmds.c,v 1.8 2001/09/28 13:48:34 ra Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_xcmds.c,v $
+// Revision 1.8  2001/09/28 13:48:34  ra
+// I ran indent over the sources. All .c and .h files reindented.
+//
 // Revision 1.7  2001/09/28 13:44:23  slicerdw
 // Several Changes / improvements
 //
@@ -107,12 +110,12 @@ Cmd_Menu_f (edict_t * self)
 void
 Cmd_Punch_f (edict_t * self)
 {
-  if (!use_punch->value 
-	  ||self->deadflag == DEAD_DEAD
-	  || self->solid == SOLID_NOT
-	  || self->client->resp.sniper_mode != SNIPER_1X
-	  || self->client->weaponstate != WEAPON_READY)
-      return;
+  if (!use_punch->value
+      || self->deadflag == DEAD_DEAD
+      || self->solid == SOLID_NOT
+      || self->client->resp.sniper_mode != SNIPER_1X
+      || self->client->weaponstate != WEAPON_READY)
+    return;
 
   // animation moved to punch_attack() in a_xgame.c
   // punch_attack is now called in ClientThink after evaluation punch_desired
@@ -125,8 +128,9 @@ Cmd_Punch_f (edict_t * self)
 void
 Cmd_Addpoint_f (edict_t * self)
 {
-  gi.cprintf (self, PRINT_MEDIUM, "\nLocation point feature was dropped in 1.20 and\n"
-	 "replaced by location area cubes.\nSee readme.txt for details.\n");
+  gi.cprintf (self, PRINT_MEDIUM,
+	      "\nLocation point feature was dropped in 1.20 and\n"
+	      "replaced by location area cubes.\nSee readme.txt for details.\n");
   /*FILE *pntlist;
      char *s, buf[1024];
 
@@ -161,17 +165,20 @@ Cmd_Voice_f (edict_t * self)
   //check if no sound is given
   if (!*s)
     {
-      gi.cprintf (self, PRINT_MEDIUM, "\nCommand needs argument, use voice <soundfile.wav>.\n");
+      gi.cprintf (self, PRINT_MEDIUM,
+		  "\nCommand needs argument, use voice <soundfile.wav>.\n");
       return;
     }
   if (strlen (s) > 32)
     {
-      gi.cprintf (self, PRINT_MEDIUM, "\nArgument is too long. Maximum length is 32 characters.\n");
+      gi.cprintf (self, PRINT_MEDIUM,
+		  "\nArgument is too long. Maximum length is 32 characters.\n");
       return;
     }
   if (strstr (s, ".."))
     {
-      gi.cprintf (self, PRINT_MEDIUM, "\nArgument must not contain \"..\".\n");
+      gi.cprintf (self, PRINT_MEDIUM,
+		  "\nArgument must not contain \"..\".\n");
     }
   //check if player is dead
   if (self->deadflag == DEAD_DEAD || self->solid == SOLID_NOT)
@@ -179,16 +186,16 @@ Cmd_Voice_f (edict_t * self)
   strcpy (fullpath, PG_SNDPATH);
   strcat (fullpath, s);
 
-    if(radio_repeat->value)
-  {
-	if((d = CheckForRepeat(self,s))==false)
-		return;
-  }
-  if(radio_max->value)
-  {
-	if((d = CheckForFlood(self))==false)
-		return;
-  }
+  if (radio_repeat->value)
+    {
+      if ((d = CheckForRepeat (self, s)) == false)
+	return;
+    }
+  if (radio_max->value)
+    {
+      if ((d = CheckForFlood (self)) == false)
+	return;
+    }
   // AQ2:TNG Deathwatch - This should be IDLE not NORM
   gi.sound (self, CHAN_VOICE, gi.soundindex (fullpath), 1, ATTN_IDLE, 0);
 // AQ2:TNG END
@@ -338,16 +345,18 @@ char flagpos2[256] = { 0 };
 void
 Cmd_SetFlag1_f (edict_t * self)
 {
-     sprintf(flagpos1, "<%.2f %.2f %.2f>", self->s.origin[0], self->s.origin[1], self->s.origin[2]);
-     gi.cprintf(self, PRINT_MEDIUM, "\nRed Flag added at %s.\n", flagpos1);
+  sprintf (flagpos1, "<%.2f %.2f %.2f>", self->s.origin[0], self->s.origin[1],
+	   self->s.origin[2]);
+  gi.cprintf (self, PRINT_MEDIUM, "\nRed Flag added at %s.\n", flagpos1);
 }
 
 //sets blue flag position - cheats must be enabled!
 void
 Cmd_SetFlag2_f (edict_t * self)
 {
-     sprintf(flagpos2, "<%.2f %.2f %.2f>", self->s.origin[0], self->s.origin[1], self->s.origin[2]);
-     gi.cprintf(self, PRINT_MEDIUM, "\nBlue Flag added at %s.\n", flagpos2);
+  sprintf (flagpos2, "<%.2f %.2f %.2f>", self->s.origin[0], self->s.origin[1],
+	   self->s.origin[2]);
+  gi.cprintf (self, PRINT_MEDIUM, "\nBlue Flag added at %s.\n", flagpos2);
 }
 
 //Save flag definition file - cheats must be enabled!
@@ -358,30 +367,31 @@ Cmd_SaveFlags_f (edict_t * self)
 
   char buf[1024];
 
-  if (!(flagpos1[0] && flagpos2[0])) 
+  if (!(flagpos1[0] && flagpos2[0]))
     {
-    gi.cprintf (self, PRINT_MEDIUM, "You only can save flag positions when you've already set them\n");
-    return;
+      gi.cprintf (self, PRINT_MEDIUM,
+		  "You only can save flag positions when you've already set them\n");
+      return;
     }
 
-  sprintf(buf, "%s/tng/%s.flg", GAMEVERSION, level.mapname);
-  fp = fopen(buf, "w");
+  sprintf (buf, "%s/tng/%s.flg", GAMEVERSION, level.mapname);
+  fp = fopen (buf, "w");
   if (fp == NULL)
     {
-      gi.cprintf(self, PRINT_MEDIUM, "\nError accessing flg file %s.\n", buf);
+      gi.cprintf (self, PRINT_MEDIUM, "\nError accessing flg file %s.\n",
+		  buf);
       return;
     }
   sprintf (buf, "# %s\n", level.mapname);
-  fputs(buf, fp);
-  sprintf(buf, "%s\n", flagpos1);
-  fputs(buf, fp);
-  sprintf(buf, "%s\n", flagpos2);
-  fputs(buf, fp);
-  fclose(fp);
+  fputs (buf, fp);
+  sprintf (buf, "%s\n", flagpos1);
+  fputs (buf, fp);
+  sprintf (buf, "%s\n", flagpos2);
+  fputs (buf, fp);
+  fclose (fp);
 
   flagpos1[0] = 0;
   flagpos2[0] = 0;
 
-  gi.cprintf(self, PRINT_MEDIUM, "\nFlag File saved.\n");
+  gi.cprintf (self, PRINT_MEDIUM, "\nFlag File saved.\n");
 }
-

@@ -4,10 +4,13 @@
 // Include file for use with radio stuff
 // -Fireblade
 //
-// $Id: a_radio.h,v 1.2 2001/08/15 14:50:48 slicerdw Exp $
+// $Id: a_radio.h,v 1.3 2001/09/28 13:48:34 ra Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_radio.h,v $
+// Revision 1.3  2001/09/28 13:48:34  ra
+// I ran indent over the sources. All .c and .h files reindented.
+//
 // Revision 1.2  2001/08/15 14:50:48  slicerdw
 // Added Flood protections to Radio & Voice, Fixed the sniper bug AGAIN
 //
@@ -17,12 +20,12 @@
 //----------------------------------------------------------------------------- 
 
 typedef struct radio_msg_s
-  {
-    char *msg;			// the msg name 
+{
+  char *msg;			// the msg name 
 
-    int length;			// length in server frames (ie tenths of a second), rounded up
+  int length;			// length in server frames (ie tenths of a second), rounded up
 
-  }
+}
 radio_msg_t;
 
 #define RADIO_CLICK                     "radio/click.wav"
@@ -40,15 +43,15 @@ extern radio_msg_t male_radio_msgs[];
 extern radio_msg_t female_radio_msgs[];
 
 typedef struct radio_queue_entry_s
-  {
-    char soundfile[MAX_SOUNDFILE_PATH_LEN];
-    edict_t *from_player;
-    int from_gender;		// true if female
+{
+  char soundfile[MAX_SOUNDFILE_PATH_LEN];
+  edict_t *from_player;
+  int from_gender;		// true if female
 
-    qboolean now_playing;
-    int length;
-    qboolean click;
-  }
+  qboolean now_playing;
+  int length;
+  qboolean click;
+}
 radio_queue_entry_t;
 
 void RadioThink (edict_t *);
@@ -63,5 +66,5 @@ void Cmd_Partner_f (edict_t *);
 void Cmd_Deny_f (edict_t *);
 void Cmd_Unpartner_f (edict_t *);
 void PrecacheRadioSounds ();
-qboolean CheckForFlood(edict_t *ent);
-qboolean CheckForRepeat(edict_t *ent,char *msg);
+qboolean CheckForFlood (edict_t * ent);
+qboolean CheckForRepeat (edict_t * ent, char *msg);
