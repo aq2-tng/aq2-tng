@@ -1,10 +1,15 @@
 //-----------------------------------------------------------------------------
 // g_local.h -- local definitions for game module
 //
-// $Id: g_local.h,v 1.11 2001/05/12 20:58:22 ra Exp $
+// $Id: g_local.h,v 1.12 2001/05/12 21:19:51 ra Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_local.h,v $
+// Revision 1.12  2001/05/12 21:19:51  ra
+//
+//
+// Added punishkills.
+//
 // Revision 1.11  2001/05/12 20:58:22  ra
 //
 //
@@ -641,9 +646,10 @@ extern cvar_t *use_tourney;
 extern cvar_t *use_3teams;
 extern cvar_t *use_kickvote;
 
-// AQ:TNG - JBravo adding public voting
+// AQ:TNG - JBravo adding public voting and punishkill
 extern cvar_t *mv_public;
 extern cvar_t *vk_public;
+extern cvar_t *punishkills;
 // JBravo
 
 //Black Cross

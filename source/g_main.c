@@ -1,10 +1,15 @@
 //-----------------------------------------------------------------------------
 //
 //
-// $Id: g_main.c,v 1.4 2001/05/12 20:58:22 ra Exp $
+// $Id: g_main.c,v 1.5 2001/05/12 21:19:51 ra Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_main.c,v $
+// Revision 1.5  2001/05/12 21:19:51  ra
+//
+//
+// Added punishkills.
+//
 // Revision 1.4  2001/05/12 20:58:22  ra
 //
 //
@@ -71,9 +76,10 @@ cvar_t  *use_3teams;
 cvar_t  *use_kickvote;
 //PG BUND - END
 
-// AQ:TNG - JBravo adding public voting
+// AQ:TNG - JBravo adding public voting and punishkills
 cvar_t	*mv_public;
 cvar_t	*vk_public;
+cvar_t	*punishkills;
 // JBravo
 
 // tempfile

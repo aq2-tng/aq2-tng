@@ -1,10 +1,15 @@
 //-----------------------------------------------------------------------------
 // g_cmds.c
 //
-// $Id: g_cmds.c,v 1.6 2001/05/11 16:07:25 mort Exp $
+// $Id: g_cmds.c,v 1.7 2001/05/12 21:19:51 ra Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_cmds.c,v $
+// Revision 1.7  2001/05/12 21:19:51  ra
+//
+//
+// Added punishkills.
+//
 // Revision 1.6  2001/05/11 16:07:25  mort
 // Various CTF bits and pieces...
 //
@@ -883,6 +888,19 @@ void Cmd_Kill_f (edict_t *ent)
         if (ent->solid == SOLID_NOT || ent->deadflag == DEAD_DEAD)
                 return;
 //FIREBLADE
+// AQ:TNG - JBravo adding punishkills
+	if(punishkills->value) {
+		if ( ent->client->attacker &&
+			ent->client->attacker->client &&
+			(ent->client->attacker->client !=
+			ent->client)) {
+		gi.bprintf(PRINT_HIGH, "%s pheers %s so much he committed suicide! :)\n",
+			ent->client->pers.netname, ent->client->attacker->client->pers.netname);
+		Add_Frag(ent->client->attacker);
+		Subtract_Frag(ent);
+		}
+	}
+// End punishkills
 
         if((level.time - ent->client->respawn_time) < 5)
                 return;

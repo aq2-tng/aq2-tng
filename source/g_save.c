@@ -1,10 +1,15 @@
 //-----------------------------------------------------------------------------
 // g_save.c
 //
-// $Id: g_save.c,v 1.5 2001/05/12 20:58:22 ra Exp $
+// $Id: g_save.c,v 1.6 2001/05/12 21:19:51 ra Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_save.c,v $
+// Revision 1.6  2001/05/12 21:19:51  ra
+//
+//
+// Added punishkills.
+//
 // Revision 1.5  2001/05/12 20:58:22  ra
 //
 //
@@ -245,9 +250,10 @@ void InitGame (void)
   use_mapvote = gi.cvar("use_mapvote", "1", CVAR_SERVERINFO);  
   //PG BUND - END
 
-// AQ:TNG - JBravo adding public voting
+// AQ:TNG - JBravo adding public voting and punishkills.
   mv_public = gi.cvar("mv_public", "0", CVAR_SERVERINFO);
   vk_public = gi.cvar("vk_public", "0", CVAR_SERVERINFO);
+  punishkills = gi.cvar("punishkills","1", CVAR_SERVERINFO);
 // JBravo
   
   //tempfile
