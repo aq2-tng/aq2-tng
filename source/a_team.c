@@ -3,10 +3,13 @@
 // Some of this is borrowed from Zoid's CTF (thanks Zoid)
 // -Fireblade
 //
-// $Id: a_team.c,v 1.13 2001/05/13 01:23:01 deathwatch Exp $
+// $Id: a_team.c,v 1.14 2001/05/17 14:54:47 igor_rock Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_team.c,v $
+// Revision 1.14  2001/05/17 14:54:47  igor_rock
+// added itm_flags for teamplay and ctf
+//
 // Revision 1.13  2001/05/13 01:23:01  deathwatch
 // Added Single Barreled Handcannon mode, made the menus and scoreboards
 // look nicer and made the voice command a bit less loud.
@@ -443,12 +446,12 @@ pmenu_t itemmenu[] =
   {"žžžžžžžžžžžžžžžžžžžžžžžžžŸ", PMENU_ALIGN_CENTER, NULL, NULL},
   {"Select your Item", PMENU_ALIGN_CENTER, NULL, NULL},
   {NULL, PMENU_ALIGN_LEFT, NULL, NULL},
-  {"Kevlar Vest", PMENU_ALIGN_LEFT, NULL, SelectItem1},
-  {"Laser Sight", PMENU_ALIGN_LEFT, NULL, SelectItem2},
-  {"Stealth Slippers", PMENU_ALIGN_LEFT, NULL, SelectItem3},
-  {"Silencer", PMENU_ALIGN_LEFT, NULL, SelectItem4},
-  {"Bandolier", PMENU_ALIGN_LEFT, NULL, SelectItem5},
-  {"Kevlar Helmet", PMENU_ALIGN_LEFT, NULL, SelectItem6},
+  {NULL, PMENU_ALIGN_LEFT, NULL, NULL}, // "Kevlar Vest", SelectItem1
+  {NULL, PMENU_ALIGN_LEFT, NULL, NULL}, // "Laser Sight", SelectItem2
+  {NULL, PMENU_ALIGN_LEFT, NULL, NULL}, // "Stealth Slippers", SelectItem3
+  {NULL, PMENU_ALIGN_LEFT, NULL, NULL}, // "Silencer", SelectItem4
+  {NULL, PMENU_ALIGN_LEFT, NULL, NULL}, // "Bandolier", SelectItem5
+  {NULL, PMENU_ALIGN_LEFT, NULL, NULL}, // "Kevlar Helmet", SelectItem6
   {NULL, PMENU_ALIGN_LEFT, NULL, NULL},
   {"Use [ and ] to move cursor", PMENU_ALIGN_LEFT, NULL, NULL},
   {"ENTER to select", PMENU_ALIGN_LEFT, NULL, NULL},
@@ -742,6 +745,68 @@ ReturnToMain (edict_t * ent, pmenu_t * p)
 void
 OpenItemMenu (edict_t * ent)
 {
+  static char *menu_itemnames[] =
+  {
+    "Kevlar Vest",
+    "Laser Sight",
+    "Stealth Slippers",
+    "Silencer",
+    "Bandolier",
+    "Kevlar Helmet"
+  };
+
+  //AQ2:TNG - Igor adding itm_flags
+  int pos;
+  pos = 4;
+  if ((int)itm_flags->value & ITF_KEV)
+    {
+      itemmenu[pos].text = menu_itemnames[0];
+      itemmenu[pos].SelectFunc = SelectItem1;
+      pos++;
+    }
+
+  if ((int)itm_flags->value & ITF_LASER)
+    {
+      itemmenu[pos].text = menu_itemnames[1];
+      itemmenu[pos].SelectFunc = SelectItem2;
+      pos++;
+    }
+
+  if ((int)itm_flags->value & ITF_SLIP)
+    {
+      itemmenu[pos].text = menu_itemnames[2];
+      itemmenu[pos].SelectFunc = SelectItem3;
+      pos++;
+    }
+
+  if ((int)itm_flags->value & ITF_SIL)
+    {
+      itemmenu[pos].text = menu_itemnames[3];
+      itemmenu[pos].SelectFunc = SelectItem4;
+      pos++;
+    }
+
+  if ((int)itm_flags->value & ITF_BAND)
+    {
+      itemmenu[pos].text = menu_itemnames[4];
+      itemmenu[pos].SelectFunc = SelectItem5;
+      pos++;
+    }
+
+  if ((int)itm_flags->value & ITF_HELM)
+    {
+      itemmenu[pos].text = menu_itemnames[5];
+      itemmenu[pos].SelectFunc = SelectItem6;
+      pos++;
+    }
+
+  for (;pos < 10; pos++)
+    {
+      itemmenu[pos].text = NULL;
+      itemmenu[pos].SelectFunc = NULL;
+    }
+
+  //AQ2:TNG End adding itm_flags
   PMenu_Open (ent, itemmenu, 4, sizeof (itemmenu) / sizeof (pmenu_t));
 }
 
