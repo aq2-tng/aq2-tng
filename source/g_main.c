@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 //
 //
-// $Id: g_main.c,v 1.46 2002/01/24 02:24:56 deathwatch Exp $
+// $Id: g_main.c,v 1.47 2002/01/24 11:29:34 ra Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_main.c,v $
+// Revision 1.47  2002/01/24 11:29:34  ra
+// Cleanup's in stats code
+//
 // Revision 1.46  2002/01/24 02:24:56  deathwatch
 // Major update to Stats code (thanks to Freud)
 // new cvars:
@@ -852,8 +855,8 @@ G_RunFrame (void)
   if (i > 0 && i <= maxclients->value)
 	{
 		// TNG Stats:
-		if (!(level.framenum % 50)) {
-	    stuffcmd(ent, "cmd_stat_mode $stat_mode");
+		if (!(level.framenum % 80)) {
+		    stuffcmd(ent, "cmd_stat_mode $stat_mode\n");
 		}
 		// TNG Stats End
 

@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // Statistics Related Code
 //
-// $Id: tng_stats.c,v 1.13 2002/01/24 02:24:56 deathwatch Exp $
+// $Id: tng_stats.c,v 1.14 2002/01/24 11:29:34 ra Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: tng_stats.c,v $
+// Revision 1.14  2002/01/24 11:29:34  ra
+// Cleanup's in stats code
+//
 // Revision 1.13  2002/01/24 02:24:56  deathwatch
 // Major update to Stats code (thanks to Freud)
 // new cvars:
@@ -810,24 +813,23 @@ void Cmd_Statmode_f(edict_t* ent)
 
   // Ignore if there is no argument.
   if (gi.argc () == 2) {
+  memset (stuff, 0, sizeof (stuff));
 
     // Numerical
     i = atoi (gi.argv (1));
 
-    if (i > 2 && i < 0) {
+    if (i > 2 || i < 0) {
       gi.dprintf("Warning: stat_mode set to %i by %s\n", i, ent->client->pers.netname);
 
       // Force the old mode if it is valid else force 0
       if (ent->client->resp.stat_mode > 0 && ent->client->resp.stat_mode < 3)
-        sprintf(stuff, "set stat_mode \"%i\"", ent->client->resp.stat_mode);
+        sprintf(stuff, "set stat_mode \"%i\"\n", ent->client->resp.stat_mode);
       else
-        sprintf(stuff, "set stat_mode \"0\"");
-
+        sprintf(stuff, "set stat_mode \"0\"\n");
     } else {
-      sprintf(stuff, "set stat_mode \"%i\"", i);
+      sprintf(stuff, "set stat_mode \"%i\"\n", i);
       ent->client->resp.stat_mode = i;
     }
     stuffcmd(ent, stuff);
-
   }
 }

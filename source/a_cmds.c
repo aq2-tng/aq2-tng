@@ -4,10 +4,13 @@
 //
 // laser sight patch, by Geza Beladi
 //
-// $Id: a_cmds.c,v 1.23 2002/01/24 02:24:56 deathwatch Exp $
+// $Id: a_cmds.c,v 1.24 2002/01/24 11:29:34 ra Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_cmds.c,v $
+// Revision 1.24  2002/01/24 11:29:34  ra
+// Cleanup's in stats code
+//
 // Revision 1.23  2002/01/24 02:24:56  deathwatch
 // Major update to Stats code (thanks to Freud)
 // new cvars:
@@ -1313,9 +1316,9 @@ void Cmd_AutoRecord_f(edict_t * ent)
   (void) strftime (rec_date, 64, "%Y_%b_%d_%H%M", now);
 
   if (matchmode->value) {
-    sprintf(recstr, "record \"%s-%s_vs_%s-%s\"", rec_date, team1_name, team2_name, level.mapname);
+    sprintf(recstr, "record \"%s-%s_vs_%s-%s\"\n", rec_date, team1_name, team2_name, level.mapname);
   } else {
-    sprintf(recstr, "record \"%s-%s\"", rec_date, level.mapname);
+    sprintf(recstr, "record \"%s-%s\"\n", rec_date, level.mapname);
   }
 
   stuffcmd(ent, recstr);
