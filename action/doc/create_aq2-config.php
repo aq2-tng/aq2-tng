@@ -2,7 +2,7 @@
   //-----------------------------------------------------------------------------
   // create_aq2-config.php
   //-----------------------------------------------------------------------------
-  // $Id: create_aq2-config.php,v 1.7 2001/11/07 12:20:52 igor_rock Exp $
+  // $Id: create_aq2-config.php,v 1.8 2001/11/07 13:01:51 igor_rock Exp $
   //-----------------------------------------------------------------------------
 
   // check if the user wants to see or to save it
@@ -21,7 +21,7 @@
   print "// AQ2:TNG Main Config File $data[configname]\n";
   print "//\n";
   print "// created: ".date("Y-m-d, H:i:s")."\n";
-  print "// with the AQ2:TNG config generator at http://www.FIXME.com\n";
+  print "// with the AQ2:TNG config generator at http://www.aq2tng.barrysworld.net/\n";
   print "//-----------------------------------------------------------------------------\n\n";
 
   print "game action\n";

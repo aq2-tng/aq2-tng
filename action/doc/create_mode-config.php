@@ -2,7 +2,7 @@
   //-----------------------------------------------------------------------------
   // create_mode-config.php
   //-----------------------------------------------------------------------------
-  // $Id: create_mode-config.php,v 1.5 2001/11/07 12:50:08 igor_rock Exp $
+  // $Id: create_mode-config.php,v 1.6 2001/11/07 13:01:51 igor_rock Exp $
   //-----------------------------------------------------------------------------
 
   // Do some checks for illegal game modes
@@ -52,7 +52,7 @@
   print "// AQ2:TNG Mode Config File $data[configname]\n";
   print "//\n";
   print "// created: ".date("Y-m-d, H:i:s")."\n";
-  print "// with the AQ2:TNG config generator at http://www.FIXME.com\n";
+  print "// with the AQ2:TNG config generator at http://www.aq2tng.barrysworld.net/\n";
   print "//-----------------------------------------------------------------------------\n\n";
 
   print "\n//-----------------------------------------------------------------------------\n";
