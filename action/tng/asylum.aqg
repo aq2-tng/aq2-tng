@@ -1,0 +1,49 @@
+#
+# Map:   asylum.aqg
+# Build: 1
+# Creator:Marx (AFH^BiG PIG)
+#
+#	format is:
+#
+#	x:y:z:rX:rY:rZ:name
+#
+#	where "x:y:z" is the location coordinate
+#	"rX,rY" is the range for the location marker (if 0 then 1500 vector
+#		points)
+#       "rZ" is the height range for the location marker (if 0 then not use
+#		it)
+#	"name" is the name of the location marker and is used in "%L" and "%S"
+#		
+#	aqg_location 1		- Set corner 1 on the location box.
+#	aqg_location 2		- Set corner 2 on the location box.
+#	aqg_location calc	- Displays the location box coordinates/ranges.
+#	aqg_location checkL	- works like %L, but you don't need to be alive or on a team
+#	aqg_location checkS	- works like %S, but you don't need to be alive or on a team
+#
+#
+
+  163:  125:   77:  608:   68:   76:in hallway at level 3
+  384: -148:  -66:  130:  200:   65:in jail at level 2
+  148:  120:  -63:  599:   71:   67:level 2 hallway
+  152:  186: -194:  597:  133:   62:inside level 1's hallway
+  224: -150: -201:  178:  187:   68:in level 1 first room to the left
+ -544: -174: -200:  256:  225:   71:level 1's biggest room
+  155:  122:  -66:  593:   63:   62:inside level 2's hallway
+   90: -694:  -65:  481:   83:   63:inside level 2's 2nd hallway
+  125: -278:  -65:  136:  332:   65:near jail's at level 2
+    0:  287:  -64:  394:   94:   61:inside one of the room's at right side at level 2
+  128: -893:  -65:  392:  135:   65:inside one of the room's to the left at level 2
+  388: -766:   65:  381:  168:   64:in computer hallway at level 3
+  380: -280:   60:  386:  318:   67:near sofa's at level 3
+  258:  296:   63:  132:  104:   62:in room 27 at level 3
+    1:  286:   72:  130:   98:   73:in room 26 at level 3
+ -263:  285:   65:  130:  100:   67:in room 25 at level 3
+ -200: -215:   94:  194:  267:   97:inside hospital at level 3
+   57:  -39:   63:   66:   95:   67:inside reception at level 3
+ -203: -170:  -66:  193:  224:   63:in post-mortem room at level 2
+  585:  257: -222:   52:   61:   99:inside elevator shaft (level 1)
+  585:  257:  -62:   50:   55:   62:inside elevator shaft (level 2)
+  585:  257:  129:   50:   60:  126:inside elevator shaft (level 3)
+  638:  -59: -190:   77:  115:   53:inside stairway area at level 1
+  639:  -64:  -74:   76:  116:   63:inside stairway area at level 2
+  640:  -59:   63:   76:  112:   64:inside stairway area at level 3

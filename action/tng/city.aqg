@@ -1,0 +1,54 @@
+#
+# Map:   city.aqg
+# Build: 1
+# Creator:Ellusion [NW]
+#
+#	format is:
+#
+#	x:y:z:rX:rY:rZ:name
+#
+#	where "x:y:z" is the location coordinate
+#	"rX,rY" is the range for the location marker (if 0 then 1500 vector
+#		points)
+#       "rZ" is the height range for the location marker (if 0 then not use
+#		it)
+#	"name" is the name of the location marker and is used in "%L" and "%S"
+#		
+#	aqg_location 1		- Set corner 1 on the location box.
+#	aqg_location 2		- Set corner 2 on the location box.
+#	aqg_location calc	- Displays the location box coordinates/ranges.
+#	aqg_location checkL	- works like %L, but you don't need to be alive or on a team
+#	aqg_location checkS	- works like %S, but you don't need to be alive or on a team
+#
+#
+
+-12:-995:97:712:562:137:outside the Police Station
+3:-1212:410:322:255:144:on the Police Station roof
+-4:-258:270:264:185:306:near the big Karlsson Sign
+-191:513:383:516:192:208:on the Chinatown roof
+4:315:78:708:380:99:outside Chinatown
+9:910:256:718:210:276:behind Chinatown
+1055:281:225:289:232:114:in the Blue apartment
+971:615:277:256:112:282:in the Blue apartment alley
+857:405:399:344:101:159:on the roof above Blue apartment
+-934:-195:135:223:258:168:in the alley from Pizzeria Square
+-1603:-962:265:517:517:286:in Pizzeria Square
+1294:-530:274:410:201:297:in the Road-end by Backyard
+1085:-255:270:191:188:293:in the Backyard
+995:-35:275:290:36:297:in the small alley behind Backyard
+1980:-900:264:260:575:292:near the big PG Sign
+1210:-1276:280:506:193:277:in Clint E alley by the Police
+-870:385:251:167:272:286:in Stairs to Chinatown roof
+-861:683:459:157:202:97:on the Chinatown roof near Stairs
+-637:-279:439:122:156:77:in the Karlsson room
+-1536:-288:471:383:158:107:on the Pizzeria Square roof
+-1677:-318:50:271:123:63:near Stairs to Pizzeria roofs
+-2098:-249:242:144:120:273:in Stairs to Pizzeria roofs
+-1055:-961:359:30:511:193:on low roof in Pizzeria Square
+1376:-1659:213:164:127:277:in Stairs by PG Sign
+1667:-1570:53:127:98:80:close to Stairs by PG Sign
+1874:-1619:469:307:143:105:on Roof above Clint E alley
+1796:-1649:294:252:150:59:in the apartment by Clint E alley
+1373:-808:442:349:276:80:on roof above PG Sign
+-895:-1284:38:186:201:72:close to Pizzeria Square
+-920:-273:439:165:143:76:in apartment near the Karlsson room

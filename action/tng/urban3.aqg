@@ -1,0 +1,54 @@
+#
+# Map:    urban3.aqg
+# Build: 1 
+# Creator:SICK1
+#
+#	format is:
+#
+#	x:y:z:rX:rY:rZ:name
+#
+#	where "x:y:z" is the location coordinate
+#	"rX,rY" is the range for the location marker (if 0 then 1500 vector
+#		points)
+#       "rZ" is the height range for the location marker (if 0 then not use
+#		it)
+#	"name" is the name of the location marker and is used in "%L" and "%S"
+#		
+#	aqg_location 1		- Set corner 1 on the location box.
+#	aqg_location 2		- Set corner 2 on the location box.
+#	aqg_location calc	- Displays the location box coordinates/ranges.
+#	aqg_location checkL	- works like %L, but you don't need to be alive or on a team
+#	aqg_location checkS	- works like %S, but you don't need to be alive or on a team
+#
+#
+ 1360:   60:  733:  232:  440:  224:at the brown roof
+ 1375: -639:  754:  217:  251:  110:at the sniper roof, low
+ 1563:-1252:  762:   93:  353:  152:at the higher crate area
+ 1037:-1189:  707:  436:  289:  330:at the crate area
+  628:-1304:  308:   73:  167:  184:at the foot of the small ladder
+  288: -924:  727:  742:  677:  347:on the shelf leading to the roof of death
+ -393: -896:  728:  317:  257:  346:at the roof of death
+ -447: -409:  327:  250:  355:  314:at the fence area
+ -570:  389:  746:  119:  445:  192:by the crates behind the tall sniper plazas
+  123:  441:  818:  401:  197:  288:on the sniper plaza with crates
+  808:  400:  826:  300:  147:  247:on the tallest sniper plaza
+ 1358:  448:  549:  239:  189:  418:at the area by the tallest ladder
+ 1338:  773:  742:  260:  132:  231:on the double jump roof
+  737:  580:  559:  353:  317:  175:at the top of the tallest ladder
+  126:  759:  734:  579:  122:  219:behind the sniper plazas
+ -357:  704:  619:   93:  195:  153:behind the sniper plazas
+  671: -450:  599:  359:  203:  475:on the middle roof
+  478:    0:   66:  670:  254:   59:on the street near the tallest ladder
+  467: -885:   63:  663:  246:   62:on the street near the small building
+  125:-1312:  359:  305:  158:  234:on the top of the small building
+  218:-1292:   54:  215:  134:   62:inside the small building
+ 1276:   -3:  332:  119:  224:  143:inside the brown building
+  752:  443:  191:  360:  188:  193:at the foot of the tallest ladder
+ -392:  142:   91:  200:  398:   88:in the alley
+ -472: -833:  445:  136:   63:   61:inside by the roof of death
+   25:  403:  571:  269:  134:   59:inside the higher sniper room
+ 1304: -581:  566:  137:  181:   51:inside the lower sniper room
+   -6:-1550:  293:  457:   70:   63:under the deathroof shelf
+ -324:-1382:  291:  128:  230:   64:under the deathroof shelf
+  886: -446:   58:  688:  192:   61:around the middle roof
+  497:-1308:   60:   48:  156:   62:in the alley by the small building

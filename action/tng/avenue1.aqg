@@ -1,0 +1,51 @@
+#
+# Map:   avenue1.aqg
+# Build: 2
+# Creator:Lurker [NW], Mike [NW]
+#
+#	format is:
+#
+#	x:y:z:rX:rY:rZ:name
+#
+#	where "x:y:z" is the location coordinate
+#	"rX,rY" is the range for the location marker (if 0 then 1500 vector
+#		points)
+#       "rZ" is the height range for the location marker (if 0 then not use
+#		it)
+#	"name" is the name of the location marker and is used in "%L" and "%S"
+#		
+#	aqg_location 1		- Set corner 1 on the location box.
+#	aqg_location 2		- Set corner 2 on the location box.
+#	aqg_location calc	- Displays the location box coordinates/ranges.
+#	aqg_location checkL	- works like %L, but you don't need to be alive or on a team
+#	aqg_location checkS	- works like %S, but you don't need to be alive or on a team
+#
+#
+
+862:329:388:985:497:418:0:in the Main Area
+352:28:15:84:121:86:in Steam Room - Main building
+233:261:248:207:107:324:in Stairs - Main building
+322:481:718:354:356:76:on Roof - Main building
+773:275:305:117:126:95:by Pool - Main Area
+312:600:330:306:211:58:on 1st Floor - Main building
+321:608:553:315:218:60:on 2nd Floor - Main building
+315:604:98:311:221:118:by Limmo
+1240:351:51:609:484:67:in Garage - Main Area
+1576:-446:184:235:326:224:in Tunnel to Garage
+790:482:285:119:77:102:by Entrance to Main building
+1072:-525:166:138:342:133:in Tunnel to Main Area
+1359:-2132:483:458:655:310:in the Industrial Area
+1075:-1173:166:141:305:133:in Tunnel to Industrial Area
+1234:-2132:676:385:315:80:on Tall Roof - Factory
+1035:-2602:497:137:166:68:on Lower Roof - Factory
+1371:-2581:236:94:54:44:inside Cargo Truck
+1234:-2142:362:338:263:201:inside the Factory
+1024:-2582:282:107:147:123:inside the Factory
+1139:-1081:509:494:195:205:by the Music Store
+1695:-1222:326:63:255:153:in Stairs to Music Store
+676:-1532:366:130:243:83:in Office by Music Store
+701:-640:389:194:353:218:in Tunnel from Music Store
+817:-582:507:63:313:235:in Tunnel to Music Store
+186:-1420:220:360:999:328:in the Bank Area
+192:-1980:216:287:71:78:on the Bank-Balcony
+254:-305:234:253:114:61:in Tunnel to Bank Area

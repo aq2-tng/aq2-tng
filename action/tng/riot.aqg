@@ -1,0 +1,48 @@
+#
+# Map:   riot.aqg
+# Build: 1
+# Creator:taipAn
+#
+#	format is:
+#
+#	x:y:z:rX:rY:rZ:name
+#
+#	where "x:y:z" is the location coordinate
+#	"rX,rY" is the range for the location marker (if 0 then 1500 vector
+#		points)
+#       "rZ" is the height range for the location marker (if 0 then not use
+#		it)
+#	"name" is the name of the location marker and is used in "%L" and "%S"
+#		
+#	aqg_location 1		- Set corner 1 on the location box.
+#	aqg_location 2		- Set corner 2 on the location box.
+#	aqg_location calc	- Displays the location box coordinates/ranges.
+#	aqg_location checkL	- works like %L, but you don't need to be alive or on a team
+#	aqg_location checkS	- works like %S, but you don't need to be alive or on a team
+#
+#
+
+1035:-1189:320:308:566:401:in Beer alley
+1211:-995:470:135:166:139:up on Beer roof
+1327:-175:471:221:471:134:up on Gandhi roof
+1395:139:134:265:138:147:on Gandhi square
+1854:-121:272:319:516:342:in El. Const. alley
+2501:70:249:317:126:87:in El. Const. apartment
+2680:-129:273:122:375:81:in El. Const. apartment
+2787:-512:276:227:130:301:in NW alley
+2886:-961:459:323:318:143:up on NW roof
+2729:-830:243:163:180:70:in NW apartment
+2911:-1567:321:340:293:342:in alley below Main roof
+2365:-1839:448:316:277:146:up on Main roof
+2173:-2213:134:77:95:308:in the ladder room
+1664:-2180:419:133:135:167:up on little brown roof
+1338:-2052:404:134:134:230:up on low roof
+1693:-2210:32:226:238:202:in alley below brown roof
+1963:-1697:-47:636:404:155:on street under Main roof
+1486:-1699:85:265:226:94:above stairs from Main roof street
+1951:-1056:149:607:420:165:on Main Street
+2436:-727:135:264:674:168:on Main street
+1980:-1343:114:194:193:65:in the entrance room
+1936:-937:252:242:719:73:in the blue galleria
+1920:-530:454:250:165:122:in apartment by High roof
+1940:-904:537:102:218:110:up on High roof

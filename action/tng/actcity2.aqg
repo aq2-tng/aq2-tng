@@ -1,0 +1,54 @@
+#
+# Map:   actcity2.aqg
+# Build: 2 
+# Creator:-RS-Phreedh
+#
+#	format is:
+#
+#	x:y:z:rX:rY:rZ:name
+#
+#	where "x:y:z" is the location coordinate
+#	"rX,rY" is the range for the location marker (if 0 then 1500 vector
+#		points)
+#       "rZ" is the height range for the location marker (if 0 then not use
+#		it)
+#	"name" is the name of the location marker and is used in "%L" and "%S"
+#		
+#	aqg_location 1		- Set corner 1 on the location box.
+#	aqg_location 2		- Set corner 2 on the location box.
+#	aqg_location calc	- Displays the location box coordinates/ranges.
+#	aqg_location checkL	- works like %L, but you don't need to be alive or on a team
+#	aqg_location checkS	- works like %S, but you don't need to be alive or on a team
+#
+#	You need ML version 3.19 or later, for this to work.
+#
+ -268: 1459:  508:  270:  117:  125:in the fenced area on the ledge
+   -8: 1063:  263:  513:  294:  265:in the fenced area
+  -91:  386:  124:  164:  379:  132:at the junction
+ -648: -310:  270:  738:  298:  273:on Casino Square
+-1522: -220:   73:  130:   99:   56:in the small room by Casino Square
+-1442: -355:  409:   80:  251:  133:on the roof by Casino Square
+ -800:   81:  218:  349:  301:  185:in the Casino Royale stairs
+ -847:  524:  199:  300:  132:   69:inside Casino Royale
+ -741: -790:  262:  374:  181:  269:at the construction site
+-1032: -919:   61:   85:   35:   85:behind the rubble at construction site
+ -615: -781:  213:  227:  174:   58:at the construction site, lvl 2
+ -613: -785:  360:  229:  170:   51:at the construction site, lvl 3
+ -623: -782:  498:  234:  173:   53:at the construction site, top lvl
+   58:  653:  471:  110:  129:   70:on the roof by the fenced area
+   51:  419:  362:  250:  106:   86:in the room above the junction
+  914:  378:  304:  243:  128:  113:on Eastern Ave by the freeway
+  148:  353:  136:  179:  147:  120:on Eastern Ave by the junction
+  549:  369:  221:  574:  139:  207:on Eastern Ave
+  861:  639:  294:  128:  121:   79:in Crossor bldg, lobby
+  840:  871:  381:   79:   79:  160:in Crossor bldg, spiral stairs
+  873:  651:  451:  135:  121:   79:in Crossor bldg, 2nd floor
+ 1076:  693:  443:   64:  140:   63:in Crossor bldg, small room
+  499:  642:  338:  177:  100:  166:in the secret room
+  496:  628:  479:  172:  124:   64:on the roof above the secret room
+  822:   88:  352:  177:  105:   55:in the Cult Cola room
+  894:  119:  482:  236:  116:   76:on the roof above the Cult Cola room 
+ 1382:  250:  375:  266:  582:  191:on the freeway
+ 1208:  953:  351:  136:  106:   64:in the room above the freeway
+ 1213: -209:  368:   81:   80:  185:outside Motel Mancis
+  857: -224:  231:  262:  132:   59:inside Motel Mancis

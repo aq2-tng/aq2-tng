@@ -1,0 +1,44 @@
+#
+# Map:   desert.aqg
+# Build: 1
+# Creator:EzekielRage
+#
+#	format is:
+#
+#	x:y:z:rX:rY:rZ:name
+#
+#	where "x:y:z" is the location coordinate
+#	"rX,rY" is the range for the location marker (if 0 then 1500 
+vector
+#		points)
+#       "rZ" is the height range for the location marker (if 0 then not 
+use
+#		it)
+#	"name" is the name of the location marker and is used in "%L" 
+and "%S"
+#		
+#	aqg_location 1		- Set corner 1 on the location box.
+#	aqg_location 2		- Set corner 2 on the location box.
+#	aqg_location calc	- Displays the location box 
+coordinates/ranges.
+#	aqg_location checkL	- works like %L, but you don't need to 
+be alive or on a team
+#	aqg_location checkS	- works like %S, but you don't need to 
+be alive or on a team
+#
+#	You need ML version 3.19 or later, for this to work.
+#
+-1895: -828:  -12:  700:  735:  216:at the scull base
+-1889:-1588:  -10:  214:   76:  205:at the scull base
+-2578: -932:  -38:   82:  309:  240:at the scull base
+-1856:  761:   24:  676:  864:  202:at the scull base cannon
+  101: 1099:  -25: 1235:  412:  249:in no mans land
+   19: 1231:   -3:  561:  459:  257:in no mans land
+  796: 1527:  -12:  261:  214:  184:in no mans land
+ -272: 1277:   26:  657:  364:  222:in no mans land
+-1033: 1111:    3:  121:  425:  235:in no mans land
+-1039: 1004:    3:  166:  469:  163:in no mans land
+ 1492:  875:  -38:  348:  196:  207:at the good base cannon
+ 1900:  694:   26:  796:  718:  233:at the good base cannon
+ 1822: -882:    9:  724:  847:  224:at the good base
+ 2570: -653:    0:   45:  497:  172:at the good base

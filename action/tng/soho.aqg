@@ -1,0 +1,53 @@
+#
+# Map:   soho.aqg
+# Build: 1
+# Creator:taipAn
+#
+#	format is:
+#
+#	x:y:z:rX:rY:rZ:name
+#
+#	where "x:y:z" is the location coordinate
+#	"rX,rY" is the range for the location marker (if 0 then 1500 vector
+#		points)
+#       "rZ" is the height range for the location marker (if 0 then not use
+#		it)
+#	"name" is the name of the location marker and is used in "%L" and "%S"
+#		
+#	aqg_location 1		- Set corner 1 on the location box.
+#	aqg_location 2		- Set corner 2 on the location box.
+#	aqg_location calc	- Displays the location box coordinates/ranges.
+#	aqg_location checkL	- works like %L, but you don't need to be alive or on a team
+#	aqg_location checkS	- works like %S, but you don't need to be alive or on a team
+#
+#
+-191:19:191:489:596:170:in the back alley
+-80:-417:117:163:171:98:in back alley tree square
+201:-386:111:86:130:97:in back alley ramp house
+151:315:310:133:107:47:in back alley top room
+94:738:271:343:103:101:inside Chang Imports
+-209:1228:187:43:192:171:at trashcan underground entrance
+-475:821:149:181:198:140:in the back alley
+-773:491:188:69:187:51:inside the secret room
+88:944:188:373:75:183:in back alley, near crates area
+542:1369:261:303:417:112:in the crates area
+1224:1724:141:375:154:122:in little square by crates area
+1394:1968:101:181:71:80:in little square by crates area
+1090:2215:47:377:186:83:in the narrow passage at little square
+40:2374:212:57:274:148:thrashcan alley behind the restaurant
+403:2232:46:288:216:81:in the alley behind the restaurant
+-616:2160:272:583:567:212:outside the restaurant
+-180:2469:118:129:229:52:inside the restaurant
+-993:2262:207:196:209:139:inside laundry house
+-995:2259:424:210:223:61:up on laundry house roof
+-996:2596:122:202:107:58:near the restaurant underground entrance
+129:1679:214:162:108:51:in the crates area
+-1052:2204:-117:61:446:117:underground, near exit by the restaurant
+-554:1245:-180:554:506:52:underground, near the pipes
+-316:1301:-126:314:144:107:underground, near the pipes
+-297:608:-41:168:120:189:undeground, near back alley exit
+136:671:-175:262:58:43:underground, near broken stone room
+185:413:-155:216:170:110:underground, in broken stone room
+71:-107:-93:144:316:84:underground, near tree square exit
+-38:-171:-168:36:256:37:underground, near tree square exit
+-167:-136:80:79:80:72:inside back alley small cottage

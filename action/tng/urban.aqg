@@ -1,0 +1,40 @@
+#
+# Map:   urban.aqg
+# Build: 1
+# Creator:Mike [NW]
+#
+#	format is:
+#
+#	x:y:z:rX:rY:rZ:name
+#
+#	where "x:y:z" is the location coordinate
+#	"rX,rY" is the range for the location marker (if 0 then 1500 vector
+#		points)
+#       "rZ" is the height range for the location marker (if 0 then not use
+#		it)
+#	"name" is the name of the location marker and is used in "%L" and "%S"
+#		
+#	aqg_location 1		- Set corner 1 on the location box.
+#	aqg_location 2		- Set corner 2 on the location box.
+#	aqg_location calc	- Displays the location box coordinates/ranges.
+#	aqg_location checkL	- works like %L, but you don't need to be alive or on a team
+#	aqg_location checkS	- works like %S, but you don't need to be alive or on a team
+#
+#
+
+    9: -886:  841:  475:  570:  213:at top roof
+ -964: -980:  488:  583:  378:  544:near Ladder building
+-1354: -542:  524:  313:  378:  544:at the Coke sign
+-1154:  296:  481:  444:  498:  517:near the Construction site
+ -484:  129:  714:  299:  418:  325:on Middle roof
+    9:  194:  539:  448:  391:  550:on the Bridge 
+ -976: 1244:  543:  595:  364:  615:in AQ-sign Alley
+   67: 1167:  480:  420:  459:  542:near AQ-Sign 
+   97:  120:   71:  362:  472:   98:on Street at Bridge
+   12:   66:  398:  239:  312:   64:on Bridge roof
+  322:  155:  771:  129:  429:  316:on Bridge building roof
+   23:  897:   86:  281:  328:  107:on Street at AQ-sign
+ -694:  884:  221:   86:  228:  224:at Fence at AQ-sign
+ -547: -711:  139: 1053:  526:  190:on Street below top roof
+ -962:   19:   10:  268:  800:  107:on Street infront of Const. site
+  126:   73:   70:  361:  448:  125:Below bridge

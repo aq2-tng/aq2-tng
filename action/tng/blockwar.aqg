@@ -1,0 +1,63 @@
+#
+# Map:   BLOCKWAR.aqg
+# Build: 2
+# Creator:Mike [NW]
+#
+#	format is:
+#
+#	x:y:z:rX:rY:rZ:name
+#
+#	where "x:y:z" is the location coordinate
+#	"rX,rY" is the range for the location marker (if 0 then 1500 vector
+#		points)
+#       "rZ" is the height range for the location marker (if 0 then not use
+#		it)
+#	"name" is the name of the location marker and is used in "%L" and "%S"
+#		
+#	aqg_location 1		- Set corner 1 on the location box.
+#	aqg_location 2		- Set corner 2 on the location box.
+#	aqg_location calc	- Displays the location box coordinates/ranges.
+#	aqg_location checkL	- works like %L, but you don't need to be alive or on a team
+#	aqg_location checkS	- works like %S, but you don't need to be alive or on a team
+#
+#
+
+ -603:-3356:  304:   35:   34:   85:inside hotel room on 2nd floor
+  444:-3826:  311:   66:   79:   72:at the base of stairs leading up to roof in the hotel
+-1663: 1060:  377:   41:   38:   37:on gunshack roof
+-1661: 1190:  206:   60:   54:   82:in the corridor inside gunshack
+ -183:-3590:  318: 1162:  300:   93:on 2nd floor in hotel
+  824:-3517:  219:  151:  223:  158:in the stairs between 1st and 2nd floor in the hotel
+  390:-3536:  330:  144:  200:   90:in the stairs between roof and 2nd in the hotel
+ -785:-3308:  312:  564:  567:   78:on 2nd floor in hotel
+ -365:-3573:  124: 1177:  302:   70:on 1st floor in hotel
+  189:-3422:  514:  854:  485:  104:on hotel roof
+  635:-2997:  298:  828:  283:  301:outside the hotel
+  290:-2319:   17:  490:  390:  248:on the garage ramp
+  353:-3238:  106:   79:   76:   69:near front door on the hotel
+ 1164:-2378:  203:  300:  488:  185:near the gate
+ 1169:-1677:  305:  294:  243:  231:near the gate
+ 1165: -770:  321:  278:  744:  231:on the road near gate
+  -29: -320:  311:  897:  361:  229:on the road between gate and gunshack
+ -642: -222:  349:  264:  485:  244:on road near gunshack
+-1254:  996:  322:  892:  800:  234:outside the gunshack
+-1313:  983:  438:  727:  541:  129:on gunshack roof
+-1607:  549:  208:   66:   79:   95:outside gunshack, near the container
+-1590: -157:  314:   80:  391:  206:in the alley near gunshack
+-1916: -473:  322:  406:   75:  210:in the alley near gunshack
+-2245: -795:   31:   70:  246:  207:in the alley above the sewer ladder
+-1571: -886:  205:  556:  329:   90:in the corridor outside generator room
+-1214: -289:  217:  239:  424:  121:in generator room
+-1324:-1233:  101:  238:  191:  187:in the corridor stairs
+-1615:-1238: -234:  236:  188:  124:in the stairs to the sewers
+-1615:-1404: -289:  232:  370:  116:below stairs to the sewers
+-1508: -695: -528:  983: 1203:  330:in the sewers
+-2235: -827: -176:   55:   63:  286:in sewers near the ladder up
+-1015:-1352:    0:  221:  632:   95:in corridor behind the garage
+   16:-1411:  -27:  823:  551:  203:in the garage
+-1097:  866:  194:  462:  388:  104:inside the gunshack
+-1872: 1313:  199:  149:  197:   97:inside storage room in gunshack
+-1796: 1146:  207:   80:  365:   99:inside storage room in gunshack
+-1653: 1068:  207:   73:  439:  117:in the corridor inside gunshack
+-1800: 1001:  388:   71:  385:  133:in corridor leading to the roof in gunshack
+-1728: 1309:  396:  144:   68:  103:near the door leading to the roof in gunshack

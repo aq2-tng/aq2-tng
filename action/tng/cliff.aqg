@@ -1,0 +1,44 @@
+#
+# Map:   cliff.aqg
+# Build: 1
+# Creator:taipAn
+#
+#	format is:
+#
+#	x:y:z:rX:rY:rZ:name
+#
+#	where "x:y:z" is the location coordinate
+#	"rX,rY" is the range for the location marker (if 0 then 1500 vector
+#		points)
+#       "rZ" is the height range for the location marker (if 0 then not use
+#		it)
+#	"name" is the name of the location marker and is used in "%L" and "%S"
+#		
+#	aqg_location 1		- Set corner 1 on the location box.
+#	aqg_location 2		- Set corner 2 on the location box.
+#	aqg_location calc	- Displays the location box coordinates/ranges.
+#	aqg_location checkL	- works like %L, but you don't need to be alive or on a team
+#	aqg_location checkS	- works like %S, but you don't need to be alive or on a team
+#
+#
+1175:830:174:219:71:157:behind highbase trainstation
+1175:699:186:245:71:118:inside highbase trainstation
+1076:502:473:373:136:361:outside highbase trainstation
+745:-408:248:792:788:564:up on highbase mountain
+602:-483:-197:288:630:105:down in highbase entry
+563:-288:-101:72:100:238:up on highbase entry ladder
+643:552:-187:434:451:245:down in highbase hole
+745:625:-103:78:29:263:up on highbase hole ladder
+1126:608:422:232:165:129:up on highbase trainstation
+196:501:391:1053:57:71:up on the train line
+79:529:10:309:346:196:up middle mountain
+-591:-168:-173:334:1097:152:down on lowbase ground level
+-143:-248:197:156:517:299:up on the ledges
+-1093:43:340:266:954:347:up on lowbase mountain
+-748:840:155:111:74:160:behind lowbase trainstation
+-646:536:155:319:210:185:outside lowbase trainstation
+-760:702:142:188:65:56:inside lowbase trainstation
+-752:581:341:187:169:101:up on lowbase trainstation
+184:510:165:771:74:104:inside the train
+134:-846:178:241:261:28:up on ledge over higbase entry
+-12:-868:-195:381:132:162:down in highbase entry passage

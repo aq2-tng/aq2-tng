@@ -1,0 +1,50 @@
+#
+# Map:   urban2.aqg
+# Build: 1 
+# Creator:MOTSer (Neg,Smiley)
+#
+#	format is:
+#
+#	x:y:z:rX:rY:rZ:name
+#
+#	where "x:y:z" is the location coordinate
+#	"rX,rY" is the range for the location marker (if 0 then 1500 vector
+#		points)
+#       "rZ" is the height range for the location marker (if 0 then not use
+#		it)
+#	"name" is the name of the location marker and is used in "%L" and "%S"
+#		
+#	aqg_location 1		- Set corner 1 on the location box.
+#	aqg_location 2		- Set corner 2 on the location box.
+#	aqg_location calc	- Displays the location box coordinates/ranges.
+#	aqg_location checkL	- works like %L, but you don't need to be alive or on a team
+#	aqg_location checkS	- works like %S, but you don't need to be alive or on a team
+#
+#
+
+ -543:  501:   45:  644:  527:   99:in streets around middle building
+ -450:  320:  203:  267:  254:   63:inside middle building
+ -436:  316:  588:  310:  299:  298:on middle roof
+-1052: -214:  165:  332:  260:  194:around tall ladder building
+-1106: -271:  642:  403:  333:  284:on tall ladder roof
+-1298:  372:  601:  175:  305:  300:on red tower roof
+-1283:  387:  131:  155:  272:  135:at red tower 
+-1255:  729:  100:  211:  125:  145:at dark spot next to red tower
+ -497: -515:   71:  205:  391:   77:at dead end
+  362: -316:   69:  652:  285:  152:infront of fenced building
+    9: -692:   45:  281:  238:   60:at fence area
+  319: -645:  307:  608:  271:  200:in fenced building
+  548:  330:   98:  429:  468:  114:outside red building
+  501:  349:  132:  204:  229:  176:inside red building
+  629:  347:  581:  419:  405:  285:on red building roof
+  675: 1125:  678:  421:  377:  274:on corner roof
+  -17: 1241:  640:  285:  272:  247:on top roof
+   36: 1166:  444:  233:  177:   60:in top roof hole
+  679:  966:   49:  284:  201:   71:in suckyspawn, on groundlevel
+  685:  962:  216:  205:  179:  105:in suckyspawn, second floor
+  579:  693:   70:  333:   69:   82:at suckyspawn exit
+ -307: 1240:  187:   69:  269:  249:at boxes and ladder
+ -778: 1228:  579:  434:  239:  231:on wide building, roof 
+ -781: 1076:   64:  236:  169:   88:at wide building, ground room
+ -853: 1225:  328:  325:  217:   88:at wide building, sniper room
+-1109: 1044:   86:   71:  134:  105:at dark spot, next to wide building

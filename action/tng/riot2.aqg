@@ -1,0 +1,53 @@
+#
+# Map:   riot2.aqg
+# Build: 1
+# Creator:taipAn
+#
+#	format is:
+#
+#	x:y:z:rX:rY:rZ:name
+#
+#	where "x:y:z" is the location coordinate
+#	"rX,rY" is the range for the location marker (if 0 then 1500 vector
+#		points)
+#       "rZ" is the height range for the location marker (if 0 then not use
+#		it)
+#	"name" is the name of the location marker and is used in "%L" and "%S"
+#		
+#	aqg_location 1		- Set corner 1 on the location box.
+#	aqg_location 2		- Set corner 2 on the location box.
+#	aqg_location calc	- Displays the location box coordinates/ranges.
+#	aqg_location checkL	- works like %L, but you don't need to be alive or on a team
+#	aqg_location checkS	- works like %S, but you don't need to be alive or on a team
+#
+#
+
+618:573:206:1195:732:394:outside Post Office
+-97:116:153:346:142:285:behind Post Office
+-367:387:156:113:287:319:behind Post Office
+-88:749:351:409:499:180:up over Post Office
+1106:670:-13:398:222:119:inside Le Blue Wolf
+1307:1590:-15:213:431:133:inside Lurker Imports
+1007:1950:-48:91:81:67:inside Lurker Imports
+1132:2136:-14:443:88:124:behind Lurker Imports
+31:2697:65:566:856:238:outside McMike's Kebab
+168: 1689:11:584:170:200:on Sigma-Systems Street
+-799:2090:66:443:596:296:outside Gangster Productions
+-982:2297:-96:144:249:96:inside Spray&Pray gunshop
+-426:3126:45:126:475:207:behind McMike's Kebab
+229:3171:-33:540:215:114:inside McMike's Kebab
+731:2754:-53:151:188:105:inside McMike's Kebab
+-633:3270:-190:170:392:235:on subway exit at McMike's Kebab
+66:3264:-292:820:771:142:at newsstand subway station
+-619:2445:-300:156:384:113:inside subway station newsstand
+-283:2321:-331:170:225:109:inside subway station newsstand
+63:1665:-331:120:1155:171:on the train
+1094:2595:-164:193:384:223:on subway exit at Lurker Imports
+-475:1376:-55:296:144:113:on subway exit at Post Office
+-510:887:-169:262:365:258:on subway exit at Post Office
+201:210:-322:688:799:67:at subway station
+1263:484:-311:358:845:166:in Lurker Imports basement
+942:1626:31:181:558:172:outside Lurker Imports
+310:1325:315:200:42:122:on the balcony over Post Office
+-62:1396:149:78:132:293:outside Post Office
+-99:2265:313:288:428:147:up on roofs near Spray&Pray

@@ -1,0 +1,58 @@
+#
+# Map:   teamdepo.aqg
+# Build: 2
+# Creator:taipAn
+#
+#	format is:
+#
+#	x:y:z:rX:rY:rZ:name
+#
+#	where "x:y:z" is the location coordinate
+#	"rX,rY" is the range for the location marker (if 0 then 1500 vector
+#		points)
+#       "rZ" is the height range for the location marker (if 0 then not use
+#		it)
+#	"name" is the name of the location marker and is used in "%L" and "%S"
+#		
+#	aqg_location 1		- Set corner 1 on the location box.
+#	aqg_location 2		- Set corner 2 on the location box.
+#	aqg_location calc	- Displays the location box coordinates/ranges.
+#	aqg_location checkL	- works like %L, but you don't need to be alive or on a team
+#	aqg_location checkS	- works like %S, but you don't need to be alive or on a team
+#
+#
+-545:-2127:-34:777:451:236:outside Generator house
+-672:-2037:-33:184:162:156:inside Generator house
+-604:-1457:-321:417:236:100:in the water
+-32:-1482:-336:170:280:69:under the bridge
+-127:-725:11:439:492:271:by the big silo
+-383:-974:-3:190:205:193:in the generator base
+-627:-1447:-146:408:246:122:over the water
+-751:-876:-138:265:113:96:on the street from generator base
+-1150:-1383:-144:130:300:93:in the garage
+-826:-1153:-56:193:40:131:on the stairs from garage
+-504:-671:18:102:80:65:in the small book room
+-505:-420:33:112:159:101:in the broken door room
+-671:-711:10:58:380:82:in the corridor
+-866:-859:16:141:52:62:in the corridor, by the hole
+-1252:-876:45:230:114:260:in the hole
+-822:-303:-68:88:249:144:on stairs from the lobby
+-677:-185:-140:52:133:69:in the small storage room
+-1095:-356:45:188:187:107:in the archives
+-1357:-594:30:68:160:75:in the little room by the hole
+-1345:-134:27:59:159:76:in the little room by the radio base
+-889:116:-154:262:168:57:in the lobby
+-614:-377:3:14:44:67:in the corridor
+-612:-633:-1:11:47:54:in the corridor
+-1017:-859:38:8:59:75:in the hole
+-1335:-765:24:57:12:81:in the hole
+-1284:-501:-3:11:55:50:in the archives
+-1283:-231:-2:10:39:48:in the archives
+-1377:-196:-177:158:516:117:on the street from radio base
+-1386:-712:-163:207:63:125:on the street from radio base
+-1434:528:-33:725:490:186:in the radio base
+-1065:176:71:126:140:104:at the lines in radio base
+-1879:203:-129:279:167:69:at the crates in radio base
+-1998:991:-138:174:29:82:behind radio house
+-2014:742:-39:153:54:167:inside radio house
+-45:-1459:-134:177:271:91:on the bridge

@@ -1,0 +1,53 @@
+#
+# Map:   monastery.aqg
+# Build: 2
+# Creator:-RS-Phreedh
+#
+#	format is:
+#
+#	x:y:z:rX:rY:rZ:name
+#
+#	where "x:y:z" is the location coordinate
+#	"rX,rY" is the range for the location marker (if 0 then 1500 vector
+#		points)
+#       "rZ" is the height range for the location marker (if 0 then not use
+#		it)
+#	"name" is the name of the location marker and is used in "%L" and "%S"
+#		
+#	aqg_location 1		- Set corner 1 on the location box.
+#	aqg_location 2		- Set corner 2 on the location box.
+#	aqg_location calc	- Displays the location box coordinates/ranges.
+#	aqg_location checkL	- works like %L, but you don't need to be alive or on a team
+#	aqg_location checkS	- works like %S, but you don't need to be alive or on a team
+#
+#
+
+ -573:-3019:   61:  202:  173:  210:in the courtyard, in the dark corner
+ -582:-2389:    8:   54:  275:  250:in the courtyard, on the dark ledge
+   99:-1975:   -8:  678:  141:  255:in the courtyard, on the terrace
+ -156:-2758:   57:  330:   62:  234:in the courtyard, on the high ledge
+   60:-2213: -134:  832: 1000:  421:in the courtyard
+ -449:-3032: -318:   71:  342:  189:in the small corridor from the courtyard
+ -635:-3261:  -22:  120:   69:  213:in the small corridor from the courtyard
+  649:-2585:   72:  164:  175:  164:in the watch tower
+  650:-2990:   52:  130:  194:  201:in the dark room by the watch tower
+   56:-3288:   95:  472:  491:  272:in the watch tower corridor
+ -791:-3460:  111:  375:  319:  256:in the watch tower corridor
+ -388:-3074:  -35:   22:  208:   91:in the watch tower corridor
+-1105:-2512: -267:  468:  649:  275:in the crystal room
+-1161:-2533:  -87:  391:  663:  340:in the crystal room
+ -732:-2508:   42:   31:  640:   65:in the crystal room
+-1188:-1548: -162:  454:  374:  117:near the small rooms by the crystal room
+  863: -591: -490:  395:  118:  102:in the tunnel below the pool room
+  396:-1398: -452:  269:  711:   57:in the tunnel below the pool room
+ 1110: -858: -188:  611:  615:  199:in the pool room
+ 1290: -556: -428:  267:  327:  178:in the pit in the pool room
+  968:  -42:  -59:  402:  204:  228:in the dark room by the pool room
+  209:  -20:   86:  468:  201:  105:in the high corridor
+  -73: -726:  -28:  516:  452:  350:in the bright hall
+ -120: -185: -186:  136:  136:   74:in the bright hall
+  -32: -401:  107:  526:  166:  119:in the bright hall, on the ledge
+  -53:-1342: -176:  139:  222:  118:in the main corridor
+  -13:-1595: -114:  817:  199:  165:in the main corridor
+ -653:-1265: -109:  131:  141:  162:in the main corridor
+   -5:-1744: -196:  775:   65:   68:in the main corridor

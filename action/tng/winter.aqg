@@ -1,0 +1,36 @@
+#
+# Map:    winter.aqg
+# Build: 1 
+# Creator:EzekielRage
+#
+#	format is:
+#
+#	x:y:z:rX:rY:rZ:name
+#
+#	where "x:y:z" is the location coordinate
+#	"rX,rY" is the range for the location marker (if 0 then 1500 vector
+#		points)
+#       "rZ" is the height range for the location marker (if 0 then not use
+#		it)
+#	"name" is the name of the location marker and is used in "%L" and "%S"
+#		
+#	aqg_location 1		- Set corner 1 on the location box.
+#	aqg_location 2		- Set corner 2 on the location box.
+#	aqg_location calc	- Displays the location box coordinates/ranges.
+#	aqg_location checkL	- works like %L, but you don't need to be alive or on a team
+#	aqg_location checkS	- works like %S, but you don't need to be alive or on a team
+#
+#
+-1671: -798:   98:  897:  676:  267:at the pit
+-1074: -495:   86:  210:  131:  216:at the pit
+-1360: -351:   -6:  184:  157:  114:at the pit
+ -812: 1168:  112:  338:  173:   69:in the cave
+ -949: 1034:  115:  120:  312:   95:in the cave
+  249:-1789:  -67:  151:  361:  133:in the cave at the waterfall
+  -90:-1813:  -90:  294:  362:  129:in the cave at the waterfall
+ -316:  510: -344:  138:  487:  169:in the waterhole
+ -357: -243:   60:  435: 1249:  301:near the waterfall
+-1704:  246:   42:  902:  793:  261:in the area near the cave
+-1159: -252:   75:  391:  302:  264:in the area near the cave
+  504: -232:   23:  531: 1259:  281:in the area near waterfall cave
+-1966:-1052: -556:  407:  750:  324:in the black pit

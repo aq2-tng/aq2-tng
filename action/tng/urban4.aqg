@@ -1,0 +1,55 @@
+#
+# Map:   urban4.aqg
+# Build: 1
+# Creator:Marx (AFH^BiG PIG)
+#
+#	format is:
+#
+#	x:y:z:rX:rY:rZ:name
+#
+#	where "x:y:z" is the location coordinate
+#	"rX,rY" is the range for the location marker (if 0 then 1500 vector
+#		points)
+#       "rZ" is the height range for the location marker (if 0 then not use
+#		it)
+#	"name" is the name of the location marker and is used in "%L" and "%S"
+#		
+#	aqg_location 1		- Set corner 1 on the location box.
+#	aqg_location 2		- Set corner 2 on the location box.
+#	aqg_location calc	- Displays the location box coordinates/ranges.
+#	aqg_location checkL	- works like %L, but you don't need to be alive or on a team
+#	aqg_location checkS	- works like %S, but you don't need to be alive or on a team
+#
+#
+
+  -20:  -21:  270:  688:  239:  113:at Interstate 666
+-1212: -189:  986:  509:  317:   97:on top roof
+-1028:   37:  454:  323:  153:   77:at the platform under top roof
+ -962:   -5:  635:  245:  116:  245:inside ladder building
+ -830:  703:  820:  123:  186:   52:at scout tower's roof
+ -572:  699:  635:  131:  194:  131:at the platform outside scout tower
+ -710:  710:  305:  247:  187:  321:inside scout tower
+ -262:    2:   84:  436:  189:   82:under Insterstate 666
+-1601: 1089:  430:  122:  252:   47:at the red lone platform near scout tower
+ -256:  318:   67:  447:  192:  133:outside Interstate 666
+ -259: -352:  665:  445:   96:  136:at platform beside top roof, near Interstate 666
+ -253: -313:  385:  447:  120:  123:in room beside Ladder building, facing Interstate 666
+ -774: -192:  449:   63:  195:   64:in room beside Ladder building, facing Interstate 666
+  598: -101:  265:  254:  296:   45:Interstate 666
+  289: -286:  822:   95:  161:   56:on big red platform beside near top roof, at Interstate 666
+  636: -101:  740:  195:  410:  103:at the great sniping place
+  487:  610:  666:   31:  285:   80:over platform near sniping place
+  194:  768:  462:  255:  256:   71:at platform with cubes near Interstate 666
+ -160: 1122:  488:  550:   91:   96:in hallway near Interstate 666
+ -246:  765:  120:  178:  262:  132:outside Scout tower
+ -699:  960:  322:  256:   68:  312:outside scout tower
+ -503:  839:  318:   74:   73:  191:in the area with a cube outside scout tower
+   32: 1182:  821:  480:  159:  185:over hallway near scout tower
+  187:  612:  190:  257:  106:  189:in the appartement near Interstate 666
+-1602:  997:   83:  114:  151:   73:inside room under red house
+-1599:  798:  203:  125:   35:  197:in alley to red house with ladder
+-1583:  575:  853:  142:  189:   90:at big white Block o' flats roof top
+-1586:   14:  723:  141:  144:  160:at red house roof top, next to ladder house
+-1603:  258:  489:  121:  129:  106:in the red area with a cube near ladderhouse
+-1212:  605:  213:  262:  739:  206:in the big alley
+-1244: 1410:  138:  224:   61:  141:in small appartment, facing Ladder house

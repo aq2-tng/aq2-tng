@@ -1,0 +1,50 @@
+#
+# Map:   teacher.aqg
+# Build: 2
+# Creator:Ellusion [NW], Mike [NW]
+#
+#	format is:
+#
+#	x:y:z:rX:rY:rZ:name
+#
+#	where "x:y:z" is the location coordinate
+#	"rX,rY" is the range for the location marker (if 0 then 1500 vector
+#		points)
+#       "rZ" is the height range for the location marker (if 0 then not use
+#		it)
+#	"name" is the name of the location marker and is used in "%L" and "%S"
+#		
+#	aqg_location 1		- Set corner 1 on the location box.
+#	aqg_location 2		- Set corner 2 on the location box.
+#	aqg_location calc	- Displays the location box coordinates/ranges.
+#	aqg_location checkL	- works like %L, but you don't need to be alive or on a team
+#	aqg_location checkS	- works like %S, but you don't need to be alive or on a team
+#
+#
+
+0:-1990:339:194:200:77:in Principal Office
+70:-1527:327:663:253:78:outside Principal Office
+-12:-1159:488:617:523:78:on the 3rd Floor
+244:-1771:377:46:298:22:in Office Vents
+511:-726:334:95:746:82:in east Hallway on 2nd floor
+-511:-726:334:95:746:82:in west Hallway on 2nd floor
+-5:-770:320:384:448:76:in the 2nd floor Classrooms
+-10:65:202:396:323:197:in the northern Main Hall
+11:863:98:390:448:180:in the Auditorium
+2:-2032:69:650:512:133:in the the Gym
+10:-1357:-9:394:169:63:in the the Gym Lockers
+0:961:-143:403:361:50:in northern Basement
+0:735:-134:232:135:61:in Basement Storage
+0:317:-137:389:258:59:in Basement
+-250:-211:-137:126:348:59:near the Janitor's Desk
+-258:-605:-121:128:67:62:in stairs by Big-Fan room
+0:-750:69:253:145:133:in Big-Fan Room
+-38:-727:5:638:479:81:on the Ground Floor around Fan room
+0:-1367:148:443:156:83:in 1st floor Hallway near Gym
+524:-1328:102:83:141:167:in East staircase near Gym
+-524:-1328:102:83:141:167:in West staircase near Gym
+0:-767:275:25:510:22:in 2nd floor Airvents
+0:-767:275:377:60:37:in 2nd floor Airvents
+-4:-368:154:51:59:169:in Central Airvent
+9:-303:-44:57:493:34:in 1st floor Airvents
+4:167:-23:365:28:35:in 1st floor airvents
