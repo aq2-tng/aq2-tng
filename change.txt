@@ -4,6 +4,8 @@ Changes in TNG
 - = bug fix
 * = major bug fix
 
+From 2.6
+
 From 2.5
 + Stats list shows average accuracy for each player including player ID
 + Stats command followed by player ID will display someone else's stats
