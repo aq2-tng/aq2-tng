@@ -1,10 +1,16 @@
 //-----------------------------------------------------------------------------
 // p_client.c
 //
-// $Id: p_client.c,v 1.16 2001/05/13 01:23:01 deathwatch Exp $
+// $Id: p_client.c,v 1.17 2001/05/13 15:01:45 ra Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: p_client.c,v $
+// Revision 1.17  2001/05/13 15:01:45  ra
+//
+//
+// In teamplay mode it is OK to teamkill as soon as the rounds are over. Changed
+// things so that when the rounds are over it is also OK to plummet.
+//
 // Revision 1.16  2001/05/13 01:23:01  deathwatch
 // Added Single Barreled Handcannon mode, made the menus and scoreboards
 // look nicer and made the voice command a bit less loud.
@@ -670,7 +676,9 @@ if (attacker && attacker != self && attacker->client && OnSameTeam (self, attack
     {
       sprintf(death_msg, "%s %s\n", self->client->pers.netname, message);
       PrintDeathMessage(death_msg, self);
-      if (deathmatch->value)
+// AQ:TNG - JBravo: Since it's op to teamkill after rounds, why not plummet?
+      if ((deathmatch->value) && (team_round_going))
+// End ok to plummet after rounds...
         Subtract_Frag( self );//self->client->resp.score--;
       self->enemy = NULL;
       return;
