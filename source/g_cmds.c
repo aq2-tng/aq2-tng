@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // g_cmds.c
 //
-// $Id: g_cmds.c,v 1.41 2001/11/09 23:58:12 deathwatch Exp $
+// $Id: g_cmds.c,v 1.42 2001/11/16 22:45:58 deathwatch Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_cmds.c,v $
+// Revision 1.42  2001/11/16 22:45:58  deathwatch
+// Fixed %me again
+//
 // Revision 1.41  2001/11/09 23:58:12  deathwatch
 // Fiixed the %me command to display '[DEAD]' properly
 // Added the resetting of the teamXscore cvars at the exitlevel function where the team scores are reset as well. (not sure if that is correct)
@@ -1280,7 +1283,7 @@ Cmd_Say_f (edict_t * ent, qboolean team, qboolean arg0, qboolean partner_msg)
 				Com_sprintf (text, sizeof (text), "(%s%s ",
 				(teamplay->value
 				&& (ent->solid == SOLID_NOT
-				|| ent->deadflag == DEAD_DEAD)) ? "Dead " : "",
+				|| ent->deadflag == DEAD_DEAD)) ? "[DEAD] " : "",
 				ent->client->pers.netname);
 			//TempFile - END
 		}
@@ -1295,14 +1298,14 @@ Cmd_Say_f (edict_t * ent, qboolean team, qboolean arg0, qboolean partner_msg)
 				Com_sprintf (text, sizeof (text), "[%sPARTNER] %s: ",
 				(teamplay->value
 				&& (ent->solid == SOLID_NOT
-				|| ent->deadflag == DEAD_DEAD)) ? "DEAD " : "",
+				|| ent->deadflag == DEAD_DEAD)) ? "[DEAD] " : "",
 				ent->client->pers.netname);
 			//TempFile - BEGIN
 			else
 				Com_sprintf (text, sizeof (text), "%s partner %s ",
 				(teamplay->value
 				&& (ent->solid == SOLID_NOT
-				|| ent->deadflag == DEAD_DEAD)) ? "Dead " : "",
+				|| ent->deadflag == DEAD_DEAD)) ? "[DEAD] " : "",
 				ent->client->pers.netname);
 			//TempFile - END
 		}
@@ -1326,7 +1329,7 @@ Cmd_Say_f (edict_t * ent, qboolean team, qboolean arg0, qboolean partner_msg)
 				Com_sprintf (text, sizeof (text), "%s%s ",
 				(teamplay->value
 				&& (ent->solid == SOLID_NOT
-				|| ent->deadflag == DEAD_DEAD)) ? "Dead " : "",
+				|| ent->deadflag == DEAD_DEAD)) ? "[DEAD] " : "",
 				ent->client->pers.netname);
 		}
 		//TempFile - END
