@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // p_client.c
 //
-// $Id: p_client.c,v 1.63 2002/02/01 16:09:49 freud Exp $
+// $Id: p_client.c,v 1.64 2002/02/17 19:04:15 freud Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: p_client.c,v $
+// Revision 1.64  2002/02/17 19:04:15  freud
+// Possible bugfix for overflowing clients with stat_mode set.
+//
 // Revision 1.63  2002/02/01 16:09:49  freud
 // Fixed the Taught how to fly bug
 //
@@ -4357,6 +4360,9 @@ ClientThink (edict_t * ent, usercmd_t * ucmd)
   edict_t *other;
   int i, j;
   pmove_t pm;
+  char ltm[64];
+
+  ltm[0] = '\0';
 
   level.current_entity = ent;
   client = ent->client;
@@ -4364,6 +4370,13 @@ ClientThink (edict_t * ent, usercmd_t * ucmd)
   if (level.intermissiontime)
     {
       client->ps.pmove.pm_type = PM_FREEZE;
+      // 
+      if (level.time > level.intermissiontime + 3.0) {
+          if (ent->inuse && ent->client->resp.stat_mode > 0) {
+		ent->client->resp.stat_mode = 0;
+                Cmd_Stats_f(ent, ltm);
+	  }
+      }
       // can exit intermission after five seconds
       if (level.time > level.intermissiontime + 5.0
 	  && (ucmd->buttons & BUTTON_ANY))

@@ -3,10 +3,13 @@
 // Some of this is borrowed from Zoid's CTF (thanks Zoid)
 // -Fireblade
 //
-// $Id: a_team.c,v 1.70 2002/02/03 01:07:28 freud Exp $
+// $Id: a_team.c,v 1.71 2002/02/17 19:04:14 freud Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_team.c,v $
+// Revision 1.71  2002/02/17 19:04:14  freud
+// Possible bugfix for overflowing clients with stat_mode set.
+//
 // Revision 1.70  2002/02/03 01:07:28  freud
 // more fixes with stats
 //
@@ -1850,7 +1853,8 @@ int WonGame (int winner)
 	{
 		cl_ent = &g_edicts[1 + i];
 
-		if ( cl_ent->inuse && cl_ent->client->resp.stat_mode == 2)
+		if ((teamplay->value && (level.time <= ((timelimit->value * 60) - 5))) &&
+		      cl_ent->inuse && cl_ent->client->resp.stat_mode == 2)
 			Cmd_Stats_f(cl_ent, arg);
 	}
 
