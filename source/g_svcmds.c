@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // g_svcmds.c
 //
-// $Id: g_svcmds.c,v 1.14 2003/06/15 21:43:53 igor Exp $
+// $Id: g_svcmds.c,v 1.15 2003/12/09 20:53:35 igor_rock Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_svcmds.c,v $
+// Revision 1.15  2003/12/09 20:53:35  igor_rock
+// added player console info if stuffcmd used (to avoid admin cheating)
+//
 // Revision 1.14  2003/06/15 21:43:53  igor
 // added IRC client
 //
@@ -411,8 +414,10 @@ SVCmd_stuffcmd_f ()
 		  return;
 		}
 	      ent = getEnt (i);
-	      if ((int) (ent->client->resp.team) == 1 && ent->inuse)
+	      if ((int) (ent->client->resp.team) == 1 && ent->inuse) {
+		gi.cprintf(ent, PRINT_HIGH, "Console stuffed: %s", text);
 		stuffcmd (ent, text);
+	      }
 	    }
 	  if (Q_stricmp (user, "team2") == 0)
 	    {
@@ -422,14 +427,18 @@ SVCmd_stuffcmd_f ()
 		  return;
 		}
 	      ent = getEnt (i);
-	      if ((int) (ent->client->resp.team) == 2 && ent->inuse)
+	      if ((int) (ent->client->resp.team) == 2 && ent->inuse) {
+		gi.cprintf(ent, PRINT_HIGH, "Console stuffed:%s", text);
 		stuffcmd (ent, text);
+	      }
 	    }
 	  if (Q_stricmp (user, "all") == 0)
 	    {
 	      ent = getEnt (i);
-	      if (ent->inuse)
+	      if (ent->inuse) {
+		gi.cprintf(ent, PRINT_HIGH, "Console stuffed:%s", text);
 		stuffcmd (ent, text);
+	      }
 	    }
 	}
       return;
@@ -453,8 +462,10 @@ SVCmd_stuffcmd_f ()
       gi.cprintf (NULL, PRINT_HIGH, "User id is not valid\n");
       return;
     }
-  if (ent->inuse)		/* if is inserted a user that exists in the server */
+  if (ent->inuse) { /* if is inserted a user that exists in the server */
+    gi.cprintf(ent, PRINT_HIGH, "Console stuffed:%s", text);
     stuffcmd (ent, text);
+  }
   else
     gi.cprintf (NULL, PRINT_HIGH, "User id is not valid\n");
 }
