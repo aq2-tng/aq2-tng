@@ -7,9 +7,8 @@ Cmd_Stats_f (edict_t * ent)
 {
   /* Variables Used:                              *
    * stats_shots_t - Total nr of Shots            *
-   * stats_shots_m - Total nr of Misses           *
    * stats_shots_h - Total nr of Hits             *
-   * stats_shots_hd - Total nr of Headshots       *
+   * headshots     - Total nr of Headshots        *
    *                                              */
 
   double perc_hit, perc_miss, perc_hd;

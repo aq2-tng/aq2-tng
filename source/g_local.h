@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // g_local.h -- local definitions for game module
 //
-// $Id: g_local.h,v 1.42 2001/10/18 12:55:35 deathwatch Exp $
+// $Id: g_local.h,v 1.43 2001/11/07 11:41:37 igor_rock Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_local.h,v $
+// Revision 1.43  2001/11/07 11:41:37  igor_rock
+// removed unused variables stats_shots_hd and stats_shots_m
+//
 // Revision 1.42  2001/10/18 12:55:35  deathwatch
 // Added roundtimeleft
 //
@@ -1272,7 +1275,6 @@ typedef struct
 
   int stats_shots_t;		// Total nr of shots for TNG Stats
   int stats_shots_h;		// Total nr of hits for TNG Stats
-  int stats_shots_hd;		// Total nr of headshots for TNG Stats
 
   //AQ2:TNG - Slicer: Video Checking and further Cheat cheking vars
   char vidref[16];
