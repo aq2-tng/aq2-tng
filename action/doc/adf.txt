@@ -1,0 +1,52 @@
+ADF file format information
+Benjamin Greiner ("=DIE=TempFile"), 7/26/99
+
+ADF files define location cubes for maps.
+
+An ADF file sits inside the action/location directory and has the same name as the
+corresponding map, e.g:
+action/location/armyterr.adf
+
+Inside the file each line describes a location cube in the following scheme:
+<x y z> <x y z> description
+Examples:
+<-85.63 1290.13 -10.38> <602.00 2393.38 108.25> in the Army Base
+<-113.75 132.75 6.38> <248.63 748.50 134.75> in the Terror Base
+
+In game, some new commands help defining these cubes. For the commands to work
+the server must enable cheats. It's useful to activate noclip as well :)
+
+begincube
+Allocates a temporary cube to hold the data.
+
+setcubell
+Sets the lower-left corner of the temporary cube to the calling player's current
+location.
+
+setcubeur
+guess :)
+
+addcube (description)
+Sets the description of the temporary cube, copies it into the map's cube list,
+saves it to file and activates it for use in game.
+
+abortcube
+Deallocates the temporary cube, thus aborting creation.
+
+printcubestate
+Prints out information about the temporary cube.
+
+Note that all .pg support was dropped in 1.20. The addpoint command does no longer
+exist.
+
+ADF FAQ!
+
+Q: How can I create a cube inside a cube, e.g. the tub inside a bathroom?
+A: 1.20 does not support this explicitly, but since cubes are checked for
+   applicability from first to last, you can "fake" this feature by defining the
+   smaller cube first.
+   See armyterr.adf as an example, where three nested cubes are defined in the first
+   three lines.
+
+Q: Are there map editor plugins or proxies available?
+A: Not yet.

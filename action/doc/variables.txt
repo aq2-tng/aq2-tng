@@ -1,0 +1,37 @@
+Servervariables for PG Bund Edition 1.25
+
+use_voice	use voice command		(0/1)
+use_tourney	Tourney Modus			(0/1)
+use_3teams	3 Team Modus			(0/1)
+use_kickvote	Votekick Modus			(0/1)
+kickvote_min	# of players needed to allow voting
+kickvote_need	% of players needed to accept votes
+kickvote_pass	% of players neede to kick a player
+kcikvote_tempban  ban kicked player till mapchange	(0/1)
+use_mapvote     Mapvoting enabled		(0/1)
+mapvote_min	# of players needed to allow voting
+mapvote_need	% of players needed to accept votes
+mapvote_pass	% of players neede to vote a map
+maplistname	Name of the maplist file
+sv_crlf		Allow messages withCR/LF	(0/1)	(changed from 1.24: sv_allowcrlf)
+sv_gib		Sniper gib			(0/1)
+vrot		Voterotation			(0/1)	(vorher: voterotation)
+rrot            Random Rotation			(0/1)
+dmweapon	Starting weapon			(Weaponname)
+tgren		# of grenades			(0-?)
+llsound		Use lowlag sounds		(0/1)	(Default 1)
+cvote		Configs can be voted		(0/1)	(Default 0)
+cvote_min	# of players needed to allow voting
+cvote_need	% of players needed to accept votes
+cvote_pass	% of players neede to vote a config
+configlistname	Name of the configlist file
+
+Explanation of the voting system:
+If you use mapvote_min=2, mapvote_need=75 and mapvote_pass=40, then a new map will be voted if:
+- there are at least 2 players on the server
+- 75% of all players have voted (doesn't matter for whcih map)
+- 40% of all players have voted for one specific map
+
+Why mapvote_need? simple: imagine there is a map nobody wants to play - but the people wouldn't agree about WHICH map to play instead. so if 75% of the players want another map, the map whcih got 40% of the votes will be voted - so the unwanted map is left (75% wanted this).
+
+The other voting options do function in the same way.
