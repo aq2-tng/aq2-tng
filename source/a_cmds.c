@@ -4,10 +4,14 @@
 //
 // laser sight patch, by Geza Beladi
 //
-// $Id: a_cmds.c,v 1.25 2002/03/24 19:38:05 ra Exp $
+// $Id: a_cmds.c,v 1.26 2002/03/25 16:34:39 freud Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_cmds.c,v $
+// Revision 1.26  2002/03/25 16:34:39  freud
+// Cmd_Time changes. When timelimit is 0 it says timelimit disables instead of
+// displaying 0 minutes 0 seconds left.
+//
 // Revision 1.25  2002/03/24 19:38:05  ra
 // Securityfix
 //
@@ -1274,20 +1278,24 @@ Cmd_Time (edict_t * ent)
 {
   int mins, secs, remaining, rmins, rsecs;
 
-     if(matchmode->value) {
-			gi.cprintf (ent, PRINT_HIGH, "This server is running in matchmode. See the scoreboard for the time.\n");
-			return;
-     }
-     mins = level.time / 60;
-     secs = level.time - (mins * 60);
-     remaining = (timelimit->value *60) - level.time;
-     rmins = remaining / 60;
-     rsecs = remaining - (rmins * 60);
+  if(matchmode->value) {
+	gi.cprintf (ent, PRINT_HIGH, "This server is running in matchmode. See the scoreboard for the time.\n");
+	return;
+  }
+  if (timelimit->value) {
+ 	mins = level.time / 60;
+	secs = level.time - (mins * 60);
+	remaining = (timelimit->value *60) - level.time;
+	rmins = remaining / 60;
+	rsecs = remaining - (rmins * 60);
 
-     if(rmins < 0) rmins = 0;
-     if(rsecs < 0) rsecs = 0;
+	if(rmins < 0) rmins = 0;
+	if(rsecs < 0) rsecs = 0;
 
-     gi.cprintf (ent, PRINT_HIGH, "Elapsed time: %d:%02d. Remaining time: %d:%02d\n", mins, secs, rmins, rsecs);
+	gi.cprintf (ent, PRINT_HIGH, "Elapsed time: %d:%02d. Remaining time: %d:%02d\n", mins, secs, rmins, rsecs);
+  } else {
+	gi.cprintf (ent, PRINT_HIGH, "Timelimit disabled\n");
+  }
 }
 
 void Cmd_Roundtimeleft_f(edict_t* ent)
