@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 //
 //
-// $Id: g_main.c,v 1.47 2002/01/24 11:29:34 ra Exp $
+// $Id: g_main.c,v 1.48 2002/02/01 12:54:08 ra Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_main.c,v $
+// Revision 1.48  2002/02/01 12:54:08  ra
+// messin with stat_mode
+//
 // Revision 1.47  2002/01/24 11:29:34  ra
 // Cleanup's in stats code
 //
@@ -471,11 +474,13 @@ void EndDMLevel (void)
   gi.bprintf (PRINT_HIGH, "Game ending at: %s\n", ltm);
 
   // TNG Stats:
+  // Reuse ltm for stats.
+  ltm[0] = 0;
 	for (i = 0; i < game.maxclients; i++)
   {
 		cl_ent = &g_edicts[1 + i];
 		if (cl_ent->inuse && cl_ent->client->resp.stat_mode == 1)
-	    Cmd_Stats_f(cl_ent);
+	    Cmd_Stats_f(cl_ent, ltm);
 	}
 	// TNG Stats End
 

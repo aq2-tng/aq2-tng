@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // Statistics Related Code
 //
-// $Id: tng_stats.c,v 1.14 2002/01/24 11:29:34 ra Exp $
+// $Id: tng_stats.c,v 1.15 2002/02/01 12:54:09 ra Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: tng_stats.c,v $
+// Revision 1.15  2002/02/01 12:54:09  ra
+// messin with stat_mode
+//
 // Revision 1.14  2002/01/24 11:29:34  ra
 // Cleanup's in stats code
 //
@@ -24,48 +27,57 @@
 
 /* Stats Command */
 
-void Cmd_Stats_f (edict_t *targetent)
+void Cmd_Stats_f (edict_t *targetent, char *arg)
 {
 /* Variables Used:                              *
-* stats_shots_t - Total nr of Shots            *
-* stats_shots_h - Total nr of Hits             *
-* headshots     - Total nr of Headshots        *
-	*                                              */
+* stats_shots_t - Total nr of Shots             *
+* stats_shots_h - Total nr of Hits              *
+* headshots     - Total nr of Headshots         *
+*                                               */
 	
-  double perc_hit;
-  int total, hits, i, x, y;
-  char str_perc_hit[10], str_shots_h[10], str_shots_t[10], str_headshots[10], str_chestshots[10], str_stomachshots[10],	str_legshots[10], argument[10], stathead[50], str_playerid[32], playername[32];
-	edict_t *ent, *cl_ent;
+  double	perc_hit;
+  int		total, hits, i, x, y;
+  char		str_perc_hit[10], str_shots_h[10], str_shots_t[10], str_headshots[10];
+  char		str_chestshots[10], str_stomachshots[10], str_legshots[10], argument[10];
+  char		stathead[50], str_playerid[32], playername[32];
+  edict_t	*ent, *cl_ent;
 	
-	if (gi.argc() > 1) {
-    if (strcmp (gi.argv (1), "list") == 0) {
-      gi.cprintf (targetent, PRINT_HIGH, "\nŸ\n");
-      gi.cprintf (targetent, PRINT_HIGH, "PlayerID    Name      Accuracy\n");
-			
-      for (i = 0; i < game.maxclients; i++)
+	if (arg[0] != '\0') {
+		if (strcmp (arg, "list") == 0) {
+			gi.cprintf (targetent, PRINT_HIGH, "\nŸ\n");
+			gi.cprintf (targetent, PRINT_HIGH, "PlayerID    Name      Accuracy\n");
+
+			for (i = 0; i < game.maxclients; i++)
 			{
 				y = i;
 				cl_ent = &g_edicts[1 + i];
-				
+
 				if (!cl_ent->inuse)
 					continue;
-				
-				hits = cl_ent->client->resp.stats_m4_shots_h + cl_ent->client->resp.stats_mp5_shots_h + cl_ent->client->resp.stats_shotgun_shots_h + cl_ent->client->resp.stats_sniper_shots_h + cl_ent->client->resp.stats_knife_shots_h + cl_ent->client->resp.stats_tknife_shots_h + cl_ent->client->resp.stats_hc_shots_h + cl_ent->client->resp.stats_pistol_shots_h + cl_ent->client->resp.stats_dual_shots_h;
-				total = cl_ent->client->resp.stats_m4_shots_t + cl_ent->client->resp.stats_mp5_shots_t + cl_ent->client->resp.stats_shotgun_shots_t + cl_ent->client->resp.stats_sniper_shots_t + cl_ent->client->resp.stats_knife_shots_t + cl_ent->client->resp.stats_tknife_shots_t + cl_ent->client->resp.stats_hc_shots_t + cl_ent->client->resp.stats_pistol_shots_t + cl_ent->client->resp.stats_dual_shots_t;
-				
+
+				hits = cl_ent->client->resp.stats_m4_shots_h + cl_ent->client->resp.stats_mp5_shots_h +
+					cl_ent->client->resp.stats_shotgun_shots_h + cl_ent->client->resp.stats_sniper_shots_h +
+					cl_ent->client->resp.stats_knife_shots_h + cl_ent->client->resp.stats_tknife_shots_h +
+					cl_ent->client->resp.stats_hc_shots_h + cl_ent->client->resp.stats_pistol_shots_h +
+					cl_ent->client->resp.stats_dual_shots_h;
+				total = cl_ent->client->resp.stats_m4_shots_t + cl_ent->client->resp.stats_mp5_shots_t +
+					cl_ent->client->resp.stats_shotgun_shots_t + cl_ent->client->resp.stats_sniper_shots_t +
+					cl_ent->client->resp.stats_knife_shots_t + cl_ent->client->resp.stats_tknife_shots_t +
+					cl_ent->client->resp.stats_hc_shots_t + cl_ent->client->resp.stats_pistol_shots_t +
+					cl_ent->client->resp.stats_dual_shots_t;
+
 				if (hits > 0) {
 					perc_hit = (((double) hits / (double) total) * 100.0);
 				} else {
 					perc_hit = 0.0;
 				}
-				
-				
+
 				sprintf(playername, "%s", cl_ent->client->pers.netname);
 				
 				for (x = 0; (x + strlen(cl_ent->client->pers.netname)) < 16; x++) {
 					sprintf(playername, "%s ", playername);
 				}
-				
+
 				if (y < 10) {
 					sprintf(str_playerid, "%i  ", y);
 				} else if (y < 100) {
@@ -73,7 +85,7 @@ void Cmd_Stats_f (edict_t *targetent)
 				} else  {
 					sprintf(str_playerid, "%i", y);
 				}
-				
+
 				if (perc_hit < 10) {
 					sprintf(str_perc_hit, "  %.2f", perc_hit);
 				} else if (perc_hit < 100) {
@@ -81,56 +93,62 @@ void Cmd_Stats_f (edict_t *targetent)
 				} else {
 					sprintf(str_perc_hit, "%.2f", perc_hit);
 				}
-				
+
 				gi.cprintf (targetent, PRINT_HIGH, "   %s %s %s\n", str_playerid, playername, str_perc_hit);
 			}
-      gi.cprintf (targetent, PRINT_HIGH, "  Use \"stats <PlayerID>\" for individual stats\n\nŸ\n\n");
-      return;
-    }
-    i = atoi (gi.argv (1));
-    ent = &g_edicts[1 + i];
-    if (!ent->inuse)
-      ent = targetent;
-  } else {
-    ent = targetent;
-  }
-	
-	// Global Stats:
-	total = ent->client->resp.stats_m4_shots_t + ent->client->resp.stats_mp5_shots_t + ent->client->resp.stats_shotgun_shots_t + ent->client->resp.stats_sniper_shots_t + ent->client->resp.stats_knife_shots_t + ent->client->resp.stats_tknife_shots_t + ent->client->resp.stats_hc_shots_t + ent->client->resp.stats_pistol_shots_t + ent->client->resp.stats_dual_shots_t;
-	hits = ent->client->resp.stats_m4_shots_h + ent->client->resp.stats_mp5_shots_h + ent->client->resp.stats_shotgun_shots_h + ent->client->resp.stats_sniper_shots_h + ent->client->resp.stats_knife_shots_h + ent->client->resp.stats_tknife_shots_h + ent->client->resp.stats_hc_shots_h + ent->client->resp.stats_pistol_shots_h + ent->client->resp.stats_dual_shots_h;
-	
-  sprintf(stathead, "\nŸ Statistics for %s ", ent->client->pers.netname);
-  for (i = 0; i + strlen(ent->client->pers.netname) < 18; i++) {
-		sprintf(stathead, "%s", stathead);
-  }
-  sprintf(stathead, "%sŸ\n", stathead);
-  gi.cprintf (targetent, PRINT_HIGH, "%s", stathead);
-  //gi.cprintf (targetent, PRINT_HIGH, "\nŸ Statistics Ÿ\n");
-  if (total != 0) {
-    gi.cprintf (targetent, PRINT_HIGH, "Weapon        Accuracy Hits/Shots  Headshots\n");		
-		
+			gi.cprintf (targetent, PRINT_HIGH, "  Use \"stats <PlayerID>\" for individual stats\n\nŸ\n\n");
+			return;
+		}
+		i = atoi (arg);
+		ent = &g_edicts[1 + i];
+		if (!ent->inuse)
+			ent = targetent;
+	} else {
+		ent = targetent;
+	}
+		// Global Stats:
+		total = ent->client->resp.stats_m4_shots_t + ent->client->resp.stats_mp5_shots_t +
+			ent->client->resp.stats_shotgun_shots_t + ent->client->resp.stats_sniper_shots_t +
+			ent->client->resp.stats_knife_shots_t + ent->client->resp.stats_tknife_shots_t +
+			ent->client->resp.stats_hc_shots_t + ent->client->resp.stats_pistol_shots_t +
+			ent->client->resp.stats_dual_shots_t;
+		hits = ent->client->resp.stats_m4_shots_h + ent->client->resp.stats_mp5_shots_h +
+			ent->client->resp.stats_shotgun_shots_h + ent->client->resp.stats_sniper_shots_h +
+			ent->client->resp.stats_knife_shots_h + ent->client->resp.stats_tknife_shots_h +
+			ent->client->resp.stats_hc_shots_h + ent->client->resp.stats_pistol_shots_h +
+			ent->client->resp.stats_dual_shots_h;
+
+		sprintf(stathead, "\nŸ Statistics for %s ", ent->client->pers.netname);
+		for (i = 0; i + strlen(ent->client->pers.netname) < 18; i++) {
+			sprintf(stathead, "%s", stathead);
+		}
+		sprintf(stathead, "%sŸ\n", stathead);
+		gi.cprintf (targetent, PRINT_HIGH, "%s", stathead);
+
+		if (total != 0) {
+		gi.cprintf (targetent, PRINT_HIGH, "Weapon        Accuracy Hits/Shots  Headshots\n");		
+
 		// Heckler & Koch MK23 Pistol
-		if (ent->client->resp.stats_pistol_shots_t != 0)
-    {
-      perc_hit = (((double) ent->client->resp.stats_pistol_shots_h / (double) ent->client->resp.stats_pistol_shots_t) * 100.0);	// Percentage of shots that hit
-      //perc_hd = (((double) headshots / (double) total) * 100.0);	// Percentage of total shots that are headshots
+		if (ent->client->resp.stats_pistol_shots_t != 0) {
+			perc_hit = (((double) ent->client->resp.stats_pistol_shots_h /
+				(double) ent->client->resp.stats_pistol_shots_t) * 100.0);	// Percentage of shots that hit
+
+	if ( perc_hit >= 100 ) {
+	sprintf(str_perc_hit, "%.2f", perc_hit);
+	} else if ( perc_hit >= 10 ) {
+	sprintf(str_perc_hit, " %.2f", perc_hit);
+	} else {
+	sprintf(str_perc_hit, "  %.2f", perc_hit);
+	}
 			
-      if ( perc_hit >= 100 ) {
-        sprintf(str_perc_hit, "%.2f", perc_hit);
-      } else if ( perc_hit >= 10 ) {
-        sprintf(str_perc_hit, " %.2f", perc_hit);
-      } else {
-        sprintf(str_perc_hit, "  %.2f", perc_hit);
-      }
-			
-      if ( ent->client->resp.stats_pistol_shots_h >= 10000 ) {
-        sprintf(str_shots_h, "%i", ent->client->resp.stats_pistol_shots_h);
-      } else if ( ent->client->resp.stats_pistol_shots_h >= 1000 ) {
-        sprintf(str_shots_h, " %i", ent->client->resp.stats_pistol_shots_h);
-      } else if ( ent->client->resp.stats_pistol_shots_h >= 100 ) {
-        sprintf(str_shots_h, "  %i", ent->client->resp.stats_pistol_shots_h);
-      } else if ( ent->client->resp.stats_pistol_shots_h >= 10 ) {
-        sprintf(str_shots_h, "   %i", ent->client->resp.stats_pistol_shots_h);
+	if ( ent->client->resp.stats_pistol_shots_h >= 10000 ) {
+	sprintf(str_shots_h, "%i", ent->client->resp.stats_pistol_shots_h);
+	} else if ( ent->client->resp.stats_pistol_shots_h >= 1000 ) {
+	sprintf(str_shots_h, " %i", ent->client->resp.stats_pistol_shots_h);
+	} else if ( ent->client->resp.stats_pistol_shots_h >= 100 ) {
+	sprintf(str_shots_h, "  %i", ent->client->resp.stats_pistol_shots_h);
+	} else if ( ent->client->resp.stats_pistol_shots_h >= 10 ) {
+	sprintf(str_shots_h, "   %i", ent->client->resp.stats_pistol_shots_h);
       } else {
         sprintf(str_shots_h, "    %i", ent->client->resp.stats_pistol_shots_h);
       }
@@ -805,18 +823,19 @@ A_ScoreboardEndLevel (edict_t * ent, edict_t * killer)
   gi.WriteString (string);
 }
 
-void Cmd_Statmode_f(edict_t* ent)
+void Cmd_Statmode_f(edict_t* ent, char *arg)
 {
   int i;
   char stuff[128];
 
 
   // Ignore if there is no argument.
-  if (gi.argc () == 2) {
-  memset (stuff, 0, sizeof (stuff));
+//  if (gi.argc () == 2) {
+  if ((int)arg[0] != '\0') {
+    memset (stuff, 0, sizeof (stuff));
 
     // Numerical
-    i = atoi (gi.argv (1));
+    i = atoi (arg);
 
     if (i > 2 || i < 0) {
       gi.dprintf("Warning: stat_mode set to %i by %s\n", i, ent->client->pers.netname);

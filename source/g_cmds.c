@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // g_cmds.c
 //
-// $Id: g_cmds.c,v 1.49 2002/01/24 02:55:58 ra Exp $
+// $Id: g_cmds.c,v 1.50 2002/02/01 12:54:08 ra Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_cmds.c,v $
+// Revision 1.50  2002/02/01 12:54:08  ra
+// messin with stat_mode
+//
 // Revision 1.49  2002/01/24 02:55:58  ra
 // Fixed the mm_forceteamtalk 2 bug.
 //
@@ -2135,7 +2138,7 @@ ClientCommand (edict_t * ent)
     }
   else if (Q_stricmp (cmd, "stats") == 0)
     {
-      Cmd_Stats_f (ent);
+      Cmd_Stats_f (ent, gi.argv (1));
       return;
     }
   else if (Q_stricmp (cmd, "flashlight") == 0)
@@ -2165,7 +2168,7 @@ ClientCommand (edict_t * ent)
   }
 	else if (Q_stricmp (cmd, "stat_mode") == 0 || Q_stricmp (cmd, "cmd_stat_mode") == 0)
 	{
-		Cmd_Statmode_f (ent);
+		Cmd_Statmode_f (ent, gi.argv (1));
 		return;
 	}
   else				// anything that doesn't match a command will be a chat

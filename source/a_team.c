@@ -3,10 +3,13 @@
 // Some of this is borrowed from Zoid's CTF (thanks Zoid)
 // -Fireblade
 //
-// $Id: a_team.c,v 1.68 2002/01/24 10:39:32 ra Exp $
+// $Id: a_team.c,v 1.69 2002/02/01 12:54:08 ra Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_team.c,v $
+// Revision 1.69  2002/02/01 12:54:08  ra
+// messin with stat_mode
+//
 // Revision 1.68  2002/01/24 10:39:32  ra
 // Removed an old debugging statement
 //
@@ -1835,15 +1838,17 @@ int WonGame (int winner)
 {
   edict_t *player, *cl_ent; // was: edict_t *player;
   int i;
+  char arg[64];
  
   gi.bprintf (PRINT_HIGH, "The round is over:\n");
+  arg[0] = 0;
 
 	for (i = 0; i < game.maxclients; i++)
 	{
 		cl_ent = &g_edicts[1 + i];
 
 		if ( cl_ent->inuse && cl_ent->client->resp.stat_mode == 2)
-			Cmd_Stats_f(cl_ent);
+			Cmd_Stats_f(cl_ent, arg);
 	}
 
   if (winner == WINNER_TIE)
