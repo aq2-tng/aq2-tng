@@ -4,6 +4,10 @@ Changes in TNG
 - = bug fix
 * = major bug fix
 
+From 2.71
+* Fixed maxclients 20 bug
+* Fixed weaponfarming
+
 From 2.7
 * New spawning system spawn bug (spawning too close) fixed.
 + Added Kevlar vest and Kevlar Helmet locations in damage (entire rework of the stats code).
