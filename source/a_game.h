@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // Include for base Action game-related things
 //
-// $Id: a_game.h,v 1.23 2004/04/08 23:19:51 slicerdw Exp $
+// $Id: a_game.h,v 1.24 2004/09/23 00:09:44 slicerdw Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_game.h,v $
+// Revision 1.24  2004/09/23 00:09:44  slicerdw
+// Radio kill count was missing for falling death
+//
 // Revision 1.23  2004/04/08 23:19:51  slicerdw
 // Optimized some code, added a couple of features and fixed minor bugs
 //
@@ -82,9 +85,9 @@
 
 
 // AQ2:TNG Deathwatch - Updated the Version variables to show TNG Stuff
-#define ACTION_VERSION  "1.52 TNG 2.8"
+#define ACTION_VERSION  "1.52 TNG 2.81"
 #define TNG_VERSION		"AQ2: The Next Generation"
-#define TNG_VERSION2	"AQ2: The Next Generation 2.8"
+#define TNG_VERSION2	"AQ2: The Next Generation 2.81"
 // AQ2:TNG Deathwatch End
 //AQ2:TNG Slicer This is the max players writen on last killed target
 //SLIC2

@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // p_client.c
 //
-// $Id: p_client.c,v 1.89 2004/04/08 23:19:51 slicerdw Exp $
+// $Id: p_client.c,v 1.90 2004/09/23 00:09:44 slicerdw Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: p_client.c,v $
+// Revision 1.90  2004/09/23 00:09:44  slicerdw
+// Radio kill count was missing for falling death
+//
 // Revision 1.89  2004/04/08 23:19:51  slicerdw
 // Optimized some code, added a couple of features and fixed minor bugs
 //
@@ -946,6 +949,9 @@ void ClientObituary(edict_t * self, edict_t * inflictor, edict_t * attacker)
 				// self->client->attacker->client->resp.last_killed_target = self;
 				AddKilledPlayer(self, self);
 				//PG BUND - END 
+				//SLIC2 Radio count for falling death was missing..
+				self->client->attacker->client->pers.num_kills++;
+				//SLIC2
 			} else {
 				if (IsNeutral(self))
 					sprintf(death_msg, "%s plummets to its death\n", self->client->pers.netname);

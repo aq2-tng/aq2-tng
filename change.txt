@@ -5,6 +5,7 @@ Changes in TNG
 * = major bug fix
 
 From 2.8
+- Radio kill count was missing for falling death
 - Fixed bug on stats command
 + Optimized Radio/Voice Flood protection and added radio_repeat_time cvar
 + Increased Max filled players for %K to 8
