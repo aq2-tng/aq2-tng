@@ -1,0 +1,51 @@
+#
+# Map:   siege2.aqg
+# Build: 1
+# Creator:Bobert 1-15-2002
+#
+#	format is:
+#	x:y:z:rX:rY:rZ:name
+#
+#	where "x:y:z" is the location coordinate
+#	"rX,rY" is the range for the location marker (if 0 then 1500 vector
+#		points)
+#       "rZ" is the height range for the location marker (if 0 then not use
+#		it)
+#	"name" is the name of the location marker and is used in "%L" and "%S"
+#
+ -860: -200:  256:  122:  122:  256:in the Van Gogh tower
+ -860: -200:  736:  122:  122:  224:above the Van Gogh tower
+  106: -200:  256:  122:  122:  256:in the Da Vinci tower
+  106: -200:  736:  122:  122:  224:above of the Da Vinci tower
+ -860: -987:  192:  122:  122:  192:in the rear tower
+ -860: -987:  480:  122:  122:   96:above the rear tower
+  106: -987:  -96:  122:  122:  352:on the spiral staircase
+  106: -987:  352:  122:  122:   96:above the spiral staircase
+ -377: -590:  130:  402:  309:  130:in the courtyard
+ -381:    8:   95:   93:  262:   95:by the drawbridge
+ -136: -979:  196:  120:   49:   60:near the button
+  -40: -608:  -95:   34:   34:  135:in the well
+  258:   16: -245:  226:  256:  243:in the chasm by the tree
+  364: -711: -245:  120:  471:  243:in the chasm by the castle entrance
+  364:-1278: -245:  120:   97:  243:on the chasm ledges
+ -665:   99: -245:  697:  173:  243:in the chasm under the drawbridge
+-1233:  435: -245:  130:  163:  243:in the chasm cave enterance
+ -119: -981: -380:  169:  125:  108:below the spiral staircase
+  -23: -683: -380:  267:  176:  108:below the castle
+-1208:  722: -133:  212:  124:  325:in the caves 
+ -380: -163:  224:  355:   91:  224:around the front castle wall
+ -380: -986:  352:  355:   70:   96:above the rear castle wall
+ -380: -980:   68:  355:   60:   68:in the rear castle wall
+ -864: -593:  224:   65:  265:  224:around Van Gogh's castle wall
+  104: -593:  224:   65:  265:  224:around Da Vinci's castle wall
+ -446:-1278:  192: 1003:  110:  192:behind the castle
+-1379:-1308:  480:   90:   81:   96:camping like a wuss
+  619:-1279:  288:   82:  111:  288:pitching a tent in the rear corner
+-1223: -503:  256:  230:  605:  256:outside by the trees
+  538: -538:  256:  163:  630:  256:outside by the ledges
+-1270:  350:  256:  274:  249:  256:between the caves & castle
+ -154:  508:  256:  842:  407:  256:in front of the castle
+-1051:  769:  478:  418:  161:  290:above the caves
+
+
+
