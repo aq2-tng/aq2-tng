@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // g_save.c
 //
-// $Id: g_save.c,v 1.40 2001/10/18 12:04:44 deathwatch Exp $
+// $Id: g_save.c,v 1.41 2001/11/04 15:18:49 ra Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_save.c,v $
+// Revision 1.41  2001/11/04 15:18:49  ra
+// Unlatch wpn_flag, itm_flag, rrot, vrot
+//
 // Revision 1.40  2001/10/18 12:04:44  deathwatch
 // Fixed sv_crlf's default (0 == dont allow)
 //
@@ -441,8 +444,8 @@ InitGame (void)
   actionversion =
     gi.cvar ("actionversion", "none set", CVAR_SERVERINFO | CVAR_LATCH);
   gi.cvar_set ("actionversion", ACTION_VERSION);
-  use_voice = gi.cvar ("use_voice", "1", CVAR_LATCH);	//slicer
-  ppl_idletime = gi.cvar ("ppl_idletime", "15", CVAR_LATCH);
+  use_voice = gi.cvar ("use_voice", "1", 0);	//slicer
+  ppl_idletime = gi.cvar ("ppl_idletime", "15", 0);
   use_tourney = gi.cvar ("use_tourney", "0", CVAR_SERVERINFO | CVAR_LATCH);
   use_3teams = gi.cvar ("use_3teams", "0", CVAR_SERVERINFO | CVAR_LATCH);
   use_kickvote = gi.cvar ("use_kickvote", "1", 0);	//slicer
@@ -458,10 +461,10 @@ InitGame (void)
   mapvote_waittime = gi.cvar ("mapvote_waittime", "40", 0);
   ff_afterround = gi.cvar ("ff_afterround", "1", 0);
   uvtime = gi.cvar ("uvtime", "40", CVAR_LATCH);
-  sv_gib = gi.cvar ("sv_gib", "0", CVAR_LATCH);
+  sv_gib = gi.cvar ("sv_gib", "0", 0);
   sv_crlf = gi.cvar ("sv_crlf", "0", CVAR_LATCH); // 0 == DONT ALLOW IT
-  vrot = gi.cvar ("vrot", "0", CVAR_LATCH);
-  rrot = gi.cvar ("rrot", "0", CVAR_LATCH);
+  vrot = gi.cvar ("vrot", "0", 0);
+  rrot = gi.cvar ("rrot", "0", 0);
   llsound = gi.cvar ("llsound", "1", CVAR_LATCH);
   use_cvote = gi.cvar ("use_cvote", "0", 0);	// Removed it from Serverinfo
   new_irvision = gi.cvar ("new_irvision", "0", 0);
@@ -476,8 +479,8 @@ InitGame (void)
   video_check_lockpvs = gi.cvar ("video_check_lockpvs", "0", 0);
   video_checktime = gi.cvar ("video_checktime", "15", 0);
   hc_single = gi.cvar ("hc_single", "1", CVAR_LATCH);	//default ON
-  wp_flags = gi.cvar ("wp_flags", "511", CVAR_LATCH);	// 511 = WPF_MK23 | WPF_MP5 | WPF_M4 | WPF_M3 | WPF_HC | WPF_SNIPER | WPF_DUAL | WPF_KNIFE | WPF_GRENADE
-  itm_flags = gi.cvar ("itm_flags", "63", CVAR_LATCH);	// 63 = ITF_SIL | ITF_SLIP | ITF_BAND | ITF_KEV | ITF_LASER | ITF_HELM 
+  wp_flags = gi.cvar ("wp_flags", "511", 0);	// 511 = WPF_MK23 | WPF_MP5 | WPF_M4 | WPF_M3 | WPF_HC | WPF_SNIPER | WPF_DUAL | WPF_KNIFE | WPF_GRENADE
+  itm_flags = gi.cvar ("itm_flags", "63", 0);	// 63 = ITF_SIL | ITF_SLIP | ITF_BAND | ITF_KEV | ITF_LASER | ITF_HELM 
   matchmode = gi.cvar ("matchmode", "0", CVAR_SERVERINFO | CVAR_LATCH);
   hearall = gi.cvar ("hearall", "0", 0);	// used in matchmode
 
