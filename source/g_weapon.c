@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // g_weapon.c
 //
-// $Id: g_weapon.c,v 1.4 2001/08/06 03:00:49 ra Exp $
+// $Id: g_weapon.c,v 1.5 2001/08/06 14:38:45 ra Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_weapon.c,v $
+// Revision 1.5  2001/08/06 14:38:45  ra
+// Adding UVtime for ctf
+//
 // Revision 1.4  2001/08/06 03:00:49  ra
 // Added FF after rounds. Please someone look at the EVIL if statments for me :)
 //
@@ -1358,7 +1361,10 @@ void kick_attack (edict_t * ent )
                                 {
                                         if (lights_camera_action)
                                                 return;
-                                        
+// AQ2:TNG - JBravo adding UVtime
+					if (ent->client->ctf_uvtime)
+						return;
+
 //                                        if (tr.ent != ent && tr.ent->client && ent->client &&
 //                                                tr.ent->client->resp.team == ent->client->resp.team)
 // AQ:TNG - JBravo adding FF after rounds

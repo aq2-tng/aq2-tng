@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // g_weapon.c
 //
-// $Id: p_weapon.c,v 1.6 2001/07/18 15:19:11 slicerdw Exp $
+// $Id: p_weapon.c,v 1.7 2001/08/06 14:38:45 ra Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: p_weapon.c,v $
+// Revision 1.7  2001/08/06 14:38:45  ra
+// Adding UVtime for ctf
+//
 // Revision 1.6  2001/07/18 15:19:11  slicerdw
 // Time for weapons and items dissapearing is set to "6" to prevent lag on ctf
 //
@@ -1483,7 +1486,9 @@ void Weapon_Generic (edict_t *ent, int FRAME_ACTIVATE_LAST, int FRAME_FIRE_LAST,
                         }
                         if ( ((ent->client->latched_buttons|ent->client->buttons) & BUTTON_ATTACK) 
                                 //FIREBLADE
-                                && (ent->solid != SOLID_NOT || ent->deadflag == DEAD_DEAD) && !lights_camera_action)
+// AQ2:TNG - JBravo adding UVtime
+                                && (ent->solid != SOLID_NOT || ent->deadflag == DEAD_DEAD) && !lights_camera_action
+				&& (!ctf->value || !ent->client->ctf_uvtime))
                                 //FIREBLADE
                         {
                                 ent->client->latched_buttons &= ~BUTTON_ATTACK;
@@ -1750,7 +1755,9 @@ void Weapon_Generic (edict_t *ent, int FRAME_ACTIVATE_LAST, int FRAME_FIRE_LAST,
         {
                 if ( ((ent->client->latched_buttons|ent->client->buttons) & BUTTON_ATTACK) 
 //FIREBLADE
-                        && (ent->solid != SOLID_NOT || ent->deadflag == DEAD_DEAD) && !lights_camera_action)
+// AQ2:TNG - JBravo adding UVtime
+                        && (ent->solid != SOLID_NOT || ent->deadflag == DEAD_DEAD) && !lights_camera_action
+			&& (!ctf->value || !ent->client->ctf_uvtime))
 //FIREBLADE
                 {
                         ent->client->latched_buttons &= ~BUTTON_ATTACK;
@@ -4256,7 +4263,9 @@ void Weapon_Generic_Knife(edict_t *ent, int FRAME_ACTIVATE_LAST, int FRAME_FIRE_
         {
             if ( ((ent->client->latched_buttons|ent->client->buttons) & BUTTON_ATTACK) 
 //FIREBLADE
-                        && (ent->solid != SOLID_NOT || ent->deadflag == DEAD_DEAD) && !lights_camera_action)
+// AQ2:TNG - JBravo adding UVtime
+                        && (ent->solid != SOLID_NOT || ent->deadflag == DEAD_DEAD) && !lights_camera_action
+			&& (!ctf->value || !ent->client->ctf_uvtime))
 //FIREBLADE
                 {
                         ent->client->latched_buttons &= ~BUTTON_ATTACK;
@@ -4778,8 +4787,9 @@ void Weapon_Gas (edict_t *ent)
         {
                 if ( ((ent->client->latched_buttons|ent->client->buttons) & BUTTON_ATTACK) 
                         //FIREBLADE
+// AQ2:TNG - JBravo adding UVtime
                         && (ent->solid != SOLID_NOT || ent->deadflag == DEAD_DEAD) && 
-                        !lights_camera_action)
+                        !lights_camera_action && (!ctf->value || !ent->client->ctf_uvtime))
                         //FIREBLADE
                         
                 {

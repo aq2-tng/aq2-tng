@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 //
 //
-// $Id: g_main.c,v 1.23 2001/08/06 03:00:49 ra Exp $
+// $Id: g_main.c,v 1.24 2001/08/06 14:38:45 ra Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_main.c,v $
+// Revision 1.24  2001/08/06 14:38:45  ra
+// Adding UVtime for ctf
+//
 // Revision 1.23  2001/08/06 03:00:49  ra
 // Added FF after rounds. Please someone look at the EVIL if statments for me :)
 //
@@ -149,6 +152,7 @@ cvar_t	*vk_public;
 cvar_t	*punishkills;
 cvar_t	*mapvote_waittime;
 cvar_t	*ff_afterround;
+cvar_t	*uvtime;
 // JBravo
 
 // tempfile

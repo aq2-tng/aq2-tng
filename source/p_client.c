@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // p_client.c
 //
-// $Id: p_client.c,v 1.40 2001/08/06 13:41:41 slicerdw Exp $
+// $Id: p_client.c,v 1.41 2001/08/06 14:38:45 ra Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: p_client.c,v $
+// Revision 1.41  2001/08/06 14:38:45  ra
+// Adding UVtime for ctf
+//
 // Revision 1.40  2001/08/06 13:41:41  slicerdw
 // Added a fix for ctf..
 //
@@ -1768,6 +1771,8 @@ void InitClientPersistant (gclient_t *client)
 		//AQ2:TNG - Slicer Moved This To Here
 		client->pers.num_kills = 0;
 		//AQ2:TNG END
+// AQ2:TNG - JBravo adding UVtime
+	client->ctf_uvtime = 0;
 }
 
 
@@ -2794,6 +2799,12 @@ void PutClientInServer (edict_t *ent)
                         ent->client->ps.gunindex = 0; 
                 }
         }
+// AQ2:TNG - JBravo adding UVtime
+	if (ctf->value) {
+		if (team_round_going && !lights_camera_action && uvtime->value) {
+			ent->client->ctf_uvtime = uvtime->value;
+		}
+	}
 
 //FIREBLADE
         if (!going_observer && !teamplay->value)

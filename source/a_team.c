@@ -3,10 +3,13 @@
 // Some of this is borrowed from Zoid's CTF (thanks Zoid)
 // -Fireblade
 //
-// $Id: a_team.c,v 1.42 2001/08/01 13:54:26 ra Exp $
+// $Id: a_team.c,v 1.43 2001/08/06 14:38:44 ra Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_team.c,v $
+// Revision 1.43  2001/08/06 14:38:44  ra
+// Adding UVtime for ctf
+//
 // Revision 1.42  2001/08/01 13:54:26  ra
 // Hack to keep scoreboard from revealing whos alive during matches
 //
@@ -1845,7 +1848,7 @@ WonGame (int winner)
 void
 CheckTeamRules ()
 {
-  int winner;
+  int winner, i;
   int checked_tie = 0;
 
   if (round_delay_time && use_tourney->value)
@@ -1860,6 +1863,24 @@ CheckTeamRules ()
 	}
       return;
     }
+
+// AQ2:TNG - JBravo adding UVtime
+	for (i = 0; i < maxclients->value; i++) {
+		if (!g_edicts[i+1].inuse)
+			continue;
+		if (game.clients[i].ctf_uvtime > 0) {
+			game.clients[i].ctf_uvtime--;
+			if(!game.clients[i].ctf_uvtime && team_round_going) {
+				gi.centerprintf(&g_edicts[i+1], "ACTION!");
+			} else {
+				if (game.clients[i].ctf_uvtime % 10 == 0) {
+					gi.centerprintf(&g_edicts[i+1], "Shield %d", game.clients[i].ctf_uvtime / 10);
+				}
+			}
+		} else {
+			game.clients[i].ctf_uvtime = 0;
+		}
+	}
 
   if (lights_camera_action)
     {

@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // g_combat.c
 //
-// $Id: g_combat.c,v 1.11 2001/08/06 03:00:48 ra Exp $
+// $Id: g_combat.c,v 1.12 2001/08/06 14:38:45 ra Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_combat.c,v $
+// Revision 1.12  2001/08/06 14:38:45  ra
+// Adding UVtime for ctf
+//
 // Revision 1.11  2001/08/06 03:00:48  ra
 // Added FF after rounds. Please someone look at the EVIL if statments for me :)
 //
@@ -674,6 +677,12 @@ void T_Damage (edict_t *targ, edict_t *inflictor, edict_t *attacker, vec3_t dir,
       if (lights_camera_action)
 	return;
       
+// AQ2:TNG - JBravo adding UVtime
+	if (ctf->value && targ->client && attacker->client) {
+		if ( targ->client->ctf_uvtime > 0 || attacker->client->ctf_uvtime > 0 )
+			return;
+	}
+
 //      if (targ != attacker && targ->client && attacker->client &&
 //	  (targ->client->resp.team == attacker->client->resp.team &&
 //	   ((int)(dmflags->value) & (DF_NO_FRIENDLY_FIRE))))

@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // g_local.h -- local definitions for game module
 //
-// $Id: g_local.h,v 1.30 2001/08/06 03:00:49 ra Exp $
+// $Id: g_local.h,v 1.31 2001/08/06 14:38:45 ra Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_local.h,v $
+// Revision 1.31  2001/08/06 14:38:45  ra
+// Adding UVtime for ctf
+//
 // Revision 1.30  2001/08/06 03:00:49  ra
 // Added FF after rounds. Please someone look at the EVIL if statments for me :)
 //
@@ -731,6 +734,7 @@ extern cvar_t *vk_public;
 extern cvar_t *punishkills;
 extern cvar_t *mapvote_waittime;
 extern cvar_t *ff_afterround;
+extern cvar_t *uvtime;
 // JBravo
 
 //Black Cross
@@ -1492,6 +1496,8 @@ struct gclient_s
     // This is set to 0 if no zooming shall be done, and is set to 0 after zooming
     // is done.
     //TempFile
+// AQ2:TNG - JBravo adding UVtime
+	int ctf_uvtime;
 
 
   };

@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // CTF related code
 //
-// $Id: a_ctf.c,v 1.13 2001/06/26 18:47:30 igor_rock Exp $
+// $Id: a_ctf.c,v 1.14 2001/08/06 14:38:44 ra Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_ctf.c,v $
+// Revision 1.14  2001/08/06 14:38:44  ra
+// Adding UVtime for ctf
+//
 // Revision 1.13  2001/06/26 18:47:30  igor_rock
 // added ctf_respawn cvar
 //
@@ -494,6 +497,12 @@ qboolean CTFPickup_Flag(edict_t *ent, edict_t *other)
 		//CTFResetFlag will remove this entity!  We must return false
 		CTFResetFlag(team);
 		return false;
+	}
+
+// AQ2:TNG - JBravo adding UVtime
+	if (other->client->ctf_uvtime) {
+		other->client->ctf_uvtime = 0;
+		gi.centerprintf(other, "Flag taken! Shields are DOWN! Run for it!");
 	}
 
 	// hey, its not our flag, pick it up

@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // p_view.c
 //
-// $Id: p_view.c,v 1.12 2001/06/25 11:44:47 slicerdw Exp $
+// $Id: p_view.c,v 1.13 2001/08/06 14:38:45 ra Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: p_view.c,v $
+// Revision 1.13  2001/08/06 14:38:45  ra
+// Adding UVtime for ctf
+//
 // Revision 1.12  2001/06/25 11:44:47  slicerdw
 // New Video Check System - video_check and video_check_lockpvs no longer latched
 //
@@ -882,6 +885,16 @@ void G_SetClientEffects (edict_t *ent)
   {
     ent->s.effects |= EF_COLOR_SHELL;
     ent->s.renderfx |= (RF_SHELL_RED|RF_SHELL_GREEN|RF_SHELL_BLUE);
+  }
+// AQ2:TNG - JBravo adding UVtime
+  if (ctf->value && ((ent->client->ctf_uvtime & 4) || (lights_camera_action & 4))) {
+	ent->s.effects |= EF_COLOR_SHELL;
+	if (ent->client->resp.team == TEAM1)
+		ent->s.renderfx |= RF_SHELL_RED;
+	else if (ent->client->resp.team == TEAM2)
+		ent->s.renderfx |= RF_SHELL_BLUE;
+	else
+		ent->s.renderfx |= RF_SHELL_GREEN;
   }
 }
 
