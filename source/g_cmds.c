@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // g_cmds.c
 //
-// $Id: g_cmds.c,v 1.26 2001/08/08 12:42:22 slicerdw Exp $
+// $Id: g_cmds.c,v 1.27 2001/08/17 21:31:37 deathwatch Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_cmds.c,v $
+// Revision 1.27  2001/08/17 21:31:37  deathwatch
+// Added support for stats
+//
 // Revision 1.26  2001/08/08 12:42:22  slicerdw
 // Ctf Should finnaly be fixed now, lets hope so
 //
@@ -96,7 +99,7 @@
 
 #include "g_local.h"
 #include "m_player.h"
-
+#include "tng_stats.h" // Adding TNG Stats File
 
 char *ClientTeam (edict_t *ent)
 {
@@ -1592,227 +1595,297 @@ ClientCommand
 */
 void ClientCommand (edict_t *ent)
 {
-        char    *cmd;
+	char    *cmd;
 
-        if (!ent->client)
-                return;         // not fully in game yet
+	if (!ent->client)
+		return;         // not fully in game yet
+	if (level.intermissiontime)
+		return;
 
-        cmd = gi.argv(0);
+	cmd = gi.argv(0);
 
-        if (Q_stricmp (cmd, "players") == 0)
-        {
-                Cmd_Players_f (ent);
-                return;
-        }
-        if (Q_stricmp (cmd, "say") == 0)
-        {
-                Cmd_Say_f (ent, false, false, false);
-                return;
-        }
-        if (Q_stricmp (cmd, "say_team") == 0)
-        {
-                Cmd_Say_f (ent, true, false, false);
-                return;
-        }
-        if (Q_stricmp (cmd, "score") == 0)
-        {
-                Cmd_Score_f (ent);
-                return;
-        }
-        if (Q_stricmp (cmd, "help") == 0)
-        {
-                Cmd_Help_f (ent);
-                return;
-        }
-
-        if (level.intermissiontime)
-                return;
-
-        if (Q_stricmp (cmd, "use") == 0)
-                Cmd_Use_f (ent);
-        else if (Q_stricmp (cmd, "drop") == 0)
-                Cmd_Drop_f (ent);
-        else if (Q_stricmp (cmd, "give") == 0)
-                Cmd_Give_f (ent);
-        else if (Q_stricmp (cmd, "god") == 0)
-                Cmd_God_f (ent);
-        else if (Q_stricmp (cmd, "notarget") == 0)
-                Cmd_Notarget_f (ent);
-        else if (Q_stricmp (cmd, "noclip") == 0)
-                Cmd_Noclip_f (ent);
-        else if (Q_stricmp (cmd, "inven") == 0)
-                Cmd_Inven_f (ent);
-        else if (Q_stricmp (cmd, "invnext") == 0)
-                SelectNextItem (ent, -1);
-        else if (Q_stricmp (cmd, "invprev") == 0)
-                SelectPrevItem (ent, -1);
-        else if (Q_stricmp (cmd, "invnextw") == 0)
-                SelectNextItem (ent, IT_WEAPON);
-        else if (Q_stricmp (cmd, "invprevw") == 0)
-                SelectPrevItem (ent, IT_WEAPON);
-        else if (Q_stricmp (cmd, "invnextp") == 0)
-                SelectNextItem (ent, IT_POWERUP);
-        else if (Q_stricmp (cmd, "invprevp") == 0)
-                SelectPrevItem (ent, IT_POWERUP);
-        else if (Q_stricmp (cmd, "invuse") == 0)
-                Cmd_InvUse_f (ent);
-        else if (Q_stricmp (cmd, "invdrop") == 0)
-                Cmd_InvDrop_f (ent);
-        else if (Q_stricmp (cmd, "weapprev") == 0)
-                Cmd_WeapPrev_f (ent);
-        else if (Q_stricmp (cmd, "weapnext") == 0)
-                Cmd_WeapNext_f (ent);
-        else if (Q_stricmp (cmd, "weaplast") == 0)
-                Cmd_WeapLast_f (ent);
-        else if (Q_stricmp (cmd, "kill") == 0)
-                Cmd_Kill_f (ent);
-        else if (Q_stricmp (cmd, "putaway") == 0)
-                Cmd_PutAway_f (ent);
-        else if (Q_stricmp (cmd, "wave") == 0)
-                Cmd_Wave_f (ent);
+	if (Q_stricmp (cmd, "players") == 0) {
+		Cmd_Players_f (ent);
+		return;
+	} 
+	else if (Q_stricmp (cmd, "say") == 0) {
+		Cmd_Say_f (ent, false, false, false);
+		return;
+	} 
+	else if (Q_stricmp (cmd, "say_team") == 0) {
+		Cmd_Say_f (ent, true, false, false);
+		return;
+	} 
+	else if (Q_stricmp (cmd, "score") == 0) {
+		Cmd_Score_f (ent);
+		return;
+	} 
+	else if (Q_stricmp (cmd, "help") == 0)
+	{
+		Cmd_Help_f (ent);
+		return;
+	} 
+	else if (Q_stricmp (cmd, "use") == 0) {
+		Cmd_Use_f (ent);
+			return;
+	}
+	else if (Q_stricmp (cmd, "drop") == 0) {
+		Cmd_Drop_f (ent);
+		return;
+	}
+	else if (Q_stricmp (cmd, "give") == 0) {
+		Cmd_Give_f (ent);
+		return;
+	}
+	else if (Q_stricmp (cmd, "god") == 0) {
+		Cmd_God_f (ent);
+		return;
+	}
+	else if (Q_stricmp (cmd, "notarget") == 0) {
+		Cmd_Notarget_f (ent);
+		return;
+	}
+	else if (Q_stricmp (cmd, "noclip") == 0) {
+		Cmd_Noclip_f (ent);
+		return;
+	}
+	else if (Q_stricmp (cmd, "inven") == 0) {
+		Cmd_Inven_f (ent);
+		return;
+	}
+	else if (Q_stricmp (cmd, "invnext") == 0) {
+		SelectNextItem (ent, -1);
+		return;
+	}
+	else if (Q_stricmp (cmd, "invprev") == 0) {
+		SelectPrevItem (ent, -1);
+		return;
+	}
+	else if (Q_stricmp (cmd, "invnextw") == 0) {
+		SelectNextItem (ent, IT_WEAPON);
+		return;
+	}
+	else if (Q_stricmp (cmd, "invprevw") == 0) {
+		SelectPrevItem (ent, IT_WEAPON);
+		return;
+	}
+	else if (Q_stricmp (cmd, "invnextp") == 0) {
+		SelectNextItem (ent, IT_POWERUP);
+		return;
+	}
+	else if (Q_stricmp (cmd, "invprevp") == 0) {
+		SelectPrevItem (ent, IT_POWERUP);
+		return;
+	}
+	else if (Q_stricmp (cmd, "invuse") == 0) {
+		Cmd_InvUse_f (ent);
+		return;
+	}
+	else if (Q_stricmp (cmd, "invdrop") == 0) {
+		Cmd_InvDrop_f (ent);
+		return;
+	}
+	else if (Q_stricmp (cmd, "weapprev") == 0) {
+		Cmd_WeapPrev_f (ent);
+		return;
+	}
+	else if (Q_stricmp (cmd, "weapnext") == 0) {
+		Cmd_WeapNext_f (ent);
+		return;
+	}
+	else if (Q_stricmp (cmd, "weaplast") == 0) {
+		Cmd_WeapLast_f (ent);
+		return;
+	}
+	else if (Q_stricmp (cmd, "kill") == 0) {
+		Cmd_Kill_f (ent);
+		return;
+	}
+	else if (Q_stricmp (cmd, "putaway") == 0) {
+		Cmd_PutAway_f (ent);
+		return;
+	}
+	else if (Q_stricmp (cmd, "wave") == 0) {
+		Cmd_Wave_f (ent);
+		return;
+	}
 //zucc
 //      else if (Q_stricmp (cmd, "laser") == 0)
 //              SP_LaserSight (ent);
-        else if (Q_stricmp (cmd, "reload") == 0)
-                Cmd_New_Reload_f (ent);
-        else if (Q_stricmp (cmd, "weapon") == 0)
-                Cmd_New_Weapon_f (ent);
-        else if (Q_stricmp (cmd, "opendoor") == 0)
-                Cmd_OpenDoor_f (ent);
-        else if (Q_stricmp (cmd, "bandage") == 0)
-                Cmd_Bandage_f (ent);
-        else if (Q_stricmp (cmd, "id") == 0)
-                Cmd_ID_f (ent );
-        else if (Q_stricmp (cmd, "irvision") == 0)
-                Cmd_IR_f (ent );
-        else if (Q_stricmp(cmd, "playerlist") == 0)
-                Cmd_PlayerList_f(ent);
-//FIREBLADE
-        else if (Q_stricmp(cmd, "team") == 0 && teamplay->value)
-                Team_f(ent);                
-        else if (Q_stricmp(cmd, "radio") == 0)
-                Cmd_Radio_f(ent);
-        else if (Q_stricmp(cmd, "radiogender") == 0)
-                Cmd_Radiogender_f(ent);
-        else if (Q_stricmp(cmd, "radio_power") == 0)
-                Cmd_Radio_power_f(ent);
-        else if (Q_stricmp(cmd, "radiopartner") == 0)
-                Cmd_Radiopartner_f(ent);
-        else if (Q_stricmp(cmd, "radioteam") == 0)
-                Cmd_Radioteam_f(ent);
-        else if (Q_stricmp(cmd, "channel") == 0)
-                Cmd_Channel_f(ent);
-        else if (Q_stricmp(cmd, "say_partner") == 0)
-                Cmd_Say_partner_f(ent);
-        else if (Q_stricmp(cmd, "partner") == 0)
-                Cmd_Partner_f(ent);
-        else if (Q_stricmp(cmd, "unpartner") == 0)
-                Cmd_Unpartner_f(ent);                
-        else if (Q_stricmp(cmd, "motd") == 0)
-                PrintMOTD(ent);
-        else if (Q_stricmp(cmd, "deny") == 0)
-                Cmd_Deny_f(ent);
-        else if (Q_stricmp(cmd, "choose") == 0)
-                Cmd_Choose_f(ent);
-
-// AQ:TNG - JBravo adding a tkok command to forgive teamkills
-	else if (Q_stricmp(cmd, "tkok") == 0)
+	else if (Q_stricmp (cmd, "reload") == 0) {
+		Cmd_New_Reload_f (ent);
+		return;
+	}
+	else if (Q_stricmp (cmd, "weapon") == 0) {
+		Cmd_New_Weapon_f (ent);
+		return;
+	}
+	else if (Q_stricmp (cmd, "opendoor") == 0) {
+		Cmd_OpenDoor_f (ent);
+		return;
+	}
+	else if (Q_stricmp (cmd, "bandage") == 0) {
+		Cmd_Bandage_f (ent);
+		return;
+	}
+	else if (Q_stricmp (cmd, "id") == 0) {
+		Cmd_ID_f (ent );
+		return;
+	}
+	else if (Q_stricmp (cmd, "irvision") == 0) {
+		Cmd_IR_f (ent );
+		return;
+	}
+	else if (Q_stricmp(cmd, "playerlist") == 0) {
+		Cmd_PlayerList_f(ent);
+		return;
+	}
+	else if (Q_stricmp(cmd, "team") == 0 && teamplay->value) {
+		Team_f(ent);
+		return;
+	}
+	else if (Q_stricmp(cmd, "radio") == 0) {
+		Cmd_Radio_f(ent);
+		return;
+	}
+	else if (Q_stricmp(cmd, "radiogender") == 0) {
+		Cmd_Radiogender_f(ent);
+		return;
+	}
+	else if (Q_stricmp(cmd, "radio_power") == 0) {
+		Cmd_Radio_power_f(ent);
+		return;
+	}
+	else if (Q_stricmp(cmd, "radiopartner") == 0) {
+		Cmd_Radiopartner_f(ent);
+		return;
+	}
+	else if (Q_stricmp(cmd, "radioteam") == 0) {
+		Cmd_Radioteam_f(ent);
+		return;
+	}
+	else if (Q_stricmp(cmd, "channel") == 0) {
+		Cmd_Channel_f(ent);
+		return;
+	}
+	else if (Q_stricmp(cmd, "say_partner") == 0) {
+		Cmd_Say_partner_f(ent);
+		return;
+	}
+	else if (Q_stricmp(cmd, "partner") == 0) {
+		Cmd_Partner_f(ent);
+		return;
+	}
+	else if (Q_stricmp(cmd, "unpartner") == 0) {
+		Cmd_Unpartner_f(ent);
+		return;
+	}
+	else if (Q_stricmp(cmd, "motd") == 0) {
+		PrintMOTD(ent);
+		return;
+	}
+	else if (Q_stricmp(cmd, "deny") == 0) {
+		Cmd_Deny_f(ent);
+		return;
+	}
+	else if (Q_stricmp(cmd, "choose") == 0) {
+		Cmd_Choose_f(ent);
+		return;
+	}
+	else if (Q_stricmp(cmd, "tkok") == 0) {
 		Cmd_TKOk(ent);
-// End tkok
-
-//PG BUND - BEGIN
-        else if (Q_stricmp(cmd, "voice") == 0 && use_voice->value)
-                Cmd_Voice_f(ent);
-        else if (Q_stricmp(cmd, "addpoint") == 0 && sv_cheats->value)
-                Cmd_Addpoint_f(ent); // See TF's additions below
-        else if (Q_stricmp(cmd, "setflag1") == 0 && sv_cheats->value)
-                Cmd_SetFlag1_f(ent);
-        else if (Q_stricmp(cmd, "setflag2") == 0 && sv_cheats->value)
-                Cmd_SetFlag2_f(ent);
-        else if (Q_stricmp(cmd, "saveflags") == 0 && sv_cheats->value)
-                Cmd_SaveFlags_f(ent);
-        else if (Q_stricmp(cmd, "punch") == 0)
-                Cmd_Punch_f(ent);
-        else if (Q_stricmp(cmd, "menu") == 0)
-                Cmd_Menu_f(ent);
-        else if (Q_stricmp(cmd, "rules") == 0)
-                Cmd_Rules_f(ent);
-        else if (vCommand(ent, cmd) == true) ;        
-                
-//PG BUND - END
-//AQ2:TNG - Slicer Old Location Support
-		/*
-//TempFile - BEGIN
-		else if (Q_stricmp(cmd, "begincube") == 0 && sv_cheats->value)
-				Cmd_BeginCube_f(ent);
-		else if (Q_stricmp(cmd, "setcubell") == 0 && sv_cheats->value)
-				Cmd_SetCubeLL_f(ent);
-		else if (Q_stricmp(cmd, "setcubeur") == 0 && sv_cheats->value)
-				Cmd_SetCubeUR_f(ent);
-		else if (Q_stricmp(cmd, "printcubestate") == 0 && sv_cheats->value)
-				Cmd_PrintCubeState_f(ent);
-		else if (Q_stricmp(cmd, "addcube") == 0 && sv_cheats->value)
-				Cmd_AddCube_f(ent);
-		else if (Q_stricmp(cmd, "abortcube") == 0 && sv_cheats->value)
-				Cmd_AbortCube_f(ent);
-//AQ2:TNG - Igor correcting LENS command
-		*/
-		else if (Q_stricmp(cmd, "lens") == 0)
-				Cmd_Lens_f(ent);
-//TempFile - END
-
-//AQ2:TNG - End correcting lens command
-//AQ2:TNG END
-		//AQ:TNG Slicer : Video Checks
-		else if (Q_stricmp(cmd, "%cpsi") == 0)
-			Cmd_CPSI_f(ent);
-		else if (Q_stricmp(cmd, "%!fc") == 0)
-			Cmd_VidRef_f(ent);
-			//AQ2:TNG Slicer - Matchmode
-		else if (Q_stricmp(cmd, "sub") == 0)
-		{
-			if(matchmode->value && teamplay->value)
-				Cmd_Sub_f(ent);
-			else
-			 Cmd_Say_f (ent, false, true, false);
-		}
-		else if (Q_stricmp(cmd, "captain") == 0)
-		{
-			if(matchmode->value)
-				Cmd_Captain_f(ent);
-			else
-			 Cmd_Say_f (ent, false, true, false);
-		}
-		else if (Q_stricmp(cmd, "ready") == 0)
-		{
-			if(matchmode->value)
-				Cmd_Ready_f(ent);
-			else
-			 Cmd_Say_f (ent, false, true, false);
-		}
-		else if (Q_stricmp(cmd, "teamname") == 0)
-		{
-			if(matchmode->value)
-				Cmd_Teamname_f(ent);
-			else
-			 Cmd_Say_f (ent, false, true, false);
-		}
-		else if (Q_stricmp(cmd, "teamskin") == 0)
-		{
-			if(matchmode->value)
-				Cmd_Teamskin_f(ent);
-			else
-			 Cmd_Say_f (ent, false, true, false);
-		}
-		else if (Q_stricmp (cmd, "entcount") == 0)		//Slicer
-			Cmd_Ent_Count_f (ent);	
-	//		else if (Q_stricmp (cmd, "cleanweapons") == 0)		//Slicer
-	//		CleanWeapons ();
-
-//AQ2:TNG END
-//FIREBLADE
-        else    // anything that doesn't match a command will be a chat
-                Cmd_Say_f (ent, false, true, false);
+		return;
+	}
+	else if (Q_stricmp(cmd, "voice") == 0 && use_voice->value) {
+		Cmd_Voice_f(ent);
+		return;
+	}
+	else if (Q_stricmp(cmd, "addpoint") == 0 && sv_cheats->value) {
+		Cmd_Addpoint_f(ent); // See TF's additions below
+		return;
+	}
+	else if (Q_stricmp(cmd, "setflag1") == 0 && sv_cheats->value) {
+		Cmd_SetFlag1_f(ent);
+		return;
+	}
+	else if (Q_stricmp(cmd, "setflag2") == 0 && sv_cheats->value) {
+		Cmd_SetFlag2_f(ent);
+		return;
+	}
+	else if (Q_stricmp(cmd, "saveflags") == 0 && sv_cheats->value) {
+		Cmd_SaveFlags_f(ent);
+		return;
+	}
+	else if (Q_stricmp(cmd, "punch") == 0) {
+		Cmd_Punch_f(ent);
+		return;
+	}
+	else if (Q_stricmp(cmd, "menu") == 0) {
+		Cmd_Menu_f(ent);
+		return;
+	}
+	else if (Q_stricmp(cmd, "rules") == 0) { 
+		Cmd_Rules_f(ent);
+		return;
+	}	
+	else if (vCommand(ent, cmd) == true) ;        
+	else if (Q_stricmp(cmd, "lens") == 0) {
+		Cmd_Lens_f(ent);
+		return;
+	}
+	else if (Q_stricmp(cmd, "%cpsi") == 0) {
+		Cmd_CPSI_f(ent);
+		return;
+	}
+	else if (Q_stricmp(cmd, "%!fc") == 0) {
+		Cmd_VidRef_f(ent);
+		return;
+	}
+	else if (Q_stricmp(cmd, "sub") == 0) {
+		if(matchmode->value && teamplay->value)
+			Cmd_Sub_f(ent);
+		else
+		 Cmd_Say_f (ent, false, true, false);
+		return;
+	}
+	else if (Q_stricmp(cmd, "captain") == 0) {
+		if(matchmode->value)
+			Cmd_Captain_f(ent);
+		else
+			Cmd_Say_f (ent, false, true, false);
+		return;
+	}
+	else if (Q_stricmp(cmd, "ready") == 0) {
+		if(matchmode->value)
+			Cmd_Ready_f(ent);
+		else
+			Cmd_Say_f (ent, false, true, false);
+		return;
+	}
+	else if (Q_stricmp(cmd, "teamname") == 0) {
+		if(matchmode->value)
+			Cmd_Teamname_f(ent);
+		else
+			Cmd_Say_f (ent, false, true, false);
+		return;
+	}
+	else if (Q_stricmp(cmd, "teamskin") == 0) {
+		if(matchmode->value)
+			Cmd_Teamskin_f(ent);
+		else
+			Cmd_Say_f (ent, false, true, false);
+		return;
+	}
+	else if (Q_stricmp (cmd, "entcount") == 0) {
+		Cmd_Ent_Count_f (ent);	
+		return;
+	}
+	else if (Q_stricmp (cmd, "stats") == 0) {
+		Cmd_Stats_f(ent);
+		return;
+	}
+  else    // anything that doesn't match a command will be a chat
+		Cmd_Say_f (ent, false, true, false);
 }
 
  // AQ2:TNG - Slicer : Video Check

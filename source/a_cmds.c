@@ -4,10 +4,13 @@
 //
 // laser sight patch, by Geza Beladi
 //
-// $Id: a_cmds.c,v 1.11 2001/08/15 14:50:48 slicerdw Exp $
+// $Id: a_cmds.c,v 1.12 2001/08/17 21:31:37 deathwatch Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_cmds.c,v $
+// Revision 1.12  2001/08/17 21:31:37  deathwatch
+// Added support for stats
+//
 // Revision 1.11  2001/08/15 14:50:48  slicerdw
 // Added Flood protections to Radio & Voice, Fixed the sniper bug AGAIN
 //
@@ -920,42 +923,43 @@ SetIDView (edict_t * ent)
 }
 
 
-void
-Cmd_IR_f (edict_t * ent)
+void Cmd_IR_f (edict_t * ent)
 {
   int band = 0;
   if (ir->value)
-    {
-      if (ent->client->pers.inventory[ITEM_INDEX (FindItem (BAND_NAME))])
-	{
-	  band = 1;
-	}
-      if (ent->client->resp.ir == 0)
-	{
-	  ent->client->resp.ir = 1;
-	  if (band)
-	    gi.cprintf (ent, PRINT_HIGH, "IR vision disabled.\n");
-	  else
-	    gi.cprintf (ent, PRINT_HIGH, "IR vision will be disabled when you get a bandolier.\n");
+  {
+		if (ent->client->pers.inventory[ITEM_INDEX (FindItem (BAND_NAME))])
+		{
+			band = 1;
+		}
+
+    if (ent->client->resp.ir == 0)
+		{
+			ent->client->resp.ir = 1;
+			if (band) {
+				gi.cprintf (ent, PRINT_HIGH, "IR vision disabled.\n");
+			}
+			else
+				gi.cprintf (ent, PRINT_HIGH, "IR vision will be disabled when you get a bandolier.\n");
 	  //      if ( ent->client->ps.rdflags & RDF_IRGOGGLES )
 	  //      ent->client->ps.rdflags &= ~RDF_IRGOGGLES;
-	}
-      else
-	{
-	  ent->client->resp.ir = 0;
-	  if (band)
-	    gi.cprintf (ent, PRINT_HIGH, "IR vision enabled.\n");
-	  else
-	    gi.cprintf (ent, PRINT_HIGH, "IR vision will be enabled when you get a bandolier.\n");
+		}
+    else
+		{
+			ent->client->resp.ir = 0;
+			if (band) {
+				gi.cprintf (ent, PRINT_HIGH, "IR vision enabled.\n");
+			}
+			else
+				gi.cprintf (ent, PRINT_HIGH, "IR vision will be enabled when you get a bandolier.\n");
 	  //      if ( !(ent->client->ps.rdflags & RDF_IRGOGGLES) )
 	  //      ent->client->ps.rdflags |= RDF_IRGOGGLES;
+		}
 	}
-
-    }
   else
-    {
-      gi.cprintf (ent, PRINT_HIGH, "IR vision not enabled on this server.\n");
-    }
+	{
+		gi.cprintf (ent, PRINT_HIGH, "IR vision not enabled on this server.\n");
+	}
 }
 
 

@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // g_local.h -- local definitions for game module
 //
-// $Id: g_local.h,v 1.32 2001/08/15 14:50:48 slicerdw Exp $
+// $Id: g_local.h,v 1.33 2001/08/17 21:31:37 deathwatch Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_local.h,v $
+// Revision 1.33  2001/08/17 21:31:37  deathwatch
+// Added support for stats
+//
 // Revision 1.32  2001/08/15 14:50:48  slicerdw
 // Added Flood protections to Radio & Voice, Fixed the sniper bug AGAIN
 //
@@ -1267,7 +1270,13 @@ typedef struct
     int hs_streak;		// Headshots in a Row
 
     int headshots;		// Headshot Counter
-    // Igor - END
+
+	// TNG Stats
+	int stats_shots_t; // Total nr of shots
+	int stats_shots_h; // Total nr of hits
+	int stats_shots_hd; // Total nr of headshots
+	// TNG Stats End
+
 	//AQ2:TNG - Slicer: Video Checking and further Cheat cheking vars
 	char vidref[16];
 	char gldriver[16];

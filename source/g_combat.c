@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // g_combat.c
 //
-// $Id: g_combat.c,v 1.12 2001/08/06 14:38:45 ra Exp $
+// $Id: g_combat.c,v 1.13 2001/08/17 21:31:37 deathwatch Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_combat.c,v $
+// Revision 1.13  2001/08/17 21:31:37  deathwatch
+// Added support for stats
+//
 // Revision 1.12  2001/08/06 14:38:45  ra
 // Adding UVtime for ctf
 //
@@ -736,7 +739,19 @@ void T_Damage (edict_t *targ, edict_t *inflictor, edict_t *attacker, vec3_t dir,
 // AQ:TNG
 
 	{
-	  
+
+// TNG Stats - Add +1 to hit, make sure that hc and m3 are handles differently
+			if ((attacker->client) && (mod != MOD_M3) && (mod != MOD_HC))
+				attacker->client->resp.stats_shots_h++;
+			else if((attacker->client) && (mod == MOD_M3))
+				attacker->client->resp.stats_shots_h+=1;
+			else if((attacker->client) && (mod == MOD_HC) && (attacker->client->resp.hc_mode)) 
+				attacker->client->resp.stats_shots_h+=1;
+			else if((attacker->client) && (mod == MOD_HC))
+				attacker->client->resp.stats_shots_h+=1;
+// TNG Stats END
+				
+
 	  if ((mod == MOD_MK23) || 
 	      (mod == MOD_MP5) || 
 	      (mod == MOD_M4) || 

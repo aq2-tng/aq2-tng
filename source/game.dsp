@@ -945,6 +945,23 @@ SOURCE=.\q_shared.c
 !ENDIF 
 
 # End Source File
+# Begin Source File
+
+SOURCE=.\tng_stats.c
+
+!IF  "$(CFG)" == "game - Win32 Release"
+
+!ELSEIF  "$(CFG)" == "game - Win32 Debug"
+
+!ELSEIF  "$(CFG)" == "game - Win32 Debug Alpha"
+
+!ELSEIF  "$(CFG)" == "game - Win32 Release Alpha"
+
+!ELSEIF  "$(CFG)" == "game - Win32 Ppro"
+
+!ENDIF 
+
+# End Source File
 # End Group
 # Begin Group "Header Files"
 
@@ -1024,6 +1041,10 @@ SOURCE=.\m_player.h
 # Begin Source File
 
 SOURCE=.\q_shared.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\tng_stats.h
 # End Source File
 # End Group
 # Begin Group "Resource Files"

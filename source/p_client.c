@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // p_client.c
 //
-// $Id: p_client.c,v 1.44 2001/08/15 14:50:48 slicerdw Exp $
+// $Id: p_client.c,v 1.45 2001/08/17 21:31:37 deathwatch Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: p_client.c,v $
+// Revision 1.45  2001/08/17 21:31:37  deathwatch
+// Added support for stats
+//
 // Revision 1.44  2001/08/15 14:50:48  slicerdw
 // Added Flood protections to Radio & Voice, Fixed the sniper bug AGAIN
 //
@@ -2796,7 +2799,7 @@ void PutClientInServer (edict_t *ent)
         VectorCopy (ent->s.angles, client->ps.viewangles);
         VectorCopy (ent->s.angles, client->v_angle);
 
-//FIREBLADE
+				//FIREBLADE
         if (teamplay->value)
         {
                 going_observer = StartClient(ent);
@@ -2866,6 +2869,7 @@ void PutClientInServer (edict_t *ent)
 		client->desired_zoom = 0;
 		client->autoreloading = false;
 //TempFile
+
 
 //FIREBLADE
         if (!going_observer)    
