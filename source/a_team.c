@@ -3,10 +3,13 @@
 // Some of this is borrowed from Zoid's CTF (thanks Zoid)
 // -Fireblade
 //
-// $Id: a_team.c,v 1.56 2001/11/02 16:07:47 ra Exp $
+// $Id: a_team.c,v 1.57 2001/11/03 17:21:57 deathwatch Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_team.c,v $
+// Revision 1.57  2001/11/03 17:21:57  deathwatch
+// Fixed something in the time command, removed the .. message from the voice command, fixed the vote spamming with mapvote, removed addpoint command (old pb command that wasnt being used). Some cleaning up of the source at a few points.
+//
 // Revision 1.56  2001/11/02 16:07:47  ra
 // Changed teamplay spawn code so that teams dont spawn in the same place
 // often in a row
@@ -3201,12 +3204,12 @@ SelectRandomTeamplaySpawnPoint (int team, qboolean teams_assigned[])
   ok = false;
 
   if (teamplay->value && (num_used_spawns == num_potential_spawns)) {
-	num_used_spawns = 0;
-	teamplay_usedspawns[0] = 0;
+		num_used_spawns = 0;
+		teamplay_usedspawns[0] = 0;
   }
 
   do {
-  spawn_point = newrand (num_potential_spawns);
+		spawn_point = newrand (num_potential_spawns);
   } while(CheckTeamSpawnPoints(spawn_point));
 
   teamplay_usedspawns[num_used_spawns] = spawn_point;

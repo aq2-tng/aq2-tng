@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // g_cmds.c
 //
-// $Id: g_cmds.c,v 1.37 2001/10/18 12:55:35 deathwatch Exp $
+// $Id: g_cmds.c,v 1.38 2001/11/03 17:21:57 deathwatch Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_cmds.c,v $
+// Revision 1.38  2001/11/03 17:21:57  deathwatch
+// Fixed something in the time command, removed the .. message from the voice command, fixed the vote spamming with mapvote, removed addpoint command (old pb command that wasnt being used). Some cleaning up of the source at a few points.
+//
 // Revision 1.37  2001/10/18 12:55:35  deathwatch
 // Added roundtimeleft
 //
@@ -2005,11 +2008,11 @@ ClientCommand (edict_t * ent)
       Cmd_Voice_f (ent);
       return;
     }
-  else if (Q_stricmp (cmd, "addpoint") == 0 && sv_cheats->value)
-    {
-      Cmd_Addpoint_f (ent);	// See TF's additions below
-      return;
-    }
+//  else if (Q_stricmp (cmd, "addpoint") == 0 && sv_cheats->value)
+//    {
+//      Cmd_Addpoint_f (ent);	// See TF's additions below
+//      return;
+//    }
   else if (Q_stricmp (cmd, "setflag1") == 0 && sv_cheats->value)
     {
       Cmd_SetFlag1_f (ent);
@@ -2059,41 +2062,41 @@ ClientCommand (edict_t * ent)
   else if (Q_stricmp (cmd, "sub") == 0)
     {
       if (matchmode->value && teamplay->value)
-	Cmd_Sub_f (ent);
+				Cmd_Sub_f (ent);
       else
-	Cmd_Say_f (ent, false, true, false);
+				Cmd_Say_f (ent, false, true, false);
       return;
     }
   else if (Q_stricmp (cmd, "captain") == 0)
     {
       if (matchmode->value)
-	Cmd_Captain_f (ent);
+				Cmd_Captain_f (ent);
       else
-	Cmd_Say_f (ent, false, true, false);
+				Cmd_Say_f (ent, false, true, false);
       return;
     }
   else if (Q_stricmp (cmd, "ready") == 0)
     {
       if (matchmode->value)
-	Cmd_Ready_f (ent);
+				Cmd_Ready_f (ent);
       else
-	Cmd_Say_f (ent, false, true, false);
+				Cmd_Say_f (ent, false, true, false);
       return;
     }
   else if (Q_stricmp (cmd, "teamname") == 0)
     {
       if (matchmode->value)
-	Cmd_Teamname_f (ent);
+				Cmd_Teamname_f (ent);
       else
-	Cmd_Say_f (ent, false, true, false);
+				Cmd_Say_f (ent, false, true, false);
       return;
     }
   else if (Q_stricmp (cmd, "teamskin") == 0)
     {
       if (matchmode->value)
-	Cmd_Teamskin_f (ent);
+				Cmd_Teamskin_f (ent);
       else
-	Cmd_Say_f (ent, false, true, false);
+				Cmd_Say_f (ent, false, true, false);
       return;
     }
   else if (Q_stricmp (cmd, "entcount") == 0)
@@ -2109,29 +2112,26 @@ ClientCommand (edict_t * ent)
   else if (Q_stricmp (cmd, "flashlight") == 0)
     {
       if (darkmatch->value)
-	FL_make (ent);
+				FL_make (ent);
       else
-	Cmd_Say_f (ent, false, true, false);
+				Cmd_Say_f (ent, false, true, false);
       return;
     }
   else if (Q_stricmp (cmd, "matchadmin") == 0)
     {
       if (matchmode->value)
-	Cmd_SetAdmin_f (ent);
+				Cmd_SetAdmin_f (ent);
       else
-	Cmd_Say_f (ent, false, true, false);
+				Cmd_Say_f (ent, false, true, false);
       return;
     }
-		else if (Q_stricmp(cmd, "roundtimeleft") == 0) {
+	else if (Q_stricmp(cmd, "roundtimeleft") == 0) {
 			if(teamplay->value)
 				Cmd_Roundtimeleft_f(ent);
 			else
 				Cmd_Say_f(ent, false, true, false);
 			return;
 		}
-
-
-
   else				// anything that doesn't match a command will be a chat
     Cmd_Say_f (ent, false, true, false);
 }

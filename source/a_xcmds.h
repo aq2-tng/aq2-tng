@@ -4,10 +4,13 @@
 //
 // header file for a_xcmd.c
 //
-// $Id: a_xcmds.h,v 1.3 2001/05/14 12:26:12 slicerdw Exp $
+// $Id: a_xcmds.h,v 1.4 2001/11/03 17:21:57 deathwatch Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_xcmds.h,v $
+// Revision 1.4  2001/11/03 17:21:57  deathwatch
+// Fixed something in the time command, removed the .. message from the voice command, fixed the vote spamming with mapvote, removed addpoint command (old pb command that wasnt being used). Some cleaning up of the source at a few points.
+//
 // Revision 1.3  2001/05/14 12:26:12  slicerdw
 // Uncommented the lens command
 //
@@ -33,7 +36,7 @@ void Cmd_Menu_f (edict_t * self);
 //
 void Cmd_Punch_f (edict_t * self);
 //Adds a point with name to location file - cheats must be enabled!
-void Cmd_Addpoint_f (edict_t * self);
+//void Cmd_Addpoint_f (edict_t * self);
 //Plays a sound file
 void Cmd_Voice_f (edict_t * self);
 //Shows new rules

@@ -4,10 +4,13 @@
 //
 // contains all new non standard command functions
 //
-// $Id: a_xcmds.c,v 1.8 2001/09/28 13:48:34 ra Exp $
+// $Id: a_xcmds.c,v 1.9 2001/11/03 17:21:57 deathwatch Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_xcmds.c,v $
+// Revision 1.9  2001/11/03 17:21:57  deathwatch
+// Fixed something in the time command, removed the .. message from the voice command, fixed the vote spamming with mapvote, removed addpoint command (old pb command that wasnt being used). Some cleaning up of the source at a few points.
+//
 // Revision 1.8  2001/09/28 13:48:34  ra
 // I ran indent over the sources. All .c and .h files reindented.
 //
@@ -124,6 +127,7 @@ Cmd_Punch_f (edict_t * self)
   self->client->resp.punch_desired = true;
 }
 
+/*
 //Adds a point with name to location file - cheats must be enabled!
 void
 Cmd_Addpoint_f (edict_t * self)
@@ -150,9 +154,9 @@ Cmd_Addpoint_f (edict_t * self)
      sprintf(buf, "%.2f %.2f %.2f %s\n", self->s.origin[0], self->s.origin[1], self->s.origin[2], s);
      fputs(buf, pntlist);
      fclose(pntlist);
-     gi.cprintf(self, PRINT_MEDIUM, "\nPoint added.\n"); */
+     gi.cprintf(self, PRINT_MEDIUM, "\nPoint added.\n"); 
 }
-
+*/
 
 //Plays a sound file
 void
@@ -175,11 +179,14 @@ Cmd_Voice_f (edict_t * self)
 		  "\nArgument is too long. Maximum length is 32 characters.\n");
       return;
     }
+	// AQ2:TNG Disabled this message:
+	/*
   if (strstr (s, ".."))
     {
       gi.cprintf (self, PRINT_MEDIUM,
 		  "\nArgument must not contain \"..\".\n");
     }
+	*/
   //check if player is dead
   if (self->deadflag == DEAD_DEAD || self->solid == SOLID_NOT)
     return;

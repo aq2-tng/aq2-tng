@@ -4,10 +4,13 @@
 //
 // laser sight patch, by Geza Beladi
 //
-// $Id: a_cmds.c,v 1.19 2001/10/26 00:40:07 ra Exp $
+// $Id: a_cmds.c,v 1.20 2001/11/03 17:21:57 deathwatch Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_cmds.c,v $
+// Revision 1.20  2001/11/03 17:21:57  deathwatch
+// Fixed something in the time command, removed the .. message from the voice command, fixed the vote spamming with mapvote, removed addpoint command (old pb command that wasnt being used). Some cleaning up of the source at a few points.
+//
 // Revision 1.19  2001/10/26 00:40:07  ra
 // Minor fix to time command
 //
@@ -1263,8 +1266,8 @@ Cmd_Time (edict_t * ent)
      rmins = remaining / 60;
      rsecs = remaining - (rmins * 60);
 
-     if(rmins < 0) rmins == 0;
-     if(rsecs < 0) rsecs == 0;
+     if(rmins < 0) rmins = 0;
+     if(rsecs < 0) rsecs = 0;
 
      gi.cprintf (ent, PRINT_HIGH, "Elapsed time: %d:%02d. Remaining time: %d:%02d\n", mins, secs, rmins, rsecs);
 }
