@@ -1,12 +1,12 @@
 //-----------------------------------------------------------------------------
 // Statistics Related Code
 //
-// $Id: tng_stats.c,v 1.31 2002/04/03 08:59:17 freud Exp $
+// $Id: tng_stats.c,v 1.32 2002/04/03 15:05:03 freud Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: tng_stats.c,v $
-// Revision 1.31  2002/04/03 08:59:17  freud
-// Added DEBUG option in Makefile for debugging symbols and compiler warnings
+// Revision 1.32  2002/04/03 15:05:03  freud
+// My indenting broke something, rolled the source back.
 //
 // Revision 1.30  2002/04/01 16:08:59  freud
 // Fix in hits/shots counter for each weapon
@@ -70,159 +70,156 @@
 
 void Cmd_Stats_f (edict_t *targetent, char *arg)
 {
-/* Variables Used:                              		*
-* stats_hits[weapon]		- Total number of hits		*
-* stats_shots[weapon]		- Total number of shots		*
-* stats_headshot[weapon]	- Total number of headshots	*
-*                                               		*/
+/* Variables Used:                              *
+* stats_shots_t - Total nr of Shots             *
+* stats_shots_h - Total nr of Hits              *
+* headshots     - Total nr of Headshots         *
+*                                               */
 	
   double	perc_hit;
   int		total, hits, i, y;
-  char		stathead[50], current_weapon[64], location[64];
+  char		location[64];
+  char		stathead[50], current_weapon[64];
   edict_t	*ent, *cl_ent;
 
   if (!targetent->inuse)
 	return;
 
 	
-  // Arguments taken
-  if (arg[0] != '\0') {
+	if (arg[0] != '\0') {
+		if (strcmp (arg, "list") == 0) {
+			gi.cprintf (targetent, PRINT_HIGH, "\nŸ\n");
+			gi.cprintf (targetent, PRINT_HIGH, "PlayerID  Name                  Accuracy\n");
 
-	// Client is listing
-	if (strcmp (arg, "list") == 0) {
+			for (i = 0; i < game.maxclients; i++)
+			{
+				cl_ent = &g_edicts[1 + i];
 
-		gi.cprintf (targetent, PRINT_HIGH, "\nŸ\n");
-		gi.cprintf (targetent, PRINT_HIGH, "PlayerID  Name                  Accuracy\n");
+				if (!cl_ent->inuse)
+					continue;
 
-		for (i = 0; i < game.maxclients; i++)
-		{
-			cl_ent = &g_edicts[1 + i];
+				hits = 0;
+				total = 0;
+				for (y = 0; y < 100 ; y++) {
+					hits += cl_ent->client->resp.stats_hits[y];
+					total += cl_ent->client->resp.stats_shots[y];
+				}
 
-			if (!cl_ent->inuse)
-				continue;
+				if (hits > 0) {
+					perc_hit = (((double) hits / (double) total) * 100.0);
+				} else {
+					perc_hit = 0.0;
+				}
 
-			hits = 0;
-			total = 0;
-			for (y = 0; y < 100 ; y++) {
-				hits += cl_ent->client->resp.stats_hits[y];
-				total += cl_ent->client->resp.stats_shots[y];
+				gi.cprintf (targetent, PRINT_HIGH, "   %-3i    %-16s        %6.2f\n", i, cl_ent->client->pers.netname, perc_hit);
 			}
-
-			if (hits > 0) {
-				perc_hit = (((double) hits / (double) total) * 100.0);
-			} else {
-				perc_hit = 0.0;
-			}
-
-			gi.cprintf (targetent, PRINT_HIGH, "   %-3i    %-16s        %6.2f\n", i, cl_ent->client->pers.netname, perc_hit);
+			gi.cprintf (targetent, PRINT_HIGH, "\n  Use \"stats <PlayerID>\" for\n  individual stats\nŸ\n");
+			return;
 		}
-		gi.cprintf (targetent, PRINT_HIGH, "\n  Use \"stats <PlayerID>\" for\n  individual stats\nŸ\n");
-		return;
-	} 
-	i = atoi (arg);
-
-	ent = &g_edicts[1 + i];
-	if (i >= game.maxclients || !ent->inuse)
+		i = atoi (arg);
+		ent = &g_edicts[1 + i];
+		if (i >= game.maxclients || !ent->inuse)
 			ent = targetent;
 
-  } else {
-	ent = targetent;
-  }
-
-  // Global Stats:
-  hits = 0;
-  total = 0;
-
-  for (y = 0; y < 100 ; y++) {
-	hits += ent->client->resp.stats_hits[y];
-	total += ent->client->resp.stats_shots[y];
-  }
-
-  sprintf(stathead, "\nŸ Statistics for %s ", ent->client->pers.netname);
-  for (i = 0; i + strlen(ent->client->pers.netname) < 20; i++) {
-	sprintf(stathead, "%s", stathead);
-  }
-  sprintf(stathead, "%sŸ\n", stathead);
-  gi.cprintf (targetent, PRINT_HIGH, "%s", stathead);
-
-  if (total != 0) {
-	gi.cprintf (targetent, PRINT_HIGH, "Weapon             Accuracy Hits/Shots  Headshots\n");		
-
-	for (y = 0; y < 100 ; y++) {
-
-		if (y == MOD_MK23)
-			sprintf(current_weapon, "Pistol            ");
-		else if (y == MOD_DUAL)
-			sprintf(current_weapon, "Dual Pistols      ");
-		else if (y == MOD_KNIFE)
-			sprintf(current_weapon, "Slashing Knife    ");
-		else if (y == MOD_KNIFE_THROWN)
-			sprintf(current_weapon, "Throwing Knife    ");
-		else if (y == MOD_M4)
-			sprintf(current_weapon, "M4 Assault Rifle  ");
-		else if (y == MOD_MP5)
-			sprintf(current_weapon, "MP5 Submachinegun ");
-		else if (y == MOD_SNIPER)
-			sprintf(current_weapon, "Sniper Rifle      ");
-		else if (y == MOD_HC)
-			sprintf(current_weapon, "Handcannon        ");
-		else if (y == MOD_M3)
-			sprintf(current_weapon, "M3 Shotgun        ");
-		else
-			sprintf(current_weapon, "Unknown Weapon    ");
-
-		if (ent->client->resp.stats_shots[y] > 0) {
-			perc_hit = (((double) ent->client->resp.stats_hits[y] /
-				(double) ent->client->resp.stats_shots[y]) * 100.0);	// Percentage of shots that hit
-
-      			gi.cprintf(targetent, PRINT_HIGH, "%s %6.2f  %5i/%-5i    %i\n", current_weapon, perc_hit, ent->client->resp.stats_shots[y], ent->client->resp.stats_hits[y], ent->client->resp.stats_headshot[y]); 
-		}
+	} else {
+		ent = targetent;
 	}
-  } else {
-	gi.cprintf (targetent, PRINT_HIGH, "\n  Player has not fired a shot.\n");
-  }
+
+		// Global Stats:
+		hits = 0;
+		total = 0;
+
+		for (y = 0; y < 100 ; y++) {
+			hits += ent->client->resp.stats_hits[y];
+			total += ent->client->resp.stats_shots[y];
+		}
+
+		sprintf(stathead, "\nŸ Statistics for %s ", ent->client->pers.netname);
+		for (i = 0; i + strlen(ent->client->pers.netname) < 20; i++) {
+			sprintf(stathead, "%s", stathead);
+		}
+		sprintf(stathead, "%sŸ\n", stathead);
+		gi.cprintf (targetent, PRINT_HIGH, "%s", stathead);
+
+		if (total != 0) {
+			gi.cprintf (targetent, PRINT_HIGH, "Weapon             Accuracy Hits/Shots  Headshots\n");		
+
+			for (y = 0; y < 100 ; y++) {
+
+				if (y == MOD_MK23)
+					sprintf(current_weapon, "Pistol            ");
+				else if (y == MOD_DUAL)
+					sprintf(current_weapon, "Dual Pistols      ");
+				else if (y == MOD_KNIFE)
+					sprintf(current_weapon, "Slashing Knife    ");
+				else if (y == MOD_KNIFE_THROWN)
+					sprintf(current_weapon, "Throwing Knife    ");
+				else if (y == MOD_M4)
+					sprintf(current_weapon, "M4 Assault Rifle  ");
+				else if (y == MOD_MP5)
+					sprintf(current_weapon, "MP5 Submachinegun ");
+				else if (y == MOD_SNIPER)
+					sprintf(current_weapon, "Sniper Rifle      ");
+				else if (y == MOD_HC)
+					sprintf(current_weapon, "Handcannon        ");
+				else if (y == MOD_M3)
+					sprintf(current_weapon, "M3 Shotgun        ");
+				else
+					sprintf(current_weapon, "Unknown Weapon    ");
+				
+
+				if (ent->client->resp.stats_shots[y] > 0) {
+					perc_hit = (((double) ent->client->resp.stats_hits[y] /
+					(double) ent->client->resp.stats_shots[y]) * 100.0);	// Percentage of shots that hit
+
+      					gi.cprintf(targetent, PRINT_HIGH, "%s %6.2f  %5i/%-5i    %i\n", current_weapon, perc_hit, ent->client->resp.stats_hits[y], ent->client->resp.stats_shots[y], ent->client->resp.stats_headshot[y]); 
+				}
+			}
+    		} else {
+			gi.cprintf (targetent, PRINT_HIGH, "\n  Player has not fired a shot.\n");
+		}
 	
   gi.cprintf (targetent, PRINT_HIGH, "\nŸ\n");
 	
-  // Locational damage
+	
+	// Final Part
   if (total != 0)
-	gi.cprintf (targetent, PRINT_HIGH, "Location                         Hits     (%%)\n");		
-
-  for (y = 0;y < 10;y++) {
-	if (ent->client->resp.stats_locations[y] > 0) {
-		perc_hit = (((double) ent->client->resp.stats_locations[y] / (double) hits) * 100.0);
-
-		if (y == LOC_HDAM)
-			sprintf(location, "Head");
-		else if (y == LOC_CDAM)
-			sprintf(location, "Chest");
-		else if (y == LOC_SDAM)
-			sprintf(location, "Stomach");
-		else if (y == LOC_LDAM)
-			sprintf(location, "Legs");
-		else if (y == LOC_KVLR_HELMET)
-			sprintf(location, "Kevlar Helmet");
-		else if (y == LOC_KVLR_VEST)
-			sprintf(location, "Kevlar Vest");
-		else if (y == LOC_NO)
-			sprintf(location, "Spread (Shotgun/Handcannon)");
-		else
-			sprintf(location, "Unknown");
-
-		gi.cprintf(targetent, PRINT_HIGH, "%-26s %10i  (%6.2f)\n", location, ent->client->resp.stats_locations[y], perc_hit);
-	}
-  }
-  gi.cprintf (targetent, PRINT_HIGH, "\n");
-
-  if (total > 0) {
-	if(hits > 0)
-		perc_hit = (((double) hits / (double) total) * 100.0);
-	else
-		perc_hit = 0.0;
+		gi.cprintf (targetent, PRINT_HIGH, "Location                         Hits     (%%)\n");		
 		
-	gi.cprintf (targetent, PRINT_HIGH, "Average Accuracy:                        %.2f\n", perc_hit);
-    	gi.cprintf (targetent, PRINT_HIGH, "\nŸ\n\n");
-  }
+	for (y = 0;y < 10;y++) {
+		if (ent->client->resp.stats_locations[y] > 0) {
+			perc_hit = (((double) ent->client->resp.stats_locations[y] / (double) hits) * 100.0);
+
+			if (y == LOC_HDAM)
+				sprintf(location, "Head");
+			else if (y == LOC_CDAM)
+				sprintf(location, "Chest");
+			else if (y == LOC_SDAM)
+				sprintf(location, "Stomach");
+			else if (y == LOC_LDAM)
+				sprintf(location, "Legs");
+			else if (y == LOC_KVLR_HELMET)
+				sprintf(location, "Kevlar Helmet");
+			else if (y == LOC_KVLR_VEST)
+				sprintf(location, "Kevlar Vest");
+			else if (y == LOC_NO)
+				sprintf(location, "Spread (Shotgun/Handcannon)");
+			else
+				sprintf(location, "Unknown");
+
+			gi.cprintf(targetent, PRINT_HIGH, "%-26s %10i  (%6.2f)\n", location, ent->client->resp.stats_locations[y], perc_hit);
+		}
+	}
+	gi.cprintf (targetent, PRINT_HIGH, "\n");
+	if(total > 0) {
+		if(hits > 0)
+			perc_hit = (((double) hits / (double) total) * 100.0);
+		else
+			perc_hit = 0.0;
+		
+		gi.cprintf (targetent, PRINT_HIGH, "Average Accuracy:                        %.2f\n", perc_hit); // Average
+    gi.cprintf (targetent, PRINT_HIGH, "\nŸ\n\n");
+	}
 }
 
 void
@@ -245,7 +242,7 @@ A_ScoreboardEndLevel (edict_t * ent, edict_t * killer)
   ent->client->ps.stats[STAT_TEAM_HEADER] = gi.imageindex ("tag3");
 
   for (i = 0; i < game.maxclients; i++)
-  {
+    {
       cl_ent = g_edicts + 1 + i;
       if (!cl_ent->inuse)
 	{
@@ -369,6 +366,19 @@ A_ScoreboardEndLevel (edict_t * ent, edict_t * killer)
 	   "xv 0 yv 40 string2 \"Frags Player          Shots   Acc   FPM \" "
 	   "xv 0 yv 48 string2 \"Ÿ Ÿ Ÿ Ÿ Ÿ\" ");
 
+//        strcpy (string, "xv 0 yv 32 string2 \"Frags Player          Time Ping Damage Kills\" "
+//                "xv 0 yv 40 string2 \"Ÿ Ÿ Ÿ Ÿ Ÿ Ÿ\" ");
+  /*
+     {
+     strcpy (string, "xv 0 yv 32 string2 \"Player          Time Ping\" "
+     "xv 0 yv 40 string2 \"--------------- ---- ----\" ");
+     }
+     else
+     {
+     strcpy (string, "xv 0 yv 32 string2 \"Frags Player          Time Ping Damage Kills\" "
+     "xv 0 yv 40 string2 \"----- --------------- ---- ---- ------ -----\" ");
+     }
+   */
   // AQ2:TNG END
 
   for (i = 0; i < total; i++)
@@ -432,25 +442,23 @@ void Cmd_Statmode_f(edict_t* ent, char *arg)
 
   // Ignore if there is no argument.
   if (arg[0] != '\0') {
-	memset (stuff, 0, sizeof (stuff));
+    memset (stuff, 0, sizeof (stuff));
 
-	// Numerical
-	i = atoi (arg);
+    // Numerical
+    i = atoi (arg);
 
-	if (i > 2 || i < 0) {
-		gi.dprintf("Warning: stat_mode set to %i by %s\n", i, ent->client->pers.netname);
+    if (i > 2 || i < 0) {
+      gi.dprintf("Warning: stat_mode set to %i by %s\n", i, ent->client->pers.netname);
 
-	// Force the old mode if it is valid else force 0
-		if (ent->client->resp.stat_mode > 0 && ent->client->resp.stat_mode < 3)
-			sprintf(stuff, "set stat_mode \"%i\"\n", ent->client->resp.stat_mode);
-		else
-        		sprintf(stuff, "set stat_mode \"0\"\n");
-
-	} else {
-		sprintf(stuff, "set stat_mode \"%i\"\n", i);
-		ent->client->resp.stat_mode = i;
-	}
-
-	stuffcmd(ent, stuff);
+      // Force the old mode if it is valid else force 0
+      if (ent->client->resp.stat_mode > 0 && ent->client->resp.stat_mode < 3)
+        sprintf(stuff, "set stat_mode \"%i\"\n", ent->client->resp.stat_mode);
+      else
+        sprintf(stuff, "set stat_mode \"0\"\n");
+    } else {
+      sprintf(stuff, "set stat_mode \"%i\"\n", i);
+      ent->client->resp.stat_mode = i;
+    }
+    stuffcmd(ent, stuff);
   }
 }
