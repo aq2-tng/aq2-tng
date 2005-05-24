@@ -4,10 +4,13 @@
 //
 // contains all new non standard command functions
 //
-// $Id: a_xcmds.c,v 1.15 2004/04/08 23:19:51 slicerdw Exp $
+// $Id: a_xcmds.c,v 1.16 2005/05/24 22:58:27 slicerdw Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_xcmds.c,v $
+// Revision 1.16  2005/05/24 22:58:27  slicerdw
+// Missing argument check on voice command
+//
 // Revision 1.15  2004/04/08 23:19:51  slicerdw
 // Optimized some code, added a couple of features and fixed minor bugs
 //
@@ -198,14 +201,14 @@ Cmd_Voice_f (edict_t * self)
 		  "\nArgument is too long. Maximum length is 32 characters.\n");
       return;
     }
+	//SLIC2 Who disabled this and why ?!?! back on...
 	// AQ2:TNG Disabled this message:
-	/*
   if (strstr (s, ".."))
     {
       gi.cprintf (self, PRINT_MEDIUM,
-		  "\nArgument must not contain \"..\".\n");
+		  "\nInvalid argument, use voice <soundfile.wav>.\n");
+	  return;
     }
-	*/
   //check if player is dead
   if (self->deadflag == DEAD_DEAD || self->solid == SOLID_NOT)
     return;
