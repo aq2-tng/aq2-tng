@@ -1,10 +1,14 @@
 //-----------------------------------------------------------------------------
 // p_client.c
 //
-// $Id: p_client.c,v 1.90 2004/09/23 00:09:44 slicerdw Exp $
+// $Id: p_client.c,v 1.91 2006/06/17 11:39:48 igor_rock Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: p_client.c,v $
+// Revision 1.91  2006/06/17 11:39:48  igor_rock
+// Some code cleanup:
+// - moved team related variables to a single struct variable
+//
 // Revision 1.90  2004/09/23 00:09:44  slicerdw
 // Radio kill count was missing for falling death
 //
@@ -3282,9 +3286,9 @@ void ClientDisconnect(edict_t * ent)
 		return;
 	if (ent->client->resp.captain) {
 		if (ent->client->resp.captain == 1)
-			team1ready = 0;
+			team_data[1].ready = 0;
 		else
-			team2ready = 0;
+			team_data[2].ready = 0;
 	}
 	// drop items if they are alive/not observer
 	if (ent->solid != SOLID_NOT)

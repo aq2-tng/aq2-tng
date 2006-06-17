@@ -1,10 +1,14 @@
 //-----------------------------------------------------------------------------
 //
 //
-// $Id: g_main.c,v 1.73 2004/04/08 23:19:51 slicerdw Exp $
+// $Id: g_main.c,v 1.74 2006/06/17 11:37:28 igor_rock Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_main.c,v $
+// Revision 1.74  2006/06/17 11:37:28  igor_rock
+// Some code cleanup:
+// - moved team related variables to a single struct variable
+//
 // Revision 1.73  2004/04/08 23:19:51  slicerdw
 // Optimized some code, added a couple of features and fixed minor bugs
 //
@@ -390,9 +394,6 @@ cvar_t *mm_forceteamtalk;
 cvar_t *mm_adminpwd;
 cvar_t *mm_allowlock;
 
-cvar_t *team1score;
-cvar_t *team2score;
-cvar_t *team3score;
 cvar_t *stats_endmap; // If on (1) show the fpm/etc stats when the map ends
 cvar_t *stats_afterround;     // Collect TNG stats between rounds
 
@@ -853,16 +854,16 @@ ExitLevel (void)
   //FIREBLADE
   if (teamplay->value)
     {
-      team1_score = 0;
-      team2_score = 0;
-      team3_score = 0;
+      team_data[1].score = 0;
+      team_data[2].score = 0;
+      team_data[3].score = 0;
 			// AQ2 TNG - Reset serverinfo score cvars too
-			team1score->value = 0;
-			strcpy(team1score->string,"0");
-			team2score->value = 0;
-			strcpy(team2score->string,"0");
-			team3score->value = 0;
-			strcpy(team3score->string,"0");
+			team_data[1].teamscore->value = 0;
+			strcpy(team_data[1].teamscore->string,"0");
+			team_data[2].teamscore->value = 0;
+			strcpy(team_data[2].teamscore->string,"0");
+			team_data[3].teamscore->value = 0;
+			strcpy(team_data[3].teamscore->string,"0");
     }
   //FIREBLADE
   if (ctf->value)

@@ -1,10 +1,14 @@
 //-----------------------------------------------------------------------------
 // Include for Action team-related things
 //
-// $Id: a_team.h,v 1.9 2002/04/01 14:00:08 freud Exp $
+// $Id: a_team.h,v 1.10 2006/06/17 11:34:53 igor_rock Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_team.h,v $
+// Revision 1.10  2006/06/17 11:34:53  igor_rock
+// Some code cleanup:
+// - moved team related variables to a single struct variable
+//
 // Revision 1.9  2002/04/01 14:00:08  freud
 // After extensive checking I think I have found the spawn bug in the new
 // system.
@@ -115,12 +119,6 @@ transparent_list_t;
 
 extern qboolean team_game_going;
 extern qboolean team_round_going;
-extern int team1_score;
-extern int team2_score;
-extern int team3_score;
-extern int team1_total;
-extern int team2_total;
-extern int team3_total;
 extern int lights_camera_action;
 extern int holding_on_tie_check;
 extern int team_round_countdown;

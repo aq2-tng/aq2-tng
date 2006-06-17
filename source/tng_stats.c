@@ -1,10 +1,14 @@
 //-----------------------------------------------------------------------------
 // Statistics Related Code
 //
-// $Id: tng_stats.c,v 1.33 2004/05/18 20:35:45 slicerdw Exp $
+// $Id: tng_stats.c,v 1.34 2006/06/17 11:40:38 igor_rock Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: tng_stats.c,v $
+// Revision 1.34  2006/06/17 11:40:38  igor_rock
+// Some code cleanup:
+// - moved team related variables to a single struct variable
+//
 // Revision 1.33  2004/05/18 20:35:45  slicerdw
 // Fixed a bug on stats command
 //
@@ -273,19 +277,19 @@ A_ScoreboardEndLevel (edict_t * ent, edict_t * killer)
 	}
 
     }
-  name_pos[TEAM1] = ((20 - strlen (team1_name)) / 2) * 8;
+  name_pos[TEAM1] = ((20 - strlen (team_data[1].name)) / 2) * 8;
   if (name_pos[TEAM1] < 0)
     {
       name_pos[TEAM1] = 0;
     }
 
-  name_pos[TEAM2] = ((20 - strlen (team2_name)) / 2) * 8;
+  name_pos[TEAM2] = ((20 - strlen (team_data[2].name)) / 2) * 8;
   if (name_pos[TEAM2] < 0)
     {
       name_pos[TEAM2] = 0;
     }
 
-  name_pos[TEAM3] = ((20 - strlen (team2_name)) / 2) * 8;
+  name_pos[TEAM3] = ((20 - strlen (team_data[3].name)) / 2) * 8;
   if (name_pos[TEAM3] < 0)
     {
       name_pos[TEAM3] = 0;
@@ -300,7 +304,7 @@ A_ScoreboardEndLevel (edict_t * ent, edict_t * killer)
 	       "xv 10 yv 12 num 2 26 "
 	       "xv %d yv 0 string \"%s\" ",
 	       totalscore[TEAM1], totalplayers[TEAM1], name_pos[TEAM1] - 80,
-	       team1_name);
+	       team_data[1].name);
       sprintf (string + strlen (string),
 	       // TEAM2
 	       "if 25 xv 80 yv 8 pic 25 endif "
@@ -309,7 +313,7 @@ A_ScoreboardEndLevel (edict_t * ent, edict_t * killer)
 	       "xv 168 yv 12 num 2 27 "
 	       "xv %d yv 0 string \"%s\" ",
 	       totalscore[TEAM2], totalplayers[TEAM2], name_pos[TEAM2] + 80,
-	       team2_name);
+	       team_data[2].name);
       sprintf (string + strlen (string),
 	       // TEAM3
 	       "if 30 xv 240 yv 8 pic 30 endif "
@@ -318,7 +322,7 @@ A_ScoreboardEndLevel (edict_t * ent, edict_t * killer)
 	       "xv 328 yv 12 num 2 31 "
 	       "xv %d yv 0 string \"%s\" ",
 	       totalscore[TEAM3], totalplayers[TEAM3], name_pos[TEAM3] + 240,
-	       team3_name);
+	       team_data[3].name);
     }
   else
     {
@@ -335,8 +339,8 @@ A_ScoreboardEndLevel (edict_t * ent, edict_t * killer)
 	       "xv 248 yv 12 num 2 27 "
 	       "xv %d yv 0 string \"%s\" ",
 	       totalscore[TEAM1], totalplayers[TEAM1], name_pos[TEAM1],
-	       team1_name, totalscore[TEAM2], totalplayers[TEAM2],
-	       name_pos[TEAM2] + 160, team2_name);
+	       team_data[1].name, totalscore[TEAM2], totalplayers[TEAM2],
+	       name_pos[TEAM2] + 160, team_data[2].name);
     }
 
 

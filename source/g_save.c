@@ -1,10 +1,14 @@
 //-----------------------------------------------------------------------------
 // g_save.c
 //
-// $Id: g_save.c,v 1.65 2004/04/08 23:19:51 slicerdw Exp $
+// $Id: g_save.c,v 1.66 2006/06/17 11:38:17 igor_rock Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_save.c,v $
+// Revision 1.66  2006/06/17 11:38:17  igor_rock
+// Some code cleanup:
+// - moved team related variables to a single struct variable
+//
 // Revision 1.65  2004/04/08 23:19:51  slicerdw
 // Optimized some code, added a couple of features and fixed minor bugs
 //
@@ -578,9 +582,9 @@ InitGame (void)
   mm_adminpwd = gi.cvar ("mm_adminpwd", "0", 0);
   mm_allowlock = gi.cvar ("mm_allowlock", "1", CVAR_LATCH);
 
-  team1score = gi.cvar ("t1", "0", CVAR_SERVERINFO);
-  team2score = gi.cvar ("t2", "0", CVAR_SERVERINFO);
-  team3score = gi.cvar ("t3", "0", CVAR_SERVERINFO);
+  team_data[TEAM1].teamscore = gi.cvar ("t1", "0", CVAR_SERVERINFO);
+  team_data[TEAM2].teamscore = gi.cvar ("t2", "0", CVAR_SERVERINFO);
+  team_data[TEAM3].teamscore = gi.cvar ("t3", "0", CVAR_SERVERINFO);
   stats_endmap = gi.cvar("stats_endmap", "1",0);
   stats_afterround = gi.cvar ("stats_afterround", "0", 0);
 

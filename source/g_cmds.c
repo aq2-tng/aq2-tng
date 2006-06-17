@@ -1,10 +1,14 @@
 //-----------------------------------------------------------------------------
 // g_cmds.c
 //
-// $Id: g_cmds.c,v 1.60 2004/04/08 23:19:51 slicerdw Exp $
+// $Id: g_cmds.c,v 1.61 2006/06/17 11:35:40 igor_rock Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_cmds.c,v $
+// Revision 1.61  2006/06/17 11:35:40  igor_rock
+// Some code cleanup:
+// - moved team related variables to a single struct variable
+//
 // Revision 1.60  2004/04/08 23:19:51  slicerdw
 // Optimized some code, added a couple of features and fixed minor bugs
 //
@@ -1335,7 +1339,7 @@ Cmd_Say_f (edict_t * ent, qboolean team, qboolean arg0, qboolean partner_msg)
 		else if (mm_forceteamtalk->value == 2)
 		{
 			if (!ent->client->resp.captain && !partner_msg && !isadmin &&
-				((team1ready && team2ready) || team_round_going))
+				((team_data[1].ready && team_data[2].ready) || team_round_going))
 				team = 1;
 		}
 		if (team)

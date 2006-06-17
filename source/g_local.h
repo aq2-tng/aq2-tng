@@ -1,10 +1,14 @@
 //-----------------------------------------------------------------------------
 // g_local.h -- local definitions for game module
 //
-// $Id: g_local.h,v 1.68 2004/04/08 23:19:51 slicerdw Exp $
+// $Id: g_local.h,v 1.69 2006/06/17 11:36:40 igor_rock Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_local.h,v $
+// Revision 1.69  2006/06/17 11:36:40  igor_rock
+// Some code cleanup:
+// - moved team related variables to a single struct variable
+//
 // Revision 1.68  2004/04/08 23:19:51  slicerdw
 // Optimized some code, added a couple of features and fixed minor bugs
 //
@@ -863,10 +867,6 @@ extern cvar_t *hearall;		// used in match mode
 extern cvar_t *mm_forceteamtalk;
 extern cvar_t *mm_adminpwd;
 extern cvar_t *mm_allowlock;
-
-extern cvar_t *team1score;
-extern cvar_t *team2score;
-extern cvar_t *team3score;
 
 extern cvar_t *use_punch;
 
@@ -1990,5 +1990,22 @@ extern char ml_creator[101];
 
 void Cmd_Ghost_f (edict_t * ent);
 void Cmd_AutoRecord_f(edict_t * ent);
+
+// Teamvalues
+
+#define TEAMNAME_LEN	32
+typedef struct
+{
+  char name[TEAMNAME_LEN];	/* Team name */
+  char skin[MAX_QPATH - 13];	/* Skin name; 13 = "../players/_i", which will be added for the skin_index */
+  char skin_index[MAX_QPATH];	/* Skin index picture name */
+  int  ready;			/* Flag: Team ready? */
+  int  locked;			/* Flag: Team locked? */
+  int  score;			/* Team Score */
+  int  total;			/* Team total of all player scores */
+  cvar_t *teamscore;		/* Team Score cvar */
+} team_data_t;
+
+extern team_data_t team_data[];
 
 #include "a_ctf.h"
