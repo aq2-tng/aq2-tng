@@ -4,10 +4,15 @@
 //
 // laser sight patch, by Geza Beladi
 //
-// $Id: a_cmds.c,v 1.33 2003/06/15 15:34:32 igor Exp $
+// $Id: a_cmds.c,v 1.34 2006/06/17 11:27:42 igor_rock Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_cmds.c,v $
+// Revision 1.34  2006/06/17 11:27:42  igor_rock
+// Some code cleanup:
+// - moved team related variables to a single struct variable
+// - some minor changes to reduced possible error sources
+//
 // Revision 1.33  2003/06/15 15:34:32  igor
 // - removed the zcam code from this branch (see other branch)
 // - added fixes from 2.72 (source only) version
@@ -1093,22 +1098,20 @@ void Cmd_Roundtimeleft_f(edict_t * ent)
 */
 void Cmd_AutoRecord_f(edict_t * ent)
 {
-	char rec_date[64], recstr[128];
-	struct tm *now;
-	time_t tnow;
+  char rec_date[64], recstr[128];
+  time_t now;
 
-	tnow = time((time_t *) 0);
-	now = localtime(&tnow);
-	(void) strftime(rec_date, 64, "%Y_%b_%d_%H%M", now);
+  now = time(NULL);
+  (void) strftime(rec_date, 64, "%Y_%b_%d_%H%M", localtime(&now));
 
-	if (matchmode->value) {
-		sprintf(recstr, "record \"%s-%s_vs_%s-%s\"\n", rec_date, team1_name, team2_name, level.mapname);
-	} else {
-		sprintf(recstr, "record \"%s-%s\"\n", rec_date, level.mapname);
-	}
+  if (matchmode->value) {
+    sprintf(recstr, "record \"%s-%s_vs_%s-%s\"\n", rec_date, team_data[1].name, team_data[2].name, level.mapname);
+  } else {
+    sprintf(recstr, "record \"%s-%s\"\n", rec_date, level.mapname);
+  }
 
-	stuffcmd(ent, recstr);
-	return;			// see if it makes the compiler happy
+  stuffcmd(ent, recstr);
+  return;			// see if it makes the compiler happy
 }
 
 /*

@@ -5,10 +5,15 @@
 // Zucchini (spikard@u.washington.edu) and Fireblade (ucs_brf@shsu.edu) 
 // (splat/bullethole/shell ejection code from original Action source)
 //
-// $Id: a_game.c,v 1.14 2003/06/15 15:34:32 igor Exp $
+// $Id: a_game.c,v 1.15 2006/06/17 11:28:45 igor_rock Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_game.c,v $
+// Revision 1.15  2006/06/17 11:28:45  igor_rock
+// Some code cleanup:
+// - moved team related variables to a single struct variable
+// - some minor changes to reduced possible error sources
+//
 // Revision 1.14  2003/06/15 15:34:32  igor
 // - removed the zcam code from this branch (see other branch)
 // - added fixes from 2.72 (source only) version
@@ -76,15 +81,7 @@
 #define MAX_STR_LEN             1000
 #define MAX_TOTAL_MOTD_LINES    30
 
-char team1_name[MAX_STR_LEN];
-char team2_name[MAX_STR_LEN];
-char team3_name[MAX_STR_LEN];
-char team1_skin[MAX_STR_LEN];
-char team2_skin[MAX_STR_LEN];
-char team3_skin[MAX_STR_LEN];
-char team1_skin_index[MAX_STR_LEN + 30];
-char team2_skin_index[MAX_STR_LEN + 30];
-char team3_skin_index[MAX_STR_LEN + 30];
+team_data_t team_data[MAX_TEAMS];
 char *map_rotation[MAX_MAP_ROTATION];
 int num_maps, cur_map, num_allvotes;	// num_allvotes added by Igor[Rock]
 
@@ -147,21 +144,21 @@ void ReadConfigFile()
 		if (lines_into_section > -1) {
 			if (!strcmp(reading_section, "team1")) {
 				if (lines_into_section == 0) {
-					strcpy(team1_name, buf);
+					Q_strncpyz(team_data[1].name, buf, sizeof(team_data[1].name));
 				} else if (lines_into_section == 1) {
-					strcpy(team1_skin, buf);
+					Q_strncpyz(team_data[1].skin, buf, sizeof(team_data[1].skin));
 				}
 			} else if (!strcmp(reading_section, "team2")) {
 				if (lines_into_section == 0) {
-					strcpy(team2_name, buf);
+					Q_strncpyz(team_data[2].name, buf, sizeof(team_data[2].name));
 				} else if (lines_into_section == 1) {
-					strcpy(team2_skin, buf);
+					Q_strncpyz(team_data[2].skin, buf, sizeof(team_data[2].skin));
 				}
 			} else if (!strcmp(reading_section, "team3")) {
 				if (lines_into_section == 0) {
-					strcpy(team3_name, buf);
+					Q_strncpyz(team_data[3].name, buf, sizeof(team_data[3].name));
 				} else if (lines_into_section == 1) {
-					strcpy(team3_skin, buf);
+					Q_strncpyz(team_data[3].skin, buf, sizeof(team_data[3].skin));
 				}
 			} else if (!strcmp(reading_section, "maplist")) {
 				map_rotation[num_maps] = (char *) gi.TagMalloc(strlen(buf) + 1, TAG_GAME);
@@ -172,9 +169,9 @@ void ReadConfigFile()
 		}
 	}
 
-	sprintf(team1_skin_index, "../players/%s_i", team1_skin);
-	sprintf(team2_skin_index, "../players/%s_i", team2_skin);
-	sprintf(team3_skin_index, "../players/%s_i", team3_skin);
+	sprintf(team_data[1].skin_index, "../players/%s_i", team_data[1].skin);
+	sprintf(team_data[2].skin_index, "../players/%s_i", team_data[2].skin);
+	sprintf(team_data[3].skin_index, "../players/%s_i", team_data[3].skin);
 	cur_map = 0;
 
 	fclose(config_file);

@@ -1,10 +1,15 @@
 //-----------------------------------------------------------------------------
 // Matchmode related code
 //
-// $Id: a_match.c,v 1.18 2004/04/08 23:19:51 slicerdw Exp $
+// $Id: a_match.c,v 1.19 2006/06/17 11:32:49 igor_rock Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_match.c,v $
+// Revision 1.19  2006/06/17 11:32:49  igor_rock
+// Some code cleanup:
+// - moved team related variables to a single struct variable
+// - some minor changes to reduced possible error sources
+//
 // Revision 1.18  2004/04/08 23:19:51  slicerdw
 // Optimized some code, added a couple of features and fixed minor bugs
 //
@@ -57,10 +62,7 @@
 #include "a_match.h"
 
 float matchtime = 0;
-int team1ready = 0;
-int team2ready = 0;
 int ingame = 0;
-int team_locked[MAX_TEAMS];
 
 void SendWorldMsg(char *s, int sound, int center)
 {
@@ -90,7 +92,7 @@ void SendScores()
 	secs = matchtime - (mins * 60);
 	gi.bprintf(PRINT_HIGH, "žžžžžžžžžžžžžžžžžžžžžžžžžžžžžžžžŸ\n");
 	gi.bprintf(PRINT_HIGH, "Team 1 Score - Team 2 Score\n");
-	gi.bprintf(PRINT_HIGH, "    [%d]           [%d]\n", team1_score, team2_score);
+	gi.bprintf(PRINT_HIGH, "    [%d]           [%d]\n", team_data[1].score, team_data[2].score);
 	gi.bprintf(PRINT_HIGH, "Total Played Time: %d:%02d\n", mins, secs);
 	gi.bprintf(PRINT_HIGH, "žžžžžžžžžžžžžžžžžžžžžžžžžžžžžžžžŸ\n");
 	gi.bprintf(PRINT_HIGH, "Match is over, waiting for next map, please vote a new one..\n");
@@ -111,22 +113,22 @@ void Cmd_Sub_f(edict_t * ent)
 		// lets kill em.
 		Cmd_Kill_f(ent);
 		if (ent->client->resp.subteam == 1) {
-			sprintf(temp, "%s is now a substitute for %s\n", ent->client->pers.netname, team1_name);
+			sprintf(temp, "%s is now a substitute for %s\n", ent->client->pers.netname, team_data[1].name);
 			SendWorldMsg(temp, 0, 0);
 		} else {
-			sprintf(temp, "%s is now a substitute for %s\n", ent->client->pers.netname, team2_name);
+			sprintf(temp, "%s is now a substitute for %s\n", ent->client->pers.netname, team_data[2].name);
 			SendWorldMsg(temp, 0, 0);
 		}
 		return;
 	}
 	if (ent->client->resp.subteam == TEAM1) {
-		sprintf(temp, "%s is no longer a substitute for %s\n", ent->client->pers.netname, team1_name);
+		sprintf(temp, "%s is no longer a substitute for %s\n", ent->client->pers.netname, team_data[1].name);
 		SendWorldMsg(temp, 0, 0);
 		ent->client->resp.subteam = 0;
 		return;
 	}
 	if (ent->client->resp.subteam == TEAM2) {
-		sprintf(temp, "%s is no longer a substitute for %s\n", ent->client->pers.netname, team2_name);
+		sprintf(temp, "%s is no longer a substitute for %s\n", ent->client->pers.netname, team_data[2].name);
 		SendWorldMsg(temp, 0, 0);
 		ent->client->resp.subteam = 0;
 		return;
@@ -157,16 +159,16 @@ void Cmd_Captain_f(edict_t * ent)
 		return;
 	}
 	if (ent->client->resp.captain == TEAM1) {
-		sprintf(temp, "%s is no longer %s's Captain\n", ent->client->pers.netname, team1_name);
+		sprintf(temp, "%s is no longer %s's Captain\n", ent->client->pers.netname, team_data[1].name);
 		SendWorldMsg(temp, 0, 0);
-		team1ready = 0;
+		team_data[1].ready = 0;
 		ent->client->resp.captain = 0;
 		return;
 	}
 	if (ent->client->resp.captain == TEAM2) {
-		sprintf(temp, "%s is no longer %s's Captain\n", ent->client->pers.netname, team2_name);
+		sprintf(temp, "%s is no longer %s's Captain\n", ent->client->pers.netname, team_data[2].name);
 		SendWorldMsg(temp, 0, 0);
-		team2ready = 0;
+		team_data[2].ready = 0;
 		ent->client->resp.captain = 0;
 		return;
 	}
@@ -177,11 +179,11 @@ void Cmd_Captain_f(edict_t * ent)
 	}
 	if (i == 0) {
 		if (ent->client->resp.team == 1) {
-			sprintf(temp, "%s is now %s's Captain\n", ent->client->pers.netname, team1_name);
+			sprintf(temp, "%s is now %s's Captain\n", ent->client->pers.netname, team_data[1].name);
 			SendWorldMsg(temp, 1, 0);
 			ent->client->resp.captain = 1;
 		} else if (ent->client->resp.team == 2) {
-			sprintf(temp, "%s is now %s's Captain\n", ent->client->pers.netname, team2_name);
+			sprintf(temp, "%s is now %s's Captain\n", ent->client->pers.netname, team_data[2].name);
 			SendWorldMsg(temp, 1, 0);
 			ent->client->resp.captain = 2;
 		}
@@ -199,28 +201,28 @@ void Cmd_Ready_f(edict_t * ent)
 	}
 
 	if (ent->client->resp.captain == 1) {
-		if (team1ready) {
-			sprintf(temp, "%s is no longer ready to play!\n", team1_name);
+		if (team_data[1].ready) {
+			sprintf(temp, "%s is no longer ready to play!\n", team_data[1].name);
 			SendWorldMsg(temp, 0, 1);
-			team1ready = 0;
+			team_data[1].ready = 0;
 			return;
 		} else {
-			sprintf(temp, "%s is ready to play!\n", team1_name);
+			sprintf(temp, "%s is ready to play!\n", team_data[1].name);
 			SendWorldMsg(temp, 1, 1);
-			team1ready = 1;
+			team_data[1].ready = 1;
 			return;
 		}
 	}
 	if (ent->client->resp.captain == 2) {
-		if (team2ready) {
-			sprintf(temp, "The %s is no longer ready to play!\n", team2_name);
+		if (team_data[2].ready) {
+			sprintf(temp, "The %s is no longer ready to play!\n", team_data[2].name);
 			SendWorldMsg(temp, 0, 1);
-			team2ready = 0;
+			team_data[2].ready = 0;
 			return;
 		} else {
-			sprintf(temp, "%s is ready to play!\n", team2_name);
+			sprintf(temp, "%s is ready to play!\n", team_data[2].name);
 			SendWorldMsg(temp, 1, 1);
-			team2ready = 1;
+			team_data[2].ready = 1;
 			return;
 		}
 	}
@@ -235,11 +237,11 @@ void Cmd_Teamname_f(edict_t * ent)
 		gi.cprintf(ent, PRINT_HIGH, "You need to be a captain for that\n");
 		return;
 	}
-	if (team == 1 && team1ready == 1) {
+	if (team == 1 && team_data[1].ready == 1) {
 		gi.cprintf(ent, PRINT_HIGH, "You cannot use this while 'Ready'\n");
 		return;
 	}
-	if (team == 2 && team2ready == 1) {
+	if (team == 2 && team_data[2].ready == 1) {
 		gi.cprintf(ent, PRINT_HIGH, "You cannot use this while 'Ready'\n");
 		return;
 	}
@@ -250,10 +252,10 @@ void Cmd_Teamname_f(edict_t * ent)
 	i = gi.argc();
 	if (gi.argc() < 2) {
 		if (team == 1)
-			gi.cprintf(ent, PRINT_HIGH, "Your Team Name is %s\n", team1_name);
+			gi.cprintf(ent, PRINT_HIGH, "Your Team Name is %s\n", team_data[1].name);
 
 		else if (team == 2)
-			gi.cprintf(ent, PRINT_HIGH, "Your Team Name is %s\n", team2_name);
+			gi.cprintf(ent, PRINT_HIGH, "Your Team Name is %s\n", team_data[2].name);
 		return;
 	}
 	strncpy(temp, gi.argv(1), sizeof(temp));
@@ -263,17 +265,17 @@ void Cmd_Teamname_f(edict_t * ent)
 	}
 	temp[18] = 0;
 	if (team == 1) {
-		gi.dprintf("%s (Team 1) is now known as %s\n", team1_name, temp);
-		IRC_printf(IRC_T_GAME, "%n (Team 1) is now known as %n", team1_name, temp);
-		strcpy(team1_name, temp);
-		gi.cprintf(ent, PRINT_HIGH, "New Team Name: %s\n", team1_name);
+		gi.dprintf("%s (Team 1) is now known as %s\n", team_data[1].name, temp);
+		IRC_printf(IRC_T_GAME, "%n (Team 1) is now known as %n", team_data[1].name, temp);
+		strcpy(team_data[1].name, temp);
+		gi.cprintf(ent, PRINT_HIGH, "New Team Name: %s\n", team_data[1].name);
 		return;
 	}
 	if (team == 2) {
-		gi.dprintf("%s (Team 2) is now known as %s\n", team2_name, temp);
-		IRC_printf(IRC_T_GAME, "%n (Team 2) is now known as %n", team2_name, temp);
-		strcpy(team2_name, temp);
-		gi.cprintf(ent, PRINT_HIGH, "New Team Name: %s\n", team2_name);
+		gi.dprintf("%s (Team 2) is now known as %s\n", team_data[2].name, temp);
+		IRC_printf(IRC_T_GAME, "%n (Team 2) is now known as %n", team_data[2].name, temp);
+		strcpy(team_data[2].name, temp);
+		gi.cprintf(ent, PRINT_HIGH, "New Team Name: %s\n", team_data[2].name);
 		return;
 	}
 }
@@ -289,11 +291,11 @@ void Cmd_Teamskin_f(edict_t * ent)
 		gi.cprintf(ent, PRINT_HIGH, "You need to be a captain for that\n");
 		return;
 	}
-	if (team == 1 && team1ready == 1) {
+	if (team == 1 && team_data[1].ready == 1) {
 		gi.cprintf(ent, PRINT_HIGH, "You cannot use this while 'Ready'\n");
 		return;
 	}
-	if (team == 2 && team2ready == 1) {
+	if (team == 2 && team_data[2].ready == 1) {
 		gi.cprintf(ent, PRINT_HIGH, "You cannot use this while 'Ready'\n");
 		return;
 	}
@@ -305,23 +307,23 @@ void Cmd_Teamskin_f(edict_t * ent)
 	if (gi.argc() < 2) {
 		s = Info_ValueForKey(ent->client->pers.userinfo, "skin");
 		if (ent->client->resp.team == 1)
-			gi.cprintf(ent, PRINT_HIGH, "Your Team Skin is %s\n", team1_skin);
+			gi.cprintf(ent, PRINT_HIGH, "Your Team Skin is %s\n", team_data[1].skin);
 		else
-			gi.cprintf(ent, PRINT_HIGH, "Your Team Skin is %s\n", team2_skin);
+			gi.cprintf(ent, PRINT_HIGH, "Your Team Skin is %s\n", team_data[2].skin);
 		return;
 	}
 	strncpy(temp, gi.argv(1), sizeof(temp));
 	temp[127] = 0;
 	if (team == 1) {
-		strcpy(team1_skin, temp);
-		sprintf(team1_skin_index, "../players/%s_i", team1_skin);
-		gi.cprintf(ent, PRINT_HIGH, "New Team Skin: %s\n", team1_skin);
+		strcpy(team_data[1].skin, temp);
+		sprintf(team_data[1].skin_index, "../players/%s_i", team_data[1].skin);
+		gi.cprintf(ent, PRINT_HIGH, "New Team Skin: %s\n", team_data[1].skin);
 		return;
 	}
 	if (team == 2) {
-		strcpy(team2_skin, temp);
-		sprintf(team2_skin_index, "../players/%s_i", team2_skin);
-		gi.cprintf(ent, PRINT_HIGH, "New Team Skin: %s\n", team2_skin);
+		strcpy(team_data[2].skin, temp);
+		sprintf(team_data[2].skin_index, "../players/%s_i", team_data[2].skin);
+		gi.cprintf(ent, PRINT_HIGH, "New Team Skin: %s\n", team_data[2].skin);
 		return;
 	}
 }
@@ -335,12 +337,12 @@ void Cmd_TeamLock_f(edict_t * ent, int a_switch)
 		gi.cprintf(ent, PRINT_HIGH, "You are not on a team\n");
 	else if (!ent->client->resp.captain)
 		gi.cprintf(ent, PRINT_HIGH, "You are not the captain of your team\n");
-	else if (a_switch == 1 && team_locked[ent->client->resp.team])
+	else if (a_switch == 1 && team_data[ent->client->resp.team].locked)
 		gi.cprintf(ent, PRINT_HIGH, "Your team is already locked\n");
-	else if (a_switch == 0 && !team_locked[ent->client->resp.team])
+	else if (a_switch == 0 && !team_data[ent->client->resp.team].locked)
 		gi.cprintf(ent, PRINT_HIGH, "Your team isn't locked\n");
 	else {
-		team_locked[ent->client->resp.team] = a_switch;
+		team_data[ent->client->resp.team].locked = a_switch;
 
 		if (a_switch == 1)
 			sprintf(msg, "%s locked\n", TeamName(ent->client->resp.team));

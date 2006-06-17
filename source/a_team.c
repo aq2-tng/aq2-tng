@@ -3,10 +3,15 @@
 // Some of this is borrowed from Zoid's CTF (thanks Zoid)
 // -Fireblade
 //
-// $Id: a_team.c,v 1.90 2005/03/19 18:35:51 igor_rock Exp $
+// $Id: a_team.c,v 1.91 2006/06/17 11:34:06 igor_rock Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_team.c,v $
+// Revision 1.91  2006/06/17 11:34:06  igor_rock
+// Some code cleanup:
+// - moved team related variables to a single struct variable
+// - some minor changes to reduced possible error sources
+//
 // Revision 1.90  2005/03/19 18:35:51  igor_rock
 // added an additional space before nicknames to align nicks in status overview
 //
@@ -322,13 +327,6 @@ int fragwarning = 0;		// countdown variable for "x Frags left"
 int holding_on_tie_check = 0;	// when a team "wins", countdown for a bit and wait...
 int current_round_length = 0;	// frames that the current team round has lasted
 int round_delay_time = 0;	// time gap between round end and new round
-
-int team1_score = 0;
-int team2_score = 0;
-int team3_score = 0;
-int team1_total = 0;
-int team2_total = 0;
-int team3_total = 0;
 
 #define MAX_SPAWNS 1000		// max DM spawn points supported
 
@@ -780,11 +778,11 @@ char *
 TeamName (int team)
 {
   if (team == TEAM1)
-    return team1_name;
+    return team_data[1].name;
   else if (team == TEAM2)
-    return team2_name;
+    return team_data[2].name;
   else if (team == TEAM3)
-    return team3_name;
+    return team_data[3].name;
   else
     return "None";
 }
@@ -830,17 +828,17 @@ AssignSkin (edict_t * ent, char *s)
 	case TEAM1:
 	  gi.configstring (CS_PLAYERSKINS + playernum,
 			   va ("%s\\%s", ent->client->pers.netname,
-			       team1_skin));
+			       team_data[1].skin));
 	  break;
 	case TEAM2:
 	  gi.configstring (CS_PLAYERSKINS + playernum,
 			   va ("%s\\%s", ent->client->pers.netname,
-			       team2_skin));
+			       team_data[2].skin));
 	  break;
 	case TEAM3:
 	  gi.configstring (CS_PLAYERSKINS + playernum,
 			   va ("%s\\%s", ent->client->pers.netname,
-			       team3_skin));
+			       team_data[3].skin));
 	  break;
 	default:
 	  gi.configstring (CS_PLAYERSKINS + playernum,
@@ -910,15 +908,15 @@ Team_f (edict_t * ent)
     desired_team = TEAM1;
   else if (Q_stricmp (t, "2") == 0)
     desired_team = TEAM2;
-  else if (Q_stricmp (t, team1_name) == 0)
+  else if (Q_stricmp (t, team_data[1].name) == 0)
     desired_team = TEAM1;
-  else if (Q_stricmp (t, team2_name) == 0)
+  else if (Q_stricmp (t, team_data[2].name) == 0)
     desired_team = TEAM2;
   else if (use_3teams->value)
     {
       if (Q_stricmp (t, "3") == 0)
 	desired_team = TEAM3;
-      else if (Q_stricmp (t, team3_name) == 0)
+      else if (Q_stricmp (t, team_data[3].name) == 0)
 	desired_team = TEAM3;
     }
   else if (ctf->value)
@@ -989,9 +987,9 @@ CheckForUnevenTeams ()
 	}
     }
   if (onteam1 > onteam2)
-    UnevenTeamsMsg (TEAM1, onteam1 - onteam2, team2_name);
+    UnevenTeamsMsg (TEAM1, onteam1 - onteam2, team_data[2].name);
   else if (onteam2 > onteam1)
-    UnevenTeamsMsg (TEAM2, onteam2 - onteam1, team1_name);
+    UnevenTeamsMsg (TEAM2, onteam2 - onteam1, team_data[1].name);
 }
 
 void
@@ -1007,7 +1005,7 @@ JoinTeam (edict_t * ent, int desired_team, int skip_menuclose)
   if (ent->client->resp.team == desired_team)
     return;
 
-  if (mm_allowlock->value && team_locked[desired_team]) {
+  if (mm_allowlock->value && team_data[desired_team].locked) {
         if (skip_menuclose)
                 gi.cprintf(ent, PRINT_HIGH, "Cannot join %s (locked)\n", TeamName(desired_team));
         else
@@ -1085,9 +1083,9 @@ JoinTeam (edict_t * ent, int desired_team, int skip_menuclose)
   if (matchmode->value)
     {
       if (ent->client->resp.captain == 1)
-	team1ready = 0;
+	team_data[1].ready = 0;
       else if (ent->client->resp.captain == 2)
-	team2ready = 0;
+	team_data[2].ready = 0;
       ent->client->resp.subteam = 0;	//SLICER: If a player joins or changes teams, the subteam resets....
       ent->client->resp.captain = 0;	//SLICER: Same here
     }
@@ -1146,9 +1144,9 @@ LeaveTeam (edict_t * ent)
   if (matchmode->value)
     {
       if (ent->client->resp.captain == 1)
-	team1ready = 0;
+	team_data[1].ready = 0;
       else if (ent->client->resp.captain == 2)
-	team2ready = 0;
+	team_data[2].ready = 0;
       ent->client->resp.subteam = 0;	//SLICER: If a player joins or changes teams, the subteam resets....
       ent->client->resp.captain = 0;	//SLICER: Same here
     }
@@ -1354,13 +1352,13 @@ UpdateJoinMenu (edict_t * ent)
     }
   else
     {
-      joinmenu[4].text = team1_name;
+      joinmenu[4].text = team_data[1].name;
       joinmenu[4].SelectFunc = JoinTeam1;
-      joinmenu[6].text = team2_name;
+      joinmenu[6].text = team_data[2].name;
       joinmenu[6].SelectFunc = JoinTeam2;
       if (use_3teams->value)
 	{
-	  joinmenu[8].text = team3_name;
+	  joinmenu[8].text = team_data[3].name;
 	  joinmenu[8].SelectFunc = JoinTeam3;
 	}
       else
@@ -1415,9 +1413,9 @@ UpdateJoinMenu (edict_t * ent)
 	i = 2;
       else if (num2 > num1)
 	i = 1;
-      else if (team1_score > team2_score)
+      else if (team_data[1].score > team_data[2].score)
 	i = 2;
-      else if (team2_score > team1_score)
+      else if (team_data[2].score > team_data[1].score)
 	i = 1;
       else
 	i = 1;
@@ -1427,7 +1425,7 @@ UpdateJoinMenu (edict_t * ent)
 	  return TEAM1;
 	else if (num1 > num3)
 	  return TEAM3;
-	else if (team1_score > team3_score)
+	else if (team_data[1].score > team_data[3].score)
 	  return TEAM3;
 	else
 	  return TEAM1;
@@ -1435,7 +1433,7 @@ UpdateJoinMenu (edict_t * ent)
 	return TEAM2;
       else if (num2 > num3)
 	return TEAM3;
-      else if (team2_score > team3_score)
+      else if (team_data[2].score > team_data[3].score)
 	return TEAM3;
       else
 	return TEAM2;
@@ -1446,9 +1444,9 @@ UpdateJoinMenu (edict_t * ent)
 	return TEAM2;
       else if (num2 > num1)
 	return TEAM1;
-      else if (team1_score > team2_score)
+      else if (team_data[1].score > team_data[2].score)
 	return TEAM2;
-      else if (team2_score > team1_score)
+      else if (team_data[2].score > team_data[1].score)
 	return TEAM1;
       else
 	return TEAM1;
@@ -1609,7 +1607,7 @@ qboolean BothTeamsHavePlayers ()
   //AQ2:TNG Slicer Matchmode
   if (matchmode->value)
     {
-      if (!team1ready || !team2ready)
+      if (!team_data[1].ready || !team_data[2].ready)
 	return 0;
     }
   //AQ2:TNG END
@@ -1956,11 +1954,11 @@ PrintScores ( )
 {
 
   if (use_3teams->value) {
-    gi.bprintf (PRINT_HIGH, "Current score is %s: %d to %s: %d to %s: %d\n", TeamName (TEAM1), team1_score, TeamName (TEAM2), team2_score, TeamName (TEAM3), team3_score);
-    IRC_printf (IRC_T_TOPIC, "Current score on map %n is %n: %k to %n: %k to %n: %k", level.mapname, TeamName (TEAM1), team1_score, TeamName (TEAM2), team2_score, TeamName (TEAM3), team3_score);
+    gi.bprintf (PRINT_HIGH, "Current score is %s: %d to %s: %d to %s: %d\n", TeamName (TEAM1), team_data[1].score, TeamName (TEAM2), team_data[2].score, TeamName (TEAM3), team_data[3].score);
+    IRC_printf (IRC_T_TOPIC, "Current score on map %n is %n: %k to %n: %k to %n: %k", level.mapname, TeamName (TEAM1), team_data[1].score, TeamName (TEAM2), team_data[2].score, TeamName (TEAM3), team_data[3].score);
   } else {
-    gi.bprintf (PRINT_HIGH, "Current score is %s: %d to %s: %d\n", TeamName (TEAM1), team1_score, TeamName (TEAM2), team2_score);
-    IRC_printf (IRC_T_TOPIC, "Current score on map %n is %n: %k to %n: %k", level.mapname, TeamName (TEAM1), team1_score, TeamName (TEAM2), team2_score);
+    gi.bprintf (PRINT_HIGH, "Current score is %s: %d to %s: %d\n", TeamName (TEAM1), team_data[1].score, TeamName (TEAM2), team_data[2].score);
+    IRC_printf (IRC_T_TOPIC, "Current score on map %n is %n: %k to %n: %k", level.mapname, TeamName (TEAM1), team_data[1].score, TeamName (TEAM2), team_data[2].score);
   }
 }
 
@@ -2006,10 +2004,10 @@ int WonGame (int winner)
 				if(use_warnings->value)
 					gi.sound (&g_edicts[0], CHAN_VOICE | CHAN_NO_PHS_ADD,	gi.soundindex ("tng/team1_wins.wav"), 1.0, ATTN_NONE,	0.0);
 				// end of changing sound dir
-				team1_score++;
-				team1score->value = team1_score;
-				//	      itoa (team1_score, team1score->string, 10);
-				sprintf(team1score->string, "%d", team1_score);
+				team_data[1].score++;
+				team_data[1].teamscore->value = team_data[1].score;
+				//	      itoa (team_data[1].score, team_data[1].teamscore->string, 10);
+				sprintf(team_data[1].teamscore->string, "%d", team_data[1].score);
 				PrintScores ();
 			}
 		}
@@ -2035,10 +2033,10 @@ int WonGame (int winner)
 				if(use_warnings->value)
 					gi.sound (&g_edicts[0], CHAN_VOICE | CHAN_NO_PHS_ADD, gi.soundindex ("tng/team2_wins.wav"), 1.0, ATTN_NONE, 0.0);
 				// end of changing sound dir
-				team2_score++;
-				team2score->value = team2_score;
-				//	      itoa (team2_score, team2score->string, 10);
-				sprintf(team2score->string, "%d", team2_score);
+				team_data[2].score++;
+				team_data[2].teamscore->value = team_data[2].score;
+				//	      itoa (team_data[2].score, team_data[2].teamscore->string, 10);
+				sprintf(team_data[2].teamscore->string, "%d", team_data[2].score);
 				PrintScores ();
 			}
 		}
@@ -2064,10 +2062,10 @@ int WonGame (int winner)
 				if(use_warnings->value)
 					gi.sound (&g_edicts[0], CHAN_VOICE | CHAN_NO_PHS_ADD,	gi.soundindex ("tng/team3_wins.wav"), 1.0, ATTN_NONE,	0.0);
 				// end of changing sound dir
-				team3_score++;
-				team3score->value = team3_score;
-				//	      itoa (team3_score, team3score->string, 10);
-				sprintf(team3score->string, "%d", team3_score);
+				team_data[3].score++;
+				team_data[3].teamscore->value = team_data[3].score;
+				//	      itoa (team_data[3].score, team_data[3].teamscore->string, 10);
+				sprintf(team_data[3].teamscore->string, "%d", team_data[3].score);
 				PrintScores ();
 			}
 		}
@@ -2081,7 +2079,7 @@ int WonGame (int winner)
 			if (matchtime >= timelimit->value * 60)
 			{
 				SendScores ();
-				ingame = team1ready = team2ready = team_round_going =
+				ingame = team_data[1].ready = team_data[2].ready = team_round_going =
 					team_round_countdown = team_game_going = matchtime = 0;
 				MakeAllLivePlayersObservers ();
 				return 1;
@@ -2101,9 +2099,9 @@ int WonGame (int winner)
 	{
 		if (use_3teams->value)
 		{
-			if (team1_score >= roundlimit->value
-				|| team2_score >= roundlimit->value
-				|| team3_score >= roundlimit->value)
+			if (team_data[1].score >= roundlimit->value
+				|| team_data[2].score >= roundlimit->value
+				|| team_data[3].score >= roundlimit->value)
 			{
 				gi.bprintf (PRINT_HIGH, "Roundlimit hit.\n");
 				IRC_printf (IRC_T_GAME, "Roundlimit hit.");
@@ -2114,13 +2112,13 @@ int WonGame (int winner)
 		}
 		else
 		{
-			if (team1_score >= roundlimit->value
-				|| team2_score >= roundlimit->value)
+			if (team_data[1].score >= roundlimit->value
+				|| team_data[2].score >= roundlimit->value)
 			{
 				if (matchmode->value)
 				{
 					SendScores ();
-					ingame = team1ready = team2ready = team_round_going =
+					ingame = team_data[1].ready = team_data[2].ready = team_round_going =
 						team_round_countdown = team_game_going = matchtime = 0;
 					MakeAllLivePlayersObservers ();
 					return 1;
@@ -2211,14 +2209,14 @@ CheckTeamRules ()
     }
 
   if (matchmode->value && mm_allowlock->value) {
-	if (team_locked[TEAM1] && !TeamHasPlayers(TEAM1)) {
-		team_locked[TEAM1] = 0;
+	if (team_data[TEAM1].locked && !TeamHasPlayers(TEAM1)) {
+		team_data[TEAM1].locked = 0;
 		sprintf(buf, "%s unlocked (no players)\n", TeamName(TEAM1));
 		CenterPrintAll(buf);
 	}
 
-	if (team_locked[TEAM2] && !TeamHasPlayers(TEAM2)) {
-		team_locked[TEAM2] = 0;
+	if (team_data[TEAM2].locked && !TeamHasPlayers(TEAM2)) {
+		team_data[TEAM2].locked = 0;
 		sprintf(buf, "%s unlocked (no players)\n", TeamName(TEAM2));
 		CenterPrintAll(buf);
 	}
@@ -2257,7 +2255,7 @@ CheckTeamRules ()
 	{
 	  if (matchmode->value)
 	    {
-	      if (team1ready && team2ready)
+	      if (team_data[1].ready && team_data[2].ready)
 		CenterPrintAll ("Not enough players to play!\n");
 		  else{
 		CenterPrintAll ("Both Teams Must Be Ready!\n");
@@ -2307,7 +2305,7 @@ CheckTeamRules ()
 	      if (matchtime >= timelimit->value * 60)
 		{
 		  SendScores ();
-		  ingame = team1ready = team2ready = team_round_going =
+		  ingame = team_data[1].ready = team_data[2].ready = team_round_going =
 		    team_round_countdown = team_game_going = matchtime = 0;
 		  MakeAllLivePlayersObservers ();
 		  return;
@@ -2470,40 +2468,40 @@ A_Scoreboard (edict_t * ent)
 	  if (use_3teams->value)
 	    {
 	      i = 0;
-	      if (team1_score > team2_score)
+	      if (team_data[1].score > team_data[2].score)
 		{
-		  if (team1_score > team3_score)
+		  if (team_data[1].score > team_data[3].score)
 		    i = 1;
-		  else if (team3_score > team1_score)
+		  else if (team_data[3].score > team_data[1].score)
 		    i = 3;
 		}
-	      else if (team1_score < team2_score)
+	      else if (team_data[1].score < team_data[2].score)
 		{
-		  if (team2_score > team3_score)
+		  if (team_data[2].score > team_data[3].score)
 		    i = 2;
-		  else if (team3_score > team2_score)
+		  else if (team_data[3].score > team_data[2].score)
 		    i = 3;
 		}
-	      else if (team3_score > team1_score)
+	      else if (team_data[3].score > team_data[1].score)
 		i = 3;
 
 	      if (i == 0)
 		{
-		  if (team1_total > team2_total)
+		  if (team_data[1].total > team_data[2].total)
 		    {
-		      if (team1_total > team3_total)
+		      if (team_data[1].total > team_data[3].total)
 			i = 1;
-		      else if (team3_total > team1_total)
+		      else if (team_data[3].total > team_data[1].total)
 			i = 3;
 		    }
-		  else if (team1_total < team2_total)
+		  else if (team_data[1].total < team_data[2].total)
 		    {
-		      if (team2_total > team3_total)
+		      if (team_data[2].total > team_data[3].total)
 			i = 2;
-		      else if (team3_total > team2_total)
+		      else if (team_data[3].total > team_data[2].total)
 			i = 3;
 		    }
-		  else if (team3_total > team1_total)
+		  else if (team_data[3].total > team_data[1].total)
 		    i = 3;
 		}
 
@@ -2522,14 +2520,14 @@ A_Scoreboard (edict_t * ent)
 	    }
 	  else
 	    {
-	      if (team1_score > team2_score)
+	      if (team_data[1].score > team_data[2].score)
 		ent->client->ps.stats[STAT_TEAM1_PIC] = 0;
-	      else if (team2_score > team1_score)
+	      else if (team_data[2].score > team_data[1].score)
 		ent->client->ps.stats[STAT_TEAM2_PIC] = 0;
-	      else if (team1_total > team2_total)	// frag tie breaker
+	      else if (team_data[1].total > team_data[2].total)	// frag tie breaker
 
 		ent->client->ps.stats[STAT_TEAM1_PIC] = 0;
-	      else if (team2_total > team1_total)
+	      else if (team_data[2].total > team_data[1].total)
 		ent->client->ps.stats[STAT_TEAM2_PIC] = 0;
 	      else
 		{		// tie game!
@@ -2543,21 +2541,21 @@ A_Scoreboard (edict_t * ent)
       else
 	{
 	  ent->client->ps.stats[STAT_TEAM1_PIC] =
-	    gi.imageindex (team1_skin_index);
+	    gi.imageindex (team_data[1].skin_index);
 	  ent->client->ps.stats[STAT_TEAM2_PIC] =
-	    gi.imageindex (team2_skin_index);
+	    gi.imageindex (team_data[2].skin_index);
 	  if (use_3teams->value)
 	    {
 	      ent->client->ps.stats[STAT_TEAM3_PIC] =
-		gi.imageindex (team3_skin_index);
+		gi.imageindex (team_data[3].skin_index);
 	    }
 	}
 
-      ent->client->ps.stats[STAT_TEAM1_SCORE] = team1_score;
-      ent->client->ps.stats[STAT_TEAM2_SCORE] = team2_score;
+      ent->client->ps.stats[STAT_TEAM1_SCORE] = team_data[1].score;
+      ent->client->ps.stats[STAT_TEAM2_SCORE] = team_data[2].score;
       if (use_3teams->value)
 	{
-	  ent->client->ps.stats[STAT_TEAM3_SCORE] = team3_score;
+	  ent->client->ps.stats[STAT_TEAM3_SCORE] = team_data[3].score;
 	}
     }
 }
@@ -2664,19 +2662,19 @@ A_ScoreboardMessage (edict_t * ent, edict_t * killer)
       // correctly in 320x240 (Action's does not)--any problems with this?  -FB
       // Also going to center the team names.
 
-      name_pos[TEAM1] = ((20 - strlen (team1_name)) / 2) * 8;
+      name_pos[TEAM1] = ((20 - strlen (team_data[1].name)) / 2) * 8;
       if (name_pos[TEAM1] < 0)
 	{
 	  name_pos[TEAM1] = 0;
 	}
 
-      name_pos[TEAM2] = ((20 - strlen (team2_name)) / 2) * 8;
+      name_pos[TEAM2] = ((20 - strlen (team_data[2].name)) / 2) * 8;
       if (name_pos[TEAM2] < 0)
 	{
 	  name_pos[TEAM2] = 0;
 	}
 
-      name_pos[TEAM3] = ((20 - strlen (team2_name)) / 2) * 8;
+      name_pos[TEAM3] = ((20 - strlen (team_data[2].name)) / 2) * 8;
       if (name_pos[TEAM3] < 0)
 	{
 	  name_pos[TEAM3] = 0;
@@ -2692,7 +2690,7 @@ A_ScoreboardMessage (edict_t * ent, edict_t * killer)
 		   "xv 10 yv 12 num 2 26 "
 		   "xv %d yv 0 string \"%s\" ",
 		   totalscore[TEAM1], total[TEAM1], name_pos[TEAM1] - 80,
-		   team1_name);
+		   team_data[1].name);
 	  sprintf (string + strlen (string),
 		   // TEAM2
 		   "if 25 xv 80 yv 8 pic 25 endif "
@@ -2701,7 +2699,7 @@ A_ScoreboardMessage (edict_t * ent, edict_t * killer)
 		   "xv 168 yv 12 num 2 27 "
 		   "xv %d yv 0 string \"%s\" ",
 		   totalscore[TEAM2], total[TEAM2], name_pos[TEAM2] + 80,
-		   team2_name);
+		   team_data[2].name);
 	  sprintf (string + strlen (string),
 		   // TEAM3
 		   "if 30 xv 240 yv 8 pic 30 endif "
@@ -2710,7 +2708,7 @@ A_ScoreboardMessage (edict_t * ent, edict_t * killer)
 		   "xv 328 yv 12 num 2 31 "
 		   "xv %d yv 0 string \"%s\" ",
 		   totalscore[TEAM3], total[TEAM3], name_pos[TEAM3] + 240,
-		   team3_name);
+		   team_data[3].name);
 
 	  len = strlen (string);
 
@@ -2882,9 +2880,9 @@ A_ScoreboardMessage (edict_t * ent, edict_t * killer)
 		   "xv 256 yv 12 num 2 27 "
 		   "xv %d yv 0 string \"%s\" ",
 		   totalscore[TEAM1], total[TEAM1], totalsubs[TEAM1],
-		   name_pos[TEAM1], team1_name, totalscore[TEAM2],
+		   name_pos[TEAM1], team_data[1].name, totalscore[TEAM2],
 		   total[TEAM2], totalsubs[TEAM2], name_pos[TEAM2] + 160,
-		   team2_name);
+		   team_data[2].name);
 
 	  len = strlen (string);
 
@@ -3060,9 +3058,9 @@ A_ScoreboardMessage (edict_t * ent, edict_t * killer)
 	    }
 
 	  sprintf (string + strlen (string), "xv 39 yv 128 string2 \"%s\" ",
-		   team1ready ? "Ready" : "Not Ready");
+		   team_data[1].ready ? "Ready" : "Not Ready");
 	  sprintf (string + strlen (string), "xv 196 yv 128 string2 \"%s\" ",
-		   team2ready ? "Ready" : "Not Ready");
+		   team_data[2].ready ? "Ready" : "Not Ready");
 
 	  mins = matchtime / 60;
 	  secs = matchtime - (mins * 60);
@@ -3085,8 +3083,8 @@ A_ScoreboardMessage (edict_t * ent, edict_t * killer)
 		   "xv 248 yv 12 num 2 27 "
 		   "xv %d yv 0 string \"%s\" ",
 		   totalscore[TEAM1], total[TEAM1], name_pos[TEAM1],
-		   team1_name, totalscore[TEAM2], total[TEAM2],
-		   name_pos[TEAM2] + 160, team2_name);
+		   team_data[1].name, totalscore[TEAM2], total[TEAM2],
+		   name_pos[TEAM2] + 160, team_data[2].name);
 
 	  len = strlen (string);
 
@@ -3359,17 +3357,17 @@ TallyEndOfLevelTeamScores (void)
   gi.sound (&g_edicts[0], CHAN_VOICE | CHAN_NO_PHS_ADD,
 	    gi.soundindex ("world/xian1.wav"), 1.0, ATTN_NONE, 0.0);
 
-  team1_total = team2_total = team3_total = 0;
+  team_data[1].total = team_data[2].total = team_data[3].total = 0;
   for (i = 0; i < maxclients->value; i++)
     {
       if (!g_edicts[i + 1].inuse)
 	continue;
       if (game.clients[i].resp.team == TEAM1)
-	team1_total += game.clients[i].resp.score;
+	team_data[1].total += game.clients[i].resp.score;
       else if (game.clients[i].resp.team == TEAM2)
-	team2_total += game.clients[i].resp.score;
+	team_data[2].total += game.clients[i].resp.score;
       else if (game.clients[i].resp.team == TEAM3)
-	team3_total += game.clients[i].resp.score;
+	team_data[3].total += game.clients[i].resp.score;
     }
 }
 
