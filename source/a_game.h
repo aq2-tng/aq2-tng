@@ -1,10 +1,16 @@
 //-----------------------------------------------------------------------------
 // Include for base Action game-related things
 //
-// $Id: a_game.h,v 1.24 2004/09/23 00:09:44 slicerdw Exp $
+// $Id: a_game.h,v 1.25 2006/06/17 11:30:25 igor_rock Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_game.h,v $
+// Revision 1.25  2006/06/17 11:30:25  igor_rock
+// Some code cleanup:
+// - moved team related variables to a single struct variable
+// - some minor changes to reduced possible error sources
+// - removed DOS-like line ends
+//
 // Revision 1.24  2004/09/23 00:09:44  slicerdw
 // Radio kill count was missing for falling death
 //
@@ -94,15 +100,7 @@
 #define MAX_LAST_KILLED 8
 //AQ2:TNG END
 
-extern char team1_name[];
-extern char team2_name[];
-extern char team3_name[];
-extern char team1_skin[];
-extern char team2_skin[];
-extern char team3_skin[];
-extern char team1_skin_index[];
-extern char team2_skin_index[];
-extern char team3_skin_index[];
+
 extern char *map_rotation[];
 extern int num_maps, cur_map, num_allvotes;	// num_allvotes added by Igor[Rock]
 
