@@ -1,10 +1,15 @@
 //-----------------------------------------------------------------------------
 // g_spawn.c
 //
-// $Id: g_spawn.c,v 1.38 2002/03/28 12:10:11 freud Exp $
+// $Id: g_spawn.c,v 1.39 2006/06/17 11:39:17 igor_rock Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_spawn.c,v $
+// Revision 1.39  2006/06/17 11:39:17  igor_rock
+// Some code cleanup:
+// - moved team related variables to a single struct variable
+// - some minor changes to reduced possible error sources
+//
 // Revision 1.38  2002/03/28 12:10:11  freud
 // Removed unused variables (compiler warnings).
 // Added cvar mm_allowlock.
@@ -791,13 +796,22 @@ SpawnEntities (char *mapname, char *entities, char *spawnpoint)
   cvar_t *game_cvar;
   int u;
   //    placedata_t temp;
+
+  // team_data re-initialization
+  for(i = TEAM1; i < TEAM_TOP; i++)
+    {
+      team_data[i].score = team_data[i].total  = 0;
+      team_data[i].ready = team_data[i].locked = 0;
+      gi.cvar_forceset(team_data[i].teamscore->name, "0");
+    }
+
   //AQ2:TNG END
   //AQ2:TNG Slicer Forcing Teamplay on and ctf off with matchmode
   if (matchmode->value)
     {
       if (mm_allowlock->value) {
       	for (xx = 0;xx <= MAX_TEAMS;xx++)
-		team_locked[xx] = 0;
+		team_data[xx].locked = 0;
       }
       // Make sure teamplay is enabled
       if (!teamplay->value)
@@ -1467,17 +1481,17 @@ SP_worldspawn (edict_t * ent)
   ent->s.modelindex = 1;	// world model is always index 1
 
   // AQ2:TNG - Slicer matchmode ready reset
-  team1ready = team2ready = 0;
+  team_data[1].ready = team_data[2].ready = 0;
   matchtime = 0;
   day_cycle_at = 0;
 
 	// AQ2:TNG Resetting the teamXscore cvars
-	team1score->value = 0;
-	strcpy(team1score->string,"0");
-	team2score->value = 0;
-	strcpy(team2score->string,"0");
-	team3score->value = 0;
-	strcpy(team3score->string,"0");
+	team_data[1].teamscore->value = 0;
+	strcpy(team_data[1].teamscore->string,"0");
+	team_data[2].teamscore->value = 0;
+	strcpy(team_data[2].teamscore->string,"0");
+	team_data[3].teamscore->value = 0;
+	strcpy(team_data[3].teamscore->string,"0");
   //---------------
 
   // reserve some spots for dead player bodies for coop / deathmatch
@@ -1576,30 +1590,30 @@ SP_worldspawn (edict_t * ent)
   gi.imageindex ("tag3");
   if (teamplay->value)
     {
-      if (team1_skin_index[0] == 0)
+      if (team_data[1].skin_index[0] == 0)
 	{
 	  gi.
 	    dprintf
 	    ("No skin was specified for team 1 in config file.  Exiting.\n");
 	  exit (1);
 	}
-      gi.imageindex (team1_skin_index);
-      if (team2_skin_index[0] == 0)
+      gi.imageindex (team_data[1].skin_index);
+      if (team_data[2].skin_index[0] == 0)
 	{
 	  gi.
 	    dprintf
 	    ("No skin was specified for team 2 in config file.  Exiting.\n");
 	  exit (1);
 	}
-      gi.imageindex (team2_skin_index);
-      if (team3_skin_index[0] == 0)
+      gi.imageindex (team_data[2].skin_index);
+      if (team_data[3].skin_index[0] == 0)
 	{
 	  gi.
 	    dprintf
 	    ("No skin was specified for team 3 in config file.  Exiting.\n");
 	  exit (1);
 	}
-      gi.imageindex (team3_skin_index);
+      gi.imageindex (team_data[3].skin_index);
     }
 
   // AQ2:TNG - Igor adding precache for sounds
