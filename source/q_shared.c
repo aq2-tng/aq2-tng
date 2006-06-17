@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // q_shared.c
 //
-// $Id: q_shared.c,v 1.4 2001/09/28 14:20:25 slicerdw Exp $
+// $Id: q_shared.c,v 1.5 2006/06/17 11:42:25 igor_rock Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: q_shared.c,v $
+// Revision 1.5  2006/06/17 11:42:25  igor_rock
+// - added Q_strncpyz library function
+//
 // Revision 1.4  2001/09/28 14:20:25  slicerdw
 // Few tweaks..
 //
@@ -1332,7 +1335,28 @@ Q_strcasecmp (char *s1, char *s2)
   return Q_strncasecmp (s1, s2, 99999);
 }
 
+/* 
+============= 
+Q_strncpyz 
 
+Safe strncpy that ensures a trailing zero 
+============= 
+*/ 
+void Q_strncpyz( char *dest, const char *src, int destsize ) { 
+  // bk001129 - also NULL dest 
+  if ( !dest ) { 
+    Com_Printf ("Q_strncpyz: NULL dest" ); 
+  } 
+  if ( !src ) { 
+    Com_Printf ("Q_strncpyz: NULL src" ); 
+  } 
+  if ( destsize < 1 ) { 
+    Com_Printf ("Q_strncpyz: destsize < 1" ); 
+  } 
+
+  strncpy( dest, src, destsize-1 ); 
+  dest[destsize-1] = 0; 
+}
 
 void
 Com_sprintf (char *dest, int size, char *fmt, ...)

@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // q_shared.h -- included first by ALL program modules
 //
-// $Id: q_shared.h,v 1.8 2001/09/28 13:48:35 ra Exp $
+// $Id: q_shared.h,v 1.9 2006/06/17 11:41:32 igor_rock Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: q_shared.h,v $
+// Revision 1.9  2006/06/17 11:41:32  igor_rock
+// - added Q_strncpyz library function
+//
 // Revision 1.8  2001/09/28 13:48:35  ra
 // I ran indent over the sources. All .c and .h files reindented.
 //
@@ -266,6 +269,7 @@ void Com_PageInMemory (byte * buffer, int size);
 int Q_stricmp (char *s1, char *s2);
 int Q_strcasecmp (char *s1, char *s2);
 int Q_strncasecmp (char *s1, char *s2, int n);
+void Q_strncpyz( char *dest, const char *src, int destsize );
 
 //=============================================
 
