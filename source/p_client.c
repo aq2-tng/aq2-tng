@@ -1,10 +1,14 @@
 //-----------------------------------------------------------------------------
 // p_client.c
 //
-// $Id: p_client.c,v 1.91 2006/06/17 11:39:48 igor_rock Exp $
+// $Id: p_client.c,v 1.92 2006/06/18 09:16:49 igor_rock Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: p_client.c,v $
+// Revision 1.92  2006/06/18 09:16:49  igor_rock
+// - simplyfied some functions
+// - changed order or some functions
+//
 // Revision 1.91  2006/06/17 11:39:48  igor_rock
 // Some code cleanup:
 // - moved team related variables to a single struct variable
@@ -3279,90 +3283,98 @@ Will not be called between levels.
 */
 void ClientDisconnect(edict_t * ent)
 {
-	int playernum, i;
-	edict_t *etemp;
-
-	if (!ent->client)
-		return;
-	if (ent->client->resp.captain) {
-		if (ent->client->resp.captain == 1)
-			team_data[1].ready = 0;
-		else
-			team_data[2].ready = 0;
+  int playernum, i;
+  edict_t *etemp;
+  
+  if (!ent->client)
+    return;
+  if (ent->client->resp.captain)
+    {
+      if(ctf->value)
+	{
+	  if(!team_round_going)
+	    team_data[ent->client->resp.captain].ready = 0;
+	  team_data[ent->client->resp.captain].locked = 0;
 	}
-	// drop items if they are alive/not observer
-	if (ent->solid != SOLID_NOT)
-		TossItemsOnDeath(ent);
-
-	// zucc free the lasersight if applicable
-	if (ent->lasersight)
-		SP_LaserSight(ent, NULL);
-
-	// TNG Free Flashlight
-	if (ent->flashlight)
-		FL_make(ent);
-
-	if (teamplay->value && ent->solid == SOLID_TRIGGER)
-		RemoveFromTransparentList(ent);
-
-	ent->lasersight = NULL;
-
-	gi.bprintf(PRINT_HIGH, "%s disconnected\n", ent->client->pers.netname);
-	IRC_printf(IRC_T_SERVER, "%n disconnected", ent->client->pers.netname);
-
-	// go clear any clients that have this guy as their attacker
-
-	for (i = 1; i <= maxclients->value; i++) {
-		if ((etemp = &g_edicts[i]) && etemp->inuse) {
-			if (etemp->client->attacker == ent)
-				etemp->client->attacker = NULL;
-			if (etemp->enemy == ent)	// AQ:TNG - JBravo adding tkok
-				etemp->enemy = NULL;
-
-			//AQ2:TNG SLICER this is not needed
-			/*
-			   //PG BUND - BEGIN 
-			   if (etemp->client)
-			   {
-			   if (etemp->client->resp.last_killed_target == ent)
-			   etemp->client->resp.last_killed_target = NULL;
-			   }
-			   //PG BUND - END
-			 */
-			//AQ2:TNG END
-		}
+      else
+	{
+	  team_data[ent->client->resp.captain].ready = 0;
 	}
+    }
+  
+  // drop items if they are alive/not observer
+  if (ent->solid != SOLID_NOT)
+    TossItemsOnDeath(ent);
+  
+  // zucc free the lasersight if applicable
+  if (ent->lasersight)
+    SP_LaserSight(ent, NULL);
+  
+  // TNG Free Flashlight
+  if (ent->flashlight)
+    FL_make(ent);
+  
+  if (teamplay->value && ent->solid == SOLID_TRIGGER)
+    RemoveFromTransparentList(ent);
+  
+  ent->lasersight = NULL;
+  
+  gi.bprintf(PRINT_HIGH, "%s disconnected\n", ent->client->pers.netname);
+  IRC_printf(IRC_T_SERVER, "%n disconnected", ent->client->pers.netname);
+  
+  // go clear any clients that have this guy as their attacker
+  
+  for (i = 1; i <= maxclients->value; i++) {
+    if ((etemp = &g_edicts[i]) && etemp->inuse) {
+      if (etemp->client->attacker == ent)
+	etemp->client->attacker = NULL;
+      if (etemp->enemy == ent)	// AQ:TNG - JBravo adding tkok
+	etemp->enemy = NULL;
+      
+      //AQ2:TNG SLICER this is not needed
+      /*
+      //PG BUND - BEGIN 
+      if (etemp->client)
+      {
+      if (etemp->client->resp.last_killed_target == ent)
+      etemp->client->resp.last_killed_target = NULL;
+      }
+      //PG BUND - END
+      */
+      //AQ2:TNG END
+    }
+  }
 
-	TourneyRemovePlayer(ent);
-	vClientDisconnect(ent);	// client voting disconnect
+  TourneyRemovePlayer(ent);
+  vClientDisconnect(ent);	// client voting disconnect
 
-	if (use_ghosts->value)
-		CreateGhost(ent);
+  if (use_ghosts->value)
+    CreateGhost(ent);
 
-	if (ctf->value)
-		CTFDeadDropFlag(ent);
+  if (ctf->value)
+    CTFDeadDropFlag(ent);
 
-	if (!teamplay->value) {
-		// send effect
-		gi.WriteByte(svc_muzzleflash);
-		gi.WriteShort(ent - g_edicts);
-		gi.WriteByte(MZ_LOGOUT);
-		gi.multicast(ent->s.origin, MULTICAST_PVS);
-	}
+  if (!teamplay->value) {
+    // send effect
+    gi.WriteByte(svc_muzzleflash);
+    gi.WriteShort(ent - g_edicts);
+    gi.WriteByte(MZ_LOGOUT);
+    gi.multicast(ent->s.origin, MULTICAST_PVS);
+  }
 
-	gi.unlinkentity(ent);
-	ent->s.modelindex = 0;
-	ent->solid = SOLID_NOT;
-	ent->inuse = false;
-	ent->classname = "disconnected";
-	ent->client->pers.connected = false;
+  gi.unlinkentity(ent);
+  ent->s.modelindex = 0;
+  ent->solid = SOLID_NOT;
+  ent->inuse = false;
+  ent->classname = "disconnected";
+  ent->client->pers.connected = false;
 
-	playernum = ent - g_edicts - 1;
-	gi.configstring(CS_PLAYERSKINS + playernum, "");
+  playernum = ent - g_edicts - 1;
+  gi.configstring(CS_PLAYERSKINS + playernum, "");
 
-	if (teamplay->value && !use_tourney->value) {
-		CheckForUnevenTeams();
-	}
+  if (teamplay->value && !use_tourney->value) {
+    CheckForUnevenTeams();
+  }
 }
 
 void CreateGhost(edict_t * ent)
