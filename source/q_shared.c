@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // q_shared.c
 //
-// $Id: q_shared.c,v 1.5 2006/06/17 11:42:25 igor_rock Exp $
+// $Id: q_shared.c,v 1.6 2006/06/18 09:18:47 igor_rock Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: q_shared.c,v $
+// Revision 1.6  2006/06/18 09:18:47  igor_rock
+// - changed Q_fabs to Quake 3 of the same name
+//
 // Revision 1.5  2006/06/17 11:42:25  igor_rock
 // - added Q_strncpyz library function
 //
@@ -264,15 +267,8 @@ R_ConcatTransforms (float in1[3][4], float in2[3][4], float out[3][4])
 float
 Q_fabs (float f)
 {
-#if 0
-  if (f >= 0)
-    return f;
-  return -f;
-#else
-  int tmp = *(int *) &f;
-  tmp &= 0x7FFFFFFF;
-  return *(float *) &tmp;
-#endif
+  int tmp = (*(int*)&f) & 0x7FFFFFFF;
+  return *(float*)&tmp;
 }
 
 #if defined _M_IX86 && !defined C_ONLY
