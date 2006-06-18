@@ -4,10 +4,13 @@
 //
 // laser sight patch, by Geza Beladi
 //
-// $Id: a_cmds.c,v 1.34 2006/06/17 11:27:42 igor_rock Exp $
+// $Id: a_cmds.c,v 1.35 2006/06/18 09:05:41 igor_rock Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_cmds.c,v $
+// Revision 1.35  2006/06/18 09:05:41  igor_rock
+// - corrected some indexes from [1] to [TEAM1] and so on
+//
 // Revision 1.34  2006/06/17 11:27:42  igor_rock
 // Some code cleanup:
 // - moved team related variables to a single struct variable
@@ -1105,7 +1108,7 @@ void Cmd_AutoRecord_f(edict_t * ent)
   (void) strftime(rec_date, 64, "%Y_%b_%d_%H%M", localtime(&now));
 
   if (matchmode->value) {
-    sprintf(recstr, "record \"%s-%s_vs_%s-%s\"\n", rec_date, team_data[1].name, team_data[2].name, level.mapname);
+    sprintf(recstr, "record \"%s-%s_vs_%s-%s\"\n", rec_date, team_data[TEAM1].name, team_data[TEAM2].name, level.mapname);
   } else {
     sprintf(recstr, "record \"%s-%s\"\n", rec_date, level.mapname);
   }

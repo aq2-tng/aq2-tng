@@ -5,10 +5,13 @@
 // Zucchini (spikard@u.washington.edu) and Fireblade (ucs_brf@shsu.edu) 
 // (splat/bullethole/shell ejection code from original Action source)
 //
-// $Id: a_game.c,v 1.15 2006/06/17 11:28:45 igor_rock Exp $
+// $Id: a_game.c,v 1.16 2006/06/18 09:06:20 igor_rock Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_game.c,v $
+// Revision 1.16  2006/06/18 09:06:20  igor_rock
+// - corrected some indexes from [1] to [TEAM1] and so on
+//
 // Revision 1.15  2006/06/17 11:28:45  igor_rock
 // Some code cleanup:
 // - moved team related variables to a single struct variable
@@ -144,21 +147,21 @@ void ReadConfigFile()
 		if (lines_into_section > -1) {
 			if (!strcmp(reading_section, "team1")) {
 				if (lines_into_section == 0) {
-					Q_strncpyz(team_data[1].name, buf, sizeof(team_data[1].name));
+					Q_strncpyz(team_data[TEAM1].name, buf, sizeof(team_data[TEAM1].name));
 				} else if (lines_into_section == 1) {
-					Q_strncpyz(team_data[1].skin, buf, sizeof(team_data[1].skin));
+					Q_strncpyz(team_data[TEAM1].skin, buf, sizeof(team_data[TEAM1].skin));
 				}
 			} else if (!strcmp(reading_section, "team2")) {
 				if (lines_into_section == 0) {
-					Q_strncpyz(team_data[2].name, buf, sizeof(team_data[2].name));
+					Q_strncpyz(team_data[TEAM2].name, buf, sizeof(team_data[TEAM2].name));
 				} else if (lines_into_section == 1) {
-					Q_strncpyz(team_data[2].skin, buf, sizeof(team_data[2].skin));
+					Q_strncpyz(team_data[TEAM2].skin, buf, sizeof(team_data[TEAM2].skin));
 				}
 			} else if (!strcmp(reading_section, "team3")) {
 				if (lines_into_section == 0) {
-					Q_strncpyz(team_data[3].name, buf, sizeof(team_data[3].name));
+					Q_strncpyz(team_data[TEAM3].name, buf, sizeof(team_data[TEAM3].name));
 				} else if (lines_into_section == 1) {
-					Q_strncpyz(team_data[3].skin, buf, sizeof(team_data[3].skin));
+					Q_strncpyz(team_data[TEAM3].skin, buf, sizeof(team_data[TEAM3].skin));
 				}
 			} else if (!strcmp(reading_section, "maplist")) {
 				map_rotation[num_maps] = (char *) gi.TagMalloc(strlen(buf) + 1, TAG_GAME);
@@ -169,9 +172,9 @@ void ReadConfigFile()
 		}
 	}
 
-	sprintf(team_data[1].skin_index, "../players/%s_i", team_data[1].skin);
-	sprintf(team_data[2].skin_index, "../players/%s_i", team_data[2].skin);
-	sprintf(team_data[3].skin_index, "../players/%s_i", team_data[3].skin);
+	sprintf(team_data[TEAM1].skin_index, "../players/%s_i", team_data[TEAM1].skin);
+	sprintf(team_data[TEAM2].skin_index, "../players/%s_i", team_data[TEAM2].skin);
+	sprintf(team_data[TEAM3].skin_index, "../players/%s_i", team_data[TEAM3].skin);
 	cur_map = 0;
 
 	fclose(config_file);
