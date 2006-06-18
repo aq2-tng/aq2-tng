@@ -3,10 +3,15 @@
 // Some of this is borrowed from Zoid's CTF (thanks Zoid)
 // -Fireblade
 //
-// $Id: a_team.c,v 1.91 2006/06/17 11:34:06 igor_rock Exp $
+// $Id: a_team.c,v 1.92 2006/06/18 09:19:57 igor_rock Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_team.c,v $
+// Revision 1.92  2006/06/18 09:19:57  igor_rock
+// - corrected some indexes from [1] to [TEAM1] and so on
+// - simplyfied some functions
+// - re-indented some functions
+//
 // Revision 1.91  2006/06/17 11:34:06  igor_rock
 // Some code cleanup:
 // - moved team related variables to a single struct variable
@@ -777,12 +782,10 @@ CreditsMenu (edict_t * ent, pmenu_t * p)
 char *
 TeamName (int team)
 {
-  if (team == TEAM1)
-    return team_data[1].name;
-  else if (team == TEAM2)
-    return team_data[2].name;
-  else if (team == TEAM3)
-    return team_data[3].name;
+  if (team && (team < TEAM_TOP))
+    {
+      return team_data[team].name;
+    }
   else
     return "None";
 }
@@ -826,23 +829,13 @@ AssignSkin (edict_t * ent, char *s)
       switch (ent->client->resp.team)
 	{
 	case TEAM1:
-	  gi.configstring (CS_PLAYERSKINS + playernum,
-			   va ("%s\\%s", ent->client->pers.netname,
-			       team_data[1].skin));
-	  break;
 	case TEAM2:
-	  gi.configstring (CS_PLAYERSKINS + playernum,
-			   va ("%s\\%s", ent->client->pers.netname,
-			       team_data[2].skin));
-	  break;
 	case TEAM3:
 	  gi.configstring (CS_PLAYERSKINS + playernum,
-			   va ("%s\\%s", ent->client->pers.netname,
-			       team_data[3].skin));
+			   va ("%s\\%s", ent->client->pers.netname, team_data[ent->client->resp.team].skin));
 	  break;
 	default:
-	  gi.configstring (CS_PLAYERSKINS + playernum,
-			   va ("%s\\%s", ent->client->pers.netname, s));
+	  gi.configstring (CS_PLAYERSKINS + playernum, va ("%s\\%s", ent->client->pers.netname, s));
 	  break;
 	}
     }
@@ -903,20 +896,20 @@ Team_f (edict_t * ent)
 	}
       return;
     }
-
+  
   if (Q_stricmp (t, "1") == 0)
     desired_team = TEAM1;
   else if (Q_stricmp (t, "2") == 0)
     desired_team = TEAM2;
-  else if (Q_stricmp (t, team_data[1].name) == 0)
+  else if (Q_stricmp (t, team_data[TEAM1].name) == 0)
     desired_team = TEAM1;
-  else if (Q_stricmp (t, team_data[2].name) == 0)
+  else if (Q_stricmp (t, team_data[TEAM2].name) == 0)
     desired_team = TEAM2;
   else if (use_3teams->value)
     {
       if (Q_stricmp (t, "3") == 0)
 	desired_team = TEAM3;
-      else if (Q_stricmp (t, team_data[3].name) == 0)
+      else if (Q_stricmp (t, team_data[TEAM3].name) == 0)
 	desired_team = TEAM3;
     }
   else if (ctf->value)
@@ -970,11 +963,11 @@ CheckForUnevenTeams ()
 {
   int i, onteam1 = 0, onteam2 = 0;
   edict_t *e;
-
+  
   // only use these messages during 2-team games...
   if (num_teams > 2)
     return;
-
+  
   for (i = 1; i <= maxclients->value; i++)
     {
       e = g_edicts + i;
@@ -987,9 +980,9 @@ CheckForUnevenTeams ()
 	}
     }
   if (onteam1 > onteam2)
-    UnevenTeamsMsg (TEAM1, onteam1 - onteam2, team_data[2].name);
+    UnevenTeamsMsg (TEAM1, onteam1 - onteam2, team_data[TEAM2].name);
   else if (onteam2 > onteam1)
-    UnevenTeamsMsg (TEAM2, onteam2 - onteam1, team_data[1].name);
+    UnevenTeamsMsg (TEAM2, onteam2 - onteam1, team_data[TEAM1].name);
 }
 
 void
@@ -1005,12 +998,12 @@ JoinTeam (edict_t * ent, int desired_team, int skip_menuclose)
   if (ent->client->resp.team == desired_team)
     return;
 
-  if (mm_allowlock->value && team_data[desired_team].locked) {
-        if (skip_menuclose)
-                gi.cprintf(ent, PRINT_HIGH, "Cannot join %s (locked)\n", TeamName(desired_team));
-        else
-                gi.centerprintf(ent, "Cannot join %s (locked)\n", TeamName(desired_team));
-        return;
+  if (matchmode->value && mm_allowlock->value && team_data[desired_team].locked) {
+    if (skip_menuclose)
+      gi.cprintf(ent, PRINT_HIGH, "Cannot join %s (locked)\n", TeamName(desired_team));
+    else
+      gi.centerprintf(ent, "Cannot join %s (locked)\n", TeamName(desired_team));
+    return;
   }
 
   a = (ent->client->resp.team == NOTEAM) ? "joined" : "changed to";
@@ -1022,25 +1015,25 @@ JoinTeam (edict_t * ent, int desired_team, int skip_menuclose)
   if (ent->solid != SOLID_NOT)	// alive, in game
     {
       if (punishkills->value)
-      {
-	if (ent->client->attacker &&
-		ent->client->attacker->client &&
-		(ent->client->attacker->client != ent->client))
 	{
-		gi.bprintf (PRINT_HIGH,
-			"%s ph34rs %s so much %s committed suicide! :)\n",
-			ent->client->pers.netname,
-			ent->client->attacker->client->pers.netname,
-			ent->client->resp.radio_gender ? "she" : "he");
-		IRC_printf (IRC_T_DEATH,
-			"%n ph34rs %n so much %s committed suicide! :)",
-			ent->client->pers.netname,
-			ent->client->attacker->client->pers.netname,
-			ent->client->resp.radio_gender ? "she" : "he");
-		Add_Frag (ent->client->attacker);
-		Subtract_Frag (ent);
+	  if (ent->client->attacker &&
+	      ent->client->attacker->client &&
+	      (ent->client->attacker->client != ent->client))
+	    {
+	      gi.bprintf (PRINT_HIGH,
+			  "%s ph34rs %s so much %s committed suicide! :)\n",
+			  ent->client->pers.netname,
+			  ent->client->attacker->client->pers.netname,
+			  ent->client->resp.radio_gender ? "she" : "he");
+	      IRC_printf (IRC_T_DEATH,
+			  "%n ph34rs %n so much %s committed suicide! :)",
+			  ent->client->pers.netname,
+			  ent->client->attacker->client->pers.netname,
+			  ent->client->resp.radio_gender ? "she" : "he");
+	      Add_Frag (ent->client->attacker);
+	      Subtract_Frag (ent);
+	    }
 	}
-      }
       ent->health = 0;
       player_die (ent, ent, ent, 100000, vec3_origin);
       ent->deadflag = DEAD_DEAD;
@@ -1082,10 +1075,19 @@ JoinTeam (edict_t * ent, int desired_team, int skip_menuclose)
   //AQ2:TNG - Slicer Matchmode
   if (matchmode->value)
     {
-      if (ent->client->resp.captain == 1)
-	team_data[1].ready = 0;
-      else if (ent->client->resp.captain == 2)
-	team_data[2].ready = 0;
+      if (ent->client->resp.captain)
+	{
+	  if(ctf->value)
+	    {
+	      if(!team_round_going)
+		team_data[ent->client->resp.captain].ready = 0;
+	      team_data[ent->client->resp.captain].locked = 0;
+	    }
+	  else
+	    {
+	      team_data[ent->client->resp.captain].ready = 0;
+	    }
+	}
       ent->client->resp.subteam = 0;	//SLICER: If a player joins or changes teams, the subteam resets....
       ent->client->resp.captain = 0;	//SLICER: Same here
     }
@@ -1105,25 +1107,25 @@ LeaveTeam (edict_t * ent)
   if (ent->solid != SOLID_NOT)	// alive, in game
     {
       if (punishkills->value)
-      {
-	if (ent->client->attacker &&
-		ent->client->attacker->client &&
-		(ent->client->attacker->client != ent->client))
 	{
-		gi.bprintf (PRINT_HIGH,
-			"%s ph34rs %s so much %s committed suicide! :)\n",
-			ent->client->pers.netname,
-			ent->client->attacker->client->pers.netname,
-			ent->client->resp.radio_gender ? "she" : "he");
-		IRC_printf (IRC_T_DEATH,
-			"%n ph34rs %n so much %s committed suicide! :)",
-			ent->client->pers.netname,
-			ent->client->attacker->client->pers.netname,
-			ent->client->resp.radio_gender ? "she" : "he");
-		Add_Frag (ent->client->attacker);
-		Subtract_Frag (ent);
+	  if (ent->client->attacker &&
+	      ent->client->attacker->client &&
+	      (ent->client->attacker->client != ent->client))
+	    {
+	      gi.bprintf (PRINT_HIGH,
+			  "%s ph34rs %s so much %s committed suicide! :)\n",
+			  ent->client->pers.netname,
+			  ent->client->attacker->client->pers.netname,
+			  ent->client->resp.radio_gender ? "she" : "he");
+	      IRC_printf (IRC_T_DEATH,
+			  "%n ph34rs %n so much %s committed suicide! :)",
+			  ent->client->pers.netname,
+			  ent->client->attacker->client->pers.netname,
+			  ent->client->resp.radio_gender ? "she" : "he");
+	      Add_Frag (ent->client->attacker);
+	      Subtract_Frag (ent);
+	    }
 	}
-      }
       ent->health = 0;
       player_die (ent, ent, ent, 100000, vec3_origin);
       ent->deadflag = DEAD_DEAD;
@@ -1140,13 +1142,22 @@ LeaveTeam (edict_t * ent)
 
   ent->client->resp.joined_team = 0;
   ent->client->resp.team = NOTEAM;
-  //AQ2:TNG Slicer 
+  //AQ2:TNG - Slicer Matchmode
   if (matchmode->value)
     {
-      if (ent->client->resp.captain == 1)
-	team_data[1].ready = 0;
-      else if (ent->client->resp.captain == 2)
-	team_data[2].ready = 0;
+      if (ent->client->resp.captain)
+	{
+	  if(ctf->value)
+	    {
+	      if(!team_round_going)
+		team_data[ent->client->resp.captain].ready = 0;
+	      team_data[ent->client->resp.captain].locked = 0;
+	    }
+	  else
+	    {
+	      team_data[ent->client->resp.captain].ready = 0;
+	    }
+	}
       ent->client->resp.subteam = 0;	//SLICER: If a player joins or changes teams, the subteam resets....
       ent->client->resp.captain = 0;	//SLICER: Same here
     }
@@ -1352,13 +1363,13 @@ UpdateJoinMenu (edict_t * ent)
     }
   else
     {
-      joinmenu[4].text = team_data[1].name;
+      joinmenu[4].text = team_data[TEAM1].name;
       joinmenu[4].SelectFunc = JoinTeam1;
-      joinmenu[6].text = team_data[2].name;
+      joinmenu[6].text = team_data[TEAM2].name;
       joinmenu[6].SelectFunc = JoinTeam2;
       if (use_3teams->value)
 	{
-	  joinmenu[8].text = team_data[3].name;
+	  joinmenu[8].text = team_data[TEAM3].name;
 	  joinmenu[8].SelectFunc = JoinTeam3;
 	}
       else
@@ -1406,51 +1417,44 @@ UpdateJoinMenu (edict_t * ent)
   else
     joinmenu[9].text = NULL;
 
+  i = 0;
+  if (num1 > num2)
+    i = TEAM2;
+  else if (num2 > num1)
+    i = TEAM1;
+  else if (team_data[TEAM1].score > team_data[TEAM2].score)
+    i = TEAM2;
+  else if (team_data[TEAM2].score > team_data[TEAM1].score)
+    i = TEAM1;
+  else
+    i = TEAM1;
+  
   if (use_3teams->value)
     {
-      i = 0;
-      if (num1 > num2)
-	i = 2;
-      else if (num2 > num1)
-	i = 1;
-      else if (team_data[1].score > team_data[2].score)
-	i = 2;
-      else if (team_data[2].score > team_data[1].score)
-	i = 1;
+      if (i == TEAM1)
+	{
+	  if (num3 > num1)
+	    i = TEAM1;
+	  else if (num1 > num3)
+	    i = TEAM3;
+	  else if (team_data[TEAM1].score > team_data[TEAM3].score)
+	    i = TEAM3;
+	  else
+	    i = TEAM1;
+	}
       else
-	i = 1;
-
-      if (i == 1)
-	if (num3 > num1)
-	  return TEAM1;
-	else if (num1 > num3)
-	  return TEAM3;
-	else if (team_data[1].score > team_data[3].score)
-	  return TEAM3;
-	else
-	  return TEAM1;
-      else if (num3 > num2)
-	return TEAM2;
-      else if (num2 > num3)
-	return TEAM3;
-      else if (team_data[2].score > team_data[3].score)
-	return TEAM3;
-      else
-	return TEAM2;
+	{
+	  if (num3 > num2)
+	    i = TEAM2;
+	  else if (num2 > num3)
+	    i = TEAM3;
+	  else if (team_data[TEAM2].score > team_data[TEAM3].score)
+	    i = TEAM3;
+	  else
+	    i = TEAM2;
+	}
     }
-  else
-    {
-      if (num1 > num2)
-	return TEAM2;
-      else if (num2 > num1)
-	return TEAM1;
-      else if (team_data[1].score > team_data[2].score)
-	return TEAM2;
-      else if (team_data[2].score > team_data[1].score)
-	return TEAM1;
-      else
-	return TEAM1;
-    }
+  return i;
 }
 
 // AQ2:TNG END
@@ -1607,7 +1611,7 @@ qboolean BothTeamsHavePlayers ()
   //AQ2:TNG Slicer Matchmode
   if (matchmode->value)
     {
-      if (!team_data[1].ready || !team_data[2].ready)
+      if (!team_data[TEAM1].ready || !team_data[TEAM2].ready)
 	return 0;
     }
   //AQ2:TNG END
@@ -1952,13 +1956,12 @@ MakeAllLivePlayersObservers ()
 void
 PrintScores ( )
 {
-
   if (use_3teams->value) {
-    gi.bprintf (PRINT_HIGH, "Current score is %s: %d to %s: %d to %s: %d\n", TeamName (TEAM1), team_data[1].score, TeamName (TEAM2), team_data[2].score, TeamName (TEAM3), team_data[3].score);
-    IRC_printf (IRC_T_TOPIC, "Current score on map %n is %n: %k to %n: %k to %n: %k", level.mapname, TeamName (TEAM1), team_data[1].score, TeamName (TEAM2), team_data[2].score, TeamName (TEAM3), team_data[3].score);
+    gi.bprintf (PRINT_HIGH, "Current score is %s: %d to %s: %d to %s: %d\n", TeamName(TEAM1), team_data[TEAM1].score, TeamName(TEAM2), team_data[TEAM2].score, TeamName(TEAM3), team_data[TEAM3].score);
+    IRC_printf (IRC_T_TOPIC, "Current score on map %n is %n: %k to %n: %k to %n: %k", level.mapname, TeamName(TEAM1), team_data[TEAM1].score, TeamName(TEAM2), team_data[TEAM2].score, TeamName(TEAM3), team_data[TEAM3].score);
   } else {
-    gi.bprintf (PRINT_HIGH, "Current score is %s: %d to %s: %d\n", TeamName (TEAM1), team_data[1].score, TeamName (TEAM2), team_data[2].score);
-    IRC_printf (IRC_T_TOPIC, "Current score on map %n is %n: %k to %n: %k", level.mapname, TeamName (TEAM1), team_data[1].score, TeamName (TEAM2), team_data[2].score);
+    gi.bprintf (PRINT_HIGH, "Current score is %s: %d to %s: %d\n", TeamName(TEAM1), team_data[TEAM1].score, TeamName(TEAM2), team_data[TEAM2].score);
+    IRC_printf (IRC_T_TOPIC, "Current score on map %n is %n: %k to %n: %k", level.mapname, TeamName(TEAM1), team_data[TEAM1].score, TeamName(TEAM2), team_data[TEAM2].score);
   }
 }
 
@@ -1968,174 +1971,101 @@ int WonGame (int winner)
   edict_t *player, *cl_ent; // was: edict_t *player;
   int i;
   char arg[64];
- 
+  
   gi.bprintf (PRINT_HIGH, "The round is over:\n");
   IRC_printf (IRC_T_GAME, "The round is over:");
   if (winner == WINNER_TIE)
-	{
-		gi.bprintf (PRINT_HIGH, "It was a tie, no points awarded!\n");
-		IRC_printf (IRC_T_GAME, "It was a tie, no points awarded!");
-		
-		if(use_warnings->value)
-			gi.sound (&g_edicts[0], CHAN_VOICE | CHAN_NO_PHS_ADD,	gi.soundindex ("tng/no_team_wins.wav"), 1.0, ATTN_NONE, 0.0);
-		PrintScores ();
-	}
+    {
+      gi.bprintf (PRINT_HIGH, "It was a tie, no points awarded!\n");
+      IRC_printf (IRC_T_GAME, "It was a tie, no points awarded!");
+      
+      if(use_warnings->value)
+	gi.sound (&g_edicts[0], CHAN_VOICE | CHAN_NO_PHS_ADD,	gi.soundindex ("tng/no_team_wins.wav"), 1.0, ATTN_NONE, 0.0);
+      PrintScores ();
+    }
   else
+    {
+      if (use_tourney->value)
 	{
-		if (winner == WINNER_TEAM1)
-		{
-			if (use_tourney->value)
-			{
-				player = TourneyFindPlayer (1);
-				if (player)
-				{
-					gi.bprintf (PRINT_HIGH, "%s was victorious!\n",
-						player->client->pers.netname);
-					IRC_printf (IRC_T_GAME, "%n was victorious!",
-						player->client->pers.netname);
-					TourneyWinner (player);
-				}
-			}
-			else
-			{
-				gi.bprintf (PRINT_HIGH, "%s won!\n", TeamName (TEAM1));
-				IRC_printf (IRC_T_GAME, "%n won!", TeamName (TEAM1));
-				// AQ:TNG Igor[Rock] changing sound dir
-				if(use_warnings->value)
-					gi.sound (&g_edicts[0], CHAN_VOICE | CHAN_NO_PHS_ADD,	gi.soundindex ("tng/team1_wins.wav"), 1.0, ATTN_NONE,	0.0);
-				// end of changing sound dir
-				team_data[1].score++;
-				team_data[1].teamscore->value = team_data[1].score;
-				//	      itoa (team_data[1].score, team_data[1].teamscore->string, 10);
-				sprintf(team_data[1].teamscore->string, "%d", team_data[1].score);
-				PrintScores ();
-			}
-		}
-		else if (winner == WINNER_TEAM2)
-		{
-			if (use_tourney->value)
-			{
-				player = TourneyFindPlayer (NextOpponent);
-				if (player)
-				{
-					gi.bprintf (PRINT_HIGH, "%s was victorious!\n",
-						player->client->pers.netname);
-					IRC_printf (IRC_T_GAME, "%n was victorious!",
-						player->client->pers.netname);
-					TourneyWinner (player);
-				}
-			}
-			else
-			{
-				gi.bprintf (PRINT_HIGH, "%s won!\n", TeamName (TEAM2));
-				IRC_printf (IRC_T_GAME, "%n won!", TeamName (TEAM2));
-				// AQ:TNG Igor[Rock] changing sound dir
-				if(use_warnings->value)
-					gi.sound (&g_edicts[0], CHAN_VOICE | CHAN_NO_PHS_ADD, gi.soundindex ("tng/team2_wins.wav"), 1.0, ATTN_NONE, 0.0);
-				// end of changing sound dir
-				team_data[2].score++;
-				team_data[2].teamscore->value = team_data[2].score;
-				//	      itoa (team_data[2].score, team_data[2].teamscore->string, 10);
-				sprintf(team_data[2].teamscore->string, "%d", team_data[2].score);
-				PrintScores ();
-			}
-		}
-		else if (use_3teams->value)
-		{
-			if (use_tourney->value)
-			{
-				player = TourneyFindPlayer (NextOpponent);
-				if (player)
-				{
-					gi.bprintf (PRINT_HIGH, "%s was victorious!\n",
-						player->client->pers.netname);
-					IRC_printf (IRC_T_GAME, "%n was victorious!",
-						player->client->pers.netname);
-					TourneyWinner (player);
-				}
-			}
-			else
-			{
-				gi.bprintf (PRINT_HIGH, "%s won!\n", TeamName (TEAM3));
-				IRC_printf (IRC_T_GAME, "%n won!", TeamName (TEAM3));
-				// AQ:TNG Igor[Rock] changing sound dir
-				if(use_warnings->value)
-					gi.sound (&g_edicts[0], CHAN_VOICE | CHAN_NO_PHS_ADD,	gi.soundindex ("tng/team3_wins.wav"), 1.0, ATTN_NONE,	0.0);
-				// end of changing sound dir
-				team_data[3].score++;
-				team_data[3].teamscore->value = team_data[3].score;
-				//	      itoa (team_data[3].score, team_data[3].teamscore->string, 10);
-				sprintf(team_data[3].teamscore->string, "%d", team_data[3].score);
-				PrintScores ();
-			}
-		}
+	  if(winner == TEAM1)
+	    player = TourneyFindPlayer(1);
+	  else
+	    player = TourneyFindPlayer(NextOpponent);
+	  
+	  if (player)
+	    {
+	      gi.bprintf (PRINT_HIGH, "%s was victorious!\n", player->client->pers.netname);
+	      IRC_printf (IRC_T_GAME, "%n was victorious!", player->client->pers.netname);
+	      TourneyWinner (player);
+	    }
 	}
-	
+      else
+	{
+	  gi.bprintf (PRINT_HIGH, "%s won!\n", TeamName (winner));
+	  IRC_printf (IRC_T_GAME, "%n won!", TeamName (winner));
+	  // AQ:TNG Igor[Rock] changing sound dir
+	  if(use_warnings->value)
+	    gi.sound (&g_edicts[0], CHAN_VOICE | CHAN_NO_PHS_ADD, gi.soundindex (va ("tng/team%i_wins.wav", winner)), 1.0, ATTN_NONE, 0.0);
+	  // end of changing sound dir
+	  team_data[winner].score++;
+	  gi.cvar_forceset(team_data[winner].teamscore->name, va("%i", team_data[winner].score));
+	  PrintScores ();
+	}
+    }
+  
   if (timelimit->value)
+    {
+      // AQ2:M - Matchmode
+      if (matchmode->value)
 	{
-		// AQ2:M - Matchmode
-		if (matchmode->value)
-		{
-			if (matchtime >= timelimit->value * 60)
-			{
-				SendScores ();
-				ingame = team_data[1].ready = team_data[2].ready = team_round_going =
-					team_round_countdown = team_game_going = matchtime = 0;
-				MakeAllLivePlayersObservers ();
-				return 1;
-			}
-		}
-		if (!matchmode->value && level.time >= timelimit->value * 60)
-		{
-			gi.bprintf (PRINT_HIGH, "Timelimit hit.\n");
-			IRC_printf (IRC_T_GAME, "Timelimit hit.");
-			EndDMLevel ();
-			team_round_going = team_round_countdown = team_game_going = 0;
-			return 1;
-		}
+	  if (matchtime >= timelimit->value * 60)
+	    {
+	      SendScores ();
+	      ingame = 0;
+	      team_data[TEAM1].ready = team_data[TEAM2].ready = team_data[TEAM3].ready = 0;
+	      team_round_going = team_round_countdown = team_game_going = 0;
+	      matchtime = 0;
+	      MakeAllLivePlayersObservers ();
+	      return 1;
+	    }
 	}
-	
+      if (!matchmode->value && level.time >= timelimit->value * 60)
+	{
+	  gi.bprintf (PRINT_HIGH, "Timelimit hit.\n");
+	  IRC_printf (IRC_T_GAME, "Timelimit hit.");
+	  EndDMLevel ();
+	  team_round_going = team_round_countdown = team_game_going = 0;
+	  return 1;
+	}
+    }
+  
   if (roundlimit->value && !ctf->value)
+    {
+      if (team_data[TEAM1].score >= roundlimit->value
+	  || team_data[TEAM2].score >= roundlimit->value
+	  || team_data[TEAM3].score >= roundlimit->value)
 	{
-		if (use_3teams->value)
-		{
-			if (team_data[1].score >= roundlimit->value
-				|| team_data[2].score >= roundlimit->value
-				|| team_data[3].score >= roundlimit->value)
-			{
-				gi.bprintf (PRINT_HIGH, "Roundlimit hit.\n");
-				IRC_printf (IRC_T_GAME, "Roundlimit hit.");
-				EndDMLevel ();
-				team_round_going = team_round_countdown = team_game_going = 0;
-				return 1;
-			}
-		}
-		else
-		{
-			if (team_data[1].score >= roundlimit->value
-				|| team_data[2].score >= roundlimit->value)
-			{
-				if (matchmode->value)
-				{
-					SendScores ();
-					ingame = team_data[1].ready = team_data[2].ready = team_round_going =
-						team_round_countdown = team_game_going = matchtime = 0;
-					MakeAllLivePlayersObservers ();
-					return 1;
-				}
-				else
-				{
-					gi.bprintf (PRINT_HIGH, "Roundlimit hit.\n");
-					IRC_printf (IRC_T_GAME, "Roundlimit hit.");
-					EndDMLevel ();
-					team_round_going = team_round_countdown = team_game_going =
-						0;
-					return 1;
-				}
-			}
-		}
+	  if (matchmode->value)
+	    {
+	      SendScores ();
+	      ingame = 0;
+	      team_data[TEAM1].ready = team_data[TEAM2].ready = team_data[TEAM3].ready = 0;
+	      team_round_going = team_round_countdown = team_game_going = 0;
+	      matchtime = 0;
+	      MakeAllLivePlayersObservers ();
+	      return 1;
+	    }
+	  else
+	    {
+	      gi.bprintf (PRINT_HIGH, "Roundlimit hit.\n");
+	      IRC_printf (IRC_T_GAME, "Roundlimit hit.");
+	      EndDMLevel ();
+	      team_round_going = team_round_countdown = team_game_going = 0;
+	      return 1;
+	    }
 	}
-	
+    }
+  
   //PG BUND - BEGIN
   if (vCheckVote () == true)
 	{
@@ -2180,48 +2110,49 @@ CheckTeamRules ()
 	}
       return;
     }
-
-// AQ2:TNG - JBravo adding UVtime
-  for (i = 0; i < maxclients->value; i++)
+  
+  // AQ2:TNG - JBravo adding UVtime
+  if (ctf->value) 
     {
-      if (!g_edicts[i + 1].inuse)
-	continue;
-      if (game.clients[i].ctf_uvtime > 0)
+      for (i = 0; i < maxclients->value; i++)
 	{
-	  game.clients[i].ctf_uvtime--;
-	  if (!game.clients[i].ctf_uvtime && team_round_going)
+	  if (!g_edicts[i + 1].inuse)
+	    continue;
+	  if (game.clients[i].ctf_uvtime > 0)
 	    {
-	      gi.centerprintf (&g_edicts[i + 1], "ACTION!");
+	      game.clients[i].ctf_uvtime--;
+	      if (!game.clients[i].ctf_uvtime && team_round_going)
+		{
+		  gi.centerprintf (&g_edicts[i + 1], "ACTION!");
+		}
+	      else
+		{
+		  if (game.clients[i].ctf_uvtime % 10 == 0)
+		    {
+		      gi.centerprintf (&g_edicts[i + 1], "Shield %d",
+				       game.clients[i].ctf_uvtime / 10);
+		    }
+		}
 	    }
 	  else
 	    {
-	      if (game.clients[i].ctf_uvtime % 10 == 0)
-		{
-		  gi.centerprintf (&g_edicts[i + 1], "Shield %d",
-				   game.clients[i].ctf_uvtime / 10);
-		}
+	      game.clients[i].ctf_uvtime = 0;
 	    }
 	}
-      else
+    }
+  
+  if (matchmode->value && mm_allowlock->value)
+    {
+      for (i = TEAM1; i < TEAM_TOP; i++)
 	{
-	  game.clients[i].ctf_uvtime = 0;
+	  if (team_data[i].locked && !TeamHasPlayers(i)) {
+	    team_data[i].locked = 0;
+	    sprintf(buf, "%s unlocked (no players)\n", TeamName(i));
+	    CenterPrintAll(buf);
+	  }
 	}
     }
-
-  if (matchmode->value && mm_allowlock->value) {
-	if (team_data[TEAM1].locked && !TeamHasPlayers(TEAM1)) {
-		team_data[TEAM1].locked = 0;
-		sprintf(buf, "%s unlocked (no players)\n", TeamName(TEAM1));
-		CenterPrintAll(buf);
-	}
-
-	if (team_data[TEAM2].locked && !TeamHasPlayers(TEAM2)) {
-		team_data[TEAM2].locked = 0;
-		sprintf(buf, "%s unlocked (no players)\n", TeamName(TEAM2));
-		CenterPrintAll(buf);
-	}
-  }
-
+  
   if (lights_camera_action)
     {
       ContinueLCA ();
@@ -2255,12 +2186,12 @@ CheckTeamRules ()
 	{
 	  if (matchmode->value)
 	    {
-	      if (team_data[1].ready && team_data[2].ready)
+	      if (team_data[TEAM1].ready && team_data[TEAM2].ready)
 		CenterPrintAll ("Not enough players to play!\n");
-		  else{
+	      else{
 		CenterPrintAll ("Both Teams Must Be Ready!\n");
 		ingame = 0;
-		  }
+	      }
 	      MakeAllLivePlayersObservers ();
 	    }
 	  else
@@ -2305,8 +2236,10 @@ CheckTeamRules ()
 	      if (matchtime >= timelimit->value * 60)
 		{
 		  SendScores ();
-		  ingame = team_data[1].ready = team_data[2].ready = team_round_going =
-		    team_round_countdown = team_game_going = matchtime = 0;
+		  ingame = 0;
+		  team_data[TEAM1].ready = team_data[TEAM2].ready = team_data[TEAM3].ready = 0;
+		  team_round_going = team_round_countdown = team_game_going = 0;
+		  matchtime = 0;
 		  MakeAllLivePlayersObservers ();
 		  return;
 		}
@@ -2324,14 +2257,14 @@ CheckTeamRules ()
 	    }
 	}
 
-//PG BUND - BEGIN
+      //PG BUND - BEGIN
       if (vCheckVote () == true)
 	{
 	  EndDMLevel ();
 	  team_round_going = team_round_countdown = team_game_going = 0;
 	  return;
 	}
-//PG BUND - END
+      //PG BUND - END
 
       if (!team_round_countdown)
 	{
@@ -2468,40 +2401,40 @@ A_Scoreboard (edict_t * ent)
 	  if (use_3teams->value)
 	    {
 	      i = 0;
-	      if (team_data[1].score > team_data[2].score)
+	      if (team_data[TEAM1].score > team_data[TEAM2].score)
 		{
-		  if (team_data[1].score > team_data[3].score)
+		  if (team_data[TEAM1].score > team_data[TEAM3].score)
 		    i = 1;
-		  else if (team_data[3].score > team_data[1].score)
+		  else if (team_data[TEAM3].score > team_data[TEAM1].score)
 		    i = 3;
 		}
-	      else if (team_data[1].score < team_data[2].score)
+	      else if (team_data[TEAM1].score < team_data[TEAM2].score)
 		{
-		  if (team_data[2].score > team_data[3].score)
+		  if (team_data[TEAM2].score > team_data[TEAM3].score)
 		    i = 2;
-		  else if (team_data[3].score > team_data[2].score)
+		  else if (team_data[TEAM3].score > team_data[TEAM2].score)
 		    i = 3;
 		}
-	      else if (team_data[3].score > team_data[1].score)
+	      else if (team_data[TEAM3].score > team_data[TEAM1].score)
 		i = 3;
 
 	      if (i == 0)
 		{
-		  if (team_data[1].total > team_data[2].total)
+		  if (team_data[TEAM1].total > team_data[TEAM2].total)
 		    {
-		      if (team_data[1].total > team_data[3].total)
+		      if (team_data[TEAM1].total > team_data[TEAM3].total)
 			i = 1;
-		      else if (team_data[3].total > team_data[1].total)
+		      else if (team_data[TEAM3].total > team_data[TEAM1].total)
 			i = 3;
 		    }
-		  else if (team_data[1].total < team_data[2].total)
+		  else if (team_data[TEAM1].total < team_data[TEAM2].total)
 		    {
-		      if (team_data[2].total > team_data[3].total)
+		      if (team_data[TEAM2].total > team_data[TEAM3].total)
 			i = 2;
-		      else if (team_data[3].total > team_data[2].total)
+		      else if (team_data[TEAM3].total > team_data[TEAM2].total)
 			i = 3;
 		    }
-		  else if (team_data[3].total > team_data[1].total)
+		  else if (team_data[TEAM3].total > team_data[TEAM1].total)
 		    i = 3;
 		}
 
@@ -2520,14 +2453,14 @@ A_Scoreboard (edict_t * ent)
 	    }
 	  else
 	    {
-	      if (team_data[1].score > team_data[2].score)
+	      if (team_data[TEAM1].score > team_data[TEAM2].score)
 		ent->client->ps.stats[STAT_TEAM1_PIC] = 0;
-	      else if (team_data[2].score > team_data[1].score)
+	      else if (team_data[TEAM2].score > team_data[TEAM1].score)
 		ent->client->ps.stats[STAT_TEAM2_PIC] = 0;
-	      else if (team_data[1].total > team_data[2].total)	// frag tie breaker
+	      else if (team_data[TEAM1].total > team_data[TEAM2].total)	// frag tie breaker
 
 		ent->client->ps.stats[STAT_TEAM1_PIC] = 0;
-	      else if (team_data[2].total > team_data[1].total)
+	      else if (team_data[TEAM2].total > team_data[TEAM1].total)
 		ent->client->ps.stats[STAT_TEAM2_PIC] = 0;
 	      else
 		{		// tie game!
@@ -2541,21 +2474,21 @@ A_Scoreboard (edict_t * ent)
       else
 	{
 	  ent->client->ps.stats[STAT_TEAM1_PIC] =
-	    gi.imageindex (team_data[1].skin_index);
+	    gi.imageindex (team_data[TEAM1].skin_index);
 	  ent->client->ps.stats[STAT_TEAM2_PIC] =
-	    gi.imageindex (team_data[2].skin_index);
+	    gi.imageindex (team_data[TEAM2].skin_index);
 	  if (use_3teams->value)
 	    {
 	      ent->client->ps.stats[STAT_TEAM3_PIC] =
-		gi.imageindex (team_data[3].skin_index);
+		gi.imageindex (team_data[TEAM3].skin_index);
 	    }
 	}
 
-      ent->client->ps.stats[STAT_TEAM1_SCORE] = team_data[1].score;
-      ent->client->ps.stats[STAT_TEAM2_SCORE] = team_data[2].score;
+      ent->client->ps.stats[STAT_TEAM1_SCORE] = team_data[TEAM1].score;
+      ent->client->ps.stats[STAT_TEAM2_SCORE] = team_data[TEAM2].score;
       if (use_3teams->value)
 	{
-	  ent->client->ps.stats[STAT_TEAM3_SCORE] = team_data[3].score;
+	  ent->client->ps.stats[STAT_TEAM3_SCORE] = team_data[TEAM3].score;
 	}
     }
 }
@@ -2662,24 +2595,15 @@ A_ScoreboardMessage (edict_t * ent, edict_t * killer)
       // correctly in 320x240 (Action's does not)--any problems with this?  -FB
       // Also going to center the team names.
 
-      name_pos[TEAM1] = ((20 - strlen (team_data[1].name)) / 2) * 8;
-      if (name_pos[TEAM1] < 0)
+      for (i = TEAM1; i < TEAM_TOP; i++)
 	{
-	  name_pos[TEAM1] = 0;
+	  name_pos[i] = ((20 - strlen (team_data[i].name)) / 2) * 8;
+	  if (name_pos[i] < 0)
+	    {
+	      name_pos[i] = 0;
+	    }
 	}
-
-      name_pos[TEAM2] = ((20 - strlen (team_data[2].name)) / 2) * 8;
-      if (name_pos[TEAM2] < 0)
-	{
-	  name_pos[TEAM2] = 0;
-	}
-
-      name_pos[TEAM3] = ((20 - strlen (team_data[2].name)) / 2) * 8;
-      if (name_pos[TEAM3] < 0)
-	{
-	  name_pos[TEAM3] = 0;
-	}
-
+      
       if (use_3teams->value)
 	{
 	  sprintf (string,
@@ -2689,8 +2613,7 @@ A_ScoreboardMessage (edict_t * ent, edict_t * killer)
 		   "xv -48 yv 28 string \"%4d/%-3d\" "
 		   "xv 10 yv 12 num 2 26 "
 		   "xv %d yv 0 string \"%s\" ",
-		   totalscore[TEAM1], total[TEAM1], name_pos[TEAM1] - 80,
-		   team_data[1].name);
+		   totalscore[TEAM1], total[TEAM1], name_pos[TEAM1] - 80, team_data[TEAM1].name);
 	  sprintf (string + strlen (string),
 		   // TEAM2
 		   "if 25 xv 80 yv 8 pic 25 endif "
@@ -2698,8 +2621,7 @@ A_ScoreboardMessage (edict_t * ent, edict_t * killer)
 		   "xv 112 yv 28 string \"%4d/%-3d\" "
 		   "xv 168 yv 12 num 2 27 "
 		   "xv %d yv 0 string \"%s\" ",
-		   totalscore[TEAM2], total[TEAM2], name_pos[TEAM2] + 80,
-		   team_data[2].name);
+		   totalscore[TEAM2], total[TEAM2], name_pos[TEAM2] + 80, team_data[TEAM2].name);
 	  sprintf (string + strlen (string),
 		   // TEAM3
 		   "if 30 xv 240 yv 8 pic 30 endif "
@@ -2707,13 +2629,11 @@ A_ScoreboardMessage (edict_t * ent, edict_t * killer)
 		   "xv 272 yv 28 string \"%4d/%-3d\" "
 		   "xv 328 yv 12 num 2 31 "
 		   "xv %d yv 0 string \"%s\" ",
-		   totalscore[TEAM3], total[TEAM3], name_pos[TEAM3] + 240,
-		   team_data[3].name);
+		   totalscore[TEAM3], total[TEAM3], name_pos[TEAM3] + 240, team_data[TEAM3].name);
 
 	  len = strlen (string);
 
-	  totalaliveprinted[TEAM1] = totalaliveprinted[TEAM2] =
-	    totalaliveprinted[TEAM3] = 0;
+	  totalaliveprinted[TEAM1] = totalaliveprinted[TEAM2] = totalaliveprinted[TEAM3] = 0;
 	  stoppedat[TEAM1] = stoppedat[TEAM2] = stoppedat[TEAM3] = -1;
 
 	  for (i = 0; i < (MAX_SCORES_PER_TEAM + 1); i++)
@@ -2880,9 +2800,9 @@ A_ScoreboardMessage (edict_t * ent, edict_t * killer)
 		   "xv 256 yv 12 num 2 27 "
 		   "xv %d yv 0 string \"%s\" ",
 		   totalscore[TEAM1], total[TEAM1], totalsubs[TEAM1],
-		   name_pos[TEAM1], team_data[1].name, totalscore[TEAM2],
+		   name_pos[TEAM1], team_data[TEAM1].name, totalscore[TEAM2],
 		   total[TEAM2], totalsubs[TEAM2], name_pos[TEAM2] + 160,
-		   team_data[2].name);
+		   team_data[TEAM2].name);
 
 	  len = strlen (string);
 
@@ -3058,9 +2978,9 @@ A_ScoreboardMessage (edict_t * ent, edict_t * killer)
 	    }
 
 	  sprintf (string + strlen (string), "xv 39 yv 128 string2 \"%s\" ",
-		   team_data[1].ready ? "Ready" : "Not Ready");
+		   team_data[TEAM1].ready ? "Ready" : "Not Ready");
 	  sprintf (string + strlen (string), "xv 196 yv 128 string2 \"%s\" ",
-		   team_data[2].ready ? "Ready" : "Not Ready");
+		   team_data[TEAM2].ready ? "Ready" : "Not Ready");
 
 	  mins = matchtime / 60;
 	  secs = matchtime - (mins * 60);
@@ -3083,8 +3003,8 @@ A_ScoreboardMessage (edict_t * ent, edict_t * killer)
 		   "xv 248 yv 12 num 2 27 "
 		   "xv %d yv 0 string \"%s\" ",
 		   totalscore[TEAM1], total[TEAM1], name_pos[TEAM1],
-		   team_data[1].name, totalscore[TEAM2], total[TEAM2],
-		   name_pos[TEAM2] + 160, team_data[2].name);
+		   team_data[TEAM1].name, totalscore[TEAM2], total[TEAM2],
+		   name_pos[TEAM2] + 160, team_data[TEAM2].name);
 
 	  len = strlen (string);
 
@@ -3353,24 +3273,22 @@ A_ScoreboardMessage (edict_t * ent, edict_t * killer)
 void
 TallyEndOfLevelTeamScores (void)
 {
-  int i;
+  int i, j;
   gi.sound (&g_edicts[0], CHAN_VOICE | CHAN_NO_PHS_ADD,
 	    gi.soundindex ("world/xian1.wav"), 1.0, ATTN_NONE, 0.0);
 
-  team_data[1].total = team_data[2].total = team_data[3].total = 0;
+  team_data[TEAM1].total = team_data[TEAM2].total = team_data[TEAM3].total = 0;
   for (i = 0; i < maxclients->value; i++)
     {
       if (!g_edicts[i + 1].inuse)
 	continue;
-      if (game.clients[i].resp.team == TEAM1)
-	team_data[1].total += game.clients[i].resp.score;
-      else if (game.clients[i].resp.team == TEAM2)
-	team_data[2].total += game.clients[i].resp.score;
-      else if (game.clients[i].resp.team == TEAM3)
-	team_data[3].total += game.clients[i].resp.score;
+      for (j = TEAM1; j < TEAM_TOP; j++)
+	{
+	  if (game.clients[i].resp.team == j)
+	    team_data[j].total += game.clients[i].resp.score;
+	}
     }
 }
-
 
 /*
  * Teamplay spawning functions...

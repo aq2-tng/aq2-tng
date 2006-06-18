@@ -1,10 +1,15 @@
 //-----------------------------------------------------------------------------
 // g_spawn.c
 //
-// $Id: g_spawn.c,v 1.39 2006/06/17 11:39:17 igor_rock Exp $
+// $Id: g_spawn.c,v 1.40 2006/06/18 09:15:00 igor_rock Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_spawn.c,v $
+// Revision 1.40  2006/06/18 09:15:00  igor_rock
+// - corrected some indexes from [1] to [TEAM1] and so on
+// - simplyfied some functions
+// - re-indented some functions
+//
 // Revision 1.39  2006/06/17 11:39:17  igor_rock
 // Some code cleanup:
 // - moved team related variables to a single struct variable
@@ -785,7 +790,7 @@ SpawnEntities (char *mapname, char *entities, char *spawnpoint)
   edict_t *ent;
   int inhibit;
   char *com_token;
-  int i, xx;
+  int i;
   float skill_level;
   //AQ2:TNG New Location Code
   char locfile[256];
@@ -805,14 +810,19 @@ SpawnEntities (char *mapname, char *entities, char *spawnpoint)
       gi.cvar_forceset(team_data[i].teamscore->name, "0");
     }
 
-  //AQ2:TNG END
+  // Reset game variables
+  matchtime            = 0;
+  day_cycle_at         = 0;
+  team_round_going     = 0;
+  team_round_countdown = 0;
+  lights_camera_action = 0;
+  holding_on_tie_check = 0;
+  timewarning = 0;
+  fragwarning = 0;
+  
   //AQ2:TNG Slicer Forcing Teamplay on and ctf off with matchmode
   if (matchmode->value)
     {
-      if (mm_allowlock->value) {
-      	for (xx = 0;xx <= MAX_TEAMS;xx++)
-		team_data[xx].locked = 0;
-      }
       // Make sure teamplay is enabled
       if (!teamplay->value)
 	{
@@ -1475,24 +1485,12 @@ Only used for the world.
 void
 SP_worldspawn (edict_t * ent)
 {
+  int i;
+
   ent->movetype = MOVETYPE_PUSH;
   ent->solid = SOLID_BSP;
   ent->inuse = true;		// since the world doesn't use G_Spawn()
   ent->s.modelindex = 1;	// world model is always index 1
-
-  // AQ2:TNG - Slicer matchmode ready reset
-  team_data[1].ready = team_data[2].ready = 0;
-  matchtime = 0;
-  day_cycle_at = 0;
-
-	// AQ2:TNG Resetting the teamXscore cvars
-	team_data[1].teamscore->value = 0;
-	strcpy(team_data[1].teamscore->string,"0");
-	team_data[2].teamscore->value = 0;
-	strcpy(team_data[2].teamscore->string,"0");
-	team_data[3].teamscore->value = 0;
-	strcpy(team_data[3].teamscore->string,"0");
-  //---------------
 
   // reserve some spots for dead player bodies for coop / deathmatch
   InitBodyQue ();
@@ -1528,13 +1526,13 @@ SP_worldspawn (edict_t * ent)
 
   gi.configstring (CS_MAXCLIENTS, va ("%i", (int) (maxclients->value)));
 
-//FIREBLADE
+  //FIREBLADE
   if (nohud->value)
     {
       gi.configstring (CS_STATUSBAR, "");
     }
   else
-//FIREBLADE
+    //FIREBLADE
     {
       // status bar program
       if (deathmatch->value)
@@ -1581,7 +1579,7 @@ SP_worldspawn (edict_t * ent)
   gi.imageindex ("scope4x");
   gi.imageindex ("scope6x");
 
-//FIREBLADE
+  //FIREBLADE
   gi.soundindex ("atl/lights.wav");
   gi.soundindex ("atl/camera.wav");
   gi.soundindex ("atl/action.wav");
@@ -1590,32 +1588,17 @@ SP_worldspawn (edict_t * ent)
   gi.imageindex ("tag3");
   if (teamplay->value)
     {
-      if (team_data[1].skin_index[0] == 0)
+      for (i = TEAM1; i < TEAM_TOP; i++ )
 	{
-	  gi.
-	    dprintf
-	    ("No skin was specified for team 1 in config file.  Exiting.\n");
-	  exit (1);
+	  if (team_data[i].skin_index[0] == 0)
+	    {
+	      gi.dprintf ("No skin was specified for team %i in config file.  Exiting.\n", i);
+	      exit (1);
+	    }
+	  gi.imageindex (team_data[i].skin_index);
 	}
-      gi.imageindex (team_data[1].skin_index);
-      if (team_data[2].skin_index[0] == 0)
-	{
-	  gi.
-	    dprintf
-	    ("No skin was specified for team 2 in config file.  Exiting.\n");
-	  exit (1);
-	}
-      gi.imageindex (team_data[2].skin_index);
-      if (team_data[3].skin_index[0] == 0)
-	{
-	  gi.
-	    dprintf
-	    ("No skin was specified for team 3 in config file.  Exiting.\n");
-	  exit (1);
-	}
-      gi.imageindex (team_data[3].skin_index);
     }
-
+  
   // AQ2:TNG - Igor adding precache for sounds
   gi.soundindex ("tng/no_team_wins.wav");
   gi.soundindex ("tng/team1_wins.wav");
@@ -1632,26 +1615,20 @@ SP_worldspawn (edict_t * ent)
   gi.soundindex ("tng/clanwar.wav");
   gi.soundindex ("tng/disabled.wav");
   gi.soundindex ("tng/enabled.wav");
-	gi.soundindex ("misc/flashlight.wav"); // Caching Flashlight
+  gi.soundindex ("misc/flashlight.wav"); // Caching Flashlight
   // AQ2:TNG - end of precache sounds
 
   PrecacheRadioSounds ();
-//PG BUND - Begin
+  //PG BUND - Begin
   PrecacheUserSounds ();
-//AQ2:TNG - Slicer Old location support
+  //AQ2:TNG - Slicer Old location support
   //DescListInit(level.mapname);
-//AQ2:TNG END
+  //AQ2:TNG END
   TourneyInit ();
   vInitLevel ();
-//PG BUND - End
+  //PG BUND - End
 
-  team_round_going = 0;
-  lights_camera_action = 0;
-  holding_on_tie_check = 0;
-  team_round_countdown = 0;
-  timewarning = 0;
-  fragwarning = 0;
-//FIREBLADE
+  //FIREBLADE
 
   if (!st.gravity)
     gi.cvar_set ("sv_gravity", "800");
@@ -1736,18 +1713,18 @@ SP_worldspawn (edict_t * ent)
   gi.modelindex ("models/objects/gibs/head2/tris.md2");
 
 
-//
-// Setup light animation tables. 'a' is total darkness, 'z' is doublebright.
-//
+  //
+  // Setup light animation tables. 'a' is total darkness, 'z' is doublebright.
+  //
 
   /*
-     Darkmatch.
-     Darkmatch has three settings:
-     0 - normal, no changes to lights
-     1 - all lights are off.
-     2 - dusk/dawn mode.
-     3 - using the day_cycle to change the lights every xx seconds as defined by day_cycle
-   */
+    Darkmatch.
+    Darkmatch has three settings:
+    0 - normal, no changes to lights
+    1 - all lights are off.
+    2 - dusk/dawn mode.
+    3 - using the day_cycle to change the lights every xx seconds as defined by day_cycle
+  */
   if (darkmatch->value == 1)
     {
       gi.configstring (CS_LIGHTS + 0, "a");	// Pitch Black
@@ -1776,12 +1753,12 @@ SP_worldspawn (edict_t * ent)
   // styles 32-62 are assigned by the light program for switchable lights
   gi.configstring (CS_LIGHTS + 63, "a");	// 63 testing
 
-//FB 6/2/99
+  //FB 6/2/99
   if (took_damage != NULL)
     gi.TagFree (took_damage);
   took_damage =
     (int *) gi.TagMalloc (sizeof (int) * game.maxclients, TAG_GAME);
-//FB 6/2/99
+  //FB 6/2/99
 }
 
 int
