@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // g_local.h -- local definitions for game module
 //
-// $Id: g_local.h,v 1.69 2006/06/17 11:36:40 igor_rock Exp $
+// $Id: g_local.h,v 1.70 2006/06/18 12:53:01 igor_rock Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_local.h,v $
+// Revision 1.70  2006/06/18 12:53:01  igor_rock
+// - removed extra banlist, used teamkiller ban list instead
+//
 // Revision 1.69  2006/06/17 11:36:40  igor_rock
 // Some code cleanup:
 // - moved team related variables to a single struct variable
@@ -287,7 +290,6 @@
 #include	"a_tourney.h"
 #include	"a_xvote.h"
 #include	"a_xmenu.h"
-#include	"a_ban.h"
 #include	"a_vote.h"
 #include	"a_match.h"
 #include "tng_stats.h"		// Adding TNG Stats File
@@ -1197,9 +1199,8 @@ void player_die (edict_t * self, edict_t * inflictor, edict_t * attacker,
 //
 void ServerCommand (void);
 qboolean SV_FilterPacket (char *from);
-//AQ2:TNG - Slicer
 void Kick_Client (edict_t * ent);
-//AQ2:TNG END
+qboolean Ban_TeamKiller (edict_t * ent, int rounds);
 
 //
 // p_view.c

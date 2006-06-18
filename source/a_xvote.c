@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // a_xvote.c
 //
-// $Id: a_xvote.c,v 1.5 2006/06/18 09:32:23 igor_rock Exp $
+// $Id: a_xvote.c,v 1.6 2006/06/18 12:52:18 igor_rock Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_xvote.c,v $
+// Revision 1.6  2006/06/18 12:52:18  igor_rock
+// - removed extra banlist, used teamkiller ban list instead
+//
 // Revision 1.5  2006/06/18 09:32:23  igor_rock
 // - removed menu entry "Leave team" in Deathmatch (credits to Maniac!)
 //
@@ -147,43 +150,6 @@ vote_t xvotelist[] = {
     {NULL, NULL}
     ,
     {NULL, NULL}
-    }
-   }
-  ,
-
-  // banlist - no vote at all, but its so easy to add
-  // the functions this way :)
-  {
-   NULL,			// cvar
-   NULL,			// InitGame - no init, default cvar = deathmatch
-   NULL,			// ExitGame 
-   InitBanList,			// InitLevel
-   NULL,			// ExitLevel
-   NULL,			// InitClient
-   Checkban,			// ClientConnect
-   NULL,			// ClientDisconnect
-   NULL,			// Newround
-   NULL,			// CheckVote
-   NULL,			// Votetitle
-   NULL,			// VoteSelected
-
-   {				// commands
-    /*
-       { "pg_ipinfo", pg_ipinfo },
-       { "pg_testban", pg_testban },
-       { "pg_hardban", pg_hardban },
-     */
-    {NULL, NULL}
-    ,
-    {NULL, NULL}
-    ,
-    {NULL, NULL}
-    ,
-    {NULL, NULL}
-    ,
-    {NULL, NULL}
-
-
     }
    }
   ,

@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // a_vote.c
 //
-// $Id: a_vote.c,v 1.14 2003/12/09 22:06:11 igor_rock Exp $
+// $Id: a_vote.c,v 1.15 2006/06/18 12:51:39 igor_rock Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_vote.c,v $
+// Revision 1.15  2006/06/18 12:51:39  igor_rock
+// - removed extra banlist, used teamkiller ban list instead
+//
 // Revision 1.14  2003/12/09 22:06:11  igor_rock
 // added "ignorepart" commadn to ignore all players with the specified part in
 // their name (one shot function: if player changes his name/new palyers join,
@@ -861,13 +864,13 @@ void
 _DoKick (edict_t * target)
 {
   char buf[128];
-
+  
   sprintf (buf, "more than %i%% voted for.", (int) kickvote_pass->value);
   _ClrKickVotesOn (target);
   if (kickvote_tempban->value)
-    DoBan (target, buf);
-  else
-    KickClient (target, buf);
+    Ban_TeamKiller(target, 1); //Ban for 1 game
+  
+  KickClient (target, buf);
 }
 
 cvar_t *
