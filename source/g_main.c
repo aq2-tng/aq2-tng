@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 //
 //
-// $Id: g_main.c,v 1.74 2006/06/17 11:37:28 igor_rock Exp $
+// $Id: g_main.c,v 1.75 2006/06/18 09:17:51 igor_rock Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_main.c,v $
+// Revision 1.75  2006/06/18 09:17:51  igor_rock
+// - simplyfied some functions
+//
 // Revision 1.74  2006/06/17 11:37:28  igor_rock
 // Some code cleanup:
 // - moved team related variables to a single struct variable
@@ -854,16 +857,12 @@ ExitLevel (void)
   //FIREBLADE
   if (teamplay->value)
     {
-      team_data[1].score = 0;
-      team_data[2].score = 0;
-      team_data[3].score = 0;
-			// AQ2 TNG - Reset serverinfo score cvars too
-			team_data[1].teamscore->value = 0;
-			strcpy(team_data[1].teamscore->string,"0");
-			team_data[2].teamscore->value = 0;
-			strcpy(team_data[2].teamscore->string,"0");
-			team_data[3].teamscore->value = 0;
-			strcpy(team_data[3].teamscore->string,"0");
+      for (i = TEAM1; i < TEAM_TOP; i++)
+	{
+	  team_data[i].score = 0;
+	  gi.cvar_forceset(team_data[i].teamscore->name, "0");
+	  
+	}
     }
   //FIREBLADE
   if (ctf->value)
