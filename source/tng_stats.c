@@ -1,10 +1,14 @@
 //-----------------------------------------------------------------------------
 // Statistics Related Code
 //
-// $Id: tng_stats.c,v 1.34 2006/06/17 11:40:38 igor_rock Exp $
+// $Id: tng_stats.c,v 1.35 2006/06/18 09:11:39 igor_rock Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: tng_stats.c,v $
+// Revision 1.35  2006/06/18 09:11:39  igor_rock
+// - corrected some indexes from [1] to [TEAM1] and so on
+// - simplyfied some functions
+//
 // Revision 1.34  2006/06/17 11:40:38  igor_rock
 // Some code cleanup:
 // - moved team related variables to a single struct variable
@@ -250,7 +254,7 @@ A_ScoreboardEndLevel (edict_t * ent, edict_t * killer)
   int name_pos[TEAM_TOP];
 
   totalplayers[TEAM1] = totalplayers[TEAM2] = totalplayers[TEAM3] = 0;
-  totalscore[TEAM1] = totalscore[TEAM2] = totalscore[TEAM3] = 0;
+  totalscore[TEAM1]   = totalscore[TEAM2]   = totalscore[TEAM3]   = 0;
   ent->client->ps.stats[STAT_TEAM_HEADER] = gi.imageindex ("tag3");
 
   for (i = 0; i < game.maxclients; i++)
@@ -277,23 +281,16 @@ A_ScoreboardEndLevel (edict_t * ent, edict_t * killer)
 	}
 
     }
-  name_pos[TEAM1] = ((20 - strlen (team_data[1].name)) / 2) * 8;
-  if (name_pos[TEAM1] < 0)
-    {
-      name_pos[TEAM1] = 0;
-    }
 
-  name_pos[TEAM2] = ((20 - strlen (team_data[2].name)) / 2) * 8;
-  if (name_pos[TEAM2] < 0)
+  for (i = TEAM1; i < TEAM_TOP; i++)
     {
-      name_pos[TEAM2] = 0;
+      name_pos[i] = ((20 - strlen (team_data[i].name)) / 2) * 8;
+      if (name_pos[i] < 0)
+	{
+	  name_pos[i] = 0;
+	}
     }
-
-  name_pos[TEAM3] = ((20 - strlen (team_data[3].name)) / 2) * 8;
-  if (name_pos[TEAM3] < 0)
-    {
-      name_pos[TEAM3] = 0;
-    }
+  
   if (use_3teams->value)
     {
       sprintf (string,
@@ -304,7 +301,7 @@ A_ScoreboardEndLevel (edict_t * ent, edict_t * killer)
 	       "xv 10 yv 12 num 2 26 "
 	       "xv %d yv 0 string \"%s\" ",
 	       totalscore[TEAM1], totalplayers[TEAM1], name_pos[TEAM1] - 80,
-	       team_data[1].name);
+	       team_data[TEAM1].name);
       sprintf (string + strlen (string),
 	       // TEAM2
 	       "if 25 xv 80 yv 8 pic 25 endif "
@@ -313,7 +310,7 @@ A_ScoreboardEndLevel (edict_t * ent, edict_t * killer)
 	       "xv 168 yv 12 num 2 27 "
 	       "xv %d yv 0 string \"%s\" ",
 	       totalscore[TEAM2], totalplayers[TEAM2], name_pos[TEAM2] + 80,
-	       team_data[2].name);
+	       team_data[TEAM2].name);
       sprintf (string + strlen (string),
 	       // TEAM3
 	       "if 30 xv 240 yv 8 pic 30 endif "
@@ -322,7 +319,7 @@ A_ScoreboardEndLevel (edict_t * ent, edict_t * killer)
 	       "xv 328 yv 12 num 2 31 "
 	       "xv %d yv 0 string \"%s\" ",
 	       totalscore[TEAM3], totalplayers[TEAM3], name_pos[TEAM3] + 240,
-	       team_data[3].name);
+	       team_data[TEAM3].name);
     }
   else
     {
@@ -339,8 +336,8 @@ A_ScoreboardEndLevel (edict_t * ent, edict_t * killer)
 	       "xv 248 yv 12 num 2 27 "
 	       "xv %d yv 0 string \"%s\" ",
 	       totalscore[TEAM1], totalplayers[TEAM1], name_pos[TEAM1],
-	       team_data[1].name, totalscore[TEAM2], totalplayers[TEAM2],
-	       name_pos[TEAM2] + 160, team_data[2].name);
+	       team_data[TEAM1].name, totalscore[TEAM2], totalplayers[TEAM2],
+	       name_pos[TEAM2] + 160, team_data[TEAM2].name);
     }
 
 
