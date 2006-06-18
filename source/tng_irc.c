@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // IRC related functions
 //
-// $Id: tng_irc.c,v 1.2 2003/06/19 15:53:26 igor_rock Exp $
+// $Id: tng_irc.c,v 1.3 2006/06/18 09:13:25 igor_rock Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: tng_irc.c,v $
+// Revision 1.3  2006/06/18 09:13:25  igor_rock
+// - replaced strncpy with Q_strncpyz
+//
 // Revision 1.2  2003/06/19 15:53:26  igor_rock
 // changed a lot of stuff because of windows stupid socket implementation
 //
@@ -201,10 +204,10 @@ irc_connect ( void )
   strcpy  (ircstatus->string, IRC_ST_CONNECTING);
   irc_data.ircsocket = -1;
   irc_data.ircport   = htons((unsigned short) ircport->value);
-  strncpy (irc_data.ircserver, ircserver->string, IRC_BUFLEN);
-  strncpy (irc_data.ircuser, ircuser->string, IRC_BUFLEN);
-  strncpy (irc_data.ircpasswd, ircpasswd->string, IRC_BUFLEN);
-  strncpy (irc_data.ircchannel, ircchannel->string, IRC_BUFLEN);
+  Q_strncpyz (irc_data.ircserver, ircserver->string, IRC_BUFLEN);
+  Q_strncpyz (irc_data.ircuser, ircuser->string, IRC_BUFLEN);
+  Q_strncpyz (irc_data.ircpasswd, ircpasswd->string, IRC_BUFLEN);
+  Q_strncpyz (irc_data.ircchannel, ircchannel->string, IRC_BUFLEN);
   
   if ((ipnum.s_addr = inet_addr(irc_data.ircserver)) == -1) {
     /* Maybe it's a FQDN */
@@ -452,7 +455,7 @@ irc_getinput ( void )
 	  strncat (irc_data.input, anfang, length);
 	} else {
 	  // Puffer leer, also nur kopieren
-	  strncpy (irc_data.input, anfang, length);
+	  Q_strncpyz (irc_data.input, anfang, length);
 	}
 	irc_data.input[length] = 0;
 	anfang += length;
