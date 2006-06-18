@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // g_spawn.c
 //
-// $Id: g_spawn.c,v 1.40 2006/06/18 09:15:00 igor_rock Exp $
+// $Id: g_spawn.c,v 1.41 2006/06/18 10:50:50 igor_rock Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_spawn.c,v $
+// Revision 1.41  2006/06/18 10:50:50  igor_rock
+// - used gi.cvar_forceset instead of direct access to cvar
+//
 // Revision 1.40  2006/06/18 09:15:00  igor_rock
 // - corrected some indexes from [1] to [TEAM1] and so on
 // - simplyfied some functions
@@ -807,7 +810,7 @@ SpawnEntities (char *mapname, char *entities, char *spawnpoint)
     {
       team_data[i].score = team_data[i].total  = 0;
       team_data[i].ready = team_data[i].locked = 0;
-      gi.cvar_forceset(team_data[i].teamscore->name, "0");
+      gi.cvar_forceset (team_data[i].teamscore->name, "0");
     }
 
   // Reset game variables
@@ -827,26 +830,22 @@ SpawnEntities (char *mapname, char *entities, char *spawnpoint)
       if (!teamplay->value)
 	{
 	  gi.dprintf ("Matchmode Enabled - Forcing teamplay on\n");
-	  teamplay->value = 1;
-	  strcpy (teamplay->string, "1");
+	  gi.cvar_forceset (teamplay->name, "1");
 	}
       if (ctf->value)
 	{
 	  gi.dprintf ("Matchmode Enabled - Forcing CTF off\n");
-	  ctf->value = 0;
-	  strcpy (ctf->string, "0");
+	  gi.cvar_forceset (ctf->name, "0");
 	}
       if (use_3teams->value)
 	{
 	  gi.dprintf ("Matchmode Enabled - Forcing 3Teams off\n");
-	  use_3teams->value = 0;
-	  strcpy (use_3teams->string, "0");
+	  gi.cvar_forceset (use_3teams->name, "0");
 	}
       if (use_tourney->value)
 	{
 	  gi.dprintf ("Matchmode Enabled - Forcing Tourney off\n");
-	  use_tourney->value = 0;
-	  strcpy (use_tourney->string, "0");
+	  gi.cvar_forceset (use_tourney->name, "0");
 	}
 
     }
@@ -857,28 +856,22 @@ SpawnEntities (char *mapname, char *entities, char *spawnpoint)
       if (!teamplay->value)
 	{
 	  gi.dprintf ("CTF Enabled - Forcing teamplay on\n");
-	  teamplay->value = 1;
-	  strcpy (teamplay->string, "1");
+	  gi.cvar_forceset (teamplay->name, "1");
 	}
       if (use_3teams->value)
 	{
 	  gi.dprintf ("CTF Enabled - Forcing 3Teams off\n");
-	  use_3teams->value = 0;
-	  strcpy (use_3teams->string, "0");
+	  gi.cvar_forceset (use_3teams->name, "0");
 	}
       if (use_tourney->value)
 	{
 	  gi.dprintf ("CTF Enabled - Forcing Tourney off\n");
-	  use_tourney->value = 0;
-	  strcpy (use_tourney->string, "0");
+	  gi.cvar_forceset (use_tourney->name, "0");
 	}
       if (!((int) (dmflags->value) & DF_NO_FRIENDLY_FIRE))
 	{
 	  gi.dprintf ("CTF Enabled - Forcing Friendly Fire off\n");
-	  i = (int) dmflags->value;
-	  i |= DF_NO_FRIENDLY_FIRE;
-	  dmflags->value = (float) i;
-	  sprintf (dmflags->string, "%d", (int) dmflags->value);
+	  gi.cvar_forceset (dmflags->name, va("%i", (int)dmflags->value | DF_NO_FRIENDLY_FIRE));
 	}
      }
    if (use_3teams->value)
@@ -886,20 +879,17 @@ SpawnEntities (char *mapname, char *entities, char *spawnpoint)
 	  if (!teamplay->value)
 	    {
 	      gi.dprintf ("3 Teams Enabled - Forcing teamplay on\n");
-	      teamplay->value = 1;
-	      strcpy (teamplay->string, "1");
+	      gi.cvar_forceset (teamplay->name, "1");
 	    }
 	  if (use_tourney->value)
 	    {
 	      gi.dprintf ("3 Teams Enabled - Forcing Tourney off\n");
-	      use_tourney->value = 0;
-	      strcpy (use_tourney->string, "0");
+	      gi.cvar_forceset (use_tourney->name, "0");
 	    }
 	  if (!use_oldspawns->value)
 	    {
 		gi.dprintf ("3 Teams Enabled - Forcing use_oldspawns on\n");
-		use_oldspawns->value = 0;
-		strcpy (use_oldspawns->string, "0");
+		gi.cvar_forceset (use_oldspawns->name, "0");
 	    }
 
 	}
@@ -908,8 +898,7 @@ SpawnEntities (char *mapname, char *entities, char *spawnpoint)
 	  if (!teamplay->value)
 	    {
 	      gi.dprintf ("Tourney Enabled - Forcing teamplay on\n");
-	      teamplay->value = 1;
-	      strcpy (teamplay->string, "1");
+	      gi.cvar_forceset (teamplay->name, "1");
 	    }
 
 	}
