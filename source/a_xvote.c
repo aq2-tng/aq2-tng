@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // a_xvote.c
 //
-// $Id: a_xvote.c,v 1.4 2003/12/09 22:06:11 igor_rock Exp $
+// $Id: a_xvote.c,v 1.5 2006/06/18 09:32:23 igor_rock Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_xvote.c,v $
+// Revision 1.5  2006/06/18 09:32:23  igor_rock
+// - removed menu entry "Leave team" in Deathmatch (credits to Maniac!)
+//
 // Revision 1.4  2003/12/09 22:06:11  igor_rock
 // added "ignorepart" commadn to ignore all players with the specified part in
 // their name (one shot function: if player changes his name/new palyers join,
@@ -23,7 +26,13 @@
 
 #include "g_local.h"
 
-#define xvlistsize (sizeof(xvotelist)/sizeof(vote_t))
+// Static constant used below
+//#define xvlistsize (sizeof(xvotelist)/sizeof(vote_t))
+
+cvar_t *_InitLeaveTeam (ini_t * ini)
+{
+  return teamplay;
+}
 
 vote_t xvotelist[] = {
   // mapvote
@@ -80,7 +89,6 @@ vote_t xvotelist[] = {
     {NULL, NULL}
     ,
     {NULL, NULL}
-    ,
     }
    }
   ,
@@ -110,7 +118,6 @@ vote_t xvotelist[] = {
     {"ignoreclear", Cmd_Ignoreclear_f}
     ,
     {"ignorepart", Cmd_IgnorePart_f}
-    ,
     }
    }
   ,
@@ -184,7 +191,7 @@ vote_t xvotelist[] = {
   // Leave Team
   {
    NULL,			// cvar
-   NULL,			// InitGame 
+   _InitLeaveTeam,		// InitGame 
    NULL,			// ExitGame 
    NULL,			// InitLevel
    NULL,			// ExitLevel
@@ -211,6 +218,8 @@ vote_t xvotelist[] = {
 
 
 };
+
+static const int xvlistsize = (sizeof(xvotelist)/sizeof(vote_t));
 
  /**/ void
 _AddVoteMenu (edict_t * ent, int fromix)
