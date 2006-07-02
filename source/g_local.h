@@ -1,10 +1,13 @@
 //-----------------------------------------------------------------------------
 // g_local.h -- local definitions for game module
 //
-// $Id: g_local.h,v 1.70 2006/06/18 12:53:01 igor_rock Exp $
+// $Id: g_local.h,v 1.71 2006/07/02 09:45:47 igor_rock Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_local.h,v $
+// Revision 1.71  2006/07/02 09:45:47  igor_rock
+// - added item_NUM values to ease a_cmds.c choose command
+//
 // Revision 1.70  2006/06/18 12:53:01  igor_rock
 // - removed extra banlist, used teamkiller ban list instead
 //
@@ -1920,6 +1923,8 @@ void AddSplat (edict_t * self, vec3_t point, trace_t * tr);
 #define ITF_HELM      0x00000020
 //AQ2:TNG End adding flags
 
+#define NO_NUM			-1
+
 #define MK23_NUM                0
 #define MP5_NUM                 1
 #define M4_NUM                  2
@@ -1929,6 +1934,13 @@ void AddSplat (edict_t * self, vec3_t point, trace_t * tr);
 #define DUAL_NUM                6
 #define KNIFE_NUM               7
 #define GRENADE_NUM             8
+
+#define SIL_NUM			9
+#define SLIP_NUM		10
+#define BAND_NUM		11
+#define KEV_NUM			12
+#define LASER_NUM		13
+#define HELM_NUM		14
 
 // types of locations that can be hit
 #define LOC_HDAM 1		// head
