@@ -1,16 +1,10 @@
 //-----------------------------------------------------------------------------
 // Include for base Action game-related things
 //
-// $Id: a_game.h,v 1.25 2006/06/17 11:30:25 igor_rock Exp $
+// $Id: a_game.h,v 1.24 2004/09/23 00:09:44 slicerdw Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_game.h,v $
-// Revision 1.25  2006/06/17 11:30:25  igor_rock
-// Some code cleanup:
-// - moved team related variables to a single struct variable
-// - some minor changes to reduced possible error sources
-// - removed DOS-like line ends
-//
 // Revision 1.24  2004/09/23 00:09:44  slicerdw
 // Radio kill count was missing for falling death
 //
@@ -91,33 +85,33 @@
 
 
 // AQ2:TNG Deathwatch - Updated the Version variables to show TNG Stuff
-#define ACTION_VERSION  "1.52 TNG 2.81"
+#define ACTION_VERSION  "TNG 2.81 M0.22"
 #define TNG_VERSION		"AQ2: The Next Generation"
-#define TNG_VERSION2	"AQ2: The Next Generation 2.81"
+#define TNG_VERSION2	"AQ2: The Next Generation 2.81 M0.22"
 // AQ2:TNG Deathwatch End
 //AQ2:TNG Slicer This is the max players writen on last killed target
 //SLIC2
 #define MAX_LAST_KILLED 8
 //AQ2:TNG END
 
-
 extern char *map_rotation[];
 extern int num_maps, cur_map, num_allvotes;	// num_allvotes added by Igor[Rock]
 
-extern char *tnames[];
 extern int *took_damage;
 
 void ReadConfigFile ();
 void ReadMOTDFile ();
-void PrintMOTD (edict_t *);
-void stuffcmd (edict_t *, char *);
+void PrintMOTD (edict_t *ent);
+void stuffcmd (edict_t *ent, char *s);
+void unicastSound(edict_t *ent, int soundIndex, float volume);
+
 int KickDoor (trace_t * tr_old, edict_t * ent, vec3_t forward);
 
 // Prototypes of base Q2 functions that weren't included in any Q2 header
 qboolean loc_CanSee (edict_t *, edict_t *);
 qboolean IsNeutral (edict_t *);
 qboolean IsFemale (edict_t *);
-void ParseSayText (edict_t *, char *);
+void ParseSayText (edict_t *, char *, size_t size);
 
 //PG BUND - BEGIN
 //void ParseSayText(edict_t *, char *);
@@ -129,6 +123,7 @@ void GetNearbyTeammates (edict_t * self, char *buf);
 //PG BUND - END
 //AQ2:TNG SLICER  New Last killed enemy support
 void ResetKills (edict_t * ent);
+void ResetScores (qboolean playerScores);
 int ReadKilledPlayers (edict_t * ent);
 void AddKilledPlayer (edict_t * self, edict_t * ent);
 void GetLastKilledTarget (edict_t * self, char *buf);

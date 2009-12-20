@@ -55,76 +55,64 @@ void punch_attack(edict_t * ent)
 	tr = gi.trace(ent->s.origin, NULL, NULL, end, ent, MASK_SHOT);
 	POSTTRACE();
 
-	if (!((tr.surface) && (tr.surface->flags & SURF_SKY))) {
-		if (tr.fraction < 1.0) {
-			if (tr.ent->takedamage) {
-				if (teamplay->value) {
-					if (lights_camera_action)
-						return;
-// AQ2:TNG - JBravo adding UVtime
-					if (ctf->value) {
-						if (ent->client && ent->client->ctf_uvtime)
-							return;
-						if (tr.ent->client && tr.ent->client->ctf_uvtime)
-							return;
-					}
-					if ((tr.ent != ent) && tr.ent->client && ent->client &&
-					    (tr.ent->client->resp.team == ent->client->resp.team) &&
-					    team_round_going && ((int) dmflags->value && DF_NO_FRIENDLY_FIRE)) {
-					  if (!ff_afterround->value) {
-					    return;
-					  }
-					}
-				}
-				if (tr.ent->health <= 0)
-					return;
-
-				if (((tr.ent != ent) && ((deathmatch->value &&
-				       ((int) (dmflags->value) & (DF_MODELTEAMS | DF_SKINTEAMS))) || coop->value) &&
-				       OnSameTeam(tr.ent, ent)))
-					return;
-
-				// add some random damage, damage range from 8 to 20.
-				randmodify = rand() % 13 + 1;
-				damage += randmodify;
-				// modify kick by damage
-				kick += (randmodify * 10);
-
-				// reduce damage, if he tries to punch within or out of water
-				if (ent->waterlevel)
-					damage -= rand() % 10 + 1;
-				// reduce kick, if victim is in water
-				if (tr.ent->waterlevel)
-					kick /= 2;
-
-				T_Damage(tr.ent, ent, ent, forward, tr.endpos, tr.plane.normal,
-					 damage, kick, 0, MOD_PUNCH);
-				gi.sound(ent, CHAN_WEAPON, gi.soundindex("weapons/kick.wav"), 1, ATTN_NORM, 0);
-				PlayerNoise(ent, ent->s.origin, PNOISE_SELF);
-
-				//only hit weapon out of hand if damage >= 15
-				if (tr.ent->client && (tr.ent->client->curr_weap == M4_NUM
-						       || tr.ent->client->curr_weap == MP5_NUM
-						       || tr.ent->client->curr_weap == M3_NUM
-						       || tr.ent->client->curr_weap == SNIPER_NUM
-						       || tr.ent->client->curr_weap == HC_NUM) && damage >= 15) {
-					DropSpecialWeapon(tr.ent);
-					if (IsFemale(tr.ent)) {
-						gi.cprintf(ent, PRINT_HIGH,
-							   "You hit %s's %s from her hands!\n",
-							   tr.ent->client->pers.netname,
-							   (tr.ent->client->pers.weapon)->pickup_name);
-					} else {
-						gi.cprintf(ent, PRINT_HIGH,
-							   "You hit %s's %s from his hands!\n",
-							   tr.ent->client->pers.netname,
-							   (tr.ent->client->pers.weapon)->pickup_name);
-					}
-					gi.cprintf(tr.ent, PRINT_HIGH,
-						   "%s hit your weapon from your hands!\n", ent->client->pers.netname);
-				}
+	if (!((tr.surface) && (tr.surface->flags & SURF_SKY)))
+	{
+		if (tr.fraction < 1.0 && tr.ent->takedamage)
+		{
+			if (tr.ent->health <= 0)
 				return;
+			
+			if (teamplay->value) {
+				// AQ2:TNG - JBravo adding UVtime
+				if (tr.ent->client && tr.ent->client->ctf_uvtime)
+					return;
+
+				if ((tr.ent != ent) && tr.ent->client && ent->client &&
+					(tr.ent->client->resp.team == ent->client->resp.team) &&
+					((int)dmflags->value & DF_NO_FRIENDLY_FIRE))
+				{
+					if (team_round_going || !ff_afterround->value)
+						return;
+				}
 			}
+			else if (((tr.ent != ent) && ((deathmatch->value &&
+				((int) (dmflags->value) & (DF_MODELTEAMS | DF_SKINTEAMS)))
+				|| coop->value) && OnSameTeam(tr.ent, ent)))
+				return;
+
+			// add some random damage, damage range from 8 to 20.
+			randmodify = rand() % 13 + 1;
+			damage += randmodify;
+			// modify kick by damage
+			kick += (randmodify * 10);
+
+			// reduce damage, if he tries to punch within or out of water
+			if (ent->waterlevel)
+				damage -= rand() % 10 + 1;
+			// reduce kick, if victim is in water
+			if (tr.ent->waterlevel)
+				kick /= 2;
+
+			T_Damage(tr.ent, ent, ent, forward, tr.endpos, tr.plane.normal,
+				damage, kick, 0, MOD_PUNCH);
+			gi.sound(ent, CHAN_WEAPON, gi.soundindex("weapons/kick.wav"), 1, ATTN_NORM, 0);
+			PlayerNoise(ent, ent->s.origin, PNOISE_SELF);
+
+			//only hit weapon out of hand if damage >= 15
+			if (tr.ent->client && (tr.ent->client->curr_weap == M4_NUM
+				|| tr.ent->client->curr_weap == MP5_NUM
+				|| tr.ent->client->curr_weap == M3_NUM
+				|| tr.ent->client->curr_weap == SNIPER_NUM
+				|| tr.ent->client->curr_weap == HC_NUM) && damage >= 15)
+			{
+				DropSpecialWeapon(tr.ent);
+				gi.cprintf (ent, PRINT_HIGH, "You hit %s's %s from %s hands!\n",
+					tr.ent->client->pers.netname,(tr.ent->client->pers.weapon)->pickup_name, IsFemale(tr.ent) ? "her" : "his");
+
+				gi.cprintf(tr.ent, PRINT_HIGH, "%s hit your weapon from your hands!\n",
+					ent->client->pers.netname);
+			}
+			return;
 		}
 	}
 	gi.sound(ent, CHAN_WEAPON, gi.soundindex("weapons/swish.wav"), 1, ATTN_NORM, 0);
@@ -162,10 +150,10 @@ char *strtostr2(char *s)
 void PlayRandomInsaneSound(edict_t * ent)
 {
 	int n;
-	char buffer[1000];
+	char buffer[32];
 
 	n = rand() % 9 + 1;
-	sprintf(buffer, "insane/insane%i.wav", n);
+	Com_sprintf(buffer, sizeof(buffer), "insane/insane%i.wav", n);
 	gi.sound(ent, CHAN_VOICE, gi.soundindex(buffer), 1, ATTN_NORM, 0);
 }
 
@@ -246,34 +234,32 @@ void PrecacheUserSounds(void)
 edict_t *FindClientByPersName(char *name)
 {
 	int i;
-	edict_t *other, *found;
+	edict_t *other;
 
-	found = NULL;
 	for (i = 1; i <= game.maxclients; i++) {
 		other = &g_edicts[i];
 		if (other && other->client && (Q_stricmp(other->client->pers.netname, name) == 0)) {
-			found = other;
-			break;
+			return other;
 		}
 	}
-	return (found);
+	return NULL;
 }
 
 //Returns the internal edict # of a client 
 //Attention: you must decrement it to get the right one, 0 means not found!
 int GetClientInternalNumber(edict_t * ent)
 {
-	int i, j;
+	int i;
 
-	j = 0;
-	if (ent && ent->client) {
-		for (i = 1; i <= game.maxclients; i++)
-			if (&g_edicts[i] == ent) {
-				j = i;
-				break;
-			}
+	if (!ent || !ent->client)
+		return 0;
+
+	for (i = 1; i <= game.maxclients; i++) {
+		if (&g_edicts[i] == ent)
+			return i;
 	}
-	return j;
+
+	return 0;
 }
 
 /*
@@ -282,12 +268,12 @@ int GetClientInternalNumber(edict_t * ent)
 void KickClient(edict_t * target, char *reason)
 {
 	int j;
-	char buffer[512];
+	char buffer[32];
 
 	if (target && target->client && target->inuse) {
 		j = GetClientInternalNumber(target);
 		if (j) {
-			sprintf(buffer, "kick %i\n", --j);
+			Com_sprintf(buffer, sizeof(buffer), "kick %i\n", --j);
 			gi.bprintf(PRINT_HIGH, "%s has to be KICKED from the server.\n", target->client->pers.netname);
 			gi.bprintf(PRINT_MEDIUM, "Reason: %s\n", reason);
 			gi.AddCommandString(buffer);
@@ -416,7 +402,7 @@ qboolean _seekinisection(FILE * afile, char *section)
 	sprintf(comp, "[%s]", section);
 	fseek(afile, 0, SEEK_SET);
 	while (fgets(buf, INI_STR_LEN, afile)) {
-		if (stricmp(StripSpaces(buf), comp) == 0)
+		if (Q_stricmp(StripSpaces(buf), comp) == 0)
 			return true;
 	}
 	return false;
@@ -444,7 +430,7 @@ char *_readinivalue(FILE * afile, char *section, char *key, char *value)
 				strcpy(akey, buf);
 				value[0] = '\0';
 			}
-			if (stricmp(StripSpaces(akey), key) == 0)
+			if (Q_stricmp(StripSpaces(akey), key) == 0)
 				return (StripSpaces(value));	// found!
 			if (akey[0] == '[')
 				return NULL;	// another section begins

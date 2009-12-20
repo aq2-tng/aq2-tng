@@ -1,14 +1,10 @@
 //-----------------------------------------------------------------------------
 // Include for Action team-related things
 //
-// $Id: a_team.h,v 1.10 2006/06/17 11:34:53 igor_rock Exp $
+// $Id: a_team.h,v 1.9 2002/04/01 14:00:08 freud Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_team.h,v $
-// Revision 1.10  2006/06/17 11:34:53  igor_rock
-// Some code cleanup:
-// - moved team related variables to a single struct variable
-//
 // Revision 1.9  2002/04/01 14:00:08  freud
 // After extensive checking I think I have found the spawn bug in the new
 // system.
@@ -81,7 +77,7 @@ void CheckTeamRules (void);
 void A_Scoreboard (edict_t * ent);
 void Team_f (edict_t * ent);
 qboolean StartClient (edict_t * ent);
-void AssignSkin (edict_t *, char *);
+void AssignSkin (edict_t * ent, const char *s, qboolean nickChanged);
 void TallyEndOfLevelTeamScores (void);
 void CheckForUnevenTeams (void);
 void SetupTeamSpawnPoints ();
@@ -95,7 +91,7 @@ void InitTransparentList ();
 void AddToTransparentList (edict_t *);
 void RemoveFromTransparentList (edict_t *);
 void PrintTransparentList ();
-void CenterPrintAll (char *msg);
+void CenterPrintAll (const char *msg);
 
 //TNG:Freud - new spawning system
 void NS_GetSpawnPoints ();
@@ -128,3 +124,4 @@ extern transparent_list_t *transparent_list;
 extern trace_t trace_t_temp;
 extern int current_round_length; // For RoundTimeLeft
 extern int day_cycle_at;
+extern int teamCount;

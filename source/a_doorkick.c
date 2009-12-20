@@ -68,7 +68,7 @@ int KickDoor(trace_t * tr_old, edict_t * ent, vec3_t forward)
 	vec3_t d_forward, right, end;
 	float d;
 
-	if (!Q_strcasecmp(tr_old->ent->classname, "func_door_rotating")) {
+	if (!Q_stricmp(tr_old->ent->classname, "func_door_rotating")) {
 		// Make that the door is closed
 
 		tr = *tr_old;

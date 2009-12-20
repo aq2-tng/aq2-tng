@@ -66,8 +66,8 @@ cvar_t *ctf_respawn;
 
 /*--------------------------------------------------------------------------*/
 
-static gitem_t *flag1_item;
-static gitem_t *flag2_item;
+gitem_t *flag1_item;
+gitem_t *flag2_item;
 
 void CTFInit(void)
 {
@@ -157,7 +157,7 @@ void CTFAssignTeam(gclient_t * who)
 		return;
 	}
 
-	for (i = 1; i <= maxclients->value; i++) {
+	for (i = 1; i <= (int)maxclients->value; i++) {
 		player = &g_edicts[i];
 		if (!player->inuse || player->client == who)
 			continue;
@@ -169,7 +169,7 @@ void CTFAssignTeam(gclient_t * who)
 			team2count++;
 		}
 	}
-	if (team1count < team1count)
+	if (team1count < team2count)
 		who->resp.team = TEAM1;
 	else if (team2count < team1count)
 		who->resp.team = TEAM2;
@@ -195,14 +195,14 @@ edict_t *SelectCTFSpawnPoint(edict_t * ent)
 	float range, range1, range2;
 	char *cname;
 
-	if (ent->client->resp.ctf_state != CTF_STATE_START) {
+	/*if (ent->client->resp.ctf_state != CTF_STATE_START) {
 		if (rand() & 1) {
 			if ((int) (dmflags->value) & DF_SPAWN_FARTHEST)
 				return SelectFarthestDeathmatchSpawnPoint();
 			else
 				return SelectRandomDeathmatchSpawnPoint();
 		}
-	}
+	}*/ //Why the fuck this was here? -Mani
 
 	ent->client->resp.ctf_state = CTF_STATE_PLAYING;
 
@@ -225,6 +225,10 @@ edict_t *SelectCTFSpawnPoint(edict_t * ent)
 		count++;
 		range = PlayersRangeFromSpot(spot);
 		if (range < range1) {
+			if (range1 < range2) {
+				range2 = range1;
+				spot2 = spot1;
+			}
 			range1 = range;
 			spot1 = spot;
 		} else if (range < range2) {
@@ -417,7 +421,7 @@ void CTFCheckHurtCarrier(edict_t * targ, edict_t * attacker)
 void CTFResetFlag(int team)
 {
 	char *c;
-	edict_t *ent;
+	edict_t *ent = NULL;
 
 	switch (team) {
 	case TEAM1:
@@ -430,7 +434,6 @@ void CTFResetFlag(int team)
 		return;
 	}
 
-	ent = NULL;
 	while ((ent = G_Find(ent, FOFS(classname), c)) != NULL) {
 		if (ent->spawnflags & DROPPED_ITEM)
 			G_FreeEdict(ent);
@@ -669,12 +672,9 @@ void CTFFlagSetup(edict_t * ent)
 {
 	trace_t tr;
 	vec3_t dest;
-	float *v;
 
-	v = tv(-15, -15, -15);
-	VectorCopy(v, ent->mins);
-	v = tv(15, 15, 15);
-	VectorCopy(v, ent->maxs);
+	VectorSet(ent->mins, -15, -15, -15);
+	VectorSet(ent->maxs, 15, 15, 15);
 
 	if (ent->model)
 		gi.setmodel(ent, ent->model);
@@ -684,8 +684,8 @@ void CTFFlagSetup(edict_t * ent)
 	ent->movetype = MOVETYPE_TOSS;
 	ent->touch = Touch_Item;
 
-	v = tv(0, 0, -128);
-	VectorAdd(ent->s.origin, v, dest);
+	VectorCopy(ent->s.origin, dest);
+	dest[2] -= 128;
 
 	tr = gi.trace(ent->s.origin, ent->mins, ent->maxs, dest, ent, MASK_SOLID);
 	if (tr.startsolid) {
@@ -736,6 +736,12 @@ void CTFCalcScores(void)
 		else if (game.clients[i].resp.team == TEAM2)
 			ctfgame.total2 += game.clients[i].resp.score;
 	}
+}
+
+void GetCTFScores(int *t1score, int *t2score)
+{
+	*t1score = ctfgame.team1;
+	*t2score = ctfgame.team2;
 }
 
 void SetCTFStats(edict_t * ent)
@@ -1073,7 +1079,7 @@ void CTFScoreboardMessage(edict_t * ent, edict_t * killer)
 		}
 	}
 
-	if (strlen(string) > 1300)	// for debugging...
+	if (strlen(string) > 1023)	// for debugging...
 		gi.dprintf("Warning: scoreboard string neared or exceeded max length\nDump:\n%s\n---\n", string);
 
 	gi.WriteByte(svc_layout);

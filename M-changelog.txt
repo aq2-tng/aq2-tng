@@ -1,0 +1,119 @@
+=============================================================================
+      AQ2: The Next Generation - M0.22  --- M-changelog.txt
+=============================================================================
+
+----------------------------------------
+Changes since M0.21 to M0.22:
+----------------------------------------
+Fixes:
+- Pistols didn't respawn at dm/teamdm.
+- Votes now actually work in teamDM during play.
+- Disabled config/map voting during intermission. Thus, a player could change map/cfg while mapchange.
+- Crashed when client used this game-mod for demo playback.
+- Now, it doesn't sound when you're zooming your ssg to same zoom-level using the lens command.
+- Multiple lens command during bandage or too fast repeating could do extra annoying zooming.
+- Player with last ID didnt show up in ignore menu.
+- If you were killing a player only with one last kevlar shot the console message was sent to the player who hit him before.
+
+Changes:
+- Disabled 'Leave team' menu on non-teamplay mode.
+- Removed spaces from demo name using autorecord.
+- Changed skin _i.pcx pics back using '..' like they were. Client download code didnt like it, though it doesn't like '..' either.
+- Disabled '..' in voice command.
+
+New Features:
+- 'item_respawnmode' cvar to change how item respawns in dm/teamdm. Normally item would only spawn at random deathmatch spawn.
+  The new mode disables it and spawns item only if map has a spawn point for this item.
+
+
+----------------------------------------
+Changes since M0.2 to M0.21:
+----------------------------------------
+Fixes:	
+- 'time' command would only work in matchmode.
+- Couple of bugs that caused crash.
+- Score print at end of match when playing ctf would print 0's as both team scores.
+
+Changes:
+- Temporary vote banning uses same banning list like normal ban/teamkill bans, so admins can now remove/list them.
+- When temp banned (by teamkilling/vote kick), ban msg says temporary banned and how many games, instead of just "Banned".
+- ammo_respawn cvar also effects to grenade respawn time.
+- Changed CS_PLAYERSKINS update back for now.
+- Changed 'use throwing combat knife" toggle back, seems like some player are used how it was.
+- Disabled some commands when game is paused.
+
+New Features:
+- dmflags 65536 changes the weapon respawn method in teamd/dm. Now weapons keep respawnning even if weapon is in use.
+  With this setting cvar 'weapon_respawn' controls the respawn time when picked, not dropped.
+
+----------------------------------------
+Changes since M0.1 to M0.2:
+----------------------------------------
+Fixes:
+- Dropping bandolier in teamplay mode used deathmatch values for ammo, so it allowed to drop bandolier and
+  still have some extra ammo.
+- Fixed issues when radio death sound get played more than once.
+- 'use throwing combat knife' and 'use slashing combat knife' did change the mode when it was the correct mode already.
+- 3rd team in 3team mode wont allways spawn to same spot anymore.
+- In teamplay when everyone is dead, round would just go on. My bug in last release :(.
+
+Changes:
+- Removed ALOT string compares for specifying model, instead added new integer for type. This should speed up little bit.
+- In ctf mode, team1 players will only use 'info_player_team1' spawns and team2 'info_player_team2' spawns.
+  If map doesnt have these spawns, it uses random 'info_player_deathmatch' spawn like spectators.
+
+New Features:
+- cvar 'wave_time' to specify delay between each wave commands in seconds. Default 5
+
+
+----------------------------------------
+Changes since TNG 2.81 to M0.1:
+----------------------------------------
+Fixes:
+- 3team mode: third team can not be locked forever anymore
+- Player can not flood sounds through menu
+- Team scores reset at SpawnEntities, so you can use 'gamemap' command for 
+  resetting now.
+- can't punch teammate anymore when ff is off
+- Changing team/sub doesn't decrease frags when hit by teammate and round is over.
+- Reloading HC with single barrel. Doesn't minus 2 when only the other shell 
+  is fired and you can now reload the last shell when you have only 1 left.
+- Matchtime could left running if team is ready and all players is in sub.
+- Getting frag when dead dont increase streak count.
+- Cant drop anything when dead/spec, should fix issue when dropping weapon at
+  same time you die caused 2 weapons to drop.
+- Reports last damaged part as chest when hitted with knife while target was using kevlar west.
+- Picking up m3/ssg didnt come with full clip when reloading.
+
+Changes:
+- radio/menu sounds use svc_sound instead of stuffing "play x.wav"
+- Moved some variables to own struct, so it makes code simpler/shorter.
+- Use direct path to show team skin pics instead of "../pics". This allows 
+  those pictures inside pak to work.
+- checking player skins for overflow
+- Made some buffers smaller and using buffer safe copying istead of using 
+  huge buffers to make sure all fits
+- removed "use_mapvote" & "use_cvote" from serverinfo. More space for other
+- roundtimeleft now also shows remaining seconds
+- time command now works in matchmode too
+- Doesnt update CS_PLAYERSKINS config string in teamplay when nick or skin havent changed.
+
+New Features:
+- second mode to Cvar use_mapvote 2, it's same as 1 except it changes to 
+  mostvoted map when timelimit/roundlimit hits.
+- "pausegame" command in matchmode. This allow non substitutes to pause game
+  for 1min.
+- "unpausegame" to unpause (who would guess). Only players in same team 
+  which paused can unpause.
+- Cvar "mm_pausecount" to define how many times team can pause the game. 
+  When "0" pause is disabled (Default "3").
+- Cvar "mm_pausetime" to define pause time in minutes (default 2)
+- New playing mode: Team Deathmatch with matchmode! Use 'teamdm 1' to enable.
+- Cvar teamdm_respawn to specify respawn time (default 4).
+- cmd 'resetscores' to reset scores in matchmode. The command can be used by matchadmins or captains.
+  When captains are using it, it will need to be accepted by the other captain as well.
+- item_respawn, weapon_respawn & ammo_respawn cvars to define respawn time when dropped. defaults: item 59, weapon 74 & ammo 30.
+- Matchmode support for 3 team and ctf playing modes.
+- Cvar "respawn_effect" to enable effect+sound when respawning in dm/teamdm/ctf.
+
+=============================================================================

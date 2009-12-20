@@ -78,40 +78,40 @@ Use_Target_Speaker (edict_t * ent, edict_t * other, edict_t * activator)
     }
 }
 
-void
-SP_target_speaker (edict_t * ent)
+void SP_target_speaker (edict_t * ent)
 {
-  char buffer[MAX_QPATH];
+	char buffer[MAX_QPATH];
 
-  if (!st.noise)
-    {
-      gi.dprintf ("target_speaker with no noise set at %s\n",
-		  vtos (ent->s.origin));
-      return;
-    }
-  if (!strstr (st.noise, ".wav"))
-    Com_sprintf (buffer, sizeof (buffer), "%s.wav", st.noise);
-  else
-    strncpy (buffer, st.noise, sizeof (buffer));
-  ent->noise_index = gi.soundindex (buffer);
+	if (!st.noise)
+	{
+		gi.dprintf ("target_speaker with no noise set at %s\n",
+		vtos (ent->s.origin));
+		return;
+	}
+	if (!strstr (st.noise, ".wav"))
+		Com_sprintf (buffer, sizeof (buffer), "%s.wav", st.noise);
+	else
+		Q_strncpyz(buffer, st.noise, sizeof (buffer));
 
-  if (!ent->volume)
-    ent->volume = 1.0;
+	ent->noise_index = gi.soundindex (buffer);
 
-  if (!ent->attenuation)
-    ent->attenuation = 1.0;
-  else if (ent->attenuation == -1)	// use -1 so 0 defaults to 1
-    ent->attenuation = 0;
+	if (!ent->volume)
+		ent->volume = 1.0;
 
-  // check for prestarted looping sound
-  if (ent->spawnflags & 1)
-    ent->s.sound = ent->noise_index;
+	if (!ent->attenuation)
+		ent->attenuation = 1.0;
+	else if (ent->attenuation == -1)	// use -1 so 0 defaults to 1
+		ent->attenuation = 0;
 
-  ent->use = Use_Target_Speaker;
+	// check for prestarted looping sound
+	if (ent->spawnflags & 1)
+		ent->s.sound = ent->noise_index;
 
-  // must link the entity so we get areas and clusters so
-  // the server can determine who to send updates to
-  gi.linkentity (ent);
+	ent->use = Use_Target_Speaker;
+
+	// must link the entity so we get areas and clusters so
+	// the server can determine who to send updates to
+	gi.linkentity (ent);
 }
 
 
@@ -121,9 +121,9 @@ void
 Use_Target_Help (edict_t * ent, edict_t * other, edict_t * activator)
 {
   if (ent->spawnflags & 1)
-    strncpy (game.helpmessage1, ent->message, sizeof (game.helpmessage2) - 1);
+    Q_strncpyz(game.helpmessage1, ent->message, sizeof (game.helpmessage2));
   else
-    strncpy (game.helpmessage2, ent->message, sizeof (game.helpmessage1) - 1);
+    Q_strncpyz(game.helpmessage2, ent->message, sizeof (game.helpmessage1));
 
   game.helpchanged++;
 }
@@ -183,7 +183,7 @@ SP_target_secret (edict_t * ent)
   ent->svflags = SVF_NOCLIENT;
   level.total_secrets++;
   // map bug hack
-  if (!stricmp (level.mapname, "mine3") && ent->s.origin[0] == 280
+  if (!Q_stricmp (level.mapname, "mine3") && ent->s.origin[0] == 280
       && ent->s.origin[1] == -2048 && ent->s.origin[2] == -624)
     ent->message = "You have found a secret area.";
 }
@@ -329,8 +329,8 @@ SP_target_changelevel (edict_t * ent)
     }
 
   // ugly hack because *SOMEBODY* screwed up their map
-  if ((stricmp (level.mapname, "fact1") == 0)
-      && (stricmp (ent->map, "fact3") == 0))
+  if ((Q_stricmp (level.mapname, "fact1") == 0)
+      && (Q_stricmp (ent->map, "fact3") == 0))
     ent->map = "fact3$secret1";
 
   ent->use = use_target_changelevel;

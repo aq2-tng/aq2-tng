@@ -368,7 +368,8 @@ retry:
   POSTTRACE ();
 
   VectorCopy (trace.endpos, ent->s.origin);
-  gi.linkentity (ent);
+  if(ent->inuse)
+	gi.linkentity (ent);
 
   if (trace.fraction != 1.0)
     {
@@ -875,7 +876,7 @@ SV_Physics_Toss (edict_t * ent)
   if (trace.fraction < 1)
     {
       if (ent->movetype == MOVETYPE_BOUNCE)
-	backoff = 1.4;		// 1.5 is normal  -Zucc/FB
+	backoff = 1.4f;		// 1.5 is normal  -Zucc/FB
       else
 	backoff = 1;
 

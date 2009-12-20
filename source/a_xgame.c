@@ -348,51 +348,47 @@ AQ2:TNG END
 
 // DetermineViewedEnemy: determine the current player you're viewing (only looks for live Enemy)
 // Modified from DetermineViewedTeammate (which is used in a_radio.c)
-edict_t *
-DetermineViewedEnemy (edict_t * ent)
+edict_t *DetermineViewedEnemy (edict_t * ent)
 {
-  vec3_t forward, dir;
-  trace_t tr;
-  edict_t *who, *best;
-  float bd = 0, d;
-  int i;
+	vec3_t forward, dir;
+	trace_t tr;
+	edict_t *who, *best;
+	float bd = 0, d;
+	int i;
 
-  AngleVectors (ent->client->v_angle, forward, NULL, NULL);
-  VectorScale (forward, 8192, forward);
-  VectorAdd (ent->s.origin, forward, forward);
-  PRETRACE ();
-  tr = gi.trace (ent->s.origin, NULL, NULL, forward, ent, MASK_SOLID);
-  POSTTRACE ();
-  if (tr.fraction < 1 && tr.ent && tr.ent->client)
-    {
-      return NULL;
-    }
-
-  AngleVectors (ent->client->v_angle, forward, NULL, NULL);
-  best = NULL;
-  for (i = 1; i <= maxclients->value; i++)
-    {
-      who = g_edicts + i;
-      if (!who->inuse)
-	continue;
-      VectorSubtract (who->s.origin, ent->s.origin, dir);
-      VectorNormalize (dir);
-      d = DotProduct (forward, dir);
-      if (d > bd && loc_CanSee (ent, who) &&
-	  who->solid != SOLID_NOT &&
-	  who->deadflag != DEAD_DEAD && !OnSameTeam (who, ent))
+	AngleVectors (ent->client->v_angle, forward, NULL, NULL);
+	VectorScale (forward, 8192, forward);
+	VectorAdd (ent->s.origin, forward, forward);
+	PRETRACE ();
+	tr = gi.trace (ent->s.origin, NULL, NULL, forward, ent, MASK_SOLID);
+	POSTTRACE ();
+	if (tr.fraction < 1 && tr.ent && tr.ent->client)
 	{
-	  bd = d;
-	  best = who;
+		return NULL;
 	}
-    }
 
-  if (bd > 0.90)
-    {
-      return best;
-    }
+	AngleVectors (ent->client->v_angle, forward, NULL, NULL);
+	best = NULL;
+	for (i = 1; i <= maxclients->value; i++)
+	{
+		who = g_edicts + i;
+		if (!who->inuse)
+			continue;
+		VectorSubtract (who->s.origin, ent->s.origin, dir);
+		VectorNormalize (dir);
+		d = DotProduct (forward, dir);
+		if (d > bd && loc_CanSee (ent, who) && who->solid != SOLID_NOT &&
+			who->deadflag != DEAD_DEAD && !OnSameTeam (who, ent))
+		{
+			bd = d;
+			best = who;
+		}
+	}
 
-  return NULL;
+	if (bd > 0.90)
+		return best;
+
+	return NULL;
 }
 
 //AQ2:TNG Slicer old location support ( ADF )
@@ -541,52 +537,37 @@ GetEnemyPosition (edict_t * self, char *buf)
 }
 */
 //AQ2:TNG END
-void
-GetViewedEnemyName (edict_t * self, char *buf)
+void GetViewedEnemyName (edict_t * self, char *buf)
 {
-  edict_t *the_enemy;
+	edict_t *the_enemy;
 
-  the_enemy = DetermineViewedEnemy (self);
-  if (the_enemy && the_enemy->client)
-    {
-      strcpy (buf, the_enemy->client->pers.netname);
-    }
-  else
-    {
-      strcpy (buf, "no enemy");
-    }
+	the_enemy = DetermineViewedEnemy (self);
+	if (the_enemy && the_enemy->client)
+		strcpy (buf, the_enemy->client->pers.netname);
+	else
+		strcpy (buf, "no enemy");
 }
 
-void
-GetViewedTeammateName (edict_t * self, char *buf)
+void GetViewedTeammateName (edict_t * self, char *buf)
 {
-  edict_t *the_teammate;
+	edict_t *the_teammate;
 
-  the_teammate = DetermineViewedTeammate (self);
-  if (the_teammate && the_teammate->client)
-    {
-      strcpy (buf, the_teammate->client->pers.netname);
-    }
-  else
-    {
-      strcpy (buf, "no teammate");
-    }
+	the_teammate = DetermineViewedTeammate (self);
+	if (the_teammate && the_teammate->client)
+		strcpy (buf, the_teammate->client->pers.netname);
+	else
+		strcpy (buf, "no teammate");
 }
 
-void
-GetViewedEnemyWeapon (edict_t * self, char *buf)
+void GetViewedEnemyWeapon (edict_t * self, char *buf)
 {
-  edict_t *the_enemy;
+	edict_t *the_enemy;
 
-  the_enemy = DetermineViewedEnemy (self);
-  if (the_enemy && the_enemy->client)
-    {
-      strcpy (buf, the_enemy->client->pers.weapon->pickup_name);
-    }
-  else
-    {
-      strcpy (buf, "no weapon");
-    }
+	the_enemy = DetermineViewedEnemy (self);
+	if (the_enemy && the_enemy->client)
+		strcpy (buf, the_enemy->client->pers.weapon->pickup_name);
+	else
+		strcpy (buf, "no weapon");
 }
 
 //AQ2:TNG SLICER Old support
@@ -609,149 +590,137 @@ GetLastKilledTarget (edict_t * self, char *buf)
 */
 //AQ2:TNG END
 
-char *
-SeekBufEnd (char *buf)
+char *SeekBufEnd (char *buf)
 {
   while (*buf != 0)
-    buf++;
+	  buf++;
+
   return buf;
 }
 
 
-void
-ParseSayText (edict_t * ent, char *text)
+void ParseSayText (edict_t * ent, char *text, size_t size)
 {
-  static unsigned char buf[10240], infobuf[10240];
-  char *p, *pbuf;
+	char buf[PARSE_BUFSIZE + 256] = "\0"; //Parsebuf + chatpuf size
+	char *p, *pbuf;
 
-  p = text;
-  pbuf = buf;
-  *pbuf = 0;
+	p = text;
+	pbuf = buf;
 
-  while (*p != 0)
-    {
-      if (((ptrdiff_t) pbuf - (ptrdiff_t) buf) > 225)
+	while (*p != 0)
 	{
-	  break;
+		if (*p == '%')
+		{
+			switch (*(p + 1))
+			{
+			case 'H':
+				GetHealth (ent, pbuf);
+				pbuf = SeekBufEnd (pbuf);
+				p += 2;
+				break;
+			case 'A':
+				GetAmmo (ent, pbuf);
+				pbuf = SeekBufEnd (pbuf);
+				p += 2;
+				break;
+			case 'W':
+				GetWeaponName (ent, pbuf);
+				pbuf = SeekBufEnd (pbuf);
+				p += 2;
+				break;
+			case 'I':
+				GetItemName (ent, pbuf);
+				pbuf = SeekBufEnd (pbuf);
+				p += 2;
+				break;
+			case 'T':
+				GetNearbyTeammates (ent, pbuf);
+				pbuf = SeekBufEnd (pbuf);
+				p += 2;
+				break;
+			case 'M':
+				GetViewedTeammateName (ent, pbuf);
+				pbuf = SeekBufEnd (pbuf);
+				p += 2;
+				break;
+			case 'E':
+				GetViewedEnemyName (ent, pbuf);
+				pbuf = SeekBufEnd (pbuf);
+				p += 2;
+				break;
+			case 'F':
+				GetViewedEnemyWeapon (ent, pbuf);
+				pbuf = SeekBufEnd (pbuf);
+				p += 2;
+				break;
+			case 'G':
+				GetEnemyPosition (ent, pbuf);
+				pbuf = SeekBufEnd (pbuf);
+				p += 2;
+				break;
+			case 'K':
+				GetLastKilledTarget (ent, pbuf);
+				pbuf = SeekBufEnd (pbuf);
+				p += 2;
+				break;
+			//AQ2:TNG Slicer - New Location Code
+			/*
+			case 'L':
+				GetOwnPosition (ent, infobuf);
+				strcpy (pbuf, infobuf);
+				pbuf = SeekBufEnd (pbuf);
+				p += 2;
+				break;
+			case 'S':
+				GetViewedPosition (ent, infobuf);
+				strcpy (pbuf, infobuf);
+				pbuf = SeekBufEnd (pbuf);
+				p += 2;
+				break;
+			*/
+			case 'S':
+				GetSightedLocation (ent, pbuf);
+				pbuf = SeekBufEnd (pbuf);
+				p += 2;
+				break;
+			case 'L':
+				GetPlayerLocation (ent, pbuf);
+				pbuf = SeekBufEnd (pbuf);
+				p += 2;
+				break;
+			//AQ2:TNG Slicer Last Damage Location
+			case 'D':
+				GetLastDamagedPart (ent, pbuf);
+				pbuf = SeekBufEnd (pbuf);
+				p += 2;
+				break;
+			//AQ2:TNG END
+			//AQ2:TNG Freud Last Player Damaged
+			case 'P':
+				GetLastDamagedPlayers (ent, pbuf);
+				pbuf = SeekBufEnd (pbuf);
+				p += 2;
+				break;
+			//AQ2:TNG END
+			default:
+				*pbuf++ = *p++;
+				break;
+			}
+		}
+		else
+		{
+			*pbuf++ = *p++;
+		}
+
+		if (buf[size-1])
+		{
+			buf[size-1] = 0;
+			break;
+		}
 	}
 
-      if (*p == '%')
-	{
-	  switch (*(p + 1))
-	    {
-	    case 'H':
-	      GetHealth (ent, infobuf);
-	      strcpy (pbuf, infobuf);
-	      pbuf = SeekBufEnd (pbuf);
-	      p += 2;
-	      continue;
-	    case 'A':
-	      GetAmmo (ent, infobuf);
-	      strcpy (pbuf, infobuf);
-	      pbuf = SeekBufEnd (pbuf);
-	      p += 2;
-	      continue;
-	    case 'W':
-	      GetWeaponName (ent, infobuf);
-	      strcpy (pbuf, infobuf);
-	      pbuf = SeekBufEnd (pbuf);
-	      p += 2;
-	      continue;
-	    case 'I':
-	      GetItemName (ent, infobuf);
-	      strcpy (pbuf, infobuf);
-	      pbuf = SeekBufEnd (pbuf);
-	      p += 2;
-	      continue;
-	    case 'T':
-	      GetNearbyTeammates (ent, infobuf);
-	      strcpy (pbuf, infobuf);
-	      pbuf = SeekBufEnd (pbuf);
-	      p += 2;
-	      continue;
-	    case 'M':
-	      GetViewedTeammateName (ent, infobuf);
-	      strcpy (pbuf, infobuf);
-	      pbuf = SeekBufEnd (pbuf);
-	      p += 2;
-	      continue;
-	    case 'E':
-	      GetViewedEnemyName (ent, infobuf);
-	      strcpy (pbuf, infobuf);
-	      pbuf = SeekBufEnd (pbuf);
-	      p += 2;
-	      continue;
-	    case 'F':
-	      GetViewedEnemyWeapon (ent, infobuf);
-	      strcpy (pbuf, infobuf);
-	      pbuf = SeekBufEnd (pbuf);
-	      p += 2;
-	      continue;
-	    case 'G':
-	      GetEnemyPosition (ent, infobuf);
-	      strcpy (pbuf, infobuf);
-	      pbuf = SeekBufEnd (pbuf);
-	      p += 2;
-	      continue;
-	    case 'K':
-	      GetLastKilledTarget (ent, infobuf);
-	      strcpy (pbuf, infobuf);
-	      pbuf = SeekBufEnd (pbuf);
-	      p += 2;
-	      continue;
-//AQ2:TNG Slicer - New Location Code
-	      /*
-	         case 'L':
-	         GetOwnPosition (ent, infobuf);
-	         strcpy (pbuf, infobuf);
-	         pbuf = SeekBufEnd (pbuf);
-	         p += 2;
-	         continue;
-	         case 'S':
-	         GetViewedPosition (ent, infobuf);
-	         strcpy (pbuf, infobuf);
-	         pbuf = SeekBufEnd (pbuf);
-	         p += 2;
-	         continue;
-	       */
-	    case 'S':
-	      GetSightedLocation (ent, infobuf);
-	      strcpy (pbuf, infobuf);
-	      pbuf = SeekBufEnd (pbuf);
-	      p += 2;
-	      continue;
-	    case 'L':
-	      GetPlayerLocation (ent, infobuf);
-	      strcpy (pbuf, infobuf);
-	      pbuf = SeekBufEnd (pbuf);
-	      p += 2;
-	      continue;
-	      //AQ2:TNG Slicer Last Damage Location
-	    case 'D':
-	      GetLastDamagedPart (ent, infobuf);
-	      strcpy (pbuf, infobuf);
-	      pbuf = SeekBufEnd (pbuf);
-	      p += 2;
-	      continue;
-	      //AQ2:TNG END
-	      //AQ2:TNG Freud Last Player Damaged
-	    case 'P':
-	      GetLastDamagedPlayers (ent, infobuf);
-	      strcpy (pbuf, infobuf);
-	      pbuf = SeekBufEnd (pbuf);
-	      p += 2;
-	      continue;
-	      //AQ2:TNG END
-	    }
-	}
-      *pbuf++ = *p++;
-    }
-
-  *pbuf = 0;
-
-  strncpy (text, buf, 225);
-  text[225] = 0;		// in case it's 225
-
+	*pbuf = 0;
+	strcpy(text, buf);
 }
 
 // AQ2:TNG - Slicer Video Checks
@@ -871,60 +840,46 @@ VideoCheckClient (edict_t * ent)
 }
 
 //AQ2:TNG - Slicer : Last Damage Location
-void
-GetLastDamagedPart (edict_t * self, char *buf)
+void GetLastDamagedPart (edict_t * self, char *buf)
 {
-  if (self->client->resp.last_damaged_part == 0)
-    strcpy (buf, "nothing");
-  else if (self->client->resp.last_damaged_part == LOC_HDAM)
-    {
-      strcpy (buf, "head");
-      self->client->resp.last_damaged_part = 0;
-    }
-  else if (self->client->resp.last_damaged_part == LOC_CDAM)
-    {
-      strcpy (buf, "chest");
-      self->client->resp.last_damaged_part = 0;
-    }
-  else if (self->client->resp.last_damaged_part == LOC_SDAM)
-    {
-      strcpy (buf, "stomach");
-      self->client->resp.last_damaged_part = 0;
-    }
-  else if (self->client->resp.last_damaged_part == LOC_LDAM)
-    {
-      strcpy (buf, "legs");
-      self->client->resp.last_damaged_part = 0;
-    }
-  else if (self->client->resp.last_damaged_part == LOC_KVLR_HELMET)
-    {
-      strcpy (buf, "kevlar helmet");
-      self->client->resp.last_damaged_part = 0;
-    }
-  else if (self->client->resp.last_damaged_part == LOC_KVLR_VEST)
-    {
-      strcpy (buf, "kevlar vest");
-      self->client->resp.last_damaged_part = 0;
-    }
-  else if (self->client->resp.last_damaged_part == LOC_NO)
-    {
-      strcpy (buf, "body");
-      self->client->resp.last_damaged_part = 0;
-    }
-  else
-    strcpy (buf, "nothing");	// Just in case
+	switch(self->client->resp.last_damaged_part) {
+	case LOC_HDAM:
+		strcpy (buf, "head");
+		break;
+	case LOC_CDAM:
+		strcpy (buf, "chest");
+		break;
+	case LOC_SDAM:
+		strcpy (buf, "stomach");
+		break;
+	case LOC_LDAM:
+		strcpy (buf, "legs");
+		break;
+	case LOC_KVLR_HELMET:
+		strcpy (buf, "kevlar helmet");
+		break;
+	case LOC_KVLR_VEST:
+		strcpy (buf, "kevlar vest");
+		break;
+	case LOC_NO:
+		strcpy (buf, "body");
+		break;
+	default:
+		strcpy (buf, "nothing");
+		break;
+	}
+	self->client->resp.last_damaged_part = 0;
 }
 
 //AQ2:TNG END
 
 //AQ2:TNG add last damaged players - Freud
-void
-GetLastDamagedPlayers (edict_t * self, char *buf)
+void GetLastDamagedPlayers (edict_t * self, char *buf)
 {
 	if (self->client->resp.last_damaged_players[0] == '\0')
 		strcpy(buf, "nobody");
 	else
-		strcpy(buf, self->client->resp.last_damaged_players);
+		Q_strncpyz(buf, self->client->resp.last_damaged_players, PARSE_BUFSIZE);
 
 	self->client->resp.last_damaged_players[0] = '\0';
 }
@@ -934,161 +889,139 @@ GetLastDamagedPlayers (edict_t * self, char *buf)
 // Modifies the the location areas by value of "mod"
 // in the coord-inside-area tests
 //
-qboolean
-GetLocation (int xo, int yo, int zo, int mod, char *buf)
+qboolean GetLocation (int xo, int yo, int zo, int mod, char *buf)
 {
-  int count;
-  int lx, ly, lz, rlx, rly, rlz;
+	int count;
+	int lx, ly, lz, rlx, rly, rlz;
 
-  count = ml_count;
-  while (count--)
-    {
-
-      // get next location from location base
-      lx = locationbase[count].x;
-      ly = locationbase[count].y;
-      lz = locationbase[count].z;
-      rlx = locationbase[count].rx;
-      rly = locationbase[count].ry;
-      rlz = locationbase[count].rz;
-
-      // Default X-range 1500
-      if (!rlx)
+	count = ml_count;
+	while (count--)
 	{
-	  rlx = 1500;
+		// get next location from location base
+		lx = locationbase[count].x;
+		ly = locationbase[count].y;
+		lz = locationbase[count].z;
+		rlx = locationbase[count].rx;
+		rly = locationbase[count].ry;
+		rlz = locationbase[count].rz;
+
+		// Default X-range 1500
+		if (!rlx)
+			rlx = 1500;
+
+		// Default Y-range 1500
+		if (!rly)
+			rly = 1500;
+
+		// Test if the (xo,yo,zo) is inside the location
+		if (xo >= lx - rlx - mod && xo <= lx + rlx - mod &&
+		yo >= ly - rly - mod && yo <= ly + rly - mod)
+		{
+			if (rlz && (zo < lz - rlz - mod || zo > lz + rlz + mod))
+				continue;
+
+			strcpy (buf, locationbase[count].desc);
+
+			return true;
+		}
 	}
 
-      // Default Y-range 1500
-      if (!rly)
-	{
-	  rly = 1500;
-	}
-
-      // Test if the (xo,yo,zo) is inside the location
-      if (xo >= lx - rlx - mod && xo <= lx + rlx - mod &&
-	  yo >= ly - rly - mod && yo <= ly + rly - mod)
-	{
-	  if (rlz && (zo < lz - rlz - mod || zo > lz + rlz + mod))
-	    continue;
-
-	  strcpy (buf, locationbase[count].desc);
-
-	  return true;
-	}
-    }
-
-  strcpy (buf, "around");
-  return false;
+	strcpy (buf, "around");
+	return false;
 }
 
 // Get the player location
 //
-qboolean
-GetPlayerLocation (edict_t * self, char *buf)
+qboolean GetPlayerLocation (edict_t * self, char *buf)
 {
-  int xo, yo, zo;
+	if (GetLocation((int)self->s.origin[0], (int)self->s.origin[1], (int)self->s.origin[2], 0, buf))
+		return true;
 
-  xo = self->s.origin[0];
-  yo = self->s.origin[1];
-  zo = self->s.origin[2];
-
-  if (GetLocation (xo, yo, zo, 0, buf) == false)
-    return false;
-  else
-    return true;
+	return false;
 }
 
 // Get the sighted location
 //
-void
-GetSightedLocation (edict_t * self, char *buf)
+void GetSightedLocation (edict_t * self, char *buf)
 {
-  vec3_t start, forward, right, end, up, offset;
-  int xo, yo, zo;
-  trace_t tr;
+	vec3_t start, forward, right, end, up, offset;
+	trace_t tr;
 
-  AngleVectors (self->client->v_angle, forward, right, up);
+	AngleVectors (self->client->v_angle, forward, right, up);
 
-  VectorSet (offset, 24, 8, self->viewheight);
-  P_ProjectSource (self->client, self->s.origin, offset, forward, right,
-		   start);
-  VectorMA (start, 8192, forward, end);
+	VectorSet (offset, 24, 8, self->viewheight);
+	P_ProjectSource (self->client, self->s.origin, offset, forward, right, start);
+	VectorMA (start, 8192, forward, end);
 
-  PRETRACE ();
-  tr =
-    gi.trace (start, NULL, NULL, end, self,
-	      CONTENTS_SOLID | CONTENTS_MONSTER | CONTENTS_DEADMONSTER);
-  POSTTRACE ();
+	PRETRACE ();
+	tr = gi.trace (start, NULL, NULL, end, self,
+		CONTENTS_SOLID | CONTENTS_MONSTER | CONTENTS_DEADMONSTER);
+	POSTTRACE ();
 
-  xo = tr.endpos[0];
-  yo = tr.endpos[1];
-  zo = tr.endpos[2];
-
-  GetLocation (xo, yo, zo, 10, buf);
+	GetLocation((int)tr.endpos[0], (int)tr.endpos[1], (int)tr.endpos[2], 10, buf);
 }
 
-void
-GetEnemyPosition (edict_t * self, char *buf)
+void GetEnemyPosition (edict_t * self, char *buf)
 {
-  edict_t *the_enemy;
-  vec3_t rel_pos;
-  int rel_xy_pos;
+	edict_t *the_enemy;
+	vec3_t rel_pos;
+	int rel_xy_pos;
 
-  the_enemy = DetermineViewedEnemy (self);
-  if (the_enemy && the_enemy->client)
-    {
-      if (GetPlayerLocation (the_enemy, buf) == false)
+	the_enemy = DetermineViewedEnemy (self);
+	if (the_enemy && the_enemy->client)
 	{
-	  //creating relative vector from origin to destination
-	  VectorSubtract (self->s.origin, the_enemy->s.origin, rel_pos);
+		if (GetPlayerLocation (the_enemy, buf))
+			return;
 
-	  rel_xy_pos = 0;
+		//creating relative vector from origin to destination
+		VectorSubtract (self->s.origin, the_enemy->s.origin, rel_pos);
 
-	  //checking bounds, if one direction is less than half the other, it may
-	  //be ignored...
-	  if (fabs (rel_pos[0]) > (fabs (rel_pos[1]) * 2))
-	    //x width (EAST, WEST) is twice greater than y width (NORTH, SOUTH)
-	    rel_pos[1] = 0.0;
-	  if (fabs (rel_pos[1]) > (fabs (rel_pos[0]) * 2))
-	    //y width (NORTH, SOUTH) is twice greater than x width (EAST, WEST)
-	    rel_pos[0] = 0.0;
+		rel_xy_pos = 0;
 
-	  if (rel_pos[1] > 0.0)
-	    rel_xy_pos |= RP_NORTH;
-	  else if (rel_pos[1] < 0.0)
-	    rel_xy_pos |= RP_SOUTH;
-	  if (rel_pos[0] > 0.0)
-	    rel_xy_pos |= RP_EAST;
-	  else if (rel_pos[0] < 0.0)
-	    rel_xy_pos |= RP_WEST;
+		//checking bounds, if one direction is less than half the other, it may
+		//be ignored...
+		if (fabs (rel_pos[0]) > (fabs (rel_pos[1]) * 2))
+		//x width (EAST, WEST) is twice greater than y width (NORTH, SOUTH)
+			rel_pos[1] = 0.0;
+		if (fabs (rel_pos[1]) > (fabs (rel_pos[0]) * 2))
+		//y width (NORTH, SOUTH) is twice greater than x width (EAST, WEST)
+			rel_pos[0] = 0.0;
 
-	  //creating the text message, regarding to rel_xy_pos
-	  strcpy (buf, "in the ");
-	  if (rel_xy_pos & RP_NORTH)
-	    strcat (buf, "north");
-	  if (rel_xy_pos & RP_SOUTH)
-	    strcat (buf, "south");
-	  if (rel_xy_pos & RP_EAST)
-	    strcat (buf, "east");
-	  if (rel_xy_pos & RP_WEST)
-	    strcat (buf, "west");
-	  //gi.dprintf ("rel_xy_pos: %i\n", rel_xy_pos);
-	  //last but not least, the height of enemy, limit for up/down: 64
-	  if (fabs (rel_pos[2]) > 64.0)
-	    {
-	      if (rel_pos[2] < 0.0)
-		strcat (buf, ", above me");
-	      else
-		strcat (buf, ", under me");
-	    }
-	  else
-	    strcat (buf, ", on the same level");
+		if (rel_pos[1] > 0.0)
+			rel_xy_pos |= RP_NORTH;
+		else if (rel_pos[1] < 0.0)
+			rel_xy_pos |= RP_SOUTH;
+		if (rel_pos[0] > 0.0)
+			rel_xy_pos |= RP_EAST;
+		else if (rel_pos[0] < 0.0)
+			rel_xy_pos |= RP_WEST;
+
+		//creating the text message, regarding to rel_xy_pos
+		strcpy (buf, "in the ");
+		if (rel_xy_pos & RP_NORTH)
+			strcat (buf, "north");
+		if (rel_xy_pos & RP_SOUTH)
+			strcat (buf, "south");
+		if (rel_xy_pos & RP_EAST)
+			strcat (buf, "east");
+		if (rel_xy_pos & RP_WEST)
+			strcat (buf, "west");
+		//gi.dprintf ("rel_xy_pos: %i\n", rel_xy_pos);
+		//last but not least, the height of enemy, limit for up/down: 64
+		if (fabs (rel_pos[2]) > 64.0)
+		{
+			if (rel_pos[2] < 0.0)
+				strcat (buf, ", above me");
+			else
+				strcat (buf, ", under me");
+		}
+		else
+			strcat (buf, ", on the same level");
 	}
-    }
-  else
-    {
-      strcpy (buf, "somewhere");
-    }
+	else
+	{
+		strcpy (buf, "somewhere");
+	}
 }
 
 //AQ2:TNG END
@@ -1096,82 +1029,61 @@ GetEnemyPosition (edict_t * self, char *buf)
 //AQ2:TNG Slicer - New last killed target functions
 
 //SLIC2 Optimizations
-void
-ResetKills (edict_t * ent)
+void ResetKills (edict_t * ent)
 {
-	memset(ent->client->resp.last_killed_target, 0, sizeof(ent->client->resp.last_killed_target));
-}
-int
-ReadKilledPlayers (edict_t * ent)
-{
-  int results;
-  int i;
+	int i;
 
-  results = -1;
-  if (ent->client->resp.last_killed_target[0])
-    {
-      for (i = 0; i < MAX_LAST_KILLED; i++)
-		{
-		if (ent->client->resp.last_killed_target[i])
-			{
-			results++;
-			}
-		}
+	for (i = 0; i < MAX_LAST_KILLED; i++)
+		ent->client->resp.last_killed_target[i] = NULL;
+}
+
+int ReadKilledPlayers (edict_t * ent)
+{
+	int results = 0;
+	int i;
+
+	for (i = 0; i < MAX_LAST_KILLED; i++)
+	{
+		if (!ent->client->resp.last_killed_target[i])
+			break;
+
+		results++;
 	}
+
 	return results;
 }
 
-void
-AddKilledPlayer (edict_t * self, edict_t * ent)
+void AddKilledPlayer (edict_t * self, edict_t * ent)
 {
-  int kills;
+	int kills;
 
-  kills = ReadKilledPlayers (self);
-  if (kills == MAX_LAST_KILLED-1 || kills == -1)	// if list is full write on the first one
-    {
-      self->client->resp.last_killed_target[0] = ent;
-    }
-  else
-    {
-      self->client->resp.last_killed_target[kills + 1] = ent;
-    }
-
+	kills = ReadKilledPlayers (self);
+	self->client->resp.last_killed_target[kills % MAX_LAST_KILLED] = ent;
 }
-void
-GetLastKilledTarget (edict_t * self, char *buf)
+
+void GetLastKilledTarget (edict_t * self, char *buf)
 {
-  int kills, i;
+	int kills, i;
 
-  kills = ReadKilledPlayers (self);
+	kills = ReadKilledPlayers (self);
 
-  if (kills >= 0)
-    {
-      strcpy (buf,
-	      self->client->resp.last_killed_target[0]->client->pers.netname);
-      if (kills > 0)
-	{
-	  for (i = 1; i < kills + 1; i++)
-	    {
-	      if (i == kills)
-		{
-		  strcat (buf, " and ");
-		  strcat (buf,
-			  self->client->resp.last_killed_target[i]->client->
-			  pers.netname);
-		}
-	      else
-		{
-		  strcat (buf, ", ");
-		  strcat (buf,
-			  self->client->resp.last_killed_target[i]->client->
-			  pers.netname);
-		}
-	    }
+	if (!kills) {
+		strcpy (buf, "nobody");
+		return;
 	}
-      ResetKills (self);
-    }
-  else
-    {
-      strcpy (buf, "nobody");
-    }
+
+	strcpy (buf, self->client->resp.last_killed_target[0]->client->pers.netname);
+
+	for (i = 1; i < kills; i++)
+	{
+		if (i == kills - 1)
+			Q_strncatz(buf, " and ", PARSE_BUFSIZE);
+		else
+			Q_strncatz(buf, ", ", PARSE_BUFSIZE);
+
+		Q_strncatz(buf, self->client->resp.last_killed_target[i]->client->
+			pers.netname, PARSE_BUFSIZE);
+	}
+
+	ResetKills (self);
 }

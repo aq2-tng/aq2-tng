@@ -1,14 +1,10 @@
 //-----------------------------------------------------------------------------
 // Matchmode related definitions
 //
-// $Id: a_match.h,v 1.8 2006/06/17 11:31:13 igor_rock Exp $
+// $Id: a_match.h,v 1.7 2002/03/28 11:46:03 freud Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_match.h,v $
-// Revision 1.8  2006/06/17 11:31:13  igor_rock
-// Some code cleanup:
-// - moved team related variables to a single struct variable
-//
 // Revision 1.7  2002/03/28 11:46:03  freud
 // stat_mode 2 and timelimit 0 did not show stats at end of round.
 // Added lock/unlock.
@@ -26,14 +22,20 @@
 //
 //-----------------------------------------------------------------------------
 
-void SendScores ();
+void SendScores (void);
+int TeamsReady(void);
 void Cmd_Captain_f (edict_t * ent);
 void Cmd_Ready_f (edict_t * ent);
 void Cmd_Sub_f (edict_t * ent);
 void Cmd_Teamname_f (edict_t * ent);
 void Cmd_Teamskin_f (edict_t * ent);
-void SendWorldMsg (char *s, int sound, int center);
 void Cmd_TeamLock_f (edict_t * ent, int a_switch);
 int CheckForCaptains (int cteam);
-extern int ingame;
+
+void Cmd_SetAdmin_f (edict_t * ent);
+void Cmd_TogglePause_f(edict_t * ent, qboolean pause);
+void Cmd_ResetScores_f(edict_t * ent);
+
 extern float matchtime;
+extern float realLtime;
+

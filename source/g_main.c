@@ -1,17 +1,10 @@
 //-----------------------------------------------------------------------------
 //
 //
-// $Id: g_main.c,v 1.75 2006/06/18 09:17:51 igor_rock Exp $
+// $Id: g_main.c,v 1.73 2004/04/08 23:19:51 slicerdw Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_main.c,v $
-// Revision 1.75  2006/06/18 09:17:51  igor_rock
-// - simplyfied some functions
-//
-// Revision 1.74  2006/06/17 11:37:28  igor_rock
-// Some code cleanup:
-// - moved team related variables to a single struct variable
-//
 // Revision 1.73  2004/04/08 23:19:51  slicerdw
 // Optimized some code, added a couple of features and fixed minor bugs
 //
@@ -396,7 +389,24 @@ cvar_t *hearall;		// used for matchmode
 cvar_t *mm_forceteamtalk;
 cvar_t *mm_adminpwd;
 cvar_t *mm_allowlock;
+cvar_t *mm_pausecount;
+cvar_t *mm_pausetime;
 
+cvar_t *teamdm;
+cvar_t *teamdm_respawn;
+cvar_t *respawn_effect;
+
+cvar_t *item_respawnmode;
+
+cvar_t *item_respawn;
+cvar_t *weapon_respawn;
+cvar_t *ammo_respawn;
+
+cvar_t *wave_time;
+
+/*cvar_t *team1score;
+cvar_t *team2score;
+cvar_t *team3score;*/
 cvar_t *stats_endmap; // If on (1) show the fpm/etc stats when the map ends
 cvar_t *stats_afterround;     // Collect TNG stats between rounds
 
@@ -419,6 +429,8 @@ cvar_t *radio_repeat_time;
 
 cvar_t *use_classic;		// Used to reset spread/gren strength to 1.52
 
+int pause_time = 0;
+
 void SpawnEntities (char *mapname, char *entities, char *spawnpoint);
 void ClientThink (edict_t * ent, usercmd_t * cmd);
 qboolean ClientConnect (edict_t * ent, char *userinfo);
@@ -438,23 +450,22 @@ void G_RunFrame (void);
 int dosoft;
 
 
-gghost_t ghost_players[MAX_CLIENTS];
+gghost_t ghost_players[MAX_GHOSTS];
 int num_ghost_players;
 
 
 //===================================================================
 
 
-void
-ShutdownGame (void)
+void ShutdownGame (void)
 {
-  gi.dprintf ("==== ShutdownGame ====\n");
-  IRC_printf (IRC_T_SERVER, "==== ShutdownGame ====");
-  IRC_exit ();
-  //PG BUND
-  vExitGame ();
-  gi.FreeTags (TAG_LEVEL);
-  gi.FreeTags (TAG_GAME);
+	gi.dprintf ("==== ShutdownGame ====\n");
+	IRC_printf (IRC_T_SERVER, "==== ShutdownGame ====");
+	IRC_exit ();
+	//PG BUND
+	vExitGame ();
+	gi.FreeTags (TAG_LEVEL);
+	gi.FreeTags (TAG_GAME);
 }
 
 
@@ -466,60 +477,57 @@ ShutdownGame (void)
   and global variables
   =================
 */
-game_export_t *
-GetGameAPI (game_import_t * import)
+game_export_t *GetGameAPI (game_import_t * import)
 {
-  gi = *import;
+	gi = *import;
 
-  globals.apiversion = GAME_API_VERSION;
-  globals.Init = InitGame;
-  globals.Shutdown = ShutdownGame;
-  globals.SpawnEntities = SpawnEntities;
+	globals.apiversion = GAME_API_VERSION;
+	globals.Init = InitGame;
+	globals.Shutdown = ShutdownGame;
+	globals.SpawnEntities = SpawnEntities;
 
-  globals.WriteGame = WriteGame;
-  globals.ReadGame = ReadGame;
-  globals.WriteLevel = WriteLevel;
-  globals.ReadLevel = ReadLevel;
+	globals.WriteGame = WriteGame;
+	globals.ReadGame = ReadGame;
+	globals.WriteLevel = WriteLevel;
+	globals.ReadLevel = ReadLevel;
 
-  globals.ClientThink = ClientThink;
-  globals.ClientConnect = ClientConnect;
-  globals.ClientUserinfoChanged = ClientUserinfoChanged;
-  globals.ClientDisconnect = ClientDisconnect;
-  globals.ClientBegin = ClientBegin;
-  globals.ClientCommand = ClientCommand;
+	globals.ClientThink = ClientThink;
+	globals.ClientConnect = ClientConnect;
+	globals.ClientUserinfoChanged = ClientUserinfoChanged;
+	globals.ClientDisconnect = ClientDisconnect;
+	globals.ClientBegin = ClientBegin;
+	globals.ClientCommand = ClientCommand;
 
-  globals.RunFrame = G_RunFrame;
+	globals.RunFrame = G_RunFrame;
 
-  globals.ServerCommand = ServerCommand;
+	globals.ServerCommand = ServerCommand;
 
-  globals.edict_size = sizeof (edict_t);
+	globals.edict_size = sizeof (edict_t);
 
-  return &globals;
+	return &globals;
 }
 
 #ifndef GAME_HARD_LINKED
 // this is only here so the functions in q_shared.c and q_shwin.c can link
-void
-Sys_Error (char *error, ...)
+void Sys_Error (const char *error, ...)
 {
   va_list argptr;
   char text[1024];
 
   va_start (argptr, error);
-  vsprintf (text, error, argptr);
+  vsnprintf (text, sizeof(text),error, argptr);
   va_end (argptr);
 
   gi.error (ERR_FATAL, "%s", text);
 }
 
-void
-Com_Printf (char *msg, ...)
+void Com_Printf (const char *msg, ...)
 {
   va_list argptr;
   char text[1024];
 
   va_start (argptr, msg);
-  vsprintf (text, msg, argptr);
+  vsnprintf (text, sizeof(text), msg, argptr);
   va_end (argptr);
 
   gi.dprintf ("%s", text);
@@ -535,21 +543,20 @@ Com_Printf (char *msg, ...)
   ClientEndServerFrames
   =================
 */
-void
-ClientEndServerFrames (void)
+void ClientEndServerFrames (void)
 {
   int i;
   edict_t *ent;
 
   // calc the player views now that all pushing
   // and damage has been added
-  for (i = 0; i < maxclients->value; i++)
-    {
-      ent = g_edicts + 1 + i;
-      if (!ent->inuse || !ent->client)
-	continue;
-      ClientEndServerFrame (ent);
-    }
+	for (i = 0; i < maxclients->value; i++)
+	{
+		ent = g_edicts + 1 + i;
+		if (!ent->inuse || !ent->client)
+			continue;
+		ClientEndServerFrame (ent);
+	}
 
 }
 
@@ -568,186 +575,177 @@ extern void UnBan_TeamKillers (void);
 
 void EndDMLevel (void)
 {
-  edict_t *ent = NULL; // TNG Stats was: edict_t *ent = NULL;
-  char *nextmapname = NULL;
-  qboolean byvote = false;
-  //Igor[Rock] BEGIN
-  votelist_t *maptosort = NULL;
-  votelist_t *tmp = NULL;
-  int newmappos; // TNG Stats, was: int newmappos;
-  //Igor[Rock] END
-  //JBravo[QNI] Begin
-  char ltm[64];
-  struct tm *now;
-  time_t tnow;
+	edict_t *ent = NULL; // TNG Stats was: edict_t *ent = NULL;
+	char *nextmapname = NULL;
+	qboolean byvote = false;
+	votelist_t *maptosort = NULL;
+	votelist_t *tmp = NULL;
+	int newmappos; // TNG Stats, was: int newmappos;
+	char ltm[64] = "\0";
+	struct tm *now;
+	time_t tnow;
 
-  // TNG Stats:
-  // Reuse ltm for stats.
-  ltm[0] = '\0';
-  // TNG Stats End
 
-  tnow = time ((time_t *) 0);
-  now = localtime (&tnow);
-  (void) strftime (ltm, 64, "%A %d %B %H:%M:%S", now);
-  gi.bprintf (PRINT_HIGH, "Game ending at: %s\n", ltm);
-  IRC_printf (IRC_T_GAME, "Game ending at: %s", ltm);
+	tnow = time ((time_t *) 0);
+	now = localtime (&tnow);
+	(void) strftime (ltm, 64, "%A %d %B %H:%M:%S", now);
+	gi.bprintf (PRINT_HIGH, "Game ending at: %s\n", ltm);
+	IRC_printf (IRC_T_GAME, "Game ending at: %s", ltm);
 
-  // stay on same level flag
-  if ((int) dmflags->value & DF_SAME_LEVEL)
+	// stay on same level flag
+	if ((int) dmflags->value & DF_SAME_LEVEL)
 	{
 		ent = G_Spawn ();
-    ent->classname = "target_changelevel";
-    nextmapname = ent->map = level.mapname;
+		ent->classname = "target_changelevel";
+		nextmapname = ent->map = level.mapname;
 	}
-
-  //FIREBLADE
-  //  else if (!actionmaps->value || num_maps < 1)
-  //FIREBLADE
-  //Igor[Rock] Begin
-  else if (!actionmaps->value || (num_maps < 1 && (map_num_maps < 1 || !vrot->value || !rrot->value)))
+	//FIREBLADE
+	//  else if (!actionmaps->value || num_maps < 1)
+	//FIREBLADE
+	//Igor[Rock] Begin
+	else if (!actionmaps->value || (num_maps < 1 && (map_num_maps < 1 || !vrot->value || !rrot->value)))
 	//Igor[Rock] End
-  {
+	{
 		if (level.nextmap[0])
 		{			// go to a specific map
 			ent = G_Spawn ();
 			ent->classname = "target_changelevel";
 			nextmapname = ent->map = level.nextmap;
 		}
-    else
+		else
 		{			// search for a changelevel
 			ent = G_Find (NULL, FOFS (classname), "target_changelevel");
 			if (!ent)
-	    {			// the map designer didn't include a changelevel,
+			{			// the map designer didn't include a changelevel,
 				// so create a fake ent that goes back to the same level
-	      ent = G_Spawn ();
-	      ent->classname = "target_changelevel";
-	      nextmapname = ent->map = level.mapname;
-	    }
+				ent = G_Spawn ();
+				ent->classname = "target_changelevel";
+				nextmapname = ent->map = level.mapname;
+			}
 		}
 	}
-  //FIREBLADE
-  else
-  {
-    //Igor[Rock] BEGIN
-    if (dosoft==1)
-    {
-	team_round_going = 0;
-	team_game_going = 0;
+	//FIREBLADE
+	else
+	{
+		//Igor[Rock] BEGIN
+		if (dosoft==1)
+		{
+			team_round_going = 0;
+			team_game_going = 0;
 			dosoft=0;
-      ent = G_Spawn ();
-      nextmapname = ent->map = level.nextmap;
-    }
-    else if (vrot->value)
+			ent = G_Spawn ();
+			nextmapname = ent->map = level.nextmap;
+		}
+		else if (vrot->value)
 		{
 			ent = G_Spawn ();
 			ent->classname = "target_changelevel";
-			Com_sprintf (level.nextmap, sizeof (level.nextmap), "%s", map_votes->mapname);
+			Q_strncpyz(level.nextmap, map_votes->mapname, sizeof(level.nextmap));
 			nextmapname = ent->map = level.nextmap;
 			maptosort = map_votes;
 			map_votes = maptosort->next;
 			for (tmp = map_votes; tmp->next != NULL; tmp = tmp->next)
-	    {}
+				;
 			tmp->next = maptosort;
 			maptosort->next = NULL;
 		}
-    else if (rrot->value)
+		else if (rrot->value)
 		{
-			// TNG: Making sure the rotation works fine
-			// If there is just one map in the rotation:
+		// TNG: Making sure the rotation works fine
+		// If there is just one map in the rotation:
 			if(num_maps == 1)
 			{
 				cur_map = 0;
 				ent = G_Spawn ();
 				ent->classname = "target_changelevel"; //Yoohoo
-				Com_sprintf (level.nextmap, sizeof (level.nextmap), "%s", map_rotation[cur_map]);
+				Q_strncpyz(level.nextmap, map_rotation[cur_map], sizeof(level.nextmap));
 				nextmapname = ent->map = level.nextmap;
 			} 
 			// if there are 2 or more
 			else 
 			{
 				nextmapname = level.mapname;
-				while(!Q_strcasecmp(level.mapname, nextmapname)) {
+				while(!Q_stricmp(level.mapname, nextmapname)) {
 					srand(rand()); // Reinitializing the random generator
 					cur_map = rand () % num_maps;
 					if (cur_map >= num_maps)
 						cur_map = 0;
 					ent = G_Spawn ();
 					ent->classname = "target_changelevel"; //Yoohoo
-					Com_sprintf (level.nextmap, sizeof (level.nextmap), "%s", map_rotation[cur_map]);
+					Q_strncpyz(level.nextmap, map_rotation[cur_map], sizeof(level.nextmap));
 					nextmapname = ent->map = level.nextmap;
 				}
 			}
 		}
-    else
+		else
 		{
-			//Igor[Rock] End
+		//Igor[Rock] End
 			cur_map++;
 			if (cur_map >= num_maps)
 				cur_map = 0;
 			ent = G_Spawn ();
 			ent->classname = "target_changelevel";
-			Com_sprintf (level.nextmap, sizeof (level.nextmap), "%s", map_rotation[cur_map]);
+			Q_strncpyz(level.nextmap, map_rotation[cur_map], sizeof(level.nextmap));
 			nextmapname = ent->map = level.nextmap;
-			//Igor[Rock] BEGIN
+		//Igor[Rock] BEGIN
 		}
-    //Igor[Rock] End
+	//Igor[Rock] End
 	}
 
-  //PG BUND - BEGIN
-  level.tempmap[0] = '\0';
-  vExitLevel (level.tempmap);
-  if (level.tempmap[0])
-  {
+	//PG BUND - BEGIN
+	level.tempmap[0] = '\0';
+	vExitLevel (level.tempmap);
+	if (level.tempmap[0])
+	{
 		// change to new map...
-    byvote = true;
-    nextmapname = ent->map = level.tempmap;	// TempFile added ent->map to fit 1.52 EndDMLevel() conventions
-    if (level.nextmap != NULL)
+		byvote = true;
+		nextmapname = ent->map = level.tempmap;	// TempFile added ent->map to fit 1.52 EndDMLevel() conventions
+		if (level.nextmap != NULL)
 			level.nextmap[0] = '\0';
 	}
-  //PG BUND - END
+	//PG BUND - END
 
-  //Igor[Rock] Begin (we have to change the position in the maplist here, because now the votes are up-to-date
-  if ((maptosort != NULL) && (num_allvotes > map_num_maps))
-  {				// I inserted the map_num_maps here to block an one user vote rotation...
+	//Igor[Rock] Begin (we have to change the position in the maplist here, because now the votes are up-to-date
+	if ((maptosort != NULL) && (num_allvotes > map_num_maps))
+	{				// I inserted the map_num_maps here to block an one user vote rotation...
 		newmappos =	(int) (((100.0 - (((float) maptosort->num_allvotes * 100.0) / (float) num_allvotes)) * ((float) map_num_maps - 1.0)) / 100.0);
-    if (!(newmappos == (map_num_maps - 1)))
+		if (!(newmappos == (map_num_maps - 1)))
 		{
 			// Delete the map from the end of the list
 			for (tmp = map_votes; tmp->next != maptosort; tmp = tmp->next)
-	    {
-	    }
+				;
+
 			tmp->next = NULL;
 			//insert it at the right position
 			if (newmappos == 0)
-	    {
-	      maptosort->next = map_votes;
-	      map_votes = maptosort;
-	    }
+			{
+				maptosort->next = map_votes;
+				map_votes = maptosort;
+			}
 			else
-	    {
-	      newmappos--;
-	      for (tmp = map_votes; newmappos > 0; tmp = tmp->next)
-				{
+			{
+				newmappos--;
+				for (tmp = map_votes; newmappos > 0; tmp = tmp->next) {
 					newmappos--;
 				}
-	      maptosort->next = tmp->next;
-	      tmp->next = maptosort;
-	    }
+				maptosort->next = tmp->next;
+				tmp->next = maptosort;
+			}
 		}
 	}
-  //Igor[Rock] End
-  if (level.nextmap != NULL && !byvote) {
-    gi.bprintf (PRINT_HIGH, "Next map in rotation is %s.\n", level.nextmap);
-    IRC_printf (IRC_T_SERVER, "Next map in rotation is %s.", level.nextmap);
-  }
-  //FIREBLADE
+	//Igor[Rock] End
+	if (level.nextmap != NULL && !byvote) {
+		gi.bprintf (PRINT_HIGH, "Next map in rotation is %s.\n", level.nextmap);
+		IRC_printf (IRC_T_SERVER, "Next map in rotation is %s.", level.nextmap);
+	}
+	//FIREBLADE
 
-  ReadMOTDFile ();
-  BeginIntermission (ent);
+	ReadMOTDFile ();
+	BeginIntermission (ent);
 
-  //AZEROV
-  UnBan_TeamKillers ();
-  //AZEROV
+	//AZEROV
+	UnBan_TeamKillers ();
+	//AZEROV
 }
 
 /*
@@ -755,72 +753,71 @@ void EndDMLevel (void)
   CheckDMRules
   =================
 */
-void
-CheckDMRules (void)
+void CheckDMRules (void)
 {
-  int i;
-  gclient_t *cl;
+	int i;
+	gclient_t *cl;
 
-  if (level.intermissiontime)
-    return;
+	if (level.intermissiontime)
+		return;
 
-  if (!deathmatch->value)
-    return;
+	if (!deathmatch->value)
+		return;
 
-  //FIREBLADE
-  if (teamplay->value)
-    {
-      CheckTeamRules ();
-    }
-  else				/* not teamplay */
-    {
-      if (timelimit->value)
+	//FIREBLADE
+	if (teamplay->value)
 	{
-	  if (level.time >= timelimit->value * 60)
-	    {
-	      gi.bprintf (PRINT_HIGH, "Timelimit hit.\n");
-	      IRC_printf (IRC_T_GAME, "Timelimit hit.");
-	      EndDMLevel ();
-	      return;
-	    }
-	}
-      //FIREBLADE
-      //PG BUND - BEGIN
-      if (vCheckVote () == true)
-	{
-	  EndDMLevel ();
-	  return;
-	}
-      //PG BUND - END
-    }
+		CheckTeamRules ();
 
-  if (ctf->value)
-    {
-      if (CTFCheckRules ())
-	{
-	  ResetPlayers ();
-	  EndDMLevel ();
+		if (ctf->value)
+		{
+			if (CTFCheckRules ())
+			{
+				ResetPlayers ();
+				EndDMLevel ();
+			}
+		}
 	}
-    }
+	else				/* not teamplay */
+	{
+		if (timelimit->value)
+		{
+			if (level.time >= timelimit->value * 60)
+			{
+				gi.bprintf (PRINT_HIGH, "Timelimit hit.\n");
+				IRC_printf (IRC_T_GAME, "Timelimit hit.");
+				EndDMLevel ();
+				return;
+			}
+		}
+		//FIREBLADE
+		//PG BUND - BEGIN
+		if (vCheckVote () == true)
+		{
+			EndDMLevel ();
+			return;
+		}
+		//PG BUND - END
+	}
 
-  if (fraglimit->value)
-    {
-      for (i = 0; i < maxclients->value; i++)
+	if (fraglimit->value)
 	{
-	  cl = game.clients + i;
-	  if (!g_edicts[i + 1].inuse)
-	    continue;
-	  if (cl->resp.score >= fraglimit->value)
-	    {
-	      gi.bprintf (PRINT_HIGH, "Fraglimit hit.\n");
-	      IRC_printf (IRC_T_GAME, "Fraglimit hit.");
-	      if (ctf->value)
-		ResetPlayers ();
-	      EndDMLevel ();
-	      return;
-	    }
+		for (i = 0; i < maxclients->value; i++)
+		{
+			cl = game.clients + i;
+			if (!g_edicts[i + 1].inuse)
+				continue;
+			if (cl->resp.score >= fraglimit->value)
+			{
+				gi.bprintf (PRINT_HIGH, "Fraglimit hit.\n");
+				IRC_printf (IRC_T_GAME, "Fraglimit hit.");
+				if (ctf->value)
+				ResetPlayers ();
+				EndDMLevel ();
+				return;
+			}
+		}
 	}
-    }
 }
 
 
@@ -829,75 +826,73 @@ CheckDMRules (void)
   ExitLevel
   =============
 */
-void
-ExitLevel (void)
+void ExitLevel (void)
 {
-  int i;
-  edict_t *ent;
-  char command[256];
+	int i;
+	edict_t *ent;
+	char command[256];
 
-  Com_sprintf (command, sizeof (command), "gamemap \"%s\"\n",
-	       level.changemap);
-  gi.AddCommandString (command);
-  level.changemap = NULL;
-  level.exitintermission = 0;
-  level.intermissiontime = 0;
-  ClientEndServerFrames ();
+	Com_sprintf (command, sizeof (command), "gamemap \"%s\"\n", level.changemap);
+	gi.AddCommandString (command);
+	level.changemap = NULL;
+	level.exitintermission = 0;
+	level.intermissiontime = 0;
+	ClientEndServerFrames ();
 
-  // clear some things before going to next level
-  for (i = 0; i < maxclients->value; i++)
-    {
-      ent = g_edicts + 1 + i;
-      if (!ent->inuse)
-	continue;
-      if (ent->health > ent->client->pers.max_health)
-	ent->health = ent->client->pers.max_health;
-    }
-
-  //FIREBLADE
-  if (teamplay->value)
-    {
-      for (i = TEAM1; i < TEAM_TOP; i++)
+	// clear some things before going to next level
+	for (i = 0; i < maxclients->value; i++)
 	{
-	  team_data[i].score = 0;
-	  gi.cvar_forceset(team_data[i].teamscore->name, "0");
-	  
+		ent = g_edicts + 1 + i;
+		if (!ent->inuse)
+			continue;
+		if (ent->health > ent->client->pers.max_health)
+			ent->health = ent->client->pers.max_health;
 	}
-    }
-  //FIREBLADE
-  if (ctf->value)
-    {
-      CTFInit ();
-    }
+
+	//FIREBLADE
+	if (teamplay->value)
+	{
+		for(i=TEAM1; i<TEAM_TOP; i++)
+		{
+			teams[i].score = 0;
+			// AQ2 TNG - Reset serverinfo score cvars too
+			gi.cvar_forceset(teams[i].teamscore->name, "0");
+		}
+	}
+	//FIREBLADE
+	if (ctf->value)
+	{
+		CTFInit ();
+	}
 }
 
 // TNG Darkmatch
 int day_cycle_at = 0;		// variable that keeps track where we are in the cycle (0 = normal, 1 = darker, 2 = dark, 3 = pitch black, 4 = dark, 5 = darker)
 float day_next_cycle = 10.0;
 
-void
-CycleLights ()
+void CycleLights ()
 {
-  static char *brightness = "mmmlkjihgfedcbaaabcdefghijkl";
-  char temp[2];
+	static const char brightness[] = "mmmlkjihgfedcbaaabcdefghijkl";
+	char temp[2];
 
-  if ((!(darkmatch->value == 3)) || (day_cycle->value == 0))
-    return;
+	if (darkmatch->value != 3 || !day_cycle->value)
+		return;
 
-  if (level.time == 10.0)
-    day_next_cycle = level.time + day_cycle->value;
+	if (level.time == 10.0)
+		day_next_cycle = level.time + day_cycle->value;
 
-  if (day_next_cycle == level.time)
-    {
-      day_cycle_at++;
-      if (day_cycle_at == strlen(brightness))
+	if (day_next_cycle == level.time)
 	{
-	  day_cycle_at = 0;
+		day_cycle_at++;
+		if (day_cycle_at >= strlen(brightness))
+		{
+			day_cycle_at = 0;
+		}
+		temp[0] = brightness[day_cycle_at];
+		temp[1] = 0;
+		gi.configstring (CS_LIGHTS + 0, temp);
+		day_next_cycle = level.time + day_cycle->value;
 	}
-      sprintf (temp, "%c", brightness[day_cycle_at]);
-      gi.configstring (CS_LIGHTS + 0, temp);
-      day_next_cycle = level.time + day_cycle->value;
-    }
 }
 
 
@@ -908,94 +903,98 @@ CycleLights ()
   Advances the world by 0.1 seconds
   ================
 */
-void
-G_RunFrame (void)
+void G_RunFrame (void)
 {
-  int i;
-  edict_t *ent;
+	int i;
+	edict_t *ent;
 
-  level.framenum++;
-  level.time = level.framenum * FRAMETIME;
+	realLtime += 0.1f;
 
-  // choose a client for monsters to target this frame
-  AI_SetSightClient ();
-
-  // IRC poll
-  IRC_poll ();
-
-  //AQ2:TNG - Slicer Matchmode code
-  //if (matchmode->value && (team_game_going && team_round_going))
-	if(matchmode->value && (team_game_going && ingame))
-    matchtime = matchtime + 0.1;
-  // exit intermissions
-
-  if (level.exitintermission)
-    {
-      ExitLevel ();
-      return;
-    }
-
-  // TNG Darkmatch Cycle
-  CycleLights ();
-
-  //
-  // treat each object in turn
-  // even the world gets a chance to think
-  //
-  ent = &g_edicts[0];
-  for (i = 0; i < globals.num_edicts; i++, ent++)
-    {
-      if (!ent->inuse)
-	continue;
-
-      level.current_entity = ent;
-
-      VectorCopy (ent->s.origin, ent->s.old_origin);
-
-      // if the ground entity moved, make sure we are still on it
-      if ((ent->groundentity)
-	  && (ent->groundentity->linkcount != ent->groundentity_linkcount))
+	if(pause_time)
 	{
-	  ent->groundentity = NULL;
-	  if (!(ent->flags & (FL_SWIM | FL_FLY))
-	      && (ent->svflags & SVF_MONSTER))
-	    {
-	      M_CheckGround (ent);
-	    }
+		if(pause_time <= 50) {
+			if(pause_time % 10 == 0)
+				CenterPrintAll (va("Game will unpause in %i seconds!", pause_time/10));
+		}
+		else if(pause_time == 100)
+			CenterPrintAll ("Game will unpause in 10 seconds!");
+		else if ((pause_time % 100) == 0)
+			gi.bprintf (PRINT_HIGH, "Game is paused for %i:%02i.\n", (pause_time/10)/60, (pause_time/10)%60);
+
+		pause_time--;
 	}
 
-  	if (i > 0 && i <= maxclients->value)
+	if(!pause_time)
 	{
-		if (!(level.framenum % 80)) 
-		    stuffcmd(ent, "cmd_stat_mode $stat_mode\n");
+		level.framenum++;
+		level.time = level.framenum * FRAMETIME;
 
-		// TNG Stats End
-
-	  ClientBeginServerFrame (ent);
-	  continue;
+		// choose a client for monsters to target this frame
+		AI_SetSightClient ();
 	}
 
-	G_RunEntity (ent);
-  }
+	// IRC poll
+	IRC_poll ();
 
-  // see if it is time to end a deathmatch
-  CheckDMRules ();
 
-  //FIREBLADE
-  CheckNeedPass ();
-  //FIREBLADE
+	// exit intermissions
+	if (level.exitintermission)
+	{
+		ExitLevel ();
+		return;
+	}
 
-  // build the playerstate_t structures for all players
-  ClientEndServerFrames ();
-  //AQ2:TNG Slicer
-  // if (ctf->value)
-  //{
-//        i = Ent_Count();
-//        if (i > 200)
-//                CleanWeapons();
+	// TNG Darkmatch Cycle
+	if(!pause_time)
+	{
+		CycleLights ();
 
-  //}
+		//
+		// treat each object in turn
+		// even the world gets a chance to think
+		//
+		ent = &g_edicts[0];
+		for (i = 0; i < globals.num_edicts; i++, ent++)
+		{
+			if (!ent->inuse)
+				continue;
 
+			level.current_entity = ent;
+
+			VectorCopy (ent->s.origin, ent->s.old_origin);
+
+			// if the ground entity moved, make sure we are still on it
+			if (ent->groundentity && ent->groundentity->linkcount != ent->groundentity_linkcount)
+			{
+				ent->groundentity = NULL;
+				if (!(ent->flags & (FL_SWIM | FL_FLY)) && ent->svflags & SVF_MONSTER)
+				{
+					M_CheckGround (ent);
+				}
+			}
+
+			if (i > 0 && i <= maxclients->value)
+			{
+				if (!(level.framenum % 80)) 
+					stuffcmd(ent, "cmd_stat_mode $stat_mode\n");
+
+				// TNG Stats End
+
+				ClientBeginServerFrame (ent);
+				continue;
+			}
+
+			G_RunEntity (ent);
+		}
+
+		// see if it is time to end a deathmatch
+		CheckDMRules ();
+	}
+
+	CheckNeedPass ();
+
+	// build the playerstate_t structures for all players
+	ClientEndServerFrames ();
 }
 
 
@@ -1006,28 +1005,27 @@ G_RunFrame (void)
   CheckNeedPass
   =================
 */
-void
-CheckNeedPass (void)
+void CheckNeedPass (void)
 {
-  int need;
+	int need;
 
-  // if password or spectator_password has changed, update needpass
-  // as needed
-  if (password->modified /*|| spectator_password->modified */ )
-    {
-      password->modified = /*spectator_password->modified = */ false;
+	// if password or spectator_password has changed, update needpass
+	// as needed
+	if (password->modified /*|| spectator_password->modified */ )
+	{
+		password->modified = /*spectator_password->modified = */ false;
 
-      need = 0;
+		need = 0;
 
-      if (*password->string && Q_stricmp (password->string, "none"))
-	need |= 1;
-      /*
-         if (*spectator_password->string && Q_stricmp(spectator_password->string, "none"))
-         need |= 2;
-       */
+		if (*password->string && Q_stricmp (password->string, "none"))
+			need |= 1;
+		/*
+		if (*spectator_password->string && Q_stricmp(spectator_password->string, "none"))
+		need |= 2;
+		*/
 
-      gi.cvar_set ("needpass", va ("%d", need));
-    }
+		gi.cvar_set ("needpass", va ("%d", need));
+	}
 }
 
 //FROM 3.20 END

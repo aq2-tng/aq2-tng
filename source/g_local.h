@@ -1,20 +1,10 @@
 //-----------------------------------------------------------------------------
 // g_local.h -- local definitions for game module
 //
-// $Id: g_local.h,v 1.71 2006/07/02 09:45:47 igor_rock Exp $
+// $Id: g_local.h,v 1.68 2004/04/08 23:19:51 slicerdw Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: g_local.h,v $
-// Revision 1.71  2006/07/02 09:45:47  igor_rock
-// - added item_NUM values to ease a_cmds.c choose command
-//
-// Revision 1.70  2006/06/18 12:53:01  igor_rock
-// - removed extra banlist, used teamkiller ban list instead
-//
-// Revision 1.69  2006/06/17 11:36:40  igor_rock
-// Some code cleanup:
-// - moved team related variables to a single struct variable
-//
 // Revision 1.68  2004/04/08 23:19:51  slicerdw
 // Optimized some code, added a couple of features and fixed minor bugs
 //
@@ -271,9 +261,7 @@
 //
 //-----------------------------------------------------------------------------
 
-// AQ:TNG Igor[Rock] adding include
 #include <ctype.h>
-// AQ:TNG end adding include
 
 #include "q_shared.h"
 
@@ -306,9 +294,16 @@
 #define svc_temp_entity         3
 #define svc_layout              4
 #define svc_inventory           5
+#define svc_sound				9
 #define svc_stufftext           11
 
 //==================================================================
+
+#define MASK_VOLUME			1
+#define MASK_ATTENUATION	2
+#define MASK_POSITION		4
+#define MASK_ENTITY_CHANNEL 8
+#define MASK_TIMEOFS		16
 
 // view pitching times
 #define DAMAGE_TIME             0.5
@@ -338,7 +333,7 @@
 #define FL_POWER_ARMOR                  0x00001000	// power armor (if any) is active
 #define FL_RESPAWN                      0x80000000	// used for item respawning
 
-#define FRAMETIME               0.1
+#define FRAMETIME               0.1f
 
 // memory tags to allow dynamic memory to be cleaned up
 #define TAG_GAME        765	// clear when unloading the dll
@@ -523,8 +518,10 @@ typedef struct gitem_s
   void *info;
   int tag;
   char *precaches;		// string of all models, sounds, and images this item will use
+  int typeNum;
 }
 gitem_t;
+
 
 //
 // this structure is left intact through an entire game
@@ -872,6 +869,25 @@ extern cvar_t *hearall;		// used in match mode
 extern cvar_t *mm_forceteamtalk;
 extern cvar_t *mm_adminpwd;
 extern cvar_t *mm_allowlock;
+extern cvar_t *mm_pausecount;
+extern cvar_t *mm_pausetime;
+
+extern cvar_t *teamdm;
+extern cvar_t *teamdm_respawn;
+extern cvar_t *respawn_effect;
+
+extern cvar_t *item_respawnmode;
+
+extern cvar_t *item_respawn;
+extern cvar_t *weapon_respawn;
+extern cvar_t *ammo_respawn;
+
+extern cvar_t *wave_time;
+
+//moved these to team struct -Mani
+/*extern cvar_t *team1score;
+extern cvar_t *team2score;
+extern cvar_t *team3score;*/
 
 extern cvar_t *use_punch;
 
@@ -1004,7 +1020,10 @@ void InitItems (void);
 void SetItemNames (void);
 gitem_t *FindItem (char *pickup_name);
 gitem_t *FindItemByClassname (char *classname);
+gitem_t *FindItemByNum (int num);
 #define ITEM_INDEX(x) ((x)-itemlist)
+#define INV_AMMO(ent, num) ((ent)->client->pers.inventory[items[(num)].index])
+#define GET_ITEM(num) (GetItemByIndex(items[(num)].index))
 edict_t *Drop_Item (edict_t * ent, gitem_t * item);
 void SetRespawn (edict_t * ent, float delay);
 void ChangeWeapon (edict_t * ent);
@@ -1038,7 +1057,7 @@ void G_TouchSolids (edict_t * ent);
 
 char *G_CopyString (char *in);
 
-float *tv (float x, float y, float z);
+//float *tv (float x, float y, float z);
 char *vtos (vec3_t v);
 
 float vectoyaw (vec3_t vec);
@@ -1201,7 +1220,7 @@ void player_die (edict_t * self, edict_t * inflictor, edict_t * attacker,
 // g_svcmds.c
 //
 void ServerCommand (void);
-qboolean SV_FilterPacket (char *from);
+qboolean SV_FilterPacket (char *from, int *temp);
 void Kick_Client (edict_t * ent);
 qboolean Ban_TeamKiller (edict_t * ent, int rounds);
 
@@ -1266,6 +1285,7 @@ void GetChaseTarget (edict_t * ent);
 // zucc vwep - based on info from Hentai
 #define ANIM_REVERSE            -1
 
+#define MAX_SKINLEN				32
 // client data that stays across multiple level loads
 typedef struct
 {
@@ -1305,7 +1325,6 @@ typedef struct
   //FIREBLADE
 
   int num_kills;		//TempFile
-
 }
 client_persistant_t;
 
@@ -1326,6 +1345,8 @@ typedef struct
 
   int kills;			// real kills
 
+  int deaths;			// deaths
+
   int damage_dealt;		// keep track of damage dealt by player to other players
 
   int streak;			// kills in a row
@@ -1343,6 +1364,7 @@ typedef struct
   float ctf_lastfraggedcarrier;
 
   int joined_team;		// last frame # at which the player joined a team
+  int lastWave;			//last time used wave
 
   // radio/partners stuff...
   int radio_delay;
@@ -1431,6 +1453,8 @@ typedef struct
   int rd_lastRadio;	//Code of the last radio used
   int rd_repCount;	//Counter for the number of repeated radio msgs
   float rd_repTime;	//The time for the last repeated radio msg
+
+  //char skin[MAX_SKINLEN];
 }
 client_respawn_t;
 
@@ -1794,6 +1818,7 @@ struct edict_s
   // action
   qboolean splatted;
   int classnum;
+  int typeNum;
   // PG BUND
   xmenu_t *x_menu;
 };
@@ -1819,6 +1844,10 @@ typedef struct
 	gitem_t *item;
 }
 gghost_t;
+
+#define MAX_GHOSTS 64 //MAX_CLIENTS
+extern gghost_t ghost_players[MAX_GHOSTS];
+extern int num_ghost_players;
 
 void CreateGhost (edict_t * ent);
 
@@ -1864,6 +1893,8 @@ void Killed (edict_t * targ, edict_t * inflictor, edict_t * attacker,
 
 void Add_Frag (edict_t * ent);
 void Subtract_Frag (edict_t * ent);
+
+void PrintDeathMessage(char *msg, edict_t * gibee);
 
 void kick_attack (edict_t * ent);
 
@@ -1923,24 +1954,47 @@ void AddSplat (edict_t * self, vec3_t point, trace_t * tr);
 #define ITF_HELM      0x00000020
 //AQ2:TNG End adding flags
 
-#define NO_NUM			-1
+#define NO_NUM					-1
 
-#define MK23_NUM                0
-#define MP5_NUM                 1
-#define M4_NUM                  2
-#define M3_NUM                  3
-#define HC_NUM                  4
-#define SNIPER_NUM              5
-#define DUAL_NUM                6
-#define KNIFE_NUM               7
-#define GRENADE_NUM             8
+#define MK23_NUM				0
+#define MP5_NUM					1
+#define M4_NUM					2
+#define M3_NUM					3
+#define HC_NUM					4
+#define SNIPER_NUM				5
+#define DUAL_NUM				6
+#define KNIFE_NUM				7
+#define GRENADE_NUM				8
 
-#define SIL_NUM			9
-#define SLIP_NUM		10
-#define BAND_NUM		11
-#define KEV_NUM			12
-#define LASER_NUM		13
-#define HELM_NUM		14
+#define SIL_NUM					9
+#define SLIP_NUM				10
+#define BAND_NUM				11
+#define KEV_NUM					12
+#define LASER_NUM				13
+#define HELM_NUM				14
+
+#define MK23_ANUM				15
+#define MP5_ANUM				16
+#define M4_ANUM					17
+#define SHELL_ANUM				18
+#define SNIPER_ANUM				19
+
+#define FLAG_T1_NUM				20
+#define FLAG_T2_NUM				21
+
+#define WEAPON_COUNT			9
+#define ITEM_COUNT				6
+#define AMMO_COUNT				5
+#define ILIST_COUNT				WEAPON_COUNT+ITEM_COUNT+AMMO_COUNT
+
+typedef struct itemList_s
+{
+	int		index;
+	int		flag;
+} itemList_t;
+
+extern itemList_t items[ILIST_COUNT];
+extern int tnums[ITEM_COUNT];
 
 // types of locations that can be hit
 #define LOC_HDAM 1		// head
@@ -2004,21 +2058,19 @@ extern char ml_creator[101];
 void Cmd_Ghost_f (edict_t * ent);
 void Cmd_AutoRecord_f(edict_t * ent);
 
-// Teamvalues
-
-#define TEAMNAME_LEN	32
-typedef struct
+typedef struct team_s
 {
-  char name[TEAMNAME_LEN];	/* Team name */
-  char skin[MAX_QPATH - 13];	/* Skin name; 13 = "../players/_i", which will be added for the skin_index */
-  char skin_index[MAX_QPATH];	/* Skin index picture name */
-  int  ready;			/* Flag: Team ready? */
-  int  locked;			/* Flag: Team locked? */
-  int  score;			/* Team Score */
-  int  total;			/* Team total of all player scores */
-  cvar_t *teamscore;		/* Team Score cvar */
-} team_data_t;
+	char name[32];
+	char skin[MAX_SKINLEN];
+	char skin_index[MAX_QPATH];
+	int score, total;
+	int ready, locked;
+	int pauses_used, wantReset;
+	cvar_t	*teamscore;
+}team_t;
 
-extern team_data_t team_data[];
+extern team_t teams[TEAM_TOP];
+extern int pause_time;
+#define PARSE_BUFSIZE 256
 
 #include "a_ctf.h"

@@ -3,12 +3,12 @@
 # linux makefile by Robert "Arras" LeBlanc, this version now fully checks
 # header file dependencies.
 #
-# $Id: Makefile.lcc,v 1.1 2001/05/06 17:24:26 igor_rock Exp $
+# $Id: Makefile.lcc,v 1.1.1.1 2001/05/06 17:24:26 igor_rock Exp $
 #
 #-----------------------------------------------------------------------------
 # $Log: Makefile.lcc,v $
-# Revision 1.1  2001/05/06 17:24:26  igor_rock
-# Initial revision
+# Revision 1.1.1.1  2001/05/06 17:24:26  igor_rock
+# This is the PG Bund Edition V1.25 with all stuff laying around here...
 #
 #-----------------------------------------------------------------------------
 

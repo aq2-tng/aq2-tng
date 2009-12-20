@@ -414,7 +414,7 @@ CGF_SFX_TouchGlass (edict_t * self, edict_t * other, cplane_t * plane,
   // bump projected speed for grenades - they should break
   // the window more easily
   if (is_hgrenade)
-    projected_speed *= 1.5;
+    projected_speed *= 1.5f;
 
   // if hitting the glass with sufficient speed (project < -175),
   // being jumpkicked (speed > 700, project < -5) break the window 
@@ -424,7 +424,7 @@ CGF_SFX_TouchGlass (edict_t * self, edict_t * other, cplane_t * plane,
 
   // break glass
   CGF_SFX_BreakGlass (glass, other, other, glass->health, vec3_origin,
-		      3.0 * FRAMETIME);
+		      3.0f * FRAMETIME);
   // glass can take care of itself, but the trigger isn't needed anymore
   G_FreeEdict (self);
 

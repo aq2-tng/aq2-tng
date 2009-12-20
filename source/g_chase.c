@@ -184,36 +184,35 @@ UpdateChaseCam (edict_t * ent)
   gi.linkentity (ent);
 }
 
-void
-ChaseNext (edict_t * ent)
+void ChaseNext (edict_t * ent)
 {
-  int i;
-  edict_t *e;
+	int i;
+	edict_t *e;
 
-  if (!ent->client->chase_target)
-    return;
+	if (!ent->client->chase_target)
+		return;
 
-  i = ent->client->chase_target - g_edicts;
-  do
-    {
-      i++;
-      if (i > maxclients->value)
-	i = 1;
-      e = g_edicts + i;
-      if (!e->inuse)
-	continue;
-      //Black Cross - Begin
-      if (teamplay->value && limchasecam->value &&
-	  ent->client->resp.team != NOTEAM &&
-	  ent->client->resp.team != e->client->resp.team)
-	continue;
-      //Black Cross - End
-      if (e->solid != SOLID_NOT || e->deadflag == DEAD_DEAD)
-	break;
-    }
-  while (e != ent->client->chase_target);
+	i = ent->client->chase_target - g_edicts;
+	do
+	{
+		i++;
+		if (i > maxclients->value)
+			i = 1;
+		e = g_edicts + i;
+		if (!e->inuse)
+			continue;
+		//Black Cross - Begin
+		if (teamplay->value && limchasecam->value &&
+			ent->client->resp.team != NOTEAM &&
+			ent->client->resp.team != e->client->resp.team)
+				continue;
+		//Black Cross - End
+		if (e->solid != SOLID_NOT || e->deadflag == DEAD_DEAD)
+			break;
+	}
+	while (e != ent->client->chase_target);
 
-  ent->client->chase_target = e;
+	ent->client->chase_target = e;
 }
 
 void

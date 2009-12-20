@@ -4,26 +4,10 @@
 //
 // laser sight patch, by Geza Beladi
 //
-// $Id: a_cmds.c,v 1.36 2006/07/02 10:05:48 igor_rock Exp $
+// $Id: a_cmds.c,v 1.33 2003/06/15 15:34:32 igor Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_cmds.c,v $
-// Revision 1.36  2006/07/02 10:05:48  igor_rock
-// - cleaned/straightened up some code
-// - corrected weapon reloading (Single Shot HC now loads a single shell as well)
-// - corrected sniper mode setting (added _SniperMode function; sound will only be
-//   played if zoom mode is really changed, multiple zoom is faster now)
-// - changed stricmp to Q_stricmp
-// Remark: credit for large parts of the changes to Maniac!
-//
-// Revision 1.35  2006/06/18 09:05:41  igor_rock
-// - corrected some indexes from [1] to [TEAM1] and so on
-//
-// Revision 1.34  2006/06/17 11:27:42  igor_rock
-// Some code cleanup:
-// - moved team related variables to a single struct variable
-// - some minor changes to reduced possible error sources
-//
 // Revision 1.33  2003/06/15 15:34:32  igor
 // - removed the zcam code from this branch (see other branch)
 // - added fixes from 2.72 (source only) version
@@ -149,8 +133,6 @@
 
 #include "g_local.h"
 
-extern gghost_t ghost_players[MAX_CLIENTS];
-extern int num_ghost_players;
 
 extern void P_ProjectSource(gclient_t * client, vec3_t point,
 			    vec3_t distance, vec3_t forward, vec3_t right, vec3_t result);
@@ -164,10 +146,8 @@ extern void P_ProjectSource(gclient_t * client, vec3_t point,
 void SP_LaserSight(edict_t * self, gitem_t * item)
 {
 	vec3_t start, forward, right, end;
-	gitem_t *temp_item;
 
-	temp_item = FindItem(LASER_NAME);
-	if (!(self->client->pers.inventory[ITEM_INDEX(temp_item)])) {
+	if (!INV_AMMO(self, LASER_NUM)) {
 		if (self->lasersight) {  // laser is on
 			G_FreeEdict(self->lasersight);
 			self->lasersight = NULL;
@@ -189,7 +169,7 @@ void SP_LaserSight(edict_t * self, gitem_t * item)
 		}
 		return;
 	}
-	
+
 	AngleVectors(self->client->v_angle, forward, right, NULL);
 	VectorSet(end, 100, 0, 0);
 	G_ProjectSource(self->s.origin, end, forward, right, start);
@@ -278,12 +258,14 @@ void Cmd_Reload_f(edict_t * ent)
 	if (ent->client->reload_attempts < 0)
 		ent->client->reload_attempts = 0;
 
+	//First, grab the current magazine max count...
+
 	//Set the weaponstate...
 	switch(ent->client->curr_weap) {
 	case M3_NUM:
-		// stop reloading when weapon already full
 		if (ent->client->shot_rds >= ent->client->shot_max)
 			return;
+
 		if(ent->client->pers.inventory[ent->client->ammo_index] <= 0) {
 			gi.cprintf(ent, PRINT_HIGH, "Out of ammo\n");
 			return;
@@ -304,16 +286,17 @@ void Cmd_Reload_f(edict_t * ent)
 		}
 		break;
 	case HC_NUM:
-		// stop reloading when weapon already full
 		if (ent->client->cannon_rds >= ent->client->cannon_max)
 			return;
+
 		if(ent->client->pers.inventory[ent->client->ammo_index] <= 0) {
 			gi.cprintf(ent, PRINT_HIGH, "Out of ammo\n");
 			return;
 		}
-		if (hc_single->value) {
-			if (ent->client->resp.hc_mode || ent->client->cannon_rds == 1) {
-				if(ent->client->pers.inventory[ent->client->ammo_index] < 1)
+		if(hc_single->value)
+		{
+			if(ent->client->resp.hc_mode || ent->client->cannon_rds == 1)
+			{	if(ent->client->pers.inventory[ent->client->ammo_index] < 1)
 					return;
 			}
 			else if(ent->client->pers.inventory[ent->client->ammo_index] < 2)
@@ -323,9 +306,9 @@ void Cmd_Reload_f(edict_t * ent)
 			return;
 		break;
 	case SNIPER_NUM:
-		// stop reloading when weapon already full
 		if (ent->client->sniper_rds >= ent->client->sniper_max)
 			return;
+
 		if(ent->client->pers.inventory[ent->client->ammo_index] <= 0) {
 			gi.cprintf(ent, PRINT_HIGH, "Out of ammo\n");
 			return;
@@ -349,26 +332,25 @@ void Cmd_Reload_f(edict_t * ent)
 			ent->client->ps.gunindex = gi.modelindex(ent->client->pers.weapon->view_model);
 		break;
 	case DUAL_NUM:
-		// stop reloading when weapon already full
 		if (ent->client->dual_rds == ent->client->dual_max)
 			return;
+
 		if(ent->client->pers.inventory[ent->client->ammo_index] <= 0) {
 			gi.cprintf(ent, PRINT_HIGH, "Out of ammo\n");
 			return;
 		}
-		
 		//TempFile change to pistol, then reload
 		if (ent->client->pers.inventory[ent->client->ammo_index] == 1) {
 			gitem_t *it;
-			
-			it = FindItem(MK23_NAME);
+
+			it = GET_ITEM(MK23_NUM);
 			it->use(ent, it);
 			ent->client->autoreloading = true;
 			return;
 		}
+
 		break;
 	case MP5_NUM:
-		// stop reloading when weapon already full
 		if (ent->client->mp5_rds == ent->client->mp5_max)
 			return;
 		if(ent->client->pers.inventory[ent->client->ammo_index] <= 0) {
@@ -377,7 +359,6 @@ void Cmd_Reload_f(edict_t * ent)
 		}
 		break;
 	case M4_NUM:
-		// stop reloading when weapon already full
 		if (ent->client->m4_rds == ent->client->m4_max)
 			return;
 		if(ent->client->pers.inventory[ent->client->ammo_index] <= 0) {
@@ -386,7 +367,6 @@ void Cmd_Reload_f(edict_t * ent)
 		}
 		break;
 	case MK23_NUM:
-		// stop reloading when weapon already full
 		if (ent->client->mk23_rds == ent->client->mk23_max)
 			return;
 		if(ent->client->pers.inventory[ent->client->ammo_index] <= 0) {
@@ -395,10 +375,12 @@ void Cmd_Reload_f(edict_t * ent)
 		}
 		break;
 	default:
-		// Just exit for weapons that we don't want reloaded or that never reload (grenades)
+	//We should never get here, but...
+	//BD 5/26 - Actually we get here quite often right now. Just exit for weaps that we
+	//          don't want reloaded or that never reload (grenades)
 		return;
 	}
-	
+
 	ent->client->weaponstate = WEAPON_RELOADING;
 }
 
@@ -416,10 +398,8 @@ void Cmd_Reload_f(edict_t * ent)
  */
 void _SetSniper(edict_t * ent, int zoom)
 {
-	int desired_fov;
-	int sniper_mode;
-	int oldmode = ent->client->resp.sniper_mode;
-	
+	int desired_fov, sniper_mode, oldmode;
+
 	switch (zoom) {
 	default:
 	case 1:
@@ -440,15 +420,17 @@ void _SetSniper(edict_t * ent, int zoom)
 		break;
 	}
 
+	oldmode = ent->client->resp.sniper_mode;
+
 	if (sniper_mode == oldmode)
 		return;
-	
-	// Only play sound if something really changed
+
+	//Moved here, no need to make sound if zoom isnt changed -M
 	gi.sound(ent, CHAN_ITEM, gi.soundindex("misc/lensflik.wav"), 1, ATTN_NORM, 0);
-	
+
 	ent->client->resp.sniper_mode = sniper_mode;
 	ent->client->desired_fov = desired_fov;
-	
+
 	if (sniper_mode == SNIPER_1X && ent->client->pers.weapon)
 		ent->client->ps.gunindex = gi.modelindex(ent->client->pers.weapon->view_model);
 	//show the model if switching to 1x
@@ -527,11 +509,13 @@ void _ZoomOut(edict_t * ent, qboolean overflow)
 
 void Cmd_Lens_f(edict_t * ent)
 {
-	int nArg = atoi(gi.args());
-	char args[4];
+	int nArg;
+	char args[8];
 
 	if (ent->client->curr_weap != SNIPER_NUM)
 		return;
+
+	nArg = atoi(gi.args());
 
 	if (nArg == 0) {
 		Q_strncpyz(args, gi.args(), sizeof(args));
@@ -542,21 +526,19 @@ void Cmd_Lens_f(edict_t * ent)
 			_ZoomOut(ent, false);
 		else
 			_ZoomIn(ent, true);
-		
-		if(!ent->client->desired_zoom) /* Zoom doesn't change */
-			return;
 
-	} 
+		if(!ent->client->desired_zoom)
+			return;
+	}
 	else if ((nArg == 1) || (!(nArg % 2) && (nArg <= 6)))
 		ent->client->desired_zoom = nArg;
 	else
 		_ZoomIn(ent, true);
-	
-	// Are we already changing zoom mode? If so, change first to 
-	// desired zoom and then do the actual zooming
+
 	if(ent->client->weapon_attempts > 0)
-		return; 
-	
+		return; //Already waiting to change the zoom, otherwise it
+				//first change to desired zoom and then usual zoomin -M
+
 	ent->client->weapon_attempts++;
 	if (ent->client->weapon_attempts == 1)
 		Cmd_Weapon_f(ent);
@@ -594,7 +576,7 @@ void Cmd_Weapon_f(edict_t * ent)
 		return;
 	}
 
-	switch (ent->client->curr_weap) {
+	switch(ent->client->curr_weap) {
 	case MK23_NUM:
 		if (!dead)
 			gi.sound(ent, CHAN_ITEM, gi.soundindex("misc/click.wav"), 1, ATTN_NORM, 0);
@@ -625,22 +607,21 @@ void Cmd_Weapon_f(edict_t * ent)
 	case SNIPER_NUM:
 		if (dead)
 			return;
-
-		if (!ent->client->desired_zoom)	// No desired zoom yet, zoom in instead
-			_ZoomIn(ent, true);
 		
-		// actually zoom it now
+		if (!ent->client->desired_zoom)
+			_ZoomIn(ent, true);	// standard behaviour
+
 		_SetSniper(ent, ent->client->desired_zoom);
 		ent->client->desired_zoom = 0;
 		break;
 	case HC_NUM:
 		// AQ2:TNG Deathwatch - Single Barreled HC
-		if (!hc_single->value)
+		if(!hc_single->value)
 			return;
-		
+
 		if (!dead)
 			gi.sound(ent, CHAN_ITEM, gi.soundindex("misc/click.wav"), 1, ATTN_NORM, 0);
-		
+
 		ent->client->resp.hc_mode = !(ent->client->resp.hc_mode);
 		if (ent->client->resp.hc_mode)
 			gi.cprintf(ent, PRINT_HIGH, "Single Barreled Handcannon\n");
@@ -676,6 +657,7 @@ void Cmd_Weapon_f(edict_t * ent)
 		}
 		break;
 	}
+
 }
 
 // sets variable to toggle nearby door status
@@ -687,7 +669,6 @@ void Cmd_OpenDoor_f(edict_t * ent)
 
 void Cmd_Bandage_f(edict_t * ent)
 {
-	gitem_t *item;
 
 	if ((ent->client->bleeding != 0 || ent->client->leg_damage != 0)
 	    && ent->client->bandaging != 1)
@@ -703,20 +684,25 @@ void Cmd_Bandage_f(edict_t * ent)
 		    && ((ent->client->ps.gunframe >= GRENADE_IDLE_FIRST
 			 && ent->client->ps.gunframe <= GRENADE_IDLE_LAST)
 			|| (ent->client->ps.gunframe >= GRENADE_THROW_FIRST
-			    && ent->client->ps.gunframe <= GRENADE_THROW_LAST))) {
+			    && ent->client->ps.gunframe <= GRENADE_THROW_LAST)))
+		{
+			int damage;
+
 			ent->client->ps.gunframe = 0;
 
 			if (use_classic->value)
-				fire_grenade2(ent, ent->s.origin, tv(0, 0, 0), 170, 0, 2, 170 * 2, false);
+				damage = 170;
 			else
-				fire_grenade2(ent, ent->s.origin, tv(0, 0, 0), GRENADE_DAMRAD,
-					      0, 2, GRENADE_DAMRAD * 2, false);
+				damage = GRENADE_DAMRAD;
+			
+			if(ent->client->quad_framenum > level.framenum)
+				damage *= 1.5f;
 
-			item = FindItem(GRENADE_NAME);
-			ent->client->pers.inventory[ITEM_INDEX(item)]--;
-			if (ent->client->pers.inventory[ITEM_INDEX(item)] <= 0) {
-				ent->client->newweapon = FindItem(MK23_NAME);
+			fire_grenade2(ent, ent->s.origin, vec3_origin, damage, 0, 2, damage * 2, false);
 
+			INV_AMMO(ent, GRENADE_NUM)--;
+			if (INV_AMMO(ent, GRENADE_NUM) <= 0) {
+				ent->client->newweapon = GET_ITEM(MK23_NUM);
 			}
 		}
 
@@ -822,7 +808,7 @@ void SetIDView(edict_t * ent)
 //FIREBLADE, suggested by hal[9k]  3/11/1999
 	float bd = 0.9f;
 	float d;
-	int i;
+    int i;
 
 	ent->client->ps.stats[STAT_ID_VIEW] = 0;
 
@@ -883,26 +869,28 @@ void Cmd_IR_f(edict_t * ent)
 {
 	int band = 0;
 
-	if (ir->value) {
-		if (ent->client->pers.inventory[ITEM_INDEX(FindItem(BAND_NAME))]) {
-			band = 1;
-		}
-
-		if (ent->client->resp.ir == 0) {
-			ent->client->resp.ir = 1;
-			if (band) {
-				gi.cprintf(ent, PRINT_HIGH, "IR vision disabled.\n");
-			} else
-				gi.cprintf(ent, PRINT_HIGH, "IR vision will be disabled when you get a bandolier.\n");
-		} else {
-			ent->client->resp.ir = 0;
-			if (band) {
-				gi.cprintf(ent, PRINT_HIGH, "IR vision enabled.\n");
-			} else
-				gi.cprintf(ent, PRINT_HIGH, "IR vision will be enabled when you get a bandolier.\n");
-		}
-	} else {
+	if (!ir->value) {
 		gi.cprintf(ent, PRINT_HIGH, "IR vision not enabled on this server.\n");
+		return;
+	}
+	if (INV_AMMO(ent, BAND_NUM))
+		band = 1;
+
+	if (ent->client->resp.ir == 0)
+	{
+		ent->client->resp.ir = 1;
+		if (band)
+			gi.cprintf(ent, PRINT_HIGH, "IR vision disabled.\n");
+		else
+			gi.cprintf(ent, PRINT_HIGH, "IR vision will be disabled when you get a bandolier.\n");
+	}
+	else
+	{
+		ent->client->resp.ir = 0;
+		if (band)
+			gi.cprintf(ent, PRINT_HIGH, "IR vision enabled.\n");
+		else
+			gi.cprintf(ent, PRINT_HIGH, "IR vision will be enabled when you get a bandolier.\n");
 	}
 }
 
@@ -911,129 +899,70 @@ void Cmd_IR_f(edict_t * ent)
 void Cmd_Choose_f(edict_t * ent)
 {
 	char *s;
+	int itemNum = NO_NUM;
+
+	// only works in teamplay
+	if (!teamplay->value || teamdm->value || ctf->value == 2)
+		return;
 
 	s = gi.args();
 
-	// only works in teamplay
-	if (!teamplay->value)
-		return;
-
 	// convert names a player might try (DW added a few)
-	if (!Q_stricmp(s, "A 2nd pistol") || !Q_stricmp(s, "railgun") || !Q_stricmp(s, "akimbo"))
-		s = DUAL_NAME;
-	if (!Q_stricmp(s, "shotgun"))
-		s = M3_NAME;
-	if (!Q_stricmp(s, "machinegun"))
-		s = HC_NAME;
-	if (!Q_stricmp(s, "super shotgun") || !Q_stricmp(s, "mp5"))
-		s = MP5_NAME;
-	if (!Q_stricmp(s, "chaingun") || !Q_stricmp(s, "sniper"))
-		s = SNIPER_NAME;
-	if (!Q_stricmp(s, "bfg10k"))
-		s = KNIFE_NAME;
-	if (!Q_stricmp(s, "grenade launcher") || !Q_stricmp(s, "m4"))
-		s = M4_NAME;
-	if (!Q_stricmp(s, "laser"))
-		s = LASER_NAME;
-	if (!Q_stricmp(s, "vest"))
-		s = KEV_NAME;
-	if (!Q_stricmp(s, "slippers"))
-		s = SLIP_NAME;
-	if (!Q_stricmp(s, "helmet"))
-		s = HELM_NAME;
+	if (!Q_stricmp(s, "A 2nd pistol") || !Q_stricmp(s, "railgun") || !Q_stricmp(s, "akimbo") || !Q_stricmp(s, DUAL_NAME))
+		itemNum = DUAL_NUM;
+	else if (!Q_stricmp(s, "shotgun") || !Q_stricmp(s, M3_NAME))
+		itemNum = M3_NUM;
+	else if (!Q_stricmp(s, "machinegun") || !Q_stricmp(s, HC_NAME))
+		itemNum = HC_NUM;
+	else if (!Q_stricmp(s, "super shotgun") || !Q_stricmp(s, "mp5") || !Q_stricmp(s, MP5_NAME))
+		itemNum = MP5_NUM;
+	else if (!Q_stricmp(s, "chaingun") || !Q_stricmp(s, "sniper") || !Q_stricmp(s, SNIPER_NAME))
+		itemNum = SNIPER_NUM;
+	else if (!Q_stricmp(s, "bfg10k") || !Q_stricmp(s, KNIFE_NAME))
+		itemNum = KNIFE_NUM;
+	else if (!Q_stricmp(s, "grenade launcher") || !Q_stricmp(s, "m4") || !Q_stricmp(s, M4_NAME))
+		itemNum = M4_NUM;
+	else if (!Q_stricmp(s, "laser") || !Q_stricmp(s, LASER_NAME))
+		itemNum = LASER_NUM;
+	else if (!Q_stricmp(s, "vest") || !Q_stricmp(s, KEV_NAME))
+		itemNum = KEV_NUM;
+	else if (!Q_stricmp(s, "slippers") || !Q_stricmp(s, SLIP_NAME))
+		itemNum = SLIP_NUM;
+	else if (!Q_stricmp(s, SIL_NAME))
+		itemNum = SIL_NUM;
+	else if (!Q_stricmp(s, "helmet") || !Q_stricmp(s, HELM_NAME))
+		itemNum = HELM_NUM;
+	else if (!Q_stricmp(s, BAND_NAME))
+		itemNum = BAND_NUM;
 
-	if (Q_stricmp(s, MP5_NAME) == 0) {
-		if ((int) wp_flags->value & WPF_MP5)
-			ent->client->resp.weapon = FindItem(MP5_NAME);
-		else {
+
+	switch(itemNum) {
+	case DUAL_NUM:
+	case M3_NUM:
+	case HC_NUM:
+	case MP5_NUM:
+	case SNIPER_NUM:
+	case KNIFE_NUM:
+	case M4_NUM:
+		if (!((int)wp_flags->value & items[itemNum].flag)) {
 			gi.cprintf(ent, PRINT_HIGH, "Weapon disabled on this server.\n");
 			return;
 		}
-	} else if (Q_stricmp(s, M3_NAME) == 0) {
-		if ((int) wp_flags->value & WPF_M3)
-			ent->client->resp.weapon = FindItem(M3_NAME);
-		else {
-			gi.cprintf(ent, PRINT_HIGH, "Weapon disabled on this server.\n");
-			return;
-		}
-	} else if (Q_stricmp(s, M4_NAME) == 0) {
-		if ((int) wp_flags->value & WPF_M4)
-			ent->client->resp.weapon = FindItem(M4_NAME);
-		else {
-			gi.cprintf(ent, PRINT_HIGH, "Weapon disabled on this server.\n");
-			return;
-		}
-	} else if (Q_stricmp(s, HC_NAME) == 0) {
-		if ((int) wp_flags->value & WPF_HC)
-			ent->client->resp.weapon = FindItem(HC_NAME);
-		else {
-			gi.cprintf(ent, PRINT_HIGH, "Weapon disabled on this server.\n");
-			return;
-		}
-	} else if (Q_stricmp(s, SNIPER_NAME) == 0) {
-		if ((int) wp_flags->value & WPF_SNIPER)
-			ent->client->resp.weapon = FindItem(SNIPER_NAME);
-		else {
-			gi.cprintf(ent, PRINT_HIGH, "Weapon disabled on this server.\n");
-			return;
-		}
-	} else if (Q_stricmp(s, KNIFE_NAME) == 0) {
-		if ((int) wp_flags->value & WPF_KNIFE)
-			ent->client->resp.weapon = FindItem(KNIFE_NAME);
-		else {
-			gi.cprintf(ent, PRINT_HIGH, "Weapon disabled on this server.\n");
-			return;
-		}
-	} else if (Q_stricmp(s, DUAL_NAME) == 0) {
-		if ((int) wp_flags->value & WPF_DUAL)
-			ent->client->resp.weapon = FindItem(DUAL_NAME);
-		else {
-			gi.cprintf(ent, PRINT_HIGH, "Weapon disabled on this server.\n");
-			return;
-		}
-	} else if (Q_stricmp(s, KEV_NAME) == 0) {
-		if ((int) itm_flags->value & ITF_KEV)
-			ent->client->resp.item = FindItem(KEV_NAME);
-		else {
-			gi.cprintf(ent, PRINT_HIGH, "Weapon disabled on this server.\n");
-			return;
-		}
-	} else if (Q_stricmp(s, HELM_NAME) == 0) {
-		if ((int) itm_flags->value & ITF_HELM)
-			ent->client->resp.item = FindItem(HELM_NAME);
-		else {
+		ent->client->resp.weapon = GET_ITEM(itemNum);
+		break;
+	case LASER_NUM:
+	case KEV_NUM:
+	case SLIP_NUM:
+	case SIL_NUM:
+	case HELM_NUM:
+	case BAND_NUM:
+		if (!((int)itm_flags->value & items[itemNum].flag)) {
 			gi.cprintf(ent, PRINT_HIGH, "Item disabled on this server.\n");
 			return;
 		}
-	} else if (Q_stricmp(s, LASER_NAME) == 0) {
-		if ((int) itm_flags->value & ITF_LASER)
-			ent->client->resp.item = FindItem(LASER_NAME);
-		else {
-			gi.cprintf(ent, PRINT_HIGH, "Item disabled on this server.\n");
-			return;
-		}
-	} else if (Q_stricmp(s, SLIP_NAME) == 0) {
-		if ((int) itm_flags->value & ITF_SLIP)
-			ent->client->resp.item = FindItem(SLIP_NAME);
-		else {
-			gi.cprintf(ent, PRINT_HIGH, "Item disabled on this server.\n");
-			return;
-		}
-	} else if (Q_stricmp(s, SIL_NAME) == 0) {
-		if ((int) itm_flags->value & ITF_SIL)
-			ent->client->resp.item = FindItem(SIL_NAME);
-		else {
-			gi.cprintf(ent, PRINT_HIGH, "Item disabled on this server.\n");
-			return;
-		}
-	} else if (Q_stricmp(s, BAND_NAME) == 0) {
-		if ((int) itm_flags->value & ITF_BAND)
-			ent->client->resp.item = FindItem(BAND_NAME);
-		else {
-			gi.cprintf(ent, PRINT_HIGH, "Item disabled on this server.\n");
-			return;
-		}
-	} else {
+		ent->client->resp.item = GET_ITEM(itemNum);
+		break;
+	default:
 		gi.cprintf(ent, PRINT_HIGH, "Invalid weapon or item choice.\n");
 		return;
 	}
@@ -1054,7 +983,6 @@ void Cmd_TKOk(edict_t * ent)
 			ent->enemy->client->team_kills--;
 			if (ent->enemy->client->team_wounds)
 				ent->enemy->client->team_wounds /= 2;
-			ent->enemy = NULL;
 		}
 	} else {
 		gi.cprintf(ent, PRINT_HIGH, "That's very noble of you...\n");
@@ -1067,65 +995,93 @@ void Cmd_TKOk(edict_t * ent)
 void Cmd_Time(edict_t * ent)
 {
 	int mins, secs, remaining, rmins, rsecs;
+	float gametime;
 
-	if (matchmode->value) {
-		gi.cprintf(ent, PRINT_HIGH, "This server is running in matchmode. See the scoreboard for the time.\n");
+	if (!timelimit->value) {
+		gi.cprintf(ent, PRINT_HIGH, "Timelimit disabled\n");
 		return;
 	}
-	if (timelimit->value) {
-		mins = level.time / 60;
-		secs = level.time - (mins * 60);
-		remaining = (timelimit->value * 60) - level.time;
-		rmins = remaining / 60;
-		rsecs = remaining - (rmins * 60);
 
-		if (rmins < 0)
-			rmins = 0;
-		if (rsecs < 0)
-			rsecs = 0;
+	if (matchmode->value)
+		gametime = matchtime;
+	else
+		gametime = level.time;
 
-		gi.cprintf(ent, PRINT_HIGH, "Elapsed time: %d:%02d. Remaining time: %d:%02d\n", mins, secs, rmins,
-			   rsecs);
-	} else {
-		gi.cprintf(ent, PRINT_HIGH, "Timelimit disabled\n");
-	}
+	mins = gametime / 60;
+	secs = gametime - (mins * 60);
+	remaining = (timelimit->value * 60) - gametime;
+	rmins = remaining / 60;
+	rsecs = remaining - (rmins * 60);
+
+	if (rmins < 0)
+		rmins = 0;
+	if (rsecs < 0)
+		rsecs = 0;
+
+	gi.cprintf(ent, PRINT_HIGH, "Elapsed time: %d:%02d. Remaining time: %d:%02d\n", mins, secs, rmins, rsecs);
+
 }
 
 void Cmd_Roundtimeleft_f(edict_t * ent)
 {
-	int time, i, u;
+	int remaining;
 
-	if (team_round_going != 1)
+	if(!teamplay->value) {
+		gi.cprintf(ent, PRINT_HIGH, "This command need teamplay to be enabled\n");
 		return;
-	i = roundtimelimit->value;
-	u = current_round_length;
-	if (i == 0)
-		return;
-	time = i - (u / 600);
-	gi.cprintf(ent, PRINT_HIGH, "There is %d minutes left in this round\n", time);
+	}
 
+	if (ctf->value || teamdm->value || team_round_going != 1)
+		return;
+
+	if ((int)roundtimelimit->value <= 0)
+		return;
+
+	remaining = (roundtimelimit->value * 60) - (current_round_length/10);
+	gi.cprintf(ent, PRINT_HIGH, "There is %d:%02i left in this round\n", remaining / 60, remaining % 60);
 }
 
 /*
 	Freud's AutoRecord
 	This will automatically record a new demo for every map if the client turns it on
 */
+void RemoveSpaces(char *s)
+{
+	char *p;
+
+	p = strchr(s, ' ');
+	if(!p)
+		return;
+
+	for(s = p+1; *s; s++)
+	{
+		if(*s != ' ')
+			*p++ = *s;
+	}
+	*p = 0;
+}
+
 void Cmd_AutoRecord_f(edict_t * ent)
 {
-  char rec_date[64], recstr[128];
-  time_t now;
+	char rec_date[20], recstr[MAX_QPATH];
+	time_t clock;
 
-  now = time(NULL);
-  (void) strftime(rec_date, 64, "%Y_%b_%d_%H%M", localtime(&now));
+	time( &clock );
+	strftime( rec_date, sizeof(rec_date)-1, "%Y_%b_%d_%H%M", localtime(&clock));
 
-  if (matchmode->value) {
-    sprintf(recstr, "record \"%s-%s_vs_%s-%s\"\n", rec_date, team_data[TEAM1].name, team_data[TEAM2].name, level.mapname);
-  } else {
-    sprintf(recstr, "record \"%s-%s\"\n", rec_date, level.mapname);
-  }
+	if (matchmode->value)
+	{
+		if(use_3teams->value)
+			Com_sprintf(recstr, sizeof(recstr), "%s-%s_vs_%s_vs_%s-%s", rec_date, teams[TEAM1].name, teams[TEAM2].name, teams[TEAM3].name, level.mapname);
+		else
+			Com_sprintf(recstr, sizeof(recstr), "%s-%s_vs_%s-%s", rec_date, teams[TEAM1].name, teams[TEAM2].name, level.mapname);
 
-  stuffcmd(ent, recstr);
-  return;			// see if it makes the compiler happy
+		RemoveSpaces(recstr); //Remove spaces -M
+	} else {
+		Com_sprintf(recstr, sizeof(recstr), "%s-%s", rec_date, level.mapname);
+	}
+
+	stuffcmd(ent, va("record \"%s\"\n", recstr));
 }
 
 /*

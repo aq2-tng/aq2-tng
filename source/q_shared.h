@@ -1,13 +1,10 @@
 //-----------------------------------------------------------------------------
 // q_shared.h -- included first by ALL program modules
 //
-// $Id: q_shared.h,v 1.9 2006/06/17 11:41:32 igor_rock Exp $
+// $Id: q_shared.h,v 1.8 2001/09/28 13:48:35 ra Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: q_shared.h,v $
-// Revision 1.9  2006/06/17 11:41:32  igor_rock
-// - added Q_strncpyz library function
-//
 // Revision 1.8  2001/09/28 13:48:35  ra
 // I ran indent over the sources. All .c and .h files reindented.
 //
@@ -49,16 +46,8 @@
 //
 //-----------------------------------------------------------------------------
 
-#ifdef _WIN32
-// unknown pragmas are SUPPOSED to be ignored, but....
-#pragma warning(disable : 4244)	// MIPS
-#pragma warning(disable : 4136)	// X86
-#pragma warning(disable : 4051)	// ALPHA
-
-#pragma warning(disable : 4018)	// signed/unsigned mismatch
-#pragma warning(disable : 4305)	// truncation from const double to float
-
-#endif
+#ifndef __Q_SHARED_H
+#define __Q_SHARED_H
 
 #include <assert.h>
 #include <math.h>
@@ -71,25 +60,101 @@
 #include <stddef.h>
 //FIREBLADE
 
-// New define for this came from 3.20  -FB
-#if (defined _M_IX86 || defined __i386__) && !defined C_ONLY && !defined __sun__
-#define id386   1
-#else
-#define id386   0
+//==============================================
+#ifdef _WIN32
+// unknown pragmas are SUPPOSED to be ignored, but....
+#pragma warning(disable : 4244)	// MIPS
+#pragma warning(disable : 4136)	// X86
+#pragma warning(disable : 4051)	// ALPHA
+#pragma warning(disable : 4018)	// signed/unsigned mismatch
+#pragma warning(disable : 4305)	// truncation from const double to float
+
+#pragma warning(disable : 4996)		// deprecated functions
+
+# define HAVE___INLINE
+# define HAVE__SNPRINTF
+# define HAVE__VSNPRINTF
+# define HAVE__STRICMP
+# define HAVE___FASTCALL
+# define HAVE__CDECL
+
+#endif
+//==============================================
+#if defined(__linux__) || defined(__FreeBSD__)
+
+# define HAVE_INLINE
+# define HAVE_STRCASECMP
+
+#endif
+//==============================================
+#ifndef HAVE__CDECL
+# ifndef __cdecl
+#  define __cdecl
+# endif
 #endif
 
-#if defined _M_ALPHA && !defined C_ONLY
-#define idaxp   1
-#else
-#define idaxp   0
+#ifndef HAVE___FASTCALL
+# ifndef __fastcall
+#  define __fastcall
+# endif
 #endif
+
+#ifdef HAVE___INLINE
+# ifndef inline
+#  define inline __inline
+# endif
+#elif !defined(HAVE_INLINE)
+# ifndef inline
+#  define inline
+# endif
+#endif
+
+#ifdef HAVE__SNPRINTF
+# ifndef snprintf 
+#  define snprintf _snprintf
+# endif
+#endif
+
+#ifdef HAVE__VSNPRINTF
+# ifndef vsnprintf 
+#  define vsnprintf(dest, size, src, list) _vsnprintf((dest), (size), (src), (list)), (dest)[(size)-1] = 0
+# endif
+#endif
+
+#ifdef HAVE__STRICMP
+# ifndef Q_stricmp 
+#  define Q_stricmp(s1, s2) _stricmp((s1), (s2))
+# endif
+# ifndef Q_strnicmp 
+#  define Q_strnicmp(s1, s2, n) _strnicmp((s1), (s2), (n))
+# endif
+#endif
+
+#ifdef HAVE_STRCASECMP
+# ifndef Q_stricmp 
+#  define Q_stricmp(s1, s2) strcasecmp((s1), (s2))
+# endif
+# ifndef Q_strnicmp 
+#  define Q_strnicmp(s1, s2, n) strncasecmp((s1), (s2), (n))
+# endif
+#endif
+
+// =========================================================================
+
+// New define for this came from 3.20  -FB
+#if (defined(_M_IX86) || defined(__i386__) || defined(__ia64__)) && !defined(C_ONLY)
+# define id386 1
+#else
+# define id386 0
+#endif
+
+//==============================================
 
 typedef unsigned char byte;
 typedef enum
 {
   false, true
-}
-qboolean;
+} qboolean;
 
 
 #ifndef NULL
@@ -169,8 +234,31 @@ typedef int fixed8_t;
 typedef int fixed16_t;
 
 #ifndef M_PI
-#define M_PI            3.14159265358979323846	// matches value in gcc v2 math.h
+#define M_PI            3.14159265358979323846f	// matches value in gcc v2 math.h
 #endif
+
+#ifndef M_TWOPI
+# define M_TWOPI		6.28318530717958647692f
+#endif
+
+#define M_PI_DIV_180	0.0174532925199432957692f
+#define M_180_DIV_PI	57.295779513082320876798f
+
+#define DEG2RAD( a ) (a * M_PI_DIV_180)
+#define RAD2DEG( a ) (a * M_180_DIV_PI)
+
+
+#ifndef max
+# define max(a,b) ((a) > (b) ? (a) : (b))
+#endif
+
+#ifndef min
+# define min(a,b) ((a) < (b) ? (a) : (b))
+#endif
+
+#define bound(a,b,c) ((a) >= (c) ? (a) : (b) < (a) ? (a) : (b) > (c) ? (c) : (b))
+
+#define clamp(a,b,c) ((b) >= (c) ? (a)=(b) : (a) < (b) ? (a)=(b) : (a) > (c) ? (a)=(c) : (a))
 
 struct cplane_s;
 
@@ -190,39 +278,44 @@ extern long Q_ftol (float f);
 #define Q_ftol( f ) ( long ) (f)
 #endif
 
-#define DotProduct(x,y)         (x[0]*y[0]+x[1]*y[1]+x[2]*y[2])
-#define VectorSubtract(a,b,c)   (c[0]=a[0]-b[0],c[1]=a[1]-b[1],c[2]=a[2]-b[2])
-#define VectorAdd(a,b,c)        (c[0]=a[0]+b[0],c[1]=a[1]+b[1],c[2]=a[2]+b[2])
-#define VectorCopy(a,b)         (b[0]=a[0],b[1]=a[1],b[2]=a[2])
-#define VectorClear(a)          (a[0]=a[1]=a[2]=0)
-#define VectorNegate(a,b)       (b[0]=-a[0],b[1]=-a[1],b[2]=-a[2])
-#define VectorSet(v, x, y, z)   (v[0]=(x), v[1]=(y), v[2]=(z))
+#define DotProduct(x,y)			((x)[0]*(y)[0]+(x)[1]*(y)[1]+(x)[2]*(y)[2])
+#define CrossProduct(v1,v2,c)	((c)[0]=(v1)[1]*(v2)[2]-(v1)[2]*(v2)[1],(c)[1]=(v1)[2]*(v2)[0]-(v1)[0]*(v2)[2],(c)[2]=(v1)[0]*(v2)[1]-(v1)[1]*(v2)[0])
 
-void VectorMA (vec3_t veca, float scale, vec3_t vecb, vec3_t vecc);
+#define PlaneDiff(point,plane) (((plane)->type < 3 ? (point)[(plane)->type] : DotProduct((point), (plane)->normal)) - (plane)->dist)
 
-// just in case you do't want to use the macros
-vec_t _DotProduct (vec3_t v1, vec3_t v2);
-void _VectorSubtract (vec3_t veca, vec3_t vecb, vec3_t out);
-void _VectorAdd (vec3_t veca, vec3_t vecb, vec3_t out);
-void _VectorCopy (vec3_t in, vec3_t out);
+#define VectorSubtract(a,b,c)   ((c)[0]=(a)[0]-(b)[0],(c)[1]=(a)[1]-(b)[1],(c)[2]=(a)[2]-(b)[2])
+#define VectorAdd(a,b,c)		((c)[0]=(a)[0]+(b)[0],(c)[1]=(a)[1]+(b)[1],(c)[2]=(a)[2]+(b)[2])
+#define VectorCopy(a,b)			((b)[0]=(a)[0],(b)[1]=(a)[1],(b)[2]=(a)[2])
+#define VectorClear(a)			((a)[0]=(a)[1]=(a)[2]=0)
+#define VectorNegate(a,b)		((b)[0]=-(a)[0],(b)[1]=-(a)[1],(b)[2]=-(a)[2])
+#define VectorSet(v, x, y, z)	((v)[0]=(x),(v)[1]=(y),(v)[2]=(z))
+#define VectorAvg(a,b,c)		((c)[0]=((a)[0]+(b)[0])*0.5f,(c)[1]=((a)[1]+(b)[1])*0.5f, (c)[2]=((a)[2]+(b)[2])*0.5f)
+#define VectorMA(a,b,c,d)		((d)[0]=(a)[0]+(b)*(c)[0],(d)[1]=(a)[1]+(b)*(c)[1],(d)[2]=(a)[2]+(b)*(c)[2])
+#define VectorCompare(v1,v2)	((v1)[0]==(v2)[0] && (v1)[1]==(v2)[1] && (v1)[2]==(v2)[2])
+#define VectorLength(v)			(sqrt(DotProduct((v),(v))))
+#define VectorInverse(v)		((v)[0]=-(v)[0],(v)[1]=-(v)[1],(v)[2]=-(v)[2])
+#define VectorScale(in,s,out)	((out)[0]=(in)[0]*(s),(out)[1]=(in)[1]*(s),(out)[2]=(in)[2]*(s))
 
-void ClearBounds (vec3_t mins, vec3_t maxs);
-void AddPointToBounds (vec3_t v, vec3_t mins, vec3_t maxs);
-int VectorCompare (vec3_t v1, vec3_t v2);
-vec_t VectorLength (vec3_t v);
-void CrossProduct (vec3_t v1, vec3_t v2, vec3_t cross);
+#define VectorCopyMins(a,b,c)	((c)[0]=min((a)[0],(b)[0]),(c)[0]=min((a)[1],(b)[1]),(c)[2]=min((a)[2],(b)[2]))
+#define VectorCopyMaxs(a,b,c)	((c)[0]=max((a)[0],(b)[0]),(c)[0]=max((a)[1],(b)[1]),(c)[2]=max((a)[2],(b)[2]))
+
+#define DistanceSquared(v1,v2)	(((v1)[0]-(v2)[0])*((v1)[0]-(v2)[0])+((v1)[1]-(v2)[1])*((v1)[1]-(v2)[1])+((v1)[2]-(v2)[2])*((v1)[2]-(v2)[2]))
+#define Distance(v1,v2)			(sqrt(DistanceSquared(v1,v2)))
+
+#define ClearBounds(mins,maxs)	((mins)[0]=(mins)[1]=(mins)[2]=99999,(maxs)[0]=(maxs)[1]=(maxs)[2]=-99999)
+
+
+void AddPointToBounds (const vec3_t v, vec3_t mins, vec3_t maxs);
 vec_t VectorNormalize (vec3_t v);	// returns vector length
+vec_t VectorNormalize2 (const vec3_t v, vec3_t out);
 
-vec_t VectorNormalize2 (vec3_t v, vec3_t out);
-void VectorInverse (vec3_t v);
-void VectorScale (vec3_t in, vec_t scale, vec3_t out);
 int Q_log2 (int val);
 
 void R_ConcatRotations (float in1[3][3], float in2[3][3], float out[3][3]);
 void R_ConcatTransforms (float in1[3][4], float in2[3][4], float out[3][4]);
 
-void AngleVectors (vec3_t angles, vec3_t forward, vec3_t right, vec3_t up);
-int BoxOnPlaneSide (vec3_t emins, vec3_t emaxs, struct cplane_s *plane);
+void AngleVectors (const vec3_t angles, vec3_t forward, vec3_t right, vec3_t up);
+int BoxOnPlaneSide (const vec3_t emins, const vec3_t emaxs, const struct cplane_s *plane);
 float anglemod (float a);
 float LerpAngle (float a1, float a2, float frac);
 
@@ -259,29 +352,26 @@ void COM_DefaultExtension (char *path, char *extension);
 char *COM_Parse (char **data_p);
 // data is an in/out parm, returns a parsed out token
 
-void Com_sprintf (char *dest, int size, char *fmt, ...);
-
 void Com_PageInMemory (byte * buffer, int size);
 
 //=============================================
 
-// portable case insensitive compare
-int Q_stricmp (char *s1, char *s2);
-int Q_strcasecmp (char *s1, char *s2);
-int Q_strncasecmp (char *s1, char *s2, int n);
-void Q_strncpyz( char *dest, const char *src, int destsize );
+#ifndef Q_strnicmp
+ int Q_strnicmp (const char *s1, const char *s2, size_t size);
+#endif
+#ifndef Q_stricmp
+#  define Q_stricmp(s1, s2) Q_strnicmp((s1), (s2), 99999)
+#endif
+
+// buffer safe operations
+void Q_strncpyz (char *dest, const char *src, size_t size );
+void Q_strncatz (char *dest, const char *src, size_t size );
+void Com_sprintf(char *dest, size_t size, const char *fmt, ...);
 
 //=============================================
 
-short BigShort (short l);
-short LittleShort (short l);
-int BigLong (int l);
-int LittleLong (int l);
-float BigFloat (float l);
-float LittleFloat (float l);
-
 void Swap_Init (void);
-char *va (char *format, ...);
+char *va(const char *format, ...);
 
 //=============================================
 
@@ -292,10 +382,10 @@ char *va (char *format, ...);
 #define MAX_INFO_VALUE          64
 #define MAX_INFO_STRING         512
 
-char *Info_ValueForKey (char *s, char *key);
-void Info_RemoveKey (char *s, char *key);
-void Info_SetValueForKey (char *s, char *key, char *value);
-qboolean Info_Validate (char *s);
+char *Info_ValueForKey (const char *s, const char *key);
+void Info_RemoveKey (char *s, const char *key);
+void Info_SetValueForKey (char *s, const char *key, const char *value);
+qboolean Info_Validate (const char *s);
 
 /*
    ==============================================================
@@ -305,17 +395,6 @@ qboolean Info_Validate (char *s);
    ==============================================================
  */
 
-extern int curtime;		// time returned by last Sys_Milliseconds
-
-int Sys_Milliseconds (void);
-void Sys_Mkdir (char *path);
-
-// large block stack allocation routines
-void *Hunk_Begin (int maxsize);
-void *Hunk_Alloc (int size);
-void Hunk_Free (void *buf);
-int Hunk_End (void);
-
 // directory searching
 #define SFF_ARCH    0x01
 #define SFF_HIDDEN  0x02
@@ -323,17 +402,9 @@ int Hunk_End (void);
 #define SFF_SUBDIR  0x08
 #define SFF_SYSTEM  0x10
 
-/*
-   ** pass in an attribute mask of things you wish to REJECT
- */
-char *Sys_FindFirst (char *path, unsigned musthave, unsigned canthave);
-char *Sys_FindNext (unsigned musthave, unsigned canthave);
-void Sys_FindClose (void);
-
-
 // this is only here so the functions in q_shared.c and q_shwin.c can link
-void Sys_Error (char *error, ...);
-void Com_Printf (char *msg, ...);
+void Sys_Error (const char *error, ...);
+void Com_Printf (const char *msg, ...);
 
 
 /*
@@ -1013,8 +1084,6 @@ pmove_t;
 #define MZ2_WIDOW2_BEAM_SWEEP_11                210
 // ROGUE
 
-extern vec3_t monster_flash_offset[];
-
 
 // temp entity events
 //
@@ -1182,15 +1251,17 @@ temp_event_t;
 #define DF_QUAD_DROP            16384
 #define DF_FIXED_FOV            32768
 
+#define DF_WEAPON_RESPAWN       0x00010000
+
 // FROM 3.20 -FB
 // RAFAEL
-#define DF_QUADFIRE_DROP        0x00010000	// 65536
+/*#define DF_QUADFIRE_DROP        0x00010000	// 65536
 
 //ROGUE
 #define DF_NO_MINES             0x00020000
 #define DF_NO_STACK_DOUBLE      0x00040000
 #define DF_NO_NUKES             0x00080000
-#define DF_NO_SPHERES           0x00100000
+#define DF_NO_SPHERES           0x00100000*/
 //ROGUE
 // ^^^
 
@@ -1329,15 +1400,5 @@ typedef struct
 }
 player_state_t;
 
+#endif
 
-// FROM 3.20 -FB
-// ==================
-// PGM 
-#define VIDREF_GL             1
-#define VIDREF_SOFT           2
-#define VIDREF_OTHER  3
-
-extern int vidref_val;
-// PGM
-// ==================
-// ^^^

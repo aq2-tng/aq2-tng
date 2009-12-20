@@ -105,7 +105,7 @@ void DescListInit (char *mapname);
 qboolean GetPositionText (vec3_t, char *);	//TempFile we need this public (HUD!)
 */
 //AQ2:TNG END
-void ParseSayText (edict_t * ent, char *text);
+void ParseSayText (edict_t *, char *, size_t size);
 
 
 //AQ2:TNG - Slicer 

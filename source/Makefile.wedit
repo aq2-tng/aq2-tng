@@ -1,12 +1,12 @@
 #-----------------------------------------------------------------------------
 # Wedit Makefile for project aq2pg123i3
 #
-# $Id: Makefile.wedit,v 1.1 2001/05/06 17:23:58 igor_rock Exp $
+# $Id: Makefile.wedit,v 1.1.1.1 2001/05/06 17:23:58 igor_rock Exp $
 #
 #-----------------------------------------------------------------------------
 # $Log: Makefile.wedit,v $
-# Revision 1.1  2001/05/06 17:23:58  igor_rock
-# Initial revision
+# Revision 1.1.1.1  2001/05/06 17:23:58  igor_rock
+# This is the PG Bund Edition V1.25 with all stuff laying around here...
 #
 #-----------------------------------------------------------------------------
 
@@ -14,7 +14,7 @@ CC=lcc
 CFLAGS=-o2 -DC_ONLY
 
 OBJS=\
-	a_ban.obj a_cmds.obj a_doorkick.obj a_game.obj a_items.obj a_menu.obj \
+	a_cmds.obj a_doorkick.obj a_game.obj a_items.obj a_menu.obj \
 	a_radio.obj a_team.obj a_tourney.obj a_vote.obj a_xcmds.obj a_xgame.obj \
 	a_xmenu.obj a_xvote.obj cgf_sfx_glass.obj g_ai.obj g_chase.obj g_cmds.obj \
 	g_combat.obj g_func.obj g_items.obj g_main.obj g_misc.obj g_monster.obj \
@@ -25,10 +25,6 @@ OBJS=\
 gamex86.dll:	$(OBJS) game.def
 	lcclnk -subsystem windows -dll -entry DLLMain *.obj game.def -o gamex86.dll
 	dllfix
-
-# Build A_BAN.C
-a_ban.obj: a_ban.c
-	$(CC) $(CFLAGS) a_ban.c
 
 # Build A_CMDS.C
 a_cmds_c=\

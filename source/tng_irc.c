@@ -1,16 +1,10 @@
 //-----------------------------------------------------------------------------
 // IRC related functions
 //
-// $Id: tng_irc.c,v 1.4 2006/06/18 10:49:57 igor_rock Exp $
+// $Id: tng_irc.c,v 1.2 2003/06/19 15:53:26 igor_rock Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: tng_irc.c,v $
-// Revision 1.4  2006/06/18 10:49:57  igor_rock
-// - used gi.cvar_forceset instead of direct access to cvar
-//
-// Revision 1.3  2006/06/18 09:13:25  igor_rock
-// - replaced strncpy with Q_strncpyz
-//
 // Revision 1.2  2003/06/19 15:53:26  igor_rock
 // changed a lot of stuff because of windows stupid socket implementation
 //
@@ -184,7 +178,7 @@ IRC_exit ( void )
     if (ircdebug->value)
       gi.dprintf ("IRC: %s", IRC_QUIT);
     irc_data.ircstatus = IRC_DISABLED;
-    gi.cvar_forceset (ircstatus->name, IRC_ST_DISABLED);
+    strcpy (ircstatus->string, IRC_ST_DISABLED);
     close (irc_data.ircsocket);
   }
 }
@@ -204,22 +198,22 @@ irc_connect ( void )
 #endif
   
   irc_data.ircstatus = IRC_CONNECTING;
-  gi.cvar_forceset (ircstatus->name, IRC_ST_CONNECTING);
+  strcpy  (ircstatus->string, IRC_ST_CONNECTING);
   irc_data.ircsocket = -1;
   irc_data.ircport   = htons((unsigned short) ircport->value);
-  Q_strncpyz (irc_data.ircserver, ircserver->string, IRC_BUFLEN);
-  Q_strncpyz (irc_data.ircuser, ircuser->string, IRC_BUFLEN);
-  Q_strncpyz (irc_data.ircpasswd, ircpasswd->string, IRC_BUFLEN);
-  Q_strncpyz (irc_data.ircchannel, ircchannel->string, IRC_BUFLEN);
+  strncpy (irc_data.ircserver, ircserver->string, IRC_BUFLEN);
+  strncpy (irc_data.ircuser, ircuser->string, IRC_BUFLEN);
+  strncpy (irc_data.ircpasswd, ircpasswd->string, IRC_BUFLEN);
+  strncpy (irc_data.ircchannel, ircchannel->string, IRC_BUFLEN);
   
   if ((ipnum.s_addr = inet_addr(irc_data.ircserver)) == -1) {
     /* Maybe it's a FQDN */
     hostdata = gethostbyname(irc_data.ircserver);
     if (hostdata==NULL) {
       gi.dprintf ("IRC: invalid hostname or wrong address! Please use an existing hostname or,the xxx.xxx.xxx.xxx format.\n");
-      gi.cvar_forceset (ircbot->name, "0");
+      ircbot->value = 0;
       irc_data.ircstatus = IRC_DISABLED;
-      gi.cvar_forceset (ircstatus->name, IRC_ST_DISABLED);
+      strcpy (ircstatus->string, IRC_ST_DISABLED);
     } else {
       ipnum.s_addr = inet_addr(inet_ntoa(*(struct in_addr *)(hostdata->h_addr_list[0])));
     }
@@ -233,15 +227,15 @@ irc_connect ( void )
     hostaddress.sin_port = irc_data.ircport;
     if ((irc_data.ircsocket = socket (AF_INET, SOCK_STREAM, 0)) == -1) {
       gi.dprintf ("IRC: couldn't open socket.\n");
-      gi.cvar_forceset (ircbot->name, "0");
+      ircbot->value = 0;
       irc_data.ircstatus = IRC_DISABLED;
-      gi.cvar_forceset (ircstatus->name, IRC_ST_DISABLED);
+      strcpy (ircstatus->string, IRC_ST_DISABLED);
     } else {
       if (connect(irc_data.ircsocket, (struct sockaddr *)&hostaddress, sizeof(hostaddress)) == -1) {
 	gi.dprintf ("IRC: couldn't connect socket.\n");
-	gi.cvar_forceset (ircbot->name, "0");
+	ircbot->value = 0;
 	irc_data.ircstatus = IRC_DISABLED;
-	gi.cvar_forceset (ircstatus->name, IRC_ST_DISABLED);
+	strcpy (ircstatus->string, IRC_ST_DISABLED);
       } else {
 	gi.dprintf ("IRC: connected to %s:%d\n", irc_data.ircserver, ntohs((unsigned short) irc_data.ircport));
 #ifdef WIN32
@@ -252,9 +246,9 @@ irc_connect ( void )
 	if (fcntl(irc_data.ircsocket, F_SETFL, (long) flags)) {
 	  gi.dprintf ("IRC: couldn't switch to non-blocking\n");
 	  close (irc_data.ircsocket);
-	  gi.cvar_forceset (ircbot->name, "0");
+	  ircbot->value = 0;
 	  irc_data.ircstatus = IRC_DISABLED;
-	  gi.cvar_forceset (ircstatus->name, IRC_ST_DISABLED);
+	  strcpy (ircstatus->string, IRC_ST_DISABLED);
 	} else {
 #endif
 	  sprintf (outbuf, "NICK %s\nUSER tng-mbot * * :%s\n", irc_data.ircuser, hostname->string);
@@ -296,16 +290,16 @@ irc_parse ( void )
       wer[pos-1] = 0;
       pos++;
 
-      if (Q_strncasecmp (wer, irc_data.ircuser, strlen(irc_data.ircuser)) == 0) {
+      if (Q_strnicmp (wer, irc_data.ircuser, strlen(irc_data.ircuser)) == 0) {
 	cp = strchr(irc_data.input, ' ');
 	cp++; // skip the space
-	if (Q_strncasecmp (cp, "JOIN :", 6) == 0) {  // channel JOINED
+	if (Q_strnicmp (cp, "JOIN :", 6) == 0) {  // channel JOINED
 	  cp += 6;
 	  gi.dprintf ("IRC: joined channel %s\n", cp);
-	  if (Q_strncasecmp(cp, irc_data.ircchannel, strlen(irc_data.ircchannel)) == 0) {
+	  if (Q_strnicmp(cp, irc_data.ircchannel, strlen(irc_data.ircchannel)) == 0) {
 	    // joined our channel
 	    irc_data.ircstatus = IRC_JOINED;
-	    gi.cvar_forceset (ircstatus->name, IRC_ST_JOINED);
+	    strcpy (ircstatus->string, IRC_ST_JOINED);
 	    if (*ircop->string) {
 	      if (ircdebug->value)
 		gi.dprintf ("IRC: >> %s\n", ircop->string);
@@ -318,7 +312,7 @@ irc_parse ( void )
 	} else {
 	  // Maybe Future Extesion
 	}
-      } else if (Q_strncasecmp (&irc_data.input[pos], "004 ", 4) == 0) {
+      } else if (Q_strnicmp (&irc_data.input[pos], "004 ", 4) == 0) {
 	sprintf(outbuf, "mode %s +i\n", irc_data.ircuser);
 	if (ircdebug->value)
 	  gi.dprintf("IRC: >> mode %s +i set\n", irc_data.ircuser);
@@ -339,23 +333,23 @@ irc_parse ( void )
 	}
 	
 	irc_data.ircstatus = IRC_CONNECTED;
-	gi.cvar_forceset (ircstatus->name, IRC_ST_CONNECTED);
-      } else if (Q_strncasecmp (&irc_data.input[pos], "PRIVMSG ", 8) == 0) {
+	strcpy (ircstatus->string, IRC_ST_CONNECTED);
+      } else if (Q_strnicmp (&irc_data.input[pos], "PRIVMSG ", 8) == 0) {
 	pos += 8;
-	if (Q_strncasecmp (&irc_data.input[pos], irc_data.ircuser, strlen(irc_data.ircuser)) == 0) {
+	if (Q_strnicmp (&irc_data.input[pos], irc_data.ircuser, strlen(irc_data.ircuser)) == 0) {
 	  pos += strlen(irc_data.ircuser) + 2;
-	  if ((Q_strncasecmp (&irc_data.input[pos], ircadminpwd->string, strlen(ircadminpwd->string)) == 0) &&
-	      (Q_strncasecmp (ircadminpwd->string, "off", 3) != 0)) {
+	  if ((Q_strnicmp (&irc_data.input[pos], ircadminpwd->string, strlen(ircadminpwd->string)) == 0) &&
+	      (Q_strnicmp (ircadminpwd->string, "off", 3) != 0)) {
 	    pos += strlen(ircadminpwd->string) + 1;
 	    for (i=0; i < strlen(wer); i++) {
 	      if (wer[i] == '!') {
 		wer[i] = 0;
 	      }
 	    }
-	    if (Q_strncasecmp (&irc_data.input[pos], "op", 2) == 0) {
+	    if (Q_strnicmp (&irc_data.input[pos], "op", 2) == 0) {
 	      gi.dprintf ("IRC: set +o %s\n", wer);
 	      send (irc_data.ircsocket, outbuf, strlen(outbuf), 0);
-	    } else if (Q_strncasecmp (&irc_data.input[pos], "say", 3) == 0) {
+	    } else if (Q_strnicmp (&irc_data.input[pos], "say", 3) == 0) {
 	      pos += 4;
 	      if (strlen(&irc_data.input[pos]) > 225) {
 		irc_data.input[pos+225] = 0;
@@ -365,11 +359,11 @@ irc_parse ( void )
 	      IRC_printf (IRC_T_TALK, "console: %s\n", &irc_data.input[pos]);
 	    }
 	  }
-	} else if (Q_strncasecmp (&irc_data.input[pos], irc_data.ircchannel, strlen(irc_data.ircchannel)) == 0) {
+	} else if (Q_strnicmp (&irc_data.input[pos], irc_data.ircchannel, strlen(irc_data.ircchannel)) == 0) {
 	  pos += strlen(irc_data.ircchannel) + 1;
 	  // Maybe Future Extesion
 	}
-      } else if (Q_strncasecmp (&irc_data.input[pos], "NOTICE ", 7) == 0) {
+      } else if (Q_strnicmp (&irc_data.input[pos], "NOTICE ", 7) == 0) {
 	pos += 7;
 	// Maybe Future Extesion
       } else if (strstr (irc_data.input, irc_data.ircuser)) {
@@ -385,7 +379,7 @@ irc_parse ( void )
 	  }
 	}
       }
-    } else if (Q_strncasecmp(irc_data.input, "PING :", 6) == 0) {
+    } else if (Q_strnicmp(irc_data.input, "PING :", 6) == 0) {
       /* answer with a pong */
       sprintf(outbuf, "PONG %s\n", &irc_data.input[6]);
       if (ircdebug->value)		
@@ -421,7 +415,7 @@ irc_getinput ( void )
       gi.dprintf ("IRC: connection terminated!\n");
       close (irc_data.ircsocket);
       irc_data.ircstatus = IRC_DISABLED;
-      gi.cvar_forceset (ircstatus->name, IRC_ST_DISABLED);
+      strcpy (ircstatus->string, IRC_ST_DISABLED);
     }
   } else if (anz_net > 0) {
     anfang = inbuf;
@@ -458,7 +452,7 @@ irc_getinput ( void )
 	  strncat (irc_data.input, anfang, length);
 	} else {
 	  // Puffer leer, also nur kopieren
-	  Q_strncpyz (irc_data.input, anfang, length);
+	  strncpy (irc_data.input, anfang, length);
 	}
 	irc_data.input[length] = 0;
 	anfang += length;
@@ -471,7 +465,7 @@ irc_getinput ( void )
 void
 IRC_poll (void)
 {
-  if (!ircbot->value) {
+  if (ircbot->value == 0) {
     if (irc_data.ircstatus != IRC_DISABLED) {
       IRC_exit ();
     }

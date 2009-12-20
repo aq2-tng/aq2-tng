@@ -5,18 +5,10 @@
 // Zucchini (spikard@u.washington.edu) and Fireblade (ucs_brf@shsu.edu) 
 // (splat/bullethole/shell ejection code from original Action source)
 //
-// $Id: a_game.c,v 1.16 2006/06/18 09:06:20 igor_rock Exp $
+// $Id: a_game.c,v 1.14 2003/06/15 15:34:32 igor Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_game.c,v $
-// Revision 1.16  2006/06/18 09:06:20  igor_rock
-// - corrected some indexes from [1] to [TEAM1] and so on
-//
-// Revision 1.15  2006/06/17 11:28:45  igor_rock
-// Some code cleanup:
-// - moved team related variables to a single struct variable
-// - some minor changes to reduced possible error sources
-//
 // Revision 1.14  2003/06/15 15:34:32  igor
 // - removed the zcam code from this branch (see other branch)
 // - added fixes from 2.72 (source only) version
@@ -84,11 +76,10 @@
 #define MAX_STR_LEN             1000
 #define MAX_TOTAL_MOTD_LINES    30
 
-team_data_t team_data[MAX_TEAMS];
 char *map_rotation[MAX_MAP_ROTATION];
 int num_maps, cur_map, num_allvotes;	// num_allvotes added by Igor[Rock]
 
-char motd_lines[MAX_TOTAL_MOTD_LINES][70];
+char motd_lines[MAX_TOTAL_MOTD_LINES][40];
 int motd_num_lines;
 
 /*
@@ -147,21 +138,21 @@ void ReadConfigFile()
 		if (lines_into_section > -1) {
 			if (!strcmp(reading_section, "team1")) {
 				if (lines_into_section == 0) {
-					Q_strncpyz(team_data[TEAM1].name, buf, sizeof(team_data[TEAM1].name));
+					Q_strncpyz(teams[TEAM1].name, buf, sizeof(teams[TEAM1].name));
 				} else if (lines_into_section == 1) {
-					Q_strncpyz(team_data[TEAM1].skin, buf, sizeof(team_data[TEAM1].skin));
+					Q_strncpyz(teams[TEAM1].skin, buf, sizeof(teams[TEAM1].skin));
 				}
 			} else if (!strcmp(reading_section, "team2")) {
 				if (lines_into_section == 0) {
-					Q_strncpyz(team_data[TEAM2].name, buf, sizeof(team_data[TEAM2].name));
+					Q_strncpyz(teams[TEAM2].name, buf, sizeof(teams[TEAM2].name));
 				} else if (lines_into_section == 1) {
-					Q_strncpyz(team_data[TEAM2].skin, buf, sizeof(team_data[TEAM2].skin));
+					Q_strncpyz(teams[TEAM2].skin, buf, sizeof(teams[TEAM2].skin));
 				}
 			} else if (!strcmp(reading_section, "team3")) {
 				if (lines_into_section == 0) {
-					Q_strncpyz(team_data[TEAM3].name, buf, sizeof(team_data[TEAM3].name));
+					Q_strncpyz(teams[TEAM3].name, buf, sizeof(teams[TEAM3].name));
 				} else if (lines_into_section == 1) {
-					Q_strncpyz(team_data[TEAM3].skin, buf, sizeof(team_data[TEAM3].skin));
+					Q_strncpyz(teams[TEAM3].skin, buf, sizeof(teams[TEAM3].skin));
 				}
 			} else if (!strcmp(reading_section, "maplist")) {
 				map_rotation[num_maps] = (char *) gi.TagMalloc(strlen(buf) + 1, TAG_GAME);
@@ -172,9 +163,9 @@ void ReadConfigFile()
 		}
 	}
 
-	sprintf(team_data[TEAM1].skin_index, "../players/%s_i", team_data[TEAM1].skin);
-	sprintf(team_data[TEAM2].skin_index, "../players/%s_i", team_data[TEAM2].skin);
-	sprintf(team_data[TEAM3].skin_index, "../players/%s_i", team_data[TEAM3].skin);
+	Com_sprintf(teams[TEAM1].skin_index, sizeof(teams[TEAM1].skin_index), "../players/%s_i", teams[TEAM1].skin);
+	Com_sprintf(teams[TEAM2].skin_index, sizeof(teams[TEAM2].skin_index), "../players/%s_i", teams[TEAM2].skin);
+	Com_sprintf(teams[TEAM3].skin_index, sizeof(teams[TEAM3].skin_index), "../players/%s_i", teams[TEAM3].skin);
 	cur_map = 0;
 
 	fclose(config_file);
@@ -193,17 +184,18 @@ void ReadMOTDFile()
 	motd_num_lines = 0;
 	while (fgets(buf, 900, motd_file) != NULL) {
 		lbuf = strlen(buf);
-		while (buf[lbuf - 1] == '\r' || buf[lbuf - 1] == '\n') {
+		while (lbuf > 0 && (buf[lbuf - 1] == '\r' || buf[lbuf - 1] == '\n')) {
 			buf[lbuf - 1] = 0;
 			lbuf--;
 		}
 
-		if (lbuf > 40)
-			buf[40] = 0;
+		if(!lbuf)
+			continue;
 
-		strcpy(motd_lines[motd_num_lines], buf);
+		if (lbuf > 39)
+			buf[39] = 0;
 
-		motd_num_lines++;
+		strcpy(motd_lines[motd_num_lines++], buf);
 
 		if (motd_num_lines >= MAX_TOTAL_MOTD_LINES)
 			break;
@@ -217,12 +209,10 @@ void PrintMOTD(edict_t * ent)
 {
 	int mapnum, i, lines = 0;
 	int max_lines = MAX_TOTAL_MOTD_LINES;
-	char msg_buf[16384], *server_type;
+	char msg_buf[1024], *server_type;
 
-	/* 
-	   Welcome Message. This shows the Version Number and website URL, followed by an empty line
-	 */
 
+	//Welcome Message. This shows the Version Number and website URL, followed by an empty line
 	strcpy(msg_buf, TNG_VERSION2 "\n" "http://www.aq2tng.barrysworld.net/\n" "\n");
 	lines = 3;
 
@@ -231,10 +221,9 @@ void PrintMOTD(edict_t * ent)
 	 */
 	if (!skipmotd->value) {
 		// This line will show the hostname. If not set, the default name will be "Unnamed TNG Server" (used to be "unnamed")
-		if (hostname->string && strlen(hostname->string)
-		    && strcmp(hostname->string, "Unnamed TNG Server")) {
-			//strcat(msg_buf, "Running at: ");
-			strcat(msg_buf, hostname->string);
+		if (hostname->string[0] && strcmp(hostname->string, "Unnamed TNG Server"))
+		{
+			Q_strncatz(msg_buf, hostname->string, strlen(msg_buf)+40);
 			strcat(msg_buf, "\n");
 			lines++;
 		}
@@ -244,34 +233,27 @@ void PrintMOTD(edict_t * ent)
 		 */
 
 		// Check what game type it is
-		if (teamplay->value) {
-			// Is it CTF?
-			if (ctf->value) {
+		if (teamplay->value)
+		{
+			if (ctf->value) // Is it CTF?
 				server_type = "Capture the Flag";
-			}
-			// Is it Matchmode?
-			else if (matchmode->value) {
+			else if (matchmode->value) // Is it Matchmode?
 				server_type = "Matchmode";
-			}
-			// Is it 3 Teams?
-			else if (use_3teams->value) {
+			else if (use_3teams->value) // Is it 3 Teams?
 				server_type = "3 Team Teamplay";
-			}
-			// Is it Tourney?
-			else if (use_tourney->value)	// Added "->value", duh -TempFile
-			{
+			else if (teamdm->value) // Is it TeamDM?
+				server_type = "Team Deathmatch";
+			else if (use_tourney->value) // Is it Tourney?
 				server_type = "Tourney";
-			}
-			// No? Then it must be Teamplay
-			else
+			else // No? Then it must be Teamplay
 				server_type = "Teamplay";
 		}
-		// So it's not Teamplay?
-		else {
+		else  // So it's not Teamplay?
+		{
 			// Set the appropiate Deathmatch mode
-			if ((int) dmflags->value & DF_MODELTEAMS)
+			if ((int)dmflags->value & DF_MODELTEAMS)
 				server_type = "Deathmatch (Teams by Model)";
-			else if ((int) dmflags->value & DF_SKINTEAMS)
+			else if ((int)dmflags->value & DF_SKINTEAMS)
 				server_type = "Deathmatch (Teams by Skin)";
 			else
 				server_type = "Deathmatch (No Teams)";
@@ -282,8 +264,7 @@ void PrintMOTD(edict_t * ent)
 		/*
 		   Darkmatch
 		 */
-		if ((darkmatch->value == 1) || (darkmatch->value == 2)
-		    || (darkmatch->value == 3)) {
+		if ((darkmatch->value == 1) || (darkmatch->value == 2) || (darkmatch->value == 3)) {
 			if (darkmatch->value == 1)
 				sprintf(msg_buf + strlen(msg_buf), "Playing in Total Darkness\n");
 			else if (darkmatch->value == 2)
@@ -293,45 +274,40 @@ void PrintMOTD(edict_t * ent)
 			lines++;
 		}
 		// Adding an empty line
-		sprintf(msg_buf + strlen(msg_buf), "\n");
+		strcat(msg_buf, "\n");
 		lines++;
 
 		/*
 		   Now for the map rules, such as Timelimit, Roundlimit, etc
 		 */
-		// What is the fraglimit?
-		if ((int) fraglimit->value)
+		if ((int)fraglimit->value) // What is the fraglimit?
 			sprintf(msg_buf + strlen(msg_buf), "Fraglimit: %d", (int) fraglimit->value);
 		else
 			strcat(msg_buf, "Fraglimit: none");
 
-		// What is the timelimit?
-		if ((int) timelimit->value)
+		if ((int) timelimit->value) // What is the timelimit?
 			sprintf(msg_buf + strlen(msg_buf), "  Timelimit: %d\n", (int) timelimit->value);
 		else
 			strcat(msg_buf, "  Timelimit: none\n");
 		lines++;
 
 		// If we're in Teamplay, and not CTF, we want to see what the roundlimit and roundtimelimit is
-		if (teamplay->value && !ctf->value) {
-			// What is the roundlimit?
-			if ((int) roundlimit->value)
-				sprintf(msg_buf + strlen(msg_buf), "Roundlimit: %d", (int) roundlimit->value);
+		if (teamplay->value && !ctf->value && !teamdm->value)
+		{
+			if ((int)roundlimit->value) // What is the roundlimit?
+				sprintf(msg_buf + strlen(msg_buf), "Roundlimit: %d", (int)roundlimit->value);
 			else
 				strcat(msg_buf, "Roundlimit: none");
 
-			// What is the roundtimelimit?
-			if ((int) roundtimelimit->value)
-				sprintf(msg_buf + strlen(msg_buf), "  Roundtimelimit: %d\n",
-					(int) roundtimelimit->value);
+			if ((int)roundtimelimit->value) // What is the roundtimelimit?
+				sprintf(msg_buf + strlen(msg_buf), "  Roundtimelimit: %d\n", (int)roundtimelimit->value);
 			else
 				strcat(msg_buf, "  Roundtimelimit: none\n");
 			lines++;
 		}
-		// If we're in CTF, we want to know the capturelimit
-		if (ctf->value) {
-			// What is the capturelimit?
-			if ((int) capturelimit->value)
+		else if (ctf->value) // If we're in CTF, we want to know the capturelimit
+		{	
+			if ((int) capturelimit->value) // What is the capturelimit?
 				sprintf(msg_buf + strlen(msg_buf), "  Capturelimit: %d\n", (int) capturelimit->value);
 			else
 				strcat(msg_buf, "  Capturelimit: none\n");
@@ -341,9 +317,8 @@ void PrintMOTD(edict_t * ent)
 		/*
 		   Check for the number of weapons and items people can carry
 		 */
-		if ((int) unique_weapons->value != 1 || (int) unique_items->value != 1) {
-			sprintf(msg_buf + strlen(msg_buf),
-				"Max number of spec weapons: %d  items: %d\n",
+		if ((int)unique_weapons->value != 1 || (int)unique_items->value != 1) {
+			sprintf(msg_buf + strlen(msg_buf), "Max number of spec weapons: %d  items: %d\n",
 				(int) unique_weapons->value, (int) unique_items->value);
 			lines++;
 		}
@@ -356,12 +331,11 @@ void PrintMOTD(edict_t * ent)
 
 			// Show the number of grenades with the Bandolier
 			if (tgren->value > 0)
-				sprintf(grenade_num, "%d grenade%s", (int) tgren->value,
-					(int) tgren->value == 1 ? "" : "s");
+				sprintf(grenade_num, "%d grenade%s", (int)tgren->value, (int)tgren->value == 1 ? "" : "s");
+
 			sprintf(msg_buf + strlen(msg_buf), "Bandolier w/ %s%s%s\n",
-				!(ir->value) ? "no IR" : "", (tgren->value > 0
-							      && !(ir->
-								   value)) ? " & " : "",
+				!(ir->value) ? "no IR" : "",
+				(tgren->value > 0 && !(ir->value)) ? " & " : "",
 				tgren->value > 0 ? grenade_num : "");
 			lines++;
 		}
@@ -402,8 +376,7 @@ void PrintMOTD(edict_t * ent)
 		if (use_mapvote->value || use_cvote->value || use_kickvote->value) {
 			sprintf(msg_buf + strlen(msg_buf), "Vote Types: %s%s%s%s%s\n",
 				use_mapvote->value ? "Map" : "", (use_mapvote->value
-								  && use_cvote->
-								  value) ? " & " : "",
+								  && use_cvote->value) ? " & " : "",
 				use_cvote->value ? "Config" : "", ((use_mapvote->value && use_kickvote->value)
 								   || (use_cvote->value
 								       && use_kickvote->value)) ? " & " : "",
@@ -421,59 +394,46 @@ void PrintMOTD(edict_t * ent)
 		/* 
 		   If actionmaps, put a blank line then the maps list
 		 */
-		if (actionmaps->value && num_maps > 0) {
-			int chars_on_line, len_mr;
+		if (actionmaps->value && num_maps > 0)
+		{
+			int chars_on_line = 0, len_mr;
 
-			// Using Vote Rotation?
-			if (vrot->value) {
+			if (vrot->value)		// Using Vote Rotation?
 				strcat(msg_buf, "\nRunning these maps in vote order:\n");
-				lines += 2;
-			}
-			// Using Random Rotation?
-			if (rrot->value) {
+			else if (rrot->value)	// Using Random Rotation?
 				strcat(msg_buf, "\nRunning the following maps randomly:\n");
-				lines += 2;
-			}
-			// Added this
-			if (!(rrot->value) && !(vrot->value)) {
+			else 
 				strcat(msg_buf, "\nRunning the following maps in order:\n");
-				lines += 2;
-			}
 
-			chars_on_line = 0;
-			for (mapnum = 0; mapnum < num_maps; mapnum++) {
+			lines += 2;
+
+			for (mapnum = 0; mapnum < num_maps; mapnum++)
+			{
 				len_mr = strlen(*(map_rotation + mapnum));
 				if ((chars_on_line + len_mr + 2) > 39) {
-					strcat(msg_buf, "\n");
+					Q_strncatz(msg_buf, "\n", sizeof(msg_buf));
 					lines++;
 					if (lines >= max_lines)
 						break;
 					chars_on_line = 0;
 				}
-				strcat(msg_buf, *(map_rotation + mapnum));
+				Q_strncatz(msg_buf, *(map_rotation + mapnum), sizeof(msg_buf));
 				chars_on_line += len_mr;
 				if (mapnum < (num_maps - 1)) {
-					strcat(msg_buf, ", ");
+					Q_strncatz(msg_buf, ", ", sizeof(msg_buf));
 					chars_on_line += 2;
 				}
 			}
 
 			if (lines < max_lines) {
-				strcat(msg_buf, "\n");
+				Q_strncatz(msg_buf, "\n", sizeof(msg_buf));
 				lines++;
 			}
 		}
 
-		/*
-		   If we're in teamplay, we want to inform people that they can open the menu with TAB
-		 */
-		if (teamplay->value) {
-			strcat(msg_buf, "\nHit TAB to open the Team selection menu");
-			lines++;	//lines+=2;
-		}
-
-		if (motd_num_lines && lines < max_lines) {
-			strcat(msg_buf, "\n");
+		//If we're in teamplay, we want to inform people that they can open the menu with TAB
+		if (teamplay->value && lines < max_lines) {
+			Q_strncatz(msg_buf, "\nHit TAB to open the Team selection menu", sizeof(msg_buf));
 			lines++;
 		}
 	}
@@ -482,19 +442,20 @@ void PrintMOTD(edict_t * ent)
 	   Insert action/motd.txt contents (whole MOTD gets truncated after 30 lines)
 	 */
 
-	if (motd_num_lines) {
-		if (lines < max_lines) {
-			for (i = 0; i < motd_num_lines; i++) {
-				strcat(msg_buf, motd_lines[i]);
-				strcat(msg_buf, "\n");
-				lines++;
-				if (lines >= max_lines)
-					break;
-			}
+	if (motd_num_lines && lines < max_lines-1)
+	{
+		Q_strncatz(msg_buf, "\n", sizeof(msg_buf));
+		lines++;
+		for (i = 0; i < motd_num_lines; i++) {
+			Q_strncatz(msg_buf, motd_lines[i], sizeof(msg_buf));
+			lines++;
+			if (lines >= max_lines)
+				break;
+			Q_strncatz(msg_buf, "\n", sizeof(msg_buf));
 		}
 	}
 
-	gi.centerprintf(ent, msg_buf);
+	gi.centerprintf(ent, "%s", msg_buf);
 }
 
 // stuffcmd: forces a player to execute a command.
@@ -505,6 +466,21 @@ void stuffcmd(edict_t * ent, char *c)
 	gi.unicast(ent, true);
 }
 
+void unicastSound(edict_t *ent, int soundIndex, float volume)
+{
+    int mask = MASK_ENTITY_CHANNEL;
+ 
+    if (volume != 1.0)
+        mask |= MASK_VOLUME;
+ 
+    gi.WriteByte(svc_sound);
+    gi.WriteByte((byte)mask);
+    gi.WriteByte((byte)soundIndex);
+    if (mask & MASK_VOLUME)
+        gi.WriteByte((byte)(volume * 255));
+    gi.WriteShort(((ent - g_edicts - 1) << 3) + CHAN_NO_PHS_ADD);
+    gi.unicast (ent, true);
+}
 // AQ2:TNG END
 
 /********************************************************************************
@@ -933,16 +909,14 @@ void GetWeaponName(edict_t * ent, char *buf)
 
 void GetItemName(edict_t * ent, char *buf)
 {
-	gitem_t *spec;
 	int i;
 
-	i = 0;
-	while (tnames[i]) {
-		if ((spec = FindItemByClassname(tnames[i])) != NULL && ent->client->pers.inventory[ITEM_INDEX(spec)]) {
-			strcpy(buf, spec->pickup_name);
+	for(i = 0; i<ITEM_COUNT; i++)
+	{
+		if (INV_AMMO(ent, tnums[i])) {
+			strcpy(buf, GET_ITEM(tnums[i])->pickup_name);
 			return;
 		}
-		i++;
 	}
 
 	strcpy(buf, "No Item");
@@ -988,11 +962,11 @@ void GetAmmo(edict_t * ent, char *buf)
 				ent->client->dual_rds, ent->client->pers.inventory[ent->client->ammo_index]);
 			return;
 		case KNIFE_NUM:
-			ammo = ent->client->pers.inventory[ITEM_INDEX(FindItem(KNIFE_NAME))];
+			ammo = INV_AMMO(ent, KNIFE_NUM);
 			sprintf(buf, "%d kni%s", ammo, (ammo == 1) ? "fe" : "ves");
 			return;
 		case GRENADE_NUM:
-			ammo = ent->client->pers.inventory[ITEM_INDEX(FindItem(GRENADE_NAME))];
+			ammo = INV_AMMO(ent, GRENADE_NUM);
 			sprintf(buf, "%d grenade%s", ammo, (ammo == 1) ? "" : "s");
 			return;
 		}
@@ -1003,8 +977,8 @@ void GetAmmo(edict_t * ent, char *buf)
 
 void GetNearbyTeammates(edict_t * self, char *buf)
 {
-	unsigned char nearby_teammates[10][16];
-	int nearby_teammates_num, l;
+	unsigned char nearby_teammates[8][16];
+	int nearby_teammates_num = 0, l;
 	edict_t *ent = NULL;
 
 	nearby_teammates_num = 0;
@@ -1013,11 +987,10 @@ void GetNearbyTeammates(edict_t * self, char *buf)
 		if (ent == self || !ent->client || !CanDamage(ent, self) || !OnSameTeam(ent, self))
 			continue;
 
-		strncpy(nearby_teammates[nearby_teammates_num], ent->client->pers.netname, 15);
-		nearby_teammates[nearby_teammates_num][15] = 0;	// in case their name is 15 chars...
+		Q_strncpyz(nearby_teammates[nearby_teammates_num], ent->client->pers.netname, sizeof(nearby_teammates[0]));
 
 		nearby_teammates_num++;
-		if (nearby_teammates_num >= 10)
+		if (nearby_teammates_num >= 8)
 			break;
 	}
 
@@ -1026,23 +999,14 @@ void GetNearbyTeammates(edict_t * self, char *buf)
 		return;
 	}
 
-	for (l = 0; l < nearby_teammates_num; l++) {
-		if (l == 0) {
-			strcpy(buf, nearby_teammates[l]);
-		} else {
-			if (nearby_teammates_num == 2) {
-				strcat(buf, " and ");
-				strcat(buf, nearby_teammates[l]);
-			} else {
-				if (l == (nearby_teammates_num - 1)) {
-					strcat(buf, ", and ");
-					strcat(buf, nearby_teammates[l]);
-				} else {
-					strcat(buf, ", ");
-					strcat(buf, nearby_teammates[l]);
-				}
-			}
-		}
+	strcpy(buf, nearby_teammates[0]);
+	for (l = 1; l < nearby_teammates_num; l++)
+	{
+		if (l == nearby_teammates_num - 1)
+			Q_strncatz(buf, " and ", PARSE_BUFSIZE);
+		else
+			Q_strncatz(buf, ", ", PARSE_BUFSIZE);
 
+		Q_strncatz(buf, nearby_teammates[l], PARSE_BUFSIZE);
 	}
 }

@@ -1,16 +1,10 @@
 //-----------------------------------------------------------------------------
 // a_xvote.c
 //
-// $Id: a_xvote.c,v 1.6 2006/06/18 12:52:18 igor_rock Exp $
+// $Id: a_xvote.c,v 1.4 2003/12/09 22:06:11 igor_rock Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: a_xvote.c,v $
-// Revision 1.6  2006/06/18 12:52:18  igor_rock
-// - removed extra banlist, used teamkiller ban list instead
-//
-// Revision 1.5  2006/06/18 09:32:23  igor_rock
-// - removed menu entry "Leave team" in Deathmatch (credits to Maniac!)
-//
 // Revision 1.4  2003/12/09 22:06:11  igor_rock
 // added "ignorepart" commadn to ignore all players with the specified part in
 // their name (one shot function: if player changes his name/new palyers join,
@@ -29,12 +23,11 @@
 
 #include "g_local.h"
 
-// Static constant used below
 //#define xvlistsize (sizeof(xvotelist)/sizeof(vote_t))
 
 cvar_t *_InitLeaveTeam (ini_t * ini)
 {
-  return teamplay;
+	return teamplay;
 }
 
 vote_t xvotelist[] = {
@@ -153,11 +146,10 @@ vote_t xvotelist[] = {
     }
    }
   ,
-
   // Leave Team
   {
    NULL,			// cvar
-   _InitLeaveTeam,		// InitGame 
+   _InitLeaveTeam,	// InitGame 
    NULL,			// ExitGame 
    NULL,			// InitLevel
    NULL,			// ExitLevel
@@ -187,234 +179,214 @@ vote_t xvotelist[] = {
 
 static const int xvlistsize = (sizeof(xvotelist)/sizeof(vote_t));
 
- /**/ void
-_AddVoteMenu (edict_t * ent, int fromix)
+ /**/
+void _AddVoteMenu (edict_t * ent, int fromix)
 {
-  int i, j;
-  qboolean erg;
+  int i = 0, j = 0;
+  qboolean erg = true;
 
-  i = 0;
-  j = 0;
-  erg = true;
-  while (i < xvlistsize && erg == true)
-    {
-      if (xvotelist[i].VoteTitle && xvotelist[i].DependsOn->value
-	  && xvotelist[i].VoteSelected)
+	while (i < xvlistsize && erg == true)
 	{
-	  if (j >= fromix)
-	    {
-	      erg =
-		xMenu_Add (ent, xvotelist[i].VoteTitle,
-			   xvotelist[i].VoteSelected);
-	    }
-	  j++;
+		if (xvotelist[i].VoteTitle && xvotelist[i].DependsOn->value
+		&& xvotelist[i].VoteSelected)
+		{
+			if (j >= fromix)
+			{
+				erg = xMenu_Add(ent, xvotelist[i].VoteTitle,
+								xvotelist[i].VoteSelected);
+			}
+			j++;
+		}
+		i++;
 	}
-      i++;
-    }
 }
 
-void
-vShowMenu (edict_t * ent, char *menu)
+void vShowMenu (edict_t * ent, char *menu)
 {
-  int i;
-  char fixedmenu[128];
+	int i;
+	char fixedmenu[128];
 
-  strncpy(fixedmenu, menu, sizeof(fixedmenu)-1);
+	Q_strncpyz(fixedmenu, menu, sizeof(fixedmenu));
 
-  if (ent->client->menu)
-    {
-      PMenu_Close (ent);
-      return;
-    }
-  if (!*fixedmenu)
-    {
-      // general menu
-      if (xMenu_New (ent, "Menu", NULL, _AddVoteMenu) == false)
+	if (ent->client->menu)
 	{
-	  gi.cprintf (ent, PRINT_MEDIUM, "Nothing to choose.\n");
+		PMenu_Close (ent);
+		return;
 	}
-    }
-  else
-    {
-      i = 0;
-      while (i < xvlistsize)
+	if (!*fixedmenu)
 	{
-	  if (xvotelist[i].DependsOn->value && xvotelist[i].VoteSelected
-	      && Q_stricmp (fixedmenu, xvotelist[i].VoteTitle) == 0)
-	    {
-	      xvotelist[i].VoteSelected (ent, NULL);
-	      return;
-	    }
-	  i++;
+		// general menu
+		if (xMenu_New (ent, "Menu", NULL, _AddVoteMenu) == false)
+		{
+			gi.cprintf (ent, PRINT_MEDIUM, "Nothing to choose.\n");
+		}
 	}
-      gi.cprintf (ent, PRINT_MEDIUM, "No such menu: %s\n", fixedmenu);
-    }
-}
-
-void
-vInitGame (void)
-{
-  int i = 0;
-  ini_t ini;
-
-  if (OpenIniFile (IniPath (), &ini) == false)
-    gi.dprintf ("Error opening ini file %s.\n", IniPath ());
-
-  while (i < xvlistsize)
-    {
-      if (xvotelist[i].InitGame)
-	xvotelist[i].DependsOn = xvotelist[i].InitGame (&ini);
-      if (!xvotelist[i].DependsOn)
-	xvotelist[i].DependsOn = deathmatch;
-      i++;
-    }
-  CloseIniFile (&ini);
-}
-
-void
-vExitGame (void)
-{
-  int i = 0;
-  while (i < xvlistsize)
-    {
-      if (xvotelist[i].ExitGame)
-	xvotelist[i].ExitGame ();
-      i++;
-    }
-}
-
-void
-vInitLevel (void)
-{
-  int i = 0;
-  while (i < xvlistsize)
-    {
-      if (xvotelist[i].InitLevel && xvotelist[i].DependsOn->value)
-	xvotelist[i].InitLevel ();
-      i++;
-    }
-}
-
-void
-vExitLevel (char *NextMap)
-{
-  int i = 0;
-  while (i < xvlistsize)
-    {
-      // gi.dprintf("Checking %s\n", xvotelist[i].VoteTitle);    
-      if (xvotelist[i].ExitLevel && xvotelist[i].DependsOn->value)
+	else
 	{
-	  // gi.dprintf("value ok.\n");
-	  xvotelist[i].ExitLevel (NextMap);
-	  /*
-	     // first come, first serve..
-	     if (NextMap[0])
-	     return;
-	   */
+
+		for (i = 0; i < xvlistsize; i++)
+		{
+			if (xvotelist[i].DependsOn->value && xvotelist[i].VoteSelected
+			&& Q_stricmp (fixedmenu, xvotelist[i].VoteTitle) == 0)
+			{
+				xvotelist[i].VoteSelected (ent, NULL);
+				return;
+			}
+		}
+		gi.cprintf (ent, PRINT_MEDIUM, "No such menu: %s\n", fixedmenu);
 	}
-      i++;
-    }
 }
 
-void
-vInitClient (edict_t * ent)
+void vInitGame (void)
 {
-  int i = 0;
-  while (i < xvlistsize)
-    {
-      if (xvotelist[i].InitClient && xvotelist[i].DependsOn->value)
-	xvotelist[i].InitClient (ent);
-      i++;
-    }
+	int i;
+	ini_t ini;
+
+	if (OpenIniFile (IniPath (), &ini) == false)
+		gi.dprintf ("Error opening ini file %s.\n", IniPath ());
+
+	for (i = 0; i < xvlistsize; i++)
+	{
+		if (xvotelist[i].InitGame)
+			xvotelist[i].DependsOn = xvotelist[i].InitGame (&ini);
+		if (!xvotelist[i].DependsOn)
+			xvotelist[i].DependsOn = deathmatch;
+	}
+	CloseIniFile (&ini);
+}
+
+void vExitGame (void)
+{
+	int i;
+
+	for (i = 0; i < xvlistsize; i++)
+	{
+		if (xvotelist[i].ExitGame)
+			xvotelist[i].ExitGame ();
+	}
+}
+
+void vInitLevel (void)
+{
+	int i;
+
+	for (i = 0; i < xvlistsize; i++)
+	{
+		if (xvotelist[i].InitLevel && xvotelist[i].DependsOn->value)
+			xvotelist[i].InitLevel ();
+	}
+}
+
+void vExitLevel (char *NextMap)
+{
+	int i;
+
+	for (i = 0; i < xvlistsize; i++)
+	{
+		// gi.dprintf("Checking %s\n", xvotelist[i].VoteTitle);    
+		if (xvotelist[i].ExitLevel && xvotelist[i].DependsOn->value)
+		{
+			// gi.dprintf("value ok.\n");
+			xvotelist[i].ExitLevel (NextMap);
+			/*
+			// first come, first serve..
+			if (NextMap[0])
+			return;
+			*/
+		}
+	}
+}
+
+void vInitClient (edict_t * ent)
+{
+	int i;
+
+	for (i = 0; i < xvlistsize; i++)
+	{
+		if (xvotelist[i].InitClient && xvotelist[i].DependsOn->value)
+			xvotelist[i].InitClient (ent);
+	}
 }
 
 qboolean vClientConnect (edict_t * ent, char *userinfo)
 {
-  int i = 0;
-  while (i < xvlistsize)
-    {
-      if (xvotelist[i].ClientConnect && xvotelist[i].DependsOn->value)
-	if (xvotelist[i].ClientConnect (ent, userinfo) == false)
-	  return false;
-      i++;
-    }
-  return true;
+	int i;
+
+	for (i = 0; i < xvlistsize; i++)
+	{
+		if (xvotelist[i].ClientConnect && xvotelist[i].DependsOn->value &&
+			xvotelist[i].ClientConnect (ent, userinfo) == false)
+				return false;
+	}
+	return true;
 }
 
-void
-vClientDisconnect (edict_t * ent)
+void vClientDisconnect (edict_t * ent)
 {
-  int i = 0;
-  while (i < xvlistsize)
-    {
-      if (xvotelist[i].ClientDisconnect && xvotelist[i].DependsOn->value)
-	xvotelist[i].ClientDisconnect (ent);
-      i++;
-    }
+	int i;
+
+	for (i = 0; i < xvlistsize; i++)
+	{
+		if (xvotelist[i].ClientDisconnect && xvotelist[i].DependsOn->value)
+			xvotelist[i].ClientDisconnect (ent);
+	}
 }
 
-void
-vNewRound (void)
+void vNewRound (void)
 {
-  int i = 0;
-  while (i < xvlistsize)
-    {
-      if (xvotelist[i].NewRound && xvotelist[i].DependsOn->value)
-	xvotelist[i].NewRound ();
-      i++;
-    }
+	int i;
+
+	for (i = 0; i < xvlistsize; i++)
+	{
+		if (xvotelist[i].NewRound && xvotelist[i].DependsOn->value)
+			xvotelist[i].NewRound ();
+	}
 }
 
 qboolean vCheckVote (void)
 {
-  int i = 0;
-  while (i < xvlistsize)
-    {
-      if (xvotelist[i].CheckVote && xvotelist[i].DependsOn->value)
-	if (xvotelist[i].CheckVote () == true)
-	  return true;
-      i++;
-    }
-  return false;
+	int i;
+
+	for (i = 0; i < xvlistsize; i++)
+	{
+		if (xvotelist[i].CheckVote && xvotelist[i].DependsOn->value && xvotelist[i].CheckVote() == true)
+			return true;
+	}
+	return false;
 }
 
 
 qboolean _vCommand (edict_t * ent, char *cmd, char *arg)
 {
-  int i, j;
+	int i, j;
 
-  i = 0;
-  while (i < xvlistsize)
-    {
-      // gi.dprintf("Checking %s\n", xvotelist[i].VoteTitle);    
-      if (xvotelist[i].DependsOn->value)
+	for (i = 0; i < xvlistsize; i++)
 	{
-	  // gi.dprintf("value ok.\n");     
-	  j = 0;
-	  while (xvotelist[i].commands[j].cmd && j < VOTE_MAX_COMMANDS)
-	    {
-	      if (Q_stricmp (cmd, xvotelist[i].commands[j].cmd) == 0)
+		// gi.dprintf("Checking %s\n", xvotelist[i].VoteTitle);    
+		if (xvotelist[i].DependsOn->value)
 		{
-		  if (xvotelist[i].commands[j].cmdfunc)
-		    {
-		      xvotelist[i].commands[j].cmdfunc (ent, arg);
-		      return true;
-		    }
+			// gi.dprintf("value ok.\n");     
+			j = 0;
+			while (xvotelist[i].commands[j].cmd && j < VOTE_MAX_COMMANDS)
+			{
+				if (Q_stricmp (cmd, xvotelist[i].commands[j].cmd) == 0)
+				{
+					if (xvotelist[i].commands[j].cmdfunc)
+					{
+						xvotelist[i].commands[j].cmdfunc (ent, arg);
+						return true;
+					}
+				}
+				j++;
+			}
 		}
-	      j++;
-	    }
 	}
-      i++;
-    }
 
-  return false;
+	return false;
 }
 
 
 qboolean vCommand (edict_t * ent, char *cmd)
 {
-  char *s;
-
-  s = gi.args ();
-  return _vCommand (ent, cmd, s);
+	return _vCommand (ent, cmd, gi.args());
 }

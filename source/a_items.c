@@ -40,11 +40,12 @@
 // time before they will get respawned
 #define SPEC_TECH_TIMEOUT       60
 
-char *tnames[] = {
-	"item_quiet", "item_slippers", "item_vest", "item_band", "item_lasersight",
-	"item_helmet",
-	NULL
+int tnums[ITEM_COUNT] = {
+	SIL_NUM, SLIP_NUM, BAND_NUM, KEV_NUM, LASER_NUM,
+	HELM_NUM
 };
+
+//int tnumspawned[ITEM_COUNT] = { 0 };
 
 void SpecThink(edict_t * spec);
 
@@ -58,9 +59,6 @@ static edict_t *FindSpecSpawn(void)
 	if (!spot)
 		spot = G_Find(spot, FOFS(classname), "info_player_deathmatch");
 
-	if (spot == NULL) {
-	}
-
 	return spot;
 }
 
@@ -71,6 +69,7 @@ static void SpawnSpec(gitem_t * item, edict_t * spot)
 
 	ent = G_Spawn();
 	ent->classname = item->classname;
+	ent->typeNum = item->typeNum;
 	ent->item = item;
 	ent->spawnflags = DROPPED_ITEM;
 	ent->s.effects = item->world_model_flags;
@@ -78,7 +77,7 @@ static void SpawnSpec(gitem_t * item, edict_t * spot)
 	VectorSet(ent->mins, -15, -15, -15);
 	VectorSet(ent->maxs, 15, 15, 15);
 	// zucc dumb hack to make laser look like it is on the ground
-	if (stricmp(item->pickup_name, LASER_NAME) == 0) {
+	if (item->typeNum == LASER_NUM) {
 		VectorSet(ent->mins, -15, -15, -1);
 		VectorSet(ent->maxs, 15, 15, 1);
 	}
@@ -110,28 +109,20 @@ void SpawnSpecs(edict_t * ent)
 	edict_t *spot;
 	int i;
 
-	i = 0;
-	while (tnames[i]) {
-		if ((spec = FindItemByClassname(tnames[i])) != NULL && (spot = FindSpecSpawn()) != NULL) {
+	if(item_respawnmode->value)
+		return;
+
+	for(i = 0; i<ITEM_COUNT; i++)
+	{
+		if ((spec = GET_ITEM(tnums[i])) != NULL && (spot = FindSpecSpawn()) != NULL) {
 			//AQ2:TNG - Igor adding itm_flags
-			if ((((int) itm_flags->value & ITF_SIL)
-			     && (strcmp(tnames[i], "item_quiet") == 0))
-			    || (((int) itm_flags->value & ITF_SLIP)
-				&& (strcmp(tnames[i], "item_slippers") == 0))
-			    || (((int) itm_flags->value & ITF_KEV)
-				&& (strcmp(tnames[i], "item_vest") == 0))
-			    || (((int) itm_flags->value & ITF_BAND)
-				&& (strcmp(tnames[i], "item_band") == 0))
-			    || (((int) itm_flags->value & ITF_LASER)
-				&& (strcmp(tnames[i], "item_lasersight") == 0))
-			    || (((int) itm_flags->value & ITF_HELM)
-				&& (strcmp(tnames[i], "item_helmet") == 0))) {
+			if ((int)itm_flags->value & items[tnums[i]].flag)
+			{
 				//gi.dprintf("Spawning special item '%s'.\n", tnames[i]);
 				SpawnSpec(spec, spot);
 			}
 			//AQ2:TNG End adding itm_flags
 		}
-		i++;
 	}
 }
 
@@ -152,9 +143,15 @@ static void MakeTouchSpecThink(edict_t * ent)
 {
 	ent->touch = Touch_Item;
 
-	if (deathmatch->value && !teamplay->value && !allitem->value) {
-		ent->nextthink = level.time + SPEC_RESPAWN_TIME - 1;
-		ent->think = SpecThink;
+	if (deathmatch->value && (!teamplay->value || teamdm->value || ctf->value == 2) && !allitem->value) {
+		if(item_respawnmode->value) {
+			ent->nextthink = level.time + (item_respawn->value*0.5f);
+			ent->think = G_FreeEdict;
+		}
+		else {
+			ent->nextthink = level.time + item_respawn->value;
+			ent->think = SpecThink;
+		}
 	} else if (teamplay->value && !allitem->value) {
 		//AQ2:TNG - Slicer This works for Special Items 
 		if (ctf->value) {
@@ -191,9 +188,10 @@ void DeadDropSpec(edict_t * ent)
 	edict_t *dropped;
 	int i;
 
-	i = 0;
-	while (tnames[i]) {
-		if ((spec = FindItemByClassname(tnames[i])) != NULL && ent->client->pers.inventory[ITEM_INDEX(spec)]) {
+	for(i = 0; i<ITEM_COUNT; i++)
+	{
+		if (INV_AMMO(ent, tnums[i]) > 0) {
+			spec = GET_ITEM(tnums[i]);
 			dropped = Drop_Item(ent, spec);
 			// hack the velocity to make it bounce random
 			dropped->velocity[0] = (rand() % 600) - 300;
@@ -201,9 +199,9 @@ void DeadDropSpec(edict_t * ent)
 			dropped->nextthink = level.time + 1;
 			dropped->think = MakeTouchSpecThink;
 			dropped->owner = NULL;
+			dropped->spawnflags = DROPPED_PLAYER_ITEM;
 			ent->client->pers.inventory[ITEM_INDEX(spec)] = 0;
 		}
-		i++;
 	}
 }
 

@@ -62,11 +62,10 @@
 
 extern int dosoft;
 
-void
-SVCmd_ReloadMOTD_f ()
+void SVCmd_ReloadMOTD_f ()
 {
-  ReadMOTDFile ();
-  gi.cprintf (NULL, PRINT_HIGH, "MOTD reloaded.\n");
+	ReadMOTDFile ();
+	gi.cprintf (NULL, PRINT_HIGH, "MOTD reloaded.\n");
 }
 
 /*
@@ -121,49 +120,42 @@ int numipfilters;
 StringToFilter
 =================
 */
-static qboolean
-StringToFilter (char *s, ipfilter_t * f, int temp_ban_games)
+static qboolean StringToFilter (char *s, ipfilter_t * f, int temp_ban_games)
 {
-  char num[128];
-  int i, j;
-  byte b[4];
-  byte m[4];
+	char num[128];
+	int i, j;
+	byte b[4] = {0,0,0,0};
+	byte m[4] = {0,0,0,0};
 
-  for (i = 0; i < 4; i++)
-    {
-      b[i] = 0;
-      m[i] = 0;
-    }
-
-  for (i = 0; i < 4; i++)
-    {
-      if (*s < '0' || *s > '9')
+	for (i = 0; i < 4; i++)
 	{
-	  gi.cprintf (NULL, PRINT_HIGH, "Bad filter address: %s\n", s);
-	  return false;
+		if (*s < '0' || *s > '9')
+		{
+			gi.cprintf (NULL, PRINT_HIGH, "Bad filter address: %s\n", s);
+			return false;
+		}
+
+		j = 0;
+		while (*s >= '0' && *s <= '9')
+		{
+			num[j++] = *s++;
+		}
+		num[j] = 0;
+		b[i] = atoi (num);
+		if (b[i] != 0)
+			m[i] = 255;
+
+		if (!*s)
+			break;
+		s++;
 	}
 
-      j = 0;
-      while (*s >= '0' && *s <= '9')
-	{
-	  num[j++] = *s++;
-	}
-      num[j] = 0;
-      b[i] = atoi (num);
-      if (b[i] != 0)
-	m[i] = 255;
+	f->mask = *(unsigned *) m;
+	f->compare = *(unsigned *) b;
 
-      if (!*s)
-	break;
-      s++;
-    }
+	f->temp_ban_games = temp_ban_games;
 
-  f->mask = *(unsigned *) m;
-  f->compare = *(unsigned *) b;
-
-  f->temp_ban_games = temp_ban_games;
-
-  return true;
+	return true;
 }
 
 /*
@@ -171,36 +163,36 @@ StringToFilter (char *s, ipfilter_t * f, int temp_ban_games)
 SV_FilterPacket
 =================
 */
-qboolean
-SV_FilterPacket (char *from)
+qboolean SV_FilterPacket (char *from, int *temp)
 {
-  int i;
-  unsigned in;
-  byte m[4];
-  char *p;
+	int i = 0;
+	unsigned in;
+	byte m[4] = {0,0,0,0};
+	char *p;
 
-  i = 0;
-  p = from;
-  while (*p && i < 4)
-    {
-      m[i] = 0;
-      while (*p >= '0' && *p <= '9')
+	p = from;
+	while (*p && i < 4)
 	{
-	  m[i] = m[i] * 10 + (*p - '0');
-	  p++;
+		while (*p >= '0' && *p <= '9')
+		{
+			m[i] = m[i] * 10 + (*p - '0');
+			p++;
+		}
+		if (!*p || *p == ':')
+			break;
+		i++, p++;
 	}
-      if (!*p || *p == ':')
-	break;
-      i++, p++;
-    }
 
-  in = *(unsigned *) m;
+	in = *(unsigned *) m;
 
-  for (i = 0; i < numipfilters; i++)
-    if ((in & ipfilters[i].mask) == ipfilters[i].compare)
-      return (int) filterban->value;
+	for (i = 0; i < numipfilters; i++) {
+		if ((in & ipfilters[i].mask) == ipfilters[i].compare) {
+			*temp = ipfilters[i].temp_ban_games;
+			return (int)filterban->value;
+		}
+	}
 
-  return (int) !filterban->value;
+	return (int)!filterban->value;
 }
 
 
@@ -209,32 +201,33 @@ SV_FilterPacket (char *from)
 SV_AddIP_f
 =================
 */
-void
-SVCmd_AddIP_f (void)
+void SVCmd_AddIP_f (void)
 {
-  int i;
+	int i;
 
-  if (gi.argc () < 3)
-    {
-      gi.cprintf (NULL, PRINT_HIGH, "Usage:  addip <ip-mask>\n");
-      return;
-    }
-
-  for (i = 0; i < numipfilters; i++)
-    if (ipfilters[i].compare == 0xffffffff)
-      break;			// free spot
-  if (i == numipfilters)
-    {
-      if (numipfilters == MAX_IPFILTERS)
+	if (gi.argc () < 3)
 	{
-	  gi.cprintf (NULL, PRINT_HIGH, "IP filter list is full\n");
-	  return;
+		gi.cprintf (NULL, PRINT_HIGH, "Usage:  addip <ip-mask>\n");
+		return;
 	}
-      numipfilters++;
-    }
 
-  if (!StringToFilter (gi.argv (2), &ipfilters[i], 0))
-    ipfilters[i].compare = 0xffffffff;
+	for (i = 0; i < numipfilters; i++) {
+		if (ipfilters[i].compare == 0xffffffff)
+			break;			// free spot
+	}
+
+	if (i == numipfilters)
+	{
+		if (numipfilters == MAX_IPFILTERS)
+		{
+			gi.cprintf (NULL, PRINT_HIGH, "IP filter list is full\n");
+			return;
+		}
+		numipfilters++;
+	}
+
+	if (!StringToFilter (gi.argv (2), &ipfilters[i], 0))
+		ipfilters[i].compare = 0xffffffff;
 }
 
 /*
@@ -242,31 +235,33 @@ SVCmd_AddIP_f (void)
 SV_RemoveIP_f
 =================
 */
-void
-SVCmd_RemoveIP_f (void)
+void SVCmd_RemoveIP_f (void)
 {
-  ipfilter_t f;
-  int i, j;
+	ipfilter_t f;
+	int i, j;
 
-  if (gi.argc () < 3)
-    {
-      gi.cprintf (NULL, PRINT_HIGH, "Usage:  sv removeip <ip-mask>\n");
-      return;
-    }
+	if (gi.argc () < 3)
+	{
+		gi.cprintf (NULL, PRINT_HIGH, "Usage:  sv removeip <ip-mask>\n");
+		return;
+	}
 
-  if (!StringToFilter (gi.argv (2), &f, 0))
-    return;
+	if (!StringToFilter (gi.argv (2), &f, 0))
+		return;
 
-  for (i = 0; i < numipfilters; i++)
-    if (ipfilters[i].mask == f.mask && ipfilters[i].compare == f.compare)
-      {
-	for (j = i + 1; j < numipfilters; j++)
-	  ipfilters[j - 1] = ipfilters[j];
-	numipfilters--;
-	gi.cprintf (NULL, PRINT_HIGH, "Removed.\n");
-	return;
-      }
-  gi.cprintf (NULL, PRINT_HIGH, "Didn't find %s.\n", gi.argv (2));
+	for (i = 0; i < numipfilters; i++)
+	{
+		if (ipfilters[i].mask == f.mask && ipfilters[i].compare == f.compare)
+		{
+			for (j = i + 1; j < numipfilters; j++)
+				ipfilters[j - 1] = ipfilters[j];
+
+			numipfilters--;
+			gi.cprintf (NULL, PRINT_HIGH, "Removed.\n");
+			return;
+		}
+	}
+	gi.cprintf (NULL, PRINT_HIGH, "Didn't find %s.\n", gi.argv (2));
 }
 
 /*
@@ -274,27 +269,25 @@ SVCmd_RemoveIP_f (void)
 SV_ListIP_f
 =================
 */
-void
-SVCmd_ListIP_f (void)
+void SVCmd_ListIP_f (void)
 {
-  int i;
-  byte b[4];
+	int i;
+	byte b[4];
 
-  gi.cprintf (NULL, PRINT_HIGH, "Filter list:\n");
-  for (i = 0; i < numipfilters; i++)
-    {
-      *(unsigned *) b = ipfilters[i].compare;
-      if (!ipfilters[i].temp_ban_games)
+	gi.cprintf (NULL, PRINT_HIGH, "Filter list:\n");
+	for (i = 0; i < numipfilters; i++)
 	{
-	  gi.cprintf (NULL, PRINT_HIGH, "%3i.%3i.%3i.%3i\n", b[0], b[1], b[2],
-		      b[3]);
+		*(unsigned *) b = ipfilters[i].compare;
+		if (!ipfilters[i].temp_ban_games)
+		{
+			gi.cprintf (NULL, PRINT_HIGH, "%3i.%3i.%3i.%3i\n", b[0], b[1], b[2], b[3]);
+		}
+		else
+		{
+			gi.cprintf (NULL, PRINT_HIGH, "%3i.%3i.%3i.%3i (%d more game(s))\n",
+				b[0], b[1], b[2], b[3], ipfilters[i].temp_ban_games);
+		}
 	}
-      else
-	{
-	  gi.cprintf (NULL, PRINT_HIGH, "%3i.%3i.%3i.%3i (%d more game(s))\n",
-		      b[0], b[1], b[2], b[3], ipfilters[i].temp_ban_games);
-	}
-    }
 }
 
 /*
@@ -302,43 +295,42 @@ SVCmd_ListIP_f (void)
 SV_WriteIP_f
 =================
 */
-void
-SVCmd_WriteIP_f (void)
+void SVCmd_WriteIP_f (void)
 {
-  FILE *f;
-  char name[MAX_OSPATH];
-  byte b[4];
-  int i;
-  cvar_t *game;
+	FILE *f;
+	char name[MAX_OSPATH];
+	byte b[4];
+	int i;
+	cvar_t *game;
 
-  game = gi.cvar ("game", "", 0);
+	game = gi.cvar ("game", "", 0);
 
-  if (!*game->string)
-    sprintf (name, "%s/listip.cfg", GAMEVERSION);
-  else
-    sprintf (name, "%s/listip.cfg", game->string);
+	if (!*game->string)
+		sprintf (name, "%s/listip.cfg", GAMEVERSION);
+	else
+		sprintf (name, "%s/listip.cfg", game->string);
 
-  gi.cprintf (NULL, PRINT_HIGH, "Writing %s.\n", name);
+	gi.cprintf (NULL, PRINT_HIGH, "Writing %s.\n", name);
 
-  f = fopen (name, "wb");
-  if (!f)
-    {
-      gi.cprintf (NULL, PRINT_HIGH, "Couldn't open %s\n", name);
-      return;
-    }
-
-  fprintf (f, "set filterban %d\n", (int) filterban->value);
-
-  for (i = 0; i < numipfilters; i++)
-    {
-      if (!ipfilters[i].temp_ban_games)
+	f = fopen (name, "wb");
+	if (!f)
 	{
-	  *(unsigned *) b = ipfilters[i].compare;
-	  fprintf (f, "sv addip %i.%i.%i.%i\n", b[0], b[1], b[2], b[3]);
+		gi.cprintf (NULL, PRINT_HIGH, "Couldn't open %s\n", name);
+		return;
 	}
-    }
 
-  fclose (f);
+	fprintf (f, "set filterban %d\n", (int) filterban->value);
+
+	for (i = 0; i < numipfilters; i++)
+	{
+		if (!ipfilters[i].temp_ban_games)
+		{
+			*(unsigned *) b = ipfilters[i].compare;
+			fprintf (f, "sv addip %i.%i.%i.%i\n", b[0], b[1], b[2], b[3]);
+		}
+	}
+
+	fclose (f);
 }
 
 // zucc so it works under vc++
@@ -350,15 +342,14 @@ void ExitLevel (void);
 SV_Nextmap_f
 =================
 */
-void
-SVCmd_Nextmap_f (char *arg)
+void SVCmd_Nextmap_f (char *arg)
 {
-  // end level and go to next map in map rotation
-  gi.bprintf (PRINT_HIGH, "Changing to next map in rotation.\n");
-  EndDMLevel ();
-  if (arg != NULL && Q_stricmp (arg, "force") == 0)
-    ExitLevel ();
-  return;
+	// end level and go to next map in map rotation
+	gi.bprintf (PRINT_HIGH, "Changing to next map in rotation.\n");
+	EndDMLevel ();
+	if (arg != NULL && Q_stricmp (arg, "force") == 0)
+		ExitLevel ();
+	return;
 }
 
 //Black Cross - End
@@ -370,104 +361,89 @@ STUFF COMMAND
 This will stuff a certain command to the client.
 =================
 */
-void
-SVCmd_stuffcmd_f ()
+void SVCmd_stuffcmd_f ()
 {
-  int i, u;
-  char text[256];
-  char tmp[51];
-  char user[51];
-  edict_t *ent;
-  if (gi.argc () < 4)
-    {
-      gi.cprintf (NULL, PRINT_HIGH, "Usage:  stuffcmd <user id> <text>\n");
-      return;
-    }
-  i = gi.argc ();
-  memset (text, 0, sizeof (text));
-  memset (user, 0, sizeof (user));
-  memset (tmp, 0, sizeof (tmp));
-  strncpy (user, gi.argv (2), sizeof (user) - 1);
-  user[50] = 0;
-  for (u = 3; u <= i; u++)
-    {
-      strncpy (tmp, gi.argv (u), sizeof (tmp) - 1);
-      if (tmp[0] == '!')	// Checks for "!" and replaces for "$" to see the user info
-	tmp[0] = '$';
-      tmp[50] = 0;
-      strncat (text, tmp, sizeof (text) - 1);
-      strncat (text, " ", sizeof (text) - 1);
-    }
-  strncat (text, "\n", sizeof (text) - 1);
-  text[255] = 0;
+	int i, u, team = 0;
+	char text[256];
+	char user[64], tmp[64];
+	edict_t *ent;
 
-  if (Q_stricmp (user, "team1") == 0 || Q_stricmp (user, "team2") == 0
-      || Q_stricmp (user, "all") == 0)
-    {
-      for (i = 1; i <= (int) (maxclients->value); i++)
+	if (gi.argc () < 4)
 	{
-	  if (Q_stricmp (user, "team1") == 0)
-	    {
-	      if ((int) (teamplay->value) == 0)
+		gi.cprintf (NULL, PRINT_HIGH, "Usage: stuffcmd <user id> <text>\n");
+		return;
+	}
+
+	i = gi.argc ();
+	Q_strncpyz (user, gi.argv (2), sizeof (user));
+	text[0] = 0;
+
+	for (u = 3; u <= i; u++)
+	{
+		Q_strncpyz (tmp, gi.argv (u), sizeof (tmp));
+		if (tmp[0] == '!')	// Checks for "!" and replaces for "$" to see the user info
+			tmp[0] = '$';
+
+		if(text[0])
+			Q_strncatz (text, " ", sizeof(text)-1);
+
+		Q_strncatz (text, tmp, sizeof(text)-1);
+	}
+	Q_strncatz (text, "\n", sizeof(text));
+
+	if(!Q_stricmp (user, "team1"))
+		team = TEAM1;
+	else if(!Q_stricmp (user, "team2"))
+		team = TEAM2;
+	else if(use_3teams->value && !Q_stricmp (user, "team3"))
+		team = TEAM3;
+
+	if(team && !teamplay->value)
+	{
+		gi.cprintf (NULL, PRINT_HIGH, "Not in Teamplay mode\n");
+		return;
+	}
+
+	if (team || !Q_stricmp(user, "all"))
+	{
+		for (i = 1; i <= (int) (maxclients->value); i++)
 		{
-		  gi.cprintf (NULL, PRINT_HIGH, "Not in Teamplay mode\n");
-		  return;
+			ent = getEnt (i);
+			if(!ent->inuse)
+				continue;
+
+			if (!team || ent->client->resp.team == team)
+			{
+				gi.cprintf(ent, PRINT_HIGH, "Console stuffed: %s", text);
+				stuffcmd (ent, text);
+			}
 		}
-	      ent = getEnt (i);
-	      if ((int) (ent->client->resp.team) == 1 && ent->inuse) {
+		return;
+	}
+
+	for (u = 0; u < strlen(user); u++)
+	{
+		if (!isdigit(user[u]))
+		{
+			gi.cprintf (NULL, PRINT_HIGH, "Usage: stuffcmd <user id> <text>\n");
+			return;
+		}
+	}
+
+	i = atoi(user) + 1;
+	if (i > (int)(maxclients->value))
+	{				/* if is inserted number > server capacity */
+		gi.cprintf (NULL, PRINT_HIGH, "User id is not valid\n");
+		return;
+	}
+
+	ent = getEnt(i);
+	if (ent->inuse) { /* if is inserted a user that exists in the server */
 		gi.cprintf(ent, PRINT_HIGH, "Console stuffed: %s", text);
 		stuffcmd (ent, text);
-	      }
-	    }
-	  if (Q_stricmp (user, "team2") == 0)
-	    {
-	      if ((int) (teamplay->value) == 0)
-		{
-		  gi.cprintf (NULL, PRINT_HIGH, "Not in Teamplay mode\n");
-		  return;
-		}
-	      ent = getEnt (i);
-	      if ((int) (ent->client->resp.team) == 2 && ent->inuse) {
-		gi.cprintf(ent, PRINT_HIGH, "Console stuffed:%s", text);
-		stuffcmd (ent, text);
-	      }
-	    }
-	  if (Q_stricmp (user, "all") == 0)
-	    {
-	      ent = getEnt (i);
-	      if (ent->inuse) {
-		gi.cprintf(ent, PRINT_HIGH, "Console stuffed:%s", text);
-		stuffcmd (ent, text);
-	      }
-	    }
 	}
-      return;
-    }
-  else
-    {
-      for (u = 0; u < strlen (user); u++)
-	if (!isdigit (user[u]))
-	  {
-	    gi.cprintf (NULL, PRINT_HIGH,
-			"Usage:  stuffcmd <user id> <text>\n");
-	    return;
-	  }
-    }
-
-  i = atoi (user) + 1;
-  ent = getEnt (i);
-
-  if (i > (int) (maxclients->value))
-    {				/* if is inserted number > server capacity */
-      gi.cprintf (NULL, PRINT_HIGH, "User id is not valid\n");
-      return;
-    }
-  if (ent->inuse) { /* if is inserted a user that exists in the server */
-    gi.cprintf(ent, PRINT_HIGH, "Console stuffed:%s", text);
-    stuffcmd (ent, text);
-  }
-  else
-    gi.cprintf (NULL, PRINT_HIGH, "User id is not valid\n");
+	else
+		gi.cprintf (NULL, PRINT_HIGH, "User id is not valid\n");
 }
 
 /*
@@ -486,9 +462,9 @@ void SVCmd_Softmap_f (void)
 		return;
 	}
 
-	gi.bprintf(PRINT_HIGH, "Console is setting map: %s\n", gi.argv(2));
-	dosoft=1;
-	Com_sprintf(level.nextmap, sizeof(level.nextmap), "%s", gi.argv(2));
+	Q_strncpyz(level.nextmap, gi.argv(2), sizeof(level.nextmap));
+	gi.bprintf(PRINT_HIGH, "Console is setting map: %s\n", level.nextmap);
+	dosoft = 1;
 	EndDMLevel();
 	return;
 }
@@ -500,11 +476,22 @@ SV_Map_restart_f
 */
 void SVCmd_Map_restart_f (void)
 {
-        gi.bprintf(PRINT_HIGH, "Console is restarting map\n");
-        dosoft=1;
-        Com_sprintf(level.nextmap, sizeof(level.nextmap), "%s", level.mapname);
-        EndDMLevel();
-        return;
+	gi.bprintf(PRINT_HIGH, "Console is restarting map\n");
+	dosoft = 1;
+	strcpy(level.nextmap, level.mapname);
+	EndDMLevel();
+	return;
+}
+
+void SVCmd_ResetScores_f (void)
+{
+	if(!matchmode->value)
+	{
+		gi.cprintf(NULL, PRINT_HIGH, "This command works only in matchmode\n");
+		return;
+	}
+	ResetScores(true);
+	gi.bprintf(PRINT_HIGH, "Scores and time was resetted by console\n");
 }
 
 /*
@@ -516,36 +503,37 @@ The game can issue gi.argc() / gi.argv() commands to get the rest
 of the parameters
 =================
 */
-void
-ServerCommand (void)
+void ServerCommand (void)
 {
-  char *cmd;
+	char *cmd;
 
-  cmd = gi.argv (1);
+	cmd = gi.argv (1);
 
-  if (Q_stricmp (cmd, "addip") == 0)
-    SVCmd_AddIP_f ();
-  else if (Q_stricmp (cmd, "removeip") == 0)
-    SVCmd_RemoveIP_f ();
-  else if (Q_stricmp (cmd, "listip") == 0)
-    SVCmd_ListIP_f ();
-  else if (Q_stricmp (cmd, "writeip") == 0)
-    SVCmd_WriteIP_f ();
-  else if (Q_stricmp (cmd, "nextmap") == 0)
-    SVCmd_Nextmap_f (gi.argv (2));	// Added by Black Cross
-  else if (Q_stricmp (cmd, "reloadmotd") == 0)
-    SVCmd_ReloadMOTD_f ();
-  //AQ2:TNG - Slicer : CheckCheats & StuffCmd
-  else if (Q_stricmp (cmd, "stuffcmd") == 0)
-    SVCmd_stuffcmd_f ();
-  else if (Q_stricmp (cmd, "ircraw") == 0)
-    SVCmd_ircraw_f ();
-  else if (Q_stricmp (cmd, "softmap") == 0)
-    SVCmd_Softmap_f ();
-  else if (Q_stricmp (cmd, "map_restart") == 0)
-    SVCmd_Map_restart_f ();
-  else
-    gi.cprintf (NULL, PRINT_HIGH, "Unknown server command \"%s\"\n", cmd);
+	if (Q_stricmp (cmd, "addip") == 0)
+		SVCmd_AddIP_f ();
+	else if (Q_stricmp (cmd, "removeip") == 0)
+		SVCmd_RemoveIP_f ();
+	else if (Q_stricmp (cmd, "listip") == 0)
+		SVCmd_ListIP_f ();
+	else if (Q_stricmp (cmd, "writeip") == 0)
+		SVCmd_WriteIP_f ();
+	else if (Q_stricmp (cmd, "nextmap") == 0)
+		SVCmd_Nextmap_f (gi.argv (2));	// Added by Black Cross
+	else if (Q_stricmp (cmd, "reloadmotd") == 0)
+		SVCmd_ReloadMOTD_f ();
+	//AQ2:TNG - Slicer : CheckCheats & StuffCmd
+	else if (Q_stricmp (cmd, "stuffcmd") == 0)
+		SVCmd_stuffcmd_f ();
+	else if (Q_stricmp (cmd, "ircraw") == 0)
+		SVCmd_ircraw_f ();
+	else if (Q_stricmp (cmd, "softmap") == 0)
+		SVCmd_Softmap_f ();
+	else if (Q_stricmp (cmd, "map_restart") == 0)
+		SVCmd_Map_restart_f ();
+	else if (Q_stricmp (cmd, "resetscores") == 0)
+		SVCmd_ResetScores_f ();
+	else
+		gi.cprintf (NULL, PRINT_HIGH, "Unknown server command \"%s\"\n", cmd);
 }
 
 
@@ -554,32 +542,30 @@ ServerCommand (void)
 Kick a client entity
 ==========================
 */
-void
-Kick_Client (edict_t * ent)
+void Kick_Client (edict_t * ent)
 {
-  int i = 0;
-  char ban_string[256];
-  edict_t *entL;
+	int i = 0;
+	char ban_string[32];
+	edict_t *entL;
 
-  if (!ent->client)
-    {
-      return;
-    }
+	if (!ent->client)
+		return;
 
-  // We used to kick on names, but people got crafty and figured
-  // out that putting in a space after their name let them get
-  // around the stupid 'kick' function. So now we kick by number.
-  for (i = 0; i < game.maxclients; i++)
-    {
-      entL = &g_edicts[1 + i];
-      if (!entL || !entL->inuse)
-	continue;
-      if (entL->client && ent == entL)
+	// We used to kick on names, but people got crafty and figured
+	// out that putting in a space after their name let them get
+	// around the stupid 'kick' function. So now we kick by number.
+	for (i = 0; i < game.maxclients; i++)
 	{
-	  sprintf (ban_string, "kick %d\n", i);
-	  gi.AddCommandString (ban_string);
+		entL = &g_edicts[1 + i];
+		if (!entL || !entL->inuse)
+			continue;
+		if (entL->client && ent == entL)
+		{
+			Com_sprintf(ban_string, sizeof(ban_string), "kick %d\n", i);
+			gi.AddCommandString (ban_string);
+			break;
+		}
 	}
-    }
 }
 
 /*
@@ -587,67 +573,65 @@ Kick_Client (edict_t * ent)
 Ban a client for N rounds
 ==========================
 */
-qboolean
-Ban_TeamKiller (edict_t * ent, int rounds)
+qboolean Ban_TeamKiller (edict_t * ent, int rounds)
 {
-  int i = 0;
+	int i = 0;
 
-  if (!ent || !ent->client || !ent->client->ipaddr)
-    {
-      gi.cprintf (NULL, PRINT_HIGH,
-		  "Unable to determine client->ipaddr for edict\n");
-      return false;
-    }
-
-  for (i = 0; i < numipfilters; i++)
-    {
-      if (ipfilters[i].compare == 0xffffffff)
-	break;			// free spot
-    }
-
-  if (i == numipfilters)
-    {
-      if (numipfilters == MAX_IPFILTERS)
+	if (!ent || !ent->client || !ent->client->ipaddr)
 	{
-	  gi.cprintf (NULL, PRINT_HIGH, "IP filter list is full\n");
-	  return false;
+		gi.cprintf (NULL, PRINT_HIGH,
+			"Unable to determine client->ipaddr for edict\n");
+		return false;
 	}
-      numipfilters++;
-    }
-  if (!StringToFilter (ent->client->ipaddr, &ipfilters[i], rounds))
-    {
-      ipfilters[i].compare = 0xffffffff;
-      return false;
-    }
 
-  return true;
+	for (i = 0; i < numipfilters; i++)
+	{
+		if (ipfilters[i].compare == 0xffffffff)
+		break;			// free spot
+	}
+
+	if (i == numipfilters)
+	{
+		if (numipfilters == MAX_IPFILTERS)
+		{
+			gi.cprintf (NULL, PRINT_HIGH, "IP filter list is full\n");
+			return false;
+		}
+		numipfilters++;
+	}
+	if (!StringToFilter (ent->client->ipaddr, &ipfilters[i], rounds))
+	{
+		ipfilters[i].compare = 0xffffffff;
+		return false;
+	}
+
+	return true;
 }
 
-void
-UnBan_TeamKillers (void)
+void UnBan_TeamKillers (void)
 {
   // We don't directly unban them all - we subtract 1 from temp_ban_games,
   // and unban them if it's 0.
 
-  int i, j;
+	int i, j;
 
-  for (i = 0; i < numipfilters; i++)
-    {
-      if (ipfilters[i].temp_ban_games > 0)
+	for (i = 0; i < numipfilters; i++)
 	{
-	  if (!--ipfilters[i].temp_ban_games)
-	    {
-	      // re-pack the filters
-	      for (j = i + 1; j < numipfilters; j++)
-		ipfilters[j - 1] = ipfilters[j];
-	      numipfilters--;
-	      gi.cprintf (NULL, PRINT_HIGH, "Unbanned teamkiller.\n");
+		if (ipfilters[i].temp_ban_games > 0)
+		{
+			if (!--ipfilters[i].temp_ban_games)
+			{
+				// re-pack the filters
+				for (j = i + 1; j < numipfilters; j++)
+					ipfilters[j - 1] = ipfilters[j];
+				numipfilters--;
+				gi.cprintf (NULL, PRINT_HIGH, "Unbanned teamkiller/vote kickked.\n");
 
-	      // since we removed the current we have to re-process the new current
-	      i--;
-	    }
+				// since we removed the current we have to re-process the new current
+				i--;
+			}
+		}
 	}
-    }
 }
 
 //AZEROV

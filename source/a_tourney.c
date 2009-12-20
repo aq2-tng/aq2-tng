@@ -34,17 +34,15 @@ _istourneysection (char *atoken)
   return 0;
 }
 
-void
-_tourneyparseerror (parse_t parse, char *msg, char *atoken)
+void _tourneyparseerror (parse_t parse, char *msg, char *atoken)
 {
-  char buf[2048];
+	char buf[512];
 
-  if (atoken)
-    sprintf (buf, msg, atoken);
-  else
-    strcpy (buf, msg);
-  gi.dprintf ("Error in " TOURNEYINI " at line %i: %s.\n", parse.lnumber,
-	      buf);
+	if (atoken)
+		Com_sprintf (buf, sizeof(buf), msg, atoken);
+	else
+		Q_strncpyz (buf, msg, sizeof(buf));
+	gi.dprintf ("Error in " TOURNEYINI " at line %i: %s.\n", parse.lnumber, buf);
 }
 
 void
@@ -448,41 +446,40 @@ TourneyWinner (edict_t * player)
 //or not
 qboolean TourneyNewRound (void)
 {
-  char buf[4096];
-  edict_t *dummy;
+	char buf[128];
+	edict_t *dummy;
 
-//  gi.bprintf(PRINT_HIGH,"LastOpponent: %i\n", LastOpponent);        
-  if (LastOpponent < 2)
-    return (false);
-  strcpy (buf, "Next game: ");
-  dummy = TourneyFindPlayer (1);
-  if (dummy)
-    {
-      dummy->client->resp.team = TEAM1;
-      strcat (buf, dummy->client->pers.netname);
-    }
-  else
-    {
-      gi.dprintf ("Tourney Error: cannot find player #1!\n");
-      strcat (buf, "(unknown)");
-    }
+	//  gi.bprintf(PRINT_HIGH,"LastOpponent: %i\n", LastOpponent);        
+	if (LastOpponent < 2)
+		return (false);
+	strcpy (buf, "Next game: ");
+	dummy = TourneyFindPlayer (1);
+	if (dummy)
+	{
+		dummy->client->resp.team = TEAM1;
+		strcat (buf, dummy->client->pers.netname);
+	}
+	else
+	{
+		gi.dprintf ("Tourney Error: cannot find player #1!\n");
+		strcat (buf, "(unknown)");
+	}
 
-  strcat (buf, " vs ");
+	strcat (buf, " vs ");
 
-  dummy = TourneyFindPlayer (NextOpponent);
-  if (dummy)
-    {
-      dummy->client->resp.team = TEAM2;
-      strcat (buf, dummy->client->pers.netname);
-    }
-  else
-    {
-      gi.dprintf ("Tourney Error: cannot find NextOpponent (%i)!\n",
-		  NextOpponent);
-      strcat (buf, "(unknown)");
-    }
+	dummy = TourneyFindPlayer (NextOpponent);
+	if (dummy)
+	{
+		dummy->client->resp.team = TEAM2;
+		strcat (buf, dummy->client->pers.netname);
+	}
+	else
+	{
+		gi.dprintf ("Tourney Error: cannot find NextOpponent (%i)!\n",
+			NextOpponent);
+		strcat (buf, "(unknown)");
+	}
 
-  strcat (buf, "\n");
-  CenterPrintAll (buf);
-  return (true);
+	CenterPrintAll (buf);
+	return (true);
 }

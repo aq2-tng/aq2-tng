@@ -79,34 +79,28 @@
 
 
 // zucc function to deal with special items that might get destroyed
-void
-Handle_Unique_Items (edict_t * ent)
+void Handle_Unique_Items (edict_t * ent)
 {
-  if (!ent->item)
-    return;
+	if (!ent->item)
+		return;
 
-  if (stricmp (ent->item->pickup_name, MP5_NAME) == 0)
-    ThinkSpecWeap (ent);
-  else if (stricmp (ent->item->pickup_name, M4_NAME) == 0)
-    ThinkSpecWeap (ent);
-  else if (stricmp (ent->item->pickup_name, M3_NAME) == 0)
-    ThinkSpecWeap (ent);
-  else if (stricmp (ent->item->pickup_name, HC_NAME) == 0)
-    ThinkSpecWeap (ent);
-  else if (stricmp (ent->item->pickup_name, SNIPER_NAME) == 0)
-    ThinkSpecWeap (ent);
-  else if (stricmp (ent->item->pickup_name, SIL_NAME) == 0)
-    RespawnSpec (ent);
-  else if (stricmp (ent->item->pickup_name, SLIP_NAME) == 0)
-    RespawnSpec (ent);
-  else if (stricmp (ent->item->pickup_name, BAND_NAME) == 0)
-    RespawnSpec (ent);
-  else if (stricmp (ent->item->pickup_name, KEV_NAME) == 0)
-    RespawnSpec (ent);
-  else if (stricmp (ent->item->pickup_name, HELM_NAME) == 0)
-    RespawnSpec (ent);
-  else if (stricmp (ent->item->pickup_name, LASER_NAME) == 0)
-    RespawnSpec (ent);
+	switch(ent->item->typeNum) {
+	case MP5_NUM:
+	case M4_NUM:
+	case M3_NUM:
+	case HC_NUM:
+	case SNIPER_NUM:
+		ThinkSpecWeap (ent);
+		break;
+	case SIL_NUM:
+	case SLIP_NUM:
+	case BAND_NUM:
+	case KEV_NUM:
+	case HELM_NUM:
+	case LASER_NUM:
+		RespawnSpec (ent);
+		break;
+	}
 }
 
 
@@ -622,17 +616,17 @@ SP_func_plat (edict_t * ent)
   if (!ent->speed)
     ent->speed = 20;
   else
-    ent->speed *= 0.1;
+    ent->speed *= 0.1f;
 
   if (!ent->accel)
     ent->accel = 5;
   else
-    ent->accel *= 0.1;
+    ent->accel *= 0.1f;
 
   if (!ent->decel)
     ent->decel = 5;
   else
-    ent->decel *= 0.1;
+    ent->decel *= 0.1f;
 
   if (!ent->dmg)
     ent->dmg = 2;

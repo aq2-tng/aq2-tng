@@ -1,18 +1,10 @@
 //-----------------------------------------------------------------------------
 // p_client.c
 //
-// $Id: p_client.c,v 1.92 2006/06/18 09:16:49 igor_rock Exp $
+// $Id: p_client.c,v 1.90 2004/09/23 00:09:44 slicerdw Exp $
 //
 //-----------------------------------------------------------------------------
 // $Log: p_client.c,v $
-// Revision 1.92  2006/06/18 09:16:49  igor_rock
-// - simplyfied some functions
-// - changed order or some functions
-//
-// Revision 1.91  2006/06/17 11:39:48  igor_rock
-// Some code cleanup:
-// - moved team related variables to a single struct variable
-//
 // Revision 1.90  2004/09/23 00:09:44  slicerdw
 // Radio kill count was missing for falling death
 //
@@ -333,111 +325,92 @@ void ClientDisconnect(edict_t * ent);
 void SP_misc_teleporter_dest(edict_t * ent);
 void CopyToBodyQue(edict_t * ent);
 
-extern gghost_t ghost_players[MAX_CLIENTS];
-extern int num_ghost_players;
-
 void Add_Frag(edict_t * ent)
 {
 	char buf[256];
+	int frags = 0;
 
 	ent->client->resp.kills++;
-	ent->client->resp.streak++;
-	if (teamplay->value || (ent->client->resp.streak < 4)) {
+
+	if (teamplay->value && teamdm->value != 2)
+	{
 		ent->client->resp.score++;	// just 1 normal kill
-		// AQ:TNG Igor[Rock] changing sound dir
-		//SLIC2
-		if (ent->client->resp.streak % 5 == 0 && use_rewards->value) {
-		//SLIC2
-			//AQ2:TNG - Igor removing newlines
-			sprintf(buf, "IMPRESSIVE %s!", ent->client->pers.netname);
-			//AQ2:TNG End removing newlines
-			CenterPrintAll(buf);
-			//AQ2:TNG Freud adding newlines to the logfile
-			gi.dprintf("\n");
-			gi.sound(&g_edicts[0], CHAN_VOICE | CHAN_NO_PHS_ADD,
-				 gi.soundindex("tng/impressive.wav"), 1.0, ATTN_NONE, 0.0);
-			//SLIC2
-		} else if (ent->client->resp.streak % 12 == 0 && use_rewards->value) {
-			sprintf(buf, "EXCELLENT %s (%dx)!", ent->client->pers.netname,ent->client->resp.streak/12);
-			//SLIC2
-			CenterPrintAll(buf);
-			//AQ2:TNG Freud adding newlines to the logfile
-			gi.dprintf("\n");
-			gi.sound(&g_edicts[0], CHAN_VOICE | CHAN_NO_PHS_ADD,
-				 gi.soundindex("tng/excellent.wav"), 1.0, ATTN_NONE, 0.0);
+
+		if (ent->solid != SOLID_NOT && ent->deadflag != DEAD_DEAD)
+		{
+			ent->client->resp.streak++;
+			if (ent->client->resp.streak % 5 == 0 && use_rewards->value)
+			{
+				sprintf(buf, "IMPRESSIVE %s!", ent->client->pers.netname);
+				CenterPrintAll(buf);
+				gi.sound(&g_edicts[0], CHAN_VOICE | CHAN_NO_PHS_ADD,
+					 gi.soundindex("tng/impressive.wav"), 1.0, ATTN_NONE, 0.0);
+			}
+			else if (ent->client->resp.streak % 12 == 0 && use_rewards->value)
+			{
+				sprintf(buf, "EXCELLENT %s (%dx)!", ent->client->pers.netname,ent->client->resp.streak/12);
+				CenterPrintAll(buf);
+				gi.sound(&g_edicts[0], CHAN_VOICE | CHAN_NO_PHS_ADD,
+					 gi.soundindex("tng/excellent.wav"), 1.0, ATTN_NONE, 0.0);
+			}
 		}
+
+		if(teamdm->value)
+			teams[ent->client->resp.team].score++;
 		// end changing sound dir
-	} else if (ent->client->resp.streak < 8) {
-		gi.bprintf(PRINT_MEDIUM,
-			   "%s has %d kills in a row and receives %d frags for the kill!\n",
-			   ent->client->pers.netname, ent->client->resp.streak, 2);
-		IRC_printf(IRC_T_GAME,
-			   "%n has %k kills in a row and receives %k frags for the kill!",
-			   ent->client->pers.netname, ent->client->resp.streak, 2);
-		ent->client->resp.score += 2;
-	} else if (ent->client->resp.streak < 16) {
-		gi.bprintf(PRINT_MEDIUM,
-			   "%s has %d kills in a row and receives %d frags for the kill!\n",
-			   ent->client->pers.netname, ent->client->resp.streak, 4);
-		IRC_printf(IRC_T_GAME,
-			   "%n has %k kills in a row and receives %k frags for the kill!",
-			   ent->client->pers.netname, ent->client->resp.streak, 4);
-		ent->client->resp.score += 4;
-	} else if (ent->client->resp.streak < 32) {
-		gi.bprintf(PRINT_MEDIUM,
-			   "%s has %d kills in a row and receives %d frags for the kill!\n",
-			   ent->client->pers.netname, ent->client->resp.streak, 8);
-		IRC_printf(IRC_T_GAME,
-			   "%n has %k kills in a row and receives %k frags for the kill!",
-			   ent->client->pers.netname, ent->client->resp.streak, 8);
-		ent->client->resp.score += 8;
-	} else {
-		gi.bprintf(PRINT_MEDIUM,
-			   "%s has %d kills in a row and receives %d frags for the kill!\n",
-			   ent->client->pers.netname, ent->client->resp.streak, 16);
-		IRC_printf(IRC_T_GAME,
-			   "%n has %k kills in a row and receives %k frags for the kill!",
-			   ent->client->pers.netname, ent->client->resp.streak, 16);
-		ent->client->resp.score += 16;
+	} else { //Deathmatch
+
+		if (ent->solid != SOLID_NOT && ent->deadflag != DEAD_DEAD)
+			ent->client->resp.streak++;
+
+		if (ent->client->resp.streak < 4)
+			frags = 1;
+		else if (ent->client->resp.streak < 8)
+			frags = 2;
+		else if (ent->client->resp.streak < 16)
+			frags = 4;
+		else if (ent->client->resp.streak < 32)
+			frags = 8;
+		else
+			frags = 16;
+
+		if(frags > 1)
+		{
+			gi.bprintf(PRINT_MEDIUM,
+				"%s has %d kills in a row and receives %d frags for the kill!\n",
+				ent->client->pers.netname, ent->client->resp.streak, frags);
+			IRC_printf(IRC_T_GAME,
+				"%n has %k kills in a row and receives %k frags for the kill!",
+				ent->client->pers.netname, ent->client->resp.streak, frags);
+		}
+		ent->client->resp.score += frags;
+
+		if(ent->client->resp.streak)
+			gi.cprintf(ent, PRINT_HIGH, "Kill count: %d\n", ent->client->resp.streak);
+
+		if(teamdm->value)
+			teams[ent->client->resp.team].score += frags;
 	}
 
-	//FIREBLADE
-	if (!teamplay->value && ent->client->resp.streak >= 1)
-		//FIREBLADE
-	{
-		gi.cprintf(ent, PRINT_HIGH, "Kill count: %d\n", ent->client->resp.streak);
-	}
 	// AQ:TNG Igor[Rock] changing sound dir
 	if (fraglimit->value && use_warnings->value) {
 		if (ent->client->resp.score == fraglimit->value - 1) {
 			if (fragwarning < 3) {
-				//AQ2:TNG Igor removing newlines
 				CenterPrintAll("1 FRAG LEFT...");
-				//AQ2:TNG End removing newlines
-				//AQ2:TNG Freud adding newlines to the logfile
-				gi.dprintf("\n");
 				gi.sound(&g_edicts[0], CHAN_VOICE | CHAN_NO_PHS_ADD,
 					 gi.soundindex("tng/1_frag.wav"), 1.0, ATTN_NONE, 0.0);
 				fragwarning = 3;
 			}
 		} else if (ent->client->resp.score == fraglimit->value - 2) {
 			if (fragwarning < 2) {
-				//AQ2:TNG Igor removing newlines
 				CenterPrintAll("2 FRAGS LEFT...");
-				//AQ2:TNG End removing newlines
-				//AQ2:TNG Freud adding newlines to the logfile
-				gi.dprintf("\n");
 				gi.sound(&g_edicts[0], CHAN_VOICE | CHAN_NO_PHS_ADD,
 					 gi.soundindex("tng/2_frags.wav"), 1.0, ATTN_NONE, 0.0);
 				fragwarning = 2;
 			}
 		} else if (ent->client->resp.score == fraglimit->value - 3) {
 			if (fragwarning < 1) {
-				//AQ2:TNG Igor removing newlines
 				CenterPrintAll("3 FRAGS LEFT...");
-				//AQ2:TNG End removing newlines
-				//AQ2:TNG Freud adding newlines to the logfile
-				gi.dprintf("\n");
 				gi.sound(&g_edicts[0], CHAN_VOICE | CHAN_NO_PHS_ADD,
 					 gi.soundindex("tng/3_frags.wav"), 1.0, ATTN_NONE, 0.0);
 				fragwarning = 1;
@@ -449,14 +422,13 @@ void Add_Frag(edict_t * ent)
 
 void Subtract_Frag(edict_t * ent)
 {
-
 	ent->client->resp.score--;
 	ent->client->resp.streak = 0;
+	if(teamdm->value)
+		teams[ent->client->resp.team].score--;
 }
 
 // FRIENDLY FIRE functions
-extern qboolean Ban_TeamKiller(edict_t * ent, int rounds);	// g_svcmds.c
-extern void Kick_Client(edict_t * ent);	// g_svcmds.c
 
 void Add_TeamWound(edict_t * attacker, edict_t * victim, int mod)
 {
@@ -592,7 +564,7 @@ static void SP_FixCoopSpots(edict_t * self)
 		VectorSubtract(self->s.origin, spot->s.origin, d);
 		if (VectorLength(d) < 384) {
 			if ((!self->targetname)
-			    || stricmp(self->targetname, spot->targetname) != 0) {
+			    || Q_stricmp(self->targetname, spot->targetname) != 0) {
 //                              gi.dprintf("FixCoopSpots changed %s at %s targetname from %s to %s\n", self->classname, vtos(self->s.origin), self->targetname, spot->targetname);
 				self->targetname = spot->targetname;
 			}
@@ -609,7 +581,7 @@ static void SP_CreateCoopSpots(edict_t * self)
 {
 	edict_t *spot;
 
-	if (stricmp(level.mapname, "security") == 0) {
+	if (Q_stricmp(level.mapname, "security") == 0) {
 		spot = G_Spawn();
 		spot->classname = "info_player_coop";
 		spot->s.origin[0] = 188 - 64;
@@ -645,7 +617,7 @@ void SP_info_player_start(edict_t * self)
 {
 	if (!coop->value)
 		return;
-	if (stricmp(level.mapname, "security") == 0) {
+	if (Q_stricmp(level.mapname, "security") == 0) {
 		// invoke one of our gross, ugly, disgusting hacks
 		self->think = SP_CreateCoopSpots;
 		self->nextthink = level.time + FRAMETIME;
@@ -675,19 +647,19 @@ void SP_info_player_coop(edict_t * self)
 		return;
 	}
 
-	if ((stricmp(level.mapname, "jail2") == 0) ||
-	    (stricmp(level.mapname, "jail4") == 0) ||
-	    (stricmp(level.mapname, "mine1") == 0) ||
-	    (stricmp(level.mapname, "mine2") == 0) ||
-	    (stricmp(level.mapname, "mine3") == 0) ||
-	    (stricmp(level.mapname, "mine4") == 0) ||
-	    (stricmp(level.mapname, "lab") == 0) ||
-	    (stricmp(level.mapname, "boss1") == 0) ||
-	    (stricmp(level.mapname, "fact3") == 0) ||
-	    (stricmp(level.mapname, "biggun") == 0) ||
-	    (stricmp(level.mapname, "space") == 0) ||
-	    (stricmp(level.mapname, "command") == 0) ||
-	    (stricmp(level.mapname, "power2") == 0) || (stricmp(level.mapname, "strike") == 0)) {
+	if ((Q_stricmp(level.mapname, "jail2") == 0) ||
+	    (Q_stricmp(level.mapname, "jail4") == 0) ||
+	    (Q_stricmp(level.mapname, "mine1") == 0) ||
+	    (Q_stricmp(level.mapname, "mine2") == 0) ||
+	    (Q_stricmp(level.mapname, "mine3") == 0) ||
+	    (Q_stricmp(level.mapname, "mine4") == 0) ||
+	    (Q_stricmp(level.mapname, "lab") == 0) ||
+	    (Q_stricmp(level.mapname, "boss1") == 0) ||
+	    (Q_stricmp(level.mapname, "fact3") == 0) ||
+	    (Q_stricmp(level.mapname, "biggun") == 0) ||
+	    (Q_stricmp(level.mapname, "space") == 0) ||
+	    (Q_stricmp(level.mapname, "command") == 0) ||
+	    (Q_stricmp(level.mapname, "power2") == 0) || (Q_stricmp(level.mapname, "strike") == 0)) {
 		// invoke one of our gross, ugly, disgusting hacks
 		self->think = SP_FixCoopSpots;
 		self->nextthink = level.time + FRAMETIME;
@@ -758,13 +730,16 @@ void PrintDeathMessage(char *msg, edict_t * gibee)
 	gi.cprintf(gibee, PRINT_MEDIUM, "%s", msg);
 	gi.cprintf(gibee->client->attacker, PRINT_MEDIUM, "%s", msg);
 
+	if(!team_round_going)
+		return;
+
 	for (j = 1; j <= game.maxclients; j++) {
 		other = &g_edicts[j];
 		if (!other->inuse || !other->client)
 			continue;
 
 		// only print if he's NOT gibee, NOT attacker, and NOT alive! -TempFile
-		if (other != gibee && other != gibee->client->attacker && team_round_going && other->solid == SOLID_NOT)
+		if (other != gibee && other != gibee->client->attacker && other->solid == SOLID_NOT)
 			gi.cprintf(other, PRINT_MEDIUM, "%s", msg);
 	}
 }
@@ -775,10 +750,20 @@ void ClientObituary(edict_t * self, edict_t * inflictor, edict_t * attacker)
 	int loc;
 	char *message;
 	char *message2;
-	char death_msg[2048];	// enough in all situations? -FB
+	char death_msg[1024];	// enough in all situations? -FB
 	qboolean ff;
 	int special = 0;
 	int n;
+
+
+
+	if (!deathmatch->value && !coop->value)
+	{
+		sprintf(death_msg, "%s died\n", self->client->pers.netname);
+		PrintDeathMessage(death_msg, self);
+		IRC_printf(IRC_T_DEATH, death_msg);
+		return;
+	}
 
 	if (coop->value && attacker->client)
 		meansOfDeath |= MOD_FRIENDLY_FIRE;
@@ -786,196 +771,177 @@ void ClientObituary(edict_t * self, edict_t * inflictor, edict_t * attacker)
 	if (attacker && attacker != self && attacker->client && OnSameTeam(self, attacker))
 		meansOfDeath |= MOD_FRIENDLY_FIRE;
 
-	if (deathmatch->value || coop->value) {
-		ff = meansOfDeath & MOD_FRIENDLY_FIRE;
-		mod = meansOfDeath & ~MOD_FRIENDLY_FIRE;
-		loc = locOfDeath;	// useful for location based hits
-		message = NULL;
-		message2 = "";
+	ff = meansOfDeath & MOD_FRIENDLY_FIRE;
+	mod = meansOfDeath & ~MOD_FRIENDLY_FIRE;
+	loc = locOfDeath;	// useful for location based hits
+	message = NULL;
+	message2 = "";
 
+	switch (mod) {
+	case MOD_BREAKINGGLASS:
+		message = "ate too much glass";
+		break;
+	case MOD_SUICIDE:
+		message = "is done with the world";
+		break;
+	case MOD_FALLING:
+		// moved falling to the end
+		if (self->client->push_timeout)
+			special = 1;
+		//message = "hit the ground hard, real hard";
+		if (IsNeutral(self))
+			message = "plummets to its death";
+		else if (IsFemale(self))
+			message = "plummets to her death";
+		else
+			message = "plummets to his death";
+		break;
+	case MOD_CRUSH:
+		message = "was flattened";
+		break;
+	case MOD_WATER:
+		message = "sank like a rock";
+		break;
+	case MOD_SLIME:
+		message = "melted";
+		break;
+	case MOD_LAVA:
+		message = "does a back flip into the lava";
+		break;
+	case MOD_EXPLOSIVE:
+	case MOD_BARREL:
+		message = "blew up";
+		break;
+	case MOD_EXIT:
+		message = "found a way out";
+		break;
+	case MOD_TARGET_LASER:
+		message = "saw the light";
+		break;
+	case MOD_TARGET_BLASTER:
+		message = "got blasted";
+		break;
+	case MOD_BOMB:
+	case MOD_SPLASH:
+	case MOD_TRIGGER_HURT:
+		message = "was in the wrong place";
+		break;
+	}
+
+	if (attacker == self)
+	{
 		switch (mod) {
-		case MOD_BREAKINGGLASS:
-			message = "ate too much glass";
+		case MOD_HELD_GRENADE:
+			message = "tried to put the pin back in";
 			break;
-		case MOD_SUICIDE:
-			message = "is done with the world";
-			break;
-		case MOD_FALLING:
-			// moved falling to the end
-			if (self->client->push_timeout)
-				special = 1;
-			//message = "hit the ground hard, real hard";
+		case MOD_HG_SPLASH:
 			if (IsNeutral(self))
-				message = "plummets to its death";
-			else if (IsFemale(self))
-				message = "plummets to her death";
+				message = "didn't throw its grenade far enough";
+			if (IsFemale(self))
+				message = "didn't throw her grenade far enough";
 			else
-				message = "plummets to his death";
+				message = "didn't throw his grenade far enough";
 			break;
-		case MOD_CRUSH:
-			message = "was flattened";
+		case MOD_G_SPLASH:
+			if (IsNeutral(self))
+				message = "tripped on its own grenade";
+			else if (IsFemale(self))
+				message = "tripped on her own grenade";
+			else
+				message = "tripped on his own grenade";
 			break;
-		case MOD_WATER:
-			message = "sank like a rock";
+		case MOD_R_SPLASH:
+			if (IsNeutral(self))
+				message = "blew itself up";
+			else if (IsFemale(self))
+				message = "blew herself up";
+			else
+				message = "blew himself up";
 			break;
-		case MOD_SLIME:
-			message = "melted";
+		case MOD_BFG_BLAST:
+			message = "should have used a smaller gun";
 			break;
-		case MOD_LAVA:
-			message = "does a back flip into the lava";
-			break;
-		case MOD_EXPLOSIVE:
-		case MOD_BARREL:
-			message = "blew up";
-			break;
-		case MOD_EXIT:
-			message = "found a way out";
-			break;
-		case MOD_TARGET_LASER:
-			message = "saw the light";
-			break;
-		case MOD_TARGET_BLASTER:
-			message = "got blasted";
-			break;
-		case MOD_BOMB:
-		case MOD_SPLASH:
-		case MOD_TRIGGER_HURT:
-			message = "was in the wrong place";
+		default:
+			if (IsNeutral(self))
+				message = "killed itself";
+			else if (IsFemale(self))
+				message = "killed herself";
+			else
+				message = "killed himself";
 			break;
 		}
+	}
 
-		if (attacker == self) {
-			switch (mod) {
-			case MOD_HELD_GRENADE:
-				message = "tried to put the pin back in";
-				break;
-			case MOD_HG_SPLASH:
-				if (IsNeutral(self))
-					message = "didn't throw its grenade far enough";
-				if (IsFemale(self))
-					message = "didn't throw her grenade far enough";
-				else
-					message = "didn't throw his grenade far enough";
-				break;
-			case MOD_G_SPLASH:
-				if (IsNeutral(self))
-					message = "tripped on its own grenade";
-				else if (IsFemale(self))
-					message = "tripped on her own grenade";
-				else
-					message = "tripped on his own grenade";
-				break;
-			case MOD_R_SPLASH:
-				if (IsNeutral(self))
-					message = "blew itself up";
-				else if (IsFemale(self))
-					message = "blew herself up";
-				else
-					message = "blew himself up";
-				break;
-			case MOD_BFG_BLAST:
-				message = "should have used a smaller gun";
-				break;
-			default:
-				if (IsNeutral(self))
-					message = "killed itself";
-				else if (IsFemale(self))
-					message = "killed herself";
-				else
-					message = "killed himself";
-				break;
+	if (message && !special)
+	{
+		sprintf(death_msg, "%s %s\n", self->client->pers.netname, message);
+		PrintDeathMessage(death_msg, self);
+		IRC_printf(IRC_T_DEATH, death_msg);
+
+		// AQ:TNG - JBravo: Since it's op to teamkill after rounds, why not plummet?
+		if (deathmatch->value) {
+			if (!teamplay->value || team_round_going || !ff_afterround->value)  {
+				Subtract_Frag(self);
 			}
 		}
 
-		if (message && !special) {
-			sprintf(death_msg, "%s %s\n", self->client->pers.netname, message);
+		self->enemy = NULL;
+		return;
+	}
+	else if (special)	// handle falling with an attacker set
+	{
+		if (self->client->attacker && self->client->attacker->client
+		&& (self->client->attacker->client != self->client))
+		{
+			sprintf(death_msg, "%s was taught how to fly by %s\n",
+				self->client->pers.netname, self->client->attacker->client->pers.netname);
+			PrintDeathMessage(death_msg, self);
+			IRC_printf(IRC_T_KILL, death_msg);
+			AddKilledPlayer(self->client->attacker, self);
+			self->client->attacker->client->pers.num_kills++;
+
+			//MODIFIED FOR FF -FB
+			if (!((int)dmflags->value & DF_NO_FRIENDLY_FIRE)
+				&& teamplay->value && OnSameTeam(self, self->client->attacker))
+			{
+				if (team_round_going || !ff_afterround->value) {
+					// AQ:TNG - JBravo adding tkok
+					self->enemy = self->client->attacker;
+					// End adding tkok
+					Add_TeamKill(self->client->attacker);
+					Subtract_Frag(self->client->attacker);	//attacker->client->resp.score--;
+					self->client->resp.deaths++;
+				}
+			}
+			else
+			{
+				if (!teamplay->value || !OnSameTeam(self, self->client->attacker))
+				{
+					self->client->resp.streak = 0;
+					Add_Frag(self->client->attacker);
+					self->client->resp.deaths++;
+				}
+			}
+
+		}
+		else
+		{
+			if (IsNeutral(self))
+				sprintf(death_msg, "%s plummets to its death\n", self->client->pers.netname);
+			else if (IsFemale(self))
+				sprintf(death_msg, "%s plummets to her death\n", self->client->pers.netname);
+			else
+				sprintf(death_msg, "%s plummets to his death\n", self->client->pers.netname);
+
 			PrintDeathMessage(death_msg, self);
 			IRC_printf(IRC_T_DEATH, death_msg);
-
-			// AQ:TNG - JBravo: Since it's op to teamkill after rounds, why not plummet?
-			if (deathmatch->value) {
-				if (teamplay->value) {
-					if (team_round_going) {
-						Subtract_Frag(self);
-					} else {
-						if (!ff_afterround->value) {
-							Subtract_Frag(self);
-						}
-					}
-				} else {
-					Subtract_Frag(self);
-				}
-			}
-
-/*
-			if ((deathmatch->value && !teamplay->value) || (teamplay->value && (team_round_going && ff_afterround->value))) {
-			// End ok to plummet after rounds...
-				Subtract_Frag( self );//self->client->resp.score--;
-			}
-*/
+			if (deathmatch->value)
+				Subtract_Frag(self);	//self->client->resp.score--;
 			self->enemy = NULL;
-			return;
-		} else if (special)	// handle falling with an attacker set
-		{
-			if (self->client->attacker && self->client->attacker->client
-			    && (self->client->attacker->client != self->client)) {
-				sprintf(death_msg, "%s was taught how to fly by %s\n",
-					self->client->pers.netname, self->client->attacker->client->pers.netname);
-				PrintDeathMessage(death_msg, self);
-				IRC_printf(IRC_T_KILL, death_msg);
-				AddKilledPlayer(self->client->attacker, self);
-
-				//MODIFIED FOR FF -FB
-				if (!((int) dmflags->value & DF_NO_FRIENDLY_FIRE)
-				    && OnSameTeam(self, self->client->attacker)
-				    && (team_round_going && ff_afterround->value) && teamplay->value)	// AQ:TNG - JBravo adding FF after rounds
-				{
-					if (!teamplay->value || team_round_going) {
-						// AQ:TNG - JBravo adding tkok
-						self->enemy = self->client->attacker;
-						// End adding tkok
-						Add_TeamKill(self->client->attacker);
-						Subtract_Frag(self->client->attacker);	//attacker->client->resp.score--;
-					}
-				} else {
-/*		  if ((!teamplay->value || mod != MOD_TELEFRAG) && !(int) dmflags->value & DF_NO_FRIENDLY_FIRE)
-		    	Add_Frag (self->client->attacker);	//attacker->client->resp.score++;
-
-		  if (!teamplay->value) */
-					// Fix on taught how to fly
-					if (!
-					    (teamplay->value && OnSameTeam(self, self->client->attacker)
-						&& !team_round_going)) {
-							//SLIC2
-							self->client->resp.streak = 0;
-							//SLIC2
-							Add_Frag(self->client->attacker);
-						}
-				}
-				//END FF ADD
-				//PG BUND - BEGIN 
-				// self->client->attacker->client->resp.last_killed_target = self;
-				AddKilledPlayer(self, self);
-				//PG BUND - END 
-				//SLIC2 Radio count for falling death was missing..
-				self->client->attacker->client->pers.num_kills++;
-				//SLIC2
-			} else {
-				if (IsNeutral(self))
-					sprintf(death_msg, "%s plummets to its death\n", self->client->pers.netname);
-				else if (IsFemale(self))
-					sprintf(death_msg, "%s plummets to her death\n", self->client->pers.netname);
-				else
-					sprintf(death_msg, "%s plummets to his death\n", self->client->pers.netname);
-
-				PrintDeathMessage(death_msg, self);
-				IRC_printf(IRC_T_DEATH, death_msg);
-				if (deathmatch->value)
-					Subtract_Frag(self);	//self->client->resp.score--;
-				self->enemy = NULL;
-			}
-			return;
+			self->client->resp.deaths++;
 		}
+		return;
+	}
 #if 0
 		// handle bleeding, not used because bleeding doesn't get set
 		if (mod == MOD_BLEEDING) {
@@ -985,404 +951,396 @@ void ClientObituary(edict_t * self, edict_t * inflictor, edict_t * attacker)
 		}
 #endif
 
-		self->enemy = attacker;
-		if (attacker && attacker->client) {
-			//PG BUND - BEGIN 
-			//        attacker->client->resp.last_killed_target = self;
-			AddKilledPlayer(attacker, self);
-			//PG BUND - END 
+	self->enemy = attacker;
+	if (attacker && attacker->client)
+	{
+		AddKilledPlayer(attacker, self);
 
-			switch (mod) {
-			case MOD_MK23:	// zucc
-				switch (loc) {
-				case LOC_HDAM:
-					if (IsNeutral(self))
-						message = " has a hole in its head from";
-					else if (IsFemale(self))
-						message = " has a hole in her head from";
-					else
-						message = " has a hole in his head from";
-					message2 = "'s Mark 23 pistol";
-					break;
-				case LOC_CDAM:
-					message = " loses a vital chest organ thanks to";
-					message2 = "'s Mark 23 pistol";
-					break;
-				case LOC_SDAM:
-					if (IsNeutral(self))
-						message = " loses its lunch to";
-					else if (IsFemale(self))
-						message = " loses her lunch to";
-					else
-						message = " loses his lunch to";
-					message2 = "'s .45 caliber pistol round";
-					break;
-				case LOC_LDAM:
-					message = " is legless because of";
-					message2 = "'s .45 caliber pistol round";
-					break;
-				default:
-					message = " was shot by";
-					message2 = "'s Mark 23 Pistol";
-				}
+		switch (mod) {
+		case MOD_MK23:	// zucc
+			switch (loc) {
+			case LOC_HDAM:
+				if (IsNeutral(self))
+					message = " has a hole in its head from";
+				else if (IsFemale(self))
+					message = " has a hole in her head from";
+				else
+					message = " has a hole in his head from";
+				message2 = "'s Mark 23 pistol";
 				break;
-			case MOD_MP5:
-				switch (loc) {
-				case LOC_HDAM:
-					message = "'s brains are on the wall thanks to";
-					message2 = "'s 10mm MP5/10 round";
-					break;
-				case LOC_CDAM:
-					message = " feels some chest pain via";
-					message2 = "'s MP5/10 Submachinegun";
-					break;
-				case LOC_SDAM:
-					message = " needs some Pepto Bismol after";
-					message2 = "'s 10mm MP5 round";
-					break;
-				case LOC_LDAM:
-					if (IsNeutral(self))
-						message = " had its legs blown off thanks to";
-					else if (IsFemale(self))
-						message = " had her legs blown off thanks to";
-					else
-						message = " had his legs blown off thanks to";
-					message2 = "'s MP5/10 Submachinegun";
-					break;
-				default:
-					message = " was shot by";
-					message2 = "'s MP5/10 Submachinegun";
-				}
+			case LOC_CDAM:
+				message = " loses a vital chest organ thanks to";
+				message2 = "'s Mark 23 pistol";
 				break;
-			case MOD_M4:
-				switch (loc) {
-				case LOC_HDAM:
-					message = " had a makeover by";
-					message2 = "'s M4 Assault Rifle";
-					break;
-				case LOC_CDAM:
-					message = " feels some heart burn thanks to";
-					message2 = "'s M4 Assault Rifle";
-					break;
-				case LOC_SDAM:
-					message = " has an upset stomach thanks to";
-					message2 = "'s M4 Assault Rifle";
-					break;
-				case LOC_LDAM:
-					message = " is now shorter thanks to";
-					message2 = "'s M4 Assault Rifle";
-					break;
-				default:
-					message = " was shot by";
-					message2 = "'s M4 Assault Rifle";
-				}
+			case LOC_SDAM:
+				if (IsNeutral(self))
+					message = " loses its lunch to";
+				else if (IsFemale(self))
+					message = " loses her lunch to";
+				else
+					message = " loses his lunch to";
+				message2 = "'s .45 caliber pistol round";
 				break;
-			case MOD_M3:
-				n = rand() % 2 + 1;
-				if (n == 1) {
-					message = " accepts";
-					message2 = "'s M3 Super 90 Assault Shotgun in hole-y matrimony";
+			case LOC_LDAM:
+				message = " is legless because of";
+				message2 = "'s .45 caliber pistol round";
+				break;
+			default:
+				message = " was shot by";
+				message2 = "'s Mark 23 Pistol";
+			}
+			break;
+		case MOD_MP5:
+			switch (loc) {
+			case LOC_HDAM:
+				message = "'s brains are on the wall thanks to";
+				message2 = "'s 10mm MP5/10 round";
+				break;
+			case LOC_CDAM:
+				message = " feels some chest pain via";
+				message2 = "'s MP5/10 Submachinegun";
+				break;
+			case LOC_SDAM:
+				message = " needs some Pepto Bismol after";
+				message2 = "'s 10mm MP5 round";
+				break;
+			case LOC_LDAM:
+				if (IsNeutral(self))
+					message = " had its legs blown off thanks to";
+				else if (IsFemale(self))
+					message = " had her legs blown off thanks to";
+				else
+					message = " had his legs blown off thanks to";
+				message2 = "'s MP5/10 Submachinegun";
+				break;
+			default:
+				message = " was shot by";
+				message2 = "'s MP5/10 Submachinegun";
+			}
+			break;
+		case MOD_M4:
+			switch (loc) {
+			case LOC_HDAM:
+				message = " had a makeover by";
+				message2 = "'s M4 Assault Rifle";
+				break;
+			case LOC_CDAM:
+				message = " feels some heart burn thanks to";
+				message2 = "'s M4 Assault Rifle";
+				break;
+			case LOC_SDAM:
+				message = " has an upset stomach thanks to";
+				message2 = "'s M4 Assault Rifle";
+				break;
+			case LOC_LDAM:
+				message = " is now shorter thanks to";
+				message2 = "'s M4 Assault Rifle";
+				break;
+			default:
+				message = " was shot by";
+				message2 = "'s M4 Assault Rifle";
+			}
+			break;
+		case MOD_M3:
+			n = rand() % 2 + 1;
+			if (n == 1) {
+				message = " accepts";
+				message2 = "'s M3 Super 90 Assault Shotgun in hole-y matrimony";
+			} else {
+				message = " is full of buckshot from";
+				message2 = "'s M3 Super 90 Assault Shotgun";
+			}
+			break;
+		case MOD_HC:
+			n = rand() % 2 + 1;
+			if (n == 1) {
+				if (attacker->client->resp.hc_mode)	// AQ2:TNG Deathwatch - Single Barreled HC Death Messages
+				{
+					message = " underestimated";
+					message2 = "'s single barreled handcannon shot";
+				} else {
+					message = " ate";
+					message2 = "'s sawed-off 12 gauge";
+				}
+			} else {
+				if (attacker->client->resp.hc_mode)	// AQ2:TNG Deathwatch - Single Barreled HC Death Messages
+				{
+					message = " won't be able to pass a metal detector anymore thanks to";
+					message2 = "'s single barreled handcannon shot";
 				} else {
 					message = " is full of buckshot from";
-					message2 = "'s M3 Super 90 Assault Shotgun";
+					message2 = "'s sawed off shotgun";
 				}
+			}
+			break;
+		case MOD_SNIPER:
+			switch (loc) {
+			case LOC_HDAM:
+				if (self->client->ps.fov < 90) {
+					if (IsNeutral(self))
+						message = " saw the sniper bullet go through its scope thanks to";
+					else if (IsFemale(self))
+						message = " saw the sniper bullet go through her scope thanks to";
+					else
+						message = " saw the sniper bullet go through his scope thanks to";
+				} else
+					message = " caught a sniper bullet between the eyes from";
 				break;
-			case MOD_HC:
-				n = rand() % 2 + 1;
-				if (n == 1) {
-					if (attacker->client->resp.hc_mode)	// AQ2:TNG Deathwatch - Single Barreled HC Death Messages
-					{
-						message = " underestimated";
-						message2 = "'s single barreled handcannon shot";
-					} else {
-						message = " ate";
-						message2 = "'s sawed-off 12 gauge";
-					}
-				} else {
-					if (attacker->client->resp.hc_mode)	// AQ2:TNG Deathwatch - Single Barreled HC Death Messages
-					{
-						message = " won't be able to pass a metal detector anymore thanks to";
-						message2 = "'s single barreled handcannon shot";
-					} else {
-						message = " is full of buckshot from";
-						message2 = "'s sawed off shotgun";
-					}
-				}
+			case LOC_CDAM:
+				message = " was picked off by";
 				break;
-			case MOD_SNIPER:
-				switch (loc) {
+			case LOC_SDAM:
+				message = " was sniped in the stomach by";
+				break;
+			case LOC_LDAM:
+				message = " was shot in the legs by";
+				break;
+			default:
+				message = " was sniped by";
+				//message2 = "'s Sniper Rifle";
+			}
+			break;
+		case MOD_DUAL:
+			switch (loc) {
+			case LOC_HDAM:
+				message = " was trepanned by";
+				message2 = "'s akimbo Mark 23 pistols";
+				break;
+			case LOC_CDAM:
+				message = " was John Woo'd by";
+				//message2 = "'s .45 caliber pistol round";
+				break;
+			case LOC_SDAM:
+				message = " needs some new kidneys thanks to";
+				message2 = "'s akimbo Mark 23 pistols";
+				break;
+			case LOC_LDAM:
+				message = " was shot in the legs by";
+				message2 = "'s akimbo Mark 23 pistols";
+				break;
+			default:
+				message = " was shot by";
+				message2 = "'s pair of Mark 23 Pistols";
+			}
+			break;
+		case MOD_KNIFE:
+			switch (loc) {
+			case LOC_HDAM:
+				if (IsNeutral(self))
+					message = " had its throat slit by";
+				else if (IsFemale(self))
+					message = " had her throat slit by";
+				else
+					message = " had his throat slit by";
+				break;
+			case LOC_CDAM:
+				message = " had open heart surgery, compliments of";
+				break;
+			case LOC_SDAM:
+				message = " was gutted by";
+				break;
+			case LOC_LDAM:
+				message = " was stabbed repeatedly in the legs by";
+				break;
+			default:
+				message = " was slashed apart by";
+				message2 = "'s Combat Knife";
+			}
+			break;
+		case MOD_KNIFE_THROWN:
+			switch (loc) {
 				case LOC_HDAM:
-					if (self->client->ps.fov < 90) {
-						if (IsNeutral(self))
-							message =
-							    " saw the sniper bullet go through its scope thanks to";
-						else if (IsFemale(self))
-							message =
-							    " saw the sniper bullet go through her scope thanks to";
-						else
-							message =
-							    " saw the sniper bullet go through his scope thanks to";
-					} else
-						message = " caught a sniper bullet between the eyes from";
-					break;
-				case LOC_CDAM:
-					message = " was picked off by";
-					break;
-				case LOC_SDAM:
-					message = " was sniped in the stomach by";
-					break;
-				case LOC_LDAM:
-					message = " was shot in the legs by";
-					break;
-				default:
-					message = " was sniped by";
-					//message2 = "'s Sniper Rifle";
-				}
-				break;
-			case MOD_DUAL:
-				switch (loc) {
-				case LOC_HDAM:
-					message = " was trepanned by";
-					message2 = "'s akimbo Mark 23 pistols";
-					break;
-				case LOC_CDAM:
-					message = " was John Woo'd by";
-					//message2 = "'s .45 caliber pistol round";
-					break;
-				case LOC_SDAM:
-					message = " needs some new kidneys thanks to";
-					message2 = "'s akimbo Mark 23 pistols";
-					break;
-				case LOC_LDAM:
-					message = " was shot in the legs by";
-					message2 = "'s akimbo Mark 23 pistols";
-					break;
-				default:
-					message = " was shot by";
-					message2 = "'s pair of Mark 23 Pistols";
-				}
-				break;
-			case MOD_KNIFE:
-				switch (loc) {
-				case LOC_HDAM:
-					if (IsNeutral(self))
-						message = " had its throat slit by";
-					else if (IsFemale(self))
-						message = " had her throat slit by";
-					else
-						message = " had his throat slit by";
-					break;
-				case LOC_CDAM:
-					message = " had open heart surgery, compliments of";
-					break;
-				case LOC_SDAM:
-					message = " was gutted by";
-					break;
-				case LOC_LDAM:
-					message = " was stabbed repeatedly in the legs by";
-					break;
-				default:
-					message = " was slashed apart by";
-					message2 = "'s Combat Knife";
-				}
-				break;
-			case MOD_KNIFE_THROWN:
-				switch (loc) {
-				case LOC_HDAM:
-					message = " caught";
-					if (IsNeutral(self))
-						message2 = "'s flying knife with its forehead";
-					else if (IsFemale(self))
-						message2 = "'s flying knife with her forehead";
-					else
-						message2 = "'s flying knife with his forehead";
-					break;
-				case LOC_CDAM:
-					message = "'s ribs don't help against";
-					message2 = "'s flying knife";
-					break;
-				case LOC_SDAM:
-					if (IsNeutral(self))
-						message = " sees the contents of its own stomach thanks to";
-					else if (IsFemale(self))
-						message = " sees the contents of her own stomach thanks to";
-					else
-						message = " sees the contents of his own stomach thanks to";
-					message2 = "'s flying knife";
-					break;
-				case LOC_LDAM:
-					if (IsNeutral(self))
-						message = " had its legs cut off thanks to";
-					else if (IsFemale(self))
-						message = " had her legs cut off thanks to";
-					else
-						message = " had his legs cut off thanks to";
-					message2 = "'s flying knife";
-					break;
-				default:
-					message = " was hit by";
-					message2 = "'s flying Combat Knife";
-				}
-				break;
-			case MOD_GAS:
-				message = " sucks down some toxic gas thanks to";
-				break;
-			case MOD_KICK:
-				n = rand() % 3 + 1;
-				if (n == 1) {
-					if (IsNeutral(self))
-						message = " got its ass kicked by";
-					else if (IsFemale(self))
-						message = " got her ass kicked by";
-					else
-						message = " got his ass kicked by";
-				} else if (n == 2) {
-					if (IsNeutral(self)) {
-						message = " couldn't remove";
-						message2 = "'s boot from its ass";
-					} else if (IsFemale(self)) {
-						message = " couldn't remove";
-						message2 = "'s boot from her ass";
-					} else {
-						message = " couldn't remove";
-						message2 = "'s boot from his ass";
-					}
-				} else {
-					if (IsNeutral(self)) {
-						message = " had a Bruce Lee put on it by";
-						message2 = ", with a quickness";
-					} else if (IsFemale(self)) {
-						message = " had a Bruce Lee put on her by";
-						message2 = ", with a quickness";
-					} else {
-						message = " had a Bruce Lee put on him by";
-						message2 = ", with a quickness";
-					}
-				}
-				break;
-			case MOD_PUNCH:
-				n = rand() % 3 + 1;
-				if (n == 1) {
-					message = " got a free facelift by";
-				} else if (n == 2) {
-					message = " was knocked out by";
-				} else {
-					message = " caught";
-					message2 = "'s iron fist";
-				}
-				break;
-			case MOD_BLASTER:
-				message = "was blasted by";
-				break;
-			case MOD_SHOTGUN:
-				message = "was gunned down by";
-				break;
-			case MOD_SSHOTGUN:
-				message = "was blown away by";
-				message2 = "'s super shotgun";
-				break;
-			case MOD_MACHINEGUN:
-				message = "was machinegunned by";
-				break;
-			case MOD_CHAINGUN:
-				message = "was cut in half by";
-				message2 = "'s chaingun";
-				break;
-			case MOD_GRENADE:
-				message = "was popped by";
-				message2 = "'s grenade";
-				break;
-			case MOD_G_SPLASH:
-				message = "was shredded by";
-				message2 = "'s shrapnel";
-				break;
-			case MOD_ROCKET:
-				message = "ate";
-				message2 = "'s rocket";
-				break;
-			case MOD_R_SPLASH:
-				message = "almost dodged";
-				message2 = "'s rocket";
-				break;
-			case MOD_HYPERBLASTER:
-				message = "was melted by";
-				message2 = "'s hyperblaster";
-				break;
-			case MOD_RAILGUN:
-				message = "was railed by";
-				break;
-			case MOD_BFG_LASER:
-				message = "saw the pretty lights from";
-				message2 = "'s BFG";
-				break;
-			case MOD_BFG_BLAST:
-				message = "was disintegrated by";
-				message2 = "'s BFG blast";
-				break;
-			case MOD_BFG_EFFECT:
-				message = "couldn't hide from";
-				message2 = "'s BFG";
-				break;
-			case MOD_HANDGRENADE:
 				message = " caught";
-				message2 = "'s handgrenade";
+				if (IsNeutral(self))
+					message2 = "'s flying knife with its forehead";
+				else if (IsFemale(self))
+					message2 = "'s flying knife with her forehead";
+				else
+					message2 = "'s flying knife with his forehead";
 				break;
-			case MOD_HG_SPLASH:
-				message = " didn't see";
-				message2 = "'s handgrenade";
+			case LOC_CDAM:
+				message = "'s ribs don't help against";
+				message2 = "'s flying knife";
 				break;
-			case MOD_HELD_GRENADE:
-				message = " feels";
-				message2 = "'s pain";
+			case LOC_SDAM:
+				if (IsNeutral(self))
+					message = " sees the contents of its own stomach thanks to";
+				else if (IsFemale(self))
+					message = " sees the contents of her own stomach thanks to";
+				else
+					message = " sees the contents of his own stomach thanks to";
+				message2 = "'s flying knife";
 				break;
-			case MOD_TELEFRAG:
-				message = " tried to invade";
-				message2 = "'s personal space";
+			case LOC_LDAM:
+				if (IsNeutral(self))
+					message = " had its legs cut off thanks to";
+				else if (IsFemale(self))
+					message = " had her legs cut off thanks to";
+				else
+					message = " had his legs cut off thanks to";
+				message2 = "'s flying knife";
 				break;
-			}	//end of case (mod)
+			default:
+				message = " was hit by";
+				message2 = "'s flying Combat Knife";
+			}
+			break;
+		case MOD_GAS:
+			message = " sucks down some toxic gas thanks to";
+			break;
+		case MOD_KICK:
+			n = rand() % 3 + 1;
+			if (n == 1) {
+				if (IsNeutral(self))
+					message = " got its ass kicked by";
+				else if (IsFemale(self))
+					message = " got her ass kicked by";
+				else
+					message = " got his ass kicked by";
+			} else if (n == 2) {
+				if (IsNeutral(self)) {
+					message = " couldn't remove";
+					message2 = "'s boot from its ass";
+				} else if (IsFemale(self)) {
+					message = " couldn't remove";
+					message2 = "'s boot from her ass";
+				} else {
+					message = " couldn't remove";
+					message2 = "'s boot from his ass";
+				}
+			} else {
+				if (IsNeutral(self)) {
+					message = " had a Bruce Lee put on it by";
+					message2 = ", with a quickness";
+				} else if (IsFemale(self)) {
+					message = " had a Bruce Lee put on her by";
+					message2 = ", with a quickness";
+				} else {
+					message = " had a Bruce Lee put on him by";
+					message2 = ", with a quickness";
+				}
+			}
+			break;
+		case MOD_PUNCH:
+			n = rand() % 3 + 1;
+			if (n == 1) {
+				message = " got a free facelift by";
+			} else if (n == 2) {
+				message = " was knocked out by";
+			} else {
+				message = " caught";
+				message2 = "'s iron fist";
+			}
+			break;
+		case MOD_BLASTER:
+			message = "was blasted by";
+			break;
+		case MOD_SHOTGUN:
+			message = "was gunned down by";
+			break;
+		case MOD_SSHOTGUN:
+			message = "was blown away by";
+			message2 = "'s super shotgun";
+			break;
+		case MOD_MACHINEGUN:
+			message = "was machinegunned by";
+			break;
+		case MOD_CHAINGUN:
+			message = "was cut in half by";
+			message2 = "'s chaingun";
+			break;
+		case MOD_GRENADE:
+			message = "was popped by";
+			message2 = "'s grenade";
+			break;
+		case MOD_G_SPLASH:
+			message = "was shredded by";
+			message2 = "'s shrapnel";
+			break;
+		case MOD_ROCKET:
+			message = "ate";
+			message2 = "'s rocket";
+			break;
+		case MOD_R_SPLASH:
+			message = "almost dodged";
+			message2 = "'s rocket";
+			break;
+		case MOD_HYPERBLASTER:
+			message = "was melted by";
+			message2 = "'s hyperblaster";
+			break;
+		case MOD_RAILGUN:
+			message = "was railed by";
+			break;
+		case MOD_BFG_LASER:
+			message = "saw the pretty lights from";
+			message2 = "'s BFG";
+			break;
+		case MOD_BFG_BLAST:
+			message = "was disintegrated by";
+			message2 = "'s BFG blast";
+			break;
+		case MOD_BFG_EFFECT:
+			message = "couldn't hide from";
+			message2 = "'s BFG";
+			break;
+		case MOD_HANDGRENADE:
+			message = " caught";
+			message2 = "'s handgrenade";
+			break;
+		case MOD_HG_SPLASH:
+			message = " didn't see";
+			message2 = "'s handgrenade";
+			break;
+		case MOD_HELD_GRENADE:
+			message = " feels";
+			message2 = "'s pain";
+			break;
+		case MOD_TELEFRAG:
+			message = " tried to invade";
+			message2 = "'s personal space";
+			break;
+		}	//end of case (mod)
 
-			if (message) {
-				//FIREBLADE
-				sprintf(death_msg, "%s%s %s%s\n", self->client->pers.netname,
-					message, attacker->client->pers.netname, message2);
-				PrintDeathMessage(death_msg, self);
-				IRC_printf(IRC_T_KILL, death_msg);
-				//FIREBLADE
-				if (deathmatch->value) {
-					if (ff) {
-						if (!teamplay->value || team_round_going) {
-							// AQ:TNG - JBravo adding tkok
-							self->enemy = attacker;
-							// End adding tkok
-							Add_TeamKill(attacker);
-							Subtract_Frag(attacker);	//attacker->client->resp.score--;
-						}
-					} else {
-	
-						//FIREBLADE
-						if (!teamplay->value || mod != MOD_TELEFRAG) {
-							Add_Frag(attacker);	//attacker->client->resp.score++;
-							attacker->client->pers.num_kills++;	//TempFile
-							//SLIC2
-							if(!teamplay->value || !OnSameTeam(self,attacker)) {
-								self->client->resp.streak = 0;
-							}
-							//SLIC2
-						}
-					}
-
-				}	// if(deathmatch->value)
+		if (message) {
+			//FIREBLADE
+			sprintf(death_msg, "%s%s %s%s\n", self->client->pers.netname,
+			message, attacker->client->pers.netname, message2);
+			PrintDeathMessage(death_msg, self);
+			IRC_printf(IRC_T_KILL, death_msg);
+			//FIREBLADE
+			if (!deathmatch->value)
 				return;
-			}	// if(message)
-		}
+
+			if (ff) {
+				if (!teamplay->value || team_round_going || !ff_afterround->value)
+				{
+					self->enemy = attacker; //tkok
+					Add_TeamKill(attacker);
+					Subtract_Frag(attacker);	//attacker->client->resp.score--;
+					self->client->resp.deaths++;
+				}
+			} else {
+				if (!teamplay->value || mod != MOD_TELEFRAG) {
+					Add_Frag(attacker);
+					attacker->client->pers.num_kills++;
+					self->client->resp.streak = 0;
+					self->client->resp.deaths++;
+				}
+			}
+
+			return;
+		}	// if(message)
 	}
 
 	sprintf(death_msg, "%s died\n", self->client->pers.netname);
 	PrintDeathMessage(death_msg, self);
 	IRC_printf(IRC_T_DEATH, death_msg);
 
-	if (deathmatch->value)
+	if (deathmatch->value){
 		Subtract_Frag(self);	//self->client->resp.score--;
+		self->client->resp.deaths++;
+	}
 }
 
 void Touch_Item(edict_t * ent, edict_t * other, cplane_t * plane, csurface_t * surf);
@@ -1424,11 +1382,12 @@ void EjectWeapon(edict_t * ent, gitem_t * item)
 void TossItemsOnDeath(edict_t * ent)
 {
 	gitem_t *item;
+	qboolean quad;
 
 	// don't bother dropping stuff when allweapons/items is active
 	if (allitem->value && allweapon->value) {
 		// remove the lasersight because then the observer might have it
-		item = FindItem(LASER_NAME);
+		item = GET_ITEM(LASER_NUM);
 		ent->client->pers.inventory[ITEM_INDEX(item)] = 0;
 		return;
 	}
@@ -1442,47 +1401,67 @@ void TossItemsOnDeath(edict_t * ent)
 	if (!allitem->value)
 		DeadDropSpec(ent);
 	else {			// remove the lasersight because then the observer might have it
-		item = FindItem(LASER_NAME);
+		item = GET_ITEM(LASER_NUM);
 		ent->client->pers.inventory[ITEM_INDEX(item)] = 0;
 		SP_LaserSight(ent, item);
 	}
 	if (((int) wp_flags->value & WPF_MK23) && ((int) wp_flags->value & WPF_DUAL)) {
 		// give the player a dual pistol so they can be sure to drop one
-		item = FindItem(DUAL_NAME);
+		item = GET_ITEM(DUAL_NUM);
 		ent->client->pers.inventory[ITEM_INDEX(item)]++;
 		EjectItem(ent, item);
 	}
 	// check for every item we want to drop when a player dies
-	item = FindItem(MP5_NAME);
+	item = GET_ITEM(MP5_NUM);
 	while (ent->client->pers.inventory[ITEM_INDEX(item)] > 0) {
 		ent->client->pers.inventory[ITEM_INDEX(item)]--;
 		EjectWeapon(ent, item);
 	}
-	item = FindItem(M4_NAME);
+	item = GET_ITEM(M4_NUM);
 	while (ent->client->pers.inventory[ITEM_INDEX(item)] > 0) {
 		ent->client->pers.inventory[ITEM_INDEX(item)]--;
 		EjectWeapon(ent, item);
 	}
-	item = FindItem(M3_NAME);
+	item = GET_ITEM(M3_NUM);
 	while (ent->client->pers.inventory[ITEM_INDEX(item)] > 0) {
 		ent->client->pers.inventory[ITEM_INDEX(item)]--;
 		EjectWeapon(ent, item);
 	}
-	item = FindItem(HC_NAME);
+	item = GET_ITEM(HC_NUM);
 	while (ent->client->pers.inventory[ITEM_INDEX(item)] > 0) {
 		ent->client->pers.inventory[ITEM_INDEX(item)]--;
 		EjectWeapon(ent, item);
 	}
-	item = FindItem(SNIPER_NAME);
+	item = GET_ITEM(SNIPER_NUM);
 	while (ent->client->pers.inventory[ITEM_INDEX(item)] > 0) {
 		ent->client->pers.inventory[ITEM_INDEX(item)]--;
 		EjectWeapon(ent, item);
 	}
-	item = FindItem(KNIFE_NAME);
+	item = GET_ITEM(KNIFE_NUM);
 	if (ent->client->pers.inventory[ITEM_INDEX(item)] > 0) {
 		EjectItem(ent, item);
 	}
 // special items
+
+	if (!((int) (dmflags->value) & DF_QUAD_DROP))
+		quad = false;
+	else
+		quad = (ent->client->quad_framenum > (level.framenum + 10));
+
+	if (quad) {
+		edict_t *drop;
+		float spread;
+
+		spread = 300.0 * crandom();
+		ent->client->v_angle[YAW] += spread;
+		drop = Drop_Item(ent, FindItemByClassname("item_quad"));
+		ent->client->v_angle[YAW] -= spread;
+		drop->spawnflags |= DROPPED_PLAYER_ITEM;
+
+		drop->touch = Touch_Item;
+		drop->nextthink = level.time + (ent->client->quad_framenum - level.framenum) * FRAMETIME;
+		drop->think = G_FreeEdict;
+	}
 
 #if 0
 	item = FindItem(SIL_NAME);
@@ -1610,7 +1589,7 @@ void player_die(edict_t * self, edict_t * inflictor, edict_t * attacker, int dam
 	// 
 	// ...only need it in DM though...
 	// ...for teamplay, non-solid will get set soon after in CopyToBodyQue
-	if (!teamplay->value || ctf->value) {
+	if (!teamplay->value || ctf->value || teamdm->value) {
 		self->solid = SOLID_NOT;
 		gi.linkentity(self);
 	}
@@ -1638,7 +1617,11 @@ void player_die(edict_t * self, edict_t * inflictor, edict_t * attacker, int dam
 	if (!self->deadflag) {
 		if (ctf->value) {
 			self->client->respawn_time = level.time + ctf_respawn->value;
-		} else {
+		}
+		else if(teamdm->value) {
+			self->client->respawn_time = level.time + teamdm_respawn->value;
+		}
+		else {
 			self->client->respawn_time = level.time + 1.0;
 		}
 		LookAtKiller(self, inflictor, attacker);
@@ -1696,9 +1679,9 @@ void player_die(edict_t * self, edict_t * inflictor, edict_t * attacker, int dam
 		self->client->ps.gunframe = 0;
 		// Reset Grenade Damage to 1.52 when requested:
 		if (use_classic->value)
-			fire_grenade2(self, self->s.origin, tv(0, 0, 0), 170, 0, 2, 170 * 2, false);
+			fire_grenade2(self, self->s.origin, vec3_origin, 170, 0, 2, 170 * 2, false);
 		else
-			fire_grenade2(self, self->s.origin, tv(0, 0, 0), GRENADE_DAMRAD, 0,
+			fire_grenade2(self, self->s.origin, vec3_origin, GRENADE_DAMRAD, 0,
 				      2, GRENADE_DAMRAD * 2, false);
 	}
 	// Gibbing on really hard HC hit
@@ -1803,7 +1786,7 @@ void InitClientPersistant(gclient_t * client)
 
 	memset(&client->pers, 0, sizeof(client->pers));
 	// changed to mk23
-	item = FindItem(MK23_NAME);
+	item = GET_ITEM(MK23_NUM);
 	client->pers.selected_item = ITEM_INDEX(item);
 	client->pers.inventory[client->pers.selected_item] = 1;
 
@@ -1811,7 +1794,7 @@ void InitClientPersistant(gclient_t * client)
 	client->pers.lastweapon = item;
 
 	if ((int) wp_flags->value & WPF_KNIFE) {
-		item = FindItem(KNIFE_NAME);
+		item = GET_ITEM(KNIFE_NUM);
 		client->pers.inventory[ITEM_INDEX(item)] = 1;
 		if (!(int) wp_flags->value & WPF_MK23) {
 			client->pers.selected_item = ITEM_INDEX(item);
@@ -1865,19 +1848,19 @@ void InitClientResp(gclient_t * client)
 	client->resp.enterframe = level.framenum;
 	client->resp.coop_respawn = client->pers;
 	if ((int) wp_flags->value & WPF_MP5) {
-		client->resp.weapon = FindItem(MP5_NAME);
+		client->resp.weapon = GET_ITEM(MP5_NUM);
 	} else if ((int) wp_flags->value & WPF_MK23) {
-		client->resp.weapon = FindItem(MK23_NAME);
+		client->resp.weapon = GET_ITEM(MK23_NUM);
 	} else if ((int) wp_flags->value & WPF_KNIFE) {
-		client->resp.weapon = FindItem(KNIFE_NAME);
+		client->resp.weapon = GET_ITEM(KNIFE_NUM);
 	} else {
-		client->resp.weapon = FindItem(MK23_NAME);
+		client->resp.weapon = GET_ITEM(MK23_NUM);
 	}
-	client->resp.item = FindItem(KEV_NAME);
+	client->resp.item = GET_ITEM(KEV_NUM);
 	client->resp.ir = 1;
 
 	// TNG:Freud, restore weapons and items from last map.
-	if (auto_equip->value && (teamplay->value || ctf->value)) {
+	if (auto_equip->value && teamplay->value && !teamdm->value && ctf->value != 2) {
 		if (item)
 			client->resp.item = item;
 		if (weapon)
@@ -1993,12 +1976,9 @@ Returns the distance to the nearest player from the given spot
 float PlayersRangeFromSpot(edict_t * spot)
 {
 	edict_t *player;
-	float bestplayerdistance;
-	vec3_t v;
+	float playerdistance, bestplayerdistance = 9999999;
 	int n;
-	float playerdistance;
 
-	bestplayerdistance = 9999999;
 
 	for (n = 1; n <= maxclients->value; n++) {
 		player = &g_edicts[n];
@@ -2008,10 +1988,8 @@ float PlayersRangeFromSpot(edict_t * spot)
 
 		if (player->health <= 0)
 			continue;
-
-		VectorSubtract(spot->s.origin, player->s.origin, v);
-		playerdistance = VectorLength(v);
-
+	
+		playerdistance = Distance(spot->s.origin, player->s.origin);
 		if (playerdistance < bestplayerdistance)
 			bestplayerdistance = playerdistance;
 	}
@@ -2042,6 +2020,10 @@ edict_t *SelectRandomDeathmatchSpawnPoint(void)
 		count++;
 		range = PlayersRangeFromSpot(spot);
 		if (range < range1) {
+			if (range1 < range2) {
+				range2 = range1;
+				spot2 = spot1;
+			}
 			range1 = range;
 			spot1 = spot;
 		} else if (range < range2) {
@@ -2160,7 +2142,7 @@ void SelectSpawnPoint(edict_t * ent, vec3_t origin, vec3_t angles)
 	//FIREBLADE
 	if (ctf->value)
 		spot = SelectCTFSpawnPoint(ent);
-	else if (teamplay->value && ent->client->resp.team != NOTEAM) {
+	else if (teamplay->value && !teamdm->value && ent->client->resp.team != NOTEAM) {
 		spot = SelectTeamplaySpawnPoint(ent);
 	} else {
 		//FIREBLADE
@@ -2300,13 +2282,13 @@ void CleanBodies()
 
 void respawn(edict_t * self)
 {
-	if (deathmatch->value || coop->value || ctf->value) {
+	if (deathmatch->value || coop->value) {
 //FIREBLADE
 		if (self->solid != SOLID_NOT || self->deadflag == DEAD_DEAD)
 //FIREBLADE
 			CopyToBodyQue(self);
 		PutClientInServer(self);
-		if (ctf->value)
+		if (ctf->value || teamdm->value)
 			AddToTransparentList(self);
 
 //FIREBLADE
@@ -2321,6 +2303,13 @@ void respawn(edict_t * self)
 //                self->client->ps.pmove.pm_flags = PMF_TIME_TELEPORT;
 //                self->client->ps.pmove.pm_time = 14;
 
+		if(respawn_effect->value) {
+			gi.WriteByte(svc_muzzleflash);
+			gi.WriteShort(self - g_edicts);
+			gi.WriteByte(MZ_RESPAWN);
+			gi.multicast(self->s.origin, MULTICAST_PVS);
+		}
+
 		self->client->respawn_time = level.time + 2;
 
 		return;
@@ -2333,69 +2322,79 @@ void respawn(edict_t * self)
 
 void AllWeapons(edict_t * ent)
 {
-
 	int i;
 	gitem_t *it;
-	
+
 	for (i = 0; i < game.num_items; i++) {
-	  it = itemlist + i;
-	  if (!it->pickup)
-	    continue;
-	  if (!(it->flags & IT_WEAPON))
-	    continue;
-	  if (!strcmp(it->pickup_name, MK23_NAME) && ((int) wp_flags->value & WPF_MK23)) {
-	    ent->client->pers.inventory[i] = 1;
-	    ent->client->mk23_rds = ent->client->mk23_max;
-	  }
-	  
-	  if (!strcmp(it->pickup_name, MP5_NAME) && ((int) wp_flags->value & WPF_MP5)) {
-	    ent->client->pers.inventory[i] = 1;
-	    ent->client->mp5_rds = ent->client->mp5_max;
-	  }
-	  
-	  if (!strcmp(it->pickup_name, M4_NAME) && ((int) wp_flags->value & WPF_M4)) {
-	    ent->client->pers.inventory[i] = 1;
-	    ent->client->m4_rds = ent->client->m4_max;	    
-	  }
-	  
-	  if (!strcmp(it->pickup_name, M3_NAME) && ((int) wp_flags->value & WPF_M3)) {
-	    ent->client->pers.inventory[i] = 1;
-	    ent->client->shot_rds = ent->client->shot_max;
-	  }
-	  
-	  if (!strcmp(it->pickup_name, HC_NAME) && ((int) wp_flags->value & WPF_HC)) {
-	    ent->client->pers.inventory[i] = 1;
-	    ent->client->cannon_rds = ent->client->cannon_max;
-	    ent->client->shot_rds = ent->client->shot_max;
-	  }
-	  
-	  if (!strcmp(it->pickup_name, SNIPER_NAME) && ((int) wp_flags->value & WPF_SNIPER)) {
-	    ent->client->pers.inventory[i] = 1;
-	    ent->client->sniper_rds = ent->client->sniper_max;
-	  }
-	  
-	  if (!strcmp(it->pickup_name, DUAL_NAME) && ((int) wp_flags->value & WPF_DUAL)) {
-	    ent->client->pers.inventory[i] = 1;
-	    ent->client->dual_rds = ent->client->dual_max;
-	  }
-	  
-	  if (!strcmp(it->pickup_name, KNIFE_NAME) && ((int) wp_flags->value & WPF_KNIFE)) {
-	    ent->client->pers.inventory[i] = 10;
-	  }
-	  
-	  if (!strcmp(it->pickup_name, GRENADE_NAME) && ((int) wp_flags->value & WPF_GRENADE)) {
-	    ent->client->pers.inventory[i] = tgren->value;
-	  }
-	  
+		it = itemlist + i;
+		if (!it->pickup)
+			continue;
+		if (!(it->flags & IT_WEAPON))
+			continue;
+		switch(it->typeNum) {
+		case MK23_NUM:
+			if ((int)wp_flags->value & WPF_MK23) {
+				ent->client->pers.inventory[i] = 1;
+				ent->client->mk23_rds = ent->client->mk23_max;
+			}
+			break;
+		case MP5_NUM:
+			if ((int)wp_flags->value & WPF_MP5) {
+				ent->client->pers.inventory[i] = 1;
+				ent->client->mp5_rds = ent->client->mp5_max;
+			}
+			break;
+		case M4_NUM:
+			if ((int)wp_flags->value & WPF_M4) {
+				ent->client->pers.inventory[i] = 1;
+				ent->client->m4_rds = ent->client->m4_max;	    
+			}
+			break;
+		case M3_NUM:
+			if ((int)wp_flags->value & WPF_M3) {
+				ent->client->pers.inventory[i] = 1;
+				ent->client->shot_rds = ent->client->shot_max;
+			}
+			break;
+		case HC_NUM:
+			if ((int)wp_flags->value & WPF_HC) {
+				ent->client->pers.inventory[i] = 1;
+				ent->client->cannon_rds = ent->client->cannon_max;
+				ent->client->shot_rds = ent->client->shot_max;
+			}
+			break;
+		case SNIPER_NUM:
+			if ((int)wp_flags->value & WPF_SNIPER) {
+				ent->client->pers.inventory[i] = 1;
+				ent->client->sniper_rds = ent->client->sniper_max;
+			}
+			break;
+		case DUAL_NUM:
+			if ((int)wp_flags->value & WPF_DUAL) {
+				ent->client->pers.inventory[i] = 1;
+				ent->client->dual_rds = ent->client->dual_max;
+			}
+			break;
+		case KNIFE_NUM:
+			if ((int)wp_flags->value & WPF_KNIFE) {
+				ent->client->pers.inventory[i] = 10;
+			}
+			break;
+		case GRENADE_NUM:
+			if ((int)wp_flags->value & WPF_GRENADE) {
+				ent->client->pers.inventory[i] = tgren->value;
+			}
+			break;
+		}
 	}
 	
 	for (i = 0; i < game.num_items; i++) {
-	  it = itemlist + i;
-	  if (!it->pickup)
-	    continue;
-	  if (!(it->flags & IT_AMMO))
-	    continue;
-	  Add_Ammo(ent, it, 1000);
+		it = itemlist + i;
+		if (!it->pickup)
+			continue;
+		if (!(it->flags & IT_AMMO))
+			continue;
+		Add_Ammo(ent, it, 1000);
 	}
 }
 
@@ -2435,103 +2434,103 @@ void EquipClient(edict_t * ent)
 	if (!(client->resp.item) || !(client->resp.weapon))
 		return;
 
-	if (stricmp(client->resp.item->pickup_name, BAND_NAME) == 0) {
+	if (client->resp.item->typeNum == BAND_NUM) {
 		band = 1;
 		if (tgren->value > 0)	// team grenades is turned on
 		{
-			item = FindItem(GRENADE_NAME);
+			item = GET_ITEM(GRENADE_NUM);
 			client->pers.inventory[ITEM_INDEX(item)] = tgren->value;
 		}
 
 	}
 	// set them up with initial pistol ammo
-	if ((int) wp_flags->value & WPF_MK23) {
-		item = FindItem("Pistol Clip");
+	if ((int)wp_flags->value & WPF_MK23) {
+		item = GET_ITEM(MK23_ANUM);
 		if (band)
 			client->pers.inventory[ITEM_INDEX(item)] = 2;
 		else
 			client->pers.inventory[ITEM_INDEX(item)] = 1;
 	}
 
-	if (stricmp(client->resp.weapon->pickup_name, MP5_NAME) == 0) {
-		item = FindItem(MP5_NAME);
+	if (client->resp.weapon->typeNum == MP5_NUM) {
+		item = GET_ITEM(MP5_NUM);
 		client->pers.selected_item = ITEM_INDEX(item);
 		client->pers.inventory[client->pers.selected_item] = 1;
 		client->pers.weapon = item;
 		client->curr_weap = MP5_NUM;
 		client->unique_weapon_total = 1;
-		item = FindItem("Machinegun Magazine");
+		item = GET_ITEM(MP5_ANUM);
 		if (band)
 			client->pers.inventory[ITEM_INDEX(item)] = 2;
 		else
 			client->pers.inventory[ITEM_INDEX(item)] = 1;
 		client->mp5_rds = client->mp5_max;
-	} else if (stricmp(client->resp.weapon->pickup_name, M4_NAME) == 0) {
-		item = FindItem(M4_NAME);
+	} else if (client->resp.weapon->typeNum == M4_NUM) {
+		item = GET_ITEM(M4_NUM);
 		client->pers.selected_item = ITEM_INDEX(item);
 		client->pers.inventory[client->pers.selected_item] = 1;
 		client->pers.weapon = item;
 		client->curr_weap = M4_NUM;
 		client->unique_weapon_total = 1;
-		item = FindItem("M4 Clip");
+		item = GET_ITEM(M4_ANUM);
 		if (band)
 			client->pers.inventory[ITEM_INDEX(item)] = 2;
 		else
 			client->pers.inventory[ITEM_INDEX(item)] = 1;
 		client->m4_rds = client->m4_max;
-	} else if (stricmp(client->resp.weapon->pickup_name, M3_NAME) == 0) {
-		item = FindItem(M3_NAME);
+	} else if (client->resp.weapon->typeNum == M3_NUM) {
+		item = GET_ITEM(M3_NUM);
 		client->pers.selected_item = ITEM_INDEX(item);
 		client->pers.inventory[client->pers.selected_item] = 1;
 		client->pers.weapon = item;
 		client->curr_weap = M3_NUM;
 		client->unique_weapon_total = 1;
-		item = FindItem("12 Gauge Shells");
+		item = GET_ITEM(SHELL_ANUM);
 		if (band)
 			client->pers.inventory[ITEM_INDEX(item)] = 14;
 		else
 			client->pers.inventory[ITEM_INDEX(item)] = 7;
 		client->shot_rds = client->shot_max;
-	} else if (stricmp(client->resp.weapon->pickup_name, HC_NAME) == 0) {
-		item = FindItem(HC_NAME);
+	} else if (client->resp.weapon->typeNum == HC_NUM) {
+		item = GET_ITEM(HC_NUM);
 		client->pers.selected_item = ITEM_INDEX(item);
 		client->pers.inventory[client->pers.selected_item] = 1;
 		client->pers.weapon = item;
 		client->curr_weap = HC_NUM;
 		client->unique_weapon_total = 1;
-		item = FindItem("12 Gauge Shells");
+		item = GET_ITEM(SHELL_ANUM);
 		if (band)
 			client->pers.inventory[ITEM_INDEX(item)] = 24;
 		else
 			client->pers.inventory[ITEM_INDEX(item)] = 12;
 		client->cannon_rds = client->cannon_max;
-	} else if (stricmp(client->resp.weapon->pickup_name, SNIPER_NAME) == 0) {
-		item = FindItem(SNIPER_NAME);
+	} else if (client->resp.weapon->typeNum == SNIPER_NUM) {
+		item = GET_ITEM(SNIPER_NUM);
 		client->pers.selected_item = ITEM_INDEX(item);
 		client->pers.inventory[ITEM_INDEX(item)] = 1;
 		client->pers.weapon = item;
 		client->curr_weap = SNIPER_NUM;
 		client->unique_weapon_total = 1;
-		item = FindItem("AP Sniper Ammo");
+		item = GET_ITEM(SNIPER_ANUM);
 		if (band)
 			client->pers.inventory[ITEM_INDEX(item)] = 20;
 		else
 			client->pers.inventory[ITEM_INDEX(item)] = 10;
 		client->sniper_rds = client->sniper_max;
-	} else if (stricmp(client->resp.weapon->pickup_name, DUAL_NAME) == 0) {
-		item = FindItem(DUAL_NAME);
+	} else if (client->resp.weapon->typeNum == DUAL_NUM) {
+		item = GET_ITEM(DUAL_NUM);
 		client->pers.selected_item = ITEM_INDEX(item);
 		client->pers.inventory[client->pers.selected_item] = 1;
 		client->pers.weapon = item;
 		client->curr_weap = DUAL_NUM;
-		item = FindItem("Pistol Clip");
+		item = GET_ITEM(MK23_ANUM);
 		if (band)
 			client->pers.inventory[ITEM_INDEX(item)] = 4;
 		else
 			client->pers.inventory[ITEM_INDEX(item)] = 2;
 		client->dual_rds = client->dual_max;
-	} else if (stricmp(client->resp.weapon->pickup_name, KNIFE_NAME) == 0) {
-		item = FindItem(KNIFE_NAME);
+	} else if (client->resp.weapon->typeNum == KNIFE_NUM) {
+		item = GET_ITEM(KNIFE_NUM);
 		client->pers.selected_item = ITEM_INDEX(item);
 		if (band)
 			client->pers.inventory[client->pers.selected_item] = 20;
@@ -2553,108 +2552,93 @@ void EquipClientDM(edict_t * ent)
 
 	client = ent->client;
 
-	if (Q_strcasecmp(strtwpn->string, MK23_NAME) != 0) {
-		// Give some ammo for the weapon
-		if (Q_strcasecmp(strtwpn->string, MK23_NAME) == 0) {
-			item = FindItem(strtwpn->string);
-			client->pers.selected_item = ITEM_INDEX(item);
-			client->pers.inventory[client->pers.selected_item] = 1;
-			client->pers.weapon = item;
-			client->curr_weap = MK23_NUM;
-			if ((int) wp_flags->value & WPF_MK23) {
-				client->mk23_rds = client->mk23_max;
-				item = FindItem("Pistol Clip");
-				client->pers.inventory[ITEM_INDEX(item)] = 1;
-			} else {
-				client->mk23_rds = 0;
-				item = FindItem("Pistol Clip");
-				client->pers.inventory[ITEM_INDEX(item)] = 0;
-			}
+	if (!Q_stricmp(strtwpn->string, MK23_NAME))
+		return;
 
-		} else if (Q_strcasecmp(strtwpn->string, MP5_NAME) == 0) {
-			item = FindItem(strtwpn->string);
-			client->pers.selected_item = ITEM_INDEX(item);
-			client->pers.inventory[client->pers.selected_item] = 1;
-			client->pers.weapon = item;
-			client->mp5_rds = client->mp5_max;
-			client->curr_weap = MP5_NUM;
-			if (!allweapon->value) {
-				client->unique_weapon_total = 1;
-			}
-			item = FindItem("Machinegun Magazine");
-			client->pers.inventory[ITEM_INDEX(item)] = 1;
-		} else if (Q_strcasecmp(strtwpn->string, M4_NAME) == 0) {
-			item = FindItem(strtwpn->string);
-			client->pers.selected_item = ITEM_INDEX(item);
-			client->pers.inventory[client->pers.selected_item] = 1;
-			client->pers.weapon = item;
-			client->m4_rds = client->m4_max;
-			client->curr_weap = M4_NUM;
-			if (!allweapon->value) {
-				client->unique_weapon_total = 1;
-			}
-			item = FindItem("M4 Clip");
-			client->pers.inventory[ITEM_INDEX(item)] = 1;
-		} else if (Q_strcasecmp(strtwpn->string, M3_NAME) == 0) {
-			item = FindItem(strtwpn->string);
-			client->pers.selected_item = ITEM_INDEX(item);
-			client->pers.inventory[client->pers.selected_item] = 1;
-			client->pers.weapon = item;
-			client->shot_rds = client->shot_max;
-			client->curr_weap = M3_NUM;
-			if (!allweapon->value) {
-				client->unique_weapon_total = 1;
-			}
-			item = FindItem("12 Gauge Shells");
-			client->pers.inventory[ITEM_INDEX(item)] = 7;
-		} else if (Q_strcasecmp(strtwpn->string, HC_NAME) == 0) {
-			item = FindItem(strtwpn->string);
-			client->pers.selected_item = ITEM_INDEX(item);
-			client->pers.inventory[client->pers.selected_item] = 1;
-			client->pers.weapon = item;
-			client->cannon_rds = client->cannon_max;
-			client->shot_rds = client->shot_max;
-			client->curr_weap = HC_NUM;
-			if (!allweapon->value) {
-				client->unique_weapon_total = 1;
-			}
-			item = FindItem("12 Gauge Shells");
-			client->pers.inventory[ITEM_INDEX(item)] = 12;
-		} else if (Q_strcasecmp(strtwpn->string, SNIPER_NAME) == 0) {
-			item = FindItem(strtwpn->string);
-			client->pers.selected_item = ITEM_INDEX(item);
-			client->pers.inventory[client->pers.selected_item] = 1;
-			client->pers.weapon = item;
-			client->sniper_rds = client->sniper_max;
-			client->curr_weap = SNIPER_NUM;
-			if (!allweapon->value) {
-				client->unique_weapon_total = 1;
-			}
-			item = FindItem("AP Sniper Ammo");
-			client->pers.inventory[ITEM_INDEX(item)] = 10;
-		} else if (Q_strcasecmp(strtwpn->string, DUAL_NAME) == 0) {
-			item = FindItem(strtwpn->string);
-			client->pers.selected_item = ITEM_INDEX(item);
-			client->pers.inventory[client->pers.selected_item] = 1;
-			client->pers.weapon = item;
-			client->dual_rds = client->dual_max;
-			client->mk23_rds = client->mk23_max;
-			client->curr_weap = DUAL_NUM;
-			item = FindItem("Pistol Clip");
-			client->pers.inventory[ITEM_INDEX(item)] = 2;
-		} else if (Q_strcasecmp(strtwpn->string, GRENADE_NAME) == 0) {
-			item = FindItem(strtwpn->string);
-			client->pers.selected_item = ITEM_INDEX(item);
-			client->pers.inventory[client->pers.selected_item] = tgren->value;
-			client->pers.weapon = item;
-			client->curr_weap = GRENADE_NUM;
-		} else if (Q_strcasecmp(strtwpn->string, KNIFE_NAME) == 0) {
-			item = FindItem(strtwpn->string);
-			client->pers.selected_item = ITEM_INDEX(item);
-			client->pers.inventory[client->pers.selected_item] = 10;
-			client->pers.weapon = item;
-			client->curr_weap = KNIFE_NUM;
+	// Give some ammo for the weapon
+	if (Q_stricmp(strtwpn->string, MP5_NAME) == 0) {
+		item = GET_ITEM(MP5_NUM);
+		client->pers.selected_item = ITEM_INDEX(item);
+		client->pers.inventory[client->pers.selected_item] = 1;
+		client->pers.weapon = item;
+		client->mp5_rds = client->mp5_max;
+		client->curr_weap = MP5_NUM;
+		if (!allweapon->value) {
+			client->unique_weapon_total = 1;
 		}
+		item = GET_ITEM(MP5_ANUM);
+		client->pers.inventory[ITEM_INDEX(item)] = 1;
+	} else if (Q_stricmp(strtwpn->string, M4_NAME) == 0) {
+		item = GET_ITEM(M4_NUM);
+		client->pers.selected_item = ITEM_INDEX(item);
+		client->pers.inventory[client->pers.selected_item] = 1;
+		client->pers.weapon = item;
+		client->m4_rds = client->m4_max;
+		client->curr_weap = M4_NUM;
+		if (!allweapon->value) {
+			client->unique_weapon_total = 1;
+		}
+		item = GET_ITEM(M4_ANUM);
+		client->pers.inventory[ITEM_INDEX(item)] = 1;
+	} else if (Q_stricmp(strtwpn->string, M3_NAME) == 0) {
+		item = GET_ITEM(M3_NUM);
+		client->pers.selected_item = ITEM_INDEX(item);
+		client->pers.inventory[client->pers.selected_item] = 1;
+		client->pers.weapon = item;
+		client->shot_rds = client->shot_max;
+		client->curr_weap = M3_NUM;
+		if (!allweapon->value) {
+			client->unique_weapon_total = 1;
+		}
+		item = GET_ITEM(SHELL_ANUM);
+		client->pers.inventory[ITEM_INDEX(item)] = 7;
+	} else if (Q_stricmp(strtwpn->string, HC_NAME) == 0) {
+		item = GET_ITEM(HC_NUM);
+		client->pers.selected_item = ITEM_INDEX(item);
+		client->pers.inventory[client->pers.selected_item] = 1;
+		client->pers.weapon = item;
+		client->cannon_rds = client->cannon_max;
+		client->shot_rds = client->shot_max;
+		client->curr_weap = HC_NUM;
+		if (!allweapon->value) {
+			client->unique_weapon_total = 1;
+		}
+		item = GET_ITEM(SHELL_ANUM);
+		client->pers.inventory[ITEM_INDEX(item)] = 12;
+	} else if (Q_stricmp(strtwpn->string, SNIPER_NAME) == 0) {
+		item = GET_ITEM(SNIPER_NUM);
+		client->pers.selected_item = ITEM_INDEX(item);
+		client->pers.inventory[client->pers.selected_item] = 1;
+		client->pers.weapon = item;
+		client->sniper_rds = client->sniper_max;
+		client->curr_weap = SNIPER_NUM;
+		if (!allweapon->value) {
+			client->unique_weapon_total = 1;
+		}
+		item = GET_ITEM(SNIPER_ANUM);;
+		client->pers.inventory[ITEM_INDEX(item)] = 10;
+	} else if (Q_stricmp(strtwpn->string, DUAL_NAME) == 0) {
+		item = GET_ITEM(DUAL_NUM);
+		client->pers.selected_item = ITEM_INDEX(item);
+		client->pers.inventory[client->pers.selected_item] = 1;
+		client->pers.weapon = item;
+		client->dual_rds = client->dual_max;
+		client->mk23_rds = client->mk23_max;
+		client->curr_weap = DUAL_NUM;
+		item = GET_ITEM(MK23_ANUM);
+		client->pers.inventory[ITEM_INDEX(item)] = 2;
+	} else if (Q_stricmp(strtwpn->string, GRENADE_NAME) == 0) {
+		item = GET_ITEM(GRENADE_NUM);
+		client->pers.selected_item = ITEM_INDEX(item);
+		client->pers.inventory[client->pers.selected_item] = tgren->value;
+		client->pers.weapon = item;
+		client->curr_weap = GRENADE_NUM;
+	} else if (Q_stricmp(strtwpn->string, KNIFE_NAME) == 0) {
+		item = GET_ITEM(KNIFE_NUM);
+		client->pers.selected_item = ITEM_INDEX(item);
+		client->pers.inventory[client->pers.selected_item] = 10;
+		client->pers.weapon = item;
+		client->curr_weap = KNIFE_NUM;
 	}
 }
 
@@ -2733,7 +2717,7 @@ void PutClientInServer(edict_t * ent)
 	save_team_kills = client->team_kills;
 
 	if (client->ipaddr)
-		strncpy(save_ipaddr, client->ipaddr, sizeof(save_ipaddr) - 1);
+		strcpy(save_ipaddr, client->ipaddr);
 //FF
 	memset(client, 0, sizeof(*client));
 
@@ -2744,7 +2728,7 @@ void PutClientInServer(edict_t * ent)
 	client->team_kills = save_team_kills;
 
 	if (save_ipaddr && client->ipaddr)
-		strncpy(client->ipaddr, save_ipaddr, sizeof(client->ipaddr));
+		strcpy(client->ipaddr, save_ipaddr);
 //FF
 	if (client->pers.health <= 0)
 		InitClientPersistant(client);
@@ -2911,10 +2895,9 @@ void PutClientInServer(edict_t * ent)
 			AllItems(ent);
 		}
 
-		if (teamplay->value)
+		if (teamplay->value && !teamdm->value && ctf->value != 2)
 			EquipClient(ent);
-
-		if (!teamplay->value && deathmatch->value)
+		else if (deathmatch->value)
 			EquipClientDM(ent);
 
 		if (ent->client->menu) {
@@ -2984,15 +2967,15 @@ void ClientBeginDeathmatch(edict_t * ent)
 	IRC_printf(IRC_T_SERVER, "%n entered the game", ent->client->pers.netname);
 
 	// TNG:Freud Automaticly join saved teams.
-	if ((teamplay->value || ctf->value) && ent->client->resp.saved_team)
+	if (teamplay->value && ent->client->resp.saved_team)
 		JoinTeam(ent, ent->client->resp.saved_team, 1);
 
 //FIREBLADE
 	if (deathmatch->value && !teamplay->value && ent->solid == SOLID_NOT)
-	  {
+	{
 		gi.bprintf(PRINT_HIGH, "%s became a spectator\n", ent->client->pers.netname);
 		IRC_printf(IRC_T_SERVER, "%n became a spectator", ent->client->pers.netname);
-	  }
+	}
 //FIREBLADE
 
 //FIREBLADE
@@ -3023,37 +3006,26 @@ void ClientBegin(edict_t * ent)
 	int i;
 
 	ent->client = game.clients + (ent - g_edicts - 1);
-	// clear modes of weapons
-	/*
-	   ent->client->resp.mk23_mode = 0;
-	   ent->client->resp.mp5_mode = 0;
-	   ent->client->resp.m4_mode = 0;
-	   ent->client->resp.sniper_mode = 0;
-	   ent->client->resp.knife_mode = 0;
-	   ent->client->resp.grenade_mode = 0;
-	 */
 
 	if (deathmatch->value) {
 		ClientBeginDeathmatch(ent);
 		return;
-	} else {
-
-//PG BUND - BEGIN
-//          ent->client->resp.last_killed_target = NULL;
-		ResetKills(ent);
-//AQ2:TNG - Slicer :Dunno Why these Vars Are Here, as it calls InitClientResp..
-		//Adding The Last_damaged_part anyway
-		ent->client->resp.last_damaged_part = 0;
-		ent->client->resp.last_damaged_players[0] = '\0';
-//AQ2:TNG END
-		ent->client->resp.killed_teammates = 0;
-		ent->client->resp.idletime = 0;
-		TourneyNewPlayer(ent);
-
-		// client voting initialization
-		vInitClient(ent);
-//PG BUND - END          
 	}
+
+	//PG BUND - BEGIN
+	ResetKills(ent);
+	//AQ2:TNG - Slicer :Dunno Why these Vars Are Here, as it calls InitClientResp..
+	//Adding The Last_damaged_part anyway
+	ent->client->resp.last_damaged_part = 0;
+	ent->client->resp.last_damaged_players[0] = '\0';
+	//AQ2:TNG END
+	ent->client->resp.killed_teammates = 0;
+	ent->client->resp.idletime = 0;
+	TourneyNewPlayer(ent);
+
+	// client voting initialization
+	vInitClient(ent);
+	//PG BUND - END          
 
 	// if there is already a body waiting for us (a loadgame), just
 	// take it, otherwise spawn one from scratch
@@ -3110,8 +3082,8 @@ The game can override any of the settings in place
 */
 void ClientUserinfoChanged(edict_t * ent, char *userinfo)
 {
-	char *s, *r;
-	int playernum;
+	char *s, *r, tnick[16];
+	qboolean nickChanged = false;
 
 	// check for malformed or illegal info strings
 	if (!Info_Validate(userinfo)) {
@@ -3119,17 +3091,21 @@ void ClientUserinfoChanged(edict_t * ent, char *userinfo)
 	}
 	// set name
 	s = Info_ValueForKey(userinfo, "name");
+	Q_strncpyz(tnick, s, sizeof(tnick));
+	if(!tnick[0])
+		strcpy(tnick, "unnamed");
 
-	// on the initial update, we won't broadcast the message.
-	if ((Q_stricmp(ent->client->pers.netname, "") != 0)
-	    && (Q_stricmp(ent->client->pers.netname, s) != 0)) {
-		if (strlen(s) > sizeof(ent->client->pers.netname) - 1) {
-			s[sizeof(ent->client->pers.netname) - 1] = 0;
+	if(strcmp(ent->client->pers.netname, tnick))
+	{
+		// on the initial update, we won't broadcast the message.
+		if (ent->client->pers.netname[0])
+		{
+			gi.bprintf(PRINT_MEDIUM, "%s is now known as %s.\n", ent->client->pers.netname, tnick);	//TempFile
+			IRC_printf(IRC_T_SERVER, "%n is now known as %n.", ent->client->pers.netname, tnick);
+			nickChanged = true;
 		}
-		gi.bprintf(PRINT_MEDIUM, "%s is now known as %s.\n", ent->client->pers.netname, s);	//TempFile
-		IRC_printf(IRC_T_SERVER, "%n is now known as %n.", ent->client->pers.netname, s);
+		strcpy(ent->client->pers.netname, tnick);
 	}
-	strncpy(ent->client->pers.netname, s, sizeof(ent->client->pers.netname) - 1);
 
 	//FIREBLADE     
 	s = Info_ValueForKey(userinfo, "spectator");
@@ -3149,17 +3125,9 @@ void ClientUserinfoChanged(edict_t * ent, char *userinfo)
 	}
 	// End $$ Skin server crash bug
 
-	playernum = ent - g_edicts - 1;
 
 	// combine name and skin into a configstring
-	//FIREBLADE
-	if ((teamplay->value && !use_tourney->value) || ctf->value) {
-		AssignSkin(ent, s);
-	} else
-		//FIREBLADE
-	{
-		gi.configstring(CS_PLAYERSKINS + playernum, va("%s\\%s", ent->client->pers.netname, s));
-	}
+	AssignSkin(ent, s, nickChanged);
 
 	/* Not used in Action.
 	   // fov
@@ -3187,7 +3155,7 @@ void ClientUserinfoChanged(edict_t * ent, char *userinfo)
 			ent->client->pers.firing_style = ACTION_FIRING_CLASSIC;
 	}
 	// save off the userinfo in case we want to check something later
-	strncpy(ent->client->pers.userinfo, userinfo, sizeof(ent->client->pers.userinfo) - 1);
+	Q_strncpyz(ent->client->pers.userinfo, userinfo, sizeof(ent->client->pers.userinfo));
 
 	// zucc vwep
 	ShowGun(ent);
@@ -3210,24 +3178,27 @@ qboolean ClientConnect(edict_t * ent, char *userinfo)
 {
 	char *value, *ipaddr;
 	char ipaddr_buf[100];
+	int tempBan = 0;
 
 	// check to see if they are on the banned IP list
 	ipaddr = Info_ValueForKey(userinfo, "ip");
 
 	if (strlen(ipaddr) > sizeof(ipaddr_buf) - 1)
 		gi.dprintf("ipaddr_buf length exceeded\n");
-	strncpy(ipaddr_buf, ipaddr, 99);
-	ipaddr_buf[99] = 0;
+	Q_strncpyz(ipaddr_buf, ipaddr, sizeof(ipaddr_buf));
 
-	if (SV_FilterPacket(ipaddr)) {
-		Info_SetValueForKey(userinfo, "rejmsg", "Banned.");
+	if (SV_FilterPacket(ipaddr, &tempBan)) {
+		userinfo[0] = '\0';
+		if(tempBan)
+			Info_SetValueForKey(userinfo, "rejmsg", va("Temporary banned for %i games.", tempBan));
+		else
+			Info_SetValueForKey(userinfo, "rejmsg", "Banned.");
 		return false;
 	}
 	// check for a password
 	value = Info_ValueForKey(userinfo, "password");
-
-	if (*password->string && strcmp(password->string, "none")
-	    && strcmp(password->string, value)) {
+	if (*password->string && strcmp(password->string, "none") && strcmp(password->string, value)) {
+		userinfo[0] = '\0';
 		Info_SetValueForKey(userinfo, "rejmsg", "Password required or incorrect.");
 		return false;
 	}
@@ -3265,7 +3236,7 @@ qboolean ClientConnect(edict_t * ent, char *userinfo)
 		IRC_printf(IRC_T_SERVER, "%n@%s connected", ent->client->pers.netname, ipaddr_buf);
 	}
 
-	strncpy(ent->client->ipaddr, ipaddr_buf, sizeof(ent->client->ipaddr));
+	Q_strncpyz(ent->client->ipaddr, ipaddr_buf, sizeof(ent->client->ipaddr));
 
 	ent->svflags = 0;
 
@@ -3283,98 +3254,86 @@ Will not be called between levels.
 */
 void ClientDisconnect(edict_t * ent)
 {
-  int playernum, i;
-  edict_t *etemp;
-  
-  if (!ent->client)
-    return;
-  if (ent->client->resp.captain)
-    {
-      if(ctf->value)
+	int playernum, i;
+	edict_t *etemp;
+
+	if (!ent->client)
+		return;
+
+	if (ent->client->resp.captain)
 	{
-	  if(!team_round_going)
-	    team_data[ent->client->resp.captain].ready = 0;
-	  team_data[ent->client->resp.captain].locked = 0;
+		if(teamdm->value || ctf->value)
+		{
+			if(!team_round_going)
+				teams[ent->client->resp.captain].ready = 0;
+			teams[ent->client->resp.captain].locked = 0;
+		}
+		else
+		{
+			teams[ent->client->resp.captain].ready = 0;
+		}
 	}
-      else
-	{
-	  team_data[ent->client->resp.captain].ready = 0;
+
+	// drop items if they are alive/not observer
+	if (ent->solid != SOLID_NOT)
+		TossItemsOnDeath(ent);
+
+	// zucc free the lasersight if applicable
+	if (ent->lasersight)
+		SP_LaserSight(ent, NULL);
+
+	// TNG Free Flashlight
+	if (ent->flashlight)
+		FL_make(ent);
+
+	if (teamplay->value && ent->solid == SOLID_TRIGGER)
+		RemoveFromTransparentList(ent);
+
+	ent->lasersight = NULL;
+
+	gi.bprintf(PRINT_HIGH, "%s disconnected\n", ent->client->pers.netname);
+	IRC_printf(IRC_T_SERVER, "%n disconnected", ent->client->pers.netname);
+
+	// go clear any clients that have this guy as their attacker
+	for (i = 1; i <= maxclients->value; i++) {
+		if ((etemp = &g_edicts[i]) && etemp->inuse) {
+			if (etemp->client->attacker == ent)
+				etemp->client->attacker = NULL;
+			if (etemp->enemy == ent)	// AQ:TNG - JBravo adding tkok
+				etemp->enemy = NULL;
+		}
 	}
-    }
-  
-  // drop items if they are alive/not observer
-  if (ent->solid != SOLID_NOT)
-    TossItemsOnDeath(ent);
-  
-  // zucc free the lasersight if applicable
-  if (ent->lasersight)
-    SP_LaserSight(ent, NULL);
-  
-  // TNG Free Flashlight
-  if (ent->flashlight)
-    FL_make(ent);
-  
-  if (teamplay->value && ent->solid == SOLID_TRIGGER)
-    RemoveFromTransparentList(ent);
-  
-  ent->lasersight = NULL;
-  
-  gi.bprintf(PRINT_HIGH, "%s disconnected\n", ent->client->pers.netname);
-  IRC_printf(IRC_T_SERVER, "%n disconnected", ent->client->pers.netname);
-  
-  // go clear any clients that have this guy as their attacker
-  
-  for (i = 1; i <= maxclients->value; i++) {
-    if ((etemp = &g_edicts[i]) && etemp->inuse) {
-      if (etemp->client->attacker == ent)
-	etemp->client->attacker = NULL;
-      if (etemp->enemy == ent)	// AQ:TNG - JBravo adding tkok
-	etemp->enemy = NULL;
-      
-      //AQ2:TNG SLICER this is not needed
-      /*
-      //PG BUND - BEGIN 
-      if (etemp->client)
-      {
-      if (etemp->client->resp.last_killed_target == ent)
-      etemp->client->resp.last_killed_target = NULL;
-      }
-      //PG BUND - END
-      */
-      //AQ2:TNG END
-    }
-  }
 
-  TourneyRemovePlayer(ent);
-  vClientDisconnect(ent);	// client voting disconnect
+	TourneyRemovePlayer(ent);
+	vClientDisconnect(ent);	// client voting disconnect
 
-  if (use_ghosts->value)
-    CreateGhost(ent);
+	if (use_ghosts->value)
+		CreateGhost(ent);
 
-  if (ctf->value)
-    CTFDeadDropFlag(ent);
+	if (ctf->value)
+		CTFDeadDropFlag(ent);
 
-  if (!teamplay->value) {
-    // send effect
-    gi.WriteByte(svc_muzzleflash);
-    gi.WriteShort(ent - g_edicts);
-    gi.WriteByte(MZ_LOGOUT);
-    gi.multicast(ent->s.origin, MULTICAST_PVS);
-  }
+	if (!teamplay->value) {
+		// send effect
+		gi.WriteByte(svc_muzzleflash);
+		gi.WriteShort(ent - g_edicts);
+		gi.WriteByte(MZ_LOGOUT);
+		gi.multicast(ent->s.origin, MULTICAST_PVS);
+	}
 
-  gi.unlinkentity(ent);
-  ent->s.modelindex = 0;
-  ent->solid = SOLID_NOT;
-  ent->inuse = false;
-  ent->classname = "disconnected";
-  ent->client->pers.connected = false;
+	gi.unlinkentity(ent);
+	ent->s.modelindex = 0;
+	ent->solid = SOLID_NOT;
+	ent->inuse = false;
+	ent->classname = "disconnected";
+	ent->client->pers.connected = false;
 
-  playernum = ent - g_edicts - 1;
-  gi.configstring(CS_PLAYERSKINS + playernum, "");
+	playernum = ent - g_edicts - 1;
+	gi.configstring(CS_PLAYERSKINS + playernum, "");
 
-  if (teamplay->value && !use_tourney->value) {
-    CheckForUnevenTeams();
-  }
+	if (teamplay->value && !use_tourney->value) {
+		CheckForUnevenTeams();
+	}
 }
 
 void CreateGhost(edict_t * ent)
@@ -3398,10 +3357,10 @@ void CreateGhost(edict_t * ent)
 	if (duplicate == true)
 		num_ghost_players--;
 
-	if (num_ghost_players < MAX_CLIENTS) {
+	if (num_ghost_players < MAX_GHOSTS) {
 
-		sprintf(ghost_players[num_ghost_players].ipaddr, "%s", ent->client->ipaddr);
-		sprintf(ghost_players[num_ghost_players].netname, "%s", ent->client->pers.netname);
+		strcpy(ghost_players[num_ghost_players].ipaddr, ent->client->ipaddr);
+		strcpy(ghost_players[num_ghost_players].netname, ent->client->pers.netname);
 
 		ghost_players[num_ghost_players].enterframe = ent->client->resp.enterframe;
 		ghost_players[num_ghost_players].disconnect_frame = level.framenum;
@@ -3484,9 +3443,8 @@ void ClientThink(edict_t * ent, usercmd_t * ucmd)
 	edict_t *other;
 	int i, j;
 	pmove_t pm;
-	char ltm[64];
+	char ltm[64] = "\0";
 
-	ltm[0] = '\0';
 
 	level.current_entity = ent;
 	client = ent->client;
@@ -3518,6 +3476,11 @@ void ClientThink(edict_t * ent, usercmd_t * ucmd)
 	}
 	//FIREBLADE
 
+	if(pause_time > 0)
+	{
+		client->ps.pmove.pm_type = PM_FREEZE;
+		return;
+	}
 	pm_passent = ent;
 	// FROM 3.20 -FB
 	if (ent->client->chase_mode) {
@@ -3581,11 +3544,10 @@ void ClientThink(edict_t * ent, usercmd_t * ucmd)
 		}
 
 		// zucc stumbling associated with leg damage
-		if (level.framenum % 6 <= 2) {
+		if (level.framenum % 6 <= 2 && ent->client->leg_damage) {
 			//Slow down code FOO/zucc
 			for (i = 0; i < 3; i++) {
-				if (ent->client->leg_damage
-				    && ((i < 2) || (ent->velocity[2] > 0)) && (ent->groundentity && pm.groundentity))
+				if ((i < 2 || ent->velocity[2] > 0) && (ent->groundentity && pm.groundentity))
 					ent->velocity[i] /= 4 * ent->client->leghits;	//FOO       
 			}
 			if (level.framenum % (6 * 12) == 0 && ent->client->leg_damage > 1)
@@ -3633,11 +3595,10 @@ void ClientThink(edict_t * ent, usercmd_t * ucmd)
 		// stop manipulating doors
 		client->doortoggle = 0;
 
-		if (ent->client->jumping &&
-		    //FIREBLADE
-		    ent->solid != SOLID_NOT)
-			//FIREBLADE
-			kick_attack(ent);
+		//Should move this to ClientBeginServerFrame? -M
+		if (ent->client->jumping && ent->solid != SOLID_NOT &&
+			!lights_camera_action && !ent->client->ctf_uvtime)
+				kick_attack(ent);
 
 		// touch other objects
 		for (i = 0; i < pm.numtouch; i++) {
@@ -3751,17 +3712,6 @@ void ClientThink(edict_t * ent, usercmd_t * ucmd)
 	}
 	//PG BUND - END
 
-	//TempFile - BEGIN
-	if (ent->solid != SOLID_NOT && ent->deadflag != DEAD_DEAD) {
-		if (client->resp.punch_desired) {
-			client->resp.punch_desired = false;
-			if (level.framenum > (client->resp.fire_time + PUNCH_DELAY)) {
-				client->resp.fire_time = level.framenum;	// you aren't Bruce Lee! :)
-				punch_attack(ent);
-			}
-		}
-	}
-
 	if (ent->client->autoreloading && (ent->client->weaponstate == WEAPON_END_MAG)
 	    && (ent->client->curr_weap == MK23_NUM)) {
 		ent->client->autoreloading = false;
@@ -3849,11 +3799,9 @@ void ClientBeginServerFrame(edict_t * ent)
 		// wait for any button just going down
 		if (level.time > client->respawn_time) {
 //FIREBLADE
-			if ((!ctf->value || (ctf->value && ent->client->resp.team == NOTEAM))
-			    &&
-			    ((teamplay->
-			      value || (!teamplay->value && ent->client->pers.spectator
-					&& ent->solid == SOLID_NOT && ent->deadflag == DEAD_DEAD)))) {
+			if (((!ctf->value && !teamdm->value) || (ent->client->resp.team == NOTEAM || ent->client->resp.subteam))
+			    && (teamplay->value || (ent->client->pers.spectator
+					&& ent->solid == SOLID_NOT && ent->deadflag == DEAD_DEAD))) {
 				CopyToBodyQue(ent);
 				ent->solid = SOLID_NOT;
 				ent->svflags |= SVF_NOCLIENT;
@@ -3862,8 +3810,7 @@ void ClientBeginServerFrame(edict_t * ent)
 				ent->health = 100;
 				ent->deadflag = DEAD_NO;
 				client->ps.pmove.delta_angles[PITCH] = ANGLE2SHORT(0 - client->resp.cmd_angles[PITCH]);
-				client->ps.pmove.delta_angles[YAW] =
-				    ANGLE2SHORT(client->killer_yaw - client->resp.cmd_angles[YAW]);
+				client->ps.pmove.delta_angles[YAW] = ANGLE2SHORT(client->killer_yaw - client->resp.cmd_angles[YAW]);
 				client->ps.pmove.delta_angles[ROLL] = ANGLE2SHORT(0 - client->resp.cmd_angles[ROLL]);
 				ent->s.angles[PITCH] = 0;
 				ent->s.angles[YAW] = client->killer_yaw;
@@ -3907,8 +3854,16 @@ void ClientBeginServerFrame(edict_t * ent)
 		return;
 	}
 	// add player trail so monsters can follow
-	if (!deathmatch->value)
-		if (!visible(ent, PlayerTrail_LastSpot()))
-			PlayerTrail_Add(ent->s.old_origin);
+	if (!deathmatch->value && !visible(ent, PlayerTrail_LastSpot()))
+		PlayerTrail_Add(ent->s.old_origin);
+
+	if (client->resp.punch_desired && ent->solid != SOLID_NOT)
+	{
+		if(!lights_camera_action && !ent->client->ctf_uvtime)
+			punch_attack(ent);
+
+		client->resp.punch_desired = false;
+	}
+
 	client->latched_buttons = 0;
 }

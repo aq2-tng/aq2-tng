@@ -104,3 +104,8 @@ void SP_trigger_teleport (edict_t * ent);
 void SP_info_teleport_destination (edict_t * ent);
 
 void ResetPlayers ();
+void GetCTFScores(int *t1score, int *t2score);
+
+extern gitem_t *flag1_item;
+extern gitem_t *flag2_item;
+

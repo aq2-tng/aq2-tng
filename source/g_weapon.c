@@ -669,86 +669,79 @@ fire_bullet_sniper (edict_t * self, vec3_t start, vec3_t aimdir, int damage,
  * Init and ProduceShotgunDamageReport 
  */
 
-void
-InitShotgunDamageReport ()
+void InitShotgunDamageReport ()
 {
   memset (took_damage, 0, game.maxclients * sizeof (int));
 }
 
-void
-ProduceShotgunDamageReport (edict_t * self)
+void ProduceShotgunDamageReport (edict_t * self)
 {
-  int l;
-  int total_to_print = 0, printed = 0;
-  static char textbuf[1024];
-  char damaged_players[1024];
+	int l;
+	int total = 0, total_to_print, printed = 0;
+	char *textbuf;
 
-//FB 6/2/99 - shotgun/handcannon damage notification
-  for (l = 1; l <= game.maxclients; l++)
-    {
-      if (took_damage[l - 1])
-	total_to_print++;
-    }
-  if (total_to_print)
-    {
-      if (total_to_print > 10)
-	total_to_print = 10;
-
-      damaged_players[0] = '\0';
-
-      strcpy (textbuf, "You hit ");
-      for (l = 1; l <= game.maxclients; l++)
+	//FB 6/2/99 - shotgun/handcannon damage notification
+	for (l = 1; l <= game.maxclients; l++)
 	{
-	  if (took_damage[l - 1])
-	    {
-	      if (printed == (total_to_print - 1))
-		{
-		  if (total_to_print == 2) {
-		    strcat (textbuf, " and ");
-		    strcat (damaged_players, " and ");
-		  } else if (total_to_print != 1) {
-		    strcat (textbuf, ", and ");
-		    strcat (damaged_players, ", and ");
-		  }
-		}
-	      else if (printed) {
-		strcat (textbuf, ", ");
-		strcat (damaged_players, ", ");
-	      }
-	      strcat (textbuf, g_edicts[l].client->pers.netname);
-	      strcat (damaged_players, g_edicts[l].client->pers.netname);
-	      printed++;
-	    }
-	  if (printed == total_to_print)
-	    break;
+		if (took_damage[l - 1])
+			total++;
 	}
-      gi.cprintf (self, PRINT_HIGH, "%s\n", textbuf);
+	if (!total)
+		return;
 
-      sprintf(self->client->resp.last_damaged_players, "%s", damaged_players);
-      self->client->resp.last_damaged_part = LOC_NO;
-      
-    }
-  // TNG Stats
-  if (!teamplay->value || team_round_going || stats_afterround->value) {
+	if (total > 10)
+		total_to_print = 10;
+	else
+		total_to_print = total;
 
-      self->client->resp.stats_shots_h += total_to_print;
+	//256 is enough, its limited to 10 nicks
+	textbuf = self->client->resp.last_damaged_players;
+	*textbuf = '\0';
 
-       if (self->client->curr_weap == M3_NUM)
-        self->client->resp.stats_hits[MOD_M3] += total_to_print;
- 
-       if (self->client->curr_weap == HC_NUM)
-        self->client->resp.stats_hits[MOD_HC] += total_to_print;
- 
-/*
+	for (l = 1; l <= game.maxclients; l++)
+	{
+		if (took_damage[l - 1])
+		{
+			if (printed == total_to_print - 1)
+			{
+				if (total_to_print == 2)
+					strcat(textbuf, " and ");
+				else if (total_to_print != 1)
+					strcat(textbuf, ", and ");
+			}
+			else if (printed) {
+				strcat (textbuf, ", ");
+			}
+			strcat (textbuf, g_edicts[l].client->pers.netname);
+			printed++;
+		}
+		if (printed == total_to_print)
+			break;
+	}
+	gi.cprintf (self, PRINT_HIGH, "You hit %s\n", textbuf);
 
-      if (self->client->curr_weap == M3_NUM)
-        self->client->resp.stats_shotgun_shots_h += total_to_print;
+	self->client->resp.last_damaged_part = LOC_NO;
 
-      if (self->client->curr_weap == HC_NUM)
-        self->client->resp.stats_hc_shots_h += total_to_print;
-*/
+	// TNG Stats
+	if (!teamplay->value || team_round_going || stats_afterround->value) {
 
-  }
+		self->client->resp.stats_shots_h += total;
+
+		if (self->client->curr_weap == M3_NUM)
+			self->client->resp.stats_hits[MOD_M3] += total;
+		else if (self->client->curr_weap == HC_NUM)
+			self->client->resp.stats_hits[MOD_HC] += total;
+
+		/*
+
+		if (self->client->curr_weap == M3_NUM)
+		self->client->resp.stats_shotgun_shots_h += total_to_print;
+
+		if (self->client->curr_weap == HC_NUM)
+		self->client->resp.stats_hc_shots_h += total_to_print;
+		*/
+
+	}
 
 /*
   self->client->resp.stats_shots_h += total_to_print;
@@ -1480,126 +1473,94 @@ void P_ProjectSource (gclient_t * client, vec3_t point, vec3_t distance,
 
 qboolean IsFemale (edict_t * ent);
 
-void
-kick_attack (edict_t * ent)
+void kick_attack (edict_t * ent)
 {
-  vec3_t start;
-  vec3_t forward, right;
-  vec3_t offset;
-  int damage = 20;
-  int kick = 400;
-  trace_t tr;
-  vec3_t end;
+	vec3_t start;
+	vec3_t forward, right;
+	vec3_t offset;
+	int damage = 20;
+	int kick = 400;
+	trace_t tr;
+	vec3_t end;
 
 
+	AngleVectors (ent->client->v_angle, forward, right, NULL);
 
-  AngleVectors (ent->client->v_angle, forward, right, NULL);
+	VectorScale (forward, 0, ent->client->kick_origin);
 
-  VectorScale (forward, 0, ent->client->kick_origin);
+	VectorSet (offset, 0, 0, ent->viewheight - 20);
+	P_ProjectSource (ent->client, ent->s.origin, offset, forward, right, start);
 
-  VectorSet (offset, 0, 0, ent->viewheight - 20);
-  P_ProjectSource (ent->client, ent->s.origin, offset, forward, right, start);
+	VectorMA (start, 25, forward, end);
 
-  VectorMA (start, 25, forward, end);
+	PRETRACE ();
+	tr = gi.trace (ent->s.origin, NULL, NULL, end, ent, MASK_SHOT);
+	POSTTRACE ();
 
-  PRETRACE ();
-  tr = gi.trace (ent->s.origin, NULL, NULL, end, ent, MASK_SHOT);
-  POSTTRACE ();
+	// don't need to check for water
+	if ((tr.surface) && (tr.surface->flags & SURF_SKY))
+		return;
 
-  // don't need to check for water
-  if (!((tr.surface) && (tr.surface->flags & SURF_SKY)))
-    {
-      if (tr.fraction < 1.0)
+	if (tr.fraction >= 1.0)
+		return;
+
+	if (tr.ent->takedamage || KickDoor (&tr, ent, forward))
 	{
-	  if (tr.ent->takedamage || KickDoor (&tr, ent, forward))
-	    {
-	      if (teamplay->value)
+		if (tr.ent->health <= 0)
+			return;
+
+		if (teamplay->value)
 		{
-		  if (lights_camera_action)
-		    return;
-// AQ2:TNG - JBravo adding UVtime
-		  if (ctf->value) {
-			if (ent->client && ent->client->ctf_uvtime)
-				return;
+			// AQ2:TNG - JBravo adding UVtime
 			if (tr.ent->client && tr.ent->client->ctf_uvtime)
 				return;
-		  }
 
-//                                        if (tr.ent != ent && tr.ent->client && ent->client &&
-//                                                tr.ent->client->resp.team == ent->client->resp.team)
-// AQ:TNG - JBravo adding FF after rounds
-		  if ((tr.ent != ent) && (tr.ent->client && ent->client) &&
-		      (tr.ent->client->resp.team == ent->client->resp.team) &&
-		      team_round_going)
-		    return;
-		  if (!ff_afterround->value)
-		    return;
-// AQ:TNG
+			//                                        if (tr.ent != ent && tr.ent->client && ent->client &&
+			//                                                tr.ent->client->resp.team == ent->client->resp.team)
+			// AQ:TNG - JBravo adding FF after rounds
+			if ((tr.ent != ent) && (tr.ent->client && ent->client) &&
+				(tr.ent->client->resp.team == ent->client->resp.team) &&
+				team_round_going)
+				return;
+			if (!ff_afterround->value)
+				return;
+			// AQ:TNG
 		}
+		else if (((tr.ent != ent) && ((deathmatch->value
+			&& ((int) (dmflags->value) & (DF_MODELTEAMS | DF_SKINTEAMS)))
+			|| coop->value)	&& OnSameTeam (tr.ent, ent)))
+			return;
+		// zucc stop powerful upwards kicking
+		//forward[2] = 0;
+		// glass fx
+		if (Q_stricmp (tr.ent->classname, "func_explosive") == 0)
+			CGF_SFX_ShootBreakableGlass (tr.ent, ent, &tr, MOD_KICK);
+		else
+			T_Damage (tr.ent, ent, ent, forward, tr.endpos,
+				tr.plane.normal, damage, kick, 0, MOD_KICK);
 
-	      if (tr.ent->health <= 0)
-		return;
-
-	      if (
-		  ((tr.ent != ent)
-		   &&
-		   ((deathmatch->
-		     value
-		     && ((int) (dmflags->value) &
-			 (DF_MODELTEAMS | DF_SKINTEAMS))) || coop->value)
-		   && OnSameTeam (tr.ent, ent)))
-		return;
-	      // zucc stop powerful upwards kicking
-	      //forward[2] = 0;
-// glass fx
-	      if (0 == Q_stricmp (tr.ent->classname, "func_explosive"))
+		gi.sound (ent, CHAN_WEAPON, gi.soundindex ("weapons/kick.wav"),
+		1, ATTN_NORM, 0);
+		PlayerNoise (ent, ent->s.origin, PNOISE_SELF);
+		ent->client->jumping = 0;	// only 1 jumpkick per jump
+		if (tr.ent->client && (tr.ent->client->curr_weap == M4_NUM
+			|| tr.ent->client->curr_weap == MP5_NUM
+			|| tr.ent->client->curr_weap == M3_NUM
+			|| tr.ent->client->curr_weap ==	SNIPER_NUM
+			|| tr.ent->client->curr_weap == HC_NUM))		// crandom() > .8 ) 
 		{
-		  CGF_SFX_ShootBreakableGlass (tr.ent, ent, &tr, MOD_KICK);
-		}
-	      else
-// ---
+			// zucc fix this so reloading won't happen on the new gun!
+			tr.ent->client->reload_attempts = 0;
+			DropSpecialWeapon (tr.ent);
 
-		T_Damage (tr.ent, ent, ent, forward, tr.endpos,
-			  tr.plane.normal, damage, kick, 0, MOD_KICK);
-	      gi.sound (ent, CHAN_WEAPON, gi.soundindex ("weapons/kick.wav"),
-			1, ATTN_NORM, 0);
-	      PlayerNoise (ent, ent->s.origin, PNOISE_SELF);
-	      ent->client->jumping = 0;	// only 1 jumpkick per jump
-	      if (tr.ent->client && (tr.ent->client->curr_weap == M4_NUM
-				     || tr.ent->client->curr_weap == MP5_NUM
-				     || tr.ent->client->curr_weap == M3_NUM
-				     || tr.ent->client->curr_weap ==
-				     SNIPER_NUM
-				     || tr.ent->client->curr_weap == HC_NUM)
-		  && 1)		// crandom() > .8 ) 
-		{
-		  // zucc fix this so reloading won't happen on the new gun!
-		  tr.ent->client->reload_attempts = 0;
-		  DropSpecialWeapon (tr.ent);
-		  if (IsFemale (tr.ent))
-		    {
-		      gi.cprintf (ent, PRINT_HIGH,
-				  "You kick %s's %s from her hands!\n",
-				  tr.ent->client->pers.netname,
-				  (tr.ent->client->pers.weapon)->pickup_name);
-		    }
-		  else
-		    {
-		      gi.cprintf (ent, PRINT_HIGH,
-				  "You kick %s's %s from his hands!\n",
-				  tr.ent->client->pers.netname,
-				  (tr.ent->client->pers.weapon)->pickup_name);
-		    }
-		  gi.cprintf (tr.ent, PRINT_HIGH,
-			      "%s kicked your weapon from your hands!\n",
-			      ent->client->pers.netname);
-		}
+			gi.cprintf (ent, PRINT_HIGH, "You kick %s's %s from %s hands!\n",
+				tr.ent->client->pers.netname,(tr.ent->client->pers.weapon)->pickup_name, IsFemale(tr.ent) ? "her" : "his");
 
-	    }
+			gi.cprintf (tr.ent, PRINT_HIGH,	"%s kicked your weapon from your hands!\n",
+				ent->client->pers.netname);
+		}
 
 	}
-    }
-
 }
 
 // zucc
@@ -1731,9 +1692,10 @@ knife_touch (edict_t * ent, edict_t * other, cplane_t * plane,
 	}
 
       dropped = G_Spawn ();
-      item = FindItem (KNIFE_NAME);
+      item = GET_ITEM(KNIFE_NUM);
 
       dropped->classname = item->classname;
+	  dropped->typeNum = item->typeNum;
       dropped->item = item;
       dropped->spawnflags = DROPPED_ITEM;
       dropped->s.effects = item->world_model_flags;
@@ -1781,7 +1743,6 @@ knife_touch (edict_t * ent, edict_t * other, cplane_t * plane,
     }
   G_FreeEdict (ent);
 }
-
 
 
 
@@ -1859,14 +1820,11 @@ clients from repeated FF warnings. Hopefully the overhead on this
 will be low enough to not affect things.
 =====================================================================
 */
-void
-setFFState (edict_t * ent)
+void setFFState (edict_t * ent)
 {
-  if (ent && ent->client)
-    {
-      ent->client->team_wounds_before = ent->client->team_wounds;
-      ent->client->ff_warning = 0;
-    }
-
-  return;
+	if (ent && ent->client)
+	{
+		ent->client->team_wounds_before = ent->client->team_wounds;
+		ent->client->ff_warning = 0;
+	}
 }
