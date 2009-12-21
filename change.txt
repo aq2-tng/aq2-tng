@@ -66,6 +66,11 @@ From 2.81
 + Changed skin _i.pcx pics back using '..' like they were. Client download code didnt like it, though it doesn't like '..' either.
 + Disabled '..' in voice command.
 + 'item_respawnmode' cvar to change how item respawns in dm/teamdm. Normally item would only spawn at random deathmatch spawn.  The new mode disables it and spawns item only if map has a spawn point for this item.
+- Remove a few lines of code that broke compiling on Linux
++ Disable MM2 messages displayed as MM1 in DM
++ Disable leg damage sound when falling and fall damage disabled
++ New cvar "motdname" which tells which file to read the MOTD from
++ Better auto joining which calculates the correct team when you select "Auto-join team" from menu rather select the correct menu item for you
 
 From 2.8
 - Radio kill count was missing for falling death
