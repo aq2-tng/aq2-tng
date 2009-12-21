@@ -643,7 +643,7 @@ void P_FallingDamage (edict_t * ent)
 	}
 	ent->pain_debounce_time = level.time;	// no normal pain sound
 
-	if (!deathmatch->value)
+	if (!deathmatch->value || !((int) dmflags->value & DF_NO_FALLING))
 	{
 		damage = (int) (((delta - 30) / 2));
 		if (damage < 1)
