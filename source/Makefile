@@ -99,15 +99,23 @@ VERSION="1.52"
 # Uncomment this for debugging symbols and compiler warnings
 #DEBUG=1
 
+MACHINE=$(shell uname -m)
 ARCH=i386
-CC=gcc
+TUNE=$(MACHINE)
+
+ifeq ($(MACHINE),x86_64)
+TUNE=athlon64
+ARCH=x86_64
+endif
+
+CC?=gcc
 BASE_CFLAGS=-DC_ONLY
 
 #use these cflags to optimize it
 ifdef DEBUG
 	CFLAGS=$(BASE_CFLAGS) -g -O2 -Wall
 else
-	CFLAGS=$(BASE_CFLAGS) -march=i586 -mcpu=i586 -O6 -ffast-math -funroll-loops \
+	CFLAGS=$(BASE_CFLAGS) -march=$(TUNE) -mtune=$(TUNE) -O6 -ffast-math -funroll-loops \
 		-fomit-frame-pointer -fexpensive-optimizations -falign-loops=2 \
 		-falign-jumps=2 -falign-functions=2
 endif
