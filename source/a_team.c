@@ -439,6 +439,52 @@ void ReprintMOTD (edict_t * ent, pmenu_t * p)
 	PrintMOTD (ent);
 }
 
+void JoinTeamAuto (edict_t * ent, pmenu_t * p)
+{
+	int i, team = TEAM1, num1 = 0, num2 = 0, num3 = 0, score1, score2, score3;
+
+	for (i = 0; i < (int)maxclients->value; i++)
+	{
+		if (!g_edicts[i + 1].inuse)
+			continue;
+		if (game.clients[i].resp.team == TEAM1)
+			num1++;
+		else if (game.clients[i].resp.team == TEAM2)
+			num2++;
+		else if (game.clients[i].resp.team == TEAM3)
+			num3++;
+	}
+
+	score1 = teams[TEAM1].score;
+	score2 = teams[TEAM2].score;
+	score3 = teams[TEAM3].score;
+
+	if(ctf->value) {
+		CTFCalcScores();
+		GetCTFScores(&score1, &score2);
+	}
+
+	/* there are many different things to consider when selecting a team */
+	if (num1 > num2 || (num1 == num2 && score1 > score2))
+		team = TEAM2;
+
+	if (use_3teams->value)
+	{
+		if (team == TEAM1)
+		{
+			if (num1 > num3 || (num1 == num3 && score1 > score3))
+				team = TEAM3;
+		}
+		else
+		{
+			if (num2 > num3 || (num2 == num3 && score2 > score3))
+				team = TEAM3;
+		}
+	}
+
+	JoinTeam(ent, team, 0);
+}
+
 void JoinTeam1 (edict_t * ent, pmenu_t * p)
 {
 	JoinTeam (ent, TEAM1, 0);
@@ -714,6 +760,8 @@ pmenu_t joinmenu[] = {
   {NULL /* team 2 */ , PMENU_ALIGN_LEFT, NULL, JoinTeam2},
   {NULL, PMENU_ALIGN_LEFT, NULL, NULL},
   {NULL /* team 3 */ , PMENU_ALIGN_LEFT, NULL, JoinTeam3},
+  {NULL, PMENU_ALIGN_LEFT, NULL, NULL},
+  {NULL /* auto-join */ , PMENU_ALIGN_LEFT, NULL, JoinTeamAuto},
   {NULL, PMENU_ALIGN_LEFT, NULL, NULL},
   {NULL, PMENU_ALIGN_LEFT, NULL, NULL},
   //AQ2:TNG - Slicer
@@ -1312,6 +1360,8 @@ int UpdateJoinMenu (edict_t * ent)
 			joinmenu[8].SelectFunc = NULL;
 		}
 	}
+	joinmenu[11].text = "Auto-join team";
+	joinmenu[11].SelectFunc = JoinTeamAuto;
 
 	levelname[0] = '*';
 	if (g_edicts[0].message)
@@ -1348,53 +1398,12 @@ int UpdateJoinMenu (edict_t * ent)
 		joinmenu[9].text = team3players;
 	else
 		joinmenu[9].text = NULL;
-
-	i = 0;
-	if (num1 > num2)
-		i = TEAM2;
-	else if (num2 > num1)
-		i = TEAM1;
-	else if (teams[TEAM1].score > teams[TEAM2].score)
-		i = TEAM2;
-	else if (teams[TEAM2].score > teams[TEAM1].score)
-		i = TEAM1;
-	else
-		i = TEAM1;
-
-	if (use_3teams->value)
-	{
-		if (i == TEAM1)
-		{
-			if (num3 > num1)
-				i =  TEAM1;
-			else if (num1 > num3)
-				i = TEAM3;
-			else if (teams[TEAM1].score > teams[TEAM3].score)
-				i = TEAM3;
-			else
-				i = TEAM1;
-		}
-		else
-		{
-			if (num3 > num2)
-				i = TEAM2;
-			else if (num2 > num3)
-				i = TEAM3;
-			else if (teams[TEAM2].score > teams[TEAM3].score)
-				i = TEAM3;
-			else
-				i = TEAM2;
-		}
-	}
-	return i;
 }
 
 // AQ2:TNG END
 
 void OpenJoinMenu (edict_t * ent)
 {
-	int team;
-
 	//PG BUND - BEGIN (Tourney extension)
 	if (use_tourney->value)
 	{
@@ -1403,15 +1412,9 @@ void OpenJoinMenu (edict_t * ent)
 	}
 	//PG BUND - END (Tourney extension)
 
-	team = UpdateJoinMenu (ent);
-	if (team == TEAM1)
-		team = 4;
-	else if (team == TEAM2)
-		team = 6;
-	else if (use_3teams->value && team == TEAM3)
-		team = 8;
+	UpdateJoinMenu (ent);
 
-	PMenu_Open (ent, joinmenu, team, sizeof (joinmenu) / sizeof (pmenu_t));
+	PMenu_Open (ent, joinmenu, 11 /* magic for Auto-join menu item */, sizeof (joinmenu) / sizeof (pmenu_t));
 }
 
 int member_array (char *str, char *arr[], int num_elems)
