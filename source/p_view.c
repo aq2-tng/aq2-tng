@@ -626,6 +626,14 @@ void P_FallingDamage (edict_t * ent)
 		return;
 	}
 
+	/* when fall damage is disabled, play the normal fall sound */
+	if((int) dmflags->value & DF_NO_FALLING)
+	{
+		ent->s.event = EV_FALLSHORT;
+		return;
+	}
+
+
 	if (ent->health > 0)
 	{
 		if (delta >= 55)
@@ -635,7 +643,7 @@ void P_FallingDamage (edict_t * ent)
 	}
 	ent->pain_debounce_time = level.time;	// no normal pain sound
 
-	if (!deathmatch->value || !((int) dmflags->value & DF_NO_FALLING))
+	if (!deathmatch->value)
 	{
 		damage = (int) (((delta - 30) / 2));
 		if (damage < 1)
