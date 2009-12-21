@@ -175,9 +175,17 @@ void ReadMOTDFile()
 {
 	FILE *motd_file;
 	char buf[1000];
+	char motdpath[MAX_STR_LEN];
 	int lbuf;
+	cvar_t *motdname;
 
-	motd_file = fopen(GAMEVERSION "/motd.txt", "r");
+	motdname = gi.cvar("motdname", "motd.txt", 0);
+	if (motdname->string && *(motdname->string))
+		sprintf(motdpath, "%s/%s", GAMEVERSION, motdname->string);
+	else
+		sprintf(motdpath, "%s/%s", GAMEVERSION, "motd.txt");
+
+	motd_file = fopen(motdpath, "r");
 	if (motd_file == NULL)
 		return;
 
