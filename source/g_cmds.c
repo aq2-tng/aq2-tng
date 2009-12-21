@@ -1597,6 +1597,9 @@ void ClientCommand (edict_t * ent)
 	}
 	else if (Q_stricmp (cmd, "say_team") == 0)
 	{
+		/* people use automatic triggers with AprQ2 that are fine in teamplay but flood the server in dm */
+		if(!teamplay->value)
+			return;
 		Cmd_Say_f (ent, true, false, false);
 		return;
 	}
