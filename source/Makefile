@@ -29,12 +29,22 @@ ifeq ($(RELEASE),yes)
 VERSION=$(REL_VERSION)
 endif
 
+ifdef WIN32
+CC=i586-mingw32msvc-gcc
+ARCH=x86
+TUNE=i586
+SHLIBEXT=dll
+SHLIBCFLAGS=
+SHLIBLDFLAGS=-shared 
+SHLIBLIBS=game.def -lws2_32
+endif
+
 CC?=gcc
 BASE_CFLAGS=-DC_ONLY -DVERSION=\"$(VERSION)\"
 
 #use these cflags to optimize it
 ifdef DEBUG
-	CFLAGS=$(BASE_CFLAGS) -g -O2 -Wall
+	CFLAGS=$(BASE_CFLAGS) -g -Wall
 else
 	CFLAGS=$(BASE_CFLAGS) -march=$(TUNE) -mtune=$(TUNE) -O6 -ffast-math -funroll-loops \
 		-fomit-frame-pointer -fexpensive-optimizations -falign-loops=2 \
@@ -42,9 +52,9 @@ else
 endif
 
 LDFLAGS=-ldl -lm
-SHLIBEXT=so
-SHLIBCFLAGS=-fPIC
-SHLIBLDFLAGS=-shared
+SHLIBEXT?=so
+SHLIBCFLAGS?=-fPIC
+SHLIBLDFLAGS?=-shared
 
 DO_CC=$(CC) $(CFLAGS) $(SHLIBCFLAGS) -o $@ -c $<
 
@@ -67,7 +77,7 @@ GAME_OBJS = \
 	tng_stats.o tng_flashlight.o tng_irc.o
 
 game$(ARCH).$(SHLIBEXT) : $(GAME_OBJS)
-	$(CC) $(CFLAGS) $(SHLIBLDFLAGS) -o $@ $(GAME_OBJS)
+	$(CC) $(CFLAGS) $(SHLIBLDFLAGS) -o $@ $(GAME_OBJS) $(SHLIBLIBS)
 
 
 #############################################################################
