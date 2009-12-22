@@ -1,7 +1,4 @@
-
 # Action makefile 
-#
-# $Id: Makefile,v 1.21 2003/06/15 21:43:53 igor Exp $
 #
 # Intended for gcc/Linux, may need modifying for other platforms
 # Adapted by PG BUND from Black Cross makefile
@@ -9,95 +6,14 @@
 # corrected and expanded by Igor[Rock]
 # (needs still some testing/modification for the dist-targets)
 #-----------------------------------------------------------------------------
-# $Log: Makefile,v $
-# Revision 1.21  2003/06/15 21:43:53  igor
-# added IRC client
-#
-# Revision 1.20  2003/06/15 15:34:32  igor
-# - removed the zcam code from this branch (see other branch)
-# - added fixes from 2.72 (source only) version
-# - resetted version number to 2.72
-# - This version should be exactly like the release 2.72 - just with a few
-#   more fixes (which whoever did the source only variant didn't get because
-#   he didn't use the CVS as he should. Shame on him.
-#
-# Revision 1.19  2003/02/10 02:12:25  ra
-# Zcam fixes, kick crashbug in CTF fixed and some code cleanup.
-#
-# Revision 1.18  2002/09/04 11:23:09  ra
-# Added zcam to TNG and bumped version to 3.0
-#
-# Revision 1.17  2002/04/03 08:59:17  freud
-# Added DEBUG option in Makefile for debugging symbols and compiler warnings
-#
-# Revision 1.16  2001/08/18 17:16:58  ra
-# Fixed makefile to know about tng_flashlight
-#
-# Revision 1.15  2001/08/17 22:05:17  ra
-# Added new tng_stats files to the makefile and coverted them out of DOS format
-#
-# Revision 1.14  2001/08/08 12:42:22  slicerdw
-# Ctf Should finnaly be fixed now, lets hope so
-#
-# Revision 1.13  2001/06/26 18:47:30  igor_rock
-# added ctf_respawn cvar
-#
-# Revision 1.12  2001/06/25 11:59:20  slicerdw
-# Small Fix
-#
-# Revision 1.11  2001/06/19 21:10:05  igor_rock
-# changed the "is now known" message to the normal namelimit
-#
-# Revision 1.10  2001/06/16 16:47:05  deathwatch
-# Matchmode Fixed
-#
-# Revision 1.9  2001/06/13 08:39:13  igor_rock
-# changed "cvote" to "use_cvote" (like the other votecvars)
-#
-# Revision 1.8  2001/06/13 08:00:25  igor_rock
-# corrected stupid error (wrong changes committed)
-#
-# Revision 1.7  2001/06/13 07:55:17  igor_rock
-# Re-Added a_match.h and a_match.c
-# Added CTF Header for a_ctf.h and a_ctf.c
-#
-# Revision 1.6  2001/05/31 16:58:14  igor_rock
-# conflicts resolved
-#
-# Revision 1.5.2.1  2001/05/20 18:54:19  igor_rock
-# added original ctf code snippets from zoid. lib compilesand runs but
-# doesn't function the right way.
-# Jsut committing these to have a base to return to if something wents
-# awfully wrong.
-#
-# Revision 1.5  2001/05/15 15:49:14  igor_rock
-# added itm_flags for deathmatch
-#
-# Revision 1.4  2001/05/11 20:15:51  ra
-#
-#
-# Make make clean also remove the .so or .dll file.
-#
-# Revision 1.3  2001/05/08 20:23:54  igor_rock
-# added the depend information (will change more often...)
-#
-# Revision 1.2  2001/05/08 12:55:02  igor_rock
-# - corrected location for make install
-# - added a_ctf.o
-#
-# Revision 1.1.1.1  2001/05/06 17:23:57  igor_rock
-# This is the PG Bund Edition V1.25 with all stuff laying around here...
-#
-#-----------------------------------------------------------------------------
 
-#standard package is "as" (short for Action Source?), "PG" is "PG BUND"
+GIT_REV=$(shell git rev-parse --short HEAD)
+PACKAGE=aq2-tng
+REL_VERSION=2.81
+VERSION=$(REL_VERSION)~$(GIT_REV)
 
-PACKAGE="as-PG1.25"
-
-VERSION="1.52"
-
-# Uncomment this for debugging symbols and compiler warnings
-#DEBUG=1
+# remember to update this for every release commit
+RELEASE=no
 
 MACHINE=$(shell uname -m)
 ARCH=i386
@@ -108,8 +24,12 @@ TUNE=athlon64
 ARCH=x86_64
 endif
 
+ifeq ($(RELEASE),yes)
+VERSION=$(REL_VERSION)
+endif
+
 CC?=gcc
-BASE_CFLAGS=-DC_ONLY
+BASE_CFLAGS=-DC_ONLY -DVERSION=\"$(VERSION)\"
 
 #use these cflags to optimize it
 ifdef DEBUG

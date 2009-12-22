@@ -85,9 +85,9 @@
 
 
 // AQ2:TNG Deathwatch - Updated the Version variables to show TNG Stuff
-#define ACTION_VERSION  "TNG 2.9-dev"
+#define ACTION_VERSION  "TNG " VERSION
 #define TNG_VERSION		"AQ2: The Next Generation"
-#define TNG_VERSION2	"AQ2: The Next Generation 2.9-dev"
+#define TNG_VERSION2	"AQ2: The Next Generation " VERSION
 // AQ2:TNG Deathwatch End
 //AQ2:TNG Slicer This is the max players writen on last killed target
 //SLIC2
