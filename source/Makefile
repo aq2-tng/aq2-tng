@@ -16,6 +16,7 @@ VERSION=$(REL_VERSION)~$(GIT_REV)
 RELEASE=no
 
 MACHINE=$(shell uname -m)
+SYSTEM=$(shell uname -s)
 ARCH=i386
 TUNE=$(MACHINE)
 
@@ -76,31 +77,18 @@ game$(ARCH).$(SHLIBEXT) : $(GAME_OBJS)
 clean:
 	-rm -f $(GAME_OBJS) game$(ARCH).$(SHLIBEXT)
 
-olddepend:
-	gcc -MM $(GAME_OBJS:.o=.c)
-
-depend:
-	makedepend -I. -- $(CFLAGS) -- $(GAME_OBJS:.o=.c)
-
 install:
 	cp gamei386.so ../action/
 	strip ../action/gamei386.so
 
 bindist: game$(ARCH).$(SHLIBEXT)
-	strip gamei386.so
-	tar -zchvf $(PACKAGE)-$(VERSION)-x86-linux.tar.gz \
-		gamei386.so README CHANGES maplist.ini
+	strip -s game$(ARCH).$(SHLIBEXT)
+	tar -zcvf ../$(PACKAGE)-$(VERSION)-$(SYSTEM)-$(MACHINE).tar.gz \
+            game$(ARCH).$(SHLIBEXT) ../TNG-manual.txt ../change.txt
 
 distclean: clean
-	makedepend
-	-rm -f *~ Makefile.bak gamei386.so $(PACKAGE)-$(VERSION)*.tar.gz
+	-rm -f ../$(PACKAGE)-*.{tar.gz,zip}
 
-dist: distclean
-	-rm -rf $(PACKAGE)-$(VERSION)
-	mkdir $(PACKAGE)-$(VERSION)
-	cd $(PACKAGE)-$(VERSION); \
-	for f in $(GAME_OBJS:.o=.c) *.h Makefile README CHANGES maplist.ini; \
-		do ln -s ../$$f .; done
-	tar -zchvf $(PACKAGE)-$(VERSION).tar.gz $(PACKAGE)-$(VERSION)
-	rm -rf $(PACKAGE)-$(VERSION)
+dist:
+	git archive --format=tar --prefix=$(PACKAGE)-$(VERSION)-src/ HEAD | gzip -9 > ../$(PACKAGE)-$(VERSION)-src.tar.gz
 
