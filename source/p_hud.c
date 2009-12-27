@@ -599,6 +599,10 @@ void G_SetStats (edict_t * ent)
 				ent->client->ps.stats[STAT_AMMO_ICON] = gi.imageindex("a_m61frag");
 				ent->client->ps.stats[STAT_AMMO] = INV_AMMO(ent, GRENADE_NUM);
 				break;
+			case GRAPPLE_NUM:
+				ent->client->ps.stats[STAT_AMMO_ICON] = 0;
+				ent->client->ps.stats[STAT_AMMO] = 0;
+				break;
 			default:
 				gi.dprintf ("Failed to find weapon/icon for hud.\n");
 				break;

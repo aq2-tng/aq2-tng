@@ -59,7 +59,6 @@ typedef struct ctfgame_s {
 	qboolean ini_loaded;
 	int type;		// 0 = normal, 1 = off/def
 	int offence;		// 0 = red, 1 = blue
-	qboolean grapple;	// determine if grapple should be available
 	/* team spawn times in seconds */
 	int spawn_red;
 	int spawn_blue;
@@ -134,7 +133,11 @@ void CTFLoadConfig(char *mapname)
 	if(ptr) {
 		gi.dprintf(" Grapple   : %s\n", ptr);
 		if(strcmp(ptr, "1") == 0)
-			ctfgame.grapple = 1;
+			gi.cvar_forceset("use_grapple", "1");
+		elseif(strcmp(ptr, "2") == 0)
+			gi.cvar_forceset("use_grapple", "2");
+		else
+			gi.cvar_forceset("use_grapple", "0");
 	}
 
 	gi.dprintf(" Spawn times\n");

@@ -542,6 +542,7 @@ void InitGame (void)
 	ctf_mode = gi.cvar ("ctf_mode", "", 0);
 	ctf_dropflag = gi.cvar ("ctf_dropflag", "1", 0);
 	ctf_respawn = gi.cvar ("ctf_respawn", "4", 0);
+	use_grapple = gi.cvar ("use_grapple", "0", 0);
 	mv_public = gi.cvar ("mv_public", "0", 0);	//slicer 
 	vk_public = gi.cvar ("vk_public", "0", 0);	//slicer
 	punishkills = gi.cvar ("punishkills", "1", 0);	//slicer

@@ -8,7 +8,8 @@
 type=<type>
 ; offencive team name
 offence=<red/blue>
-grapple=<1/0>
+; defines grapple mode, 0=no grapple, 1=normal, 2=faster
+grapple=<0/1/2>
 ; author and comment are shown on map load
 author=name of the author of this definition filed
 comment=any useful information

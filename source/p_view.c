@@ -592,6 +592,12 @@ void P_FallingDamage (edict_t * ent)
 	}
 	delta = delta * delta * 0.0001;
 
+	// never take damage if just release grapple or on grapple
+	if (level.time - ent->client->ctf_grapplereleasetime <= FRAMETIME * 2 ||
+			(ent->client->ctf_grapple &&
+			 ent->client->ctf_grapplestate > CTF_GRAPPLE_STATE_FLY))
+			return;
+
 	// never take falling damage if completely underwater
 	if (ent->waterlevel == 3)
 		return;
@@ -1049,6 +1055,12 @@ newanim:
 
 	if (!ent->groundentity)
 	{
+		// if on grapple, don't go into jump frame, go into standing
+		if (client->ctf_grapple) {
+			ent->s.frame = FRAME_stand01;
+			client->anim_end = FRAME_stand40;
+		}
+
 		client->anim_priority = ANIM_JUMP;
 		if (ent->s.frame != FRAME_jump2)
 			ent->s.frame = FRAME_jump1;

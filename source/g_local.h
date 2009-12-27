@@ -286,6 +286,7 @@
 #include "tng_stats.h"		// Adding TNG Stats File
 #include	"tng_irc.h"
 #include	"tng_ini.h"
+#include	"g_grapple.h"
 #define		getEnt(entnum)	(edict_t *)((char *)globals.edicts + (globals.edict_size * entnum))	//AQ:TNG Slicer - This was missing
 #define		GAMEVERSION			"action"	// the "gameversion" client command will print this plus compile date
 
@@ -786,6 +787,7 @@ extern int snd_fry;
 #define MOD_KICK                        45
 //PG BUND
 #define MOD_PUNCH                       50
+#define MOD_GRAPPLE			51
 #define MOD_FRIENDLY_FIRE               0x8000000
 
 
@@ -1645,6 +1647,10 @@ struct gclient_s
   int desired_zoom;		//either 0, 1, 2, 4 or 6. This is set to 0 if no zooming shall be done, and is set to 0 after zooming is done.
 
   int ctf_uvtime;		// AQ2:TNG - JBravo adding UVtime
+  
+  void *ctf_grapple;		// entity of grapple
+  int ctf_grapplestate;		// true if pulling
+  float ctf_grapplereleasetime;	// time of grapple release
 };
 
 
@@ -1977,6 +1983,8 @@ void AddSplat (edict_t * self, vec3_t point, trace_t * tr);
 
 #define FLAG_T1_NUM				20
 #define FLAG_T2_NUM				21
+
+#define GRAPPLE_NUM				22
 
 #define WEAPON_COUNT			9
 #define ITEM_COUNT				6

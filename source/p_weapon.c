@@ -613,6 +613,9 @@ void ChangeWeapon (edict_t * ent)
 		weapon_grenade_fire (ent, false);
 		ent->client->grenade_time = 0;
 	}
+	
+	if(ent->client->ctf_grapple)
+		CTFPlayerResetGrapple(ent);
 
 	// zucc - prevent reloading queue for previous weapon from doing anything
 	ent->client->reload_attempts = 0;
@@ -668,6 +671,7 @@ void ChangeWeapon (edict_t * ent)
 	case SNIPER_NUM:
 	case DUAL_NUM:
 	case KNIFE_NUM:
+	case GRAPPLE_NUM:
 		ent->client->curr_weap = ent->client->pers.weapon->typeNum;
 		break;
 	case GRENADE_NUM:
@@ -1293,6 +1297,12 @@ Weapon_Generic (edict_t * ent, int FRAME_ACTIVATE_LAST, int FRAME_FIRE_LAST,
   if (ent->s.modelindex != 255)
     return;			// not on client, so VWep animations could do wacky things
 
+  if(ent->client->ctf_grapple) {
+	  if (Q_stricmp(ent->client->pers.weapon->pickup_name, "Grapple") == 0 &&
+			  ent->client->weaponstate == WEAPON_FIRING)
+		  return;
+  }
+
 //FIREBLADE
   if (ent->client->weaponstate == WEAPON_FIRING &&
       ((ent->solid == SOLID_NOT && ent->deadflag != DEAD_DEAD) ||
@@ -1779,6 +1789,8 @@ Weapon_Generic (edict_t * ent, int FRAME_ACTIVATE_LAST, int FRAME_FIRE_LAST,
 	    ent->client->burst = 0;
 	    break;
 	  }
+	case GRAPPLE_NUM:
+		break;
 
 	default:
 	  gi.dprintf ("Activated unknown weapon.\n");
@@ -2074,6 +2086,10 @@ Weapon_Generic (edict_t * ent, int FRAME_ACTIVATE_LAST, int FRAME_FIRE_LAST,
 		  bOut = 1;
 		break;
 	      }
+	    case GRAPPLE_NUM:
+		bFire = 1;
+		bOut = 0;
+		break;
 
 
 	    default:

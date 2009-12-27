@@ -1300,6 +1300,10 @@ void ClientObituary(edict_t * self, edict_t * inflictor, edict_t * attacker)
 			message = " tried to invade";
 			message2 = "'s personal space";
 			break;
+		case MOD_GRAPPLE:
+			message = " was caught by";
+			message2 = "'s grapple";
+			break;
 		}	//end of case (mod)
 
 		if (message) {
@@ -1635,6 +1639,9 @@ void player_die(edict_t * self, edict_t * inflictor, edict_t * attacker, int dam
 
 		if (ctf->value)
 			CTFDeadDropFlag(self);
+
+		// let's be safe, if the player was killed and grapple disabled before it
+		CTFPlayerResetGrapple(self);
 
 		//FIREBLADE
 		if (deathmatch->value && !teamplay->value)
@@ -2434,6 +2441,9 @@ void EquipClient(edict_t * ent)
 	if (!(client->resp.item) || !(client->resp.weapon))
 		return;
 
+	if(use_grapple->value)
+		client->pers.inventory[ITEM_INDEX(FindItem("Grapple"))] = 1;
+
 	if (client->resp.item->typeNum == BAND_NUM) {
 		band = 1;
 		if (tgren->value > 0)	// team grenades is turned on
@@ -2551,6 +2561,9 @@ void EquipClientDM(edict_t * ent)
 	gitem_t *item;
 
 	client = ent->client;
+
+	if(use_grapple->value)
+		client->pers.inventory[ITEM_INDEX(FindItem("Grapple"))] = 1;
 
 	if (!Q_stricmp(strtwpn->string, MK23_NAME))
 		return;
@@ -3587,6 +3600,10 @@ void ClientThink(edict_t * ent, usercmd_t * ucmd)
 			VectorCopy(pm.viewangles, client->v_angle);
 			VectorCopy(pm.viewangles, client->ps.viewangles);
 		}
+
+		if(client->ctf_grapple)
+			CTFGrapplePull(client->ctf_grapple);
+
 		gi.linkentity(ent);
 
 		if (ent->movetype != MOVETYPE_NOCLIP)

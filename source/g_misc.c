@@ -1934,6 +1934,9 @@ teleporter_touch (edict_t * self, edict_t * other, cplane_t * plane,
       gi.dprintf ("Couldn't find destination\n");
       return;
     }
+  
+  // let's be safe, if grapple was disabled but the player has it
+  CTFPlayerResetGrapple(other);
 
   // unlink to make sure it can't possibly interfere with KillBox
   gi.unlinkentity (other);

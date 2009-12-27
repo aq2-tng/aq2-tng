@@ -1558,6 +1558,9 @@ void kick_attack (edict_t * ent)
 
 			gi.cprintf (tr.ent, PRINT_HIGH,	"%s kicked your weapon from your hands!\n",
 				ent->client->pers.netname);
+		} else if(tr.ent->client && tr.ent->client->ctf_grapple && tr.ent->client->ctf_grapplestate == CTF_GRAPPLE_STATE_FLY) {
+			// hifi: if the player is shooting a grapple, lose it's focus
+			CTFPlayerResetGrapple(tr.ent);
 		}
 
 	}
