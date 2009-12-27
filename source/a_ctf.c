@@ -54,6 +54,15 @@ typedef struct ctfgame_s {
 	int total1, total2;	// these are only set when going into intermission!
 	float last_flag_capture;
 	int last_capture_team;
+
+	/* CTF configuration from .ctf */
+	qboolean ini_loaded;
+	int type;		// 0 = normal, 1 = off/def
+	int offence;		// 0 = red, 1 = blue
+	qboolean grapple;	// determine if grapple should be available
+	/* team spawn times in seconds */
+	int spawn_red;
+	int spawn_blue;
 } ctfgame_t;
 
 ctfgame_t ctfgame;
@@ -79,6 +88,83 @@ void CTFInit(void)
 }
 
 /*--------------------------------------------------------------------------*/
+
+void CTFLoadConfig(char *mapname)
+{
+	char buf[1024];
+	char *ptr;
+	FILE *fh;
+
+	gi.dprintf("Trying to load CTF configuration file\n", mapname);
+
+	sprintf (buf, "%s/tng/%s.ctf", GAMEVERSION, mapname);
+	fh = fopen (buf, "r");
+	if (!fh)
+	{
+		gi.dprintf ("Warning: CTF configuration file %s was not found.\n", buf);
+		return;
+	}
+
+	gi.dprintf("-------------------------------------\n");
+	gi.dprintf("CTF configuration loaded from %s\n", buf);
+	ptr = INI_Find(fh, "ctf", "author");
+	if(ptr)
+		gi.dprintf(" Author    : %s\n", ptr);
+	ptr = INI_Find(fh, "ctf", "comment");
+	if(ptr)
+		gi.dprintf(" Comment   : %s\n", ptr);
+
+	ptr = INI_Find(fh, "ctf", "type");
+	if(ptr) {
+		gi.dprintf(" Game type : %s\n", ptr);
+		if(strcmp(ptr, "offdef") == 0)
+			ctfgame.type = 1;
+	}
+	ptr = INI_Find(fh, "ctf", "offence");
+	if(ptr) {
+		gi.dprintf(" Offence   : %s\n", ptr);
+		if(strcmp(ptr, "blue") == 0)
+			ctfgame.offence = 1;
+	}
+	ptr = INI_Find(fh, "ctf", "grapple");
+	if(ptr) {
+		gi.dprintf(" Grapple   : %s\n", ptr);
+		if(strcmp(ptr, "1") == 0)
+			ctfgame.grapple = 1;
+	}
+
+	gi.dprintf(" Spawn times\n");
+	ptr = INI_Find(fh, "respawn", "red");
+	if(ptr) {
+		gi.dprintf("  Red      : %s\n", ptr);
+		ctfgame.spawn_red = atoi(ptr);
+	}
+	ptr = INI_Find(fh, "respawn", "blue");
+	if(ptr) {
+		gi.dprintf("  Blue     : %s\n", ptr);
+		ctfgame.spawn_blue = atoi(ptr);
+	}
+
+	gi.dprintf(" Flags\n");
+	ptr = INI_Find(fh, "flags", "red");
+	if(ptr)
+		gi.dprintf("  Red      : %s\n", ptr);
+	ptr = INI_Find(fh, "flags", "blue");
+	if(ptr)
+		gi.dprintf("  Blue     : %s\n", ptr);
+	
+	gi.dprintf(" Spawns\n");
+	ptr = INI_Find(fh, "spawns", "red");
+	if(ptr)
+		gi.dprintf("  Red       : %s\n", ptr);
+	ptr = INI_Find(fh, "spawns", "blue");
+	if(ptr)
+		gi.dprintf("  Blue      : %s\n", ptr);
+
+	gi.dprintf("-------------------------------------\n");
+
+	fclose(fh);
+}
 
 /* Has flag:
  * JBravo: Does the player have a flag ?

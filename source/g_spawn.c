@@ -972,6 +972,12 @@ void SpawnEntities (char *mapname, char *entities, char *spawnpoint)
 		if (LoadFlagsFromFile (level.mapname))
 			ChangePlayerSpawns ();
 	}
+
+	// CTF configuration
+	if(ctf->value)
+	{
+		CTFLoadConfig(level.mapname);
+	}
 	
 	// AQ2:TNG End adding .flg files
 
