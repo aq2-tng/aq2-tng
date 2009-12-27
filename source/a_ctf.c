@@ -167,12 +167,12 @@ void CTFLoadConfig(char *mapname)
 	gi.dprintf(" Spawns\n");
 	ptr = INI_Find(fh, "spawns", "red");
 	if(ptr) {
-		gi.dprintf("  Red       : %s\n", ptr);
+		gi.dprintf("  Red      : %s\n", ptr);
 		CTFSetTeamSpawns(TEAM1, ptr);
 	}
 	ptr = INI_Find(fh, "spawns", "blue");
 	if(ptr) {
-		gi.dprintf("  Blue      : %s\n", ptr);
+		gi.dprintf("  Blue     : %s\n", ptr);
 		CTFSetTeamSpawns(TEAM2, ptr);
 	}
 
