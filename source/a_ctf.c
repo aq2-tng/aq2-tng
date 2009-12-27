@@ -97,6 +97,10 @@ void CTFLoadConfig(char *mapname)
 
 	gi.dprintf("Trying to load CTF configuration file\n", mapname);
 
+	/* zero is perfectly acceptable respawn time, but we want to know if it came from the config or not */
+	ctfgame.spawn_red = -1;
+	ctfgame.spawn_blue = -1;
+
 	sprintf (buf, "%s/tng/%s.ctf", GAMEVERSION, mapname);
 	fh = fopen (buf, "r");
 	if (!fh)
@@ -234,6 +238,20 @@ void CTFSetTeamSpawns(int team, char *str)
 
 		next = strtok(NULL, ",");
 	} while(next != NULL);
+}
+
+/* returns the respawn time for this particular client */
+int CTFGetRespawnTime(edict_t *ent)
+{
+	int spawntime = ctf_respawn->value;
+	if(ent->client->resp.team == TEAM1 && ctfgame.spawn_red > -1)
+		spawntime = ctfgame.spawn_red;
+	if(ent->client->resp.team == TEAM2 && ctfgame.spawn_blue > -1)
+		spawntime = ctfgame.spawn_blue;
+
+	gi.cprintf(ent, PRINT_HIGH, "You will respawn in %d seconds\n", spawntime);
+
+	return spawntime;
 }
 
 /* Has flag:

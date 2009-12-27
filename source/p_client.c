@@ -1616,7 +1616,7 @@ void player_die(edict_t * self, edict_t * inflictor, edict_t * attacker, int dam
 	self->svflags |= SVF_DEADMONSTER;
 	if (!self->deadflag) {
 		if (ctf->value) {
-			self->client->respawn_time = level.time + ctf_respawn->value;
+			self->client->respawn_time = level.time + CTFGetRespawnTime(self);
 		}
 		else if(teamdm->value) {
 			self->client->respawn_time = level.time + teamdm_respawn->value;

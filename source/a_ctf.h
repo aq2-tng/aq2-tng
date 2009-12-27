@@ -71,6 +71,7 @@ void CTFInit (void);
 void CTFLoadConfig(char *);
 void CTFSetFlag(int, char *);
 void CTFSetTeamSpawns(int, char *);
+int CTFGetRespawnTime(edict_t *);
 
 void SP_info_player_team1 (edict_t * self);
 void SP_info_player_team2 (edict_t * self);
