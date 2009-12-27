@@ -1735,6 +1735,9 @@ int LoadFlagsFromFile (char *mapname)
 		return 0;
 	}
 
+	// FIXME: remove this functionality completely in the future
+	gi.dprintf ("Warning: .flg files are deprecated, use .ctf ones for more control!\n");
+
 	i = 0;
 	while (fgets(buf, 1000, fp) != NULL)
 	{
