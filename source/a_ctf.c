@@ -162,11 +162,15 @@ void CTFLoadConfig(char *mapname)
 	
 	gi.dprintf(" Spawns\n");
 	ptr = INI_Find(fh, "spawns", "red");
-	if(ptr)
+	if(ptr) {
 		gi.dprintf("  Red       : %s\n", ptr);
+		CTFSetTeamSpawns(TEAM1, ptr);
+	}
 	ptr = INI_Find(fh, "spawns", "blue");
-	if(ptr)
+	if(ptr) {
 		gi.dprintf("  Blue      : %s\n", ptr);
+		CTFSetTeamSpawns(TEAM2, ptr);
+	}
 
 	gi.dprintf("-------------------------------------\n");
 
@@ -197,6 +201,39 @@ void CTFSetFlag(int team, char *str)
 		ent->classname = ED_NewString ("item_flag_team2");
 
 	ED_CallSpawn (ent);
+}
+
+void CTFSetTeamSpawns(int team, char *str)
+{
+	edict_t *spawn = NULL;
+	char *next;
+	vec3_t pos;
+	float angle;
+
+	char *team_spawn_name = "info_player_team1";
+	if(team == TEAM2)
+		team_spawn_name = "info_player_team2";
+
+	/* find and remove all team spawns for this team */
+	while ((spawn = G_Find(spawn, FOFS(classname), team_spawn_name)) != NULL) {
+		G_FreeEdict (spawn);
+	}
+
+	next = strtok(str, ",");
+	do {
+		if (sscanf(next, "<%f %f %f %f>", &pos[0], &pos[1], &pos[2], &angle) != 4) {
+			gi.dprintf("CTFSetTeamSpawns: invalid spawn point: %s, expected <x y z a>\n", next);
+			continue;
+		}
+
+		spawn = G_Spawn ();
+		VectorCopy(pos, spawn->s.origin);
+		spawn->s.angles[YAW] = angle;
+		spawn->classname = ED_NewString (team_spawn_name);
+		ED_CallSpawn (spawn);
+
+		next = strtok(NULL, ",");
+	} while(next != NULL);
 }
 
 /* Has flag:

@@ -70,6 +70,7 @@ extern cvar_t *ctf_respawn;
 void CTFInit (void);
 void CTFLoadConfig(char *);
 void CTFSetFlag(int, char *);
+void CTFSetTeamSpawns(int, char *);
 
 void SP_info_player_team1 (edict_t * self);
 void SP_info_player_team2 (edict_t * self);

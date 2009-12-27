@@ -26,5 +26,5 @@ blue=<x y z>
 ; Note: when you define spawns it will remove any existing ones
 ; x = x coord, y = y coord, z = depth, a = angle (which direction is the spawned player looking at)
 [spawns]
-red=<x y z a> <x y z a> <z y x a> <x y z a>
-blue=<x y z a> <x y z a> <x y z a> <x y z a>
+red=<x y z a>,<x y z a>,<z y x a>,<x y z a>
+blue=<x y z a>,<x y z a>,<x y z a>,<x y z a>
