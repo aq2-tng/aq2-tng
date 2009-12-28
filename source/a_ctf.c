@@ -134,7 +134,7 @@ void CTFLoadConfig(char *mapname)
 		gi.dprintf(" Grapple   : %s\n", ptr);
 		if(strcmp(ptr, "1") == 0)
 			gi.cvar_forceset("use_grapple", "1");
-		elseif(strcmp(ptr, "2") == 0)
+		else if(strcmp(ptr, "2") == 0)
 			gi.cvar_forceset("use_grapple", "2");
 		else
 			gi.cvar_forceset("use_grapple", "0");

@@ -1,4 +1,4 @@
-; AQ2:TNG CTF configuartion file format
+; AQ2:TNG CTF configuration file format
 ;
 ; key=value pairs, no quoting, no whitespace around equal sign
 ;

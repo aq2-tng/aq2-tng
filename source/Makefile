@@ -1,13 +1,12 @@
-# Action makefile 
+# GNU Make required
 #
-# Intended for gcc/Linux, may need modifying for other platforms
-# Adapted by PG BUND from Black Cross makefile
-# (not sure if it will do it :)
-# corrected and expanded by Igor[Rock]
-# (needs still some testing/modification for the dist-targets)
-#-----------------------------------------------------------------------------
+# Tested platforms: Linux x86
+#
 
 GIT_REV=$(shell git rev-parse --short HEAD)
+ifeq ($(GIT_REV),)
+GIT_REV=git
+endif
 PACKAGE=aq2-tng
 REL_VERSION=2.81
 VERSION=$(REL_VERSION)~$(GIT_REV)
