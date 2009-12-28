@@ -761,8 +761,8 @@ pmenu_t joinmenu[] = {
   {NULL, PMENU_ALIGN_LEFT, NULL, NULL},
   {NULL /* team 3 */ , PMENU_ALIGN_LEFT, NULL, JoinTeam3},
   {NULL, PMENU_ALIGN_LEFT, NULL, NULL},
-  {NULL /* auto-join */ , PMENU_ALIGN_LEFT, NULL, JoinTeamAuto},
   {NULL, PMENU_ALIGN_LEFT, NULL, NULL},
+  {NULL /* auto-join */ , PMENU_ALIGN_LEFT, NULL, JoinTeamAuto},
   {NULL, PMENU_ALIGN_LEFT, NULL, NULL},
   //AQ2:TNG - Slicer
   {"Voting & Ignoring Menus", PMENU_ALIGN_LEFT, NULL, VotingMenu},
@@ -973,6 +973,35 @@ void CheckForUnevenTeams ()
 		UnevenTeamsMsg (TEAM2, onteam2 - onteam1, teams[TEAM1].name);
 }
 
+int IsAllowedToJoin(edict_t *ent, int desired_team)
+{
+	int i, onteam1 = 0, onteam2 = 0;
+	edict_t *e;
+
+	/* FIXME: make this work with threeteam */
+	if (use_3teams->value)
+		return;
+
+	for (i = 1; i <= maxclients->value; i++)
+	{
+		e = g_edicts + i;
+		if (e->inuse)
+		{
+			if (e->client->resp.team == TEAM1)
+				onteam1++;
+			else if (e->client->resp.team == TEAM2)
+				onteam2++;
+		}
+	}
+
+	/* can join both teams if they are even and can join if the other team has less players than current */
+	if((desired_team == TEAM1 && onteam1 < onteam2) ||
+		(desired_team == TEAM2 && onteam2 < onteam1) ||
+		(ent->client->resp.team == NOTEAM && onteam1 == onteam2))
+		return 1;
+	return 0;
+}
+
 void JoinTeam (edict_t * ent, int desired_team, int skip_menuclose)
 {
 	char *s, *a;
@@ -991,6 +1020,13 @@ void JoinTeam (edict_t * ent, int desired_team, int skip_menuclose)
 			gi.centerprintf(ent, "Cannot join %s (locked)", TeamName(desired_team));
 
 		return;
+	}
+
+	if(!matchmode->value && eventeams->value && desired_team != NOTEAM) {
+		if(!IsAllowedToJoin(ent, desired_team)) {
+			gi.centerprintf(ent, "Cannot join %s (has too many players)", TeamName(desired_team));
+			return;
+		}
 	}
 
 	a = (ent->client->resp.team == NOTEAM) ? "joined" : "changed to";

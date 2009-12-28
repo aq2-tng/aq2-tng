@@ -599,6 +599,7 @@ void InitGame (void)
 
 	auto_join = gi.cvar ("auto_join", "0", 0);
 	auto_equip = gi.cvar ("auto_equip", "0", 0);
+	eventeams = gi.cvar ("eventeams", "0", 0);
 
 	use_punch = gi.cvar ("use_punch", "1", 0);
 
