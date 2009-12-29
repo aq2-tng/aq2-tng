@@ -54,9 +54,9 @@ typedef struct ctfgame_s {
 	int total1, total2;	// these are only set when going into intermission!
 	float last_flag_capture;
 	int last_capture_team;
+	qboolean halftime;
 
 	/* CTF configuration from .ctf */
-	qboolean ini_loaded;
 	int type;		// 0 = normal, 1 = off/def
 	int offence;		// 0 = red, 1 = blue
 	/* team spawn times in seconds */
@@ -298,6 +298,8 @@ int CTFOtherTeam(int team)
 		return TEAM2;
 	case TEAM2:
 		return TEAM1;
+	case NOTEAM:
+		return NOTEAM; /* there is no other team for NOTEAM, but I want it back! */
 	}
 	return -1;		// invalid value
 }
@@ -318,6 +320,20 @@ void ResetPlayers()
 		if (ent->inuse) {
 //			ent->client->resp.team = NOTEAM;
 			PutClientInServer(ent);
+		}
+	}
+}
+
+void CTFSwapTeams()
+{
+	vec3_t point;
+	edict_t *ent;
+	int i;
+
+	for (i = 0; i < game.maxclients; i++) {
+		ent = &g_edicts[1 + i];
+		if (ent->inuse) {
+			ent->client->resp.team = CTFOtherTeam(ent->client->resp.team);
 		}
 	}
 }
@@ -598,6 +614,7 @@ void CTFCheckHurtCarrier(edict_t * targ, edict_t * attacker)
 void CTFResetFlag(int team)
 {
 	char *c;
+	int i;
 	edict_t *ent = NULL;
 
 	switch (team) {
@@ -609,6 +626,22 @@ void CTFResetFlag(int team)
 		break;
 	default:
 		return;
+	}
+
+	/* hifi: drop this team flag if a player is carrying one (so the next loop returns it correctly) */
+	for (i = 1; i <= (int)maxclients->value; i++) {
+		ent= &g_edicts[i];
+		if(team == TEAM1) {
+			if (ent->client->pers.inventory[ITEM_INDEX(flag1_item)]) {
+				Drop_Item(ent, flag1_item);
+				ent->client->pers.inventory[ITEM_INDEX(flag1_item)] = 0;
+			}
+		} else if(team == TEAM2) {
+			if (ent->client->pers.inventory[ITEM_INDEX(flag2_item)]) {
+				Drop_Item(ent, flag2_item);
+				ent->client->pers.inventory[ITEM_INDEX(flag2_item)] = 0;
+			}
+		}
 	}
 
 	while ((ent = G_Find(ent, FOFS(classname), c)) != NULL) {
@@ -1329,6 +1362,15 @@ qboolean CTFCheckRules(void)
 		gi.bprintf(PRINT_HIGH, "Capturelimit hit.\n");
 		IRC_printf(IRC_T_GAME, "Capturelimit hit.\n");
 		return true;
+	}
+
+	if(timelimit->value > 0 && ctfgame.type == 1 && !ctfgame.halftime && level.time == (timelimit->value * 60) / 2) {
+		gi.bprintf(PRINT_HIGH, "Half time! Changing teams.\n");
+		CTFResetFlags();
+		team_round_going = team_round_countdown = team_game_going = 0;
+		MakeAllLivePlayersObservers ();
+		CTFSwapTeams();
+		ctfgame.halftime = true;
 	}
 	return false;
 }
