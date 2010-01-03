@@ -779,6 +779,8 @@ qboolean CTFPickup_Flag(edict_t * ent, edict_t * other)
 	if (other->client->ctf_uvtime) {
 		other->client->ctf_uvtime = 0;
 		gi.centerprintf(other, "Flag taken! Shields are DOWN! Run for it!");
+	} else {
+		gi.centerprintf(other, "You've got the ENEMY FLAG! Run for it!");
 	}
 	// hey, its not our flag, pick it up
 	gi.bprintf(PRINT_HIGH, "%s got the %s flag!\n", other->client->pers.netname, CTFTeamName(team));
