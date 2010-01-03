@@ -1795,6 +1795,11 @@ void ChangePlayerSpawns ()
 	flag1 = G_Find (flag1, FOFS(classname), "item_flag_team1");
 	flag2 = G_Find (flag2, FOFS(classname), "item_flag_team2");
 
+	if(!flag1 || !flag2) {
+		gi.dprintf("Warning: ChangePlayerSpawns() requires both flags!\n");
+		return;
+	}
+
 	while ((spot = G_Find(spot, FOFS(classname), "info_player_deathmatch")) != NULL)
 	{
 		range = Distance(spot->s.origin, flag1->s.origin);
