@@ -1357,6 +1357,7 @@ typedef struct
   int team;			// team the player is on
   int saved_team;
   int ctf_state;
+  int ctf_capstreak;
   float ctf_lasthurtcarrier;
   float ctf_lastreturnedflag;
   float ctf_flagsince;

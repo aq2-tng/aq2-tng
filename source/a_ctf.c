@@ -723,6 +723,8 @@ qboolean CTFPickup_Flag(edict_t * ent, edict_t * other)
 				// other gets another 10 frag bonus
 				other->client->resp.score += CTF_CAPTURE_BONUS;
 
+				CTFCapReward(other);
+
 				// Ok, let's do the player loop, hand out the bonuses
 				for (i = 1; i <= maxclients->value; i++) {
 					player = &g_edicts[i];
@@ -1497,4 +1499,160 @@ void CTFDestroyFlag(edict_t * self)
 	}
 	// just release it.
 	G_FreeEdict(self);
+}
+
+/* give client full health and some ammo for reward */
+void CTFCapReward(edict_t * ent)
+{
+	gclient_t *client;
+	gitem_t *item;
+	edict_t etemp;
+	int was_bandaging = 0;
+	int band;
+
+	if(!ctf_mode->value)
+		return;
+
+	if(ctf_mode->value > 1)
+		ent->client->resp.ctf_capstreak++;
+	else /* capstreak is used as a multiplier so default it to one */
+		ent->client->resp.ctf_capstreak = 1;
+
+	band = ent->client->resp.ctf_capstreak;
+	client = ent->client;
+
+	// give initial knife if none
+	if ((int)wp_flags->value & WPF_KNIFE &&
+			ent->client->pers.inventory[ITEM_INDEX(GET_ITEM(KNIFE_NUM))] == 0)
+		ent->client->pers.inventory[ITEM_INDEX(GET_ITEM(KNIFE_NUM))] += 1;
+
+	if (client->resp.item->typeNum == BAND_NUM) {
+		band =+ 1;
+		if (tgren->value > 0)	// team grenades is turned on
+		{
+			item = GET_ITEM(GRENADE_NUM);
+			client->pers.inventory[ITEM_INDEX(item)] = tgren->value;
+		}
+
+	}
+
+	// give pistol clips
+	if ((int)wp_flags->value & WPF_MK23) {
+		item = GET_ITEM(MK23_ANUM);
+		client->mk23_rds = client->mk23_max;
+		client->pers.inventory[ITEM_INDEX(item)] = 1*band;
+	}
+
+
+	int player_weapon = client->resp.weapon->typeNum;
+	// find out which weapon the player is holding in it's inventory
+	if(client->unique_weapon_total > 0) {
+		if(ent->client->pers.inventory[ITEM_INDEX(GET_ITEM(MP5_NUM))])
+			player_weapon = MP5_NUM;
+		if(ent->client->pers.inventory[ITEM_INDEX(GET_ITEM(M4_NUM))])
+			player_weapon = M4_NUM;
+		if(ent->client->pers.inventory[ITEM_INDEX(GET_ITEM(M3_NUM))])
+			player_weapon = M3_NUM;
+		if(ent->client->pers.inventory[ITEM_INDEX(GET_ITEM(HC_NUM))])
+			player_weapon = HC_NUM;
+		if(ent->client->pers.inventory[ITEM_INDEX(GET_ITEM(SNIPER_NUM))])
+			player_weapon = SNIPER_NUM;
+	}
+
+
+	// if player has no special weapon, give the initial one
+	if (player_weapon == MP5_NUM) {
+		if(client->unique_weapon_total < 1) {
+			item = GET_ITEM(MP5_NUM);
+			client->pers.inventory[ITEM_INDEX(item)] = 1;
+			client->unique_weapon_total = 1;
+		}
+		item = GET_ITEM(MP5_ANUM);
+		client->pers.inventory[ITEM_INDEX(item)] = 1*band;
+		client->mp5_rds = client->mp5_max;
+	} else if (player_weapon == M4_NUM) {
+		if(client->unique_weapon_total < 1) {
+			item = GET_ITEM(M4_NUM);
+			client->pers.inventory[ITEM_INDEX(item)] = 1;
+			client->unique_weapon_total = 1;
+		}
+		item = GET_ITEM(M4_ANUM);
+		client->pers.inventory[ITEM_INDEX(item)] = 1*band;
+		client->m4_rds = client->m4_max;
+	} else if (player_weapon == M3_NUM) {
+		if(client->unique_weapon_total < 1) {
+			item = GET_ITEM(M3_NUM);
+			client->pers.inventory[ITEM_INDEX(item)] = 1;
+			client->unique_weapon_total = 1;
+		}
+		item = GET_ITEM(SHELL_ANUM);
+		client->pers.inventory[ITEM_INDEX(item)] = 7*band;
+		client->shot_rds = client->shot_max;
+	} else if (player_weapon == HC_NUM) {
+		if(client->unique_weapon_total < 1) {
+			item = GET_ITEM(HC_NUM);
+			client->pers.inventory[ITEM_INDEX(item)] = 1;
+			client->unique_weapon_total = 1;
+		}
+		item = GET_ITEM(SHELL_ANUM);
+		client->pers.inventory[ITEM_INDEX(item)] = 12*band;
+		client->cannon_rds = client->cannon_max;
+	} else if (player_weapon == SNIPER_NUM) {
+		if(client->unique_weapon_total < 1) {
+			item = GET_ITEM(SNIPER_NUM);
+			client->pers.inventory[ITEM_INDEX(item)] = 1;
+			client->unique_weapon_total = 1;
+		}
+		item = GET_ITEM(SNIPER_ANUM);
+		client->pers.inventory[ITEM_INDEX(item)] = 10*band;
+		client->sniper_rds = client->sniper_max;
+	} else if (player_weapon == DUAL_NUM) {
+		item = GET_ITEM(DUAL_NUM);
+		client->pers.inventory[ITEM_INDEX(item)] = 1;
+
+		item = GET_ITEM(MK23_ANUM);
+		client->pers.inventory[ITEM_INDEX(item)] = 2*band;
+		client->dual_rds = client->dual_max;
+	} else if (player_weapon == KNIFE_NUM) {
+		item = GET_ITEM(KNIFE_NUM);
+		client->pers.inventory[ITEM_INDEX(item)] = 10*band;
+	}
+
+	if(ent->client->bandaging || ent->client->bandage_stopped)
+		was_bandaging = 1;
+	
+	ent->client->leg_noise = 0;
+	ent->client->leg_damage = 0;
+	ent->client->leghits = 0;
+	ent->client->bleeding = 0;
+	ent->client->bleed_remain = 0;
+	ent->client->bandaging = 0;
+	ent->client->leg_dam_count = 0;
+	ent->client->attacker = NULL;
+
+	ent->client->bandage_stopped = 0;
+	ent->client->idle_weapon = 0;
+
+	// automagically change to special in any case, it's fully reloaded
+	if((client->curr_weap != player_weapon && ent->client->weaponstate == WEAPON_READY) || was_bandaging) {
+		client->newweapon = client->pers.weapon;
+		ent->client->weaponstate = WEAPON_READY;
+		ent->client->ps.gunframe = 0;
+		ReadySpecialWeapon(ent);
+	}
+
+	// give health times cap streak
+	ent->health = ent->max_health * (ent->client->resp.ctf_capstreak > 4 ? 4 : ent->client->resp.ctf_capstreak);
+	ent->client->pers.health = ent->health;
+
+	if(ent->client->resp.ctf_capstreak == 2)
+		gi.centerprintf(ent, "CAPTURED TWO TIMES IN A ROW!\n\nYou have been rewarded with DOUBLE health and ammo!\n\nNow go get some more!");
+	else if(ent->client->resp.ctf_capstreak == 3)
+		gi.centerprintf(ent, "CAPTURED THREE TIMES IN A ROW!\n\nYou have been rewarded with TRIPLE health and ammo!\n\nNow go get some more!");
+	else if(ent->client->resp.ctf_capstreak == 4)
+		gi.centerprintf(ent, "CAPTURED FOUR TIMES IN A ROW!\n\nYou have been rewarded with QUAD health and ammo!\n\nNow go get some more!");
+	else if(ent->client->resp.ctf_capstreak > 4)
+		gi.centerprintf(ent, "CAPTURED YET AGAIN!\n\nYou have been rewarded QUAD health and %d times your ammo!\n\nNow go get some more!",
+				ent->client->resp.ctf_capstreak);
+	else	gi.centerprintf(ent, "CAPTURED!\n\nYou have been rewarded.\n\nNow go get some more!");
 }

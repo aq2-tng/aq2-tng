@@ -755,7 +755,7 @@ void ClientObituary(edict_t * self, edict_t * inflictor, edict_t * attacker)
 	int special = 0;
 	int n;
 
-
+	self->client->resp.ctf_capstreak = 0;
 
 	if (!deathmatch->value && !coop->value)
 	{

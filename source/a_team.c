@@ -1558,6 +1558,7 @@ void ResetScores (qboolean playerScores)
 		ent->client->resp.damage_dealt = 0;
 		ent->client->resp.hs_streak = 0;
 		ent->client->resp.streak = 0;
+		ent->client->resp.ctf_capstreak = 0;
 		ent->client->resp.last_damaged_part = 0;
 		ent->client->resp.last_damaged_players[0] = '\0';
 		ent->client->resp.deaths = 0;
