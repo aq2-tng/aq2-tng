@@ -1383,6 +1383,8 @@ qboolean CTFCheckRules(void)
 		MakeAllLivePlayersObservers ();
 		CTFSwapTeams();
 		CenterPrintAll("The teams have been switched!");
+		gi.sound(&g_edicts[0], CHAN_VOICE | CHAN_NO_PHS_ADD,
+			 gi.soundindex("world/land.wav"), 1.0, ATTN_NONE, 0.0);
 		ctfgame.halftime = true;
 	}
 	return false;
