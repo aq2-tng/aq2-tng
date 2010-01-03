@@ -1582,7 +1582,7 @@ void SP_worldspawn (edict_t * ent)
 	gi.soundindex("makron/laf4.wav");
 	gi.soundindex("world/xian1.wav");
 	gi.soundindex("world/elv.wav");
-	gi.soundindex("world/land.wav"); // used for ctf swap sound
+	gi.soundindex("misc/secret.wav"); // used for ctf swap sound
 
 	PrecacheRadioSounds ();
 	//PG BUND - Begin
