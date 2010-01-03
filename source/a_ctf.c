@@ -674,6 +674,10 @@ qboolean CTFPickup_Flag(edict_t * ent, edict_t * other)
 	edict_t *player;
 	gitem_t *flag_item, *enemy_flag_item;
 
+	/* FIXME: players shouldn't be able to touch flags before LCA! */
+	if(!team_round_going)
+		return false;
+
 	// figure out what team this flag is
 	if (strcmp(ent->classname, "item_flag_team1") == 0)
 		team = TEAM1;
@@ -1371,11 +1375,10 @@ qboolean CTFCheckRules(void)
 	}
 
 	if(timelimit->value > 0 && ctfgame.type == 1 && !ctfgame.halftime && level.time == (timelimit->value * 60) / 2) {
-		gi.bprintf(PRINT_HIGH, "Half time! Changing teams.\n");
-		CTFResetFlags();
 		team_round_going = team_round_countdown = team_game_going = 0;
 		MakeAllLivePlayersObservers ();
 		CTFSwapTeams();
+		CenterPrintAll("The teams have been switched!");
 		ctfgame.halftime = true;
 	}
 	return false;

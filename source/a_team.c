@@ -1930,6 +1930,10 @@ void MakeAllLivePlayersObservers ()
 	edict_t *ent;
 	int saveteam, i;
 
+	/* if someone is carrying a flag it will disappear */
+	if(ctf->value)
+		CTFResetFlags();
+
 	for (i = 0; i < game.maxclients; i++)
 	{
 		ent = &g_edicts[1 + i];
