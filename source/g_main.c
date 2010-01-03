@@ -449,6 +449,7 @@ void InitGame (void);
 void G_RunFrame (void);
 
 int dosoft;
+int softquit = 0;
 
 
 gghost_t ghost_players[MAX_GHOSTS];
@@ -832,6 +833,26 @@ void ExitLevel (void)
 	int i;
 	edict_t *ent;
 	char command[256];
+
+	if(softquit) {
+		gi.bprintf(PRINT_HIGH, "Soft quit was requested by admin. The server will now exit.\n");
+		/* leave clients reconnecting just in case if the server will come back */
+		for (i = 1; i <= (int) (maxclients->value); i++)
+		{
+			ent = getEnt (i);
+			if(!ent->inuse)
+				continue;
+
+			stuffcmd (ent, "reconnect\n");
+		}
+		Com_sprintf (command, sizeof (command), "quit\n");
+		gi.AddCommandString (command);
+		level.changemap = NULL;
+		level.exitintermission = 0;
+		level.intermissiontime = 0;
+		ClientEndServerFrames ();
+		return;
+	}
 
 	Com_sprintf (command, sizeof (command), "gamemap \"%s\"\n", level.changemap);
 	gi.AddCommandString (command);

@@ -61,6 +61,7 @@
 #include "g_local.h"
 
 extern int dosoft;
+extern int softquit;
 
 void SVCmd_ReloadMOTD_f ()
 {
@@ -494,6 +495,12 @@ void SVCmd_ResetScores_f (void)
 	gi.bprintf(PRINT_HIGH, "Scores and time was resetted by console\n");
 }
 
+void SVCmd_SoftQuit_f (void)
+{
+	gi.bprintf(PRINT_HIGH, "The server will exit after this map\n");
+	softquit = 1;
+}
+
 /*
 =================
 ServerCommand
@@ -532,6 +539,8 @@ void ServerCommand (void)
 		SVCmd_Map_restart_f ();
 	else if (Q_stricmp (cmd, "resetscores") == 0)
 		SVCmd_ResetScores_f ();
+	else if (Q_stricmp (cmd, "softquit") == 0)
+		SVCmd_SoftQuit_f ();
 	else
 		gi.cprintf (NULL, PRINT_HIGH, "Unknown server command \"%s\"\n", cmd);
 }
