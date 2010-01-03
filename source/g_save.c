@@ -539,7 +539,7 @@ void InitGame (void)
 	use_mapvote = gi.cvar ("use_mapvote", "1", 0);	//slicer
 	ctf = gi.cvar ("ctf", "0", CVAR_SERVERINFO | CVAR_LATCH);
 	ctf_forcejoin = gi.cvar ("ctf_forcejoin", "", 0);
-	ctf_mode = gi.cvar ("ctf_mode", "", 0);
+	ctf_mode = gi.cvar ("ctf_mode", "0", 0);
 	ctf_dropflag = gi.cvar ("ctf_dropflag", "1", 0);
 	ctf_respawn = gi.cvar ("ctf_respawn", "4", 0);
 	ctf_model = gi.cvar ("ctf_model", "male", CVAR_LATCH);
