@@ -938,6 +938,10 @@ void CTFEffects(edict_t * player)
 		}
 	}
 
+	// megahealth players glow anyway
+	if(player->health > 100)
+		player->s.effects |= EF_TAGTRAIL;
+
 	if (player->client->pers.inventory[ITEM_INDEX(flag1_item)])
 		player->s.modelindex3 = gi.modelindex("models/flags/flag1.md2");
 	else if (player->client->pers.inventory[ITEM_INDEX(flag2_item)])
