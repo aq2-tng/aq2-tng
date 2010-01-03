@@ -337,6 +337,11 @@ void CTFSwapTeams()
 			ent->client->resp.team = CTFOtherTeam(ent->client->resp.team);
 		}
 	}
+
+	/* swap scores too! */
+	i = ctfgame.team1;
+	ctfgame.team1 = ctfgame.team2;
+	ctfgame.team2 = i;
 }
 
 void CTFAssignTeam(gclient_t * who)
