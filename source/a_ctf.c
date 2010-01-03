@@ -94,6 +94,7 @@ void CTFLoadConfig(char *mapname)
 	char buf[1024];
 	char *ptr;
 	FILE *fh;
+	qboolean have_spawns = false;
 
 	gi.dprintf("Trying to load CTF configuration file\n", mapname);
 
@@ -165,20 +166,23 @@ void CTFLoadConfig(char *mapname)
 		CTFSetFlag(TEAM2, ptr);
 	}
 
-	// should be called after flags are set
-	ChangePlayerSpawns();
-	
 	gi.dprintf(" Spawns\n");
 	ptr = INI_Find(fh, "spawns", "red");
 	if(ptr) {
 		gi.dprintf("  Red      : %s\n", ptr);
 		CTFSetTeamSpawns(TEAM1, ptr);
+		have_spawns = true;
 	}
 	ptr = INI_Find(fh, "spawns", "blue");
 	if(ptr) {
 		gi.dprintf("  Blue     : %s\n", ptr);
 		CTFSetTeamSpawns(TEAM2, ptr);
+		have_spawns = true;
 	}
+
+	// automagically change spawns *only* when we do not have team spawns
+	if(!have_spawns)
+		ChangePlayerSpawns();
 
 	gi.dprintf("-------------------------------------\n");
 
