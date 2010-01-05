@@ -49,21 +49,6 @@
 
 #include "g_local.h"
 
-typedef struct ctfgame_s {
-	int team1, team2;
-	int total1, total2;	// these are only set when going into intermission!
-	float last_flag_capture;
-	int last_capture_team;
-	qboolean halftime;
-
-	/* CTF configuration from .ctf */
-	int type;		// 0 = normal, 1 = off/def
-	int offence;		// 0 = red, 1 = blue
-	/* team spawn times in seconds */
-	int spawn_red;
-	int spawn_blue;
-} ctfgame_t;
-
 ctfgame_t ctfgame;
 
 cvar_t *ctf;
