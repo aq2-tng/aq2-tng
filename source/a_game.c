@@ -269,6 +269,57 @@ void PrintMOTD(edict_t * ent)
 		sprintf(msg_buf + strlen(msg_buf), "Game Type: %s\n", server_type);
 		lines++;
 
+		/* new CTF settings added here for better readability */
+		if(ctf->value) {
+			strcat(msg_buf, "\n");
+			lines++;
+
+			sprintf(msg_buf + strlen(msg_buf), "CTF Type: %s",
+					(ctfgame.type == 0 ? "Normal" : "Off/Def"));
+			if(ctfgame.type == 1) {
+				sprintf(msg_buf + strlen(msg_buf), ", attacker is %s\n",
+					(ctfgame.offence == 0 ? "RED" : "BLUE"));
+			} else {
+				strcat(msg_buf, "\n");
+			}
+			lines++;
+
+			if(ctfgame.spawn_red > -1 || ctfgame.spawn_blue > -1) {
+				sprintf(msg_buf + strlen(msg_buf), "Spawn times: ");
+				if(ctfgame.spawn_red > -1)
+					sprintf(msg_buf + strlen(msg_buf), "RED: %ds ", ctfgame.spawn_red);
+				if(ctfgame.spawn_blue > -1)
+					sprintf(msg_buf + strlen(msg_buf), "BLUE: %ds", ctfgame.spawn_blue);
+				strcat(msg_buf, "\n");
+				lines++;
+			}
+
+			sprintf(msg_buf + strlen(msg_buf), "Using %s spawns\n",
+					(ctfgame.custom_spawns ? "CUSTOM" : "ORIGINAL"));
+			lines++;
+
+			sprintf(msg_buf + strlen(msg_buf), "Grapple %s available\n",
+					(use_grapple->value ? "IS" : "IS NOT"));
+			lines++;
+
+			if(ctfgame.author) {
+				strcat(msg_buf, "\n");
+				lines++;
+
+				sprintf(msg_buf + strlen(msg_buf), "CTF configuration by %s\n",
+						ctfgame.author);
+				lines++;
+
+				/* no comment without author, grr */
+				if(ctfgame.comment) {
+					/* max line length is 39 chars + new line */
+					strncat(msg_buf + strlen(msg_buf), ctfgame.comment, 39);
+					strcat(msg_buf, "\n");
+					lines++;
+				}
+			}
+		}
+
 		/*
 		   Darkmatch
 		 */

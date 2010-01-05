@@ -69,6 +69,10 @@ void CTFInit(void)
 		flag1_item = FindItemByClassname("item_flag_team1");
 	if (!flag2_item)
 		flag2_item = FindItemByClassname("item_flag_team2");
+	if(ctfgame.author)
+		gi.TagFree(ctfgame.author);
+	if(ctfgame.comment)
+		gi.TagFree(ctfgame.comment);
 	memset(&ctfgame, 0, sizeof(ctfgame));
 }
 
@@ -79,7 +83,6 @@ void CTFLoadConfig(char *mapname)
 	char buf[1024];
 	char *ptr;
 	FILE *fh;
-	qboolean have_spawns = false;
 
 	gi.dprintf("Trying to load CTF configuration file\n", mapname);
 
@@ -98,11 +101,17 @@ void CTFLoadConfig(char *mapname)
 	gi.dprintf("-------------------------------------\n");
 	gi.dprintf("CTF configuration loaded from %s\n", buf);
 	ptr = INI_Find(fh, "ctf", "author");
-	if(ptr)
+	if(ptr) {
 		gi.dprintf(" Author    : %s\n", ptr);
+		ctfgame.author = gi.TagMalloc(strlen(ptr)+1, TAG_LEVEL);
+		strcpy(ctfgame.author, ptr);
+	}
 	ptr = INI_Find(fh, "ctf", "comment");
-	if(ptr)
+	if(ptr) {
 		gi.dprintf(" Comment   : %s\n", ptr);
+		ctfgame.comment = gi.TagMalloc(strlen(ptr)+1, TAG_LEVEL);
+		strcpy(ctfgame.comment, ptr);
+	}
 
 	ptr = INI_Find(fh, "ctf", "type");
 	if(ptr) {
@@ -156,17 +165,17 @@ void CTFLoadConfig(char *mapname)
 	if(ptr) {
 		gi.dprintf("  Red      : %s\n", ptr);
 		CTFSetTeamSpawns(TEAM1, ptr);
-		have_spawns = true;
+		ctfgame.custom_spawns = true;
 	}
 	ptr = INI_Find(fh, "spawns", "blue");
 	if(ptr) {
 		gi.dprintf("  Blue     : %s\n", ptr);
 		CTFSetTeamSpawns(TEAM2, ptr);
-		have_spawns = true;
+		ctfgame.custom_spawns = true;
 	}
 
 	// automagically change spawns *only* when we do not have team spawns
-	if(!have_spawns)
+	if(!ctfgame.custom_spawns)
 		ChangePlayerSpawns();
 
 	gi.dprintf("-------------------------------------\n");

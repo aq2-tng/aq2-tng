@@ -47,6 +47,9 @@ typedef struct ctfgame_s {
 	/* team spawn times in seconds */
 	int spawn_red;
 	int spawn_blue;
+	qboolean custom_spawns;
+	char *author;
+	char *comment;
 } ctfgame_t;
 
 extern ctfgame_t ctfgame;
