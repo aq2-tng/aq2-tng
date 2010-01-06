@@ -964,19 +964,20 @@ void SpawnEntities (char *mapname, char *entities, char *spawnpoint)
 	gi.dprintf ("%i entities inhibited\n", inhibit);
 
 	// AQ2:TNG Igor adding .flg files
-	if (ctf->value &&
-		(!G_Find(NULL, FOFS (classname), "item_flag_team1") ||
-		 !G_Find(NULL, FOFS (classname), "item_flag_team2")))
-	{
-		gi.dprintf ("No native CTF map, loading flag positions from file\n");
-		if (LoadFlagsFromFile (level.mapname))
-			ChangePlayerSpawns ();
-	}
 
 	// CTF configuration
 	if(ctf->value)
 	{
-		CTFLoadConfig(level.mapname);
+		if(!CTFLoadConfig(level.mapname))
+		{
+			if ((!G_Find(NULL, FOFS (classname), "item_flag_team1") ||
+				 !G_Find(NULL, FOFS (classname), "item_flag_team2")))
+			{
+				gi.dprintf ("No native CTF map, loading flag positions from file\n");
+				if (LoadFlagsFromFile (level.mapname))
+					ChangePlayerSpawns ();
+			}
+		}
 	}
 	
 	// AQ2:TNG End adding .flg files

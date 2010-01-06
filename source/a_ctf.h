@@ -89,7 +89,7 @@ extern cvar_t *ctf_model;
 #define CTF_AUTO_FLAG_RETURN_TIMEOUT		30	// number of seconds before dropped flag auto-returns
 
 void CTFInit (void);
-void CTFLoadConfig(char *);
+qboolean CTFLoadConfig(char *);
 void CTFSetFlag(int, char *);
 void CTFSetTeamSpawns(int, char *);
 int CTFGetRespawnTime(edict_t *);

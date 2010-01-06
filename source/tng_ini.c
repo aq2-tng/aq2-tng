@@ -36,6 +36,11 @@ char *INI_Find(FILE *fh, const char *section, const char *key)
 	line = strtok(_ini_file, "\n");
 	do {
 		if(strlen(line) > 2 && line[0] != ';') {
+
+			// remove DOS line endings
+			if(line[strlen(line)-1] == 0x0D)
+				line[strlen(line)-1] = 0x00;
+
 			if(line[0] == '[' && line[strlen(line)-1] == ']') {
 				memset(&cur_section, 0, MAX_INI_STR_LEN);
 				strncpy(cur_section, line+1, strlen(line)-2);

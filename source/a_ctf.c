@@ -78,7 +78,7 @@ void CTFInit(void)
 
 /*--------------------------------------------------------------------------*/
 
-void CTFLoadConfig(char *mapname)
+qboolean CTFLoadConfig(char *mapname)
 {
 	char buf[1024];
 	char *ptr;
@@ -95,7 +95,7 @@ void CTFLoadConfig(char *mapname)
 	if (!fh)
 	{
 		gi.dprintf ("Warning: CTF configuration file %s was not found.\n", buf);
-		return;
+		return false;
 	}
 
 	gi.dprintf("-------------------------------------\n");
@@ -181,30 +181,41 @@ void CTFLoadConfig(char *mapname)
 	gi.dprintf("-------------------------------------\n");
 
 	fclose(fh);
+
+	return true;
 }
 
 /* taken from g_spawn */
 char *ED_NewString (char *string);
 void CTFSetFlag(int team, char *str)
 {
-	edict_t *ent;
+	char *flag_name;
+	edict_t *ent = NULL;
 	vec3_t position;
+
+	if(team == TEAM1)
+		flag_name = "item_flag_team1";
+	else if(team == TEAM2)
+		flag_name = "item_flag_team2";
+	else
+		return;
 
 	if (sscanf(str, "<%f %f %f>", &position[0], &position[1], &position[2]) != 3)
 		return;
 
+	/* find and remove existing flag(s) if any */
+	while ((ent = G_Find(ent, FOFS(classname), flag_name)) != NULL) {
+		G_FreeEdict (ent);
+	}
+
 	ent = G_Spawn ();
 
+	ent->classname = ED_NewString (flag_name);
 	ent->spawnflags &=
 		~(SPAWNFLAG_NOT_EASY | SPAWNFLAG_NOT_MEDIUM | SPAWNFLAG_NOT_HARD |
 		SPAWNFLAG_NOT_COOP | SPAWNFLAG_NOT_DEATHMATCH);
 
 	VectorCopy(position, ent->s.origin);
-
-	if (team == TEAM1)	// Red Flag
-		ent->classname = ED_NewString ("item_flag_team1");
-	else			// Blue Flag
-		ent->classname = ED_NewString ("item_flag_team2");
 
 	ED_CallSpawn (ent);
 }
@@ -411,6 +422,7 @@ edict_t *SelectCTFSpawnPoint(edict_t * ent)
 		cname = "info_player_team2";
 		break;
 	default:
+		/* FIXME: might return NULL when dm spawns are converted to team ones */
 		return SelectRandomDeathmatchSpawnPoint();
 	}
 
