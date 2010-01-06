@@ -13,6 +13,7 @@ char *INI_Find(FILE *fh, const char *section, const char *key)
 
 	memset(&_ini_ret, 0, MAX_INI_STR_LEN);
 	memset(&cur_section, 0, MAX_INI_STR_LEN);
+	memset(&_ini_file, 0, MAX_INI_SIZE);
 
 	if(!fh) {
 		gi.bprintf(PRINT_HIGH, "INI_Find: file handle for INI_Find was NULL\n");
