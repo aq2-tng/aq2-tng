@@ -116,8 +116,10 @@ qboolean CTFLoadConfig(char *mapname)
 	ptr = INI_Find(fh, "ctf", "type");
 	if(ptr) {
 		gi.dprintf(" Game type : %s\n", ptr);
-		if(strcmp(ptr, "offdef") == 0)
+		if(strcmp(ptr, "balanced") == 0)
 			ctfgame.type = 1;
+		if(strcmp(ptr, "offdef") == 0)
+			ctfgame.type = 2;
 	}
 	ptr = INI_Find(fh, "ctf", "offence");
 	if(ptr) {
@@ -1392,7 +1394,7 @@ qboolean CTFCheckRules(void)
 		return true;
 	}
 
-	if(timelimit->value > 0 && ctfgame.type == 1 && !ctfgame.halftime && level.time == (timelimit->value * 60) / 2) {
+	if(timelimit->value > 0 && ctfgame.type > 0 && !ctfgame.halftime && level.time == (timelimit->value * 60) / 2) {
 		team_round_going = team_round_countdown = team_game_going = 0;
 		MakeAllLivePlayersObservers ();
 		CTFSwapTeams();

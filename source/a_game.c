@@ -274,14 +274,15 @@ void PrintMOTD(edict_t * ent)
 			strcat(msg_buf, "\n");
 			lines++;
 
-			sprintf(msg_buf + strlen(msg_buf), "CTF Type: %s",
-					(ctfgame.type == 0 ? "Normal" : "Off/Def"));
-			if(ctfgame.type == 1) {
-				sprintf(msg_buf + strlen(msg_buf), ", attacker is %s\n",
+			if(ctfgame.type == 0)
+				sprintf(msg_buf + strlen(msg_buf), "CTF Type: Normal\n");
+			else if(ctfgame.type == 1)
+				sprintf(msg_buf + strlen(msg_buf), "CTF Type: Balanced\n");
+			else if(ctfgame.type == 2)
+				sprintf(msg_buf + strlen(msg_buf), "CTF Type: Off/Def, attacker is %s\n",
 					(ctfgame.offence == 0 ? "RED" : "BLUE"));
-			} else {
+			else
 				strcat(msg_buf, "\n");
-			}
 			lines++;
 
 			if(ctfgame.spawn_red > -1 || ctfgame.spawn_blue > -1) {
