@@ -1394,14 +1394,29 @@ qboolean CTFCheckRules(void)
 		return true;
 	}
 
-	if(timelimit->value > 0 && ctfgame.type > 0 && !ctfgame.halftime && level.time == (timelimit->value * 60) / 2) {
-		team_round_going = team_round_countdown = team_game_going = 0;
-		MakeAllLivePlayersObservers ();
-		CTFSwapTeams();
-		CenterPrintAll("The teams have been switched!");
-		gi.sound(&g_edicts[0], CHAN_VOICE | CHAN_NO_PHS_ADD,
-			 gi.soundindex("misc/secret.wav"), 1.0, ATTN_NONE, 0.0);
-		ctfgame.halftime = true;
+	if(timelimit->value > 0 && ctfgame.type > 0) {
+		if(ctfgame.halftime == 0 && level.time == (timelimit->value * 60) / 2 - 60) {
+			CenterPrintAll ("1 MINUTE LEFT...");
+			gi.sound (&g_edicts[0], CHAN_VOICE | CHAN_NO_PHS_ADD,
+				gi.soundindex ("tng/1_minute.wav"), 1.0, ATTN_NONE, 0.0);
+			ctfgame.halftime = 1;
+		}
+
+		if(ctfgame.halftime == 1 && level.time == (timelimit->value * 60) / 2 - 10) {
+			gi.sound (&g_edicts[0], CHAN_VOICE | CHAN_NO_PHS_ADD,
+				gi.soundindex ("world/10_0.wav"), 1.0, ATTN_NONE, 0.0);
+			ctfgame.halftime = 2;
+		}
+
+		if(ctfgame.halftime < 3 && level.time == (timelimit->value * 60) / 2) {
+			team_round_going = team_round_countdown = team_game_going = 0;
+			MakeAllLivePlayersObservers ();
+			CTFSwapTeams();
+			CenterPrintAll("The teams have been switched!");
+			gi.sound(&g_edicts[0], CHAN_VOICE | CHAN_NO_PHS_ADD,
+				 gi.soundindex("misc/secret.wav"), 1.0, ATTN_NONE, 0.0);
+			ctfgame.halftime = 3;
+		}
 	}
 	return false;
 }
