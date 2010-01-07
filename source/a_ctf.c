@@ -124,8 +124,9 @@ qboolean CTFLoadConfig(char *mapname)
 	ptr = INI_Find(fh, "ctf", "offence");
 	if(ptr) {
 		gi.dprintf(" Offence   : %s\n", ptr);
+		ctfgame.offence = TEAM1;
 		if(strcmp(ptr, "blue") == 0)
-			ctfgame.offence = 1;
+			ctfgame.offence = TEAM2;
 	}
 	ptr = INI_Find(fh, "ctf", "grapple");
 	if(ptr) {

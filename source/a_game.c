@@ -280,7 +280,7 @@ void PrintMOTD(edict_t * ent)
 				sprintf(msg_buf + strlen(msg_buf), "CTF Type: Balanced\n");
 			else if(ctfgame.type == 2)
 				sprintf(msg_buf + strlen(msg_buf), "CTF Type: Off/Def, attacker is %s\n",
-					(ctfgame.offence == 0 ? "RED" : "BLUE"));
+					CTFTeamName(ctfgame.offence));
 			else
 				strcat(msg_buf, "\n");
 			lines++;

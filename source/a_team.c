@@ -2121,12 +2121,33 @@ void CheckTeamRules (void)
 				game.clients[i].ctf_uvtime--;
 				if (!game.clients[i].ctf_uvtime && team_round_going)
 				{
-					gi.centerprintf (&g_edicts[i + 1], "ACTION!");
+					if(ctfgame.type == 2) {
+						gi.centerprintf (&g_edicts[i + 1],
+							"ACTION!\n"
+							"\n"
+							"You are %s the %s base!",
+							(game.clients[i].resp.team == ctfgame.offence ?
+								"ATTACKING" : "DEFENDING"),
+							CTFOtherTeamName(ctfgame.offence));
+					} else {
+						gi.centerprintf (&g_edicts[i + 1], "ACTION!");
+					}
 				}
 				else if (game.clients[i].ctf_uvtime % 10 == 0)
 				{
-					gi.centerprintf (&g_edicts[i + 1], "Shield %d",
-					game.clients[i].ctf_uvtime / 10);
+					if(ctfgame.type == 2) {
+						gi.centerprintf (&g_edicts[i + 1],
+							"Shield %d\n"
+							"\n"
+							"You are %s the %s base!",
+							game.clients[i].ctf_uvtime / 10,
+							(game.clients[i].resp.team == ctfgame.offence ?
+								"ATTACKING" : "DEFENDING"),
+							CTFOtherTeamName(ctfgame.offence));
+					} else {
+						gi.centerprintf (&g_edicts[i + 1], "Shield %d",
+							game.clients[i].ctf_uvtime / 10);
+					}
 				}
 			}
 		}
