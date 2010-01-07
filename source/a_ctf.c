@@ -1408,7 +1408,7 @@ qboolean CTFCheckRules(void)
 			ctfgame.halftime = 2;
 		}
 
-		if(ctfgame.halftime < 3 && level.time == (timelimit->value * 60) / 2) {
+		if(ctfgame.halftime < 3 && level.time == (timelimit->value * 60) / 2 + 1) {
 			team_round_going = team_round_countdown = team_game_going = 0;
 			MakeAllLivePlayersObservers ();
 			CTFSwapTeams();
