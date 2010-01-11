@@ -4,20 +4,20 @@
 ;
 
 [ctf]
-; possible types: normal, offdef (swap teams in the middle)
+; possible types: normal, balanced (swap teams in the middle), offdef (like last one, but tell the roles in game)
 type=<type>
-; offencive team name
+; offencive team name if offdef
 offence=<red/blue>
-; defines grapple mode, 0=no grapple, 1=normal, 2=faster
-grapple=<0/1/2>
-; author and comment are shown on map load
+; define grapple mode (forces cvar use_grapple)
+grapple=<no/normal/fast>
+; author and comment are shown in motd
 author=name of the author of this definition filed
 comment=any useful information
 
 ; respawn times in seconds
 [respawn]
-red=15
-blue=5
+red=n
+blue=n
 
 ; same as .flg file
 [flags]
@@ -29,3 +29,8 @@ blue=<x y z>
 [spawns]
 red=<x y z a>,<x y z a>,<z y x a>,<x y z a>
 blue=<x y z a>,<x y z a>,<x y z a>,<x y z a>
+
+; Floating objects in the game that can be used for jumping or blocking ways / buttons
+[objects]
+barrels=<x y z a>,<x y z a>,<z y x a>,<x y z a>
+platforms=<x y z a>,<x y z a>,<x y z a>,<x y z a>
