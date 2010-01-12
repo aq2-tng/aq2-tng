@@ -1083,6 +1083,11 @@ T_Damage (edict_t * targ, edict_t * inflictor, edict_t * attacker, vec3_t dir,
 		}
 	}
 
+	/* l4d: any damage with a knife from a zombie will result in leg damage */
+	if(l4d->value && mod == MOD_KNIFE && attacker->client->resp.team == TEAM1) {
+		targ->client->leg_damage = 1;
+		targ->client->leghits++;
+	}
 
 	// friendly fire avoidance
 	// if enabled you can't hurt teammates (but you can hurt yourself)
