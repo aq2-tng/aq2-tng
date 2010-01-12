@@ -757,6 +757,9 @@ void ClientObituary(edict_t * self, edict_t * inflictor, edict_t * attacker)
 
 	self->client->resp.ctf_capstreak = 0;
 
+	if(l4d->value)
+		L4D_PlayerDie(self);
+
 	if (!deathmatch->value && !coop->value)
 	{
 		sprintf(death_msg, "%s died\n", self->client->pers.netname);
@@ -1765,6 +1768,7 @@ void player_die(edict_t * self, edict_t * inflictor, edict_t * attacker, int dam
 	self->client->pers.num_kills = 0;
 	//TempFile
 	self->deadflag = DEAD_DEAD;
+
 	gi.linkentity(self);
 }
 

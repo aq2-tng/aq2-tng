@@ -11,7 +11,10 @@ void FL_make (edict_t * self)
 {
 	vec3_t start, forward, right, end;
 
-	if (!darkmatch->value)
+	if(l4d->value) {
+	       	if(!L4D_Flashlight(self))
+			return;
+	} else if (!darkmatch->value)
 		return;
 
 	if ((self->deadflag == DEAD_DEAD) || (self->solid == SOLID_NOT))

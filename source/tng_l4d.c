@@ -34,6 +34,18 @@ void L4D_Init()
 void L4D_EquipClient(edict_t *ent)
 {
 	gi.dprintf("L4D_EquipClient called\n");
+
+	if(ent->client->resp.team == TEAM1)
+		/* zombies see a little */
+		L4D_UnicastConfigString(ent, CS_LIGHTS + 0, "c");
+		/* remove mk23, make knife slash only */
+
+	else {
+		/* hunters see nothing */
+		L4D_UnicastConfigString(ent, CS_LIGHTS + 0, "a");
+		/* normal teamplay equip */
+		EquipClient(ent);
+	}
 }
 
 void L4D_JoinTeam(edict_t *ent)
@@ -49,4 +61,21 @@ void L4D_PlayerSpawn(edict_t *ent)
 void L4D_PlayerDie(edict_t *ent)
 {
 	gi.dprintf("L4d_PlayerDie called\n");
+	L4D_UnicastConfigString(ent, CS_LIGHTS + 0, "m");
+}
+
+qboolean L4D_Flashlight(edict_t *ent)
+{
+	gi.dprintf("L4D_Flashlight called\n");
+	if(ent->client->resp.team == TEAM2)
+		return true;
+	return false;
+}
+
+void L4D_UnicastConfigString(edict_t *ent, int index, char *value)
+{
+	gi.WriteByte(109 /* a REALLY magic number, it should be 14, wtf... */);
+	gi.WriteShort(index);
+	gi.WriteString(value);
+	gi.unicast(ent, true);
 }
