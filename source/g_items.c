@@ -329,6 +329,9 @@ qboolean Pickup_ItemPack (edict_t * ent, edict_t * other)
 //zucc pickup function for special items
 qboolean Pickup_Special (edict_t * ent, edict_t * other)
 {
+	if(team_round_going && l4d->value && other->client->resp.team == TEAM1)
+		return false;
+
 	if (other->client->unique_item_total >= unique_items->value)
 		return false;
 

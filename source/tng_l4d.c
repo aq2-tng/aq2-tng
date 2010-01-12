@@ -22,6 +22,11 @@ void L4D_Init()
 		gi.cvar_forceset(use_grapple->name, "0");
 	}
 
+	if(ir->value) {
+		gi.dprintf(" forcing irvision off\n");
+		gi.cvar_forceset(ir->name, "0");
+	}
+
 	if(!teamplay->value) {
 		gi.dprintf(" forcing teamplay on\n");
 		gi.cvar_forceset(teamplay->name, "1");
@@ -41,7 +46,7 @@ void L4D_EquipClient(edict_t *ent)
 		/* zombies see a little */
 		L4D_UnicastConfigString(ent, CS_LIGHTS + 0, "c");
 		/* give double health for our zombies */
-		ent->health = ent->max_health * 2;
+		ent->health = 500;
 		ent->client->pers.health = ent->health;
 		/* remove mk23 rounds */
 		ent->client->mk23_rds = 0;

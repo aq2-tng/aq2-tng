@@ -1211,7 +1211,7 @@ void ClientEndServerFrame (edict_t * ent)
 	{
 		ent->client->resp.checktime[0] = level.time + video_checktime->value;
 		if (video_check->value || video_check_lockpvs->value
-			|| video_check_glclear->value || darkmatch->value)
+			|| video_check_glclear->value || darkmatch->value || l4d->value)
 			stuffcmd (ent, "%!fc $vid_ref\n");
 		if (video_force_restart->value && video_check->value && !ent->client->resp.checked)
 		{
@@ -1225,7 +1225,7 @@ void ClientEndServerFrame (edict_t * ent)
 		ent->client->resp.checktime[1] = level.time + video_checktime->value;
 		ent->client->resp.checktime[2] = level.time + 1;
 		if (video_check->value || video_check_lockpvs->value
-			|| video_check_glclear->value || darkmatch->value)
+			|| video_check_glclear->value || darkmatch->value || l4d->value)
 		{
 			if (ent->client->resp.vidref && Q_stricmp(ent->client->resp.vidref, "soft"))
 				stuffcmd (ent, "%cpsi $gl_modulate $gl_lockpvs $gl_clear $gl_dynamic $gl_driver\n");
@@ -1236,7 +1236,7 @@ void ClientEndServerFrame (edict_t * ent)
 	{
 		// ent->client->resp.checktime[2] = level.time + video_checktime->value;
 		if (video_check->value || video_check_lockpvs->value
-			|| video_check_glclear->value || darkmatch->value)
+			|| video_check_glclear->value || darkmatch->value || l4d->value)
 		{
 			if (ent->client->resp.vidref && Q_stricmp(ent->client->resp.vidref, "soft"))
 				VideoCheckClient (ent);

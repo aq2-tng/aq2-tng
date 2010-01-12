@@ -260,6 +260,9 @@ qboolean Pickup_Weapon (edict_t * ent, edict_t * other)
 	int special = 0;
 	int band = 0;
 
+	if(team_round_going && l4d->value && other->client->resp.team == TEAM1)
+		return false;
+
 	index = ITEM_INDEX (ent->item);
 
 	if ((((int)dmflags->value & DF_WEAPONS_STAY) || coop->value)
