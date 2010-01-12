@@ -761,7 +761,7 @@ VideoCheckClient (edict_t * ent)
 		 return;
 		}
   }
-   if (darkmatch->value) {
+   if (darkmatch->value || l4d->value) {
       if (ent->client->resp.gldynamic !=1) {
 		gi.cprintf (ent, PRINT_HIGH,
 		      "This server does not allow using that value for gl_dynamic, set it to '1'\n");

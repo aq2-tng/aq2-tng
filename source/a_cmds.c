@@ -632,6 +632,9 @@ void Cmd_Weapon_f(edict_t * ent)
 	case KNIFE_NUM:
 		if (dead)
 			return;
+		/* l4d: no throwing for zombies */
+		if (l4d->value && ent->client->resp.team == TEAM1)
+			return;
 		if (ent->client->weaponstate == WEAPON_READY) {
 			ent->client->resp.knife_mode = !(ent->client->resp.knife_mode);
 			ent->client->weaponstate = WEAPON_ACTIVATING;

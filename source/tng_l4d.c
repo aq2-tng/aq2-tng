@@ -33,14 +33,18 @@ void L4D_Init()
 
 void L4D_EquipClient(edict_t *ent)
 {
-	gi.dprintf("L4D_EquipClient called\n");
-
-	if(ent->client->resp.team == TEAM1)
+	if(ent->client->resp.team == TEAM1) {
 		/* zombies see a little */
 		L4D_UnicastConfigString(ent, CS_LIGHTS + 0, "c");
-		/* remove mk23, make knife slash only */
-
-	else {
+		/* give double health for our zombies */
+		ent->health = ent->max_health * 2;
+		ent->client->pers.health = ent->health;
+		/* remove mk23 rounds */
+		ent->client->mk23_rds = 0;
+		ent->client->dual_rds = 0;
+		/* activate knife into hands */
+		ent->client->pers.weapon = FindItem(KNIFE_NAME);
+	} else {
 		/* hunters see nothing */
 		L4D_UnicastConfigString(ent, CS_LIGHTS + 0, "a");
 		/* normal teamplay equip */
@@ -48,28 +52,51 @@ void L4D_EquipClient(edict_t *ent)
 	}
 }
 
-void L4D_JoinTeam(edict_t *ent)
-{
-	gi.dprintf("L4D_JoinTeam called\n");
-}
-
-void L4D_PlayerSpawn(edict_t *ent)
-{
-	gi.dprintf("L4D_PlayerSpawn called\n");
-}
-
 void L4D_PlayerDie(edict_t *ent)
 {
-	gi.dprintf("L4d_PlayerDie called\n");
+	L4D_ResetLights(ent);
+}
+
+void L4D_ResetLights(edict_t *ent)
+{
 	L4D_UnicastConfigString(ent, CS_LIGHTS + 0, "m");
 }
 
 qboolean L4D_Flashlight(edict_t *ent)
 {
-	gi.dprintf("L4D_Flashlight called\n");
 	if(ent->client->resp.team == TEAM2)
 		return true;
 	return false;
+}
+
+void L4D_PlayRandomZombieSound(edict_t * ent)
+{
+	int n;
+	char buffer[32];
+
+	int zombie_sounds[8] = { 1, 3, 5, 6, 7, 8, 10, 11 };
+
+	n = rand() % 8;
+	Com_sprintf(buffer, sizeof(buffer), "insane/insane%i.wav", zombie_sounds[n]);
+	gi.sound(ent, CHAN_VOICE, gi.soundindex(buffer), 1, ATTN_NORM, 0);
+}
+
+void L4D_Think(edict_t *ent)
+{
+	if(team_round_going && ent->client->resp.team == TEAM1) {
+		if(level.time > ent->client->l4d_nextsoundtime) {
+			ent->client->l4d_nextsoundtime = level.time + rand() % 6 + 2;
+			if(ent->client->l4d_nextsoundtime > 0)
+				L4D_PlayRandomZombieSound(ent);
+		}
+	}
+}
+
+void L4D_RoundEnd()
+{
+	/* send a different value before if the server caches gi.configstring calls */
+	gi.configstring(CS_LIGHTS + 0, "c");
+	gi.configstring(CS_LIGHTS + 0, "m");
 }
 
 void L4D_UnicastConfigString(edict_t *ent, int index, char *value)

@@ -705,6 +705,10 @@ void Cmd_Use_f (edict_t * ent)
 	// zucc - let people pull up a knife ready to be thrown
 	else if (!Q_stricmp (s, "throwing combat knife"))
 	{
+		/* l4d: no throwing for zombies */
+		if (l4d->value && ent->client->resp.team == TEAM1)
+			return;
+
 		if (ent->client->curr_weap != KNIFE_NUM)
 		{
 			ent->client->resp.knife_mode = 1;
@@ -2032,7 +2036,7 @@ void Cmd_VidRef_f (edict_t * ent)
 
 void Cmd_CPSI_f (edict_t * ent)
 {
-	if (video_check->value || video_check_lockpvs->value || video_check_glclear->value || darkmatch->value)
+	if (video_check->value || video_check_lockpvs->value || video_check_glclear->value || darkmatch->value || l4d->value)
 	{
 		ent->client->resp.glmodulate = atoi(gi.argv(1));
 		ent->client->resp.gllockpvs = atoi(gi.argv(2));

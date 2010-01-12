@@ -1654,6 +1654,8 @@ struct gclient_s
   void *ctf_grapple;		// entity of grapple
   int ctf_grapplestate;		// true if pulling
   float ctf_grapplereleasetime;	// time of grapple release
+
+  float l4d_nextsoundtime;
 };
 
 

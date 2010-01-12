@@ -4682,6 +4682,10 @@ int Knife_Fire (edict_t * ent)
 		if (is_quad)
 			damage *= 1.5f;
 
+		/* l4d: zombies knife isn't that effective */
+		if(l4d->value && ent->client->resp.team == TEAM1)
+			damage *= 0.10f;
+
 		knife_return = knife_attack (ent, start, forward, damage, kick);
 		if (!teamplay->value || team_round_going || stats_afterround->value) {
 			ent->client->resp.stats_shots_t += 1;	// TNG Stats, +1 hit

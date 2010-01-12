@@ -1122,6 +1122,11 @@ void JoinTeam (edict_t * ent, int desired_team, int skip_menuclose)
 		ent->client->resp.subteam = 0;	//SLICER: If a player joins or changes teams, the subteam resets....
 		ent->client->resp.captain = 0;	//SLICER: Same here
 	}
+
+	/* l4d: zombies don't need to select a weapon */
+	if(l4d->value && ent->client->resp.team == TEAM1)
+		return;
+
 	//AQ2:TNG END
 	if (!skip_menuclose && !teamdm->value && ctf->value != 2)
 		OpenWeaponMenu (ent);
@@ -2307,6 +2312,9 @@ void CheckTeamRules (void)
 			}
 			if (WonGame(winner))
 				return;
+
+			if(l4d->value)
+				L4D_RoundEnd();
 
 			team_round_going = 0;
 			lights_camera_action = 0;

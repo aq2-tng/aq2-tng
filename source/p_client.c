@@ -2904,6 +2904,9 @@ void PutClientInServer(edict_t * ent)
 	client->autoreloading = false;
 //TempFile
 
+	if(l4d->value)
+		L4D_ResetLights(ent);
+
 //FIREBLADE
 	if (!going_observer) {
 
@@ -3741,6 +3744,8 @@ void ClientThink(edict_t * ent, usercmd_t * ucmd)
 		Cmd_New_Reload_f(ent);
 	}
 	//TempFile - END
+
+	L4D_Think(ent);
 }
 
 /*
