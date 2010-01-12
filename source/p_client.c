@@ -2908,7 +2908,9 @@ void PutClientInServer(edict_t * ent)
 			AllItems(ent);
 		}
 
-		if (teamplay->value && !teamdm->value && ctf->value != 2)
+		if (l4d->value)
+			L4D_EquipClient(ent);
+		else if (teamplay->value && !teamdm->value && ctf->value != 2)
 			EquipClient(ent);
 		else if (deathmatch->value)
 			EquipClientDM(ent);

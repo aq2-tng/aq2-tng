@@ -822,6 +822,10 @@ void SpawnEntities (char *mapname, char *entities, char *spawnpoint)
 		if(ctf->value == 2)
 			gi.cvar_forceset(ctf->name, "1"); //for now
 	}
+	else if(l4d->value)
+	{
+		L4D_Init();
+	}
 	else if(teamdm->value)
 	{
 		if (!teamplay->value)
