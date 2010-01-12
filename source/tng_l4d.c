@@ -103,7 +103,7 @@ void L4D_PlayRandomZombieSound(edict_t * ent)
 
 void L4D_Think(edict_t *ent)
 {
-	if(team_round_going && ent->client->resp.team == TEAM1) {
+	if(team_round_going && ent->deadflag == DEAD_NO && ent->client->resp.team == TEAM1) {
 		if(level.time > ent->client->l4d_nextsoundtime) {
 			ent->client->l4d_nextsoundtime = level.time + rand() % 6 + 2;
 			if(ent->client->l4d_nextsoundtime > 0)
