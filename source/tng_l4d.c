@@ -27,6 +27,11 @@ void L4D_Init()
 		gi.cvar_forceset(ir->name, "0");
 	}
 
+	if(ctf->value) {
+		gi.dprintf(" forcing CTF off\n");
+		gi.cvar_forceset(ctf->name, "0");
+	}
+
 	if(!teamplay->value) {
 		gi.dprintf(" forcing teamplay on\n");
 		gi.cvar_forceset(teamplay->name, "1");
@@ -52,6 +57,7 @@ void L4D_EquipClient(edict_t *ent)
 		ent->client->mk23_rds = 0;
 		ent->client->dual_rds = 0;
 		/* activate knife into hands */
+		ent->client->resp.knife_mode = 0;
 		ent->client->pers.weapon = FindItem(KNIFE_NAME);
 	} else {
 		/* hunters see nothing */
@@ -63,6 +69,11 @@ void L4D_EquipClient(edict_t *ent)
 
 void L4D_PlayerDie(edict_t *ent)
 {
+	if (ent->flashlight)
+	{
+		G_FreeEdict (ent->flashlight);
+		ent->flashlight = NULL;
+	}
 	L4D_ResetLights(ent);
 }
 
