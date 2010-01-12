@@ -28,7 +28,11 @@ void L4D_Init()
 	}
 
 	sprintf(teams[TEAM1].name, "The Zombies");
+	sprintf(teams[TEAM1].skin, "male/nut");
+	sprintf(teams[TEAM1].skin_index, "../players/%s_i", teams[TEAM1].skin);
 	sprintf(teams[TEAM2].name, "The Hunters");
+	sprintf(teams[TEAM2].skin, "terror/skyterr");
+	sprintf(teams[TEAM2].skin_index, "../players/%s_i", teams[TEAM2].skin);
 }
 
 void L4D_EquipClient(edict_t *ent)
