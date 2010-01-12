@@ -241,6 +241,11 @@ void Cmd_Teamname_f(edict_t * ent)
 		return;
 	}
 
+	if(l4d->value) {
+		gi.cprintf(ent, PRINT_HIGH, "You cant change teamnames in L4D mode\n");
+		return;
+	}
+
 	if (!ent->client->resp.captain) {
 		gi.cprintf(ent, PRINT_HIGH, "You need to be a captain for that\n");
 		return;
@@ -283,6 +288,11 @@ void Cmd_Teamskin_f(edict_t * ent)
 
 	if (!matchmode->value) {
 		gi.cprintf(ent, PRINT_HIGH, "This command need matchmode to be enabled\n");
+		return;
+	}
+
+	if(l4d->value) {
+		gi.cprintf(ent, PRINT_HIGH, "You cant change teamskin in L4D mode\n");
 		return;
 	}
 
