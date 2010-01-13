@@ -4687,7 +4687,7 @@ int Knife_Fire (edict_t * ent)
 
 		/* l4d: zombies knife isn't that effective */
 		if(l4d->value && ent->client->resp.team == TEAM1)
-			damage *= 0.10f;
+			damage *= 0.20f;
 
 		knife_return = knife_attack (ent, start, forward, damage, kick);
 		if (!teamplay->value || team_round_going || stats_afterround->value) {

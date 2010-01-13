@@ -940,8 +940,11 @@ T_Damage (edict_t * targ, edict_t * inflictor, edict_t * attacker, vec3_t dir,
 							targ->client->pers.netname);
 					}
 					damage_type = LOC_LDAM;
-					targ->client->leg_damage = 1;
-					targ->client->leghits++;
+					// l4d: zombies don't limp
+					if(!l4d->value || attacker->client->resp.team == TEAM1) {
+						targ->client->leg_damage = 1;
+						targ->client->leghits++;
+					}
 					//AQ2:TNG Slicer Last Damage Location
 					attacker->client->resp.last_damaged_part = LOC_LDAM;
 					//AQ2:TNG END

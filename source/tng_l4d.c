@@ -47,21 +47,31 @@ void L4D_Init()
 
 void L4D_EquipClient(edict_t *ent)
 {
+	gitem_t *item;
+
 	if(ent->client->resp.team == TEAM1) {
 		/* zombies see a little */
-		L4D_UnicastConfigString(ent, CS_LIGHTS + 0, "c");
+		L4D_ZombieLights(ent);
 		/* give double health for our zombies */
 		ent->health = 500;
 		ent->client->pers.health = ent->health;
 		/* remove mk23 rounds */
 		ent->client->mk23_rds = 0;
 		ent->client->dual_rds = 0;
-		/* activate knife into hands */
 		ent->client->resp.knife_mode = 0;
-		ent->client->pers.weapon = FindItem(KNIFE_NAME);
+
+		/* remove default mk23 */
+		ent->client->pers.inventory[ITEM_INDEX(GET_ITEM(MK23_NUM))] = 0;
+
+		/* set knife as the default weapon */
+		item = GET_ITEM(KNIFE_NUM);
+		ent->client->pers.selected_item = ITEM_INDEX(item);
+		ent->client->pers.inventory[ent->client->pers.selected_item] = 1;
+		ent->client->pers.weapon = item;
+		ent->client->pers.lastweapon = item;
 	} else {
 		/* hunters see nothing */
-		L4D_UnicastConfigString(ent, CS_LIGHTS + 0, "a");
+		L4D_HumanLights(ent);
 		/* normal teamplay equip */
 		EquipClient(ent);
 	}
@@ -69,6 +79,15 @@ void L4D_EquipClient(edict_t *ent)
 
 void L4D_PlayerDie(edict_t *ent)
 {
+	gitem_t *item;
+
+	/* make sure the dead player has a mk23 */
+	item = GET_ITEM(MK23_NUM);
+	ent->client->pers.selected_item = ITEM_INDEX(item);
+	ent->client->pers.inventory[ent->client->pers.selected_item] = 1;
+	ent->client->pers.weapon = item;
+	ent->client->pers.lastweapon = item;
+
 	if (ent->flashlight)
 	{
 		G_FreeEdict (ent->flashlight);
@@ -77,9 +96,34 @@ void L4D_PlayerDie(edict_t *ent)
 	L4D_ResetLights(ent);
 }
 
+void L4D_HumanLights(edict_t *ent)
+{
+	L4D_UnicastConfigString(ent, CS_LIGHTS + 0, "a");
+}
+
+void L4D_ZombieLights(edict_t *ent)
+{
+	L4D_UnicastConfigString(ent, CS_LIGHTS + 0, "c");
+}
+
 void L4D_ResetLights(edict_t *ent)
 {
 	L4D_UnicastConfigString(ent, CS_LIGHTS + 0, "m");
+}
+
+void L4D_UpdateSpectatorLights(edict_t *ent)
+{
+	gi.dprintf("L4D_UpdateSpectatorLight called: target: %s, mode: %d\n", (ent->client->chase_target != NULL ? "yes" : "no"), ent->client->chase_mode );
+
+	if(ent->client->chase_target) {
+		if(ent->client->chase_target->client->resp.team == TEAM1)
+			L4D_ZombieLights(ent);
+		else
+			L4D_HumanLights(ent);
+		return;
+	}
+
+	L4D_ResetLights(ent);
 }
 
 qboolean L4D_Flashlight(edict_t *ent)
@@ -104,6 +148,7 @@ void L4D_PlayRandomZombieSound(edict_t * ent)
 void L4D_Think(edict_t *ent)
 {
 	if(team_round_going && ent->deadflag == DEAD_NO && ent->client->resp.team == TEAM1) {
+		ent->client->ps.fov = 80;
 		if(level.time > ent->client->l4d_nextsoundtime) {
 			ent->client->l4d_nextsoundtime = level.time + rand() % 6 + 2;
 			if(ent->client->l4d_nextsoundtime > 0)

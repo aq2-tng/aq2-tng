@@ -213,6 +213,9 @@ void ChaseNext (edict_t * ent)
 	while (e != ent->client->chase_target);
 
 	ent->client->chase_target = e;
+
+	if(l4d->value)
+		L4D_UpdateSpectatorLights(ent);
 }
 
 void
@@ -302,4 +305,7 @@ GetChaseTarget (edict_t * ent)
     {
       ent->client->chase_target = e;
     }
+
+  if(l4d->value)
+    L4D_UpdateSpectatorLights(ent);
 }

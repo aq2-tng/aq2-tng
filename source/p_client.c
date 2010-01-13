@@ -3670,6 +3670,8 @@ void ClientThink(edict_t * ent, usercmd_t * ucmd)
 						client->desired_fov = 90;
 						client->ps.fov = 90;
 						client->ps.pmove.pm_flags &= ~PMF_NO_PREDICTION;
+						if(l4d->value)
+							L4D_UpdateSpectatorLights(ent);
 					} else {
 						client->chase_mode = 1;
 						UpdateChaseCam(ent);
