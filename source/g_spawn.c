@@ -1480,7 +1480,7 @@ void SP_worldspawn (edict_t * ent)
 	}
 
 	if(l4d->value)
-		gi.configstring (CS_SKY, "stars_");
+		gi.configstring (CS_SKY, "stars");
 	else if (st.sky && st.sky[0])
 		gi.configstring (CS_SKY, st.sky);
 	else
