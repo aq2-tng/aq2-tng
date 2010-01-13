@@ -1077,7 +1077,9 @@ T_Damage (edict_t * targ, edict_t * inflictor, edict_t * attacker, vec3_t dir,
 
 	if (mod == MOD_FALLING && !(targ->flags & FL_GODMODE) )
 	{
-		if (targ->client && targ->health > 0)
+		if(l4d->value && targ->client->resp.team == TEAM1)
+			gi.cprintf (targ, PRINT_HIGH, "Leg damage, but luckily you are a zombie and don't care!\n");
+		else if (targ->client && targ->health > 0)
 		{
 			gi.cprintf (targ, PRINT_HIGH, "Leg damage\n");
 			targ->client->leg_damage = 1;
