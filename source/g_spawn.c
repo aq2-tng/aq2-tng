@@ -1479,10 +1479,13 @@ void SP_worldspawn (edict_t * ent)
 		strcpy(level.level_name, level.mapname);
 	}
 
-	if (st.sky && st.sky[0])
+	if(l4d->value)
+		gi.configstring (CS_SKY, "stars_");
+	else if (st.sky && st.sky[0])
 		gi.configstring (CS_SKY, st.sky);
 	else
 		gi.configstring (CS_SKY, "unit1_");
+
 
 	gi.configstring(CS_SKYROTATE, va("%f", st.skyrotate));
 
