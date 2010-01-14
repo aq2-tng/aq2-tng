@@ -3623,7 +3623,7 @@ void ClientThink(edict_t * ent, usercmd_t * ucmd)
 
 		//Should move this to ClientBeginServerFrame? -M
 		if (ent->client->jumping && ent->solid != SOLID_NOT &&
-			!lights_camera_action && !ent->client->ctf_uvtime)
+			!lights_camera_action && !ent->client->ctf_uvtime && !l4d->value)
 				kick_attack(ent);
 
 		// touch other objects
