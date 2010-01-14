@@ -1581,7 +1581,11 @@ knife_attack (edict_t * self, vec3_t start, vec3_t aimdir, int damage,
   vec3_t end;
 
 
-  VectorMA (start, 45, aimdir, end);
+  // l4d: zombies have longer range
+  if(l4d->value && self->client->resp.team == TEAM1)
+	  VectorMA (start, 48, aimdir, end);
+  else
+	  VectorMA (start, 45, aimdir, end);
 
   PRETRACE ();
   tr = gi.trace (self->s.origin, NULL, NULL, end, self, MASK_SHOT);
