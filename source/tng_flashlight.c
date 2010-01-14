@@ -11,12 +11,6 @@ void FL_make (edict_t * self)
 {
 	vec3_t start, forward, right, end;
 
-	if(l4d->value) {
-	       	if(!L4D_Flashlight(self))
-			return;
-	} else if (!darkmatch->value)
-		return;
-
 	if ((self->deadflag == DEAD_DEAD) || (self->solid == SOLID_NOT))
 	{
 		if (self->flashlight)
@@ -26,6 +20,21 @@ void FL_make (edict_t * self)
 		}
 		return;
 	}
+
+	// l4d: if zombie tries to toggle, return (btw. this is much easier to read with nesting)
+	if(l4d->value) {
+		if(self->client->resp.team == TEAM1)
+			return;
+		if(!self->flashlight) {
+			if(self->client->l4d_fl_charge < L4D_FL_MIN) {
+				gi.cprintf(self, PRINT_HIGH, "Your flashlight has too little juice in it to light up!\n");
+				return;
+			}
+			self->client->l4d_fl_charge -= L4D_FL_DISCHARGE;
+		}
+	} else if(!darkmatch->value)
+		return;
+
 
 	gi.sound (self, CHAN_VOICE, gi.soundindex ("misc/flashlight.wav"), 1,
 	ATTN_NORM, 0);

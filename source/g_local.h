@@ -1656,6 +1656,8 @@ struct gclient_s
   float ctf_grapplereleasetime;	// time of grapple release
 
   float l4d_nextsoundtime;
+  float l4d_fl_nextthink;
+  float l4d_fl_charge;
 };
 
 

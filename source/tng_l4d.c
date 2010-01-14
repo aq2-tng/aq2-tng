@@ -68,13 +68,20 @@ void L4D_EquipClient(edict_t *ent)
 		ent->client->pers.selected_item = ITEM_INDEX(item);
 		ent->client->pers.inventory[ent->client->pers.selected_item] = 1;
 		ent->client->pers.weapon = item;
+
 		ent->client->pers.lastweapon = item;
 	} else {
 		/* hunters see nothing */
 		L4D_HumanLights(ent);
 		/* normal teamplay equip */
 		EquipClient(ent);
+
+		ent->client->l4d_fl_charge = L4D_FL_FULL;
+		ent->client->l4d_fl_nextthink = level.time + L4D_FL_THINK;
 	}
+
+	/* everyone starts with flashlight off, always */
+	L4D_ToggleFL(ent, false);
 }
 
 void L4D_PlayerDie(edict_t *ent)
@@ -87,12 +94,10 @@ void L4D_PlayerDie(edict_t *ent)
 	ent->client->pers.inventory[ent->client->pers.selected_item] = 1;
 	ent->client->pers.weapon = item;
 	ent->client->pers.lastweapon = item;
+	ent->client->l4d_fl_charge = L4D_FL_FULL;
+	ent->client->l4d_fl_nextthink = 0;
 
-	if (ent->flashlight)
-	{
-		G_FreeEdict (ent->flashlight);
-		ent->flashlight = NULL;
-	}
+	L4D_ToggleFL(ent, false);
 	L4D_ResetLights(ent);
 }
 
@@ -126,13 +131,6 @@ void L4D_UpdateSpectatorLights(edict_t *ent)
 	L4D_ResetLights(ent);
 }
 
-qboolean L4D_Flashlight(edict_t *ent)
-{
-	if(ent->client->resp.team == TEAM2)
-		return true;
-	return false;
-}
-
 void L4D_PlayRandomZombieSound(edict_t * ent)
 {
 	int n;
@@ -155,6 +153,53 @@ void L4D_Think(edict_t *ent)
 				L4D_PlayRandomZombieSound(ent);
 		}
 	}
+
+	// flashlight think
+	if(!team_round_going)
+		ent->client->l4d_fl_nextthink = level.time + L4D_FL_THINK;
+	else if(ent->client->resp.team == TEAM2 && ent->client->l4d_fl_nextthink < level.time) {
+		if(ent->flashlight) {
+			// discharging
+			if(ent->client->l4d_fl_charge > L4D_FL_EMPTY) {
+				ent->client->l4d_fl_charge -= L4D_FL_DISCHARGE;
+				if(ent->client->l4d_fl_charge < L4D_FL_EMPTY)
+					ent->client->l4d_fl_charge = L4D_FL_EMPTY;
+				ent->client->l4d_fl_nextthink = level.time + L4D_FL_THINK;
+				gi.cprintf(ent, PRINT_HIGH, "Flashlight: %d/100\n",
+						(int)(ent->client->l4d_fl_charge / L4D_FL_FULL * 100));
+			}
+
+			if(ent->client->l4d_fl_charge <= L4D_FL_EMPTY) {
+				L4D_ToggleFL(ent, false);
+				gi.cprintf(ent, PRINT_HIGH, "Flashlight empty! Charging...\n", ent->client->l4d_fl_charge);
+			}
+		} else {
+			// charging
+			if(ent->client->l4d_fl_charge < L4D_FL_FULL) {
+				ent->client->l4d_fl_charge += L4D_FL_CHARGE;
+				if(ent->client->l4d_fl_charge > L4D_FL_FULL)
+					ent->client->l4d_fl_charge = L4D_FL_FULL;
+				ent->client->l4d_fl_nextthink = level.time + L4D_FL_THINK;
+				gi.cprintf(ent, PRINT_HIGH, "Flashlight: %d/100\n",
+						(int)(ent->client->l4d_fl_charge / L4D_FL_FULL * 100));
+			}
+		}
+	}
+}
+
+void L4D_ToggleFL(edict_t *ent, qboolean on)
+{
+	if (!on)
+	{
+	       	if(ent->flashlight)
+		{
+			G_FreeEdict (ent->flashlight);
+			ent->flashlight = NULL;
+		}
+		return;
+	}
+
+	FL_make(ent);
 }
 
 void L4D_RoundEnd()
