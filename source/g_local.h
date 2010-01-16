@@ -286,6 +286,7 @@
 #include "tng_stats.h"		// Adding TNG Stats File
 #include	"tng_irc.h"
 #include	"tng_ini.h"
+#include	"tng_blox.h"
 #include	"g_grapple.h"
 #define		getEnt(entnum)	(edict_t *)((char *)globals.edicts + (globals.edict_size * entnum))	//AQ:TNG Slicer - This was missing
 #define		GAMEVERSION			"action"	// the "gameversion" client command will print this plus compile date
@@ -1819,6 +1820,8 @@ struct edict_s
   edict_t *lasersight;
   // TNG Flashlight
   edict_t *flashlight;
+  // TNG blox
+  edict_t *blox;
   // action
   qboolean splatted;
   int classnum;

@@ -2016,6 +2016,10 @@ void ClientCommand (edict_t * ent)
 	{
 		Cmd_ResetScores_f(ent);
 	}
+	else if (Q_stricmp(cmd, "blox") == 0)
+	{
+		Cmd_Blox_f(ent);
+	}
 	else				// anything that doesn't match a command will be a chat
 		Cmd_Say_f (ent, false, true, false);
 }
