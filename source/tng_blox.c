@@ -6,8 +6,6 @@ void Blox_Create(edict_t * self)
 {
 	vec3_t start, forward, right, end;
 
-	//AngleVectors(self->client->v_angle, forward, right, NULL);
-	//VectorSet(end, 100, 0, 0);
 	G_ProjectSource(self->s.origin, end, forward, right, start);
 	self->blox = G_Spawn();
 	self->blox->owner = self;
@@ -23,7 +21,6 @@ void Blox_Create(edict_t * self)
 	VectorSet (self->blox->maxs, 32, 32, -16);
 
 	gi.setmodel(self->blox, self->blox->model);
-	//pos[2] -= 24.0;
 }
 
 void Blox_Cancel(edict_t * self)
@@ -35,9 +32,11 @@ void Blox_Cancel(edict_t * self)
 void Blox_Lock(edict_t * self)
 {
 	if(self->blox) {
-		self->blox->classname = "blox_solid";
+		self->blox->movetype = MOVETYPE_NONE;
 		self->blox->solid = SOLID_BBOX;
+		self->blox->classname = "blox_solid";
 		self->blox->s.renderfx = 0;
+		self->blox->think = G_FreeEdict;
 		self->blox->nextthink = 0;
 		// is it ok to just leave the entity in the world?
 		self->blox = NULL;
