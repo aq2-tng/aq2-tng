@@ -63,11 +63,6 @@ void Blox_MakeActive(edict_t * ent)
 	tr = gi.trace(start, NULL, NULL, end, ent, CONTENTS_MONSTER);
 	POSTTRACE ();
 
-	if (tr.fraction < 1 && tr.ent && tr.ent->client)
-	{
-		return;
-	}
-
 	if(tr.ent->solid == SOLID_BBOX && strcmp(tr.ent->classname , "blox_platform") == 0) {
 		if(ent->blox && ent->blox != tr.ent) {
 			ent->blox->think = Blox_SolidThink;
@@ -86,7 +81,7 @@ void Blox_MakeActive(edict_t * ent)
 void Blox_Create(edict_t * self)
 {
 	if(self->blox)
-		Blox_Lock(self);
+		return;
 
 	self->blox = Blox_CreatePlatform(false);
 	self->blox->owner = self;
