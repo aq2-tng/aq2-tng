@@ -282,7 +282,7 @@ void ACEAI_Think (edict_t *self)
 	//debug_printf("State: %d\n",self->state);
 
 	// set approximate ping
-	ucmd.msec = 15 + floor (random () * 25) + 1;
+	ucmd.msec = 75 + floor (random () * 25) + 1;
 
 	// show random ping values in scoreboard
 	self->client->ping = ucmd.msec;
