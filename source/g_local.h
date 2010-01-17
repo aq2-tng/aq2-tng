@@ -287,6 +287,7 @@
 #include	"tng_irc.h"
 #include	"tng_ini.h"
 #include	"g_grapple.h"
+#include	"acesrc/botnav.h"
 #define		getEnt(entnum)	(edict_t *)((char *)globals.edicts + (globals.edict_size * entnum))	//AQ:TNG Slicer - This was missing
 #define		GAMEVERSION			"action"	// the "gameversion" client command will print this plus compile date
 
@@ -827,6 +828,7 @@ extern cvar_t *skipmotd;
 extern cvar_t *nohud;
 extern cvar_t *noscore;
 extern cvar_t *actionversion;
+extern cvar_t *ltk_jumpy;
 extern cvar_t *use_voice;
 extern cvar_t *ppl_idletime;
 extern cvar_t *use_tourney;
@@ -1056,7 +1058,8 @@ void G_TouchSolids (edict_t * ent);
 
 char *G_CopyString (char *in);
 
-//float *tv (float x, float y, float z);
+// FIXME: re-enabled for bots
+float *tv (float x, float y, float z);
 char *vtos (vec3_t v);
 
 float vectoyaw (vec3_t vec);
@@ -1753,10 +1756,16 @@ struct edict_s
   float last_move_time;
 
   int health;
+  int old_health;
   int max_health;
   int gib_health;
   int deadflag;
   qboolean show_hostile;
+
+  // BOTS
+  int recheck_timeout;
+  int jumphack_timeout;
+  //
 
   float powerarmor_time;
 
@@ -1825,6 +1834,62 @@ struct edict_s
   int typeNum;
   // PG BUND
   xmenu_t *x_menu;
+
+// ACEBOT_ADD 
+	qboolean is_bot; 
+	qboolean is_jumping; 
+	qboolean is_triggering; 
+	 
+	// For movement 
+	vec3_t move_vector;  
+	float next_move_time; 
+	float wander_timeout; 
+	float suicide_timeout; 
+ 
+//AQ2 ADD 
+	// Door and pause time stuff. 
+	float	last_door_time;	// Used to open doors without immediately closing them again! 
+	float	teamPauseTime;	// To stop the centipede effect and seperate the team out a little 
+	qboolean	teamReportedIn;	// Have we reported in yet? 
+	float	lastRadioTime;	// Don't use the radio too often 
+	// Path to follow 
+	ltklist_t	pathList;	// Single linked list of node numbers 
+	float	antLastCallTime;	// Check for calling complex pathsearcher 
+	// Who killed me? 
+	edict_t	*lastkilledby;	// Set in ClientObituary... 
+//AQ2 END 
+ 
+	// For node code 
+	int current_node; // current node 
+	int goal_node; // current goal node 
+	int next_node; // the node that will take us one step closer to our goal 
+	int node_timeout; 
+	int last_node; 
+	int tries; 
+	 
+	// AI related stuff 
+	int weaponchoice; 
+	int equipchoice; 
+	float	fLastZoomTime;	// Time we last changed sniper zoom mode 
+ 
+	// Enemy related 
+	qboolean	killchat;	// Have we reported an enemy death and taunted him 
+	vec3_t		lastSeen; 
+	qboolean	cansee; 
+ 
+	// States 
+	int state;	//ACE only 
+	int botState; 
+	int nextState; 
+	int secondaryState; 
+ 
+	// Movement 
+	int	bot_strafe; 
+	int bot_speed; 
+	qboolean	bCrawl; 
+	qboolean	bLastJump; 
+	vec3_t	lastPosition; 
+// ACEBOT_END 
 };
 
 typedef struct
@@ -2080,3 +2145,4 @@ extern int pause_time;
 #define PARSE_BUFSIZE 256
 
 #include "a_ctf.h"
+#include "acesrc/acebot.h"

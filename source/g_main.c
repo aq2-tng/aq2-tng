@@ -430,6 +430,13 @@ cvar_t *radio_repeat_time;
 
 cvar_t *use_classic;		// Used to reset spread/gren strength to 1.52
 
+// BOTS
+cvar_t *ltk_jumpy;
+cvar_t *ltk_skill;
+cvar_t *ltk_showpath;
+cvar_t *ltk_chat;
+cvar_t *ltk_routing;
+
 int pause_time = 0;
 
 void SpawnEntities (char *mapname, char *entities, char *spawnpoint);

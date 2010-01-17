@@ -262,7 +262,8 @@ This is just a convenience function
 for making temporary vectors for function calls
 =============
 */
-/*float *tv (float x, float y, float z)
+// FIXME: re-enabled for bots
+float *tv (float x, float y, float z)
 {
 	static int index;
 	static vec3_t vecs[8];
@@ -278,7 +279,7 @@ for making temporary vectors for function calls
 	v[2] = z;
 
 	return v;
-}*/
+}
 
 
 /*

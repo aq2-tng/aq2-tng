@@ -650,6 +650,13 @@ void InitGame (void)
 	flood_persecond = gi.cvar ("flood_persecond", "4", 0);
 	flood_waitdelay = gi.cvar ("flood_waitdelay", "10", 0);
 
+	// bots
+	ltk_jumpy = gi.cvar("ltk_jumpy", "1", CVAR_SERVERINFO);
+	ltk_skill = gi.cvar( "ltk_skill", "5", 0);
+	ltk_showpath = gi.cvar( "ltk_showpath", "0", 0);
+	ltk_chat = gi.cvar( "ltk_chat", "1", 0);
+	ltk_routing = gi.cvar( "ltk_routing", "0", 0);
+
 	// items
 	InitItems ();
 
