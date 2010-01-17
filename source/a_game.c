@@ -533,6 +533,10 @@ void stuffcmd(edict_t * ent, char *c)
 void unicastSound(edict_t *ent, int soundIndex, float volume)
 {
     int mask = MASK_ENTITY_CHANNEL;
+
+    // bots don't listen
+    if(ent->is_bot)
+	    return;
  
     if (volume != 1.0)
         mask |= MASK_VOLUME;
