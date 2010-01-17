@@ -182,7 +182,7 @@ void ACEAI_Think (edict_t *self)
 	// Look for enemies
 	if( (see_enemies) && 
 		(self->client->weaponstate != WEAPON_RELOADING) && 
-		((teamplay->value) && (lights_camera_action <= 1)) )
+                (((teamplay->value) && (lights_camera_action <= 1)) || !teamplay->value))
 		//&& (self->state != STATE_FLEE) )
 	{
 		// Moved to the attack function
