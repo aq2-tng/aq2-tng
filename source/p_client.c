@@ -3020,8 +3020,6 @@ void ClientBeginDeathmatch(edict_t * ent)
 //FIREBLADE
 
 // ACEBOT_ADD
-	safe_centerprintf(ent,"\n======================================\nL.T.K. AQ2 Mod\nmodified by [TNC]Werewolf\n\n'set ltk_routing 1' for making route files\n'sv savenodes' saves your route into a file\n'sv addbot' to add a new bot.\n'sv removebot <name>' to remove bot.\n======================================\n\n");
-	
 	// If the map changes on us, init and reload the nodes
 	if(strcmp(level.mapname,current_map))
 	{
