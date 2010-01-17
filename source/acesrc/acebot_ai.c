@@ -57,13 +57,6 @@
 #include "acebot.h"
 #include "botchat.h"
 
-#ifdef CGF_FOG
-//
-// WARNING:  fog support disabled by default... [ rhess@engr.sgi.com ]
-//
-#include "cgf_sfx_fog.h"
-#endif
-
 void	ACEAI_Cmd_Choose( edict_t *ent, char *s);
 void	ACEMV_ChangeBotAngle (edict_t *ent);
 //RiEvEr AQ2 Radio use
@@ -415,21 +408,6 @@ void ACEAI_PickLongRangeGoal(edict_t *self)
 //Disabled by Werewolf
 //			if( players[i]->light_level < 30)
 //				continue;
-#ifdef CGF_FOG
-			// Check for FOG!
-			if( CGF_SFX_IsFogEnabled() )
-			{
-				vec3_t	v;
-				float	range;
-				
-				// Get distance to enemy
-				VectorSubtract (self->s.origin, players[i]->s.origin, v);
-				range = VectorLength(v);
-				// If fog index is < 0.1 we can't see him
-				if( CGF_SFX_GetFogForDistance(range) < 0.1)
-					continue;
-			}
-#endif
 		}
 
 		node = ACEND_FindClosestReachableNode(players[i],NODE_DENSITY,NODE_ALL);
@@ -672,21 +650,6 @@ qboolean ACEAI_FindEnemy(edict_t *self, int *total)
 		{
 			if( players[i]->light_level < 30)
 				continue;
-#ifdef CGF_FOG
-			// Check for FOG!
-			if( CGF_SFX_IsFogEnabled() )
-			{
-				vec3_t	v;
-				float	range;
-				
-				// Get distance to enemy
-				VectorSubtract (self->s.origin, players[i]->s.origin, v);
-				range = VectorLength(v);
-				// If fog index is < 0.1 we can't see him
-				if( CGF_SFX_GetFogForDistance(range) < 0.1)
-					continue;
-			}
-#endif
 		}
 
 /*		if(ctf->value && 

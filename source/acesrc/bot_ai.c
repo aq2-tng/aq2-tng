@@ -220,21 +220,6 @@ void BOTAI_PickLongRangeGoal(edict_t *bot, int	iType)
 //Disabled by Werewolf
 //				if( players[i]->light_level < 30)
 //					continue;
-#ifdef CGF_FOG
-				// Check for FOG!
-				if( CGF_SFX_IsFogEnabled() )
-				{
-					vec3_t	v;
-					float	fRange;
-					
-					// Get distance to enemy
-					VectorSubtract (bot->s.origin, players[i]->s.origin, v);
-					fRange = VectorLength(v);
-					// If fog index is < 0.1 we can't see him
-					if( CGF_SFX_GetFogForDistance(fRange) < 0.1)
-						continue;
-				}
-#endif
 			}
 
 			node = ACEND_FindClosestReachableNode(players[i],NODE_DENSITY,NODE_ALL);
@@ -329,16 +314,6 @@ qboolean BOTAI_VisibleEnemy( edict_t *bot )
 		{
 			if( players[i]->light_level < 30)
 				continue;
-#ifdef CGF_FOG
-			// Check for FOG!
-			if( CGF_SFX_IsFogEnabled() )
-			{
-				
-				// If fog index is < 0.1 we can't see him
-				if( CGF_SFX_GetFogForDistance(fRange) < 0.1)
-					continue;
-			}
-#endif
 		}
 
 		if(fRange < fBestDist)
