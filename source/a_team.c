@@ -1808,7 +1808,12 @@ void SpawnPlayers ()
 			ent->client->resp.last_damaged_part = 0;
 			ent->client->resp.last_damaged_players[0] = '\0';
 			//AQ2:TNG END
-			PutClientInServer (ent);
+// ACEBOT CHANGE
+			if( !Q_stricmp(ent->classname, "bot") )
+				ACESP_PutClientInServer( ent, true,ent->client->resp.team);
+			else
+				PutClientInServer(ent);
+// ACEBOT END
 			AddToTransparentList (ent);
 		}
 	}

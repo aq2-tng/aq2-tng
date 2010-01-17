@@ -541,6 +541,48 @@ void ServerCommand (void)
 		SVCmd_ResetScores_f ();
 	else if (Q_stricmp (cmd, "softquit") == 0)
 		SVCmd_SoftQuit_f ();
+	// ACEBOT_ADD
+	else if(Q_stricmp (cmd, "botdebug") == 0)
+	{
+ 		if (strcmp(gi.argv(2),"on")==0)
+		{
+			safe_bprintf (PRINT_MEDIUM, "BOT: Debug Mode On\n");
+			debug_mode = true;
+		}
+		else
+		{
+			safe_bprintf (PRINT_MEDIUM, "BOT: Debug Mode Off\n");
+			debug_mode = false;
+		}
+	}
+	//RiEvEr - new node visibility method
+	else if(Q_stricmp (cmd, "shownodes") == 0)
+	{
+ 		if (strcmp(gi.argv(2),"on")==0)
+		{
+			safe_bprintf (PRINT_MEDIUM, "BOT: ShowNodes On\n");
+			shownodes_mode = true;
+		}
+		else
+		{
+			safe_bprintf (PRINT_MEDIUM, "BOT: ShowNodes Off\n");
+			shownodes_mode = false;
+		}
+	}
+	else if (Q_stricmp (cmd, "addbot") == 0)
+	{ 
+		if(teamplay->value) // name, skin, team
+			ACESP_SpawnBot (gi.argv(2), gi.argv(3), gi.argv(4), NULL);
+		else // name, skin
+			ACESP_SpawnBot (NULL, gi.argv(2), gi.argv(3), NULL);
+	}	
+	// removebot
+	else if(Q_stricmp (cmd, "removebot") == 0)
+		ACESP_RemoveBot(gi.argv(2));
+	// Node saving
+	else if(Q_stricmp (cmd, "savenodes") == 0)
+		ACEND_SaveNodes();	
+	// ACEBOT_END
 	else
 		gi.cprintf (NULL, PRINT_HIGH, "Unknown server command \"%s\"\n", cmd);
 }

@@ -2290,6 +2290,13 @@ void CleanBodies()
 void respawn(edict_t * self)
 {
 	if (deathmatch->value || coop->value) {
+// ACEBOT_ADD special respawning code
+		if (self->is_bot)
+		{
+			ACESP_Respawn (self);
+			return;
+		}
+// ACEBOT_END
 //FIREBLADE
 		if (self->solid != SOLID_NOT || self->deadflag == DEAD_DEAD)
 //FIREBLADE
@@ -2771,6 +2778,13 @@ void PutClientInServer(edict_t * ent)
 	ent->flags &= ~FL_NO_KNOCKBACK;
 	ent->svflags &= ~SVF_DEADMONSTER;
 
+// ACEBOT_ADD
+	ent->is_bot = false;
+	ent->last_node = -1;
+	ent->is_jumping = false;
+	ent->is_triggering = false;
+// ACEBOT_END
+
 //FIREBLADE
 	if (!teamplay->value || ent->client->resp.team != NOTEAM) {
 		ent->flags &= ~FL_GODMODE;
@@ -2934,6 +2948,10 @@ void PutClientInServer(edict_t * ent)
 	}
 }
 
+// ACEBOT_ADD
+char current_map[55];
+// ACEBOT_END
+
 /*
 =====================
 ClientBeginDeathmatch
@@ -2958,6 +2976,10 @@ void ClientBeginDeathmatch(edict_t * ent)
 	TourneyNewPlayer(ent);
 	vInitClient(ent);
 //PG BUND - END
+
+// ACEBOT_ADD
+	ACEIT_PlayerAdded(ent);
+// ACEBOT_END
 
 	// locate ent at a spawn point
 	PutClientInServer(ent);
@@ -2996,6 +3018,27 @@ void ClientBeginDeathmatch(edict_t * ent)
 		PrintMOTD(ent);
 	ent->client->resp.motd_refreshes = 1;
 //FIREBLADE
+
+// ACEBOT_ADD
+	safe_centerprintf(ent,"\n======================================\nL.T.K. AQ2 Mod\nmodified by [TNC]Werewolf\n\n'set ltk_routing 1' for making route files\n'sv savenodes' saves your route into a file\n'sv addbot' to add a new bot.\n'sv removebot <name>' to remove bot.\n======================================\n\n");
+	
+	// If the map changes on us, init and reload the nodes
+	if(strcmp(level.mapname,current_map))
+	{
+		
+		ACEND_InitNodes();
+		ACEND_LoadNodes();
+//		ACESP_LoadBots();
+		ACESP_LoadBotConfig();
+/*		if ((minplayers->value) && (!ent->is_bot) && (maxclients->value > 1))
+		{
+			for (tempi=0; tempi<minplayers->value; tempi++)
+				ACESP_SpawnBot( (int)rand() % 1, NULL, NULL, NULL);
+		}
+*/		strcpy(current_map,level.mapname);
+	}
+
+// ACEBOT_END
 
 	//AQ2:TNG - Slicer: Set time to check clients
 	ent->client->resp.checktime[0] = level.time + check_time->value;
@@ -3306,6 +3349,10 @@ void ClientDisconnect(edict_t * ent)
 
 	gi.bprintf(PRINT_HIGH, "%s disconnected\n", ent->client->pers.netname);
 	IRC_printf(IRC_T_SERVER, "%n disconnected", ent->client->pers.netname);
+
+// ACEBOT_ADD
+	ACEIT_PlayerRemoved(ent);
+// ACEBOT_END
 
 	// go clear any clients that have this guy as their attacker
 	for (i = 1; i <= maxclients->value; i++) {

@@ -243,6 +243,11 @@ void DeathmatchScoreboardMessage (edict_t * ent, edict_t * killer)
 	edict_t *cl_ent;
 	char *tag;
 
+// ACEBOT_ADD
+	if (ent->is_bot)
+		return;
+// ACEBOT_END
+
 	//FIREBLADE
 	if (teamplay->value && !use_tourney->value)
 	{

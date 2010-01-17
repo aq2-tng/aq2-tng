@@ -1105,6 +1105,11 @@ G_RunEntity (edict_t * ent)
 
   switch ((int) ent->movetype)
     {
+// ACEBOT_ADD
+    case MOVETYPE_WALK:
+      SV_RunThink (ent);
+      break;
+// ACEBOT_END
     case MOVETYPE_PUSH:
     case MOVETYPE_STOP:
       SV_Physics_Pusher (ent);

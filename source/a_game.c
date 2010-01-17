@@ -521,6 +521,10 @@ void PrintMOTD(edict_t * ent)
 // stuffcmd: forces a player to execute a command.
 void stuffcmd(edict_t * ent, char *c)
 {
+// ACEBOT ADD
+	if( !Q_stricmp( ent->classname,"bot"))
+		return;
+// ACEBOT END
 	gi.WriteByte(svc_stufftext);
 	gi.WriteString(c);
 	gi.unicast(ent, true);

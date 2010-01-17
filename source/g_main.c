@@ -471,6 +471,9 @@ void ShutdownGame (void)
 	gi.dprintf ("==== ShutdownGame ====\n");
 	IRC_printf (IRC_T_SERVER, "==== ShutdownGame ====");
 	IRC_exit ();
+// ACEBOT ADD
+	ACECM_Store();
+// ACEBOT END
 	//PG BUND
 	vExitGame ();
 	gi.FreeTags (TAG_LEVEL);
@@ -594,6 +597,9 @@ void EndDMLevel (void)
 	struct tm *now;
 	time_t tnow;
 
+// ACEBOT ADD
+	ACECM_Store();
+// ACEBOT END
 
 	tnow = time ((time_t *) 0);
 	now = localtime (&tnow);
