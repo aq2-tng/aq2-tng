@@ -2021,6 +2021,15 @@ void ClientCommand (edict_t * ent)
 	{
 		Cmd_ResetScores_f(ent);
 	}
+        else if (Q_stricmp (cmd, "placenode") == 0)
+	{
+                Cmd_Placenode_f (ent);
+		return;
+	}
+	else if (Q_stricmp (cmd, "placetrigger") == 0)
+	{
+		ent->is_triggering = 1;
+	}
 	else				// anything that doesn't match a command will be a chat
 		Cmd_Say_f (ent, false, true, false);
 }
