@@ -546,12 +546,12 @@ void ServerCommand (void)
 	{
  		if (strcmp(gi.argv(2),"on")==0)
 		{
-			safe_bprintf (PRINT_MEDIUM, "BOT: Debug Mode On\n");
+			gi.bprintf (PRINT_MEDIUM, "BOT: Debug Mode On\n");
 			debug_mode = true;
 		}
 		else
 		{
-			safe_bprintf (PRINT_MEDIUM, "BOT: Debug Mode Off\n");
+			gi.bprintf (PRINT_MEDIUM, "BOT: Debug Mode Off\n");
 			debug_mode = false;
 		}
 	}
@@ -560,12 +560,12 @@ void ServerCommand (void)
 	{
  		if (strcmp(gi.argv(2),"on")==0)
 		{
-			safe_bprintf (PRINT_MEDIUM, "BOT: ShowNodes On\n");
+			gi.bprintf (PRINT_MEDIUM, "BOT: ShowNodes On\n");
 			shownodes_mode = true;
 		}
 		else
 		{
-			safe_bprintf (PRINT_MEDIUM, "BOT: ShowNodes Off\n");
+			gi.bprintf (PRINT_MEDIUM, "BOT: ShowNodes Off\n");
 			shownodes_mode = false;
 		}
 	}

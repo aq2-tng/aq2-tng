@@ -1583,6 +1583,11 @@ void ClientCommand (edict_t * ent)
 	// if (level.intermissiontime)
 	// return;
 
+// ACEBOT_ADD
+	if(ACECM_Commands(ent))
+		return;
+// ACEBOT_END
+
 	cmd = gi.argv (0);
 
 	if (Q_stricmp (cmd, "players") == 0)

@@ -493,6 +493,14 @@ game_export_t *GetGameAPI (game_import_t * import)
 {
 	gi = *import;
 
+	/* proxy all calls trough the bot safe functions */
+	real_cprintf = gi.cprintf;
+	real_bprintf = gi.bprintf;
+	real_centerprintf = gi.centerprintf;
+	gi.cprintf = safe_cprintf;
+	gi.bprintf = safe_bprintf;
+	gi.centerprintf = safe_centerprintf;
+
 	globals.apiversion = GAME_API_VERSION;
 	globals.Init = InitGame;
 	globals.Shutdown = ShutdownGame;
@@ -1016,7 +1024,9 @@ void G_RunFrame (void)
 				// TNG Stats End
 
 				ClientBeginServerFrame (ent);
-				continue;
+				// allow bots to think
+				if(!ent->is_bot)
+					continue;
 			}
 
 			G_RunEntity (ent);

@@ -735,7 +735,7 @@ void PrintDeathMessage(char *msg, edict_t * gibee)
 
 	for (j = 1; j <= game.maxclients; j++) {
 		other = &g_edicts[j];
-		if (!other->inuse || !other->client)
+		if (!other->inuse || !other->client || other->is_bot)
 			continue;
 
 		// only print if he's NOT gibee, NOT attacker, and NOT alive! -TempFile
@@ -3271,7 +3271,8 @@ qboolean ClientConnect(edict_t * ent, char *userinfo)
 	ResetKills(ent);
 
 	// We're not going to attempt to support reconnection...
-	if (ent->inuse == true) {
+	// FIXME: why is this here and what does it do? doesn't work with bots! -hifi
+	if (ent->inuse == true && ent->is_bot == false) {
 		ClientDisconnect(ent);
 		ent->inuse = false;
 	}
@@ -3824,16 +3825,31 @@ void ClientBeginServerFrame(edict_t * ent)
 			{
 				if (ent->movetype != MOVETYPE_NOCLIP)	// have we already done this?  see above...
 				{
-					CopyToBodyQue(ent);
-					ent->solid = SOLID_NOT;
-					ent->svflags |= SVF_NOCLIENT;
-					ent->movetype = MOVETYPE_NOCLIP;
-					ent->client->pers.health = 100;
-					ent->health = 100;
-					ent->deadflag = DEAD_NO;
-					gi.linkentity(ent);
-					gi.bprintf(PRINT_HIGH, "%s became a spectator\n", ent->client->pers.netname);
-					IRC_printf(IRC_T_SERVER, "%n became a spectator", ent->client->pers.netname);
+					if(!ent->is_bot)
+					{
+						CopyToBodyQue(ent);
+						ent->solid = SOLID_NOT;
+						ent->svflags |= SVF_NOCLIENT;
+						ent->movetype = MOVETYPE_NOCLIP;
+						ent->client->pers.health = 100;
+						ent->health = 100;
+						ent->deadflag = DEAD_NO;
+						gi.linkentity(ent);
+						gi.bprintf(PRINT_HIGH, "%s became a spectator\n", ent->client->pers.netname);
+						IRC_printf(IRC_T_SERVER, "%n became a spectator", ent->client->pers.netname);
+					}
+					else
+					{
+						ent->client->chase_mode = 0;
+						ent->client->chase_target = NULL;
+						ent->client->desired_fov = 90;
+						ent->client->ps.fov = 90; // FB 5/31/99 added
+						ent->client->ps.pmove.pm_flags &= ~PMF_NO_PREDICTION;
+						ent->solid = SOLID_BBOX;
+						gi.linkentity(ent);
+						//safe_bprintf(PRINT_HIGH, "%s rejoined the game\n", ent->client->pers.netname);
+						respawn(ent);
+					}
 				}
 			}
 		} else {

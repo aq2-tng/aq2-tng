@@ -147,7 +147,7 @@ void safe_cprintf (edict_t *ent, int printlevel, char *fmt, ...)
 	len = vsprintf (bigbuffer,fmt,argptr);
 	va_end (argptr);
 
-	gi.cprintf(ent, printlevel, bigbuffer);
+	real_cprintf(ent, printlevel, bigbuffer);
 	
 }
 
@@ -167,7 +167,7 @@ void safe_centerprintf (edict_t *ent, char *fmt, ...)
 	len = vsprintf (bigbuffer,fmt,argptr);
 	va_end (argptr);
 	
-	gi.centerprintf(ent, bigbuffer);
+	real_centerprintf(ent, bigbuffer);
 	
 }
 
@@ -195,7 +195,7 @@ void safe_bprintf (int printlevel, char *fmt, ...)
 		if (!cl_ent->inuse || cl_ent->is_bot)
 			continue;
 
-		gi.cprintf(cl_ent, printlevel, bigbuffer);
+		real_cprintf(cl_ent, printlevel, bigbuffer);
 	}
 }
 

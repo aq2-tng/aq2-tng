@@ -93,6 +93,12 @@ struct edict_s
 
 //===============================================================
 
+// making real copies for bot compatibility
+void (*real_bprintf) (int printlevel, char *fmt, ...);
+void (*real_dprintf) (char *fmt, ...);
+void (*real_cprintf) (edict_t * ent, int printlevel, char *fmt, ...);
+void (*real_centerprintf) (edict_t * ent, char *fmt, ...);
+
 //
 // functions provided by the main engine
 //
