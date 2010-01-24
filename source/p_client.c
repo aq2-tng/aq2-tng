@@ -1766,6 +1766,10 @@ void player_die(edict_t * self, edict_t * inflictor, edict_t * attacker, int dam
 	//TempFile
 	self->deadflag = DEAD_DEAD;
 	gi.linkentity(self);
+
+	// in ctf, when a player dies check if he should be moved to the other team
+	if(ctf->value)
+		CheckForUnevenTeams(self);
 }
 
 //=======================================================================
@@ -3343,10 +3347,6 @@ void ClientDisconnect(edict_t * ent)
 
 	playernum = ent - g_edicts - 1;
 	gi.configstring(CS_PLAYERSKINS + playernum, "");
-
-	if (teamplay->value && !use_tourney->value) {
-		CheckForUnevenTeams();
-	}
 }
 
 void CreateGhost(edict_t * ent)

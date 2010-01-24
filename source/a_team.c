@@ -935,81 +935,6 @@ void Team_f (edict_t * ent)
 	JoinTeam (ent, desired_team, 1);
 }
 
-void UnevenTeamsMsg (int whichteam, int uneven_amount, char *opponent)
-{
-	int i;
-	edict_t *e;
-
-	for (i = 1; i <= maxclients->value; i++)
-	{
-		e = g_edicts + i;
-		if (e->inuse)
-		{
-			if (e->client->resp.team == whichteam)
-			{
-				gi.cprintf (e, PRINT_HIGH, "Your team now has %d more player%s than %s.\n",
-				uneven_amount, uneven_amount == 1 ? "" : "s", opponent);
-				unicastSound(e, gi.soundindex("misc/comp_up.wav"), 1.0);
-			}
-		}
-	}
-}
-
-void CheckForUnevenTeams ()
-{
-	int i, onteam1 = 0, onteam2 = 0;
-	edict_t *e;
-
-	// only use these messages during 2-team games...
-	if (num_teams > 2)
-		return;
-
-	for (i = 1; i <= maxclients->value; i++)
-	{
-		e = g_edicts + i;
-		if (e->inuse)
-		{
-			if (e->client->resp.team == TEAM1)
-				onteam1++;
-			else if (e->client->resp.team == TEAM2)
-				onteam2++;
-		}
-	}
-	if (onteam1 > onteam2)
-		UnevenTeamsMsg (TEAM1, onteam1 - onteam2, teams[TEAM2].name);
-	else if (onteam2 > onteam1)
-		UnevenTeamsMsg (TEAM2, onteam2 - onteam1, teams[TEAM1].name);
-}
-
-int IsAllowedToJoin(edict_t *ent, int desired_team)
-{
-	int i, onteam1 = 0, onteam2 = 0;
-	edict_t *e;
-
-	/* FIXME: make this work with threeteam */
-	if (use_3teams->value)
-		return;
-
-	for (i = 1; i <= maxclients->value; i++)
-	{
-		e = g_edicts + i;
-		if (e->inuse)
-		{
-			if (e->client->resp.team == TEAM1)
-				onteam1++;
-			else if (e->client->resp.team == TEAM2)
-				onteam2++;
-		}
-	}
-
-	/* can join both teams if they are even and can join if the other team has less players than current */
-	if((desired_team == TEAM1 && onteam1 < onteam2) ||
-		(desired_team == TEAM2 && onteam2 < onteam1) ||
-		(ent->client->resp.team == NOTEAM && onteam1 == onteam2))
-		return 1;
-	return 0;
-}
-
 void JoinTeam (edict_t * ent, int desired_team, int skip_menuclose)
 {
 	char *s, *a;
@@ -1089,7 +1014,6 @@ void JoinTeam (edict_t * ent, int desired_team, int skip_menuclose)
 
 	ent->client->resp.joined_team = (int)(realLtime*10.0f);
 
-	CheckForUnevenTeams ();
 	//AQ2:TNG - Slicer added the ctf->value coz teamplay people were spawning....
 	if ((ctf->value || teamdm->value) && team_round_going && (ent->inuse && ent->client->resp.team != NOTEAM))
 	{
@@ -1192,8 +1116,6 @@ void LeaveTeam (edict_t * ent)
 		ent->client->resp.captain = 0;	//SLICER: Same here
 	}
 	//AQ2:TNG END
-
-	CheckForUnevenTeams ();
 }
 
 void ReturnToMain (edict_t * ent, pmenu_t * p)
@@ -2222,6 +2144,10 @@ void CheckTeamRules (void)
 				gi.sound (&g_edicts[0], CHAN_VOICE | CHAN_NO_PHS_ADD,
 				gi.soundindex ("world/10_0.wav"), 1.0, ATTN_NONE, 0.0);
 			}
+		}
+		if(team_round_countdown == 41 && !matchmode->value)
+		{
+			while(CheckForUnevenTeams(NULL));
 		}
 	}
 

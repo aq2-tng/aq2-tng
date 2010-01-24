@@ -286,6 +286,7 @@
 #include "tng_stats.h"		// Adding TNG Stats File
 #include	"tng_irc.h"
 #include	"tng_ini.h"
+#include	"tng_balancer.h"
 #include	"g_grapple.h"
 #define		getEnt(entnum)	(edict_t *)((char *)globals.edicts + (globals.edict_size * entnum))	//AQ:TNG Slicer - This was missing
 #define		GAMEVERSION			"action"	// the "gameversion" client command will print this plus compile date
@@ -944,7 +945,6 @@ extern cvar_t *stats_afterround; // TNG Stats, collect stats between rounds
 
 extern cvar_t *auto_join;	// Automaticly join clients to teams they were on in last map.
 extern cvar_t *auto_equip;	// Remember weapons and items for players between maps.
-extern cvar_t *eventeams;
 
 // TNG:Freud - new spawning system
 extern cvar_t *use_oldspawns;
@@ -1653,6 +1653,8 @@ struct gclient_s
   void *ctf_grapple;		// entity of grapple
   int ctf_grapplestate;		// true if pulling
   float ctf_grapplereleasetime;	// time of grapple release
+
+  qboolean team_force;		// are we forcing a team change
 };
 
 

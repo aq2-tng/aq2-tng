@@ -79,7 +79,6 @@ void Team_f (edict_t * ent);
 qboolean StartClient (edict_t * ent);
 void AssignSkin (edict_t * ent, const char *s, qboolean nickChanged);
 void TallyEndOfLevelTeamScores (void);
-void CheckForUnevenTeams (void);
 void SetupTeamSpawnPoints ();
 int CheckTeamSpawnPoints ();
 void GetSpawnPoints ();
