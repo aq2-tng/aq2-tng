@@ -7,7 +7,8 @@ edict_t *FindNewestPlayer(int team)
 {
 	edict_t *etmp,*ent = NULL;
 	int i;
-	double time, least_time = 999.99;
+	/* max frame is now */
+	int least_time = (int)(realLtime*10.0f);
 
 	for (i = 1; i <= maxclients->value; i++)
 	{
@@ -15,10 +16,9 @@ edict_t *FindNewestPlayer(int team)
 		if (etmp->inuse)
 		{
 			if(etmp->client->resp.team == team) {
-				time = (double) ((level.framenum - etmp->client->resp.enterframe) / 10);
-				if(time < least_time) {
+				if(ent->client->resp.joined_team < least_time) {
                                         ent = etmp;
-					least_time = time;
+					least_time = ent->client->resp.joined_team;
 				}
 			}
 		}
