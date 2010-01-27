@@ -129,14 +129,13 @@ qboolean CTFLoadConfig(char *mapname)
 			ctfgame.offence = TEAM2;
 	}
 	ptr = INI_Find(fh, "ctf", "grapple");
+	gi.cvar_forceset("use_grapple", "0");
 	if(ptr) {
 		gi.dprintf(" Grapple   : %s\n", ptr);
 		if(strcmp(ptr, "1") == 0)
 			gi.cvar_forceset("use_grapple", "1");
 		else if(strcmp(ptr, "2") == 0)
 			gi.cvar_forceset("use_grapple", "2");
-		else
-			gi.cvar_forceset("use_grapple", "0");
 	}
 
 	gi.dprintf(" Spawn times\n");

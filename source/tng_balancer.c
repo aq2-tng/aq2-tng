@@ -57,7 +57,7 @@ qboolean CheckForUnevenTeams (edict_t *ent)
 	int team1 = 0, team2 = 0, other_team = 0;
 
 	if(!use_balancer->value || use_3teams->value)
-		return;
+		return false;
 
 	CalculatePlayers(&team1, &team2, NULL, NULL);
 
