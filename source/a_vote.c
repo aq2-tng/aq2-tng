@@ -1967,10 +1967,10 @@ void _CheckScrambleVote (void)
 	for (i = 1; i <= game.maxclients; i++)
 	{
 		ent = &g_edicts[i];
-		if (ent->client && ent->inuse && ent->client->resp.team != NOTEAM && rand() % 2)
+		if (ent->client && ent->inuse && ent->client->resp.team != NOTEAM)
 		{
 			other = _RandomTeamPlayer();
-			if(other != NULL) {
+			if(other != NULL && rand() % 2) {
 				team = other->client->resp.team;
 				other->client->resp.team = ent->client->resp.team;
 				ent->client->resp.team = team;
