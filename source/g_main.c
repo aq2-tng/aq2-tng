@@ -325,6 +325,7 @@ cvar_t *new_irvision;
 cvar_t *use_rewards;
 cvar_t *use_warnings;
 cvar_t *use_mapvote;
+cvar_t *use_scramblevote;
 cvar_t *deathmatch;
 cvar_t *coop;
 cvar_t *dmflags;

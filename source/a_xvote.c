@@ -173,7 +173,35 @@ vote_t xvotelist[] = {
     {NULL, NULL}
     }
    }
+  ,
 
+  // scramblebote
+  {
+   NULL,			// cvar
+   _InitScrambleVote,		// InitGame 
+   NULL,			// ExitGame 
+   NULL,			// InitLevel
+   NULL,			// ExitLevel
+   NULL,			// InitClient
+   NULL,			// ClientConnect
+   NULL,			// ClientDisconnect
+   _CheckScrambleVote,		// Newround
+   NULL,			// CheckVote
+   NULL,			// Votetitle
+   NULL,			// VoteSelected
+
+   {				// commands
+    {"votescramble", Cmd_Votescramble_f}
+    ,
+    {NULL, NULL}
+    ,
+    {NULL, NULL}
+    ,
+    {NULL, NULL}
+    ,
+    {NULL, NULL}
+    }
+   }
 
 };
 

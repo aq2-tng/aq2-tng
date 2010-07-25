@@ -841,6 +841,7 @@ extern cvar_t *ff_afterround;
 extern cvar_t *use_buggy_bandolier;
 extern cvar_t *uvtime;
 extern cvar_t *use_mapvote;	// enable map voting
+extern cvar_t *use_scramblevote;
 extern cvar_t *sv_gib;
 extern cvar_t *sv_crlf;
 extern cvar_t *vrot;
@@ -1389,6 +1390,7 @@ typedef struct
 
   char *mapvote;		// pointer to map voted on (if any)
   char *cvote;			// pointer to config voted on (if any)
+  qboolean scramblevote;	// want scramble
 
   int mk23_mode;		// firing mode, semi or auto
   int mp5_mode;

@@ -1884,3 +1884,121 @@ void _IgnoreVoteSelected (edict_t * ent, pmenu_t * p)
 //=== flag voting ==========================================================
 //
 //==========================================================================
+
+// hifi
+cvar_t *scramblevote_min;
+cvar_t *scramblevote_need;
+cvar_t *scramblevote_pass;
+
+cvar_t *_InitScrambleVote (ini_t * ini)
+{
+	use_scramblevote = gi.cvar ("use_scramblevote", "0", 0);
+	scramblevote_min = gi.cvar ("scramblevote_min", "4", 0);
+	scramblevote_need = gi.cvar ("scramblevote_need", "0", 0);
+	scramblevote_pass = gi.cvar ("scramblevote_pass", "75", 0);
+
+	return (use_scramblevote);
+}
+
+edict_t *_RandomTeamPlayer()
+{
+	int i;
+	edict_t *ent;
+
+	for (i = 1; i <= game.maxclients; i++)
+	{
+		ent = &g_edicts[rand() % game.maxclients + 1];
+		if (ent->client && ent->inuse && ent->client->resp.team != NOTEAM)
+		{
+			return ent;
+		}
+	}
+	return NULL;
+}
+
+void _CalcScrambleVotes (int *numclients, int *numvotes, float *percent)
+{
+	int i;
+	edict_t *ent;
+
+	*numclients = _numclients ();
+	*numvotes = 0;
+	*percent = 0.00f;
+
+	for (i = 1; i <= game.maxclients; i++)
+	{
+		ent = &g_edicts[i];
+		if (ent->client && ent->inuse && ent->client->resp.scramblevote)
+		{
+			(*numvotes)++;
+		}
+	}
+
+	if(*numvotes > 0)
+		(*percent) = (float) (((float) *numvotes / (float) *numclients) * 100.0);
+}
+
+void MakeAllLivePlayersObservers(void);
+
+void _CheckScrambleVote (void)
+{
+	int i, numvotes, playernum, team;
+	float votes;
+	edict_t *ent, *other;
+	char buf[128];
+
+	_CalcScrambleVotes(&playernum, &numvotes, &votes);
+
+	if (numvotes > 0)
+	{
+		sprintf (buf, "Scramble: %d votes (%.1f%%), need %.1f%%\n", numvotes, votes, scramblevote_pass->value);
+		gi.bprintf (PRINT_HIGH, strtostr2 (buf));
+	}
+
+	if (playernum < scramblevote_min->value)
+		return;
+	if (numvotes < scramblevote_need->value)
+		return;
+	if (votes < scramblevote_pass->value)
+		return;
+
+	MakeAllLivePlayersObservers ();
+
+	for (i = 1; i <= game.maxclients; i++)
+	{
+		ent = &g_edicts[i];
+		if (ent->client && ent->inuse && ent->client->resp.team != NOTEAM && rand() % 2)
+		{
+			other = _RandomTeamPlayer();
+			if(other != NULL) {
+				team = other->client->resp.team;
+				other->client->resp.team = ent->client->resp.team;
+				ent->client->resp.team = team;
+				ent->client->resp.scramblevote = false;
+			}
+		}
+	}
+
+	CenterPrintAll("The teams have been scrambled!");
+}
+
+void Cmd_Votescramble_f (edict_t * ent, char *argument)
+{
+	if(!teamplay->value)
+		return;
+
+	if(use_3teams->value) {
+		gi.cprintf (ent, PRINT_HIGH, "\nNot in threeteam (yet).\n");
+		return;
+	}
+
+	ent->client->resp.scramblevote = !ent->client->resp.scramblevote;
+
+	if(ent->client->resp.scramblevote) {
+		gi.cprintf (ent, PRINT_HIGH, "\nYou voted for team scramble.\n");
+		gi.bprintf (PRINT_HIGH, "%s voted for team scramble\n", ent->client->pers.netname);
+	} else {
+		gi.cprintf (ent, PRINT_HIGH, "\nYou took your scramble vote back.\n");
+		gi.bprintf (PRINT_HIGH, "%s changed his mind about team scramble\n", ent->client->pers.netname);
+	}
+}
