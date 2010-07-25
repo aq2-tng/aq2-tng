@@ -28,16 +28,6 @@ ifeq ($(RELEASE),yes)
 VERSION=$(REL_VERSION)
 endif
 
-ifdef WIN32
-CC=i586-mingw32msvc-gcc
-ARCH=x86
-TUNE=i586
-SHLIBEXT=dll
-SHLIBCFLAGS=
-SHLIBLDFLAGS=-shared 
-SHLIBLIBS=game.def -lws2_32
-endif
-
 CC?=gcc
 BASE_CFLAGS=-DC_ONLY -DVERSION=\"$(VERSION)\"
 
@@ -50,12 +40,22 @@ else
 		-falign-jumps=2 -falign-functions=2
 endif
 
-LDFLAGS=-ldl -lm
+DO_CC=$(CC) $(CFLAGS) $(SHLIBCFLAGS) -o $@ -c $<
+DO_LINK=$(CC) $(CFLAGS) $(SHLIBLDFLAGS) -o $@ $(GAME_OBJS) $(SHLIBLIBS)
+
 SHLIBEXT?=so
 SHLIBCFLAGS?=-fPIC
 SHLIBLDFLAGS?=-shared
 
-DO_CC=$(CC) $(CFLAGS) $(SHLIBCFLAGS) -o $@ -c $<
+ifdef WIN32
+CC=wine cl -IC:\\include -nologo
+CFLAGS=$(BASE_CFLAGS) -DWIN32 -O1
+LINK=wine link -nologo
+ARCH=x86
+SHLIBEXT=dll
+DO_CC=$(CC) $(CFLAGS) -Fo$@ -c $<
+DO_LINK=$(LINK) -LIBPATH:C:\\lib $(GAME_OBJS) ws2_32.lib /DEF:game.def /DLL /OUT:game$(ARCH).$(SHLIBEXT)
+endif
 
 #############################################################################
 # SETUP AND BUILD
@@ -77,7 +77,7 @@ GAME_OBJS = \
 	g_grapple.o
 
 game$(ARCH).$(SHLIBEXT) : $(GAME_OBJS)
-	$(CC) $(CFLAGS) $(SHLIBLDFLAGS) -o $@ $(GAME_OBJS) $(SHLIBLIBS)
+	$(DO_LINK)
 
 
 #############################################################################
