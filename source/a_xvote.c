@@ -175,7 +175,7 @@ vote_t xvotelist[] = {
    }
   ,
 
-  // scramblebote
+  // scramblevote
   {
    NULL,			// cvar
    _InitScrambleVote,		// InitGame 
@@ -187,8 +187,8 @@ vote_t xvotelist[] = {
    NULL,			// ClientDisconnect
    _CheckScrambleVote,		// Newround
    NULL,			// CheckVote
-   NULL,			// Votetitle
-   NULL,			// VoteSelected
+   "Team Scramble",		// Votetitle
+   _VoteScrambleSelected,	// VoteSelected
 
    {				// commands
     {"votescramble", Cmd_Votescramble_f}

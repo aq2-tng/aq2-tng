@@ -1897,6 +1897,9 @@ cvar_t *_InitScrambleVote (ini_t * ini)
 	scramblevote_need = gi.cvar ("scramblevote_need", "0", 0);
 	scramblevote_pass = gi.cvar ("scramblevote_pass", "75", 0);
 
+	if(!teamplay->value)
+		return (teamplay);
+
 	return (use_scramblevote);
 }
 
@@ -1980,6 +1983,13 @@ void _CheckScrambleVote (void)
 	}
 
 	CenterPrintAll("The teams have been scrambled!");
+}
+
+void _VoteScrambleSelected (edict_t * ent, pmenu_t * p)
+{
+	PMenu_Close (ent);
+
+	Cmd_Votescramble_f (ent, NULL);
 }
 
 void Cmd_Votescramble_f (edict_t * ent, char *argument)
