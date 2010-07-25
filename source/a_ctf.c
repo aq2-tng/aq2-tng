@@ -1542,6 +1542,7 @@ void CTFCapReward(edict_t * ent)
 	edict_t etemp;
 	int was_bandaging = 0;
 	int band;
+	int player_weapon;
 
 	if(!ctf_mode->value)
 		return;
@@ -1577,7 +1578,7 @@ void CTFCapReward(edict_t * ent)
 	}
 
 
-	int player_weapon = client->resp.weapon->typeNum;
+	player_weapon = client->resp.weapon->typeNum;
 	// find out which weapon the player is holding in it's inventory
 	if(client->unique_weapon_total > 0) {
 		if(ent->client->pers.inventory[ITEM_INDEX(GET_ITEM(MP5_NUM))])
