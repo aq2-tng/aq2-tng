@@ -242,6 +242,8 @@ void vInitGame (void)
 	int i;
 	ini_t ini;
 
+	ini.pfile = NULL;
+
 	if (OpenIniFile (IniPath (), &ini) == false)
 		gi.dprintf ("Error opening ini file %s.\n", IniPath ());
 
