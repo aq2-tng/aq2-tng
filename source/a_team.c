@@ -2332,6 +2332,9 @@ void CheckTeamRules (void)
 	
 				team_round_going = team_round_countdown = team_game_going = 0;
 				MakeAllLivePlayersObservers ();
+
+				/* try to restart the game */
+				while(CheckForUnevenTeams(NULL));
 			}
 
 		}

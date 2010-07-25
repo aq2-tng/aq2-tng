@@ -7,8 +7,7 @@ edict_t *FindNewestPlayer(int team)
 {
 	edict_t *etmp,*ent = NULL;
 	int i;
-	/* max frame is now */
-	int least_time = (int)(realLtime*10.0f);
+	int most_time = 0;
 
 	for (i = 1; i <= maxclients->value; i++)
 	{
@@ -16,9 +15,9 @@ edict_t *FindNewestPlayer(int team)
 		if (etmp->inuse)
 		{
 			if(etmp->client->resp.team == team) {
-				if(ent->client->resp.joined_team < least_time) {
+				if(etmp->client->resp.joined_team > most_time) {
+					most_time = etmp->client->resp.joined_team;
                                         ent = etmp;
-					least_time = ent->client->resp.joined_team;
 				}
 			}
 		}
@@ -82,8 +81,7 @@ qboolean CheckForUnevenTeams (edict_t *ent)
 
 qboolean IsAllowedToJoin(edict_t *ent, int desired_team)
 {
-	int i, onteam1 = 0, onteam2 = 0;
-	edict_t *e;
+	int onteam1 = 0, onteam2 = 0;
 
 	/* FIXME: make this work with threeteam */
 	if (use_3teams->value)
