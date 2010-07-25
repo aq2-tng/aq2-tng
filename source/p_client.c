@@ -1647,6 +1647,10 @@ void player_die(edict_t * self, edict_t * inflictor, edict_t * attacker, int dam
 		if (deathmatch->value && !teamplay->value)
 			//FIREBLADE
 			Cmd_Help_f(self);	// show scores
+
+		// always reset chase to killer, even if NULL
+		if(limchasecam->value < 2 && attacker->client)
+			self->client->resp.last_chase_target = attacker;
 	}
 	// remove powerups
 	self->client->quad_framenum = 0;
@@ -3836,18 +3840,16 @@ void ClientBeginServerFrame(edict_t * ent)
 				VectorCopy(ent->s.angles, client->v_angle);
 				gi.linkentity(ent);
 
-				if (teamplay->value && limchasecam->value) {
-					ent->client->chase_target = NULL;
-					GetChaseTarget(ent);
+				if (teamplay->value) {
+					if(ent->client->resp.last_chase_target && ent->client->resp.last_chase_target->solid != SOLID_NOT
+							&& ent->client->resp.last_chase_target->deadflag != DEAD_DEAD)
+						ent->client->chase_target = ent->client->resp.last_chase_target;
+					if(ent->client->chase_target == NULL)
+						GetChaseTarget(ent);
 					if (ent->client->chase_target != NULL) {
-						if (limchasecam->value == 2) {
-							ent->client->chase_mode = 1;
-							UpdateChaseCam(ent);
-							ent->client->chase_mode = 2;
-						} else {
-							ent->client->chase_mode = 1;
-						}
+						ent->client->chase_mode = 1;
 						UpdateChaseCam(ent);
+						ent->client->chase_mode = 2;
 					}
 				}
 
