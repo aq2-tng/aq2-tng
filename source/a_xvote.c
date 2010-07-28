@@ -173,7 +173,35 @@ vote_t xvotelist[] = {
     {NULL, NULL}
     }
    }
+  ,
 
+  // scramblevote
+  {
+   NULL,			// cvar
+   _InitScrambleVote,		// InitGame 
+   NULL,			// ExitGame 
+   NULL,			// InitLevel
+   NULL,			// ExitLevel
+   NULL,			// InitClient
+   NULL,			// ClientConnect
+   NULL,			// ClientDisconnect
+   _CheckScrambleVote,		// Newround
+   NULL,			// CheckVote
+   "Team Scramble",		// Votetitle
+   _VoteScrambleSelected,	// VoteSelected
+
+   {				// commands
+    {"votescramble", Cmd_Votescramble_f}
+    ,
+    {NULL, NULL}
+    ,
+    {NULL, NULL}
+    ,
+    {NULL, NULL}
+    ,
+    {NULL, NULL}
+    }
+   }
 
 };
 
@@ -241,6 +269,8 @@ void vInitGame (void)
 {
 	int i;
 	ini_t ini;
+
+	ini.pfile = NULL;
 
 	if (OpenIniFile (IniPath (), &ini) == false)
 		gi.dprintf ("Error opening ini file %s.\n", IniPath ());

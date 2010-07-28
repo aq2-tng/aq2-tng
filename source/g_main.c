@@ -325,6 +325,7 @@ cvar_t *new_irvision;
 cvar_t *use_rewards;
 cvar_t *use_warnings;
 cvar_t *use_mapvote;
+cvar_t *use_scramblevote;
 cvar_t *deathmatch;
 cvar_t *coop;
 cvar_t *dmflags;
@@ -412,7 +413,6 @@ cvar_t *stats_afterround;     // Collect TNG stats between rounds
 
 cvar_t *auto_join;
 cvar_t *auto_equip;
-cvar_t *eventeams;
 
 //TNG:Freud - new spawning system
 cvar_t *use_oldspawns;

@@ -117,3 +117,8 @@ extern int config_num_configs;
 #define LEAVETEAMSTITLE "Leave Team"
 
 void LeaveTeams (edict_t * ent, pmenu_t * p);
+
+cvar_t *_InitScrambleVote (ini_t * ini);
+void _CheckScrambleVote (void);
+void _VoteScrambleSelected (edict_t * ent, pmenu_t * p);
+void Cmd_Votescramble_f (edict_t * ent, char *argument);

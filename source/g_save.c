@@ -537,6 +537,7 @@ void InitGame (void)
 	use_3teams = gi.cvar ("use_3teams", "0", CVAR_SERVERINFO | CVAR_LATCH);
 	use_kickvote = gi.cvar ("use_kickvote", "1", 0);	//slicer
 	use_mapvote = gi.cvar ("use_mapvote", "1", 0);	//slicer
+	use_scramblevote = gi.cvar ("use_scramblevote", "1", 0);	//slicer
 	ctf = gi.cvar ("ctf", "0", CVAR_SERVERINFO | CVAR_LATCH);
 	ctf_forcejoin = gi.cvar ("ctf_forcejoin", "", 0);
 	ctf_mode = gi.cvar ("ctf_mode", "0", 0);
@@ -601,6 +602,7 @@ void InitGame (void)
 	auto_join = gi.cvar ("auto_join", "0", 0);
 	auto_equip = gi.cvar ("auto_equip", "0", 0);
 	eventeams = gi.cvar ("eventeams", "0", 0);
+	use_balancer = gi.cvar ("use_balancer", "0", 0);
 
 	use_punch = gi.cvar ("use_punch", "1", 0);
 
