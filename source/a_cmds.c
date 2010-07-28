@@ -511,7 +511,7 @@ void Cmd_NextMap_f(edict_t * ent)
 {
 	if (level.nextmap[0])
 	{
-		gi.cprintf (ent, PRINT_HIGH, "Next map in rotation is %s (&d/%d).\n", level.nextmap, cur_map+1, num_maps);
+		gi.cprintf (ent, PRINT_HIGH, "Next map in rotation is %s (%d/%d).\n", level.nextmap, cur_map+1, num_maps);
 		return;
 	}
 	if ((cur_map+1) >= num_maps)
