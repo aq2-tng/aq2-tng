@@ -1649,7 +1649,7 @@ void player_die(edict_t * self, edict_t * inflictor, edict_t * attacker, int dam
 			Cmd_Help_f(self);	// show scores
 
 		// always reset chase to killer, even if NULL
-		if(limchasecam->value < 2 && attacker->client)
+		if(limchasecam->value < 2 && attacker && attacker->client)
 			self->client->resp.last_chase_target = attacker;
 	}
 	// remove powerups
