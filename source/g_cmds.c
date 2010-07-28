@@ -1915,6 +1915,11 @@ void ClientCommand (edict_t * ent)
 		Cmd_Lens_f (ent);
 		return;
 	}
+	else if (Q_stricmp (cmd, "nextmap") == 0)
+	{
+		Cmd_NextMap_f (ent);
+		return;
+	}
 	else if (Q_stricmp (cmd, "%cpsi") == 0)
 	{
 		Cmd_CPSI_f (ent);

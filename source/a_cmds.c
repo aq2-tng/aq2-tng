@@ -507,6 +507,20 @@ void _ZoomOut(edict_t * ent, qboolean overflow)
 	}
 }
 
+void Cmd_NextMap_f(edict_t * ent)
+{
+	if (level.nextmap[0])
+	{
+		gi.cprintf (ent, PRINT_HIGH, "Next map in rotation is %s (&d/%d).\n", level.nextmap, cur_map+1, num_maps);
+		return;
+	}
+	if ((cur_map+1) >= num_maps)
+		gi.cprintf (ent, PRINT_HIGH, "Next map in rotation is %s (%d/%d).\n", map_rotation[0], 1, num_maps);
+	else
+		gi.cprintf (ent, PRINT_HIGH, "Next map in rotation is %s (%d/%d).\n", map_rotation[cur_map+1], cur_map+2, num_maps);
+
+}
+
 void Cmd_Lens_f(edict_t * ent)
 {
 	int nArg;
