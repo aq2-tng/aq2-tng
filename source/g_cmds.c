@@ -2021,30 +2021,10 @@ void ClientCommand (edict_t * ent)
 	{
 		Cmd_ResetScores_f(ent);
 	}
-	else if (jump->value)
+	else if (Q_stricmp(cmd, "jmod") == 0 && jump->value)
 	{
-		if (Q_stricmp(cmd, "store") == 0)
-		{
-			Cmd_Store_f(ent);
-			return;
-		}
-		else if (Q_stricmp(cmd, "recall") == 0)
-		{
-			Cmd_Recall_f(ent);
-			return;
-		}
-		else if (Q_stricmp(cmd, "jmp_reset") == 0)
-		{
-			Cmd_Reset_f(ent);
-			return;
-		}
-		else if (Q_stricmp(cmd, "jmp_clear") == 0)
-		{
-			Cmd_Clear_f(ent);
-			return;
-		}
-		else
-			Cmd_Say_f (ent, false, true, false);
+		Cmd_Jmod_f(ent);
+		return;
 	}
 	else				// anything that doesn't match a command will be a chat
 		Cmd_Say_f (ent, false, true, false);

@@ -72,6 +72,45 @@ void Jmp_EquipClient(edict_t *ent)
 	ent->client->pers.weapon = 0;
 }
 
+void Cmd_Jmod_f (edict_t *ent)
+{
+	char *cmd;
+
+	if(gi.argc() < 2) {
+		gi.cprintf(ent, PRINT_HIGH, "AQ2:TNG Jump mode commands:\n");
+		gi.cprintf(ent, PRINT_HIGH, " jmod store - save your current point\n");
+		gi.cprintf(ent, PRINT_HIGH, " jmod recall - teleport back to saved point\n");
+		gi.cprintf(ent, PRINT_HIGH, " jmod reset - remove saved point\n");
+		gi.cprintf(ent, PRINT_HIGH, " jmod clear - reset stats\n");
+		return;
+	}
+
+	cmd = gi.argv(1);
+
+	if(Q_stricmp(cmd, "store") == 0)
+	{
+		Cmd_Store_f(ent);
+		return;
+	}
+	else if(Q_stricmp(cmd, "recall") == 0)
+	{
+		Cmd_Recall_f(ent);
+		return;
+	}
+	else if(Q_stricmp(cmd, "reset") == 0)
+	{
+		Cmd_Reset_f(ent);
+		return;
+	}
+	else if(Q_stricmp(cmd, "clear") == 0)
+	{
+		Cmd_Clear_f(ent);
+		return;
+	}
+
+	gi.cprintf(ent, PRINT_HIGH, "Unknown jmod command\n");
+}
+
 void Cmd_Clear_f(edict_t *ent)
 {
 	ent->client->resp.jmp_highspeed = 0;
