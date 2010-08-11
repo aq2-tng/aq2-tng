@@ -2911,6 +2911,11 @@ void PutClientInServer(edict_t * ent)
 //FIREBLADE
 	if (!going_observer) {
 
+		if (jump->value) {
+			Jmp_EquipClient(ent);
+			return;
+		}
+
 		// items up here so that the bandolier will change equipclient below
 		if (allitem->value) {
 			AllItems(ent);
@@ -3795,7 +3800,7 @@ void ClientBeginServerFrame(edict_t * ent)
 					IRC_printf(IRC_T_SERVER, "%n became a spectator", ent->client->pers.netname);
 				}
 			}
-		} else {
+		} else if (ent->client->pers.spectator || ent->deadflag == DEAD_DEAD) {
 			ent->client->chase_mode = 0;
 			ent->client->chase_target = NULL;
 			ent->client->desired_fov = 90;

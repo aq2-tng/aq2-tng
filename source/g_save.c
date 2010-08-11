@@ -637,6 +637,8 @@ void InitGame (void)
 	day_cycle = gi.cvar ("day_cycle", "10", 0);	// Darkmatch cycle time.
 	use_classic = gi.cvar ("use_classic", "0", CVAR_SERVERINFO);	// Reset Spread and Grenade Strength to 1.52
 
+	jump = gi.cvar ("jump", "0", CVAR_SERVERINFO|CVAR_LATCH); // jumping mod
+
 	CGF_SFX_InstallGlassSupport ();	// william for CGF (glass fx)
 
 	g_select_empty = gi.cvar ("g_select_empty", "0", CVAR_ARCHIVE);

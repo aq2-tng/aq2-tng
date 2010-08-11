@@ -488,6 +488,12 @@ void G_SetStats (edict_t * ent)
 	// JBravo.
 	int power_armor_type;
 
+	if (jump->value)
+	{
+		Jmp_SetStats(ent);
+		return;
+	}
+
 	if (!ent->client->chase_mode)
 	{
 		//

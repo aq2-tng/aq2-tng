@@ -287,6 +287,7 @@
 #include	"tng_irc.h"
 #include	"tng_ini.h"
 #include	"tng_balancer.h"
+#include	"tng_jump.h"
 #include	"g_grapple.h"
 #define		getEnt(entnum)	(edict_t *)((char *)globals.edicts + (globals.edict_size * entnum))	//AQ:TNG Slicer - This was missing
 #define		GAMEVERSION			"action"	// the "gameversion" client command will print this plus compile date
@@ -1455,6 +1456,12 @@ typedef struct
   int rd_lastRadio;	//Code of the last radio used
   int rd_repCount;	//Counter for the number of repeated radio msgs
   float rd_repTime;	//The time for the last repeated radio msg
+
+  float jmp_highspeed;
+  float jmp_falldmglast;
+  vec3_t jmp_teleport_origin;
+  vec3_t jmp_teleport_v_angle;
+  qboolean jmp_teleport_ducked;
 
   //char skin[MAX_SKINLEN];
 }

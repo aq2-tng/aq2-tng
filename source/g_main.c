@@ -430,6 +430,8 @@ cvar_t *radio_repeat_time;
 
 cvar_t *use_classic;		// Used to reset spread/gren strength to 1.52
 
+cvar_t *jump;			// jumping mod
+
 int pause_time = 0;
 
 void SpawnEntities (char *mapname, char *entities, char *spawnpoint);

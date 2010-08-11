@@ -1161,6 +1161,9 @@ void Drop_Weapon (edict_t * ent, gitem_t * item)
 //zucc drop special weapon (only 1 of them)
 void DropSpecialWeapon (edict_t * ent)
 {
+	// avoid crashing when we actually have no weapon to drop
+	if (ent->client->pers.weapon == NULL)
+		return;
 
 	// first check if their current weapon is a special weapon, if so, drop it.
 	if (ent->client->pers.weapon->typeNum == MP5_NUM

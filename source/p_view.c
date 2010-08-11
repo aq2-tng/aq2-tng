@@ -657,8 +657,15 @@ void P_FallingDamage (edict_t * ent)
 		// zucc scale this up
 		damage *= 10;
 		VectorSet (dir, 0, 0, 1);
+
+		if (jump->value)
+		{
+			gi.cprintf(ent, PRINT_HIGH, "Fall Damage: %d\n", damage);
+			ent->client->resp.jmp_falldmglast = damage;
+		} else {
 		T_Damage (ent, world, world, dir, ent->s.origin, vec3_origin,
 			damage, 0, 0, MOD_FALLING);
+		}
 	}
 }
 

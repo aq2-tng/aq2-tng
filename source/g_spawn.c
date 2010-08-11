@@ -456,7 +456,7 @@ void ED_CallSpawn (edict_t * ent)
 		if (!strcmp (item->classname, ent->classname))
 		{			// found it
 			//FIREBLADE
-			if (!teamplay->value || teamdm->value || ctf->value == 2)
+			if ( (!teamplay->value || teamdm->value || ctf->value == 2) && !jump->value )
 			{
 			//FIREBLADE
 				if (item->flags == IT_AMMO || item->flags == IT_WEAPON
@@ -785,7 +785,35 @@ void SpawnEntities (char *mapname, char *entities, char *spawnpoint)
 
 	teamCount = 2;
 
-	if (ctf->value)
+	if (jump->value)
+	{
+		if (teamplay->value)
+		{
+			gi.dprintf ("Jump Enabled - Forcing teamplay ff\n");
+			gi.cvar_forceset(teamplay->name, "0");
+		}
+		if (use_3teams->value)
+		{
+			gi.dprintf ("Jump Enabled - Forcing 3Teams off\n");
+			gi.cvar_forceset(use_3teams->name, "0");
+		}
+		if (teamdm->value)
+		{
+			gi.dprintf ("Jump Enabled - Forcing Team DM off\n");
+			gi.cvar_forceset(teamdm->name, "0");
+		}
+		if (use_tourney->value)
+		{
+			gi.dprintf ("Jump Enabled - Forcing Tourney off\n");
+			gi.cvar_forceset(use_tourney->name, "0");
+		}
+		if (ctf->value)
+		{
+			gi.dprintf ("Jump Enabled - Forcing CTF off\n");
+			gi.cvar_forceset(ctf->name, "0");
+		}
+	}
+	else if (ctf->value)
 	{
 		// Make sure teamplay is enabled
 		if (!teamplay->value)
@@ -990,7 +1018,7 @@ void SpawnEntities (char *mapname, char *entities, char *spawnpoint)
 	num_ghost_players = 0;
 
 	//FIREBLADE
-	if (!teamplay->value || teamdm->value || ctf->value == 2)
+	if ( (!teamplay->value || teamdm->value || ctf->value == 2) && !jump->value)
 	{
 		//FIREBLADE
 		//zucc for special items
@@ -1500,6 +1528,10 @@ void SP_worldspawn (edict_t * ent)
 		if (!deathmatch->value)
 		{
 			gi.configstring (CS_STATUSBAR, single_statusbar);
+		}
+		else if (jump->value)
+		{
+			gi.configstring (CS_STATUSBAR, jump_statusbar);
 		}
 		else if (ctf->value)
 		{
