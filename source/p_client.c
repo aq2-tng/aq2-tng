@@ -3312,7 +3312,7 @@ void ClientDisconnect(edict_t * ent)
 	if (ent->flashlight)
 		FL_make(ent);
 
-	if (teamplay->value && ent->solid == SOLID_TRIGGER)
+	if ((teamplay->value || jump->value) && ent->solid == SOLID_TRIGGER)
 		RemoveFromTransparentList(ent);
 
 	ent->lasersight = NULL;
@@ -3623,7 +3623,7 @@ void ClientThink(edict_t * ent, usercmd_t * ucmd)
 
 		//Should move this to ClientBeginServerFrame? -M
 		if (ent->client->jumping && ent->solid != SOLID_NOT &&
-			!lights_camera_action && !ent->client->ctf_uvtime)
+			!lights_camera_action && !ent->client->ctf_uvtime && !jump->value)
 				kick_attack(ent);
 
 		// touch other objects

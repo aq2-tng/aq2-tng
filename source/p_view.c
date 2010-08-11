@@ -1258,7 +1258,7 @@ void ClientEndServerFrame (edict_t * ent)
 	}
 
 	//FIREBLADE - Unstick avoidance stuff.
-	if (ent->solid == SOLID_TRIGGER && !lights_camera_action)
+	if (ent->solid == SOLID_TRIGGER && !lights_camera_action && !jump->value)
 	{
 		edict_t *overlap;
 		if ((overlap = FindOverlap (ent, NULL)) == NULL)

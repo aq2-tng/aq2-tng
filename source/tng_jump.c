@@ -70,6 +70,10 @@ void Jmp_EquipClient(edict_t *ent)
 {
 	memset(ent->client->pers.inventory, 0, sizeof(ent->client->pers.inventory));
 	ent->client->pers.weapon = 0;
+
+	// make client non-solid
+	ent->solid = SOLID_TRIGGER;
+	AddToTransparentList(ent);
 }
 
 void Cmd_Jmod_f (edict_t *ent)
