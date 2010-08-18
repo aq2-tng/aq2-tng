@@ -258,8 +258,10 @@ void PrintMOTD(edict_t * ent)
 		}
 		else  // So it's not Teamplay?
 		{
+			if (jump->value)
+				server_type = "Jump";
 			// Set the appropiate Deathmatch mode
-			if ((int)dmflags->value & DF_MODELTEAMS)
+			else if ((int)dmflags->value & DF_MODELTEAMS)
 				server_type = "Deathmatch (Teams by Model)";
 			else if ((int)dmflags->value & DF_SKINTEAMS)
 				server_type = "Deathmatch (Teams by Skin)";
