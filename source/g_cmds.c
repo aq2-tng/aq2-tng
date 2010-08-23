@@ -1897,6 +1897,11 @@ void ClientCommand (edict_t * ent)
 		Cmd_Punch_f (ent);
 		return;
 	}
+	else if (Q_stricmp (cmd, "ball") == 0)
+	{
+		B_make(ent);
+		return;
+	}
 	else if (Q_stricmp (cmd, "menu") == 0)
 	{
 		Cmd_Menu_f (ent);

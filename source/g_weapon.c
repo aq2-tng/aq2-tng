@@ -1504,6 +1504,8 @@ void kick_attack (edict_t * ent)
 	if (tr.fraction >= 1.0)
 		return;
 
+	gi.dprintf("would hit\n");
+
 	if (tr.ent->takedamage || KickDoor (&tr, ent, forward))
 	{
 		if (tr.ent->health <= 0)

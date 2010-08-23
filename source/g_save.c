@@ -509,6 +509,7 @@ void InitGame (void)
 	needpass = gi.cvar ("needpass", "0", CVAR_SERVERINFO);
 	radiolog = gi.cvar ("radiolog", "0", 0);
 	teamplay = gi.cvar ("teamplay", "0", CVAR_SERVERINFO | CVAR_LATCH);
+	soccer = gi.cvar ("soccer", "0", CVAR_SERVERINFO | CVAR_LATCH);
 	motd_time = gi.cvar ("motd_time", "2", 0);
 	hostname = gi.cvar ("hostname", "unnamed", CVAR_SERVERINFO);
 	strtwpn = gi.cvar ("dmweapon", MK23_NAME, 0);

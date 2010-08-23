@@ -815,6 +815,7 @@ extern cvar_t *dmflags;
 extern cvar_t *needpass;
 extern cvar_t *hostname;
 extern cvar_t *teamplay;
+extern cvar_t *soccer;
 extern cvar_t *radiolog;
 extern cvar_t *motd_time;
 extern cvar_t *actionmaps;
@@ -1881,6 +1882,8 @@ void Bandage (edict_t * ent);
 void ShowGun (edict_t * ent);	// hentai's vwep function added by zucc
 void FL_think (edict_t * self);	// TNG Flashlight
 void FL_make (edict_t * self);	// TNG Flashlight
+void B_think (edict_t * self);
+void B_make (edict_t * self);
 
 // spec functions
 void SetupSpecSpawn (void);

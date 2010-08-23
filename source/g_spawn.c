@@ -455,6 +455,8 @@ void ED_CallSpawn (edict_t * ent)
 			continue;
 		if (!strcmp (item->classname, ent->classname))
 		{			// found it
+			if(soccer->value)
+				return;
 			//FIREBLADE
 			if (!teamplay->value || teamdm->value || ctf->value == 2)
 			{
@@ -785,7 +787,22 @@ void SpawnEntities (char *mapname, char *entities, char *spawnpoint)
 
 	teamCount = 2;
 
-	if (ctf->value)
+	if(soccer->value)
+	{
+		gi.dprintf ("Soccer Enabled - Forcing a lot of stuff\n");
+		gi.cvar_forceset(use_tourney->name, "0");
+		gi.cvar_forceset(teamdm->name, "0");
+		gi.cvar_forceset(use_3teams->name, "0");
+		//gi.cvar_forceset(teamplay->name, "1");
+		gi.cvar_forceset(ctf->name, "0");
+		strcpy(teams[TEAM1].name, "RED");
+		strcpy(teams[TEAM2].name, "BLUE");
+		strcpy(teams[TEAM1].skin, "male/ctf_r");
+		strcpy(teams[TEAM2].skin, "male/ctf_b");
+		strcpy(teams[TEAM1].skin_index, "../players/male/ctf_r_i");
+		strcpy(teams[TEAM2].skin_index, "../players/male/ctf_b_i");
+	}
+	else if (ctf->value)
 	{
 		// Make sure teamplay is enabled
 		if (!teamplay->value)
