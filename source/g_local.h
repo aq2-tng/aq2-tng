@@ -1884,6 +1884,7 @@ void FL_think (edict_t * self);	// TNG Flashlight
 void FL_make (edict_t * self);	// TNG Flashlight
 void B_think (edict_t * self);
 void B_make (edict_t * self);
+void B_kick (edict_t * self);
 
 // spec functions
 void SetupSpecSpawn (void);

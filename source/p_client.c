@@ -3618,8 +3618,11 @@ void ClientThink(edict_t * ent, usercmd_t * ucmd)
 
 		//Should move this to ClientBeginServerFrame? -M
 		if (ent->client->jumping && ent->solid != SOLID_NOT &&
-			!lights_camera_action && !ent->client->ctf_uvtime)
+			!lights_camera_action && !ent->client->ctf_uvtime) {
 				kick_attack(ent);
+				if(soccer->value)
+					B_kick(ent);
+		}
 
 		// touch other objects
 		for (i = 0; i < pm.numtouch; i++) {
