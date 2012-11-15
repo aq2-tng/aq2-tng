@@ -40,6 +40,12 @@ else
 		-falign-jumps=2 -falign-functions=2
 endif
 
+ifdef X86
+TUNE=i386
+ARCH=i386
+CFLAGS+=-m32
+endif
+
 DO_CC=$(CC) $(CFLAGS) $(SHLIBCFLAGS) -o $@ -c $<
 DO_LINK=$(CC) $(CFLAGS) $(SHLIBLDFLAGS) -o $@ $(GAME_OBJS) $(SHLIBLIBS)
 
@@ -48,13 +54,11 @@ SHLIBCFLAGS?=-fPIC
 SHLIBLDFLAGS?=-shared
 
 ifdef WIN32
-CC=wine cl -IC:\\include -nologo
-CFLAGS=$(BASE_CFLAGS) -DWIN32 -O1
-LINK=wine link -nologo
+CC=i586-mingw32msvc-gcc
+CFLAGS=$(BASE_CFLAGS) -DWIN32 -O2 -g0
 ARCH=x86
 SHLIBEXT=dll
-DO_CC=$(CC) $(CFLAGS) -Fo$@ -c $<
-DO_LINK=$(LINK) -LIBPATH:C:\\lib $(GAME_OBJS) ws2_32.lib /DEF:game.def /DLL /OUT:game$(ARCH).$(SHLIBEXT)
+SHLIBLIBS=-lws2_32
 endif
 
 #############################################################################
