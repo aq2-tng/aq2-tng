@@ -1047,7 +1047,7 @@ void JoinTeam (edict_t * ent, int desired_team, int skip_menuclose)
 		ent->client->resp.captain = 0;	//SLICER: Same here
 	}
 	//AQ2:TNG END
-	if (!skip_menuclose && !teamdm->value && ctf->value != 2)
+	if (!skip_menuclose && (!teamdm->value || dm_choose->value) && ctf->value != 2)
 		OpenWeaponMenu (ent);
 }
 

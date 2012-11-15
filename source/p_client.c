@@ -1875,7 +1875,7 @@ void InitClientResp(gclient_t * client)
 	client->resp.ir = 1;
 
 	// TNG:Freud, restore weapons and items from last map.
-	if (auto_equip->value && teamplay->value && !teamdm->value && ctf->value != 2) {
+	if (auto_equip->value && ((teamplay->value && !teamdm->value) || dm_choose->value) && ctf->value != 2) {
 		if (item)
 			client->resp.item = item;
 		if (weapon)
@@ -2916,7 +2916,7 @@ void PutClientInServer(edict_t * ent)
 			AllItems(ent);
 		}
 
-		if (teamplay->value && !teamdm->value && ctf->value != 2)
+		if ((teamplay->value && !teamdm->value && ctf->value != 2) || (!ctf->value && dm_choose->value))
 			EquipClient(ent);
 		else if (deathmatch->value)
 			EquipClientDM(ent);

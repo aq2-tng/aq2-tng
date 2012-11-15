@@ -888,7 +888,7 @@ void temp_think_specweap (edict_t * ent)
 		ent->nextthink = level.time + (weapon_respawn->value * 0.6f);
 		ent->think = G_FreeEdict;
 	}
-	else if (ctf->value)
+	else if (ctf->value || (dm_choose->value && !teamplay->value && deathmatch->value))
 	{
 		ent->nextthink = level.time + 6;
 		ent->think = ThinkSpecWeap;

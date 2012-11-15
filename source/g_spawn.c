@@ -456,7 +456,7 @@ void ED_CallSpawn (edict_t * ent)
 		if (!strcmp (item->classname, ent->classname))
 		{			// found it
 			//FIREBLADE
-			if (!teamplay->value || teamdm->value || ctf->value == 2)
+			if ((!teamplay->value || teamdm->value || ctf->value == 2) && !dm_choose->value)
 			{
 			//FIREBLADE
 				if (item->flags == IT_AMMO || item->flags == IT_WEAPON
@@ -990,7 +990,7 @@ void SpawnEntities (char *mapname, char *entities, char *spawnpoint)
 	num_ghost_players = 0;
 
 	//FIREBLADE
-	if (!teamplay->value || teamdm->value || ctf->value == 2)
+	if ((!teamplay->value || teamdm->value || ctf->value == 2) && !dm_choose->value)
 	{
 		//FIREBLADE
 		//zucc for special items

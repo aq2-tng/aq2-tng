@@ -874,6 +874,13 @@ void Cmd_Inven_f (edict_t * ent)
 	}
 	//FIREBLADE
 
+	if (dm_choose->value)
+	{
+		OpenWeaponMenu (ent);
+		cl->showinventory = false;
+		return;
+	}
+
 	cl->showinventory = true;
 
 	gi.WriteByte (svc_inventory);

@@ -414,6 +414,8 @@ cvar_t *stats_afterround;     // Collect TNG stats between rounds
 cvar_t *auto_join;
 cvar_t *auto_equip;
 
+cvar_t *dm_choose;
+
 //TNG:Freud - new spawning system
 cvar_t *use_oldspawns;
 //TNG:Freud - ghosts
