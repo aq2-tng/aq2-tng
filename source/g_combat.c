@@ -753,6 +753,13 @@ T_Damage (edict_t * targ, edict_t * inflictor, edict_t * attacker, vec3_t dir,
 	}
 	//FIREBLADE
 
+	if (dm_shield->value && targ->client)
+	{
+		if (targ->client->ctf_uvtime > 0)
+			return;
+		if (attacker->client && attacker->client->ctf_uvtime > 0)
+			return;
+	}
 
 	// damage reduction for shotgun
 	// if far away, reduce it to original action levels

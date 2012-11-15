@@ -397,6 +397,8 @@ cvar_t *teamdm;
 cvar_t *teamdm_respawn;
 cvar_t *respawn_effect;
 
+cvar_t *dm_shield;
+
 cvar_t *item_respawnmode;
 
 cvar_t *item_respawn;
@@ -794,6 +796,29 @@ void CheckDMRules (void)
 				return;
 			}
 		}
+
+		if (dm_shield->value)
+		{
+			for (i = 0; i < maxclients->value; i++)
+			{
+				if (!g_edicts[i + 1].inuse)
+					continue;
+				if (game.clients[i].ctf_uvtime > 0)
+				{
+					game.clients[i].ctf_uvtime--;                                                               
+					if (!game.clients[i].ctf_uvtime)                                        
+					{                                                                                           
+						gi.centerprintf (&g_edicts[i + 1], "ACTION!");                                      
+					}                                                                                           
+					else if (game.clients[i].ctf_uvtime % 10 == 0)                                              
+					{                                                                                           
+						gi.centerprintf (&g_edicts[i + 1], "Shield %d",                                     
+						game.clients[i].ctf_uvtime / 10);                                                   
+					} 
+				}
+			}
+		}
+
 		//FIREBLADE
 		//PG BUND - BEGIN
 		if (vCheckVote () == true)

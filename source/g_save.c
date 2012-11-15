@@ -604,6 +604,7 @@ void InitGame (void)
 	eventeams = gi.cvar ("eventeams", "0", 0);
 	use_balancer = gi.cvar ("use_balancer", "0", 0);
 	dm_choose = gi.cvar ("dm_choose", "0", 0);
+	dm_shield = gi.cvar ("dm_shield", "0", 0);
 
 	use_punch = gi.cvar ("use_punch", "1", 0);
 

@@ -2031,6 +2031,29 @@ void CheckTeamRules (void)
 		return;
 	}
 
+	// works like old CTF shield for TDM
+	if (dm_shield->value && (!teamplay->value || (teamdm->value && lights_camera_action == 0)) && !ctf->value)
+	{
+		for (i = 0; i < maxclients->value; i++)
+		{
+			if (!g_edicts[i + 1].inuse)
+				continue;
+			if (game.clients[i].ctf_uvtime > 0)
+			{
+				game.clients[i].ctf_uvtime--;
+				if (!game.clients[i].ctf_uvtime && team_round_going)
+				{
+					gi.centerprintf (&g_edicts[i + 1], "ACTION!");
+				}
+				else if (game.clients[i].ctf_uvtime % 10 == 0)
+				{
+					gi.centerprintf (&g_edicts[i + 1], "Shield %d",
+					game.clients[i].ctf_uvtime / 10);
+				}
+			}
+		}
+	}
+
 // AQ2:TNG - JBravo adding UVtime
 	if(ctf->value)
 	{

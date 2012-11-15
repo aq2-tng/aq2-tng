@@ -948,6 +948,7 @@ extern cvar_t *auto_join;	// Automaticly join clients to teams they were on in l
 extern cvar_t *auto_equip;	// Remember weapons and items for players between maps.
 
 extern cvar_t *dm_choose;
+extern cvar_t *dm_shield;
 
 // TNG:Freud - new spawning system
 extern cvar_t *use_oldspawns;
