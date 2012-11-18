@@ -938,6 +938,7 @@ void Team_f (edict_t * ent)
 void JoinTeam (edict_t * ent, int desired_team, int skip_menuclose)
 {
 	char *s, *a;
+	char temp[128];
 
 	if (!skip_menuclose)
 		PMenu_Close (ent);
@@ -1039,6 +1040,8 @@ void JoinTeam (edict_t * ent, int desired_team, int skip_menuclose)
 			}
 			else
 			{
+				Com_sprintf(temp, sizeof(temp),"%s is no longer ready to play!", teams[ent->client->resp.captain].name);
+				CenterPrintAll(temp);
 				teams[ent->client->resp.captain].ready = 0;
 			}
 		}
@@ -1054,7 +1057,8 @@ void JoinTeam (edict_t * ent, int desired_team, int skip_menuclose)
 void LeaveTeam (edict_t * ent)
 {
 	char *g;
-
+	char temp[128];
+	
 	if (ent->client->resp.team == NOTEAM)
 		return;
 
@@ -1108,6 +1112,8 @@ void LeaveTeam (edict_t * ent)
 			}
 			else
 			{
+				Com_sprintf(temp, sizeof(temp),"%s is no longer ready to play!", teams[ent->client->resp.captain].name);
+				CenterPrintAll(temp);
 				teams[ent->client->resp.captain].ready = 0;
 			}
 		}
