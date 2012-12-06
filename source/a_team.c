@@ -622,7 +622,9 @@ void SelectItem6 (edict_t * ent, pmenu_t * p)
 void CreditsReturnToMain (edict_t * ent, pmenu_t * p)
 {
 	PMenu_Close (ent);
-	OpenJoinMenu (ent);
+	if (teamplay->value) {
+		OpenJoinMenu (ent);
+	}
 }
 
 //PG BUND BEGIN
