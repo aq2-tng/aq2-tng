@@ -3497,7 +3497,7 @@ void ClientThink(edict_t * ent, usercmd_t * ucmd)
 	//FIREBLADE
 
 	// show team or weapon menu immediately when connected
-	if (auto_menu->value && !client->menu && !client->resp.menu_shown) {
+	if (auto_menu->value && !client->menu && !client->resp.menu_shown && (teamplay->value || dm_choose->value)) {
 		Cmd_Inven_f(ent);
 	}
 
