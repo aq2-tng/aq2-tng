@@ -857,6 +857,8 @@ void Cmd_Inven_f (edict_t * ent)
 		return;
 	}
 
+	cl->resp.menu_shown = true;
+
 	//FIREBLADE
 	if (teamdm->value || ctf->value == 2) {
 		if (ent->client->resp.team == NOTEAM) {
@@ -866,6 +868,7 @@ void Cmd_Inven_f (edict_t * ent)
 	}
 	else if (teamplay->value)
 	{
+		cl->resp.menu_shown = true;
 		if (ent->client->resp.team == NOTEAM)
 			OpenJoinMenu (ent);
 		else

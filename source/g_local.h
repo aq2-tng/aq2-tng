@@ -946,6 +946,7 @@ extern cvar_t *stats_afterround; // TNG Stats, collect stats between rounds
 
 extern cvar_t *auto_join;	// Automaticly join clients to teams they were on in last map.
 extern cvar_t *auto_equip;	// Remember weapons and items for players between maps.
+extern cvar_t *auto_menu;	// Automatically show the join menu
 
 extern cvar_t *dm_choose;
 extern cvar_t *dm_shield;
@@ -1369,6 +1370,7 @@ typedef struct
 
   int joined_team;		// last frame # at which the player joined a team
   int lastWave;			//last time used wave
+  int menu_shown;		// has the main menu been shown
 
   // radio/partners stuff...
   int radio_delay;

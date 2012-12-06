@@ -492,7 +492,7 @@ void PrintMOTD(edict_t * ent)
 		}
 
 		//If we're in teamplay, we want to inform people that they can open the menu with TAB
-		if (teamplay->value && lines < max_lines) {
+		if (teamplay->value && lines < max_lines && !auto_menu->value) {
 			Q_strncatz(msg_buf, "\nHit TAB to open the Team selection menu", sizeof(msg_buf));
 			lines++;
 		}
@@ -515,7 +515,11 @@ void PrintMOTD(edict_t * ent)
 		}
 	}
 
-	gi.centerprintf(ent, "%s", msg_buf);
+	if (!auto_menu->value || ent->client->resp.menu_shown) {
+		gi.centerprintf(ent, "%s", msg_buf);
+	} else {
+		gi.cprintf(ent, PRINT_LOW, "%s", msg_buf);
+	}
 }
 
 // stuffcmd: forces a player to execute a command.

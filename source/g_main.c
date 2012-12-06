@@ -415,6 +415,7 @@ cvar_t *stats_afterround;     // Collect TNG stats between rounds
 
 cvar_t *auto_join;
 cvar_t *auto_equip;
+cvar_t *auto_menu;
 
 cvar_t *dm_choose;
 

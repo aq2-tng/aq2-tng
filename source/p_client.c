@@ -3496,6 +3496,11 @@ void ClientThink(edict_t * ent, usercmd_t * ucmd)
 	}
 	//FIREBLADE
 
+	// show team or weapon menu immediately when connected
+	if (auto_menu->value && !client->menu && !client->resp.menu_shown) {
+		Cmd_Inven_f(ent);
+	}
+
 	if(pause_time > 0)
 	{
 		client->ps.pmove.pm_type = PM_FREEZE;
