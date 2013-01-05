@@ -110,7 +110,7 @@ int _numclients (void)
 	for (i = 1; i <= maxclients->value; i++)
 	{
 		other = &g_edicts[i];
-		if (other->inuse)
+		if (other->inuse && Info_ValueForKey(other->client->pers.userinfo, "mvdspec")[0] == '\0')
 			count++;
 	}
 	return count;
@@ -496,13 +496,7 @@ votelist_t *MapWithMostVotes (float *p)
 		return (NULL);
 
 	//find map_num_clients
-	map_num_clients = 0;
-	for (i = 1; i <= maxclients->value; i++)
-	{
-		e = g_edicts + i;
-		if (e->inuse)
-			map_num_clients++;
-	}
+	map_num_clients = _numclients();
 
 	if (map_num_clients == 0)
 		return (NULL);
