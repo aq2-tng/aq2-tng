@@ -2448,7 +2448,7 @@ void A_NewScoreboardMessage(edict_t * ent)
 	int sorted[TEAM_TOP][MAX_CLIENTS];
 	int total[TEAM_TOP] = {0,0,0,0};
 
-	int i, j, k, line = 0, lineh = 9;
+	int i, j, k, line = 0, lineh = 8;
 
 	// show alive players when dead
 	int dead = (ent->solid == SOLID_NOT || ent->deadflag == DEAD_DEAD || !team_round_going);
@@ -2565,7 +2565,7 @@ void A_ScoreboardMessage (edict_t * ent, edict_t * killer)
 		int otherLines, scoreWidth = 3;
 
 		// new scoreboard for regular teamplay up to 16 players
-		if (use_newscore->value && teamplay->value && !use_3teams->value && !matchmode->value && !ctf->value && maxclients->value <= 16) {
+		if (use_newscore->value && teamplay->value && !use_3teams->value && !matchmode->value && !ctf->value) {
 			return A_NewScoreboardMessage(ent);
 		}
 
