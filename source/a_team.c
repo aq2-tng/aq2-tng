@@ -2439,7 +2439,7 @@ void A_Scoreboard (edict_t * ent)
 	}
 }
 
-#define MAX_PLAYERS_PER_TEAM 1
+#define MAX_PLAYERS_PER_TEAM 8
 
 void A_NewScoreboardMessage(edict_t * ent)
 {
