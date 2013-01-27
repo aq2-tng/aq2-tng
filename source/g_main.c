@@ -300,6 +300,7 @@ cvar_t *roundlimit;
 cvar_t *skipmotd;
 cvar_t *nohud;
 cvar_t *noscore;
+cvar_t *use_newscore;
 cvar_t *actionversion;
 cvar_t *needpass;
 cvar_t *use_voice;

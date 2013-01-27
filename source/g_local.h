@@ -827,6 +827,7 @@ extern cvar_t *roundlimit;
 extern cvar_t *skipmotd;
 extern cvar_t *nohud;
 extern cvar_t *noscore;
+extern cvar_t *use_newscore;
 extern cvar_t *actionversion;
 extern cvar_t *use_voice;
 extern cvar_t *ppl_idletime;

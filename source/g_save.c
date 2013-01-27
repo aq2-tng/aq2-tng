@@ -527,6 +527,7 @@ void InitGame (void)
 	twbanrounds = gi.cvar ("twbanrounds", "2", 0);
 	tkbanrounds = gi.cvar ("tkbanrounds", "2", 0);
 	noscore = gi.cvar ("noscore", "0", CVAR_LATCH);	// Was serverinfo
+	use_newscore = gi.cvar ("use_newscore", "1", 0);
 	actionversion =
 	gi.cvar ("actionversion", "none set", CVAR_SERVERINFO | CVAR_LATCH);
 	gi.cvar_set ("actionversion", ACTION_VERSION);

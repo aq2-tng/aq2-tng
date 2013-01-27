@@ -2439,6 +2439,102 @@ void A_Scoreboard (edict_t * ent)
 	}
 }
 
+#define MAX_PLAYERS_PER_TEAM 1
+
+void A_NewScoreboardMessage(edict_t * ent)
+{
+	char buf[1024];
+	char string[1024] = { '\0' };
+	int sorted[TEAM_TOP][MAX_CLIENTS];
+	int total[TEAM_TOP] = {0,0,0,0};
+
+	int i, j, k, line = 0, lineh = 9;
+
+	// show alive players when dead
+	int dead = (ent->solid == SOLID_NOT || ent->deadflag == DEAD_DEAD || !team_round_going);
+	if (limchasecam->value != 0)
+		dead = 0;
+
+	for (i = 0; i < game.maxclients; i++)
+	{
+		edict_t *cl_ent = g_edicts + 1 + i;
+
+		if (!cl_ent->inuse)
+			continue;
+
+		if (game.clients[i].resp.team == NOTEAM)
+			continue;
+
+		int team = game.clients[i].resp.team;
+		int score = game.clients[i].resp.score;
+
+		for (j = 0; j < total[team]; j++)
+		{
+			if (score > game.clients[sorted[team][j]].resp.score)
+				break;
+			if (score == game.clients[sorted[team][j]].resp.score &&
+				game.clients[i].resp.damage_dealt > game.clients[sorted[team][j]].resp.damage_dealt)
+				break;
+		}
+
+		for (k = total[team]; k > j; k--)
+			sorted[team][k] = sorted[team][k - 1];
+
+		sorted[team][j] = i;
+		total[team]++;
+	}
+
+	// print teams
+	for (i = TEAM1; i <= TEAM2; i++)
+	{
+		sprintf(buf, "xv 44 yv %d string2 \"  %-15s %3d Tim Png\"", line++ * lineh, teams[i].name, teams[i].score);
+		strcat(string, buf);
+
+		sprintf(buf, "xv 44 yv %d string2 \"%s\" ",
+			line++ * lineh,
+			"\x9D\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9F"
+		);
+		strcat(string, buf);
+
+		for (j = 0; j < MAX_PLAYERS_PER_TEAM; j++)
+		{
+			// show the amount of excess players
+			if (total[i] > MAX_PLAYERS_PER_TEAM && j == MAX_PLAYERS_PER_TEAM - 1)
+			{
+				sprintf(buf, "xv 44 yv %d string \"   ..and %d more\"", line++ * lineh, total[i] - MAX_PLAYERS_PER_TEAM + 1);
+				strcat(string, buf);
+				break;
+			}
+
+			if (j >= total[i])
+			{
+				line++;
+				continue;
+			}
+
+			gclient_t *cl = &game.clients[sorted[i][j]];
+			edict_t *cl_ent = g_edicts + 1 + sorted[i][j];
+			int alive = (cl_ent->solid != SOLID_NOT && cl_ent->deadflag != DEAD_DEAD);
+
+			sprintf(buf, "xv 44 yv %d string \"%c %-15s %3d %3d %3d\"",
+					line++ * lineh,
+					(alive && dead ? '*' : ' '),
+					cl->pers.netname,
+					cl->resp.score,
+					(level.framenum - cl->resp.enterframe) / 600,
+					(cl->ping > 999 ? 999 : cl->ping));
+			strcat(string, buf);
+		}
+
+		line++;
+	}
+
+	string[1024] = '\0';
+
+	gi.WriteByte (svc_layout);
+	gi.WriteString (string);
+}
+
 // Maximum number of lines of scores to put under each team's header.
 #define MAX_SCORES_PER_TEAM 9
 
@@ -2467,6 +2563,11 @@ void A_ScoreboardMessage (edict_t * ent, edict_t * killer)
 		int offset[TEAM_TOP], tpic[TEAM_TOP][2] = {{0,0},{24,26},{25,27},{30,31}};
 		char temp[16];
 		int otherLines, scoreWidth = 3;
+
+		// new scoreboard for regular teamplay up to 16 players
+		if (use_newscore->value && teamplay->value && !use_3teams->value && !matchmode->value && !ctf->value && maxclients->value <= 16) {
+			return A_NewScoreboardMessage(ent);
+		}
 
 		if(use_3teams->value) {
 			offset[TEAM1] = -80;
