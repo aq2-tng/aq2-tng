@@ -1382,12 +1382,26 @@ Makes sure the client loads all necessary data on connect to avoid lag.
 */
 void PrecacheItems ()
 {
-	gitem_t *item;
-	int i;
+	PrecacheItem(FindItemByClassname("weapon_Mk23"));
+	PrecacheItem(FindItemByClassname("weapon_MP5"));
+	PrecacheItem(FindItemByClassname("weapon_M4"));
+	PrecacheItem(FindItemByClassname("weapon_M3"));
+	PrecacheItem(FindItemByClassname("weapon_HC"));
+	PrecacheItem(FindItemByClassname("weapon_Sniper"));
+	PrecacheItem(FindItemByClassname("weapon_Dual"));
+	PrecacheItem(FindItemByClassname("weapon_Knife"));
+	PrecacheItem(FindItemByClassname("weapon_Grenade"));
+	PrecacheItem(FindItemByClassname("item_quiet"));
+	PrecacheItem(FindItemByClassname("item_band"));
+	PrecacheItem(FindItemByClassname("item_lasersight"));
+	PrecacheItem(FindItemByClassname("item_slippers"));
+	PrecacheItem(FindItemByClassname("item_vest"));
+	PrecacheItem(FindItemByClassname("item_helmet"));
+	PrecacheItem(FindItemByClassname("item_bandolier"));
 
-	for (i = 0, item = itemlist; i < game.num_items; i++, item++)
-	{
-		PrecacheItem(item);
+	if (ctf->value) {
+		PrecacheItem(FindItemByClassname("item_flag_team1"));
+		PrecacheItem(FindItemByClassname("item_flag_team2"));
 	}
 }
 
@@ -1787,7 +1801,7 @@ always owned, never in the world
    NULL,
    0,
 
-				/* precache */ "weapons/blastf1a.wav",
+				/* precache */ "",
 	NO_NUM
    }
   ,
@@ -2118,7 +2132,7 @@ world_model_flags int               copied to 'ent->s.effects' (see s.effects fo
    IT_WEAPON,
    NULL,
    0,
-   "weapons/mk23fire.wav weapons/mk23in.wav weapons/mk23out.wav weapons/mk23slap.wav weapons/mk23slide.wav misc/click.wav weapons/machgf4b.wav",
+   "weapons/mk23fire.wav weapons/mk23in.wav weapons/mk23out.wav weapons/mk23slap.wav weapons/mk23slide.wav misc/click.wav weapons/machgf4b.wav weapons/blastf1a.wav",
   MK23_NUM}
   ,
 
@@ -2230,7 +2244,7 @@ world_model_flags int               copied to 'ent->s.effects' (see s.effects fo
    IT_WEAPON,
    NULL,
    0,
-   "weapons/ssgbolt.wav weapons/ssgfire.wav weapons/ssgin.wav misc/lensflik.wav weapons/hyprbl1a.wav",
+   "weapons/ssgbolt.wav weapons/ssgfire.wav weapons/ssgin.wav misc/lensflik.wav weapons/hyprbl1a.wav weapons/hyprbf1a.wav",
   SNIPER_NUM}
   ,
   {
@@ -2294,7 +2308,7 @@ world_model_flags int               copied to 'ent->s.effects' (see s.effects fo
    IT_WEAPON,
    NULL,
    0,
-   "misc/grenade.wav",
+   "misc/grenade.wav weapons/grenlb1b.wav weapons/hgrent1a.wav",
   GRENADE_NUM}
   ,
 

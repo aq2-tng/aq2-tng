@@ -1593,6 +1593,7 @@ void SP_worldspawn (edict_t * ent)
 	gi.soundindex("misc/vest.wav");		// kevlar hit
 	gi.soundindex("misc/flyloop.wav");	// throwing knife
 	gi.soundindex("weapons/kick.wav");	// not loaded by any item, kick sound
+	gi.soundindex("weapons/grenlf1a.wav");	// respawn sound
 
 	PrecacheItems ();
 	PrecacheRadioSounds ();
