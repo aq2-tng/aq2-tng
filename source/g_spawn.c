@@ -1578,13 +1578,19 @@ void SP_worldspawn (edict_t * ent)
 	gi.soundindex ("misc/flashlight.wav"); // Caching Flashlight
 	// AQ2:TNG - end of precache sounds
 
+	// disabled these because they are seriously silly to precache -hifi
+	/*
 	gi.soundindex("boss3/bs3idle1.wav");
 	gi.soundindex("user/letsrock.wav");
 	gi.soundindex("makron/laf4.wav");
-	gi.soundindex("world/xian1.wav");
 	gi.soundindex("world/elv.wav");
+	*/
+	gi.soundindex("world/xian1.wav"); // intermission music
 	gi.soundindex("misc/secret.wav"); // used for ctf swap sound
+	gi.soundindex("misc/silencer.wav"); // all silencer weapons
+	gi.soundindex("misc/flyloop.wav"); // throwing knife
 
+	PrecacheItems ();
 	PrecacheRadioSounds ();
 	//PG BUND - Begin
 	PrecacheUserSounds ();
@@ -1603,8 +1609,6 @@ void SP_worldspawn (edict_t * ent)
 
 	snd_fry = gi.soundindex ("player/fry.wav");	// standing in lava / slime
 
-	PrecacheItem (FindItem ("Blaster"));
-
 	gi.soundindex ("player/lava1.wav");
 	gi.soundindex ("player/lava2.wav");
 
@@ -1612,6 +1616,7 @@ void SP_worldspawn (edict_t * ent)
 	gi.soundindex ("misc/talk1.wav");
 
 	gi.soundindex ("misc/udeath.wav");
+	gi.soundindex ("misc/glurp.wav");
 
 	// gibs
 	gi.soundindex ("items/respawn1.wav");
