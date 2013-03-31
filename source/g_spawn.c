@@ -1585,11 +1585,14 @@ void SP_worldspawn (edict_t * ent)
 	gi.soundindex("makron/laf4.wav");
 	gi.soundindex("world/elv.wav");
 	*/
-	gi.soundindex("world/xian1.wav"); // intermission music
-	gi.soundindex("misc/secret.wav"); // used for ctf swap sound
-	gi.soundindex("misc/silencer.wav"); // all silencer weapons
-	gi.soundindex("misc/flyloop.wav"); // throwing knife
-	gi.soundindex("weapons/kick.wav"); // not loaded by any item, kick sound
+	gi.soundindex("world/10_0.wav");	// countdown
+	gi.soundindex("world/xian1.wav");	// intermission music
+	gi.soundindex("misc/secret.wav");	// used for ctf swap sound
+	gi.soundindex("misc/silencer.wav");	// all silencer weapons
+	gi.soundindex("misc/headshot.wav");	// headshot sound
+	gi.soundindex("misc/vest.wav");		// kevlar hit
+	gi.soundindex("misc/flyloop.wav");	// throwing knife
+	gi.soundindex("weapons/kick.wav");	// not loaded by any item, kick sound
 
 	PrecacheItems ();
 	PrecacheRadioSounds ();
@@ -1653,6 +1656,9 @@ void SP_worldspawn (edict_t * ent)
 	gi.modelindex ("#w_akimbo.md2");
 	gi.modelindex ("#w_knife.md2");
 	gi.modelindex ("#a_m61frag.md2");
+
+	gi.modelindex ("sprites/null.sp2");	// null sprite
+	gi.modelindex ("sprites/lsight.sp2");	// laser sight dot sprite
 
 	gi.soundindex ("player/gasp1.wav");	// gasping for air
 	gi.soundindex ("player/gasp2.wav");	// head breaking surface, not gasping
