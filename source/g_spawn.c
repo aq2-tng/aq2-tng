@@ -1589,6 +1589,7 @@ void SP_worldspawn (edict_t * ent)
 	gi.soundindex("misc/secret.wav"); // used for ctf swap sound
 	gi.soundindex("misc/silencer.wav"); // all silencer weapons
 	gi.soundindex("misc/flyloop.wav"); // throwing knife
+	gi.soundindex("weapons/kick.wav"); // not loaded by any item, kick sound
 
 	PrecacheItems ();
 	PrecacheRadioSounds ();
