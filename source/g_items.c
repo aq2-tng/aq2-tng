@@ -2230,7 +2230,7 @@ world_model_flags int               copied to 'ent->s.effects' (see s.effects fo
    IT_WEAPON,
    NULL,
    0,
-   "weapons/ssgbolt.wav weapons/ssgfire.wav weapons/ssgin.wav misc/lensflik.wav weapons/hyperbf1a.wav",
+   "weapons/ssgbolt.wav weapons/ssgfire.wav weapons/ssgin.wav misc/lensflik.wav weapons/hyprbl1a.wav",
   SNIPER_NUM}
   ,
   {
