@@ -110,7 +110,7 @@ int _numclients (void)
 	for (i = 1; i <= maxclients->value; i++)
 	{
 		other = &g_edicts[i];
-		if (other->inuse && Info_ValueForKey(other->client->pers.userinfo, "mvdspec")[0] == '\0')
+		if (other->inuse && !other->client->pers.is_mvdspec)
 			count++;
 	}
 	return count;

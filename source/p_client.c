@@ -3203,9 +3203,25 @@ qboolean ClientConnect(edict_t * ent, char *userinfo)
 	char *value, *ipaddr;
 	char ipaddr_buf[100];
 	int tempBan = 0;
+	char *extrainfo = userinfo;
+
+	// reset client version info 
+	ent->client->pers.major_version = 34;
+	ent->client->pers.minor_version = 0;
+	ent->client->pers.is_mvdspec = 0;
+
+	if (game.serverFeatures & GMF_EXTRA_USERINFO) {
+		extrainfo = userinfo + strlen(userinfo) + 1;
+		ent->client->pers.major_version = atoi(Info_ValueForKey(extrainfo, "major"));
+		ent->client->pers.minor_version = atoi(Info_ValueForKey(extrainfo, "minor"));
+	}
+
+	if (game.serverFeatures & GMF_MVDSPEC) {
+		ent->client->pers.is_mvdspec = atoi(Info_ValueForKey(extrainfo, "mvdspec"));
+	}
 
 	// check to see if they are on the banned IP list
-	ipaddr = Info_ValueForKey(userinfo, "ip");
+	ipaddr = Info_ValueForKey(extrainfo, "ip");
 
 	if (strlen(ipaddr) > sizeof(ipaddr_buf) - 1)
 		gi.dprintf("ipaddr_buf length exceeded\n");
@@ -3256,7 +3272,7 @@ qboolean ClientConnect(edict_t * ent, char *userinfo)
 	ClientUserinfoChanged(ent, userinfo);
 
 	if (game.maxclients > 1) {
-		gi.dprintf("%s@%s connected\n", ent->client->pers.netname, ipaddr_buf);
+		gi.dprintf("%s@%s connected (protocol %d/%d)\n", ent->client->pers.netname, ipaddr_buf, ent->client->pers.major_version, ent->client->pers.minor_version);
 		IRC_printf(IRC_T_SERVER, "%n@%s connected", ent->client->pers.netname, ipaddr_buf);
 	}
 
