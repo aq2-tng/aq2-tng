@@ -1881,7 +1881,7 @@ void InitClientResp(gclient_t * client)
 	}
 	client->resp.ir = 1;
 
-	if (!teamplay->value) {
+	if (!teamplay->value && auto_equip->value) {
 		client->resp.menu_shown = menu_shown;
 	}
 
