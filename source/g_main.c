@@ -474,8 +474,6 @@ void ShutdownGame (void)
 	vExitGame ();
 	gi.FreeTags (TAG_LEVEL);
 	gi.FreeTags (TAG_GAME);
-
-	gi.cvar_forceset("g_features", "0");
 }
 
 

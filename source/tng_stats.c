@@ -119,7 +119,7 @@ void Cmd_Stats_f (edict_t *targetent, char *arg)
 			{
 				cl_ent = &g_edicts[1 + i];
 
-				if (!cl_ent->inuse || cl_ent->client->pers.is_mvdspec)
+				if (!cl_ent->inuse || Info_ValueForKey(cl_ent->client->pers.userinfo, "mvdspec")[0] != '\0')
 					continue;
 
 				hits = total = 0;
@@ -145,7 +145,7 @@ void Cmd_Stats_f (edict_t *targetent, char *arg)
 			ent = targetent;
 		else
 			ent = &g_edicts[1 + i];
-		if (!ent->inuse || ent->client->pers.is_mvdspec)
+		if (!ent->inuse || Info_ValueForKey(ent->client->pers.userinfo, "mvdspec")[0] != '\0')
 			ent = targetent;
 		//SLIC2 END
 

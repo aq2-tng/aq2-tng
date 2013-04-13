@@ -2541,15 +2541,11 @@ void A_NewScoreboardMessage(edict_t * ent)
 //AQ2:TNG - Slicer Modified Scores for Match Mode
 void A_ScoreboardMessage (edict_t * ent, edict_t * killer)
 {
-	char string[2424], damage[50];
+	char string[1400], damage[50];
 	gclient_t *cl;
 	edict_t *cl_ent;
 	int maxsize = 1000, i, j, k;
 
-	if (ent->client->pers.major_version == 36 && ent->client->pers.minor_version >= 1020)
-	{
-		maxsize = 2024;
-	}
 
 	if (ent->client->scoreboardnum == 1)
 	{
@@ -2972,12 +2968,12 @@ void A_ScoreboardMessage (edict_t * ent, edict_t * killer)
 	}
 
 
-	if (strlen(string) > maxsize - 1)	// for debugging...
+	if (strlen(string) > 1023)	// for debugging...
 	{
 		gi.dprintf
 		("Warning: scoreboard string neared or exceeded max length\nDump:\n%s\n---\n",
 		string);
-		string[maxsize - 1] = '\0';
+		string[1023] = '\0';
 	}
 
 	gi.WriteByte (svc_layout);
