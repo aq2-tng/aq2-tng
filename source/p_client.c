@@ -3323,6 +3323,7 @@ void ClientDisconnect(edict_t * ent)
 	// reset item and weapon on disconnect
 	ent->client->resp.item = NULL;
 	ent->client->resp.weapon = NULL;
+	ent->client->resp.dm_selected = 0;
 
 	// drop items if they are alive/not observer
 	if (ent->solid != SOLID_NOT)
