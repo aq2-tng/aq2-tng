@@ -1372,6 +1372,7 @@ typedef struct
   int joined_team;		// last frame # at which the player joined a team
   int lastWave;			//last time used wave
   int menu_shown;		// has the main menu been shown
+  qboolean dm_selected;		// if dm weapon selection has been done once
 
   // radio/partners stuff...
   int radio_delay;
