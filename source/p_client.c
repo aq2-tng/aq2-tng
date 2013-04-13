@@ -2978,6 +2978,11 @@ void ClientBeginDeathmatch(edict_t * ent)
 
 //PG BUND - BEGIN
 	ent->client->resp.team = NOTEAM;
+
+	// if no auto equip, prompt for new weapon on level change
+	if (!auto_equip->value)
+		ent->client->resp.dm_selected = 0;
+
 	/*client->resp.last_killed_target = NULL;
 	   client->resp.killed_teammates = 0;
 
