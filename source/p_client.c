@@ -3324,6 +3324,7 @@ void ClientDisconnect(edict_t * ent)
 	ent->client->resp.item = NULL;
 	ent->client->resp.weapon = NULL;
 	ent->client->resp.dm_selected = 0;
+	ent->client->resp.menu_shown = 0;
 
 	// drop items if they are alive/not observer
 	if (ent->solid != SOLID_NOT)
