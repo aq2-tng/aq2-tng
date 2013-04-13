@@ -1857,6 +1857,7 @@ void InitClientResp(gclient_t * client)
 	int team = client->resp.team;
 	gitem_t *item = client->resp.item;
 	gitem_t *weapon = client->resp.weapon;
+	qboolean menu_shown = client->resp.menu_shown;
 
 	memset(&client->resp, 0, sizeof(client->resp));
 	client->resp.team = team;
@@ -1873,6 +1874,10 @@ void InitClientResp(gclient_t * client)
 	}
 	client->resp.item = GET_ITEM(KEV_NUM);
 	client->resp.ir = 1;
+
+	if (!teamplay->value) {
+		client->resp.menu_shown = menu_shown;
+	}
 
 	// TNG:Freud, restore weapons and items from last map.
 	if (auto_equip->value && ((teamplay->value && !teamdm->value) || dm_choose->value) && ctf->value != 2) {
@@ -3313,6 +3318,10 @@ void ClientDisconnect(edict_t * ent)
 			teams[ent->client->resp.captain].ready = 0;
 		}
 	}
+
+	// reset item and weapon on disconnect
+	ent->client->resp.item = NULL;
+	ent->client->resp.weapon = NULL;
 
 	// drop items if they are alive/not observer
 	if (ent->solid != SOLID_NOT)
