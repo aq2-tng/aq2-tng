@@ -458,6 +458,8 @@ field_t clientfields[] = {
 */
 void InitGame (void)
 {
+	cvar_t *cv;
+
 	IRC_init ();
 	gi.dprintf ("==== InitGame ====\n");
 
@@ -678,6 +680,18 @@ void InitGame (void)
 
 	//PG BUND - must be at end of gameinit:
 	vInitGame ();
+
+	gi.dprintf ("Reading extra server features\n");
+	cv = gi.cvar("sv_features", NULL, 0);
+	if (cv) {
+		game.serverfeatures = (int)cv->value;
+
+		if (game.serverfeatures & GMF_CLIENTNUM) {
+			gi.dprintf ("...server supports GMF_CLIENTNUM\n");
+		}
+	}
+
+	gi.cvar_forceset("g_features", va("%d", G_FEATURES));
 }
 
 //=========================================================

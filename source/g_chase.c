@@ -47,6 +47,10 @@ ChaseTargetGone (edict_t * ent)
 	  ent->client->ps.fov = 90;
 	  ent->client->chase_mode = 0;
 	  ent->client->ps.pmove.pm_flags &= ~PMF_NO_PREDICTION;
+          ent->client->clientNum = ent - g_edicts - 1;
+          ent->client->ps.gunframe = ent->client->ps.gunindex = 0;
+          VectorClear (ent->client->ps.gunoffset);
+          VectorClear (ent->client->ps.kick_angles);
 	  return 1;
 	}
     }
@@ -70,6 +74,8 @@ UpdateChaseCam (edict_t * ent)
 
   if (ent->client->chase_mode == 1)
     {
+      ent->client->clientNum = ent - g_edicts - 1;
+      ent->client->ps.gunindex = ent->client->ps.gunframe = 0;
       ent->client->desired_fov = 90;
       ent->client->ps.fov = 90;
 
@@ -143,14 +149,20 @@ UpdateChaseCam (edict_t * ent)
     }
   else             // chase_mode == 2
     {
-      VectorCopy (targ->s.origin, ownerv);
+      ent->client->clientNum = targ - g_edicts - 1;
       VectorCopy (targ->client->v_angle, angles);
 
-      AngleVectors (angles, forward, right, NULL);
-      VectorNormalize (forward);
-      // JBravo: fix for in eyes spectators seeing thru stuff. Thanks Hal9k! :)
-      VectorMA (ownerv, 11, forward, o);
-      //    	  VectorMA (ownerv, 16, forward, o);
+      if (!(game.serverfeatures & GMF_CLIENTNUM)) {
+	      VectorCopy (targ->s.origin, ownerv);
+
+	      AngleVectors (angles, forward, right, NULL);
+	      VectorNormalize (forward);
+	      // JBravo: fix for in eyes spectators seeing thru stuff. Thanks Hal9k! :)
+	      VectorMA (ownerv, 11, forward, o);
+	      //    	  VectorMA (ownerv, 16, forward, o);
+      } else {
+	      VectorCopy (targ->s.origin, o);
+      }
 
       o[2] += targ->viewheight;
 

@@ -291,6 +291,11 @@
 #define		getEnt(entnum)	(edict_t *)((char *)globals.edicts + (globals.edict_size * entnum))	//AQ:TNG Slicer - This was missing
 #define		GAMEVERSION			"action"	// the "gameversion" client command will print this plus compile date
 
+#define GMF_CLIENTNUM		0x00000001
+#define GMF_MVDSPEC		0x00000004
+#define GMF_EXTRA_USERINFO	0x00001000
+#define G_FEATURES (/*GMF_EXTRA_USERINFO | GMF_MVDSPEC |*/ GMF_CLIENTNUM)
+
 // protocol bytes that can be directly added to messages
 #define svc_muzzleflash         1
 #define svc_muzzleflash2        2
@@ -549,6 +554,7 @@ typedef struct
 
   // cross level triggers
   int serverflags;
+  int serverfeatures;
 
   // items
   int num_items;
@@ -1475,6 +1481,7 @@ struct gclient_s
   player_state_t ps;		// communicated by server to clients
 
   int ping;
+  int clientNum;
 
   // private to game
   client_persistant_t pers;

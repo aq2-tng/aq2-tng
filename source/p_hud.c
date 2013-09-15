@@ -761,3 +761,22 @@ void G_SetStats (edict_t * ent)
 		A_Scoreboard (ent);
 	//FIREBLADE
 }
+
+void G_SetSpectatorStats (edict_t *ent)
+{
+        gclient_t *cl = ent->client;
+
+	memcpy (cl->ps.stats, cl->chase_target->client->ps.stats, sizeof(cl->ps.stats));
+
+	//copy gun if in-eyes mode
+	if (cl->chase_mode == 2)
+	{   
+		cl->ps.gunindex = cl->chase_target->client->ps.gunindex;
+		cl->ps.gunframe = cl->chase_target->client->ps.gunframe;
+		VectorCopy (cl->chase_target->client->ps.gunangles, cl->ps.gunangles);
+
+		//copy kickangles so hits/etc look realistic
+		VectorCopy (cl->chase_target->client->ps.kick_angles, cl->ps.kick_angles);
+	}   
+}
+

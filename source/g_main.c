@@ -474,6 +474,8 @@ void ShutdownGame (void)
 	vExitGame ();
 	gi.FreeTags (TAG_LEVEL);
 	gi.FreeTags (TAG_GAME);
+
+	gi.cvar_forceset("g_features", "0");
 }
 
 
@@ -566,6 +568,13 @@ void ClientEndServerFrames (void)
 		ClientEndServerFrame (ent);
 	}
 
+	for (i = 0; i < maxclients->value; i++)
+	{
+		ent = g_edicts + 1 + i;
+		if (!ent->inuse || !ent->client || !ent->client->chase_target)
+			continue;
+		G_SetSpectatorStats (ent);
+	}
 }
 
 /*

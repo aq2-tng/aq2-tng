@@ -2756,7 +2756,7 @@ void PutClientInServer(edict_t * ent)
 	memset(client, 0, sizeof(*client));
 
 	client->pers = saved;
-
+	client->clientNum = ent - g_edicts - 1;
 //FF
 	client->team_wounds = save_team_wounds;
 	client->team_kills = save_team_kills;
@@ -3701,6 +3701,10 @@ void ClientThink(edict_t * ent, usercmd_t * ucmd)
 						client->desired_fov = 90;
 						client->ps.fov = 90;
 						client->ps.pmove.pm_flags &= ~PMF_NO_PREDICTION;
+						client->clientNum = ent - g_edicts - 1;
+						client->ps.gunframe = client->ps.gunindex = 0;
+						VectorClear (client->ps.gunoffset);
+						VectorClear (client->ps.kick_angles);
 					} else {
 						client->chase_mode = 1;
 						UpdateChaseCam(ent);
