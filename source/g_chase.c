@@ -184,8 +184,6 @@ UpdateChaseCam (edict_t * ent)
 	}
       else
 	{
-	  VectorAdd (targ->client->v_angle,
-		     targ->client->ps.kick_angles, angles);
 	  VectorCopy (angles, ent->client->ps.viewangles);
 	  VectorCopy (angles, ent->client->v_angle);
 	}
