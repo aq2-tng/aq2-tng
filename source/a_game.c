@@ -542,7 +542,14 @@ void unicastSound(edict_t *ent, int soundIndex, float volume)
     gi.WriteByte((byte)soundIndex);
     if (mask & MASK_VOLUME)
         gi.WriteByte((byte)(volume * 255));
-    gi.WriteShort(((ent - g_edicts - 1) << 3) + CHAN_NO_PHS_ADD);
+
+    // hack when first person spectating, the sound source must be the spectated player
+    if (ent->client->chase_mode == 2 && ent->client->chase_target) {
+	    gi.WriteShort(((ent->client->chase_target - g_edicts - 1) << 3) + CHAN_NO_PHS_ADD);
+    } else {
+	    gi.WriteShort(((ent - g_edicts - 1) << 3) + CHAN_NO_PHS_ADD);
+    }
+
     gi.unicast (ent, true);
 }
 // AQ2:TNG END
