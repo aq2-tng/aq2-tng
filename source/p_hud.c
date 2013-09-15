@@ -766,8 +766,6 @@ void G_SetSpectatorStats (edict_t *ent)
 {
         gclient_t *cl = ent->client;
 
-	memcpy (cl->ps.stats, cl->chase_target->client->ps.stats, sizeof(cl->ps.stats));
-
 	//copy gun if in-eyes mode
 	if (cl->chase_mode == 2)
 	{   
