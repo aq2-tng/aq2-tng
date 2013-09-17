@@ -291,10 +291,19 @@
 #define		getEnt(entnum)	(edict_t *)((char *)globals.edicts + (globals.edict_size * entnum))	//AQ:TNG Slicer - This was missing
 #define		GAMEVERSION			"action"	// the "gameversion" client command will print this plus compile date
 
+
 #define GMF_CLIENTNUM		0x00000001
 #define GMF_MVDSPEC		0x00000004
+#define GMF_VARIABLE_FPS	0x00000800
 #define GMF_EXTRA_USERINFO	0x00001000
-#define G_FEATURES (/*GMF_EXTRA_USERINFO | GMF_MVDSPEC |*/ GMF_CLIENTNUM)
+
+#if USE_FPS
+#define G_GMF_VARIABLE_FPS GMF_VARIABLE_FPS
+#else
+#define G_GMF_VARIABLE_FPS 0
+#endif
+
+#define G_FEATURES (/*GMF_EXTRA_USERINFO | GMF_MVDSPEC |*/ GMF_CLIENTNUM | G_GMF_VARIABLE_FPS)
 
 // protocol bytes that can be directly added to messages
 #define svc_muzzleflash         1
@@ -341,7 +350,26 @@
 #define FL_POWER_ARMOR                  0x00001000	// power armor (if any) is active
 #define FL_RESPAWN                      0x80000000	// used for item respawning
 
-#define FRAMETIME               0.1f
+// variable server FPS
+#if USE_FPS
+#define HZ              game.framerate
+#define FRAMETIME       game.frametime
+#define FRAMEDIV        game.framediv
+#define FRAMESYNC       !(level.framenum % game.framediv)
+#else
+#define HZ              BASE_FRAMERATE
+#define FRAMETIME       BASE_FRAMETIME_1000
+#define FRAMEDIV        1
+#define FRAMESYNC       1
+#endif
+
+#define KEYFRAME(x)   (level.framenum + (x) - (level.framenum % FRAMEDIV))
+
+#define NEXT_FRAME(ent, func) \
+    ((ent)->think = (func), (ent)->nextthink = level.framenum + 1)
+
+#define NEXT_KEYFRAME(ent, func) \
+    ((ent)->think = (func), (ent)->nextthink = KEYFRAME(FRAMEDIV))
 
 // memory tags to allow dynamic memory to be cleaned up
 #define TAG_GAME        765	// clear when unloading the dll
@@ -555,6 +583,12 @@ typedef struct
   // cross level triggers
   int serverflags;
   int serverfeatures;
+
+#if USE_FPS
+  int framerate;
+  float frametime;
+  int framediv;
+#endif
 
   // items
   int num_items;
@@ -1739,7 +1773,7 @@ struct edict_s
   vec3_t velocity;
   vec3_t avelocity;
   int mass;
-  float air_finished;
+  int air_finished_framenum;
   float gravity;		// per entity gravity multiplier (1.0 is normal) use for lowgrav artifact, flares
 
   edict_t *goalentity;
@@ -1759,11 +1793,11 @@ struct edict_s
   void (*die) (edict_t * self, edict_t * inflictor, edict_t * attacker,
 	       int damage, vec3_t point);
 
-  float touch_debounce_time;	// are all these legit?  do we need more/less of them?
+  int touch_debounce_framenum;	// are all these legit?  do we need more/less of them?
 
-  float pain_debounce_time;
-  float damage_debounce_time;
-  float fly_sound_debounce_time;	//move to clientinfo
+  int pain_debounce_framenum;
+  int damage_debounce_framenum;
+  int fly_sound_debounce_framenum;	//move to clientinfo
 
   float last_move_time;
 

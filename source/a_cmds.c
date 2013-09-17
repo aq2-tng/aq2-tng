@@ -225,7 +225,7 @@ void LaserSightThink(edict_t * self)
 	vectoangles(tr.plane.normal, self->s.angles);
 	VectorCopy(tr.endpos, self->s.origin);
 	gi.linkentity(self);
-	self->nextthink = level.time + 0.1;
+	self->nextthink = level.time + (0.1 / FRAMEDIV);
 }
 
 void Cmd_New_Reload_f(edict_t * ent)

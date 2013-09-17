@@ -251,18 +251,18 @@ M_WorldEffects (edict_t * ent)
 	{
 	  if (ent->waterlevel < 3)
 	    {
-	      ent->air_finished = level.time + 12;
+	      ent->air_finished_framenum = level.framenum + 12 * HZ;
 	    }
-	  else if (ent->air_finished < level.time)
+	  else if (ent->air_finished_framenum < level.framenum)
 	    {			// drown!
-	      if (ent->pain_debounce_time < level.time)
+	      if (ent->pain_debounce_framenum < level.framenum)
 		{
-		  dmg = 2 + 2 * floor (level.time - ent->air_finished);
+		  dmg = 2 + 2 * floor ((level.framenum - ent->air_finished_framenum) * HZ);
 		  if (dmg > 15)
 		    dmg = 15;
 		  T_Damage (ent, world, world, vec3_origin, ent->s.origin,
 			    vec3_origin, dmg, 0, DAMAGE_NO_ARMOR, MOD_WATER);
-		  ent->pain_debounce_time = level.time + 1;
+		  ent->pain_debounce_framenum = level.framenum + 1 * HZ;
 		}
 	    }
 	}
@@ -270,18 +270,18 @@ M_WorldEffects (edict_t * ent)
 	{
 	  if (ent->waterlevel > 0)
 	    {
-	      ent->air_finished = level.time + 9;
+	      ent->air_finished_framenum = level.framenum + 9 * HZ;
 	    }
-	  else if (ent->air_finished < level.time)
+	  else if (ent->air_finished_framenum < level.framenum)
 	    {			// suffocate!
-	      if (ent->pain_debounce_time < level.time)
+	      if (ent->pain_debounce_framenum < level.framenum)
 		{
-		  dmg = 2 + 2 * floor (level.time - ent->air_finished);
+		  dmg = 2 + 2 * floor ((level.time - ent->air_finished_framenum) * HZ);
 		  if (dmg > 15)
 		    dmg = 15;
 		  T_Damage (ent, world, world, vec3_origin, ent->s.origin,
 			    vec3_origin, dmg, 0, DAMAGE_NO_ARMOR, MOD_WATER);
-		  ent->pain_debounce_time = level.time + 1;
+		  ent->pain_debounce_framenum = level.framenum + 1 * HZ;
 		}
 	    }
 	}
@@ -300,18 +300,18 @@ M_WorldEffects (edict_t * ent)
 
   if ((ent->watertype & CONTENTS_LAVA) && !(ent->flags & FL_IMMUNE_LAVA))
     {
-      if (ent->damage_debounce_time < level.time)
+      if (ent->damage_debounce_framenum < level.framenum)
 	{
-	  ent->damage_debounce_time = level.time + 0.2;
+	  ent->damage_debounce_framenum = level.framenum + 0.2 * HZ;
 	  T_Damage (ent, world, world, vec3_origin, ent->s.origin,
 		    vec3_origin, 10 * ent->waterlevel, 0, 0, MOD_LAVA);
 	}
     }
   if ((ent->watertype & CONTENTS_SLIME) && !(ent->flags & FL_IMMUNE_SLIME))
     {
-      if (ent->damage_debounce_time < level.time)
+      if (ent->damage_debounce_framenum < level.framenum)
 	{
-	  ent->damage_debounce_time = level.time + 1;
+	  ent->damage_debounce_framenum = level.framenum + 1 * HZ;
 	  T_Damage (ent, world, world, vec3_origin, ent->s.origin,
 		    vec3_origin, 4 * ent->waterlevel, 0, 0, MOD_SLIME);
 	}
@@ -337,7 +337,7 @@ M_WorldEffects (edict_t * ent)
 	}
 
       ent->flags |= FL_INWATER;
-      ent->damage_debounce_time = 0;
+      ent->damage_debounce_framenum = 0;
     }
 }
 
@@ -516,7 +516,7 @@ monster_triggered_spawn (edict_t * self)
   self->solid = SOLID_BBOX;
   self->movetype = MOVETYPE_STEP;
   self->svflags &= ~SVF_NOCLIENT;
-  self->air_finished = level.time + 12;
+  self->air_finished_framenum = level.framenum + 12 * HZ;
   gi.linkentity (self);
 
   monster_start_go (self);
@@ -610,7 +610,7 @@ monster_start (edict_t * self)
   self->svflags |= SVF_MONSTER;
   self->s.renderfx |= RF_FRAMELERP;
   self->takedamage = DAMAGE_AIM;
-  self->air_finished = level.time + 12;
+  self->air_finished_framenum = level.framenum + 12 * HZ;
   self->use = monster_use;
   self->max_health = self->health;
   self->clipmask = MASK_MONSTERSOLID;

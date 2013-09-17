@@ -1626,12 +1626,12 @@ Weapon_Generic (edict_t * ent, int FRAME_ACTIVATE_LAST, int FRAME_FIRE_LAST,
 	{
 	  ent->client->latched_buttons &= ~BUTTON_ATTACK;
 	  {
-	    if (level.time >= ent->pain_debounce_time)
+	    if (level.framenum >= ent->pain_debounce_framenum)
 	      {
 		gi.sound (ent, CHAN_VOICE,
 			  gi.soundindex ("weapons/noammo.wav"), 1, ATTN_NORM,
 			  0);
-		ent->pain_debounce_time = level.time + 1;
+		ent->pain_debounce_framenum = level.framenum + 1 * HZ;
 	      }
 
 
@@ -2135,12 +2135,12 @@ Weapon_Generic (edict_t * ent, int FRAME_ACTIVATE_LAST, int FRAME_FIRE_LAST,
 	    }
 	  else if (bOut)	// out of ammo
 	    {
-	      if (level.time >= ent->pain_debounce_time)
+	      if (level.framenum >= ent->pain_debounce_framenum)
 		{
 		  gi.sound (ent, CHAN_VOICE,
 			    gi.soundindex ("weapons/noammo.wav"), 1,
 			    ATTN_NORM, 0);
-		  ent->pain_debounce_time = level.time + 1;
+		  ent->pain_debounce_framenum = level.framenum + 1 * HZ;
 		}
 	      //+BD - Disabled for manual weapon change
 	      //NoAmmoWeaponChange (ent);
@@ -2340,12 +2340,12 @@ Weapon_Grenade (edict_t * ent)
 	    }
 	  else
 	    {
-	      if (level.time >= ent->pain_debounce_time)
+	      if (level.framenum >= ent->pain_debounce_framenum)
 		{
 		  gi.sound (ent, CHAN_VOICE,
 			    gi.soundindex ("weapons/noammo.wav"), 1,
 			    ATTN_NORM, 0);
-		  ent->pain_debounce_time = level.time + 1;
+		  ent->pain_debounce_framenum = level.framenum + 1 * HZ;
 		}
 	      NoAmmoWeaponChange (ent);
 	    }
@@ -2626,11 +2626,11 @@ Weapon_HyperBlaster_Fire (edict_t * ent)
     {
       if (!ent->client->pers.inventory[ent->client->ammo_index])
 	{
-	  if (level.time >= ent->pain_debounce_time)
+	  if (level.framenum >= ent->pain_debounce_framenum)
 	    {
 	      gi.sound (ent, CHAN_VOICE, gi.soundindex ("weapons/noammo.wav"),
 			1, ATTN_NORM, 0);
-	      ent->pain_debounce_time = level.time + 1;
+	      ent->pain_debounce_framenum = level.framenum + 1 * HZ;
 	    }
 	  NoAmmoWeaponChange (ent);
 	}
@@ -2714,11 +2714,11 @@ Machinegun_Fire (edict_t * ent)
   if (ent->client->pers.inventory[ent->client->ammo_index] < 1)
     {
       ent->client->ps.gunframe = 6;
-      if (level.time >= ent->pain_debounce_time)
+      if (level.framenum >= ent->pain_debounce_framenum)
 	{
 	  gi.sound (ent, CHAN_VOICE, gi.soundindex ("weapons/noammo.wav"), 1,
 		    ATTN_NORM, 0);
-	  ent->pain_debounce_time = level.time + 1;
+	  ent->pain_debounce_framenum = level.framenum + 1 * HZ;
 	}
       NoAmmoWeaponChange (ent);
       return;
@@ -2842,11 +2842,11 @@ Chaingun_Fire (edict_t * ent)
 
   if (!shots)
     {
-      if (level.time >= ent->pain_debounce_time)
+      if (level.framenum >= ent->pain_debounce_framenum)
 	{
 	  gi.sound (ent, CHAN_VOICE, gi.soundindex ("weapons/noammo.wav"), 1,
 		    ATTN_NORM, 0);
-	  ent->pain_debounce_time = level.time + 1;
+	  ent->pain_debounce_framenum = level.framenum + 1 * HZ;
 	}
       NoAmmoWeaponChange (ent);
       return;
@@ -3264,10 +3264,10 @@ void Pistol_Fire (edict_t * ent)
 	if (ent->client->mk23_rds < 1)
 	{
 		ent->client->ps.gunframe = 13;
-		if (level.time >= ent->pain_debounce_time)
+		if (level.framenum >= ent->pain_debounce_framenum)
 		{
 			gi.sound (ent, CHAN_VOICE, gi.soundindex ("weapons/noammo.wav"), 1, ATTN_NORM, 0);
-			ent->pain_debounce_time = level.time + 1;
+			ent->pain_debounce_framenum = level.framenum + 1 * HZ;
 		}
 		//NoAmmoWeaponChange (ent);
 		return;
@@ -3413,11 +3413,11 @@ void MP5_Fire (edict_t * ent)
 	if (ent->client->mp5_rds < 1)
 	{
 		ent->client->ps.gunframe = 13;
-		if (level.time >= ent->pain_debounce_time)
+		if (level.framenum >= ent->pain_debounce_framenum)
 		{
 			gi.sound (ent, CHAN_VOICE, gi.soundindex ("weapons/noammo.wav"), 1,
 			ATTN_NORM, 0);
-			ent->pain_debounce_time = level.time + 1;
+			ent->pain_debounce_framenum = level.framenum + 1 * HZ;
 		}
 		//NoAmmoWeaponChange (ent);
 		return;
@@ -3558,10 +3558,10 @@ void M4_Fire (edict_t * ent)
 	if (ent->client->m4_rds < 1)
 	{
 		ent->client->ps.gunframe = 13;
-		if (level.time >= ent->pain_debounce_time)
+		if (level.framenum >= ent->pain_debounce_framenum)
 		{
 			gi.sound (ent, CHAN_VOICE, gi.soundindex ("weapons/noammo.wav"), 1, ATTN_NORM, 0);
-			ent->pain_debounce_time = level.time + 1;
+			ent->pain_debounce_framenum = level.framenum + 1 * HZ;
 		}
 		//NoAmmoWeaponChange (ent);
 		return;
@@ -3985,11 +3985,11 @@ void Sniper_Fire (edict_t * ent)
 	if (ent->client->sniper_rds < 1)
 	{
 		ent->client->ps.gunframe = 22;
-		if (level.time >= ent->pain_debounce_time)
+		if (level.framenum >= ent->pain_debounce_framenum)
 		{
 			gi.sound (ent, CHAN_VOICE, gi.soundindex ("weapons/noammo.wav"), 1,
 				ATTN_NORM, 0);
-			ent->pain_debounce_time = level.time + 1;
+			ent->pain_debounce_framenum = level.framenum + 1 * HZ;
 		}
 		//NoAmmoWeaponChange (ent);
 		return;
@@ -4107,11 +4107,11 @@ void Dual_Fire (edict_t * ent)
 	if (ent->client->dual_rds < 1)
 	{
 		ent->client->ps.gunframe = 68;
-		if (level.time >= ent->pain_debounce_time)
+		if (level.framenum >= ent->pain_debounce_framenum)
 		{
 			gi.sound (ent, CHAN_VOICE, gi.soundindex ("weapons/noammo.wav"), 1,
 				ATTN_NORM, 0);
-			ent->pain_debounce_time = level.time + 1;
+			ent->pain_debounce_framenum = level.framenum + 1 * HZ;
 		}
 		//NoAmmoWeaponChange (ent);
 		return;
@@ -4204,11 +4204,11 @@ void Dual_Fire (edict_t * ent)
 	if (ent->client->dual_rds < 1)
 	{
 		ent->client->ps.gunframe = 12;
-		if (level.time >= ent->pain_debounce_time)
+		if (level.framenum >= ent->pain_debounce_framenum)
 		{
 			gi.sound (ent, CHAN_VOICE, gi.soundindex ("weapons/noammo.wav"), 1,
 				ATTN_NORM, 0);
-			ent->pain_debounce_time = level.time + 1;
+			ent->pain_debounce_framenum = level.framenum + 1 * HZ;
 		}
 		//NoAmmoWeaponChange (ent);
 		return;
