@@ -27,13 +27,13 @@ VERSION=$(REL_VERSION)
 endif
 
 CC?=gcc
-BASE_CFLAGS=-DC_ONLY -DVERSION=\"$(VERSION)\"
+BASE_CFLAGS=-DC_ONLY -DVERSION=\"$(VERSION)\" -DUSE_FPS
 
 #use these cflags to optimize it
 ifdef DEBUG
 	CFLAGS=$(BASE_CFLAGS) -g -Wall
 else
-	CFLAGS=$(BASE_CFLAGS) -O2
+	CFLAGS=$(BASE_CFLAGS) -O2 -Wno-pointer-to-int-cast
 endif
 
 ifdef X86

@@ -1461,6 +1461,9 @@ void SP_worldspawn (edict_t * ent)
 	// set configstrings for items
 	SetItemNames ();
 
+	level.framenum = 0;
+	level.time = 0;
+
 	if (st.nextmap)
 		strcpy (level.nextmap, st.nextmap);
 

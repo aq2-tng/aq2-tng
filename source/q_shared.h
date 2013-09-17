@@ -1281,6 +1281,15 @@ temp_event_t;
    ==========================================================
  */
 
+// default server FPS
+#define BASE_FRAMERATE          10
+#define BASE_FRAMETIME          100
+#define BASE_1_FRAMETIME        0.01f   // 1/BASE_FRAMETIME
+#define BASE_FRAMETIME_1000     0.1f    // BASE_FRAMETIME/1000
+
+// maximum variable FPS factor
+#define MAX_FRAMEDIV    6
+
 #define ANGLE2SHORT(x)  ((int)((x)*65536/360) & 65535)
 #define SHORT2ANGLE(x)  ((x)*(360.0/65536))
 

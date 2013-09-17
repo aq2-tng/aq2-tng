@@ -1120,7 +1120,7 @@ Touch_DoorTrigger (edict_t * self, edict_t * other, cplane_t * plane,
   if (other->client && other->client->doortoggle)
     {
       //gi.cprintf(other, PRINT_HIGH, "Door trigger called.\n");
-      self->touch_debounce_time = 0.0;
+      self->touch_debounce_framenum = 0.0;
     }
   if (other->health <= 0)
     return;
@@ -1132,9 +1132,9 @@ Touch_DoorTrigger (edict_t * self, edict_t * other, cplane_t * plane,
       && (other->svflags & SVF_MONSTER))
     return;
 
-  if (level.time < self->touch_debounce_time)
+  if (level.framenum < self->touch_debounce_framenum)
     return;
-  self->touch_debounce_time = level.time + 1.0;
+  self->touch_debounce_framenum = level.framenum + 1.0 * HZ;
 // zucc
   if (other->client)
     {
@@ -1299,9 +1299,9 @@ door_touch (edict_t * self, edict_t * other, cplane_t * plane,
   if (!other->client)
     return;
 
-  if (level.time < self->touch_debounce_time)
+  if (level.framenum < self->touch_debounce_framenum)
     return;
-  self->touch_debounce_time = level.time + 5.0;
+  self->touch_debounce_framenum = level.framenum + 5.0 * HZ;
 
   gi.centerprintf (other, "%s", self->message);
   gi.sound (other, CHAN_AUTO, gi.soundindex ("misc/talk1.wav"), 1, ATTN_NORM,
@@ -1659,12 +1659,12 @@ train_blocked (edict_t * self, edict_t * other)
       return;
     }
 
-  if (level.time < self->touch_debounce_time)
+  if (level.framenum < self->touch_debounce_framenum)
     return;
 
   if (!self->dmg)
     return;
-  self->touch_debounce_time = level.time + 0.5;
+  self->touch_debounce_framenum = level.framenum + 0.5 * HZ;
   T_Damage (other, self, self, vec3_origin, other->s.origin, vec3_origin,
 	    self->dmg, 1, 0, MOD_CRUSH);
 }
@@ -2177,9 +2177,9 @@ door_secret_blocked (edict_t * self, edict_t * other)
       return;
     }
 
-  if (level.time < self->touch_debounce_time)
+  if (level.framenum < self->touch_debounce_framenum)
     return;
-  self->touch_debounce_time = level.time + 0.5;
+  self->touch_debounce_framenum = level.framenum + 0.5 * HZ;
 
   T_Damage (other, self, self, vec3_origin, other->s.origin, vec3_origin,
 	    self->dmg, 1, 0, MOD_CRUSH);

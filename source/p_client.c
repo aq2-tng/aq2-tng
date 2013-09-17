@@ -2782,7 +2782,7 @@ void PutClientInServer(edict_t * ent)
 	ent->mass = 200;
 	ent->solid = SOLID_BBOX;
 	ent->deadflag = DEAD_NO;
-	ent->air_finished = level.time + 12;
+	ent->air_finished_framenum = level.framenum + 12 * HZ;
 	ent->clipmask = MASK_PLAYERSOLID;
 	ent->model = "players/male/tris.md2";
 	ent->pain = player_pain;
@@ -3493,7 +3493,6 @@ void ClientThink(edict_t * ent, usercmd_t * ucmd)
 	pmove_t pm;
 	char ltm[64] = "\0";
 
-
 	level.current_entity = ent;
 	client = ent->client;
 
@@ -3597,13 +3596,13 @@ void ClientThink(edict_t * ent, usercmd_t * ucmd)
 		}
 
 		// zucc stumbling associated with leg damage
-		if (level.framenum % 6 <= 2 && ent->client->leg_damage) {
+		if ((level.framenum / game.framediv) % 6 <= 2 && ent->client->leg_damage) {
 			//Slow down code FOO/zucc
 			for (i = 0; i < 3; i++) {
 				if ((i < 2 || ent->velocity[2] > 0) && (ent->groundentity && pm.groundentity))
 					ent->velocity[i] /= 4 * ent->client->leghits;	//FOO       
 			}
-			if (level.framenum % (6 * 12) == 0 && ent->client->leg_damage > 1)
+			if ((level.framenum / game.framediv) % (6 * 12) == 0 && ent->client->leg_damage > 1)
 				gi.sound(ent, CHAN_BODY, gi.soundindex(va("*pain100_1.wav")), 1, ATTN_NORM, 0);
 			ent->velocity[0] = (float) ((int) (ent->velocity[0] * 8)) / 8;
 			ent->velocity[1] = (float) ((int) (ent->velocity[1] * 8)) / 8;
@@ -3724,7 +3723,7 @@ void ClientThink(edict_t * ent, usercmd_t * ucmd)
 					UpdateChaseCam(ent);
 				}
 			}
-		} else if (!client->weapon_thunk) {
+		} else if (!client->weapon_thunk && FRAMESYNC) {
 			client->weapon_thunk = true;
 			Think_Weapon(ent);
 		}
@@ -3876,10 +3875,12 @@ void ClientBeginServerFrame(edict_t * ent)
 //FIREBLADE
 
 	// run weapon animations if it hasn't been done by a ucmd_t
-	if (!client->weapon_thunk)
-		Think_Weapon(ent);
-	else
-		client->weapon_thunk = false;
+	if (FRAMESYNC) {
+		if (!client->weapon_thunk)
+			Think_Weapon(ent);
+		else
+			client->weapon_thunk = false;
+	}
 
 	if (ent->deadflag) {
 		// wait for any button just going down

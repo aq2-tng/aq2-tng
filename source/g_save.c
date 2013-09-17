@@ -691,6 +691,37 @@ void InitGame (void)
 		}
 	}
 
+#if USE_FPS
+	// setup framerate parameters
+	if (game.serverfeatures & GMF_VARIABLE_FPS) {
+		int framediv;
+
+		cv = gi.cvar("sv_fps", NULL, 0);
+		if (!cv)
+			gi.error("GMF_VARIABLE_FPS exported but no 'sv_fps' cvar");
+
+		framediv = (int)cv->value / BASE_FRAMERATE;
+
+		clamp(framediv, 1, MAX_FRAMEDIV);
+
+		game.framerate = framediv * BASE_FRAMERATE;
+		game.frametime = BASE_FRAMETIME_1000 / framediv;
+		game.framediv = framediv;
+
+		gi.dprintf ("...server supports GMF_VARIABLE_FPS\n");
+
+		gi.dprintf("sv_fps = %d\n", (int)cv->value);
+		gi.dprintf("game.framerate = %d\n", game.framerate);
+		gi.dprintf("game.frametime = %f\n", game.frametime);
+		gi.dprintf("game.framediv = %d\n", game.framediv);
+		gi.dprintf("BASE_FRAMETIME_1000 = %f\n", BASE_FRAMETIME_1000);
+	} else {
+		game.framerate = BASE_FRAMERATE;
+		game.frametime = BASE_FRAMETIME_1000;
+		game.framediv = 1; 
+	}    
+#endif
+
 	gi.cvar_forceset("g_features", va("%d", G_FEATURES));
 }
 
