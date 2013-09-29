@@ -1121,6 +1121,8 @@ void Do_Bleeding (edict_t * ent)
 	int temp;
 	//vec3_t norm = {0.0, 0.0, 0.0};
 
+	if (!FRAMESYNC)
+		return;
 
 	if (!(ent->client->bleeding) || (ent->health <= 0))
 		return;
