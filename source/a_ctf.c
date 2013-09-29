@@ -1295,7 +1295,7 @@ void CTFScoreboardMessage(edict_t * ent, edict_t * killer)
 					"xv 0 yv %d string \"%-15s %4d %4d\" ",
 					48 + i * 8,
 					game.clients[sorted[i]].pers.netname,
-					(level.framenum - game.clients[sorted[i]].resp.enterframe) / 600, ping);
+					(level.framenum - game.clients[sorted[i]].resp.enterframe) / 600 / FRAMEDIV, ping);
 			} else {
 				if (game.clients[sorted[i]].resp.damage_dealt < 1000000)
 					sprintf(damage, "%d", game.clients[sorted[i]].resp.damage_dealt);
@@ -1307,7 +1307,7 @@ void CTFScoreboardMessage(edict_t * ent, edict_t * killer)
 					sortedscores[i],
 					game.clients[sorted[i]].pers.netname,
 					(level.framenum -
-					 game.clients[sorted[i]].resp.enterframe) / 600, ping,
+					 game.clients[sorted[i]].resp.enterframe) / 600 / FRAMEDIV, ping,
 					damage, game.clients[sorted[i]].resp.kills);
 			}
 
