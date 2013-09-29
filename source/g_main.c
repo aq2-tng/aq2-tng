@@ -781,6 +781,9 @@ void CheckDMRules (void)
 	if (!deathmatch->value)
 		return;
 
+	if (!FRAMESYNC)
+		return;
+
 	//FIREBLADE
 	if (teamplay->value)
 	{
