@@ -2521,7 +2521,7 @@ void A_NewScoreboardMessage(edict_t * ent)
 					(alive && dead ? '*' : ' '),
 					cl->pers.netname,
 					cl->resp.score,
-					(level.framenum - cl->resp.enterframe) / 600,
+					(level.framenum - cl->resp.enterframe) / 600 / FRAMEDIV,
 					(cl->ping > 999 ? 999 : cl->ping));
 			strcat(string, buf);
 		}
@@ -2920,7 +2920,7 @@ void A_ScoreboardMessage (edict_t * ent, edict_t * killer)
 			{
 				sprintf(string + strlen(string), "xv 0 yv %d string \"%-15s %4d %4d\" ",
 					48 + i * 8,	game.clients[sorted[i]].pers.netname,
-					(level.framenum - game.clients[sorted[i]].resp.enterframe) / 600,
+					(level.framenum - game.clients[sorted[i]].resp.enterframe) / 600 / FRAMEDIV,
 					ping);
 			}
 			else
@@ -2941,7 +2941,7 @@ void A_ScoreboardMessage (edict_t * ent, edict_t * killer)
 				sprintf(string + strlen(string), "xv 0 yv %d string \"%5d %-15s %4d %4d %6s",
 					48 + i * 8,	game.clients[sorted[i]].resp.score,
 					game.clients[sorted[i]].pers.netname,
-					(level.framenum - game.clients[sorted[i]].resp.enterframe) / 600,
+					(level.framenum - game.clients[sorted[i]].resp.enterframe) / 600 / FRAMEDIV,
 					ping, damage);
 
 				if(matchmode->value)

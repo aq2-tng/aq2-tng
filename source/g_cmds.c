@@ -1542,15 +1542,18 @@ void Cmd_PlayerList_f (edict_t * ent)
 	// Set the lines:
 	for (i = 0, e2 = g_edicts + 1; i < maxclients->value; i++, e2++)
 	{
+		int seconds = ((level.framenum - e2->client->resp.enterframe) / HZ) % 60;
+		int minutes = ((level.framenum - e2->client->resp.enterframe) / HZ) / 60;
+
 		if (!e2->inuse)
 			continue;
 
 		if(limchasecam->value)
-			Com_sprintf (st, sizeof (st), "%02d:%02d %4d %3d %s\n",(level.framenum - e2->client->resp.enterframe) / 600,((level.framenum - e2->client->resp.enterframe) % 600) / 10, e2->client->ping, e2->client->resp.team, e2->client->pers.netname); // This shouldn't show player's being 'spectators' during games with limchasecam set and/or during matchmode
+			Com_sprintf (st, sizeof (st), "%02d:%02d %4d %3d %s\n", minutes, seconds, e2->client->ping, e2->client->resp.team, e2->client->pers.netname); // This shouldn't show player's being 'spectators' during games with limchasecam set and/or during matchmode
 		else if (!teamplay->value || !noscore->value)
-			Com_sprintf (st, sizeof (st), "%02d:%02d %4d %3d %s%s\n",(level.framenum - e2->client->resp.enterframe) / 600,((level.framenum - e2->client->resp.enterframe) % 600) / 10, e2->client->ping, e2->client->resp.score, e2->client->pers.netname, (e2->solid == SOLID_NOT && e2->deadflag != DEAD_DEAD) ? " (dead)" : ""); // replaced 'spectator' with 'dead'
+			Com_sprintf (st, sizeof (st), "%02d:%02d %4d %3d %s%s\n", minutes, seconds, e2->client->ping, e2->client->resp.score, e2->client->pers.netname, (e2->solid == SOLID_NOT && e2->deadflag != DEAD_DEAD) ? " (dead)" : ""); // replaced 'spectator' with 'dead'
 		else
-			Com_sprintf (st, sizeof (st), "%02d:%02d %4d %s%s\n",(level.framenum - e2->client->resp.enterframe) / 600, ((level.framenum - e2->client->resp.enterframe) % 600) / 10, e2->client->ping, e2->client->pers.netname, (e2->solid == SOLID_NOT && e2->deadflag != DEAD_DEAD) ? " (dead)" : ""); // replaced 'spectator' with 'dead'
+			Com_sprintf (st, sizeof (st), "%02d:%02d %4d %s%s\n", minutes, seconds, e2->client->ping, e2->client->pers.netname, (e2->solid == SOLID_NOT && e2->deadflag != DEAD_DEAD) ? " (dead)" : ""); // replaced 'spectator' with 'dead'
 
 		if (strlen(text) + strlen(st) > sizeof(text) - 6)
 		{

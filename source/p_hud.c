@@ -322,7 +322,7 @@ void DeathmatchScoreboardMessage (edict_t * ent, edict_t * killer)
 		Com_sprintf (entry, sizeof (entry),
 			"client %i %i %i %i %i %i ",
 			x, y, sorted[i], cl->resp.score, cl->ping,
-			(level.framenum - cl->resp.enterframe) / 600);
+			(level.framenum - cl->resp.enterframe) / 600 / FRAMEDIV);
 		j = strlen (entry);
 		if (stringlength + j > 1023)
 			break;
