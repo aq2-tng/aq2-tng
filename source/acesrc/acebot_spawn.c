@@ -129,7 +129,7 @@ void ACESP_JoinTeam(edict_t *ent, int desired_team)
 
         ent->client->resp.joined_team = level.framenum;
 
-        CheckForUnevenTeams();
+        CheckForUnevenTeams(ent);
 }
 
 //======================================
