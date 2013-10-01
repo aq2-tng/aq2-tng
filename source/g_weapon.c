@@ -1650,8 +1650,8 @@ knife_touch (edict_t * ent, edict_t * other, cplane_t * plane,
 
   if (ent->owner->client)
     {
-      gi.sound (ent, CHAN_WEAPON, gi.soundindex ("weapons/clank.wav"), 1,
-		ATTN_NORM, 0);
+      gi.positioned_sound (ent->s.origin, ent, CHAN_WEAPON,
+	      gi.soundindex ("weapons/clank.wav"), 1, ATTN_NORM, 0);
       PlayerNoise (ent->owner, ent->s.origin, PNOISE_IMPACT);
     }
 

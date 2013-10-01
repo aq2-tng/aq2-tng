@@ -908,7 +908,7 @@ void G_SetClientEffects (edict_t * ent)
 		ent->s.renderfx |= (RF_SHELL_RED | RF_SHELL_GREEN | RF_SHELL_BLUE);
 	}
 	// AQ2:TNG - JBravo adding UVtime
-	if (ctf->value && ((ent->client->ctf_uvtime & 4) || (lights_camera_action & 4)))
+	if ((ctf->value || dm_shield->value) && ((ent->client->ctf_uvtime & 4) || (lights_camera_action & 4)))
 	{
 		ent->s.effects |= EF_COLOR_SHELL;
 		if (ent->client->resp.team == TEAM1)

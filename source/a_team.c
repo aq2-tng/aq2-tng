@@ -622,7 +622,9 @@ void SelectItem6 (edict_t * ent, pmenu_t * p)
 void CreditsReturnToMain (edict_t * ent, pmenu_t * p)
 {
 	PMenu_Close (ent);
-	OpenJoinMenu (ent);
+	if (teamplay->value) {
+		OpenJoinMenu (ent);
+	}
 }
 
 //PG BUND BEGIN
@@ -824,7 +826,7 @@ void AssignSkin (edict_t * ent, const char *s, qboolean nickChanged)
 			Com_sprintf(skin, sizeof(skin), "%s\\%s%s", ent->client->pers.netname, t, CTF_TEAM2_SKIN);
 			break;
 		default:
-			Com_sprintf(skin, sizeof(skin), "%s\\%s", ent->client->pers.netname, s);
+			Com_sprintf(skin, sizeof(skin), "%s\\%s", ent->client->pers.netname, "male/grunt");
 			break;
 		}
 	}
@@ -838,7 +840,7 @@ void AssignSkin (edict_t * ent, const char *s, qboolean nickChanged)
 			Com_sprintf(skin, sizeof(skin), "%s\\%s", ent->client->pers.netname, teams[ent->client->resp.team].skin);
 			break;
 		default:
-			Com_sprintf(skin, sizeof(skin), "%s\\%s", ent->client->pers.netname, s);
+			Com_sprintf(skin, sizeof(skin), "%s\\%s", ent->client->pers.netname, (teamplay->value ? "male/grunt" : s));
 			break;
 		}
 	}
@@ -938,6 +940,7 @@ void Team_f (edict_t * ent)
 void JoinTeam (edict_t * ent, int desired_team, int skip_menuclose)
 {
 	char *s, *a;
+	char temp[128];
 
 	if (!skip_menuclose)
 		PMenu_Close (ent);
@@ -1039,6 +1042,8 @@ void JoinTeam (edict_t * ent, int desired_team, int skip_menuclose)
 			}
 			else
 			{
+				Com_sprintf(temp, sizeof(temp),"%s is no longer ready to play!", teams[ent->client->resp.captain].name);
+				CenterPrintAll(temp);
 				teams[ent->client->resp.captain].ready = 0;
 			}
 		}
@@ -1047,14 +1052,15 @@ void JoinTeam (edict_t * ent, int desired_team, int skip_menuclose)
 		ent->client->resp.captain = 0;	//SLICER: Same here
 	}
 	//AQ2:TNG END
-	if (!skip_menuclose && !teamdm->value && ctf->value != 2)
+	if (!skip_menuclose && (!teamdm->value || dm_choose->value) && ctf->value != 2)
 		OpenWeaponMenu (ent);
 }
 
 void LeaveTeam (edict_t * ent)
 {
 	char *g;
-
+	char temp[128];
+	
 	if (ent->client->resp.team == NOTEAM)
 		return;
 
@@ -1108,6 +1114,8 @@ void LeaveTeam (edict_t * ent)
 			}
 			else
 			{
+				Com_sprintf(temp, sizeof(temp),"%s is no longer ready to play!", teams[ent->client->resp.captain].name);
+				CenterPrintAll(temp);
 				teams[ent->client->resp.captain].ready = 0;
 			}
 		}
@@ -2036,6 +2044,29 @@ void CheckTeamRules (void)
 		return;
 	}
 
+	// works like old CTF shield for TDM
+	if (dm_shield->value && (!teamplay->value || (teamdm->value && lights_camera_action == 0)) && !ctf->value)
+	{
+		for (i = 0; i < maxclients->value; i++)
+		{
+			if (!g_edicts[i + 1].inuse)
+				continue;
+			if (game.clients[i].ctf_uvtime > 0)
+			{
+				game.clients[i].ctf_uvtime--;
+				if (!game.clients[i].ctf_uvtime && team_round_going)
+				{
+					gi.centerprintf (&g_edicts[i + 1], "ACTION!");
+				}
+				else if (game.clients[i].ctf_uvtime % 10 == 0)
+				{
+					gi.centerprintf (&g_edicts[i + 1], "Shield %d",
+					game.clients[i].ctf_uvtime / 10);
+				}
+			}
+		}
+	}
+
 // AQ2:TNG - JBravo adding UVtime
 	if(ctf->value)
 	{
@@ -2413,6 +2444,102 @@ void A_Scoreboard (edict_t * ent)
 	}
 }
 
+#define MAX_PLAYERS_PER_TEAM 8
+
+void A_NewScoreboardMessage(edict_t * ent)
+{
+	char buf[1024];
+	char string[1024] = { '\0' };
+	int sorted[TEAM_TOP][MAX_CLIENTS];
+	int total[TEAM_TOP] = {0,0,0,0};
+
+	int i, j, k, line = 0, lineh = 8;
+
+	// show alive players when dead
+	int dead = (ent->solid == SOLID_NOT || ent->deadflag == DEAD_DEAD || !team_round_going);
+	if (limchasecam->value != 0)
+		dead = 0;
+
+	for (i = 0; i < game.maxclients; i++)
+	{
+		edict_t *cl_ent = g_edicts + 1 + i;
+
+		if (!cl_ent->inuse)
+			continue;
+
+		if (game.clients[i].resp.team == NOTEAM)
+			continue;
+
+		int team = game.clients[i].resp.team;
+		int score = game.clients[i].resp.score;
+
+		for (j = 0; j < total[team]; j++)
+		{
+			if (score > game.clients[sorted[team][j]].resp.score)
+				break;
+			if (score == game.clients[sorted[team][j]].resp.score &&
+				game.clients[i].resp.damage_dealt > game.clients[sorted[team][j]].resp.damage_dealt)
+				break;
+		}
+
+		for (k = total[team]; k > j; k--)
+			sorted[team][k] = sorted[team][k - 1];
+
+		sorted[team][j] = i;
+		total[team]++;
+	}
+
+	// print teams
+	for (i = TEAM1; i <= TEAM2; i++)
+	{
+		sprintf(buf, "xv 44 yv %d string2 \"  %-15s %3d Tim Png\"", line++ * lineh, teams[i].name, teams[i].score);
+		strcat(string, buf);
+
+		sprintf(buf, "xv 44 yv %d string2 \"%s\" ",
+			line++ * lineh,
+			"\x9D\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9F"
+		);
+		strcat(string, buf);
+
+		for (j = 0; j < MAX_PLAYERS_PER_TEAM; j++)
+		{
+			// show the amount of excess players
+			if (total[i] > MAX_PLAYERS_PER_TEAM && j == MAX_PLAYERS_PER_TEAM - 1)
+			{
+				sprintf(buf, "xv 44 yv %d string \"   ..and %d more\"", line++ * lineh, total[i] - MAX_PLAYERS_PER_TEAM + 1);
+				strcat(string, buf);
+				break;
+			}
+
+			if (j >= total[i])
+			{
+				line++;
+				continue;
+			}
+
+			gclient_t *cl = &game.clients[sorted[i][j]];
+			edict_t *cl_ent = g_edicts + 1 + sorted[i][j];
+			int alive = (cl_ent->solid != SOLID_NOT && cl_ent->deadflag != DEAD_DEAD);
+
+			sprintf(buf, "xv 44 yv %d string \"%c %-15s %3d %3d %3d\"",
+					line++ * lineh,
+					(alive && dead ? '*' : ' '),
+					cl->pers.netname,
+					cl->resp.score,
+					(level.framenum - cl->resp.enterframe) / 600,
+					(cl->ping > 999 ? 999 : cl->ping));
+			strcat(string, buf);
+		}
+
+		line++;
+	}
+
+	string[1024] = '\0';
+
+	gi.WriteByte (svc_layout);
+	gi.WriteString (string);
+}
+
 // Maximum number of lines of scores to put under each team's header.
 #define MAX_SCORES_PER_TEAM 9
 
@@ -2441,6 +2568,11 @@ void A_ScoreboardMessage (edict_t * ent, edict_t * killer)
 		int offset[TEAM_TOP], tpic[TEAM_TOP][2] = {{0,0},{24,26},{25,27},{30,31}};
 		char temp[16];
 		int otherLines, scoreWidth = 3;
+
+		// new scoreboard for regular teamplay up to 16 players
+		if (use_newscore->value && teamplay->value && !use_3teams->value && !matchmode->value && !ctf->value) {
+			return A_NewScoreboardMessage(ent);
+		}
 
 		if(use_3teams->value) {
 			offset[TEAM1] = -80;

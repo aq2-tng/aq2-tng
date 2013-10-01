@@ -888,7 +888,7 @@ void temp_think_specweap (edict_t * ent)
 		ent->nextthink = level.time + (weapon_respawn->value * 0.6f);
 		ent->think = G_FreeEdict;
 	}
-	else if (ctf->value)
+	else if (ctf->value || (dm_choose->value && !teamplay->value && deathmatch->value))
 	{
 		ent->nextthink = level.time + 6;
 		ent->think = ThinkSpecWeap;
@@ -1909,9 +1909,13 @@ Weapon_Generic (edict_t * ent, int FRAME_ACTIVATE_LAST, int FRAME_FIRE_LAST,
 //FIREBLADE
 // AQ2:TNG - JBravo adding UVtime
 	  && (ent->solid != SOLID_NOT || ent->deadflag == DEAD_DEAD)
-	  && !lights_camera_action && !ent->client->ctf_uvtime)
+	  && !lights_camera_action && (!ent->client->ctf_uvtime || dm_shield->value > 1))
 //FIREBLADE
 	{
+	  if (ent->client->ctf_uvtime) {
+	    ent->client->ctf_uvtime = 0;
+	    gi.centerprintf(ent, "Shields are DOWN!");
+	  }
 	  ent->client->latched_buttons &= ~BUTTON_ATTACK;
 	  switch (ent->client->curr_weap)
 	    {

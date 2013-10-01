@@ -1649,7 +1649,7 @@ void player_die(edict_t * self, edict_t * inflictor, edict_t * attacker, int dam
 			Cmd_Help_f(self);	// show scores
 
 		// always reset chase to killer, even if NULL
-		if(limchasecam->value < 2 && attacker->client)
+		if(limchasecam->value < 2 && attacker && attacker->client)
 			self->client->resp.last_chase_target = attacker;
 	}
 	// remove powerups
@@ -1798,7 +1798,6 @@ void InitClientPersistant(gclient_t * client)
   //FB 6/3/99
 
 */
-
 	memset(&client->pers, 0, sizeof(client->pers));
 	// changed to mk23
 	item = GET_ITEM(MK23_NUM);
@@ -1857,25 +1856,39 @@ void InitClientResp(gclient_t * client)
 	int team = client->resp.team;
 	gitem_t *item = client->resp.item;
 	gitem_t *weapon = client->resp.weapon;
+	qboolean menu_shown = client->resp.menu_shown;
+	qboolean dm_selected = client->resp.dm_selected;
 
 	memset(&client->resp, 0, sizeof(client->resp));
 	client->resp.team = team;
 	client->resp.enterframe = level.framenum;
 	client->resp.coop_respawn = client->pers;
-	if ((int) wp_flags->value & WPF_MP5) {
-		client->resp.weapon = GET_ITEM(MP5_NUM);
-	} else if ((int) wp_flags->value & WPF_MK23) {
-		client->resp.weapon = GET_ITEM(MK23_NUM);
-	} else if ((int) wp_flags->value & WPF_KNIFE) {
-		client->resp.weapon = GET_ITEM(KNIFE_NUM);
+
+	if (!dm_choose->value) {
+		if ((int) wp_flags->value & WPF_MP5) {
+			client->resp.weapon = GET_ITEM(MP5_NUM);
+		} else if ((int) wp_flags->value & WPF_MK23) {
+			client->resp.weapon = GET_ITEM(MK23_NUM);
+		} else if ((int) wp_flags->value & WPF_KNIFE) {
+			client->resp.weapon = GET_ITEM(KNIFE_NUM);
+		} else {
+			client->resp.weapon = GET_ITEM(MK23_NUM);
+		}
+		client->resp.item = GET_ITEM(KEV_NUM);
 	} else {
-		client->resp.weapon = GET_ITEM(MK23_NUM);
+		if (wp_flags->value < 2)
+			client->resp.weapon = GET_ITEM(MK23_NUM);
 	}
-	client->resp.item = GET_ITEM(KEV_NUM);
 	client->resp.ir = 1;
 
+	if (!teamplay->value && auto_equip->value) {
+		client->resp.menu_shown = menu_shown;
+	}
+
+	client->resp.dm_selected = dm_selected;
+
 	// TNG:Freud, restore weapons and items from last map.
-	if (auto_equip->value && teamplay->value && !teamdm->value && ctf->value != 2) {
+	if (auto_equip->value && ((teamplay->value && !teamdm->value) || dm_choose->value) && ctf->value != 2) {
 		if (item)
 			client->resp.item = item;
 		if (weapon)
@@ -2750,7 +2763,7 @@ void PutClientInServer(edict_t * ent)
 	memset(client, 0, sizeof(*client));
 
 	client->pers = saved;
-
+	client->clientNum = ent - g_edicts - 1;
 //FF
 	client->team_wounds = save_team_wounds;
 	client->team_kills = save_team_kills;
@@ -2857,6 +2870,10 @@ void PutClientInServer(edict_t * ent)
 		going_observer = StartClient(ent);
 	} else {
 		going_observer = ent->client->pers.spectator;
+
+		if (dm_choose->value && !ent->client->resp.dm_selected)
+			going_observer = 1;
+
 		if (going_observer) {
 			ent->movetype = MOVETYPE_NOCLIP;
 			ent->solid = SOLID_NOT;
@@ -2873,6 +2890,9 @@ void PutClientInServer(edict_t * ent)
 	}
 //FIREBLADE
 	if (!going_observer && !teamplay->value) {	// this handles telefrags...
+		if (dm_shield->value && (!teamplay->value || (teamdm->value && team_round_going && !lights_camera_action)) && uvtime->value) {
+			ent->client->ctf_uvtime = uvtime->value;
+		}
 		KillBox(ent);
 	}
 //FIREBLADE
@@ -2930,7 +2950,7 @@ void PutClientInServer(edict_t * ent)
 			AllItems(ent);
 		}
 
-		if (teamplay->value && !teamdm->value && ctf->value != 2)
+		if ((teamplay->value && !teamdm->value && ctf->value != 2) || (!ctf->value && dm_choose->value))
 			EquipClient(ent);
 		else if (deathmatch->value)
 			EquipClientDM(ent);
@@ -2976,6 +2996,11 @@ void ClientBeginDeathmatch(edict_t * ent)
 
 //PG BUND - BEGIN
 	ent->client->resp.team = NOTEAM;
+
+	// if no auto equip, prompt for new weapon on level change
+	if (!auto_equip->value)
+		ent->client->resp.dm_selected = 0;
+
 	/*client->resp.last_killed_target = NULL;
 	   client->resp.killed_teammates = 0;
 
@@ -2997,7 +3022,7 @@ void ClientBeginDeathmatch(edict_t * ent)
 		MoveClientToIntermission(ent);
 	} else {
 // ^^^
-		if (!teamplay->value) {	//FB 5/31/99
+		if (!teamplay->value && !dm_choose->value) {	//FB 5/31/99
 			// send effect
 			gi.WriteByte(svc_muzzleflash);
 			gi.WriteShort(ent - g_edicts);
@@ -3337,6 +3362,12 @@ void ClientDisconnect(edict_t * ent)
 		}
 	}
 
+	// reset item and weapon on disconnect
+	ent->client->resp.item = NULL;
+	ent->client->resp.weapon = NULL;
+	ent->client->resp.dm_selected = 0;
+	ent->client->resp.menu_shown = 0;
+
 	// drop items if they are alive/not observer
 	if (ent->solid != SOLID_NOT)
 		TossItemsOnDeath(ent);
@@ -3465,7 +3496,7 @@ void CreateGhost(edict_t * ent)
 edict_t *pm_passent;
 
 // pmove doesn't need to know about passent and contentmask
-trace_t PM_trace(vec3_t start, vec3_t mins, vec3_t maxs, vec3_t end)
+trace_t q_gameabi PM_trace(vec3_t start, vec3_t mins, vec3_t maxs, vec3_t end)
 {
 	if (pm_passent && pm_passent->health > 0)
 		return gi.trace(start, mins, maxs, end, pm_passent, MASK_PLAYERSOLID);
@@ -3538,6 +3569,11 @@ void ClientThink(edict_t * ent, usercmd_t * ucmd)
 		}
 	}
 	//FIREBLADE
+
+	// show team or weapon menu immediately when connected
+	if (auto_menu->value && !client->menu && !client->resp.menu_shown && (teamplay->value || dm_choose->value)) {
+		Cmd_Inven_f(ent);
+	}
 
 	if(pause_time > 0)
 	{
@@ -3711,6 +3747,10 @@ void ClientThink(edict_t * ent, usercmd_t * ucmd)
 						client->desired_fov = 90;
 						client->ps.fov = 90;
 						client->ps.pmove.pm_flags &= ~PMF_NO_PREDICTION;
+						client->clientNum = ent - g_edicts - 1;
+						client->ps.gunframe = client->ps.gunindex = 0;
+						VectorClear (client->ps.gunoffset);
+						VectorClear (client->ps.kick_angles);
 					} else {
 						client->chase_mode = 1;
 						UpdateChaseCam(ent);
@@ -3804,6 +3844,31 @@ void ClientBeginServerFrame(edict_t * ent)
 		return;
 
 	client = ent->client;
+
+	// force spawn when weapon and item selected in dm
+	if (deathmatch->value && dm_choose->value && !teamplay->value && !client->resp.dm_selected) {
+		if (client->resp.weapon && (client->resp.item || itm_flags->value == 0)) {
+			client->resp.dm_selected = 1;
+			client->chase_mode = 0;
+			client->chase_target = NULL;
+			client->desired_fov = 90;
+			client->ps.fov = 90;
+			client->ps.pmove.pm_flags &= ~PMF_NO_PREDICTION;
+			ent->solid = SOLID_BBOX;
+			gi.linkentity(ent);
+			gi.bprintf(PRINT_HIGH, "%s joined the game\n", client->pers.netname);
+			IRC_printf(IRC_T_SERVER, "%n joined the game", client->pers.netname);
+
+			// send effect
+			gi.WriteByte(svc_muzzleflash);
+			gi.WriteShort(ent - g_edicts);
+			gi.WriteByte(MZ_LOGIN);
+			gi.multicast(ent->s.origin, MULTICAST_PVS);
+
+			respawn(ent);
+		}
+		return;
+	}
 
 //FIREBLADE
 	if (deathmatch->value && !teamplay->value &&

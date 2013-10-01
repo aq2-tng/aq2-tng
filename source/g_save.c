@@ -458,6 +458,8 @@ field_t clientfields[] = {
 */
 void InitGame (void)
 {
+	cvar_t *cv;
+
 	IRC_init ();
 	gi.dprintf ("==== InitGame ====\n");
 
@@ -527,6 +529,7 @@ void InitGame (void)
 	twbanrounds = gi.cvar ("twbanrounds", "2", 0);
 	tkbanrounds = gi.cvar ("tkbanrounds", "2", 0);
 	noscore = gi.cvar ("noscore", "0", CVAR_LATCH);	// Was serverinfo
+	use_newscore = gi.cvar ("use_newscore", "1", 0);
 	actionversion =
 	gi.cvar ("actionversion", "none set", CVAR_SERVERINFO | CVAR_LATCH);
 	gi.cvar_set ("actionversion", ACTION_VERSION);
@@ -601,8 +604,11 @@ void InitGame (void)
 
 	auto_join = gi.cvar ("auto_join", "0", 0);
 	auto_equip = gi.cvar ("auto_equip", "0", 0);
+	auto_menu = gi.cvar ("auto_menu", "0", 0);
 	eventeams = gi.cvar ("eventeams", "0", 0);
 	use_balancer = gi.cvar ("use_balancer", "0", 0);
+	dm_choose = gi.cvar ("dm_choose", "0", 0);
+	dm_shield = gi.cvar ("dm_shield", "0", 0);
 
 	use_punch = gi.cvar ("use_punch", "1", 0);
 
@@ -681,6 +687,18 @@ void InitGame (void)
 
 	//PG BUND - must be at end of gameinit:
 	vInitGame ();
+
+	gi.dprintf ("Reading extra server features\n");
+	cv = gi.cvar("sv_features", NULL, 0);
+	if (cv) {
+		game.serverfeatures = (int)cv->value;
+
+		if (game.serverfeatures & GMF_CLIENTNUM) {
+			gi.dprintf ("...server supports GMF_CLIENTNUM\n");
+		}
+	}
+
+	gi.cvar_forceset("g_features", va("%d", G_FEATURES));
 }
 
 //=========================================================

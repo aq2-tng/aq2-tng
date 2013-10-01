@@ -492,7 +492,7 @@ void PrintMOTD(edict_t * ent)
 		}
 
 		//If we're in teamplay, we want to inform people that they can open the menu with TAB
-		if (teamplay->value && lines < max_lines) {
+		if (teamplay->value && lines < max_lines && !auto_menu->value) {
 			Q_strncatz(msg_buf, "\nHit TAB to open the Team selection menu", sizeof(msg_buf));
 			lines++;
 		}
@@ -515,7 +515,11 @@ void PrintMOTD(edict_t * ent)
 		}
 	}
 
-	gi.centerprintf(ent, "%s", msg_buf);
+	if (!auto_menu->value || ent->client->resp.menu_shown) {
+		gi.centerprintf(ent, "%s", msg_buf);
+	} else {
+		gi.cprintf(ent, PRINT_LOW, "%s", msg_buf);
+	}
 }
 
 // stuffcmd: forces a player to execute a command.
@@ -546,7 +550,14 @@ void unicastSound(edict_t *ent, int soundIndex, float volume)
     gi.WriteByte((byte)soundIndex);
     if (mask & MASK_VOLUME)
         gi.WriteByte((byte)(volume * 255));
-    gi.WriteShort(((ent - g_edicts - 1) << 3) + CHAN_NO_PHS_ADD);
+
+    // hack when first person spectating, the sound source must be the spectated player
+    if (ent->client->chase_mode == 2 && ent->client->chase_target) {
+	    gi.WriteShort(((ent->client->chase_target - g_edicts - 1) << 3) + CHAN_NO_PHS_ADD);
+    } else {
+	    gi.WriteShort(((ent - g_edicts - 1) << 3) + CHAN_NO_PHS_ADD);
+    }
+
     gi.unicast (ent, true);
 }
 // AQ2:TNG END
@@ -607,9 +618,9 @@ void ShellTouch(edict_t * self, edict_t * other, cplane_t * plane, csurface_t * 
 	if (self->owner->client->curr_weap == M3_NUM)
 		gi.sound(self, CHAN_WEAPON, gi.soundindex("weapons/shellhit1.wav"), 1, ATTN_STATIC, 0);
 	else if (random() < 0.5)
-		gi.sound(self, CHAN_WEAPON, gi.soundindex("weapons/tink1.wav"), 1, ATTN_STATIC, 0);
+		gi.sound(self, CHAN_WEAPON, gi.soundindex("weapons/tink1.wav"), 0.2, ATTN_STATIC, 0);
 	else
-		gi.sound(self, CHAN_WEAPON, gi.soundindex("weapons/tink2.wav"), 1, ATTN_STATIC, 0);
+		gi.sound(self, CHAN_WEAPON, gi.soundindex("weapons/tink2.wav"), 0.2, ATTN_STATIC, 0);
 }
 
 void ShellDie(edict_t * self)

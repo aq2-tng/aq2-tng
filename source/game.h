@@ -133,7 +133,7 @@ typedef struct
   // collision detection
   
     
-    trace_t (*trace) (vec3_t start, vec3_t mins, vec3_t maxs, vec3_t end,
+    trace_t q_gameabi (*trace) (vec3_t start, vec3_t mins, vec3_t maxs, vec3_t end,
 		      edict_t * passent, int contentmask);
   int (*pointcontents) (vec3_t point);
     qboolean (*inPVS) (vec3_t p1, vec3_t p2);

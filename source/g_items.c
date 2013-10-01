@@ -1372,6 +1372,40 @@ void PrecacheItem (gitem_t * it)
 	}
 }
 
+
+/*
+============
+PrecacheItems
+
+Makes sure the client loads all necessary data on connect to avoid lag.
+============
+*/
+void PrecacheItems ()
+{
+	PrecacheItem(FindItemByClassname("weapon_Mk23"));
+	PrecacheItem(FindItemByClassname("weapon_MP5"));
+	PrecacheItem(FindItemByClassname("weapon_M4"));
+	PrecacheItem(FindItemByClassname("weapon_M3"));
+	PrecacheItem(FindItemByClassname("weapon_HC"));
+	PrecacheItem(FindItemByClassname("weapon_Sniper"));
+	PrecacheItem(FindItemByClassname("weapon_Dual"));
+	PrecacheItem(FindItemByClassname("weapon_Knife"));
+	PrecacheItem(FindItemByClassname("weapon_Grenade"));
+	PrecacheItem(FindItemByClassname("item_quiet"));
+	PrecacheItem(FindItemByClassname("item_band"));
+	PrecacheItem(FindItemByClassname("item_lasersight"));
+	PrecacheItem(FindItemByClassname("item_slippers"));
+	PrecacheItem(FindItemByClassname("item_vest"));
+	PrecacheItem(FindItemByClassname("item_helmet"));
+	PrecacheItem(FindItemByClassname("item_bandolier"));
+
+	if (ctf->value) {
+		PrecacheItem(FindItemByClassname("item_flag_team1"));
+		PrecacheItem(FindItemByClassname("item_flag_team2"));
+	}
+}
+
+
 /*
 ============
 SpawnItem
@@ -1768,7 +1802,6 @@ always owned, never in the world
    0,
 
 				/* precache */ "",
-				//"weapons/blastf1a.wav misc/lasfly.wav"
 	NO_NUM
    }
   ,
@@ -1916,7 +1949,7 @@ always owned, never in the world^M
    NULL,
    AMMO_GRENADES,
 /* precache */
-   "weapons/hgrent1a.wav weapons/hgrena1b.wav weapons/hgrenc1b.wav weapons/hgrenb1a.wav weapons/hgrenb2a.wav ",
+   "weapons/hgrent1a.wav weapons/hgrena1b.wav weapons/hgrenc1b.wav weapons/hgrenb1a.wav weapons/hgrenb2a.wav weapons/grenlb1b.wav",
 	NO_NUM
    }
   ,
@@ -2099,7 +2132,7 @@ world_model_flags int               copied to 'ent->s.effects' (see s.effects fo
    IT_WEAPON,
    NULL,
    0,
-   "weapons/mk23fire.wav weapons/mk23in.wav weapons/mk23out.wav weapons/mk23slap.wav weapons/mk23slide.wav misc/click.wav",
+   "weapons/mk23fire.wav weapons/mk23in.wav weapons/mk23out.wav weapons/mk23slap.wav weapons/mk23slide.wav misc/click.wav weapons/machgf4b.wav weapons/blastf1a.wav",
   MK23_NUM}
   ,
 
@@ -2123,7 +2156,7 @@ world_model_flags int               copied to 'ent->s.effects' (see s.effects fo
    IT_WEAPON,
    NULL,
    0,
-   "weapons/mp5fire1.wav weapons/mp5in.wav weapons/mp5out.wav weapons/mp5slap.wav weapons/mp5slide.wav",
+   "weapons/mp5fire1.wav weapons/mp5in.wav weapons/mp5out.wav weapons/mp5slap.wav weapons/mp5slide.wav weapons/machgf1b.wav weapons/machgf2b.wav weapons/machgf3b.wav weapons/machgf5b.wav",
    MP5_NUM}
   ,
   {
@@ -2145,7 +2178,7 @@ world_model_flags int               copied to 'ent->s.effects' (see s.effects fo
    IT_WEAPON,
    NULL,
    0,
-   "weapons/m4a1fire.wav weapons/m4a1in.wav weapons/m4a1out.wav weapons/m4a1slide.wav",
+   "weapons/m4a1fire.wav weapons/m4a1in.wav weapons/m4a1out.wav weapons/m4a1slide.wav weapons/rocklf1a.wav weapons/rocklr1b.wav",
   M4_NUM}
   ,
   {
@@ -2167,7 +2200,7 @@ world_model_flags int               copied to 'ent->s.effects' (see s.effects fo
    IT_WEAPON,
    NULL,
    0,
-   "weapons/m3in.wav weapons/shotgf1b.wav",
+   "weapons/m3in.wav weapons/shotgr1b.wav weapons/shotgf1b.wav",
   M3_NUM}
   ,
   {
@@ -2189,7 +2222,7 @@ world_model_flags int               copied to 'ent->s.effects' (see s.effects fo
    IT_WEAPON,
    NULL,
    0,
-   "weapons/cannon_fire.wav weapons/cclose.wav weapons/cin.wav weapons/cout.wav weapons/copen.wav",
+   "weapons/cannon_fire.wav weapons/sshotf1b.wav weapons/cclose.wav weapons/cin.wav weapons/cout.wav weapons/copen.wav",
   HC_NUM}
   ,
   {
@@ -2211,7 +2244,7 @@ world_model_flags int               copied to 'ent->s.effects' (see s.effects fo
    IT_WEAPON,
    NULL,
    0,
-   "weapons/ssgbolt.wav weapons/ssgfire.wav weapons/ssgin.wav misc/lensflik.wav",
+   "weapons/ssgbolt.wav weapons/ssgfire.wav weapons/ssgin.wav misc/lensflik.wav weapons/hyprbl1a.wav weapons/hyprbf1a.wav",
   SNIPER_NUM}
   ,
   {
@@ -2275,7 +2308,7 @@ world_model_flags int               copied to 'ent->s.effects' (see s.effects fo
    IT_WEAPON,
    NULL,
    0,
-   "misc/grenade.wav",
+   "misc/grenade.wav weapons/grenlb1b.wav weapons/hgrent1a.wav",
   GRENADE_NUM}
   ,
 

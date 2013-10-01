@@ -300,6 +300,7 @@ cvar_t *roundlimit;
 cvar_t *skipmotd;
 cvar_t *nohud;
 cvar_t *noscore;
+cvar_t *use_newscore;
 cvar_t *actionversion;
 cvar_t *needpass;
 cvar_t *use_voice;
@@ -397,6 +398,8 @@ cvar_t *teamdm;
 cvar_t *teamdm_respawn;
 cvar_t *respawn_effect;
 
+cvar_t *dm_shield;
+
 cvar_t *item_respawnmode;
 
 cvar_t *item_respawn;
@@ -413,6 +416,9 @@ cvar_t *stats_afterround;     // Collect TNG stats between rounds
 
 cvar_t *auto_join;
 cvar_t *auto_equip;
+cvar_t *auto_menu;
+
+cvar_t *dm_choose;
 
 //TNG:Freud - new spawning system
 cvar_t *use_oldspawns;
@@ -478,6 +484,8 @@ void ShutdownGame (void)
 	vExitGame ();
 	gi.FreeTags (TAG_LEVEL);
 	gi.FreeTags (TAG_GAME);
+
+	gi.cvar_forceset("g_features", "0");
 }
 
 
@@ -578,6 +586,13 @@ void ClientEndServerFrames (void)
 		ClientEndServerFrame (ent);
 	}
 
+	for (i = 0; i < maxclients->value; i++)
+	{
+		ent = g_edicts + 1 + i;
+		if (!ent->inuse || !ent->client || !ent->client->chase_target)
+			continue;
+		G_SetSpectatorStats (ent);
+	}
 }
 
 /*
@@ -813,6 +828,29 @@ void CheckDMRules (void)
 				return;
 			}
 		}
+
+		if (dm_shield->value)
+		{
+			for (i = 0; i < maxclients->value; i++)
+			{
+				if (!g_edicts[i + 1].inuse)
+					continue;
+				if (game.clients[i].ctf_uvtime > 0)
+				{
+					game.clients[i].ctf_uvtime--;                                                               
+					if (!game.clients[i].ctf_uvtime)                                        
+					{                                                                                           
+						gi.centerprintf (&g_edicts[i + 1], "ACTION!");                                      
+					}                                                                                           
+					else if (game.clients[i].ctf_uvtime % 10 == 0)                                              
+					{                                                                                           
+						gi.centerprintf (&g_edicts[i + 1], "Shield %d",                                     
+						game.clients[i].ctf_uvtime / 10);                                                   
+					} 
+				}
+			}
+		}
+
 		//FIREBLADE
 		//PG BUND - BEGIN
 		if (vCheckVote () == true)
