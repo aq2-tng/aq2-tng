@@ -387,6 +387,7 @@ cvar_t *matchmode;
 cvar_t *darkmatch;		// Darkmatch
 cvar_t *day_cycle;		// If darkmatch is on, this value is the nr of seconds between each interval (day, dusk, night, dawn)
 cvar_t *hearall;		// used for matchmode
+cvar_t *deadtalk;
 
 cvar_t *mm_forceteamtalk;
 cvar_t *mm_adminpwd;

@@ -577,6 +577,7 @@ void InitGame (void)
 	itm_flags = gi.cvar ("itm_flags", "63", 0);	// 63 = ITF_SIL | ITF_SLIP | ITF_BAND | ITF_KEV | ITF_LASER | ITF_HELM 
 	matchmode = gi.cvar ("matchmode", "0", CVAR_SERVERINFO | CVAR_LATCH);
 	hearall = gi.cvar ("hearall", "0", 0);	// used in matchmode
+	deadtalk = gi.cvar ("deadtalk", "0", 0);
 
 	teamdm = gi.cvar ("teamdm", "0", CVAR_LATCH);
 	teamdm_respawn = gi.cvar ("teamdm_respawn", "2", 0);

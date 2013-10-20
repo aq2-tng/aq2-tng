@@ -1517,7 +1517,7 @@ void Cmd_Say_f (edict_t * ent, qboolean team, qboolean arg0, qboolean partner_ms
 		{
 			if ((ent->solid == SOLID_NOT || ent->deadflag == DEAD_DEAD) &&
 				(other->solid != SOLID_NOT && other->deadflag != DEAD_DEAD)
-				&& !ctf->value && !teamdm->value)	//AQ2:TNG Slicer
+				&& !ctf->value && !teamdm->value && !deadtalk->value)	//AQ2:TNG Slicer
 				continue;
 		}
 		//FIREBLADE
