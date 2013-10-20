@@ -1794,7 +1794,7 @@ void RunWarmup ()
 	int i;
 	edict_t *ent;
 
-	if (!warmup->value || matchtime > 0 || team_round_going)
+	if (!warmup->value || matchtime > 0 || team_round_going || lights_camera_action || (team_round_countdown > 0 && team_round_countdown <= 101))
 		return;
 
 	if (!in_warmup)
@@ -2287,8 +2287,16 @@ void CheckTeamRules (void)
 				}
 				else
 				{
-					CenterPrintAll ("The round will begin in 20 seconds!");
-					team_round_countdown = 201;
+					if (warmup->value) {
+						char buf[64];
+						int warmup_length = max(warmup->value, 20);
+						sprintf (buf, "The round will begin in %d seconds!", warmup_length);
+						CenterPrintAll (buf);
+						team_round_countdown = warmup_length * 10 + 1;
+					} else {
+						CenterPrintAll ("The round will begin in 20 seconds!");
+						team_round_countdown = 201;
+					}
 				}
 			}
 		}

@@ -3954,6 +3954,6 @@ void ClientBeginServerFrame(edict_t * ent)
 		client->resp.punch_desired = false;
 	}
 
-	if (!in_warmup)
+	if (!in_warmup || ent->movetype != MOVETYPE_NOCLIP)
 		client->latched_buttons = 0;
 }
