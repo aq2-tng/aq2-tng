@@ -718,7 +718,7 @@ void ProduceShotgunDamageReport (edict_t * self)
 		if (printed == total_to_print)
 			break;
 	}
-	gi.cprintf (self, PRINT_HIGH, "You hit %s\n", textbuf);
+	gi.cprintf (self, PRINT_HIGH, "You hit %s in the body\n", textbuf);
 
 	self->client->resp.last_damaged_part = LOC_NO;
 
