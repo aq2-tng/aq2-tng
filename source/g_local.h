@@ -909,6 +909,7 @@ extern cvar_t *hc_single;
 extern cvar_t *wp_flags;
 extern cvar_t *itm_flags;
 extern cvar_t *use_classic;	// Use_classic resets weapon balance to 1.52
+extern cvar_t *warmup;
 
 extern cvar_t *skill;
 extern cvar_t *fraglimit;

@@ -124,3 +124,4 @@ extern trace_t trace_t_temp;
 extern int current_round_length; // For RoundTimeLeft
 extern int day_cycle_at;
 extern int teamCount;
+extern int in_warmup;
