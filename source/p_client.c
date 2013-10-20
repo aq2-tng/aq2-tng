@@ -1597,7 +1597,7 @@ void player_die(edict_t * self, edict_t * inflictor, edict_t * attacker, int dam
 	// 
 	// ...only need it in DM though...
 	// ...for teamplay, non-solid will get set soon after in CopyToBodyQue
-	if (!teamplay->value || ctf->value || teamdm->value || in_warmup) {
+	if (!teamplay->value || ctf->value || teamdm->value) {
 		self->solid = SOLID_NOT;
 		gi.linkentity(self);
 	}
