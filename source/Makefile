@@ -18,6 +18,11 @@ MACHINE=$(shell uname -m)
 SYSTEM=$(shell uname -s)
 ARCH=i386
 
+# this will fix raspberry pi gameARCH.so on build.
+ifeq ($(MACHINE),armv6l)
+ARCH=arm
+endif
+
 ifeq ($(MACHINE),x86_64)
 ARCH=x86_64
 endif
