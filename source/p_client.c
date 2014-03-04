@@ -3804,6 +3804,9 @@ void ClientBeginServerFrame(edict_t * ent)
 
 	client = ent->client;
 
+	if (client->penalty > 0 && level.framenum % 10 == 0)
+		client->penalty--;
+
 	// force spawn when weapon and item selected in dm
 	if (deathmatch->value && dm_choose->value && !teamplay->value && !client->resp.dm_selected) {
 		if (client->resp.weapon && (client->resp.item || itm_flags->value == 0)) {

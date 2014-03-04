@@ -921,9 +921,7 @@ extern cvar_t *g_select_empty;
 extern cvar_t *dedicated;
 
 extern cvar_t *filterban;
-extern cvar_t *flood_msgs;
-extern cvar_t *flood_persecond;
-extern cvar_t *flood_waitdelay;
+extern cvar_t *flood_threshold;
 
 extern cvar_t *sv_gravity;
 extern cvar_t *sv_maxvelocity;
@@ -1021,6 +1019,7 @@ extern gitem_t itemlist[];
 //
 // g_cmds.c
 //
+qboolean FloodCheck (edict_t * ent);
 void Cmd_Help_f (edict_t * ent);
 void Cmd_Score_f (edict_t * ent);
 void Cmd_CPSI_f (edict_t * ent);
@@ -1569,11 +1568,7 @@ struct gclient_s
 
   float pickup_msg_time;
 
-  float flood_locktill;		// locked from talking
-
-  float flood_when[10];		// when messages were said
-
-  int flood_whenhead;		// head pointer for when said
+  int penalty;
 
   float respawn_time;		// can respawn when time > this
   // zucc

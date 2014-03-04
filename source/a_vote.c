@@ -185,6 +185,8 @@ void Cmd_Votemap_f (edict_t * ent, char *t)
 		case 1:
 			gi.cprintf (ent, PRINT_HIGH, "You have changed your vote to map \"%s\"\n", t);
 			if (mv_public->value) {
+				if (FloodCheck(ent))
+					break;
 				if(Q_stricmp (t, oldvote))
 					gi.bprintf (PRINT_HIGH,"%s changed his mind and voted for \"%s\"\n", ent->client->pers.netname, t);
 			else
