@@ -2546,12 +2546,14 @@ void A_NewScoreboardMessage(edict_t * ent)
 	// print teams
 	for (i = TEAM1; i <= TEAM2; i++)
 	{
-		sprintf(buf, "xv 44 yv %d string2 \"  %-15s %3d Tim Png\"", line++ * lineh, teams[i].name, teams[i].score);
+		char buf2[64];
+		sprintf(buf2, "%s %d", teams[i].name, teams[i].score);
+		sprintf(buf, "xv 44 yv %d string2 \"  %-15s Frg Tim Png\"", line++ * lineh, buf2);
 		strcat(string, buf);
 
 		sprintf(buf, "xv 44 yv %d string2 \"%s\" ",
 			line++ * lineh,
-			"\x9D\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9F"
+			"  \x9D\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9F \x9D\x9E\x9F \x9D\x9E\x9F \x9D\x9E\x9F"
 		);
 		strcat(string, buf);
 
@@ -2567,7 +2569,6 @@ void A_NewScoreboardMessage(edict_t * ent)
 
 			if (j >= total[i])
 			{
-				line++;
 				continue;
 			}
 
