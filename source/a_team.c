@@ -2546,14 +2546,12 @@ void A_NewScoreboardMessage(edict_t * ent)
 	// print teams
 	for (i = TEAM1; i <= TEAM2; i++)
 	{
-		char buf2[64];
-		sprintf(buf2, "%s %d", teams[i].name, teams[i].score);
-		sprintf(buf, "xv 44 yv %d string2 \"  %-15s Frg Tim Png\"", line++ * lineh, buf2);
+		sprintf(buf, "xv 44 yv %d string2 \"%3d %-11s Frg Tim Png\"", line++ * lineh, teams[i].score, teams[i].name);
 		strcat(string, buf);
 
 		sprintf(buf, "xv 44 yv %d string2 \"%s\" ",
 			line++ * lineh,
-			"  \x9D\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9F \x9D\x9E\x9F \x9D\x9E\x9F \x9D\x9E\x9F"
+			"\x9D\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9F \x9D\x9E\x9F \x9D\x9E\x9F \x9D\x9E\x9F"
 		);
 		strcat(string, buf);
 
@@ -2576,9 +2574,9 @@ void A_NewScoreboardMessage(edict_t * ent)
 			edict_t *cl_ent = g_edicts + 1 + sorted[i][j];
 			int alive = (cl_ent->solid != SOLID_NOT && cl_ent->deadflag != DEAD_DEAD);
 
-			sprintf(buf, "xv 44 yv %d string \"%c %-15s %3d %3d %3d\"",
+			sprintf(buf, "xv 44 yv %d string%c \"%-15s %3d %3d %3d\"",
 					line++ * lineh,
-					(alive && dead ? '*' : ' '),
+					(alive && dead ? '2' : ' '),
 					cl->pers.netname,
 					cl->resp.score,
 					(level.framenum - cl->resp.enterframe) / 600,
