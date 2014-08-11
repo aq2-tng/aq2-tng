@@ -886,6 +886,8 @@ extern cvar_t *respawn_effect;
 
 extern cvar_t *item_respawnmode;
 
+extern cvar_t *use_mvd2;	// JBravo: activate mvd2 recording on servers running q2pro
+
 extern cvar_t *item_respawn;
 extern cvar_t *weapon_respawn;
 extern cvar_t *ammo_respawn;

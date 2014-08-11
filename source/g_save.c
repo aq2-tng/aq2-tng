@@ -585,6 +585,9 @@ void InitGame (void)
 	respawn_effect = gi.cvar("respawn_effect", "0", 0);
 
 	item_respawnmode = gi.cvar ("item_respawnmode", "0", CVAR_LATCH);
+
+	use_mvd2 = gi.cvar("use_mvd2", "0", 0);		// JBravo: q2pro MVD2 recording. 0 = off, 1 = on
+
 	item_respawn = gi.cvar ("item_respawn", "59", 0);
 	weapon_respawn = gi.cvar ("weapon_respawn", "74", 0);
 	ammo_respawn = gi.cvar ("ammo_respawn", "30", 0);
