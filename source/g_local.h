@@ -907,6 +907,7 @@ extern cvar_t *darkmatch;
 extern cvar_t *day_cycle;	// If darkmatch is on, this value is the nr of seconds between each interval (day, dusk, night, dawn)
 
 extern cvar_t *hearall;		// used in match mode
+extern cvar_t *deadtalk;
 extern cvar_t *mm_forceteamtalk;
 extern cvar_t *mm_adminpwd;
 extern cvar_t *mm_allowlock;
@@ -943,6 +944,7 @@ extern cvar_t *hc_single;
 extern cvar_t *wp_flags;
 extern cvar_t *itm_flags;
 extern cvar_t *use_classic;	// Use_classic resets weapon balance to 1.52
+extern cvar_t *warmup;
 
 extern cvar_t *skill;
 extern cvar_t *fraglimit;
@@ -953,9 +955,7 @@ extern cvar_t *g_select_empty;
 extern cvar_t *dedicated;
 
 extern cvar_t *filterban;
-extern cvar_t *flood_msgs;
-extern cvar_t *flood_persecond;
-extern cvar_t *flood_waitdelay;
+extern cvar_t *flood_threshold;
 
 extern cvar_t *sv_gravity;
 extern cvar_t *sv_maxvelocity;
@@ -1053,6 +1053,7 @@ extern gitem_t itemlist[];
 //
 // g_cmds.c
 //
+qboolean FloodCheck (edict_t * ent);
 void Cmd_Help_f (edict_t * ent);
 void Cmd_Score_f (edict_t * ent);
 void Cmd_CPSI_f (edict_t * ent);
@@ -1601,11 +1602,7 @@ struct gclient_s
 
   float pickup_msg_time;
 
-  float flood_locktill;		// locked from talking
-
-  float flood_when[10];		// when messages were said
-
-  int flood_whenhead;		// head pointer for when said
+  int penalty;
 
   float respawn_time;		// can respawn when time > this
   // zucc
