@@ -338,99 +338,64 @@ edict_t *NS_used_farteamplay_spawns[MAX_TEAMS][MAX_SPAWNS];
 int NS_randteam;
 // </TNG:Freud>
 
-transparent_list_t *transparent_list = NULL;
-
 void CreditsMenu (edict_t * ent, pmenu_t * p);
 
-void InitTransparentList ()
-{
-	if (transparent_list != NULL)
-	{
-		transparent_list_t *p, *q;
+static transparent_list_t transparentList[MAX_CLIENTS];
+static size_t transparentEntryCount = 0;
+transparent_list_t *transparent_list = NULL;
+static transparent_list_t *transparentlistFree = NULL;
 
-		p = transparent_list;
-		while (p != NULL)
-		{
-			q = p->next;
-			gi.TagFree(p);
-			p = q;
-		}
-		transparent_list = NULL;
-	}
+
+void InitTransparentList( void )
+{
+	transparent_list = NULL;
+	transparentlistFree = NULL;
+	transparentEntryCount = 0;
 }
 
-void AddToTransparentList (edict_t * ent)
+void AddToTransparentList( edict_t *ent )
 {
-	transparent_list_t *p, *n;
+	transparent_list_t *entry;
 
-	n =	(transparent_list_t *) gi.TagMalloc (sizeof (transparent_list_t), TAG_GAME);
-	if (n == NULL)
-	{
-		gi.dprintf ("Out of memory\n");
-		exit (1);
+	if (transparentlistFree) {
+		entry = transparentlistFree;
+		transparentlistFree = entry->next;
 	}
-	n->ent = ent;
-	n->next = NULL;
+	else if (transparentEntryCount < MAX_CLIENTS) {
+		entry = &transparentList[transparentEntryCount++];
+	}
+	else {
+		return;
+	}
 
-	if (transparent_list == NULL)
-	{
-		transparent_list = n;
-	}
-	else
-	{
-		p = transparent_list;
-		while (p->next != NULL)
-		{
-			p = p->next;
-		}
-		p->next = n;
-	}
+	entry->ent = ent;
+	entry->next = transparent_list;
+	transparent_list = entry;
 }
 
-void RemoveFromTransparentList (edict_t * ent)
+void RemoveFromTransparentList( edict_t *ent )
 {
-	transparent_list_t *p, *q, *r;
+	transparent_list_t *entry, **back;
 
-	if (transparent_list != NULL)
-	{
-		if (transparent_list->ent == ent)
-		{
-			q = transparent_list->next;
-			gi.TagFree (transparent_list);
-			transparent_list = q;
+	back = &transparent_list;
+	for (entry = *back; entry; entry = *back) {
+		if (entry->ent == ent) {
+			*back = entry->next;
+			entry->next = transparentlistFree;
+			transparentlistFree = entry;
 			return;
 		}
-		else
-		{
-			p = transparent_list;
-			q = p->next;
-			while (q != NULL)
-			{
-				if (q->ent == ent)
-				{
-					r = q->next;
-					gi.TagFree (q);
-					p->next = r;
-					return;
-				}
-				p = p->next;
-				q = p->next;
-			}
-		}
+		back = &entry->next;
 	}
-
-	gi.dprintf("Warning: attempt to RemoveFromTransparentList when not in it\n");
 }
 
-void TransparentListSet (solid_t solid_type)
+void TransparentListSet( solid_t solid_type )
 {
-	transparent_list_t *p = transparent_list;
+	transparent_list_t *entry;
 
-	while (p != NULL)
-	{
-		p->ent->solid = solid_type;
-		gi.linkentity (p->ent);
-		p = p->next;
+	for (entry = transparent_list; entry; entry = entry->next) {
+		entry->ent->solid = solid_type;
+		gi.linkentity( entry->ent );
 	}
 }
 
