@@ -1432,15 +1432,8 @@ typedef struct
   int menu_shown;		// has the main menu been shown
   qboolean dm_selected;		// if dm weapon selection has been done once
 
-  // radio/partners stuff...
-  int radio_delay;
-  radio_queue_entry_t radio_queue[MAX_RADIO_QUEUE_SIZE];
-  int radio_queue_size;
-  edict_t *radio_partner;	// current partner
-  edict_t *partner_last_offered_to;	// last person I offered a partnership to
-  edict_t *partner_last_offered_from;	// last person I received a partnership offer from
-  edict_t *partner_last_denied_from;	// last person I denied a partnership offer from
-  // end of radio/partners stuff...
+
+  radio_t radio;
 
   int motd_refreshes;
   int last_motd_refresh;
@@ -1464,10 +1457,6 @@ typedef struct
   int grenade_mode;
   int id;			// id command on or off
   int ir;			// ir on or off (only matters if player has ir device, currently bandolier)
-
-  qboolean radio_partner_mode;	// 'radio' command using team or partner
-  qboolean radio_gender;	// radiogender
-  qboolean radio_power_off;	// radio_power
 
   int fire_time;
   int ignore_time;		// framenum when the player called ignore - to prevent spamming
@@ -1506,20 +1495,6 @@ typedef struct
   int admin;
 
   int hc_mode;
-  //SLIC2 redesigning this
-  /*float rd_mute;
-  float rd_when[10];
-  int rd_whensaid;
-  char rd_rep[96];
-  int rd_repcount;
-  float rd_reptime;*/
-  float rd_mute;	//Time to be muted
-  int rd_Count;		//Counter for the last msgs in "xx" secs allowed
-  float rd_time;	//Time for the first radio message of the ones to follow
-
-  int rd_lastRadio;	//Code of the last radio used
-  int rd_repCount;	//Counter for the number of repeated radio msgs
-  float rd_repTime;	//The time for the last repeated radio msg
 
   //char skin[MAX_SKINLEN];
 }

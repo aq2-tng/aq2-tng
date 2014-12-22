@@ -947,7 +947,7 @@ void JoinTeam (edict_t * ent, int desired_team, int skip_menuclose)
 				char deathmsg[64];
 				Com_sprintf(deathmsg, sizeof(deathmsg), "%s ph34rs %s so much %s committed suicide! :)\n",
 					ent->client->pers.netname, ent->client->attacker->client->pers.netname,
-					ent->client->resp.radio_gender ? "she" : "he");
+					ent->client->resp.radio.gender ? "she" : "he");
 				PrintDeathMessage(deathmsg, ent);
 				IRC_printf (IRC_T_DEATH, deathmsg);
 				if(team_round_going || !OnSameTeam(ent, ent->client->attacker)) {
@@ -1040,7 +1040,7 @@ void LeaveTeam (edict_t * ent)
 				char deathmsg[64];
 				Com_sprintf(deathmsg, sizeof(deathmsg), "%s ph34rs %s so much %s committed suicide! :)\n",
 					ent->client->pers.netname, ent->client->attacker->client->pers.netname,
-					ent->client->resp.radio_gender ? "she" : "he");
+					ent->client->resp.radio.gender ? "she" : "he");
 				PrintDeathMessage(deathmsg, ent);
 				IRC_printf (IRC_T_DEATH, deathmsg);
 				if(team_round_going || !OnSameTeam(ent, ent->client->attacker)) {
