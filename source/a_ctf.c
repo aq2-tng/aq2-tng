@@ -338,7 +338,6 @@ void ResetPlayers()
 
 void CTFSwapTeams()
 {
-	vec3_t point;
 	edict_t *ent;
 	int i;
 
@@ -1539,7 +1538,6 @@ void CTFCapReward(edict_t * ent)
 {
 	gclient_t *client;
 	gitem_t *item;
-	edict_t etemp;
 	int was_bandaging = 0;
 	int band;
 	int player_weapon;

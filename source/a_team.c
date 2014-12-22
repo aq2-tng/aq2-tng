@@ -1288,7 +1288,7 @@ void OpenWeaponMenu (edict_t * ent)
 }
 
 // AQ2:TNG Deathwatch - Updated this for the new menu
-int UpdateJoinMenu (edict_t * ent)
+static void UpdateJoinMenu (edict_t * ent)
 {
 	static char levelname[28];
 	static char team1players[28];
@@ -2624,7 +2624,8 @@ void A_ScoreboardMessage (edict_t * ent, edict_t * killer)
 
 		// new scoreboard for regular teamplay up to 16 players
 		if (use_newscore->value && teamplay->value && !use_3teams->value && !matchmode->value && !ctf->value) {
-			return A_NewScoreboardMessage(ent);
+			A_NewScoreboardMessage(ent);
+			return;
 		}
 
 		if(use_3teams->value) {

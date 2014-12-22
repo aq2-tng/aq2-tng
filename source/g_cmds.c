@@ -1285,10 +1285,9 @@ Cmd_Say_f
 */
 void Cmd_Say_f (edict_t * ent, qboolean team, qboolean arg0, qboolean partner_msg)
 {
-	int j, i, offset_of_text;
+	int j, offset_of_text;
 	edict_t *other;
 	char *args, text[256], *s;
-	gclient_t *cl;
 	int meing = 0, isadmin = 0;
 
 	if (gi.argc() < 2 && !arg0)

@@ -1380,7 +1380,7 @@ PrecacheItems
 Makes sure the client loads all necessary data on connect to avoid lag.
 ============
 */
-void PrecacheItems ()
+void PrecacheItems( void )
 {
 	PrecacheItem(FindItemByClassname("weapon_Mk23"));
 	PrecacheItem(FindItemByClassname("weapon_MP5"));
