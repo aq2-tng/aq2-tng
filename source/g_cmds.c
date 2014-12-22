@@ -1184,7 +1184,7 @@ void Cmd_Players_f (edict_t * ent)
 	int index[256];
 
 
-	for (i = 0; i < maxclients->value; i++)
+	for (i = 0; i < game.maxclients; i++)
 	{
 		if (game.clients[i].pers.connected)
 			index[count++] = i;
@@ -1533,7 +1533,7 @@ void Cmd_PlayerList_f (edict_t * ent)
 	// connect time, ping, score, name
 
 	// Set the lines:
-	for (i = 0, e2 = g_edicts + 1; i < maxclients->value; i++, e2++)
+	for (i = 0, e2 = g_edicts + 1; i < game.maxclients; i++, e2++)
 	{
 		int seconds = ((level.framenum - e2->client->resp.enterframe) / HZ) % 60;
 		int minutes = ((level.framenum - e2->client->resp.enterframe) / HZ) / 60;

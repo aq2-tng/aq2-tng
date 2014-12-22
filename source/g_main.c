@@ -555,12 +555,12 @@ void Com_Printf (const char *msg, ...)
 */
 void ClientEndServerFrames (void)
 {
-  int i;
-  edict_t *ent;
+	int i;
+	edict_t *ent;
 
-  // calc the player views now that all pushing
-  // and damage has been added
-	for (i = 0; i < maxclients->value; i++)
+	// calc the player views now that all pushing
+	// and damage has been added
+	for (i = 0; i < game.maxclients; i++)
 	{
 		ent = g_edicts + 1 + i;
 		if (!ent->inuse || !ent->client)
@@ -568,7 +568,7 @@ void ClientEndServerFrames (void)
 		ClientEndServerFrame (ent);
 	}
 
-	for (i = 0; i < maxclients->value; i++)
+	for (i = 0; i < game.maxclients; i++)
 	{
 		ent = g_edicts + 1 + i;
 		if (!ent->inuse || !ent->client || !ent->client->chase_target)
@@ -813,7 +813,7 @@ void CheckDMRules (void)
 
 		if (dm_shield->value)
 		{
-			for (i = 0; i < maxclients->value; i++)
+			for (i = 0; i < game.maxclients; i++)
 			{
 				if (!g_edicts[i + 1].inuse)
 					continue;
@@ -845,7 +845,7 @@ void CheckDMRules (void)
 
 	if (fraglimit->value)
 	{
-		for (i = 0; i < maxclients->value; i++)
+		for (i = 0; i < game.maxclients; i++)
 		{
 			cl = game.clients + i;
 			if (!g_edicts[i + 1].inuse)
@@ -878,7 +878,7 @@ void ExitLevel (void)
 	if(softquit) {
 		gi.bprintf(PRINT_HIGH, "Soft quit was requested by admin. The server will now exit.\n");
 		/* leave clients reconnecting just in case if the server will come back */
-		for (i = 1; i <= (int) (maxclients->value); i++)
+		for (i = 1; i <= game.maxclients; i++)
 		{
 			ent = getEnt (i);
 			if(!ent->inuse)
@@ -903,7 +903,7 @@ void ExitLevel (void)
 	ClientEndServerFrames ();
 
 	// clear some things before going to next level
-	for (i = 0; i < maxclients->value; i++)
+	for (i = 0; i < game.maxclients; i++)
 	{
 		ent = g_edicts + 1 + i;
 		if (!ent->inuse)
@@ -1036,7 +1036,7 @@ void G_RunFrame (void)
 				}
 			}
 
-			if (i > 0 && i <= maxclients->value)
+			if (i > 0 && i <= game.maxclients)
 			{
 				if (!(level.framenum % 80)) 
 					stuffcmd(ent, "cmd_stat_mode $stat_mode\n");

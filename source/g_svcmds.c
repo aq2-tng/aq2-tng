@@ -407,7 +407,7 @@ void SVCmd_stuffcmd_f ()
 
 	if (team || !Q_stricmp(user, "all"))
 	{
-		for (i = 1; i <= (int) (maxclients->value); i++)
+		for (i = 1; i <= game.maxclients; i++)
 		{
 			ent = getEnt (i);
 			if(!ent->inuse)
@@ -432,7 +432,7 @@ void SVCmd_stuffcmd_f ()
 	}
 
 	i = atoi(user) + 1;
-	if (i > (int)(maxclients->value))
+	if (i > game.maxclients)
 	{				/* if is inserted number > server capacity */
 		gi.cprintf (NULL, PRINT_HIGH, "User id is not valid\n");
 		return;

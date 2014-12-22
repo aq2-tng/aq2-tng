@@ -367,7 +367,7 @@ void CTFAssignTeam(gclient_t * who)
 		return;
 	}
 
-	for (i = 1; i <= (int)maxclients->value; i++) {
+	for (i = 1; i <= game.maxclients; i++) {
 		player = &g_edicts[i];
 		if (!player->inuse || player->client == who)
 			continue;
@@ -513,7 +513,7 @@ void CTFFragBonuses(edict_t * targ, edict_t * inflictor, edict_t * attacker)
 
 		// the the target had the flag, clear the hurt carrier
 		// field on the other team
-		for (i = 1; i <= maxclients->value; i++) {
+		for (i = 1; i <= game.maxclients; i++) {
 			ent = g_edicts + i;
 			if (ent->inuse && ent->client->resp.team == otherteam)
 				ent->client->resp.ctf_lasthurtcarrier = 0;
@@ -560,7 +560,7 @@ void CTFFragBonuses(edict_t * targ, edict_t * inflictor, edict_t * attacker)
 		return;		// can't find attacker's flag
 
 	// find attacker's team's flag carrier
-	for (i = 1; i <= maxclients->value; i++) {
+	for (i = 1; i <= game.maxclients; i++) {
 		carrier = g_edicts + i;
 		if (carrier->inuse && carrier->client->pers.inventory[ITEM_INDEX(flag_item)])
 			break;
@@ -647,7 +647,7 @@ void CTFResetFlag(int team)
 	}
 
 	/* hifi: drop this team flag if a player is carrying one (so the next loop returns it correctly) */
-	for (i = 1; i <= (int)maxclients->value; i++) {
+	for (i = 1; i <= game.maxclients; i++) {
 		ent= &g_edicts[i];
 		if(team == TEAM1) {
 			if (ent->client->pers.inventory[ITEM_INDEX(flag1_item)]) {
@@ -738,7 +738,7 @@ qboolean CTFPickup_Flag(edict_t * ent, edict_t * other)
 				CTFCapReward(other);
 
 				// Ok, let's do the player loop, hand out the bonuses
-				for (i = 1; i <= maxclients->value; i++) {
+				for (i = 1; i <= game.maxclients; i++) {
 					player = &g_edicts[i];
 					if (!player->inuse)
 						continue;
@@ -968,7 +968,7 @@ void CTFCalcScores(void)
 	int i;
 
 	ctfgame.total1 = ctfgame.total2 = 0;
-	for (i = 0; i < maxclients->value; i++) {
+	for (i = 0; i < game.maxclients; i++) {
 		if (!g_edicts[i + 1].inuse)
 			continue;
 		if (game.clients[i].resp.team == TEAM1)
@@ -1023,7 +1023,7 @@ void SetCTFStats(edict_t * ent)
 			// not at base
 			// check if on player
 			p1 = gi.imageindex("i_ctf1d");	// default to dropped
-			for (i = 1; i <= maxclients->value; i++)
+			for (i = 1; i <= game.maxclients; i++)
 				if (g_edicts[i].inuse && g_edicts[i].client->pers.inventory[ITEM_INDEX(flag1_item)]) {
 					// enemy has it
 					p1 = gi.imageindex("i_ctf1t");
@@ -1041,7 +1041,7 @@ void SetCTFStats(edict_t * ent)
 			// not at base
 			// check if on player
 			p2 = gi.imageindex("i_ctf2d");	// default to dropped
-			for (i = 1; i <= maxclients->value; i++)
+			for (i = 1; i <= game.maxclients; i++)
 				if (g_edicts[i].inuse && g_edicts[i].client->pers.inventory[ITEM_INDEX(flag2_item)]) {
 					// enemy has it
 					p2 = gi.imageindex("i_ctf2t");
@@ -1209,7 +1209,7 @@ void CTFScoreboardMessage(edict_t * ent, edict_t * killer)
 
 		k = n = 0;
 		if (maxsize - len > 50) {
-			for (i = 0; i < maxclients->value; i++) {
+			for (i = 0; i < game.maxclients; i++) {
 				cl_ent = g_edicts + 1 + i;
 				cl = &game.clients[i];
 				if (!cl_ent->inuse || cl_ent->solid != SOLID_NOT || cl_ent->client->resp.team != NOTEAM)

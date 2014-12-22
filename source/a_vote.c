@@ -107,7 +107,7 @@ int _numclients (void)
 	edict_t *other;
 
 	count = 0;
-	for (i = 1; i <= maxclients->value; i++)
+	for (i = 1; i <= game.maxclients; i++)
 	{
 		other = &g_edicts[i];
 		if (other->inuse && Info_ValueForKey(other->client->pers.userinfo, "mvdspec")[0] == '\0')
@@ -1398,7 +1398,7 @@ configlist_t *ConfigWithMostVotes (float *p)
 
   //find config_num_clients
   config_num_clients = 0;
-  for (i = 1; i <= maxclients->value; i++)
+  for (i = 1; i <= game.maxclients; i++)
     {
       e = g_edicts + i;
       if (e->inuse)
