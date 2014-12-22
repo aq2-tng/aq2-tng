@@ -716,12 +716,14 @@ void InitGame (void)
 		gi.dprintf("game.frametime = %f\n", game.frametime);
 		gi.dprintf("game.framediv = %d\n", game.framediv);
 		gi.dprintf("BASE_FRAMETIME_1000 = %f\n", BASE_FRAMETIME_1000);
-	} else {
+	}
+	else
+#endif
+	{
 		game.framerate = BASE_FRAMERATE;
 		game.frametime = BASE_FRAMETIME_1000;
 		game.framediv = 1; 
-	}    
-#endif
+	}
 
 	gi.cvar_forceset("g_features", va("%d", G_FEATURES));
 }

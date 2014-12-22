@@ -584,11 +584,9 @@ typedef struct
   int serverflags;
   int serverfeatures;
 
-#if USE_FPS
   int framerate;
   float frametime;
   int framediv;
-#endif
 
   // items
   int num_items;
