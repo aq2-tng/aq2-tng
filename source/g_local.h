@@ -1056,6 +1056,8 @@ void Cmd_Help_f (edict_t * ent);
 void Cmd_Score_f (edict_t * ent);
 void Cmd_CPSI_f (edict_t * ent);
 void Cmd_VidRef_f (edict_t * ent);
+void Cmd_Inven_f( edict_t * ent );
+
 //
 // g_items.c
 //
@@ -1071,6 +1073,7 @@ gitem_t *FindItemByNum (int num);
 edict_t *Drop_Item (edict_t * ent, gitem_t * item);
 void SetRespawn (edict_t * ent, float delay);
 void ChangeWeapon (edict_t * ent);
+void PrecacheItems( void );
 void SpawnItem (edict_t * ent, gitem_t * item);
 void Think_Weapon (edict_t * ent);
 int ArmorIndex (edict_t * ent);
@@ -1117,6 +1120,8 @@ void T_Damage (edict_t * targ, edict_t * inflictor, edict_t * attacker,
 	       int knockback, int dflags, int mod);
 void T_RadiusDamage (edict_t * inflictor, edict_t * attacker, float damage,
 		     edict_t * ignore, float radius, int mod);
+
+qboolean CheckTeamDamage( edict_t * targ, edict_t * attacker );
 
 // damage flags
 #define DAMAGE_RADIUS                   0x00000001	// damage was indirect
@@ -1316,6 +1321,20 @@ void ChaseNext (edict_t * ent);
 void ChasePrev (edict_t * ent);
 void GetChaseTarget (edict_t * ent);
 
+
+//
+// g_spawn.c
+//
+void ChangePlayerSpawns();
+void ED_CallSpawn( edict_t * ent );
+
+//p_weapon.c
+void Weapon_Generic( edict_t * ent, int FRAME_ACTIVATE_LAST, int FRAME_FIRE_LAST,
+	int FRAME_IDLE_LAST, int FRAME_DEACTIVATE_LAST,
+	int FRAME_RELOAD_LAST, int FRAME_LASTRD_LAST,
+	int *pause_frames, int *fire_frames,
+	void( *fire ) (edict_t * ent) );
+
 //============================================================================
 
 // client_t->anim_priority
@@ -1408,8 +1427,8 @@ typedef struct
   float ctf_flagsince;
   float ctf_lastfraggedcarrier;
 
-  int joined_team;		// last frame # at which the player joined a team
-  int lastWave;			//last time used wave
+  unsigned int joined_team;		// last frame # at which the player joined a team
+  unsigned int lastWave;			//last time used wave
   int menu_shown;		// has the main menu been shown
   qboolean dm_selected;		// if dm weapon selection has been done once
 

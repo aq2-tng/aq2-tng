@@ -489,10 +489,8 @@ qboolean _iCheckMapVotes (void)
 
 votelist_t *MapWithMostVotes (float *p)
 {
-	int i;
 	float p_most = 0.0f, votes;
 	votelist_t *search, *most;
-	edict_t *e;
 
 	if (map_votes == NULL)
 		return (NULL);
@@ -1936,8 +1934,6 @@ void _CalcScrambleVotes (int *numclients, int *numvotes, float *percent)
 	if(*numvotes > 0)
 		(*percent) = (float) (((float) *numvotes / (float) *numclients) * 100.0);
 }
-
-void MakeAllLivePlayersObservers(void);
 
 void _CheckScrambleVote (void)
 {

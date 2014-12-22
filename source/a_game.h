@@ -144,3 +144,9 @@ void GetLastLoss (edict_t * self, char *buf, char team);
 // ...also the modified viewheight -FB 7/18/99
 #define CROUCHING_MAXS2                 16
 #define CROUCHING_VIEWHEIGHT		8
+
+//a_team.c
+void MakeAllLivePlayersObservers( void );
+
+//a_cmds.c
+void Cmd_NextMap_f( edict_t * ent );

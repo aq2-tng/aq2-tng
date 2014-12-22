@@ -284,7 +284,6 @@ void SP_turret_driver (edict_t * self);
 //zucc - item replacement function
 void CheckItem (edict_t * ent);
 int LoadFlagsFromFile (char *mapname);
-void ChangePlayerSpawns ();
 
 //AQ2:TNG - Slicer New location code
 int ml_count = 0;

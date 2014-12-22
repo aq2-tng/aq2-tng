@@ -113,6 +113,7 @@ void CTFResetFlag (int team);
 void CTFFragBonuses (edict_t * targ, edict_t * inflictor, edict_t * attacker);
 void CTFCheckHurtCarrier (edict_t * targ, edict_t * attacker);
 void CTFDestroyFlag (edict_t * self);
+void CTFResetFlags( void );
 
 void CTFOpenJoinMenu (edict_t * ent);
 qboolean CTFStartClient (edict_t * ent);
