@@ -1110,7 +1110,7 @@ void Cmd_Kill_f (edict_t * ent)
 			char deathmsg[64];
 			Com_sprintf(deathmsg, sizeof(deathmsg), "%s ph34rs %s so much %s committed suicide! :)\n",
 				ent->client->pers.netname, ent->client->attacker->client->pers.netname,
-				ent->client->resp.radio_gender ? "she" : "he");
+				ent->client->resp.radio.gender ? "she" : "he");
 			PrintDeathMessage(deathmsg, ent);
 			if(team_round_going || !OnSameTeam(ent, ent->client->attacker)) {
 				Add_Frag (ent->client->attacker);
@@ -1381,7 +1381,7 @@ void Cmd_Say_f (edict_t * ent, qboolean team, qboolean arg0, qboolean partner_ms
 	}
 	else if (partner_msg)
 	{
-		if (ent->client->resp.radio_partner == NULL)
+		if (ent->client->resp.radio.partner == NULL)
 		{
 			gi.cprintf (ent, PRINT_HIGH, "You don't have a partner.\n");
 			return;
@@ -1501,7 +1501,7 @@ void Cmd_Say_f (edict_t * ent, qboolean team, qboolean arg0, qboolean partner_ms
 		}
 		if (partner_msg)
 		{
-			if (other != ent->client->resp.radio_partner && other != ent)
+			if (other != ent->client->resp.radio.partner && other != ent)
 				continue;
 		}
 		//FIREBLADE
