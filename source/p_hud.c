@@ -130,7 +130,7 @@ void BeginIntermission (edict_t * targ)
 	game.autosaved = false;
 
 	// respawn any dead clients
-	for (i = 0; i < maxclients->value; i++)
+	for (i = 0; i < game.maxclients; i++)
 	{
 		client = g_edicts + 1 + i;
 		if (!client->inuse)
@@ -146,7 +146,7 @@ void BeginIntermission (edict_t * targ)
 	{
 		if (coop->value)
 		{
-			for (i = 0; i < maxclients->value; i++)
+			for (i = 0; i < game.maxclients; i++)
 			{
 				client = g_edicts + 1 + i;
 				if (!client->inuse)
@@ -194,7 +194,7 @@ void BeginIntermission (edict_t * targ)
 	VectorCopy (ent->s.angles, level.intermission_angle);
 
 	// move all clients to the intermission point
-	for (i = 0; i < maxclients->value; i++)
+	for (i = 0; i < game.maxclients; i++)
 	{
 		client = g_edicts + 1 + i;
 		if (!client->inuse)
@@ -204,7 +204,7 @@ void BeginIntermission (edict_t * targ)
 
 	// AZEROV: Clear the team kills for everyone
 	//gi.cprintf(NULL,PRINT_MEDIUM,"Resetting all team kills\n");
-	for (i = 1; i <= maxclients->value; i++)
+	for (i = 1; i <= game.maxclients; i++)
 	{
 		edict_t *temp_ent;
 		temp_ent = g_edicts + i;

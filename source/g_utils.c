@@ -427,8 +427,8 @@ edict_t *G_Spawn (void)
 	int i;
 	edict_t *e;
 
-	e = &g_edicts[(int) maxclients->value + 1];
-	for (i = maxclients->value + 1; i < globals.num_edicts; i++, e++)
+	e = &g_edicts[game.maxclients + 1];
+	for (i = game.maxclients + 1; i < globals.num_edicts; i++, e++)
 	{
 		// the first couple seconds of server time can involve a lot of
 		// freeing and allocating, so relax the replacement policy
@@ -458,7 +458,7 @@ void G_FreeEdict (edict_t * ed)
 {
 	gi.unlinkentity (ed);		// unlink from world
 
-	if ((ed - g_edicts) <= (maxclients->value + BODY_QUEUE_SIZE))
+	if ((ed - g_edicts) <= (game.maxclients + BODY_QUEUE_SIZE))
 	{
 		//              gi.dprintf("tried to free special edict\n");
 		return;

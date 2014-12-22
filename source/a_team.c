@@ -444,7 +444,7 @@ void JoinTeamAuto (edict_t * ent, pmenu_t * p)
 {
 	int i, team = TEAM1, num1 = 0, num2 = 0, num3 = 0, score1, score2, score3;
 
-	for (i = 0; i < (int)maxclients->value; i++)
+	for (i = 0; i < game.maxclients; i++)
 	{
 		if (!g_edicts[i + 1].inuse)
 			continue;
@@ -1344,7 +1344,7 @@ int UpdateJoinMenu (edict_t * ent)
 	else
 		Q_strncpyz(levelname + 1, level.mapname, sizeof(levelname) - 1);
 
-	for (i = 0; i < (int)maxclients->value; i++)
+	for (i = 0; i < game.maxclients; i++)
 	{
 		if (!g_edicts[i + 1].inuse)
 			continue;
@@ -1434,9 +1434,9 @@ void CleanLevel ()
 	int base;
 	edict_t *ent;
 
-	base = 1 + maxclients->value + BODY_QUEUE_SIZE;
+	base = 1 + game.maxclients + BODY_QUEUE_SIZE;
 	ent = g_edicts + base;
-	for (i = 1 + maxclients->value + BODY_QUEUE_SIZE; i < globals.num_edicts; i++, ent++)
+	for (i = base; i < globals.num_edicts; i++, ent++)
 	{
 		if (!ent->classname)
 			continue;
@@ -2090,7 +2090,7 @@ void CheckTeamRules (void)
 	// works like old CTF shield for TDM
 	if (dm_shield->value && (!teamplay->value || (teamdm->value && lights_camera_action == 0)) && !ctf->value)
 	{
-		for (i = 0; i < maxclients->value; i++)
+		for (i = 0; i < game.maxclients; i++)
 		{
 			if (!g_edicts[i + 1].inuse)
 				continue;
@@ -2113,7 +2113,7 @@ void CheckTeamRules (void)
 // AQ2:TNG - JBravo adding UVtime
 	if(ctf->value)
 	{
-		for (i = 0; i < maxclients->value; i++)
+		for (i = 0; i < game.maxclients; i++)
 		{
 			if (!g_edicts[i + 1].inuse)
 				continue;
@@ -3046,7 +3046,7 @@ void TallyEndOfLevelTeamScores (void)
 		gi.soundindex ("world/xian1.wav"), 1.0, ATTN_NONE, 0.0);
 
 	teams[TEAM1].total = teams[TEAM2].total = teams[TEAM3].total = 0;
-	for (i = 0; i < maxclients->value; i++)
+	for (i = 0; i < game.maxclients; i++)
 	{
 		if (!g_edicts[i + 1].inuse)
 			continue;

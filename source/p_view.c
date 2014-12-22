@@ -1401,7 +1401,7 @@ void ClientEndServerFrame (edict_t * ent)
 	G_SetStats (ent);
 
 	//FIREBLADE
-	for (i = 1; i <= maxclients->value; i++)
+	for (i = 1; i <= game.maxclients; i++)
 	{
 		int stats_copy;
 		edict_t *e = g_edicts + i;

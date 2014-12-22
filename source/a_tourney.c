@@ -376,7 +376,7 @@ TourneyFindPlayer (int number)
   edict_t *player;
   int i;
 
-  for (i = 1; i <= maxclients->value; i++)
+  for (i = 1; i <= game.maxclients; i++)
     {
       player = g_edicts + i;
       if (player->inuse)
@@ -401,7 +401,7 @@ TourneyRemovePlayer (edict_t * player)
   int i;
 
   LastOpponent--;
-  for (i = 1; i <= maxclients->value; i++)
+  for (i = 1; i <= game.maxclients; i++)
     {
       dummy = g_edicts + i;
       if (dummy->inuse)

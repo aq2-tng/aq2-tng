@@ -2012,7 +2012,7 @@ float PlayersRangeFromSpot(edict_t * spot)
 	int n;
 
 
-	for (n = 1; n <= maxclients->value; n++) {
+	for (n = 1; n <= game.maxclients; n++) {
 		player = &g_edicts[n];
 
 		if (!player->inuse)
@@ -2250,7 +2250,7 @@ void CopyToBodyQue(edict_t * ent)
 	edict_t *body;
 
 	// grab a body que and cycle to the next one
-	body = &g_edicts[(int) maxclients->value + level.body_que + 1];
+	body = &g_edicts[game.maxclients + level.body_que + 1];
 	level.body_que = (level.body_que + 1) % BODY_QUEUE_SIZE;
 
 	// FIXME: send an effect on the removed body
@@ -3351,7 +3351,7 @@ void ClientDisconnect(edict_t * ent)
 	IRC_printf(IRC_T_SERVER, "%n disconnected", ent->client->pers.netname);
 
 	// go clear any clients that have this guy as their attacker
-	for (i = 1; i <= maxclients->value; i++) {
+	for (i = 1; i <= game.maxclients; i++) {
 		if ((etemp = &g_edicts[i]) && etemp->inuse) {
 			if (etemp->client->attacker == ent)
 				etemp->client->attacker = NULL;
@@ -3753,7 +3753,7 @@ void ClientThink(edict_t * ent, usercmd_t * ucmd)
 	}
 	// FROM 3.20 -FB
 	// update chase cam if being followed
-	for (i = 1; i <= maxclients->value; i++) {
+	for (i = 1; i <= game.maxclients; i++) {
 		other = g_edicts + i;
 		if (other->inuse && other->client->chase_mode && other->client->chase_target == ent)
 			UpdateChaseCam(other);

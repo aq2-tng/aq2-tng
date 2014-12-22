@@ -206,7 +206,7 @@ void ChaseNext (edict_t * ent)
 	do
 	{
 		i++;
-		if (i > maxclients->value)
+		if (i > game.maxclients)
 			i = 1;
 		e = g_edicts + i;
 		if (!e->inuse)
@@ -239,7 +239,7 @@ ChasePrev (edict_t * ent)
     {
       i--;
       if (i < 1)
-	i = maxclients->value;
+		  i = game.maxclients;
       e = g_edicts + i;
       if (!e->inuse)
 	continue;

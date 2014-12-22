@@ -141,7 +141,7 @@ int CheckForCaptains(int cteam)
 	edict_t *ent;
 	int i;
 
-	for (i = 1; i <= (int)(maxclients->value); i++) {
+	for (i = 1; i <= game.maxclients; i++) {
 		ent = getEnt(i);
 		if (ent->inuse) {
 			if (ent->client->resp.captain == cteam)
@@ -326,7 +326,7 @@ void Cmd_Teamskin_f(edict_t * ent)
 
 	sprintf(teams[team].skin_index, "../players/%s_i", teams[team].skin);
 
-/*	for (i = 1; i <= maxclients->value; i++) { //lets update players skin
+/*	for (i = 1; i <= game.maxclients; i++) { //lets update players skin
 		e = g_edicts + i;
 		if (!e->inuse)
 			continue;
@@ -438,7 +438,7 @@ void Cmd_ResetScores_f(edict_t * ent)
 	if(teams[ent->client->resp.team].wantReset)
 	{
 		teams[ent->client->resp.team].wantReset = 0;
-		for (i = 1; i <= maxclients->value; i++) {
+		for (i = 1; i <= game.maxclients; i++) {
 			e = g_edicts + i;
 			if (!e->inuse || !e->client->resp.captain)
 				continue;
@@ -462,7 +462,7 @@ void Cmd_ResetScores_f(edict_t * ent)
 		return;
 	}
 
-	for (i = 1; i <= maxclients->value; i++) {
+	for (i = 1; i <= game.maxclients; i++) {
 		e = g_edicts + i;
 		if (!e->inuse || !e->client->resp.captain)
 			continue;
