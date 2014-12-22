@@ -61,7 +61,7 @@
 //FIREBLADE
 
 // legacy ABI support for Windows
-#ifdef WIN32
+#if defined( __GNUC__) && defined( WIN32 )
 #define		q_gameabi           __attribute__((callee_pop_aggregate_return(0)))
 #else
 #define		q_gameabi
