@@ -41,5 +41,4 @@ void Cmd_TogglePause_f(edict_t * ent, qboolean pause);
 void Cmd_ResetScores_f(edict_t * ent);
 
 extern float matchtime;
-extern float realLtime;
 

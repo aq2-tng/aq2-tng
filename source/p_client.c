@@ -2976,6 +2976,8 @@ deathmatch mode, so clear everything out before starting them.
 */
 void ClientBeginDeathmatch(edict_t * ent)
 {
+	unsigned int checkFrame;
+
 	G_InitEdict(ent);
 
 	InitClientResp(ent->client);
@@ -3035,9 +3037,10 @@ void ClientBeginDeathmatch(edict_t * ent)
 //FIREBLADE
 
 	//AQ2:TNG - Slicer: Set time to check clients
-	ent->client->resp.checktime[0] = level.time + check_time->value;
-	ent->client->resp.checktime[1] = level.time + (check_time->value + 2);
-	ent->client->resp.checktime[1] = level.time + (check_time->value + 3);
+	checkFrame = level.framenum + (unsigned int)(check_time->value * HZ);
+	ent->client->resp.checkframe[0] = checkFrame;
+	ent->client->resp.checkframe[1] = checkFrame + 2 * HZ;
+	ent->client->resp.checkframe[2] = checkFrame + 3 * HZ;
 
 	// make sure all view stuff is valid
 	ClientEndServerFrame(ent);
@@ -3520,7 +3523,7 @@ void ClientThink(edict_t * ent, usercmd_t * ucmd)
 		Cmd_Inven_f(ent);
 	}
 
-	if(pause_time > 0)
+	if (level.pauseFrames > 0)
 	{
 		client->ps.pmove.pm_type = PM_FREEZE;
 		return;
@@ -3786,13 +3789,13 @@ void ClientBeginServerFrame(edict_t * ent)
 	gclient_t *client;
 	int buttonMask;
 
-	if (level.intermissiontime)
-		return;
-
 	client = ent->client;
 
-	if (client->penalty > 0 && level.framenum % 10 == 0)
+	if (client->penalty > 0 && level.realFramenum % HZ == 0)
 		client->penalty--;
+
+	if (level.intermissiontime)
+		return;
 
 	// force spawn when weapon and item selected in dm
 	if (deathmatch->value && dm_choose->value && !teamplay->value && !client->resp.dm_selected) {

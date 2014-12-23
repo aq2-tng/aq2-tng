@@ -1230,9 +1230,9 @@ void ClientEndServerFrame (edict_t * ent)
 	current_client = ent->client;
 
 	//AQ2:TNG - Slicer : Stuffs the client x seconds after he enters the server, needed for Video check
-	if (ent->client->resp.checktime[0] <= level.time)
+	if (ent->client->resp.checkframe[0] <= level.framenum)
 	{
-		ent->client->resp.checktime[0] = level.time + video_checktime->value;
+		ent->client->resp.checkframe[0] = level.framenum + (unsigned int)(video_checktime->value * HZ);
 		if (video_check->value || video_check_lockpvs->value
 			|| video_check_glclear->value || darkmatch->value)
 			stuffcmd (ent, "%!fc $vid_ref\n");
@@ -1243,10 +1243,10 @@ void ClientEndServerFrame (edict_t * ent)
 		}
 
 	}
-	if (ent->client->resp.checktime[1] <= level.time)
+	else if (ent->client->resp.checkframe[1] <= level.framenum)
 	{
-		ent->client->resp.checktime[1] = level.time + video_checktime->value;
-		ent->client->resp.checktime[2] = level.time + 1;
+		ent->client->resp.checkframe[1] = level.framenum + (unsigned int)(video_checktime->value * HZ);
+		ent->client->resp.checkframe[2] = level.framenum + HZ;
 		if (video_check->value || video_check_lockpvs->value
 			|| video_check_glclear->value || darkmatch->value)
 		{
@@ -1255,20 +1255,18 @@ void ClientEndServerFrame (edict_t * ent)
 		}
 
 	}
-	if (ent->client->resp.checktime[2] <= level.time)
+	else if (ent->client->resp.checkframe[2] <= level.framenum)
 	{
-		// ent->client->resp.checktime[2] = level.time + video_checktime->value;
+		ent->client->resp.checkframe[2] = level.framenum + 100 * HZ;
 		if (video_check->value || video_check_lockpvs->value
 			|| video_check_glclear->value || darkmatch->value)
 		{
 			if (ent->client->resp.vidref && Q_stricmp(ent->client->resp.vidref, "soft"))
 				VideoCheckClient (ent);
 		}
-
 	}
 
-	if(pause_time)
-	{
+	if (level.pauseFrames) {
 		G_SetStats (ent);
 		return;
 	}
@@ -1489,7 +1487,7 @@ void ClientEndServerFrame (edict_t * ent)
 	}
 
 	//FIREBLADE
-	if(!pause_time)
+	if (!level.pauseFrames)
 		RadioThink (ent);
 	//FIREBLADE
 }

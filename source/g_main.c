@@ -436,8 +436,6 @@ cvar_t *radio_repeat_time;
 cvar_t *use_classic;		// Used to reset spread/gren strength to 1.52
 cvar_t *warmup;
 
-int pause_time = 0;
-
 void SpawnEntities (char *mapname, char *entities, char *spawnpoint);
 void ClientThink (edict_t * ent, usercmd_t * cmd);
 qboolean ClientConnect (edict_t * ent, char *userinfo);
@@ -891,6 +889,7 @@ void ExitLevel (void)
 		level.changemap = NULL;
 		level.exitintermission = 0;
 		level.intermissiontime = 0;
+		level.pauseFrames = 0;
 		ClientEndServerFrames ();
 		return;
 	}
@@ -900,6 +899,7 @@ void ExitLevel (void)
 	level.changemap = NULL;
 	level.exitintermission = 0;
 	level.intermissiontime = 0;
+	level.pauseFrames = 0;
 	ClientEndServerFrames ();
 
 	// clear some things before going to next level
@@ -971,22 +971,8 @@ void G_RunFrame (void)
 	int i;
 	edict_t *ent;
 
-	realLtime += 0.1f;
-
-	if(pause_time)
-	{
-		if(pause_time <= 50) {
-			if(pause_time % 10 == 0)
-				CenterPrintAll (va("Game will unpause in %i seconds!", pause_time/10));
-		}
-		else if(pause_time == 100)
-			CenterPrintAll ("Game will unpause in 10 seconds!");
-		else if ((pause_time % 100) == 0)
-			gi.bprintf (PRINT_HIGH, "Game is paused for %i:%02i.\n", (pause_time/10)/60, (pause_time/10)%60);
-
-		pause_time--;
-	}
-	else
+	level.realFramenum++;
+	if (!level.pauseFrames)
 	{
 		level.framenum++;
 		level.time = level.framenum * FRAMETIME;
@@ -1004,7 +990,7 @@ void G_RunFrame (void)
 	}
 
 	// TNG Darkmatch Cycle
-	if(!pause_time)
+	if(!level.pauseFrames)
 	{
 		CycleLights ();
 
@@ -1050,6 +1036,20 @@ void G_RunFrame (void)
 
 	// build the playerstate_t structures for all players
 	ClientEndServerFrames ();
+
+	if (level.pauseFrames) {
+		if (level.pauseFrames <= 5 * HZ) {
+			if (level.pauseFrames % HZ == 0)
+				CenterPrintAll( va( "Game will unpause in %i seconds!", level.pauseFrames / HZ ) );
+		}
+		else if (level.pauseFrames == 10 * HZ) {
+			CenterPrintAll( "Game will unpause in 10 seconds!" );
+		}
+		else if ((level.pauseFrames % 10 * HZ) == 0) {
+			gi.bprintf( PRINT_HIGH, "Game is paused for %i:%02i.\n", (level.pauseFrames / HZ) / 60, (level.pauseFrames / HZ) % 60 );
+		}
+		level.pauseFrames--;
+	}
 }
 
 
