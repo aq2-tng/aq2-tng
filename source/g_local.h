@@ -1385,7 +1385,6 @@ typedef struct
   int last_damaged_part;
   char last_damaged_players[256];
   //AQ2:TNG - Slicer Matchmode code
-  int captain;
   int subteam;
   int admin;
 
@@ -2008,6 +2007,7 @@ typedef struct team_s
 	int ready, locked;
 	int pauses_used, wantReset;
 	cvar_t	*teamscore;
+	edict_t	*captain;
 }team_t;
 
 extern team_t teams[TEAM_TOP];

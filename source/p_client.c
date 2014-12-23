@@ -3310,19 +3310,7 @@ void ClientDisconnect(edict_t * ent)
 	if (!ent->client)
 		return;
 
-	if (ent->client->resp.captain)
-	{
-		if(teamdm->value || ctf->value)
-		{
-			if(!team_round_going)
-				teams[ent->client->resp.captain].ready = 0;
-			teams[ent->client->resp.captain].locked = 0;
-		}
-		else
-		{
-			teams[ent->client->resp.captain].ready = 0;
-		}
-	}
+	MM_LeftTeam( ent );
 
 	// reset item and weapon on disconnect
 	ent->client->resp.item = NULL;
