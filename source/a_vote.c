@@ -158,7 +158,7 @@ void Cmd_Votemap_f (edict_t * ent, char *t)
 			return;
 	}
 
-	if (level.intermissiontime)
+	if (level.intermission_framenum)
 	{
 		gi.cprintf (ent, PRINT_HIGH, "Mapvote disabled during intermission\n");
 		return;
@@ -1112,7 +1112,7 @@ void Cmd_Voteconfig_f (edict_t * ent, char *t)
 		return;
 	}
 
-	if (level.intermissiontime)
+	if (level.intermission_framenum)
 	{
 		gi.cprintf (ent, PRINT_HIGH, "Configvote disabled during intermission\n");
 		return;

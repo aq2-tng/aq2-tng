@@ -505,7 +505,7 @@ void CTFFragBonuses(edict_t * targ, edict_t * inflictor, edict_t * attacker)
 
 	// did the attacker frag the flag carrier?
 	if (targ->client->pers.inventory[ITEM_INDEX(enemy_flag_item)]) {
-		attacker->client->resp.ctf_lastfraggedcarrier = level.time;
+		attacker->client->resp.ctf_lastfraggedcarrier = level.framenum;
 		attacker->client->resp.score += CTF_FRAG_CARRIER_BONUS;
 		gi.cprintf(attacker, PRINT_MEDIUM,
 			   "BONUS: %d points for fragging enemy flag carrier.\n", CTF_FRAG_CARRIER_BONUS);
@@ -521,8 +521,8 @@ void CTFFragBonuses(edict_t * targ, edict_t * inflictor, edict_t * attacker)
 	}
 
 	if (targ->client->resp.ctf_lasthurtcarrier &&
-	    level.time - targ->client->resp.ctf_lasthurtcarrier <
-	    CTF_CARRIER_DANGER_PROTECT_TIMEOUT && !attacker->client->pers.inventory[ITEM_INDEX(flag_item)]) {
+	    level.framenum - targ->client->resp.ctf_lasthurtcarrier <
+	    CTF_CARRIER_DANGER_PROTECT_TIMEOUT * HZ && !attacker->client->pers.inventory[ITEM_INDEX(flag_item)]) {
 		// attacker is on the same team as the flag carrier and
 		// fragged a guy who hurt our flag carrier
 		attacker->client->resp.score += CTF_CARRIER_DANGER_PROTECT_BONUS;
@@ -623,7 +623,7 @@ void CTFCheckHurtCarrier(edict_t * targ, edict_t * attacker)
 
 	if (targ->client->pers.inventory[ITEM_INDEX(flag_item)] &&
 	    targ->client->resp.team != attacker->client->resp.team)
-		attacker->client->resp.ctf_lasthurtcarrier = level.time;
+		attacker->client->resp.ctf_lasthurtcarrier = level.framenum;
 }
 
 /*------------------------------------------------------------------------*/
@@ -743,13 +743,13 @@ qboolean CTFPickup_Flag(edict_t * ent, edict_t * other)
 						continue;
 
 					if (player->client->resp.team != other->client->resp.team)
-						player->client->resp.ctf_lasthurtcarrier = -5;
+						player->client->resp.ctf_lasthurtcarrier = 0;
 					else if (player->client->resp.team == other->client->resp.team) {
 						if (player != other)
 							player->client->resp.score += CTF_TEAM_BONUS;
 						// award extra points for capture assists
 						if (player->client->resp.ctf_lastreturnedflag +
-						    CTF_RETURN_FLAG_ASSIST_TIMEOUT > level.time) {
+							CTF_RETURN_FLAG_ASSIST_TIMEOUT * HZ > level.framenum) {
 							gi.bprintf(PRINT_HIGH,
 								   "%s gets an assist for returning the flag!\n",
 								   player->client->pers.netname);
@@ -759,7 +759,7 @@ qboolean CTFPickup_Flag(edict_t * ent, edict_t * other)
 							player->client->resp.score += CTF_RETURN_FLAG_ASSIST_BONUS;
 						}
 						if (player->client->resp.ctf_lastfraggedcarrier +
-						    CTF_FRAG_CARRIER_ASSIST_TIMEOUT > level.time) {
+							CTF_FRAG_CARRIER_ASSIST_TIMEOUT * HZ > level.framenum) {
 							gi.bprintf(PRINT_HIGH,
 								   "%s gets an assist for fragging the flag carrier!\n",
 								   player->client->pers.netname);
@@ -781,7 +781,7 @@ qboolean CTFPickup_Flag(edict_t * ent, edict_t * other)
 		IRC_printf(IRC_T_GAME, "%n returned the %s flag!\n", other->client->pers.netname, CTFTeamName(team));
 
 		other->client->resp.score += CTF_RECOVERY_BONUS;
-		other->client->resp.ctf_lastreturnedflag = level.time;
+		other->client->resp.ctf_lastreturnedflag = level.framenum;
 		gi.sound(ent, CHAN_RELIABLE + CHAN_NO_PHS_ADD + CHAN_VOICE,
 			 gi.soundindex("tng/flagret.wav"), 1, ATTN_NONE, 0);
 		//CTFResetFlag will remove this entity!  We must return false
@@ -801,7 +801,7 @@ qboolean CTFPickup_Flag(edict_t * ent, edict_t * other)
 	other->client->resp.score += CTF_FLAG_BONUS;
 
 	other->client->pers.inventory[ITEM_INDEX(flag_item)] = 1;
-	other->client->resp.ctf_flagsince = level.time;
+	other->client->resp.ctf_flagsince = level.framenum;
 
 	// pick up the flag
 	// if it's not a dropped flag, we just make is disappear
@@ -993,7 +993,7 @@ void SetCTFStats(edict_t * ent)
 	ent->client->ps.stats[STAT_TEAM2_HEADER] = gi.imageindex("ctfsb2");
 
 	// if during intermission, we must blink the team header of the winning team
-	if (level.intermissiontime && (level.framenum & 8)) {	// blink 1/8th second
+	if (level.intermission_framenum && ((level.realFramenum / FRAMEDIV) & 8)) {	// blink 1/8th second
 		// note that ctfgame.total[12] is set when we go to intermission
 		if (ctfgame.team1 > ctfgame.team2)
 			ent->client->ps.stats[STAT_TEAM1_HEADER] = 0;
@@ -1055,11 +1055,11 @@ void SetCTFStats(edict_t * ent)
 
 	if (ctfgame.last_flag_capture && level.time - ctfgame.last_flag_capture < 5) {
 		if (ctfgame.last_capture_team == TEAM1)
-			if (level.framenum & 8)
+			if ((level.realFramenum / FRAMEDIV) & 8)
 				ent->client->ps.stats[STAT_TEAM1_PIC] = p1;
 			else
 				ent->client->ps.stats[STAT_TEAM1_PIC] = 0;
-		else if (level.framenum & 8)
+		else if ((level.realFramenum / FRAMEDIV) & 8)
 			ent->client->ps.stats[STAT_TEAM2_PIC] = p2;
 		else
 			ent->client->ps.stats[STAT_TEAM2_PIC] = 0;
@@ -1069,13 +1069,16 @@ void SetCTFStats(edict_t * ent)
 	ent->client->ps.stats[STAT_TEAM2_SCORE] = ctfgame.team2;
 
 	ent->client->ps.stats[STAT_FLAG_PIC] = 0;
-	if (ent->client->resp.team == TEAM1 &&
-	    ent->client->pers.inventory[ITEM_INDEX(flag2_item)] && (level.framenum & 8))
-		ent->client->ps.stats[STAT_FLAG_PIC] = gi.imageindex("i_ctf2");
+	if ((level.realFramenum / FRAMEDIV) & 8)
+	{
+		if (ent->client->resp.team == TEAM1 &&
+			ent->client->pers.inventory[ITEM_INDEX(flag2_item)])
+			ent->client->ps.stats[STAT_FLAG_PIC] = gi.imageindex("i_ctf2");
 
-	else if (ent->client->resp.team == TEAM2 &&
-		 ent->client->pers.inventory[ITEM_INDEX(flag1_item)] && (level.framenum & 8))
-		ent->client->ps.stats[STAT_FLAG_PIC] = gi.imageindex("i_ctf1");
+		else if (ent->client->resp.team == TEAM2 &&
+			 ent->client->pers.inventory[ITEM_INDEX(flag1_item)])
+			ent->client->ps.stats[STAT_FLAG_PIC] = gi.imageindex("i_ctf1");
+	}
 
 	ent->client->ps.stats[STAT_ID_VIEW] = 0;
 	if (!ent->client->resp.id)

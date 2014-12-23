@@ -773,7 +773,7 @@ void CheckDMRules (void)
 	int i;
 	gclient_t *cl;
 
-	if (level.intermissiontime)
+	if (level.intermission_framenum)
 		return;
 
 	if (!deathmatch->value)
@@ -887,8 +887,8 @@ void ExitLevel (void)
 		Com_sprintf (command, sizeof (command), "quit\n");
 		gi.AddCommandString (command);
 		level.changemap = NULL;
-		level.exitintermission = 0;
-		level.intermissiontime = 0;
+		level.intermission_exit = 0;
+		level.intermission_framenum = 0;
 		level.pauseFrames = 0;
 		ClientEndServerFrames ();
 		return;
@@ -897,8 +897,8 @@ void ExitLevel (void)
 	Com_sprintf (command, sizeof (command), "gamemap \"%s\"\n", level.changemap);
 	gi.AddCommandString (command);
 	level.changemap = NULL;
-	level.exitintermission = 0;
-	level.intermissiontime = 0;
+	level.intermission_exit = 0;
+	level.intermission_framenum = 0;
 	level.pauseFrames = 0;
 	ClientEndServerFrames ();
 
@@ -983,7 +983,7 @@ void G_RunFrame (void)
 
 
 	// exit intermissions
-	if (level.exitintermission)
+	if (level.intermission_exit)
 	{
 		ExitLevel ();
 		return;
