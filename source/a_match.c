@@ -57,7 +57,6 @@
 #include "a_match.h"
 
 float matchtime = 0;
-float realLtime = 0; //Need this because when paused level.time doenst inc
 
 void SendScores(void)
 {
@@ -548,7 +547,7 @@ void Cmd_TogglePause_f(edict_t * ent, qboolean pause)
 
 	if(pause)
 	{
-		if(pause_time > 0)
+		if(level.pauseFrames > 0)
 		{
 			gi.cprintf(ent, PRINT_HIGH, "Game is already paused you silly\n", time);
 			return;
@@ -565,12 +564,12 @@ void Cmd_TogglePause_f(edict_t * ent, qboolean pause)
 		teams[teamNum].pauses_used++;
 
 		CenterPrintAll (va("Game paused by %s\nTeam %i has %i pauses left", ent->client->pers.netname, ent->client->resp.team, (int)mm_pausecount->value - teams[ent->client->resp.team].pauses_used));
-		pause_time = (int)mm_pausetime->value * 600;
-		lastPaused = ent->client->resp.team;
+		level.pauseFrames = (unsigned int)(mm_pausetime->value * 60.0f * HZ);
+		lastPaused = teamNum;
 	}
 	else
 	{
-		if(!pause_time)
+		if (!level.pauseFrames)
 		{
 			gi.cprintf(ent, PRINT_HIGH, "Game is not paused\n", time);
 			return;
@@ -585,7 +584,7 @@ void Cmd_TogglePause_f(edict_t * ent, qboolean pause)
 			gi.cprintf(ent, PRINT_HIGH, "You cannot unpause when pause is made by other team\n");
 			return;
 		}
-		pause_time = 100;
+		level.pauseFrames = 10 * HZ;
 		lastPaused = 0;
 	}
 }

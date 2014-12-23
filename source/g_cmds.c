@@ -1620,14 +1620,14 @@ void ClientCommand (edict_t * ent)
 	}
 	else if (Q_stricmp (cmd, "use") == 0)
 	{
-		if(pause_time)
+		if(level.pauseFrames)
 			return;
 		Cmd_Use_f (ent);
 		return;
 	}
 	else if (Q_stricmp (cmd, "drop") == 0)
 	{
-		if(pause_time)
+		if(level.pauseFrames)
 			return;
 		Cmd_Drop_f (ent);
 		return;
@@ -1699,21 +1699,21 @@ void ClientCommand (edict_t * ent)
 	}
 	else if (Q_stricmp (cmd, "weapprev") == 0)
 	{
-		if(pause_time)
+		if(level.pauseFrames)
 			return;
 		Cmd_WeapPrev_f (ent);
 		return;
 	}
 	else if (Q_stricmp (cmd, "weapnext") == 0)
 	{
-		if(pause_time)
+		if(level.pauseFrames)
 			return;
 		Cmd_WeapNext_f (ent);
 		return;
 	}
 	else if (Q_stricmp (cmd, "weaplast") == 0)
 	{
-		if(pause_time)
+		if(level.pauseFrames)
 			return;
 		Cmd_WeapLast_f (ent);
 		return;
@@ -1730,7 +1730,7 @@ void ClientCommand (edict_t * ent)
 	}
 	else if (Q_stricmp (cmd, "wave") == 0)
 	{
-		if(pause_time)
+		if(level.pauseFrames)
 			return;
 		Cmd_Wave_f (ent);
 		return;
@@ -1749,28 +1749,28 @@ void ClientCommand (edict_t * ent)
 	//SLIC2
 	else if (Q_stricmp (cmd, "reload") == 0)
 	{
-		if(pause_time)
+		if(level.pauseFrames)
 			return;
 		Cmd_New_Reload_f (ent);
 		return;
 	}
 	else if (Q_stricmp (cmd, "weapon") == 0)
 	{
-		if(pause_time)
+		if(level.pauseFrames)
 			return;
 		Cmd_New_Weapon_f (ent);
 		return;
 	}
 	else if (Q_stricmp (cmd, "opendoor") == 0)
 	{
-		if(pause_time)
+		if(level.pauseFrames)
 			return;
 		Cmd_OpenDoor_f (ent);
 		return;
 	}
 	else if (Q_stricmp (cmd, "bandage") == 0)
 	{
-		if(pause_time)
+		if(level.pauseFrames)
 			return;
 		Cmd_Bandage_f (ent);
 		return;
@@ -1782,7 +1782,7 @@ void ClientCommand (edict_t * ent)
 	}
 	else if (Q_stricmp (cmd, "irvision") == 0)
 	{
-		if(pause_time)
+		if(level.pauseFrames)
 			return;
 		Cmd_IR_f (ent);
 		return;
@@ -1869,7 +1869,7 @@ void ClientCommand (edict_t * ent)
 	}
 	else if (Q_stricmp (cmd, "voice") == 0)
 	{
-		if(pause_time)
+		if(level.pauseFrames)
 			return;
 		if(use_voice->value)
 			Cmd_Voice_f (ent);
@@ -1897,7 +1897,7 @@ void ClientCommand (edict_t * ent)
 	}
 	else if (Q_stricmp (cmd, "punch") == 0)
 	{
-		if(pause_time)
+		if(level.pauseFrames)
 			return;
 		Cmd_Punch_f (ent);
 		return;
@@ -1915,7 +1915,7 @@ void ClientCommand (edict_t * ent)
 	else if (vCommand (ent, cmd) == true);
 	else if (Q_stricmp (cmd, "lens") == 0)
 	{
-		if(pause_time)
+		if(level.pauseFrames)
 			return;
 		Cmd_Lens_f (ent);
 		return;
@@ -1982,7 +1982,7 @@ void ClientCommand (edict_t * ent)
 	}
 	else if (Q_stricmp (cmd, "flashlight") == 0)
 	{
-		if(pause_time)
+		if(level.pauseFrames)
 			return;
 		FL_make (ent);
 		return;

@@ -1405,6 +1405,8 @@ void SP_worldspawn (edict_t * ent)
 
 	level.framenum = 0;
 	level.time = 0;
+	level.realFramenum = 0;
+	level.pauseFrames = 0;
 
 	if (st.nextmap)
 		strcpy (level.nextmap, st.nextmap);

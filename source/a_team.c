@@ -848,7 +848,7 @@ void Team_f (edict_t * ent)
 		}
 	}
 
-	if ((int)(realLtime*10.0f) < (ent->client->resp.joined_team + 50))
+	if (level.realFramenum - ent->client->resp.joined_team < 5 * HZ)
 	{
 		gi.cprintf (ent, PRINT_HIGH, "You must wait 5 seconds before changing teams again.\n");
 		return;
@@ -986,7 +986,7 @@ void JoinTeam (edict_t * ent, int desired_team, int skip_menuclose)
 		ent->client->pers.netname, a, TeamName (desired_team));
 	}
 
-	ent->client->resp.joined_team = (int)(realLtime*10.0f);
+	ent->client->resp.joined_team = level.realFramenum;
 
 	//AQ2:TNG - Slicer added the ctf->value coz teamplay people were spawning....
 	if ((ctf->value || teamdm->value) && team_round_going && (ent->inuse && ent->client->resp.team != NOTEAM))
@@ -1389,7 +1389,7 @@ void ResetScores (qboolean playerScores)
 
 	team_round_going = team_round_countdown = team_game_going = 0;
 	current_round_length = matchtime = 0;
-	pause_time = 0;
+	level.pauseFrames = 0;
 	num_ghost_players = 0;
 
 	MakeAllLivePlayersObservers ();

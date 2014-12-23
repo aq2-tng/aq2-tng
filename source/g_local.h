@@ -650,6 +650,8 @@ typedef struct
 
   int specspawn;		// determines if initial spawning has occured
 
+  unsigned int realFramenum; //when game paused, framenum stays the same
+  unsigned int pauseFrames;
 }
 level_locals_t;
 
@@ -1354,7 +1356,7 @@ typedef struct
   int ir;			// ir on or off (only matters if player has ir device, currently bandolier)
 
   int fire_time;
-  int ignore_time;		// framenum when the player called ignore - to prevent spamming
+  unsigned int ignore_time;		// framenum when the player called ignore - to prevent spamming
 
   qboolean weapon_after_bandage_warned;	// to fix message bug when calling weapon while bandaging
   qboolean punch_desired;	//controlled in ClientThink
@@ -1381,7 +1383,7 @@ typedef struct
   float glclear;
   float gldynamic;
   qboolean checked;
-  float checktime[3];
+  unsigned int checkframe[3];
   int last_damaged_part;
   char last_damaged_players[256];
   //AQ2:TNG - Slicer Matchmode code
@@ -2011,7 +2013,6 @@ typedef struct team_s
 }team_t;
 
 extern team_t teams[TEAM_TOP];
-extern int pause_time;
 #define PARSE_BUFSIZE 256
 
 #include "a_ctf.h"

@@ -149,6 +149,7 @@ qboolean _iCheckMapVotes (void);
 void Cmd_Votemap_f (edict_t * ent, char *t)
 {
 	char *oldvote;
+	unsigned int voteWaitTime;
 
 	if (!*t)
 	{
@@ -164,11 +165,12 @@ void Cmd_Votemap_f (edict_t * ent, char *t)
 	}
 
 	// BEGIN Igor[Rock]
-	if (level.time < mapvote_waittime->value)
+	voteWaitTime = (unsigned int)(mapvote_waittime->value * HZ);
+	if (level.realFramenum < voteWaitTime)
 	{
 		gi.cprintf (ent, PRINT_HIGH,
-		"Mapvote currently blocked - Please vote again in %d seconds\n",
-		(int) ((float) mapvote_waittime->value + 1.0 - level.time));
+			"Mapvote currently blocked - Please vote again in %d seconds\n",
+			(voteWaitTime + HZ - level.realFramenum) / HZ );
 	}
 	else
 	{
@@ -1117,11 +1119,11 @@ void Cmd_Voteconfig_f (edict_t * ent, char *t)
 	}
 
 	// BEGIN Igor[Rock]
-	if (level.time < 40.0)
+	if (level.realFramenum < 10 * HZ)
 	{
 		gi.cprintf (ent, PRINT_HIGH,
 			"Configvote currently blocked - Please vote again in %d seconds\n",
-			(int) (41.0 - level.time));
+			(11 * HZ - level.realFramenum) / HZ );
 	}
 	else
 	{
@@ -1660,7 +1662,7 @@ void _AddOrDelIgnoreSubject (edict_t * source, edict_t * subject, qboolean silen
 			gi.cprintf (subject, PRINT_MEDIUM, "\n%s listen to your words.\n",
 				source->client->pers.netname);
 
-		source->client->resp.ignore_time = level.framenum;
+		source->client->resp.ignore_time = level.realFramenum;
 	}
 	else
 	{
@@ -1718,7 +1720,7 @@ void Cmd_IgnorePart_f (edict_t * self, char *s)
 		gi.cprintf (self, PRINT_MEDIUM, "\nUse ignorepart <part-of-playername>.\n");
 		return;
 	}
-	if (level.framenum < (self->client->resp.ignore_time + 100)) {  
+	if (level.realFramenum < (self->client->resp.ignore_time + 10 * HZ)) {
 		gi.cprintf (self, PRINT_MEDIUM, "Wait 10 seconds before ignoring again.\n");
 		return;
 	}
@@ -1749,7 +1751,7 @@ void Cmd_Ignore_f (edict_t * self, char *s)
 		return;
 	}
 	
-	if (level.framenum < (self->client->resp.ignore_time + 50))
+	if (level.realFramenum < (self->client->resp.ignore_time + 5 * HZ))
 	{
 		gi.cprintf (self, PRINT_MEDIUM, "Wait 5 seconds before ignoring again.\n");
 		return;
@@ -1774,7 +1776,7 @@ void Cmd_Ignorenum_f (edict_t * self, char *s)
 		return;
 	}
 
-	if (level.framenum < (self->client->resp.ignore_time + 50))
+	if (level.realFramenum < (self->client->resp.ignore_time + 5 * HZ))
 	{
 		gi.cprintf (self, PRINT_MEDIUM, "Wait 5 seconds before ignoring again.\n");
 		return;
