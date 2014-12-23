@@ -513,33 +513,33 @@ void SV_CalcBlend (edict_t * ent)
 	if (ent->client->quad_framenum > level.framenum)
 	{
 		remaining = ent->client->quad_framenum - level.framenum;
-		if (remaining == 30)	// beginning to fade
+		if (remaining == 3 * HZ)	// beginning to fade
 			gi.sound (ent, CHAN_ITEM, gi.soundindex("items/damage2.wav"), 1, ATTN_NORM, 0);
-		if (remaining > 30 || (remaining & 4))
+		if (remaining > 3 * HZ || ((remaining / FRAMEDIV) & 4))
 			SV_AddBlend (0, 0, 1, 0.08f, ent->client->ps.blend);
 	}
 	else if (ent->client->invincible_framenum > level.framenum)
 	{
 		remaining = ent->client->invincible_framenum - level.framenum;
-		if (remaining == 30)	// beginning to fade
+		if (remaining == 3 * HZ)	// beginning to fade
 			gi.sound (ent, CHAN_ITEM, gi.soundindex("items/protect2.wav"), 1, ATTN_NORM, 0);
-		if (remaining > 30 || (remaining & 4))
+		if (remaining > 3 * HZ || ((remaining / FRAMEDIV) & 4))
 			SV_AddBlend (1, 1, 0, 0.08f, ent->client->ps.blend);
 	}
 	else if (ent->client->enviro_framenum > level.framenum)
 	{
 		remaining = ent->client->enviro_framenum - level.framenum;
-		if (remaining == 30)	// beginning to fade
+		if (remaining == 3 * HZ)	// beginning to fade
 			gi.sound (ent, CHAN_ITEM, gi.soundindex("items/airout.wav"), 1, ATTN_NORM, 0);
-		if (remaining > 30 || (remaining & 4))
+		if (remaining > 3 * HZ || ((remaining / FRAMEDIV) & 4))
 			SV_AddBlend (0, 1, 0, 0.08f, ent->client->ps.blend);
 	}
 	else if (ent->client->breather_framenum > level.framenum)
 	{
 		remaining = ent->client->breather_framenum - level.framenum;
-		if (remaining == 30)	// beginning to fade
+		if (remaining == 3 * HZ)	// beginning to fade
 			gi.sound (ent, CHAN_ITEM, gi.soundindex ("items/airout.wav"), 1, ATTN_NORM, 0);
-		if (remaining > 30 || (remaining & 4))
+		if (remaining > 3 * HZ || ((remaining / FRAMEDIV) & 4))
 			SV_AddBlend (0.4f, 1, 0.4f, 0.04f, ent->client->ps.blend);
 	}
 
@@ -554,12 +554,12 @@ void SV_CalcBlend (edict_t * ent)
 	ent->client->ps.blend);
 
 	// drop the damage value
-	ent->client->damage_alpha -= 0.06f;
+	ent->client->damage_alpha -= 0.6f * FRAMETIME;
 	if (ent->client->damage_alpha < 0)
 		ent->client->damage_alpha = 0;
 
 	// drop the bonus value
-	ent->client->bonus_alpha -= 0.1f;
+	ent->client->bonus_alpha -= 1.0f * FRAMETIME;
 	if (ent->client->bonus_alpha < 0)
 		ent->client->bonus_alpha = 0;
 }
@@ -770,7 +770,7 @@ void P_WorldEffects (void)
 		{
 			current_player->air_finished_framenum = level.framenum + 10 * HZ;
 
-			if (((int)(current_client->breather_framenum - level.framenum) % 25) == 0)
+			if (((int)(current_client->breather_framenum - level.framenum) % (25 * FRAMEDIV)) == 0)
 			{
 				if (!current_client->breather_sound)
 					gi.sound (current_player, CHAN_AUTO,
@@ -882,7 +882,7 @@ void G_SetClientEffects (edict_t * ent)
 	else
 		ent->s.renderfx = 0;
 
-	if (ent->health <= 0 || level.intermissiontime)
+	if (ent->health <= 0 || level.intermission_framenum)
 		return;
 
 	if (ent->powerarmor_time > level.time)
@@ -980,7 +980,7 @@ void G_SetClientSound (edict_t * ent)
 
 	// help beep (no more than three times)
 	if (ent->client->resp.helpchanged && ent->client->resp.helpchanged <= 3
-		&& !(level.framenum & 63))
+		&& !((level.realFramenum / FRAMEDIV) & 63))
 		{
 			ent->client->resp.helpchanged++;
 			gi.sound (ent, CHAN_VOICE, gi.soundindex ("misc/pc_up.wav"), 1,
@@ -1316,7 +1316,7 @@ void ClientEndServerFrame (edict_t * ent)
 	// If the end of unit layout is displayed, don't give
 	// the player any normal movement attributes
 	//
-	if (level.intermissiontime)
+	if (level.intermission_framenum)
 	{
 		// FIXME: add view drifting here?
 		current_client->ps.blend[3] = 0;
@@ -1473,7 +1473,7 @@ void ClientEndServerFrame (edict_t * ent)
 		Cmd_Weapon_f (ent);
 
 	// if the scoreboard is up, update it
-	if (ent->client->showscores && !(level.framenum & 31))
+	if (ent->client->showscores && !((level.realFramenum / FRAMEDIV) & 31))
 	{
 		//FIREBLADE
 		if (ent->client->menu)

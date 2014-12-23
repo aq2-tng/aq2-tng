@@ -1454,7 +1454,7 @@ void TossItemsOnDeath(edict_t * ent)
 	if (!((int) (dmflags->value) & DF_QUAD_DROP))
 		quad = false;
 	else
-		quad = (ent->client->quad_framenum > (level.framenum + 10));
+		quad = (ent->client->quad_framenum > (level.framenum + HZ));
 
 	if (quad) {
 		edict_t *drop;
@@ -1512,7 +1512,7 @@ void TossClientWeapon(edict_t * self)
 	if (!((int) (dmflags->value) & DF_QUAD_DROP))
 		quad = false;
 	else
-		quad = (self->client->quad_framenum > (level.framenum + 10));
+		quad = (self->client->quad_framenum > (level.framenum + HZ));
 
 	if (item && quad)
 		spread = 22.5;
@@ -3002,7 +3002,7 @@ void ClientBeginDeathmatch(edict_t * ent)
 	PutClientInServer(ent);
 
 // FROM 3.20 -FB
-	if (level.intermissiontime) {
+	if (level.intermission_framenum) {
 		MoveClientToIntermission(ent);
 	} else {
 // ^^^
@@ -3031,7 +3031,7 @@ void ClientBeginDeathmatch(edict_t * ent)
 //FIREBLADE
 
 //FIREBLADE
-	if (!level.intermissiontime)
+	if (!level.intermission_framenum)
 		PrintMOTD(ent);
 	ent->client->resp.motd_refreshes = 1;
 //FIREBLADE
@@ -3100,7 +3100,7 @@ void ClientBegin(edict_t * ent)
 		PutClientInServer(ent);
 	}
 
-	if (level.intermissiontime) {
+	if (level.intermission_framenum) {
 		MoveClientToIntermission(ent);
 	} else {
 		// send effect if in a multiplayer game
@@ -3491,10 +3491,10 @@ void ClientThink(edict_t * ent, usercmd_t * ucmd)
 	level.current_entity = ent;
 	client = ent->client;
 
-	if (level.intermissiontime) {
+	if (level.intermission_framenum) {
 		client->ps.pmove.pm_type = PM_FREEZE;
 		// 
-		if (level.time > level.intermissiontime + 4.0) {
+		if (level.realFramenum > level.intermission_framenum + 4 * HZ) {
 			if (ent->inuse && ent->client->resp.stat_mode > 0
 			    && ent->client->resp.stat_mode_intermission == 0) {
 				ent->client->resp.stat_mode_intermission = 1;
@@ -3502,16 +3502,16 @@ void ClientThink(edict_t * ent, usercmd_t * ucmd)
 			}
 		}
 		// can exit intermission after five seconds
-		if (level.time > level.intermissiontime + 5.0 && (ucmd->buttons & BUTTON_ANY))
-			level.exitintermission = true;
+		if (level.realFramenum > level.intermission_framenum + 5 * HZ && (ucmd->buttons & BUTTON_ANY))
+			level.intermission_exit = 1;
 		return;
 	}
 	//FIREBLADE
 	//PG BUND
 	if ((int) motd_time->value > (client->resp.motd_refreshes * 2)
 	    && !(client->menu)) {
-		if (client->resp.last_motd_refresh < (level.framenum - 20)) {
-			client->resp.last_motd_refresh = level.framenum;
+		if (client->resp.last_motd_refresh + 2 * HZ < level.realFramenum) {
+			client->resp.last_motd_refresh = level.realFramenum;
 			client->resp.motd_refreshes++;
 			PrintMOTD(ent);
 		}
@@ -3755,12 +3755,12 @@ void ClientThink(edict_t * ent, usercmd_t * ucmd)
 		if (ent->solid != SOLID_NOT && ent->deadflag != DEAD_DEAD) {
 			if (ucmd->forwardmove == 0 && ucmd->sidemove == 0) {
 				if (client->resp.idletime) {
-					if (level.time >= client->resp.idletime + ppl_idletime->value) {
+					if (level.framenum >= client->resp.idletime + (int)(ppl_idletime->value * HZ)) {
 						PlayRandomInsaneSound(ent);
 						client->resp.idletime = 0;
 					}
 				} else {
-					client->resp.idletime = level.time;
+					client->resp.idletime = level.framenum;
 				}
 			} else
 				client->resp.idletime = 0;
@@ -3794,7 +3794,7 @@ void ClientBeginServerFrame(edict_t * ent)
 	if (client->penalty > 0 && level.realFramenum % HZ == 0)
 		client->penalty--;
 
-	if (level.intermissiontime)
+	if (level.intermission_framenum)
 		return;
 
 	// force spawn when weapon and item selected in dm

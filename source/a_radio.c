@@ -534,7 +534,7 @@ edict_t *DetermineViewedTeammate (edict_t * ent)
 
 	AngleVectors (ent->client->v_angle, forward, NULL, NULL);
 	best = NULL;
-	for (i = 1; i <= maxclients->value; i++)
+	for (i = 1; i <= game.maxclients; i++)
 	{
 		who = g_edicts + i;
 		if (!who->inuse)

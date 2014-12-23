@@ -857,7 +857,6 @@ void Cmd_Inven_f (edict_t * ent)
 	cl = ent->client;
 
 	cl->showscores = false;
-	cl->showhelp = false;
 
 	//FIREBLADE
 	if (ent->client->menu)
@@ -1144,7 +1143,6 @@ Cmd_PutAway_f
 void Cmd_PutAway_f (edict_t * ent)
 {
 	ent->client->showscores = false;
-	ent->client->showhelp = false;
 	ent->client->showinventory = false;
 //FIREBLADE
 	if (ent->client->menu)
@@ -1585,7 +1583,7 @@ void ClientCommand (edict_t * ent)
 
 	if (!ent->client)
 		return;			// not fully in game yet
-	// if (level.intermissiontime)
+	// if (level.intermission_framenum)
 	// return;
 
 	cmd = gi.argv (0);

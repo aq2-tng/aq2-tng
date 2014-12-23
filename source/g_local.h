@@ -613,14 +613,14 @@ typedef struct
   //+
 
   char tempmap[MAX_QPATH];	//PG BUND
+ 
   // intermission state
-
-  float intermissiontime;	// time the intermission was started
-
-  char *changemap;
-  int exitintermission;
+  int intermission_framenum;	// time the intermission was started
+  int intermission_exit;
   vec3_t intermission_origin;
   vec3_t intermission_angle;
+
+  char *changemap;
 
   edict_t *sight_client;	// changed once each frame for coop games
 
@@ -811,6 +811,8 @@ extern edict_t *g_edicts;
 
 #define random()        ((rand () & 0x7fff) / ((float)0x7fff))
 #define crandom()       (2.0 * (random() - 0.5))
+
+#define DMFLAGS(x)     (((int)dmflags->value & x) != 0)
 
 extern cvar_t *maxentities;
 extern cvar_t *deathmatch;
@@ -1319,10 +1321,10 @@ typedef struct
   int saved_team;
   int ctf_state;
   int ctf_capstreak;
-  float ctf_lasthurtcarrier;
-  float ctf_lastreturnedflag;
-  float ctf_flagsince;
-  float ctf_lastfraggedcarrier;
+  int ctf_lasthurtcarrier;
+  int ctf_lastreturnedflag;
+  int ctf_flagsince;
+  int ctf_lastfraggedcarrier;
 
   unsigned int joined_team;		// last frame # at which the player joined a team
   unsigned int lastWave;			//last time used wave
@@ -1420,9 +1422,6 @@ struct gclient_s
   //FIREBLADE
   qboolean showinventory;	// set layout stat
 
-  qboolean showhelp;
-  qboolean showhelpicon;
-
   int ammo_index;
 
   int buttons;
@@ -1478,10 +1477,10 @@ struct gclient_s
   qboolean anim_run;
 
   // powerup timers
-  float quad_framenum;
-  float invincible_framenum;
-  float breather_framenum;
-  float enviro_framenum;
+  int quad_framenum;
+  int invincible_framenum;
+  int breather_framenum;
+  int enviro_framenum;
 
   qboolean grenade_blew_up;
   float grenade_time;

@@ -2366,7 +2366,7 @@ void A_Scoreboard (edict_t * ent)
 	if (ent->client->showscores && ent->client->scoreboardnum == 1)
 	{
 		// blink header of the winning team during intermission
-		if (level.intermissiontime && (level.framenum & 8))
+		if (level.intermission_framenum && ((level.realFramenum / FRAMEDIV) & 8))
 		{			// blink 1/8th second
 			if (teams[TEAM1].score > teams[TEAM2].score)
 				wteam = TEAM1;

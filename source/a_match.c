@@ -552,7 +552,7 @@ void Cmd_TogglePause_f(edict_t * ent, qboolean pause)
 			gi.cprintf(ent, PRINT_HIGH, "Game is already paused you silly\n", time);
 			return;
 		}
-		if (level.intermissiontime) {
+		if (level.intermission_framenum) {
 			gi.cprintf(ent, PRINT_HIGH, "Can't pause in an intermission.\n");
 			return;
 		}

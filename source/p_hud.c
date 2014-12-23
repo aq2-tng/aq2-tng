@@ -117,8 +117,8 @@ void BeginIntermission (edict_t * targ)
 	int i, n;
 	edict_t *ent, *client;
 
-	if (level.intermissiontime)
-	return;			// already activated
+	if (level.intermission_framenum)
+		return;			// already activated
 
 	//FIREBLADE
 	if (ctf->value)
@@ -139,7 +139,7 @@ void BeginIntermission (edict_t * targ)
 			respawn (client);
 	}
 
-	level.intermissiontime = level.time;
+	level.intermission_framenum = level.realFramenum;
 	level.changemap = targ->map;
 
 	if (strchr(level.changemap, '*'))
@@ -164,12 +164,12 @@ void BeginIntermission (edict_t * targ)
 	{
 		if (!deathmatch->value)
 		{
-			level.exitintermission = 1;	// go immediately to the next level
+			level.intermission_exit = 1;	// go immediately to the next level
 			return;
 		}
 	}
 
-	level.exitintermission = 0;
+	level.intermission_exit = 0;
 
 	// find an intermission spot
 	ent = G_Find (NULL, FOFS (classname), "info_player_intermission");
@@ -190,8 +190,10 @@ void BeginIntermission (edict_t * targ)
 		}
 	}
 
-	VectorCopy (ent->s.origin, level.intermission_origin);
-	VectorCopy (ent->s.angles, level.intermission_angle);
+	if (ent) {
+		VectorCopy( ent->s.origin, level.intermission_origin );
+		VectorCopy( ent->s.angles, level.intermission_angle );
+	}
 
 	// move all clients to the intermission point
 	for (i = 0; i < game.maxclients; i++)
@@ -200,24 +202,12 @@ void BeginIntermission (edict_t * targ)
 		if (!client->inuse)
 			continue;
 		MoveClientToIntermission (client);
-	}
 
-	// AZEROV: Clear the team kills for everyone
-	//gi.cprintf(NULL,PRINT_MEDIUM,"Resetting all team kills\n");
-	for (i = 1; i <= game.maxclients; i++)
-	{
-		edict_t *temp_ent;
-		temp_ent = g_edicts + i;
-
-		if (!temp_ent->inuse || !temp_ent->client)
-		{
-			continue;
+		if (client->client) { // AZEROV: Clear the team kills for everyone
+			client->client->team_wounds = 0;
+			client->client->team_kills = 0;
 		}
-
-		temp_ent->client->team_wounds = 0;
-		temp_ent->client->team_kills = 0;
 	}
-	// AZEROV
 }
 
 void A_ScoreboardMessage (edict_t * ent, edict_t * killer);
@@ -247,7 +237,7 @@ void DeathmatchScoreboardMessage (edict_t * ent, edict_t * killer)
 	if (teamplay->value && !use_tourney->value)
 	{
 		// DW: If the map ends
-		if (level.intermissiontime) {
+		if (level.intermission_framenum) {
 			if(stats_endmap->value && !teamdm->value && !ctf->value)								// And we are to show the stats screen
 				A_ScoreboardEndLevel (ent, killer); // do it
 			else																	// otherwise
@@ -360,7 +350,6 @@ void DeathmatchScoreboard (edict_t * ent)
 void Cmd_Score_f (edict_t * ent)
 {
   ent->client->showinventory = false;
-  ent->client->showhelp = false;
 	
   //FIREBLADE
   if (ent->client->menu)
@@ -395,50 +384,6 @@ void Cmd_Score_f (edict_t * ent)
 
 /*
   ==================
-  HelpComputer
-  
-  Draw help computer.
-  ==================
-*/
-void
-HelpComputer (edict_t * ent)
-{
-  char string[1024];
-  char *sk;
-
-  if (skill->value == 0)
-    sk = "easy";
-  else if (skill->value == 1)
-    sk = "medium";
-  else if (skill->value == 2)
-    sk = "hard";
-  else
-    sk = "hard+";
-
-  // send the layout
-  Com_sprintf (string, sizeof (string), "xv 32 yv 8 picn help "	// background
-	       "xv 202 yv 12 string2 \"%s\" "	// skill
-	       "xv 0 yv 24 cstring2 \"%s\" "	// level name
-	       "xv 0 yv 54 cstring2 \"%s\" "	// help 1
-	       "xv 0 yv 110 cstring2 \"%s\" "	// help 2
-	       "xv 50 yv 164 string2 \" kills     goals    secrets\" "
-	       "xv 50 yv 172 string2 \"%3i/%3i     %i/%i       %i/%i\" ",
-	       sk,
-	       level.level_name,
-	       game.helpmessage1,
-	       game.helpmessage2,
-	       level.killed_monsters, level.total_monsters,
-	       level.found_goals, level.total_goals,
-	       level.found_secrets, level.total_secrets);
-
-  gi.WriteByte (svc_layout);
-  gi.WriteString (string);
-  gi.unicast (ent, true);
-}
-
-
-/*
-  ==================
   Cmd_Help_f
   
   Display the current help message
@@ -447,25 +392,7 @@ HelpComputer (edict_t * ent)
 void Cmd_Help_f (edict_t * ent)
 {
 	// this is for backwards compatability
-	if (deathmatch->value)
-	{
-		Cmd_Score_f (ent);
-		return;
-	}
-
-	ent->client->showinventory = false;
-	ent->client->showscores = false;
-
-	if (ent->client->showhelp
-	&& (ent->client->resp.game_helpchanged == game.helpchanged))
-	{
-		ent->client->showhelp = false;
-		return;
-	}
-
-	ent->client->showhelp = true;
-	ent->client->resp.helpchanged = 0;
-	HelpComputer (ent);
+	Cmd_Score_f (ent);
 }
 
 
@@ -644,7 +571,7 @@ void G_SetStats (edict_t * ent)
 		}
 
 		index = ArmorIndex (ent);
-		if (power_armor_type && (!index || (level.framenum & 8)))
+		if (power_armor_type && (!index || ((level.framenum / FRAMEDIV) & 8)))
 		{			// flash between power armor and other armor icon
 			ent->client->ps.stats[STAT_ARMOR_ICON] = gi.imageindex ("i_powershield");
 			ent->client->ps.stats[STAT_ARMOR] = cells;
@@ -677,22 +604,22 @@ void G_SetStats (edict_t * ent)
 		if (ent->client->quad_framenum > level.framenum)
 		{
 			ent->client->ps.stats[STAT_TIMER_ICON] = gi.imageindex ("p_quad");
-			ent->client->ps.stats[STAT_TIMER] = (ent->client->quad_framenum - level.framenum) / 10;
+			ent->client->ps.stats[STAT_TIMER] = (ent->client->quad_framenum - level.framenum) / HZ;
 		}
 		else if (ent->client->invincible_framenum > level.framenum)
 		{
 			ent->client->ps.stats[STAT_TIMER_ICON] = gi.imageindex ("p_invulnerability");
-			ent->client->ps.stats[STAT_TIMER] = (ent->client->invincible_framenum - level.framenum) / 10;
+			ent->client->ps.stats[STAT_TIMER] = (ent->client->invincible_framenum - level.framenum) / HZ;
 		}
 		else if (ent->client->enviro_framenum > level.framenum)
 		{
 			ent->client->ps.stats[STAT_TIMER_ICON] = gi.imageindex ("p_envirosuit");
-			ent->client->ps.stats[STAT_TIMER] = (ent->client->enviro_framenum - level.framenum) / 10;
+			ent->client->ps.stats[STAT_TIMER] = (ent->client->enviro_framenum - level.framenum) / HZ;
 		}
 		else if (ent->client->breather_framenum > level.framenum)
 		{
 			ent->client->ps.stats[STAT_TIMER_ICON] = gi.imageindex ("p_rebreather");
-			ent->client->ps.stats[STAT_TIMER] = (ent->client->breather_framenum - level.framenum) / 10;
+			ent->client->ps.stats[STAT_TIMER] = (ent->client->breather_framenum - level.framenum) / HZ;
 		}
 		else
 		{
@@ -718,7 +645,7 @@ void G_SetStats (edict_t * ent)
 		//
 		// help icon / current weapon if not shown
 		//
-		if (ent->client->resp.helpchanged && (level.framenum & 8))
+		if (ent->client->resp.helpchanged && ((level.framenum / FRAMEDIV) & 8))
 			ent->client->ps.stats[STAT_HELPICON] = gi.imageindex ("i_help");
 		else if ((ent->client->pers.hand == CENTER_HANDED || ent->client->ps.fov > 91)
 			&& ent->client->pers.weapon)
@@ -737,20 +664,10 @@ void G_SetStats (edict_t * ent)
 	//
 	ent->client->ps.stats[STAT_LAYOUTS] = 0;
 
-	if (deathmatch->value)
-	{
-		if (ent->client->pers.health <= 0 || level.intermissiontime	|| ent->client->showscores)
-			ent->client->ps.stats[STAT_LAYOUTS] |= 1;
-		if (ent->client->showinventory && ent->client->pers.health > 0)
-			ent->client->ps.stats[STAT_LAYOUTS] |= 2;
-	}
-	else
-	{
-		if (ent->client->showscores || ent->client->showhelp)
-			ent->client->ps.stats[STAT_LAYOUTS] |= 1;
-		if (ent->client->showinventory && ent->client->pers.health > 0)
-			ent->client->ps.stats[STAT_LAYOUTS] |= 2;
-	}
+	if (ent->client->pers.health <= 0 || level.intermission_framenum || ent->client->showscores)
+		ent->client->ps.stats[STAT_LAYOUTS] |= 1;
+	if (ent->client->showinventory && ent->client->pers.health > 0)
+		ent->client->ps.stats[STAT_LAYOUTS] |= 2;
 
 	SetIDView (ent);
 
