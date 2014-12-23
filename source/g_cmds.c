@@ -1348,12 +1348,12 @@ void Cmd_Say_f (edict_t * ent, qboolean team, qboolean arg0, qboolean partner_ms
 
 		if (mm_forceteamtalk->value == 1)
 		{
-			if (!ent->client->resp.captain && !partner_msg && !isadmin)
+			if (!IS_CAPTAIN(ent) && !partner_msg && !isadmin)
 				team = true;
 		}
 		else if (mm_forceteamtalk->value == 2)
 		{
-			if (!ent->client->resp.captain && !partner_msg && !isadmin &&
+			if (!IS_CAPTAIN(ent) && !partner_msg && !isadmin &&
 				(TeamsReady() || team_round_going))
 				team = true;
 		}

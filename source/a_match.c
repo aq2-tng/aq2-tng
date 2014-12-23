@@ -107,22 +107,73 @@ void Cmd_Sub_f(edict_t * ent)
 		ent->client->resp.subteam = ent->client->resp.team;
 		return;
 	}
-	else {
-		gi.bprintf(PRINT_HIGH, "%s is no longer a substitute for %s\n", ent->client->pers.netname, teams[ent->client->resp.team].name);
-		ent->client->resp.subteam = 0;
-		if(team_round_going && (teamdm->value || ctf->value))
-		{
-			ResetKills (ent);
-			//AQ2:TNG Slicer Last Damage Location
-			ent->client->resp.last_damaged_part = 0;
-			ent->client->resp.last_damaged_players[0] = '\0';
-			//AQ2:TNG END
-			PutClientInServer (ent);
-			AddToTransparentList (ent);
+
+	gi.bprintf(PRINT_HIGH, "%s is no longer a substitute for %s\n", ent->client->pers.netname, teams[ent->client->resp.team].name);
+	ent->client->resp.subteam = 0;
+	if(team_round_going && (teamdm->value || ctf->value))
+	{
+		ResetKills (ent);
+		//AQ2:TNG Slicer Last Damage Location
+		ent->client->resp.last_damaged_part = 0;
+		ent->client->resp.last_damaged_players[0] = '\0';
+		//AQ2:TNG END
+		PutClientInServer (ent);
+		AddToTransparentList (ent);
+	}
+}
+
+
+/*
+==============
+MM_SetCaptain
+==============
+Set ent to be a captain of team, ent can be NULL to remove captain
+*/
+void MM_SetCaptain( int teamNum, edict_t *ent )
+{
+	int i;
+	edict_t *oldCaptain = teams[teamNum].captain;
+
+	if (teamNum == NOTEAM)
+		ent = NULL;
+
+	teams[teamNum].captain = ent;
+	if (!ent) {
+		if (!team_round_going || (!teamdm->value && !ctf->value)) {
+			if (teams[teamNum].ready) {
+				char temp[128];
+				Com_sprintf( temp, sizeof( temp ), "%s is no longer ready to play!", teams[teamNum].name );
+				CenterPrintAll( temp );
+			}
+			teams[teamNum].ready = 0;
 		}
+		if (oldCaptain) {
+			gi.bprintf( PRINT_HIGH, "%s is no longer %s's captain\n", oldCaptain->client->pers.netname, teams[teamNum].name );
+		}
+		teams[teamNum].locked = 0;
 		return;
 	}
 
+	if (ent != oldCaptain) {
+		gi.bprintf( PRINT_HIGH, "%s is now %s's captain\n", ent->client->pers.netname, teams[teamNum].name );
+		gi.cprintf( ent, PRINT_CHAT, "You are the captain of '%s'\n", teams[teamNum].name );
+		gi.sound( &g_edicts[0], CHAN_VOICE | CHAN_NO_PHS_ADD, gi.soundindex( "misc/comp_up.wav" ), 1.0, ATTN_NONE, 0.0 );
+
+		for (i = TEAM1; i <= teamCount; i++) {
+			if (i != teamNum && teams[teamNum].wantReset)
+				gi.cprintf( ent, PRINT_HIGH, "Team %i want to reset scores, type 'resetscores' to accept\n", i );
+		}
+	}
+}
+
+void MM_LeftTeam( edict_t *ent )
+{
+	int teamNum = ent->client->resp.team;
+
+	if (teams[teamNum].captain == ent) {
+		MM_SetCaptain( teamNum, NULL );
+	}
+	ent->client->resp.subteam = 0;
 }
 
 int TeamsReady(void)
@@ -136,73 +187,57 @@ int TeamsReady(void)
 	return 1;
 }
 
-int CheckForCaptains(int cteam)
-{
-	edict_t *ent;
-	int i;
-
-	for (i = 1; i <= game.maxclients; i++) {
-		ent = getEnt(i);
-		if (ent->inuse) {
-			if (ent->client->resp.captain == cteam)
-				return 1;
-		}
-	}
-	return 0;
-}
-
 void Cmd_Captain_f(edict_t * ent)
 {
-	int otherTeam;
+	int teamNum;
+	edict_t *oldCaptain;
 
 	if (!matchmode->value) {
 		gi.cprintf(ent, PRINT_HIGH, "This command need matchmode to be enabled\n");
 		return;
 	}
 
-	if (ent->client->resp.team == NOTEAM) {
+	teamNum = ent->client->resp.team;
+	if (teamNum == NOTEAM) {
 		gi.cprintf(ent, PRINT_HIGH, "You need to be on a team for that...\n");
 		return;
 	}
-	if (ent->client->resp.captain) {
-		gi.bprintf(PRINT_HIGH, "%s is no longer %s's Captain\n", ent->client->pers.netname, teams[ent->client->resp.captain].name);
-		if(!team_round_going || (!teamdm->value && !ctf->value))
-			teams[ent->client->resp.captain].ready = 0;
-		ent->client->resp.captain = 0;
+
+	oldCaptain = teams[teamNum].captain;
+	if (oldCaptain == ent) {
+		MM_SetCaptain( teamNum, NULL );
 		return;
 	}
 
-	if (CheckForCaptains(ent->client->resp.team)) {
-		gi.cprintf(ent, PRINT_HIGH, "Your team already has a Captain\n");
+	if (oldCaptain) {
+		gi.cprintf( ent, PRINT_HIGH, "Your team already has a Captain\n" );
 		return;
 	}
-	else {
-		gi.bprintf(PRINT_HIGH, "%s is now %s's Captain\n", ent->client->pers.netname, teams[ent->client->resp.team].name);
-		gi.sound(&g_edicts[0], CHAN_VOICE | CHAN_NO_PHS_ADD, gi.soundindex("misc/comp_up.wav"), 1.0, ATTN_NONE, 0.0);
 
-		ent->client->resp.captain = ent->client->resp.team;
-		if(ent->client->resp.team == TEAM1)
-			otherTeam = TEAM2;
-		else
-			otherTeam = TEAM1;
-
-		if(teams[otherTeam].wantReset)
-			gi.cprintf(ent, PRINT_HIGH, "Team %i want to reset scores, type 'resetscores' to accept\n", otherTeam);
-	}
+	MM_SetCaptain( teamNum, ent );
 }
 
 //extern int started; // AQ2:M - Matchmode - Used for ready command
 void Cmd_Ready_f(edict_t * ent)
 {
 	char temp[128];
+	int		teamNum;
+	team_t	*team;
 
 	if (!matchmode->value) {
 		gi.cprintf(ent, PRINT_HIGH, "This command need matchmode to be enabled\n");
 		return;
 	}
 
-	if (!ent->client->resp.captain) {
-		gi.cprintf(ent, PRINT_HIGH, "You need to be a captain for that\n");
+	teamNum = ent->client->resp.team;
+	if (teamNum == NOTEAM) {
+		gi.cprintf( ent, PRINT_HIGH, "You need to be on a team for that...\n" );
+		return;
+	}
+
+	team = &teams[teamNum];
+	if (team->captain != ent) {
+		gi.cprintf( ent, PRINT_HIGH, "You need to be a captain for that\n" );
 		return;
 	}
 
@@ -214,22 +249,16 @@ void Cmd_Ready_f(edict_t * ent)
 		return;
 	}
 
-	if (teams[ent->client->resp.captain].ready) {
-		Com_sprintf(temp, sizeof(temp),"%s is no longer ready to play!", teams[ent->client->resp.captain].name);
-		CenterPrintAll(temp);
-		teams[ent->client->resp.captain].ready = 0;
-	} else {
-		Com_sprintf(temp, sizeof(temp), "%s is ready to play!", teams[ent->client->resp.captain].name);
-		CenterPrintAll(temp);
-		teams[ent->client->resp.captain].ready = 1;
-	}
-
+	team->ready = !team->ready;
+	Com_sprintf( temp, sizeof( temp ), "%s %s ready to play!", team->name, (team->ready) ? "is" : "is no longer" );
+	CenterPrintAll( temp );
 }
 
 void Cmd_Teamname_f(edict_t * ent)
 {
-	int i, u, team;
+	int i, argc, teamNum;
 	char temp[32];
+	team_t *team;
 
 	if (!matchmode->value) {
 		gi.cprintf(ent, PRINT_HIGH, "This command need matchmode to be enabled\n");
@@ -241,43 +270,56 @@ void Cmd_Teamname_f(edict_t * ent)
 		return;
 	}
 
-	if (!ent->client->resp.captain) {
-		gi.cprintf(ent, PRINT_HIGH, "You need to be a captain for that\n");
+	teamNum = ent->client->resp.team;
+	if (teamNum == NOTEAM) {
+		gi.cprintf( ent, PRINT_HIGH, "You need to be on a team for that...\n" );
 		return;
 	}
-	team = ent->client->resp.team;
-	if (teams[team].ready) {
-		gi.cprintf(ent, PRINT_HIGH, "You cannot use this while 'Ready'\n");
+
+	team = &teams[teamNum];
+	if (team->captain != ent) {
+		gi.cprintf( ent, PRINT_HIGH, "You need to be a captain for that\n" );
 		return;
 	}
+
+	if (team->ready) {
+		gi.cprintf( ent, PRINT_HIGH, "You cannot use this while 'Ready'\n" );
+		return;
+	}
+
 	if (team_round_going || team_game_going) {
 		gi.cprintf(ent, PRINT_HIGH, "You cannot use this while playing\n");
 		return;
 	}
-	i = gi.argc();
-	if (i < 2) {
-		gi.cprintf(ent, PRINT_HIGH, "Your Team Name is %s\n", teams[team].name);
+
+	argc = gi.argc();
+	if (argc < 2) {
+		gi.cprintf( ent, PRINT_HIGH, "Your Team Name is %s\n", team->name );
 		return;
 	}
 
 	Q_strncpyz(temp, gi.argv(1), sizeof(temp));
-	for (u = 2; u <= i; u++) {
+	for (i = 2; i <= argc; i++) {
 		Q_strncatz(temp, " ", sizeof(temp));
-		Q_strncatz(temp, gi.argv(u), sizeof(temp));
+		Q_strncatz(temp, gi.argv(i), sizeof(temp));
 	}
 	temp[18] = 0;
 
-	gi.dprintf("%s (Team %i) is now known as %s\n", teams[team].name, team, temp);
-	IRC_printf(IRC_T_GAME, "%n (Team %i) is now known as %n", teams[team].name, team, temp);
-	strcpy(teams[team].name, temp);
-	gi.cprintf(ent, PRINT_HIGH, "New Team Name: %s\n", teams[team].name);
+	if (!temp[0])
+		strcpy( temp, "noname" );
+
+	gi.dprintf("%s (Team %i) is now known as %s\n", team->name, teamNum, temp);
+	IRC_printf(IRC_T_GAME, "%n (Team %i) is now known as %n", team->name, teamNum, temp);
+	strcpy(team->name, temp);
+	gi.cprintf(ent, PRINT_HIGH, "New Team Name: %s\n", team->name);
 
 }
 
 void Cmd_Teamskin_f(edict_t * ent)
 {
-	int team;
 	char *s;
+	int teamNum;
+	team_t *team;
 /*	int i;
 	edict_t *e;*/
 
@@ -286,16 +328,18 @@ void Cmd_Teamskin_f(edict_t * ent)
 		return;
 	}
 
-	team = ent->client->resp.team;
-	if(team == NOTEAM) {
+	teamNum = ent->client->resp.team;
+	if (teamNum == NOTEAM) {
 		gi.cprintf(ent, PRINT_HIGH, "You need to be on a team for that...\n");
 		return;
 	}
-	if (!ent->client->resp.captain) {
+
+	team = &teams[teamNum];
+	if (team->captain != ent) {
 		gi.cprintf(ent, PRINT_HIGH, "You need to be a captain for that\n");
 		return;
 	}
-	if (teams[team].ready) {
+	if (team->ready) {
 		gi.cprintf(ent, PRINT_HIGH, "You cannot use this while 'Ready'\n");
 		return;
 	}
@@ -304,28 +348,27 @@ void Cmd_Teamskin_f(edict_t * ent)
 		return;
 	}
 	if (gi.argc() < 2) {
-		gi.cprintf(ent, PRINT_HIGH, "Your Team Skin is %s\n", teams[team].skin);
+		gi.cprintf(ent, PRINT_HIGH, "Your Team Skin is %s\n", team->skin);
 		return;
 	}
 
 	s = gi.argv(1);
-	if(!strcmp(s, teams[team].skin)) {
+	if(!strcmp(s, team->skin)) {
 		gi.cprintf(ent, PRINT_HIGH, "Your Team Skin is Already %s\n", s);
 		return;
 	}
 
-	Q_strncpyz(teams[team].skin, s, sizeof(teams[team].skin));
+	Q_strncpyz(team->skin, s, sizeof(team->skin));
 	if(ctf->value) {
-		s = strchr(teams[team].skin, '/');
+		s = strchr(team->skin, '/');
 		if(s)
 			s[1] = 0;
 		else
-			strcpy(teams[team].skin, "male/");
-		Q_strncatz(teams[team].skin, team == 1 ? CTF_TEAM1_SKIN : CTF_TEAM2_SKIN, sizeof(teams[team].skin));
+			strcpy(team->skin, "male/");
+		Q_strncatz(team->skin, teamNum == 1 ? CTF_TEAM1_SKIN : CTF_TEAM2_SKIN, sizeof(team->skin));
 	}
 
-	sprintf(teams[team].skin_index, "../players/%s_i", teams[team].skin);
-
+	Com_sprintf(team->skin_index, sizeof(team->skin_index), "../players/%s_i", team->skin );
 /*	for (i = 1; i <= game.maxclients; i++) { //lets update players skin
 		e = g_edicts + i;
 		if (!e->inuse)
@@ -334,85 +377,84 @@ void Cmd_Teamskin_f(edict_t * ent)
 		if(e->client->resp.team == team)
 			AssignSkin(e, teams[team].skin, false);
 	}*/
-	gi.cprintf(ent, PRINT_HIGH, "New Team Skin: %s\n", teams[team].skin);
+	gi.cprintf(ent, PRINT_HIGH, "New Team Skin: %s\n", team->skin);
 }
 
 void Cmd_TeamLock_f(edict_t * ent, int a_switch)
 {
 	char msg[128];
+	int teamNum;
+	team_t *team;
 
 	if (!matchmode->value) {
 		gi.cprintf(ent, PRINT_HIGH, "This command need matchmode to be enabled\n");
 		return;
 	}
 
-	if (!mm_allowlock->value)
+	if (!mm_allowlock->value) {
 		gi.cprintf(ent, PRINT_HIGH, "Team locking is disabled on this server\n");
-	else if (!ent->client->resp.team)
-		gi.cprintf(ent, PRINT_HIGH, "You are not on a team\n");
-	else if (!ent->client->resp.captain)
-		gi.cprintf(ent, PRINT_HIGH, "You are not the captain of your team\n");
-	else if (a_switch == 1 && teams[ent->client->resp.team].locked)
-		gi.cprintf(ent, PRINT_HIGH, "Your team is already locked\n");
-	else if (a_switch == 0 && !teams[ent->client->resp.team].locked)
-		gi.cprintf(ent, PRINT_HIGH, "Your team isn't locked\n");
-	else {
-		teams[ent->client->resp.team].locked = a_switch;
-
-		if (a_switch == 1)
-			sprintf(msg, "%s locked", TeamName(ent->client->resp.team));
-		else
-			sprintf(msg, "%s unlocked", TeamName(ent->client->resp.team));
-
-		CenterPrintAll(msg);
+		return;
 	}
+
+	teamNum = ent->client->resp.team;
+	if (teamNum == NOTEAM) {
+		gi.cprintf(ent, PRINT_HIGH, "You are not on a team\n");
+		return;
+	}
+
+	team = &teams[teamNum];
+	if (team->captain != ent) {
+		gi.cprintf(ent, PRINT_HIGH, "You are not the captain of your team\n");
+		return;
+	}
+
+	if (a_switch == team->locked) {
+		gi.cprintf( ent, PRINT_HIGH, "Your team %s locked\n", (a_switch) ? "is already" : "isn't" );
+		return;
+	}
+
+	team->locked = a_switch;
+	Com_sprintf( msg, sizeof( msg ), "%s is now %s", team->name, (a_switch) ? "locked" : "unlocked" );
+	CenterPrintAll(msg);
 }
 
 void Cmd_SetAdmin_f (edict_t * ent)
 {
+	if (ent->client->resp.admin) {
+		gi.cprintf( ent, PRINT_HIGH, "You are no longer a match admin.\n" );
+		gi.dprintf( "%s is no longer a Match Admin\n", ent->client->pers.netname );
+		ent->client->resp.admin = 0;
+	}
+
 	if(!matchmode->value) {
 		gi.cprintf(ent, PRINT_HIGH, "Matchmode is not enabled on this server.\n");
 		return;
 	}
 
-	if (gi.argc () < 2)
-	{
+	if (strcmp( mm_adminpwd->string, "0" ) == 0) {
+		gi.cprintf( ent, PRINT_HIGH, "Admin Mode is not enabled on this server..\n" );
+		return;
+	}
+
+	if (gi.argc() < 2) {
 		gi.cprintf (ent, PRINT_HIGH, "Usage:  matchadmin <password>\n");
 		return;
 	}
 
-	if(strcmp (mm_adminpwd->string, "0") == 0)
-	{
-		gi.cprintf (ent, PRINT_HIGH, "Admin Mode is not enabled on this server..\n");
+	if (strcmp( mm_adminpwd->string, gi.argv(1) )) {
+		gi.cprintf( ent, PRINT_HIGH, "Wrong password\n" );
 		return;
 	}
 
-	if (strcmp (mm_adminpwd->string, gi.argv (1)) == 0)
-	{
-		if (ent->client->resp.admin)
-		{
-			gi.cprintf (ent, PRINT_HIGH, "You are no longer a match admin.\n");
-			gi.dprintf ("%s is no longer a Match Admin\n", ent->client->pers.netname);
-			IRC_printf (IRC_T_GAME, "%n is no longer a Match Admin", ent->client->pers.netname);
-			ent->client->resp.admin = 0;
-		}
-		else
-		{
-			gi.cprintf (ent, PRINT_HIGH, "You are now a match admin.\n");
-			gi.dprintf ("%s is now a Match Admin\n", ent->client->pers.netname);
-			IRC_printf (IRC_T_GAME, "%n is now a Match Admin", ent->client->pers.netname);
-			ent->client->resp.admin = 1;
-		}
-	}
-	else
-		gi.cprintf (ent, PRINT_HIGH, "Wrong password\n");
-
+	gi.cprintf (ent, PRINT_HIGH, "You are now a match admin.\n");
+	gi.dprintf ("%s is now a Match Admin\n", ent->client->pers.netname);
+	IRC_printf (IRC_T_GAME, "%n is now a Match Admin", ent->client->pers.netname);
+	ent->client->resp.admin = 1;
 }
 
 void Cmd_ResetScores_f(edict_t * ent)
 {
-	int i, otherCaptain = 0;
-	edict_t *e;
+	int i, teamNum, otherCaptain = 0;
 
 	if (!matchmode->value) {
 		gi.cprintf(ent, PRINT_HIGH, "This command need matchmode to be enabled\n");
@@ -426,31 +468,29 @@ void Cmd_ResetScores_f(edict_t * ent)
 		return;
 	}
 
-	if (ent->client->resp.team == NOTEAM) {
+	teamNum = ent->client->resp.team;
+	if (teamNum == NOTEAM) {
 		gi.cprintf(ent, PRINT_HIGH, "You need to be on a team for that...\n");
 		return;
 	}
-	if (!ent->client->resp.captain) {
+	if (teams[teamNum].captain != ent) {
 		gi.cprintf(ent, PRINT_HIGH, "You need to be a captain for that\n");
 		return;
 	}
 
-	if(teams[ent->client->resp.team].wantReset)
+	if (teams[teamNum].wantReset)
 	{
-		teams[ent->client->resp.team].wantReset = 0;
-		for (i = 1; i <= game.maxclients; i++) {
-			e = g_edicts + i;
-			if (!e->inuse || !e->client->resp.captain)
-				continue;
-
-			if(e->client->resp.team != NOTEAM && e->client->resp.team != ent->client->resp.team)
-				gi.cprintf(e, PRINT_HIGH, "Team %i doesnt want to reset afterall", ent->client->resp.team);
+		teams[teamNum].wantReset = 0;
+		for (i = TEAM1; i<teamCount + 1; i++) {
+			if (i != teamNum && teams[i].captain) {
+				gi.cprintf(teams[i].captain, PRINT_HIGH, "Team %i doesnt want to reset afterall", teamNum);
+			}
 		}
 		gi.cprintf(ent, PRINT_HIGH, "Your score reset request cancelled\n");
 		return;
 	}
 
-	teams[ent->client->resp.team].wantReset = 1;
+	teams[teamNum].wantReset = 1;
 	for(i = TEAM1; i<teamCount+1; i++) {
 		if(!teams[i].wantReset)
 			break;
@@ -462,13 +502,9 @@ void Cmd_ResetScores_f(edict_t * ent)
 		return;
 	}
 
-	for (i = 1; i <= game.maxclients; i++) {
-		e = g_edicts + i;
-		if (!e->inuse || !e->client->resp.captain)
-			continue;
-
-		if(e->client->resp.team != NOTEAM && e->client->resp.team != ent->client->resp.team) {
-			gi.cprintf(e, PRINT_HIGH, "Team %i want to reset scores, type 'resetscores' to accept\n", ent->client->resp.team);
+	for (; i<teamCount + 1; i++) {
+		if (!teams[i].wantReset && teams[i].captain) {
+			gi.cprintf(teams[i].captain, PRINT_HIGH, "Team %i want to reset scores, type 'resetscores' to accept\n", teamNum);
 			otherCaptain = 1;
 		}
 	}
@@ -482,6 +518,7 @@ void Cmd_ResetScores_f(edict_t * ent)
 void Cmd_TogglePause_f(edict_t * ent, qboolean pause)
 {
 	static int lastPaused = 0;
+	int		teamNum;
 
 	if (!matchmode->value) {
 		gi.cprintf(ent, PRINT_HIGH, "This command need matchmode to be enabled\n");
@@ -493,7 +530,8 @@ void Cmd_TogglePause_f(edict_t * ent, qboolean pause)
 		return;
 	}
 
-	if (ent->client->resp.team == NOTEAM) {
+	teamNum = ent->client->resp.team;
+	if (teamNum == NOTEAM) {
 		gi.cprintf(ent, PRINT_HIGH, "You need to be on a team for that...\n");
 		return;
 	}
@@ -519,12 +557,12 @@ void Cmd_TogglePause_f(edict_t * ent, qboolean pause)
 			gi.cprintf(ent, PRINT_HIGH, "Can't pause in an intermission.\n");
 			return;
 		}
-		if(teams[ent->client->resp.team].pauses_used >= (int)mm_pausecount->value)
+		if(teams[teamNum].pauses_used >= (int)mm_pausecount->value)
 		{
 			gi.cprintf(ent, PRINT_HIGH, "Your team doesn't have any pauses left.\n");
 			return;
 		}
-		teams[ent->client->resp.team].pauses_used++;
+		teams[teamNum].pauses_used++;
 
 		CenterPrintAll (va("Game paused by %s\nTeam %i has %i pauses left", ent->client->pers.netname, ent->client->resp.team, (int)mm_pausecount->value - teams[ent->client->resp.team].pauses_used));
 		pause_time = (int)mm_pausetime->value * 600;
@@ -542,7 +580,7 @@ void Cmd_TogglePause_f(edict_t * ent, qboolean pause)
 			gi.cprintf(ent, PRINT_HIGH, "Already unpausing\n");
 			return;
 		}
-		if(lastPaused != ent->client->resp.team)
+		if(lastPaused != teamNum)
 		{
 			gi.cprintf(ent, PRINT_HIGH, "You cannot unpause when pause is made by other team\n");
 			return;

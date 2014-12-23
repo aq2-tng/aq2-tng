@@ -906,7 +906,6 @@ void Team_f (edict_t * ent)
 void JoinTeam (edict_t * ent, int desired_team, int skip_menuclose)
 {
 	char *s, *a;
-	char temp[128];
 
 	if (!skip_menuclose)
 		PMenu_Close (ent);
@@ -914,22 +913,28 @@ void JoinTeam (edict_t * ent, int desired_team, int skip_menuclose)
 	if (ent->client->resp.team == desired_team)
 		return;
 
-	if (matchmode->value && mm_allowlock->value && teams[desired_team].locked)
+	if (matchmode->value)
 	{
-		if (skip_menuclose)
-			gi.cprintf(ent, PRINT_HIGH, "Cannot join %s (locked)\n", TeamName(desired_team));
-		else
-			gi.centerprintf(ent, "Cannot join %s (locked)", TeamName(desired_team));
+		if (mm_allowlock->value && teams[desired_team].locked) {
+			if (skip_menuclose)
+				gi.cprintf(ent, PRINT_HIGH, "Cannot join %s (locked)\n", TeamName(desired_team));
+			else
+				gi.centerprintf(ent, "Cannot join %s (locked)", TeamName(desired_team));
 
-		return;
-	}
-
-	if(!matchmode->value && eventeams->value && desired_team != NOTEAM) {
-		if(!IsAllowedToJoin(ent, desired_team)) {
-			gi.centerprintf(ent, "Cannot join %s (has too many players)", TeamName(desired_team));
 			return;
 		}
 	}
+	else
+	{
+		if(eventeams->value && desired_team != NOTEAM) {
+			if(!IsAllowedToJoin(ent, desired_team)) {
+				gi.centerprintf(ent, "Cannot join %s (has too many players)", TeamName(desired_team));
+				return;
+			}
+		}
+	}
+
+	MM_LeftTeam( ent );
 
 	a = (ent->client->resp.team == NOTEAM) ? "joined" : "changed to";
 
@@ -995,28 +1000,7 @@ void JoinTeam (edict_t * ent, int desired_team, int skip_menuclose)
 		PutClientInServer (ent);
 		AddToTransparentList (ent);
 	}
-	//AQ2:TNG - Slicer Matchmode
-	if (matchmode->value)
-	{
-		if (ent->client->resp.captain)
-		{
-			if(teamdm->value || ctf->value)
-			{
-				if(!team_round_going)
-					teams[ent->client->resp.captain].ready = 0;
-				teams[ent->client->resp.captain].locked = 0;
-			}
-			else
-			{
-				Com_sprintf(temp, sizeof(temp),"%s is no longer ready to play!", teams[ent->client->resp.captain].name);
-				CenterPrintAll(temp);
-				teams[ent->client->resp.captain].ready = 0;
-			}
-		}
 
-		ent->client->resp.subteam = 0;	//SLICER: If a player joins or changes teams, the subteam resets....
-		ent->client->resp.captain = 0;	//SLICER: Same here
-	}
 	//AQ2:TNG END
 	if (!skip_menuclose && (!teamdm->value || dm_choose->value) && ctf->value != 2)
 		OpenWeaponMenu (ent);
@@ -1025,7 +1009,6 @@ void JoinTeam (edict_t * ent, int desired_team, int skip_menuclose)
 void LeaveTeam (edict_t * ent)
 {
 	char *g;
-	char temp[128];
 	
 	if (ent->client->resp.team == NOTEAM)
 		return;
@@ -1065,31 +1048,10 @@ void LeaveTeam (edict_t * ent)
 	gi.bprintf (PRINT_HIGH, "%s left %s team.\n", ent->client->pers.netname, g);
 	IRC_printf (IRC_T_GAME, "%n left %n team.", ent->client->pers.netname, g);
 
+	MM_LeftTeam( ent );
+
 	ent->client->resp.joined_team = 0;
 	ent->client->resp.team = NOTEAM;
-	//AQ2:TNG Slicer 
-	if (matchmode->value)
-	{
-		if (ent->client->resp.captain)
-		{
-			if(teamdm->value || ctf->value)
-			{
-				if(!team_round_going)
-					teams[ent->client->resp.captain].ready = 0;
-				teams[ent->client->resp.captain].locked = 0;
-			}
-			else
-			{
-				Com_sprintf(temp, sizeof(temp),"%s is no longer ready to play!", teams[ent->client->resp.captain].name);
-				CenterPrintAll(temp);
-				teams[ent->client->resp.captain].ready = 0;
-			}
-		}
-
-		ent->client->resp.subteam = 0;	//SLICER: If a player joins or changes teams, the subteam resets....
-		ent->client->resp.captain = 0;	//SLICER: Same here
-	}
-	//AQ2:TNG END
 }
 
 void ReturnToMain (edict_t * ent, pmenu_t * p)
@@ -2764,13 +2726,13 @@ void A_ScoreboardMessage (edict_t * ent, edict_t * killer)
 					"xv %i yv %i string%s \"%s%s\" ",
 					offset[j], 42 + i * 8,
 					(deadview && cl_ent->solid != SOLID_NOT) ? "2" : "",
-					(matchmode->value && game.clients[sorted[j][i]].resp.captain) ? "@" : "",
-					game.clients[sorted[j][i]].pers.netname);
+					IS_CAPTAIN(cl_ent) ? "@" : "",
+					cl->pers.netname);
 
 					len = strlen (string);
 					if(ctf->value){
-						if((j == TEAM1 && game.clients[sorted[j][i]].pers.inventory[ITEM_INDEX(flag2_item)])
-						|| (j == TEAM2 && game.clients[sorted[j][i]].pers.inventory[ITEM_INDEX(flag1_item)])) {
+						if((j == TEAM1 && cl->pers.inventory[ITEM_INDEX(flag2_item)])
+						|| (j == TEAM2 && cl->pers.inventory[ITEM_INDEX(flag1_item)])) {
 							sprintf(string + len, "xv %i yv %i picn sbfctf%s ", offset[j]-8, 42 + i * 8, j == TEAM1 ? "2" : "1");
 						len = strlen(string);
 						}
@@ -2837,7 +2799,7 @@ void A_ScoreboardMessage (edict_t * ent, edict_t * killer)
 					sprintf (string + strlen (string),
 						"xv %i yv %d string \"%s%s\" ",
 						offset[j], 104 + subs[j] * 8,
-						game.clients[i].resp.captain ? "@" : "",
+						IS_CAPTAIN(cl_ent) ? "@" : "",
 						game.clients[i].pers.netname);
 				}
 				else if (subs[j] < 2)
@@ -2941,49 +2903,51 @@ void A_ScoreboardMessage (edict_t * ent, edict_t * killer)
 
 		for (i = 0; i < total; i++)
 		{
-			ping = game.clients[sorted[i]].ping;
+			cl = &game.clients[sorted[i]];
+			cl_ent = g_edicts + 1 + sorted[i];
+			ping = cl->ping;
 			if (ping > 999)
 				ping = 999;
 
 			if (noscore->value)
 			{
 				sprintf(string + strlen(string), "xv 0 yv %d string \"%-15s %4d %4d\" ",
-					48 + i * 8,	game.clients[sorted[i]].pers.netname,
-					(level.framenum - game.clients[sorted[i]].resp.enterframe) / 600 / FRAMEDIV,
+					48 + i * 8, cl->pers.netname,
+					(level.framenum - cl->resp.enterframe) / 600 / FRAMEDIV,
 					ping);
 			}
 			else
 			{
 				if(teamdm->value) {
-					if (game.clients[sorted[i]].resp.deaths < 1000000)
-						sprintf (damage, "%i", game.clients[sorted[i]].resp.deaths);
+					if (cl->resp.deaths < 1000000)
+						sprintf( damage, "%i", cl->resp.deaths );
 					else
 						strcpy (damage, "999999");
 				} else {
-					if (game.clients[sorted[i]].resp.damage_dealt < 1000000)
-						sprintf (damage, "%i", game.clients[sorted[i]].resp.damage_dealt);
+					if (cl->resp.damage_dealt < 1000000)
+						sprintf( damage, "%i", cl->resp.damage_dealt );
 					else
 						strcpy (damage, "999999");
 				}
 
 
 				sprintf(string + strlen(string), "xv 0 yv %d string \"%5d %-15s %4d %4d %6s",
-					48 + i * 8,	game.clients[sorted[i]].resp.score,
-					game.clients[sorted[i]].pers.netname,
-					(level.framenum - game.clients[sorted[i]].resp.enterframe) / 600 / FRAMEDIV,
+					48 + i * 8, cl->resp.score,
+					cl->pers.netname,
+					(level.framenum - cl->resp.enterframe) / 600 / FRAMEDIV,
 					ping, damage);
 
 				if(matchmode->value)
 				{
 					sprintf (string + strlen(string), " %i%s%s \" ",
-						game.clients[sorted[i]].resp.team,
-						game.clients[sorted[i]].resp.captain == 0 ? "" : "C",
-						game.clients[sorted[i]].resp.subteam == 0 ? "" : "S");
+						cl->resp.team,
+						IS_CAPTAIN(cl_ent) ? "" : "C",
+						cl->resp.subteam == 0 ? "" : "S" );
 				}
 				else
 				{
 					sprintf(string + strlen(string), " %5i\" ",
-						game.clients[sorted[i]].resp.kills);
+						cl->resp.kills );
 				}
 			}
 
