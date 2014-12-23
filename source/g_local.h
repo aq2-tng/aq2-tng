@@ -730,42 +730,6 @@ typedef struct
 }
 mmove_t;
 
-typedef struct
-{
-  mmove_t *currentmove;
-  int aiflags;
-  int nextframe;
-  float scale;
-
-  void (*stand) (edict_t * self);
-  void (*idle) (edict_t * self);
-  void (*search) (edict_t * self);
-  void (*walk) (edict_t * self);
-  void (*run) (edict_t * self);
-  void (*dodge) (edict_t * self, edict_t * other, float eta);
-  void (*attack) (edict_t * self);
-  void (*melee) (edict_t * self);
-  void (*sight) (edict_t * self, edict_t * other);
-    qboolean (*checkattack) (edict_t * self);
-
-  float pausetime;
-  float attack_finished;
-
-  vec3_t saved_goal;
-  float search_time;
-  float trail_time;
-  vec3_t last_sighting;
-  int attack_state;
-  int lefty;
-  float idle_time;
-  int linkcount;
-
-  int power_armor_type;
-  int power_armor_power;
-}
-monsterinfo_t;
-
-
 
 extern game_locals_t game;
 extern level_locals_t level;
@@ -1140,62 +1104,12 @@ qboolean CheckTeamDamage( edict_t * targ, edict_t * attacker );
 #define DEFAULT_SSHOTGUN_COUNT                  20
 
 //
-// g_monster.c
-//
-void monster_fire_bullet (edict_t * self, vec3_t start, vec3_t dir,
-			  int damage, int kick, int hspread, int vspread,
-			  int flashtype);
-void monster_fire_shotgun (edict_t * self, vec3_t start, vec3_t aimdir,
-			   int damage, int kick, int hspread, int vspread,
-			   int count, int flashtype);
-void monster_fire_blaster (edict_t * self, vec3_t start, vec3_t dir,
-			   int damage, int speed, int flashtype, int effect);
-void monster_fire_grenade (edict_t * self, vec3_t start, vec3_t aimdir,
-			   int damage, int speed, int flashtype);
-void monster_fire_rocket (edict_t * self, vec3_t start, vec3_t dir,
-			  int damage, int speed, int flashtype);
-void monster_fire_railgun (edict_t * self, vec3_t start, vec3_t aimdir,
-			   int damage, int kick, int flashtype);
-void monster_fire_bfg (edict_t * self, vec3_t start, vec3_t aimdir,
-		       int damage, int speed, int kick, float damage_radius,
-		       int flashtype);
-void M_droptofloor (edict_t * ent);
-void monster_think (edict_t * self);
-void walkmonster_start (edict_t * self);
-void swimmonster_start (edict_t * self);
-void flymonster_start (edict_t * self);
-void AttackFinished (edict_t * self, float time);
-void monster_death_use (edict_t * self);
-void M_CatagorizePosition (edict_t * ent);
-qboolean M_CheckAttack (edict_t * self);
-void M_FlyCheck (edict_t * self);
-void M_CheckGround (edict_t * ent);
-
-//
 // g_misc.c
 //
 void ThrowHead (edict_t * self, char *gibname, int damage, int type);
 void ThrowClientHead (edict_t * self, int damage);
 void ThrowGib (edict_t * self, char *gibname, int damage, int type);
 void BecomeExplosion1 (edict_t * self);
-
-//
-// g_ai.c
-//
-void AI_SetSightClient (void);
-
-void ai_stand (edict_t * self, float dist);
-void ai_move (edict_t * self, float dist);
-void ai_walk (edict_t * self, float dist);
-void ai_turn (edict_t * self, float dist);
-void ai_run (edict_t * self, float dist);
-void ai_charge (edict_t * self, float dist);
-int range (edict_t * self, edict_t * other);
-
-void FoundTarget (edict_t * self);
-qboolean infront (edict_t * self, edict_t * other);
-qboolean visible (edict_t * self, edict_t * other);
-qboolean FacingIdeal (edict_t * self);
 
 //
 // g_weapon.c
@@ -1235,17 +1149,6 @@ void fire_bullet_sniper (edict_t * self, vec3_t start, vec3_t aimdir,
 			 int mod);
 void fire_grenade3 (edict_t * self, vec3_t start, vec3_t aimdir, int damage,
 		    int speed);
-
-//
-// g_ptrail.c
-//
-void PlayerTrail_Init (void);
-void PlayerTrail_Add (vec3_t spot);
-void PlayerTrail_New (vec3_t spot);
-edict_t *PlayerTrail_PickFirst (edict_t * self);
-edict_t *PlayerTrail_PickNext (edict_t * self);
-edict_t *PlayerTrail_LastSpot (void);
-
 
 //
 // g_client.c
@@ -1292,14 +1195,6 @@ void DeathmatchScoreboardMessage (edict_t * client, edict_t * killer);
 // g_pweapon.c
 //
 void PlayerNoise (edict_t * who, vec3_t where, int type);
-
-//
-// m_move.c
-//
-qboolean M_CheckBottom (edict_t * ent);
-qboolean M_walkmove (edict_t * ent, float yaw, float dist);
-void M_MoveToGoal (edict_t * ent, float dist);
-void M_ChangeYaw (edict_t * ent);
 
 //
 // g_phys.c
@@ -1854,7 +1749,6 @@ struct edict_s
 
   // common data blocks
   moveinfo_t moveinfo;
-  monsterinfo_t monsterinfo;
 
   // laser
   edict_t *lasersight;

@@ -986,14 +986,10 @@ void G_RunFrame (void)
 
 		pause_time--;
 	}
-
-	if(!pause_time)
+	else
 	{
 		level.framenum++;
 		level.time = level.framenum * FRAMETIME;
-
-		// choose a client for monsters to target this frame
-		AI_SetSightClient ();
 	}
 
 	// IRC poll
@@ -1030,10 +1026,6 @@ void G_RunFrame (void)
 			if (ent->groundentity && ent->groundentity->linkcount != ent->groundentity_linkcount)
 			{
 				ent->groundentity = NULL;
-				if (!(ent->flags & (FL_SWIM | FL_FLY)) && ent->svflags & SVF_MONSTER)
-				{
-					M_CheckGround (ent);
-				}
 			}
 
 			if (i > 0 && i <= game.maxclients)

@@ -117,37 +117,13 @@ void SP_target_speaker (edict_t * ent)
 
 //==========================================================
 
-void
-Use_Target_Help (edict_t * ent, edict_t * other, edict_t * activator)
-{
-  if (ent->spawnflags & 1)
-    Q_strncpyz(game.helpmessage1, ent->message, sizeof (game.helpmessage2));
-  else
-    Q_strncpyz(game.helpmessage2, ent->message, sizeof (game.helpmessage1));
-
-  game.helpchanged++;
-}
-
 /*QUAKED target_help (1 0 1) (-16 -16 -24) (16 16 24) help1
 When fired, the "message" key becomes the current personal computer string, and the message light will be set on all clients status bars.
 */
-void
-SP_target_help (edict_t * ent)
+void SP_target_help (edict_t * ent)
 {
-  if (deathmatch->value)
-    {				// auto-remove for deathmatch
-      G_FreeEdict (ent);
-      return;
-    }
-
-  if (!ent->message)
-    {
-      gi.dprintf ("%s with no message at %s\n", ent->classname,
-		  vtos (ent->s.origin));
-      G_FreeEdict (ent);
-      return;
-    }
-  ent->use = Use_Target_Help;
+	// auto-remove for deathmatch
+	G_FreeEdict(ent);
 }
 
 //==========================================================
@@ -156,73 +132,20 @@ SP_target_help (edict_t * ent)
 Counts a secret found.
 These are single use targets.
 */
-void
-use_target_secret (edict_t * ent, edict_t * other, edict_t * activator)
+void SP_target_secret (edict_t * ent)
 {
-  gi.sound (ent, CHAN_VOICE, ent->noise_index, 1, ATTN_NORM, 0);
-
-  level.found_secrets++;
-
-  G_UseTargets (ent, activator);
-  G_FreeEdict (ent);
+	// auto-remove for deathmatch
+	G_FreeEdict( ent );
 }
-
-void
-SP_target_secret (edict_t * ent)
-{
-  if (deathmatch->value)
-    {				// auto-remove for deathmatch
-      G_FreeEdict (ent);
-      return;
-    }
-
-  ent->use = use_target_secret;
-  if (!st.noise)
-    st.noise = "misc/secret.wav";
-  ent->noise_index = gi.soundindex (st.noise);
-  ent->svflags = SVF_NOCLIENT;
-  level.total_secrets++;
-  // map bug hack
-  if (!Q_stricmp (level.mapname, "mine3") && ent->s.origin[0] == 280
-      && ent->s.origin[1] == -2048 && ent->s.origin[2] == -624)
-    ent->message = "You have found a secret area.";
-}
-
-//==========================================================
 
 /*QUAKED target_goal (1 0 1) (-8 -8 -8) (8 8 8)
 Counts a goal completed.
 These are single use targets.
 */
-void
-use_target_goal (edict_t * ent, edict_t * other, edict_t * activator)
+void SP_target_goal (edict_t * ent)
 {
-  gi.sound (ent, CHAN_VOICE, ent->noise_index, 1, ATTN_NORM, 0);
-
-  level.found_goals++;
-
-  if (level.found_goals == level.total_goals)
-    gi.configstring (CS_CDTRACK, "0");
-
-  G_UseTargets (ent, activator);
-  G_FreeEdict (ent);
-}
-
-void
-SP_target_goal (edict_t * ent)
-{
-  if (deathmatch->value)
-    {				// auto-remove for deathmatch
-      G_FreeEdict (ent);
-      return;
-    }
-
-  ent->use = use_target_goal;
-  if (!st.noise)
-    st.noise = "misc/secret.wav";
-  ent->noise_index = gi.soundindex (st.noise);
-  ent->svflags = SVF_NOCLIENT;
-  level.total_goals++;
+	// auto-remove for deathmatch
+	G_FreeEdict( ent );
 }
 
 //==========================================================
@@ -498,8 +421,7 @@ killtarget also work.
 
 "delay"         delay before using targets if the trigger has been activated (default 1)
 */
-void
-target_crosslevel_target_think (edict_t * self)
+void target_crosslevel_target_think (edict_t * self)
 {
   if (self->spawnflags ==
       (game.serverflags & SFL_CROSS_TRIGGER_MASK & self->spawnflags))
@@ -509,8 +431,7 @@ target_crosslevel_target_think (edict_t * self)
     }
 }
 
-void
-SP_target_crosslevel_target (edict_t * self)
+void SP_target_crosslevel_target (edict_t * self)
 {
   if (!self->delay)
     self->delay = 1;
@@ -527,8 +448,7 @@ When triggered, fires a laser.  You can either set a target
 or a direction.
 */
 
-void
-target_laser_think (edict_t * self)
+void target_laser_think (edict_t * self)
 {
   edict_t *ignore;
   vec3_t start;
@@ -598,8 +518,7 @@ target_laser_think (edict_t * self)
   self->nextthink = level.time + FRAMETIME;
 }
 
-void
-target_laser_on (edict_t * self)
+void target_laser_on (edict_t * self)
 {
   if (!self->activator)
     self->activator = self;
@@ -608,16 +527,14 @@ target_laser_on (edict_t * self)
   target_laser_think (self);
 }
 
-void
-target_laser_off (edict_t * self)
+void target_laser_off (edict_t * self)
 {
   self->spawnflags &= ~1;
   self->svflags |= SVF_NOCLIENT;
   self->nextthink = 0;
 }
 
-void
-target_laser_use (edict_t * self, edict_t * other, edict_t * activator)
+void target_laser_use (edict_t * self, edict_t * other, edict_t * activator)
 {
   self->activator = activator;
   if (self->spawnflags & 1)
@@ -626,8 +543,7 @@ target_laser_use (edict_t * self, edict_t * other, edict_t * activator)
     target_laser_on (self);
 }
 
-void
-target_laser_start (edict_t * self)
+void target_laser_start (edict_t * self)
 {
   edict_t *ent;
 
@@ -685,8 +601,7 @@ target_laser_start (edict_t * self)
     target_laser_off (self);
 }
 
-void
-SP_target_laser (edict_t * self)
+void SP_target_laser (edict_t * self)
 {
   // let everything else get spawned before we start firing
   self->think = target_laser_start;
@@ -699,108 +614,10 @@ SP_target_laser (edict_t * self)
 speed           How many seconds the ramping will take
 message         two letters; starting lightlevel and ending lightlevel
 */
-
-void
-target_lightramp_think (edict_t * self)
+void SP_target_lightramp (edict_t * self)
 {
-  char style[2];
-
-  style[0] =
-    'a' + self->movedir[0] + (level.time -
-			      self->timestamp) / FRAMETIME * self->movedir[2];
-  style[1] = 0;
-  gi.configstring (CS_LIGHTS + self->enemy->style, style);
-
-  if ((level.time - self->timestamp) < self->speed)
-    {
-      self->nextthink = level.time + FRAMETIME;
-    }
-  else if (self->spawnflags & 1)
-    {
-      char temp;
-
-      temp = self->movedir[0];
-      self->movedir[0] = self->movedir[1];
-      self->movedir[1] = temp;
-      self->movedir[2] *= -1;
-    }
-}
-
-void
-target_lightramp_use (edict_t * self, edict_t * other, edict_t * activator)
-{
-  if (!self->enemy)
-    {
-      edict_t *e;
-
-      // check all the targets
-      e = NULL;
-      while (1)
-	{
-	  e = G_Find (e, FOFS (targetname), self->target);
-	  if (!e)
-	    break;
-	  if (strcmp (e->classname, "light") != 0)
-	    {
-	      gi.dprintf ("%s at %s ", self->classname,
-			  vtos (self->s.origin));
-	      gi.dprintf ("target %s (%s at %s) is not a light\n",
-			  self->target, e->classname, vtos (e->s.origin));
-	    }
-	  else
-	    {
-	      self->enemy = e;
-	    }
-	}
-
-      if (!self->enemy)
-	{
-	  gi.dprintf ("%s target %s not found at %s\n", self->classname,
-		      self->target, vtos (self->s.origin));
-	  G_FreeEdict (self);
-	  return;
-	}
-    }
-
-  self->timestamp = level.time;
-  target_lightramp_think (self);
-}
-
-void
-SP_target_lightramp (edict_t * self)
-{
-  if (!self->message || strlen (self->message) != 2 || self->message[0] < 'a'
-      || self->message[0] > 'z' || self->message[1] < 'a'
-      || self->message[1] > 'z' || self->message[0] == self->message[1])
-    {
-      gi.dprintf ("target_lightramp has bad ramp (%s) at %s\n", self->message,
-		  vtos (self->s.origin));
-      G_FreeEdict (self);
-      return;
-    }
-
-  if (deathmatch->value)
-    {
-      G_FreeEdict (self);
-      return;
-    }
-
-  if (!self->target)
-    {
-      gi.dprintf ("%s with no target at %s\n", self->classname,
-		  vtos (self->s.origin));
-      G_FreeEdict (self);
-      return;
-    }
-
-  self->svflags |= SVF_NOCLIENT;
-  self->use = target_lightramp_use;
-  self->think = target_lightramp_think;
-
-  self->movedir[0] = self->message[0] - 'a';
-  self->movedir[1] = self->message[1] - 'a';
-  self->movedir[2] =
-    (self->movedir[1] - self->movedir[0]) / (self->speed / FRAMETIME);
+	// auto-remove for deathmatch
+	G_FreeEdict( self );
 }
 
 //==========================================================

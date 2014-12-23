@@ -222,31 +222,11 @@ void Killed (edict_t * targ, edict_t * inflictor, edict_t * attacker, int damage
 
 	targ->enemy = attacker;
 
-	if ((targ->svflags & SVF_MONSTER) && (targ->deadflag != DEAD_DEAD))
-	{
-		//              targ->svflags |= SVF_DEADMONSTER;       // now treat as a different content type
-		if (!(targ->monsterinfo.aiflags & AI_GOOD_GUY))
-		{
-			level.killed_monsters++;
-			if (coop->value && attacker->client)
-				attacker->client->resp.score++;
-			// medics won't heal monsters that they kill themselves
-			if (strcmp (attacker->classname, "monster_medic") == 0)
-				targ->owner = attacker;
-		}
-	}
-
 	if (targ->movetype == MOVETYPE_PUSH || targ->movetype == MOVETYPE_STOP
 	|| targ->movetype == MOVETYPE_NONE)
 	{				// doors, triggers, etc
 		targ->die (targ, inflictor, attacker, damage, point);
 		return;
-	}
-
-	if ((targ->svflags & SVF_MONSTER) && (targ->deadflag != DEAD_DEAD))
-	{
-		targ->touch = NULL;
-		monster_death_use (targ);
 	}
 
 	targ->die (targ, inflictor, attacker, damage, point);
@@ -328,11 +308,6 @@ CheckPowerArmor (edict_t * ent, vec3_t point, vec3_t normal, int damage,
 			power = client->pers.inventory[index];
 		}
 	}
-	else if (ent->svflags & SVF_MONSTER)
-	{
-		power_armor_type = ent->monsterinfo.power_armor_type;
-		power = ent->monsterinfo.power_armor_power;
-	}
 	else
 		return 0;
 
@@ -379,8 +354,7 @@ CheckPowerArmor (edict_t * ent, vec3_t point, vec3_t normal, int damage,
 
 	if (client)
 		client->pers.inventory[index] -= power_used;
-	else
-		ent->monsterinfo.power_armor_power -= power_used;
+
 	return save;
 }
 
@@ -426,71 +400,6 @@ CheckArmor (edict_t * ent, vec3_t point, vec3_t normal, int damage,
 	return save;
 }
 
-void
-M_ReactToDamage (edict_t * targ, edict_t * attacker)
-{
-	if (!(attacker->client) && !(attacker->svflags & SVF_MONSTER))
-		return;
-
-	if (attacker == targ || attacker == targ->enemy)
-		return;
-
-	// if we are a good guy monster and our attacker is a player
-	// or another good guy, do not get mad at them
-	if (targ->monsterinfo.aiflags & AI_GOOD_GUY)
-	{
-		if (attacker->client || (attacker->monsterinfo.aiflags & AI_GOOD_GUY))
-			return;
-	}
-
-	// we now know that we are not both good guys
-
-	// if attacker is a client, get mad at them because he's good and we're not
-	if (attacker->client)
-	{
-		// this can only happen in coop (both new and old enemies are clients)
-		// only switch if can't see the current enemy
-		if (targ->enemy && targ->enemy->client)
-		{
-			if (visible (targ, targ->enemy))
-			{
-				targ->oldenemy = attacker;
-				return;
-			}
-			targ->oldenemy = targ->enemy;
-		}
-		targ->enemy = attacker;
-		if (!(targ->monsterinfo.aiflags & AI_DUCKED))
-			FoundTarget (targ);
-		return;
-	}
-
-	// it's the same base (walk/swim/fly) type and a different classname and it's not a tank
-	// (they spray too much), get mad at them
-	if (((targ->flags & (FL_FLY | FL_SWIM)) ==
-	 (attacker->flags & (FL_FLY | FL_SWIM)))
-	&& (strcmp (targ->classname, attacker->classname) != 0)
-	&& (strcmp (attacker->classname, "monster_tank") != 0)
-	&& (strcmp (attacker->classname, "monster_supertank") != 0)
-	&& (strcmp (attacker->classname, "monster_makron") != 0)
-	&& (strcmp (attacker->classname, "monster_jorg") != 0))
-	{
-		if (targ->enemy && targ->enemy->client)
-			targ->oldenemy = targ->enemy;
-		targ->enemy = attacker;
-		if (!(targ->monsterinfo.aiflags & AI_DUCKED))
-			FoundTarget (targ);
-	}
-	else
-	// otherwise get mad at whoever they are mad at (help our buddy)
-	{
-		if (targ->enemy && targ->enemy->client)
-			targ->oldenemy = targ->enemy;
-		targ->enemy = attacker->enemy;
-		if (!(targ->monsterinfo.aiflags & AI_DUCKED))
-			FoundTarget (targ);
-	}
-}
 
 qboolean CheckTeamDamage (edict_t * targ, edict_t * attacker)
 {
@@ -1264,18 +1173,7 @@ T_Damage (edict_t * targ, edict_t * inflictor, edict_t * attacker, vec3_t dir,
 		}
 	}
 
-	if (targ->svflags & SVF_MONSTER)
-	{
-		M_ReactToDamage (targ, attacker);
-		if (!(targ->monsterinfo.aiflags & AI_DUCKED) && (take))
-		{
-			targ->pain (targ, attacker, knockback, take);
-			// nightmare mode monsters don't go into pain frames often
-			if (skill->value == 3)
-				targ->pain_debounce_framenum= level.framenum + 5 * HZ;
-		}
-	}
-	else if (client)
+	if (client)
 	{
 		if (!(targ->flags & FL_GODMODE) && (take))
 			targ->pain (targ, attacker, knockback, take);

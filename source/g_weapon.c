@@ -83,43 +83,6 @@ qboolean ap_already_hit[1000];	// 1000 = a number much larger than the possible 
 int *took_damage;		//FB 6/2/99, to keep track of shotgun damage
 //FIREBLADE
 
-/*
-=================
-check_dodge
-
-This is a support routine used when a client is firing
-a non-instant attack weapon.  It checks to see if a
-monster's dodge function should be called.
-=================
-*/
-static void
-check_dodge (edict_t * self, vec3_t start, vec3_t dir, int speed)
-{
-  vec3_t end;
-  vec3_t v;
-  trace_t tr;
-  float eta;
-
-  // easy mode only ducks one quarter the time
-  if (skill->value == 0)
-    {
-      if (random () > 0.25)
-	return;
-    }
-  VectorMA (start, 8192, dir, end);
-  PRETRACE ();
-  tr = gi.trace (start, NULL, NULL, end, self, MASK_SHOT);
-  POSTTRACE ();
-  if ((tr.ent) && (tr.ent->svflags & SVF_MONSTER) && (tr.ent->health > 0)
-      && (tr.ent->monsterinfo.dodge) && infront (tr.ent, self))
-    {
-      VectorSubtract (tr.endpos, start, v);
-      eta = (VectorLength (v) - tr.ent->maxs[0]) / speed;
-      tr.ent->monsterinfo.dodge (tr.ent, self, eta);
-    }
-}
-
-
 /* zucc - bulletholes for testing spread patterns */
 
 void
@@ -860,8 +823,6 @@ fire_blaster (edict_t * self, vec3_t start, vec3_t dir, int damage, int speed,
     bolt->spawnflags = 1;
   gi.linkentity (bolt);
 
-  if (self->client)
-    check_dodge (self, bolt->s.origin, dir, speed);
 
   PRETRACE ();
   tr = gi.trace (self->s.origin, NULL, NULL, bolt->s.origin, bolt, MASK_SHOT);
@@ -1162,9 +1123,6 @@ fire_rocket (edict_t * self, vec3_t start, vec3_t dir, int damage, int speed,
   rocket->s.sound = gi.soundindex ("weapons/rockfly.wav");
   rocket->classname = "rocket";
 
-  if (self->client)
-    check_dodge (self, rocket->s.origin, dir, speed);
-
   gi.linkentity (rocket);
 }
 
@@ -1460,9 +1418,6 @@ fire_bfg (edict_t * self, vec3_t start, vec3_t dir, int damage, int speed,
   bfg->nextthink = level.time + FRAMETIME;
   bfg->teammaster = bfg;
   bfg->teamchain = NULL;
-
-  if (self->client)
-    check_dodge (self, bfg->s.origin, dir, speed);
 
   gi.linkentity (bfg);
 }
@@ -1792,10 +1747,6 @@ knife_throw (edict_t * self, vec3_t start, vec3_t dir, int damage, int speed)
   knife->dmg = damage;
   knife->s.sound = gi.soundindex ("misc/flyloop.wav");
   knife->classname = "thrown_knife";
-
-// used by dodging monsters, skip
-//      if (self->client)
-//              check_dodge (self, rocket->s.origin, dir, speed);
 
   PRETRACE ();
   tr =

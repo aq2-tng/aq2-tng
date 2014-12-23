@@ -2470,12 +2470,14 @@ void A_NewScoreboardMessage(edict_t * ent)
 	char buf[1024];
 	char string[1024] = { '\0' };
 	int sorted[TEAM_TOP][MAX_CLIENTS];
-	int total[TEAM_TOP] = {0,0,0,0};
-
+	int total[TEAM_TOP] = { 0, 0, 0, 0 };
 	int i, j, k, line = 0, lineh = 8;
+	int team, score, dead, alive;
+	gclient_t *cl;
+	edict_t *cl_ent;
 
 	// show alive players when dead
-	int dead = (ent->solid == SOLID_NOT || ent->deadflag == DEAD_DEAD || !team_round_going);
+	dead = (ent->solid == SOLID_NOT || ent->deadflag == DEAD_DEAD || !team_round_going);
 	if (limchasecam->value != 0)
 		dead = 0;
 
@@ -2486,11 +2488,14 @@ void A_NewScoreboardMessage(edict_t * ent)
 		if (!cl_ent->inuse)
 			continue;
 
-		if (game.clients[i].resp.team == NOTEAM)
+		cl = &game.clients[i];
+
+		team = cl->resp.team;
+
+		if (team == NOTEAM)
 			continue;
 
-		int team = game.clients[i].resp.team;
-		int score = game.clients[i].resp.score;
+		score = cl->resp.score;
 
 		for (j = 0; j < total[team]; j++)
 		{
@@ -2511,22 +2516,22 @@ void A_NewScoreboardMessage(edict_t * ent)
 	// print teams
 	for (i = TEAM1; i <= TEAM2; i++)
 	{
-		sprintf(buf, "xv 44 yv %d string2 \"%3d %-11s Frg Tim Png\"", line++ * lineh, teams[i].score, teams[i].name);
-		strcat(string, buf);
+		Com_sprintf( buf, sizeof( buf ), "xv 44 yv %d string2 \"%3d %-11s Frg Tim Png\"", line++ * lineh, teams[i].score, teams[i].name );
+		Q_strncatz( string, buf, sizeof( string ) );
 
-		sprintf(buf, "xv 44 yv %d string2 \"%s\" ",
+		Com_sprintf( buf, sizeof( buf ), "xv 44 yv %d string2 \"%s\" ",
 			line++ * lineh,
 			"\x9D\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9F \x9D\x9E\x9F \x9D\x9E\x9F \x9D\x9E\x9F"
-		);
-		strcat(string, buf);
+			);
+		Q_strncatz( string, buf, sizeof( string ) );
 
 		for (j = 0; j < MAX_PLAYERS_PER_TEAM; j++)
 		{
 			// show the amount of excess players
 			if (total[i] > MAX_PLAYERS_PER_TEAM && j == MAX_PLAYERS_PER_TEAM - 1)
 			{
-				sprintf(buf, "xv 44 yv %d string \"   ..and %d more\"", line++ * lineh, total[i] - MAX_PLAYERS_PER_TEAM + 1);
-				strcat(string, buf);
+				Com_sprintf( buf, sizeof( buf ), "xv 44 yv %d string \"   ..and %d more\"", line++ * lineh, total[i] - MAX_PLAYERS_PER_TEAM + 1 );
+				Q_strncatz( string, buf, sizeof( string ) );
 				break;
 			}
 
@@ -2535,27 +2540,27 @@ void A_NewScoreboardMessage(edict_t * ent)
 				continue;
 			}
 
-			gclient_t *cl = &game.clients[sorted[i][j]];
-			edict_t *cl_ent = g_edicts + 1 + sorted[i][j];
-			int alive = (cl_ent->solid != SOLID_NOT && cl_ent->deadflag != DEAD_DEAD);
+			cl = &game.clients[sorted[i][j]];
+			cl_ent = g_edicts + 1 + sorted[i][j];
+			alive = (cl_ent->solid != SOLID_NOT && cl_ent->deadflag != DEAD_DEAD);
 
-			sprintf(buf, "xv 44 yv %d string%c \"%-15s %3d %3d %3d\"",
-					line++ * lineh,
-					(alive && dead ? '2' : ' '),
-					cl->pers.netname,
-					cl->resp.score,
-					(level.framenum - cl->resp.enterframe) / 600 / FRAMEDIV,
-					(cl->ping > 999 ? 999 : cl->ping));
-			strcat(string, buf);
+			Com_sprintf( buf, sizeof( buf ), "xv 44 yv %d string%c \"%-15s %3d %3d %3d\"",
+				line++ * lineh,
+				(alive && dead ? '2' : ' '),
+				cl->pers.netname,
+				cl->resp.score,
+				(level.framenum - cl->resp.enterframe) / 600 / FRAMEDIV,
+				(cl->ping > 999 ? 999 : cl->ping) );
+			Q_strncatz( string, buf, sizeof( string ) );
 		}
 
 		line++;
 	}
 
-	string[1024] = '\0';
+	string[sizeof( string ) - 1] = '\0';
 
-	gi.WriteByte (svc_layout);
-	gi.WriteString (string);
+	gi.WriteByte( svc_layout );
+	gi.WriteString( string );
 }
 
 // Maximum number of lines of scores to put under each team's header.

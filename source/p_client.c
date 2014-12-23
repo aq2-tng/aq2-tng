@@ -3946,9 +3946,6 @@ void ClientBeginServerFrame(edict_t * ent)
 		}
 		return;
 	}
-	// add player trail so monsters can follow
-	if (!deathmatch->value && !visible(ent, PlayerTrail_LastSpot()))
-		PlayerTrail_Add(ent->s.old_origin);
 
 	if (client->resp.punch_desired && ent->solid != SOLID_NOT)
 	{

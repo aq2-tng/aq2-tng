@@ -35,7 +35,7 @@ void Cmd_Say_f (edict_t * ent, qboolean team, qboolean arg0,
 // Each of the possible radio messages and their length
 typedef struct radio_msg_s
 {
-	const char *msg;			// the msg name 
+	char *msg;			// the msg name 
 
 	int length;			// length in server frames (ie tenths of a second), rounded up
 	int sndIndex;
