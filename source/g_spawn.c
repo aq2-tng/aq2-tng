@@ -156,7 +156,7 @@
 
 typedef struct
 {
-  char *name;
+  const char *name;
   void (*spawn) (edict_t * ent);
 }
 spawn_t;
@@ -214,7 +214,6 @@ void SP_target_crosslevel_trigger (edict_t * ent);
 void SP_target_crosslevel_target (edict_t * ent);
 void SP_target_laser (edict_t * self);
 void SP_target_help (edict_t * ent);
-void SP_target_actor (edict_t * ent);
 void SP_target_lightramp (edict_t * self);
 void SP_target_earthquake (edict_t * ent);
 void SP_target_character (edict_t * ent);
@@ -234,11 +233,9 @@ void SP_point_combat (edict_t * self);
 void SP_misc_explobox (edict_t * self);
 void SP_misc_banner (edict_t * self);
 void SP_misc_satellite_dish (edict_t * self);
-void SP_misc_actor (edict_t * self);
 void SP_misc_gib_arm (edict_t * self);
 void SP_misc_gib_leg (edict_t * self);
 void SP_misc_gib_head (edict_t * self);
-void SP_misc_insane (edict_t * self);
 void SP_misc_deadsoldier (edict_t * self);
 void SP_misc_viper (edict_t * self);
 void SP_misc_viper_bomb (edict_t * self);
@@ -252,35 +249,6 @@ void SP_misc_easterchick (edict_t * self);
 void SP_misc_easterchick2 (edict_t * self);
 
 
-void SP_monster_berserk (edict_t * self);
-void SP_monster_gladiator (edict_t * self);
-void SP_monster_gunner (edict_t * self);
-void SP_monster_infantry (edict_t * self);
-void SP_monster_soldier_light (edict_t * self);
-void SP_monster_soldier (edict_t * self);
-void SP_monster_soldier_ss (edict_t * self);
-void SP_monster_tank (edict_t * self);
-void SP_monster_medic (edict_t * self);
-void SP_monster_flipper (edict_t * self);
-void SP_monster_chick (edict_t * self);
-void SP_monster_parasite (edict_t * self);
-void SP_monster_flyer (edict_t * self);
-void SP_monster_brain (edict_t * self);
-void SP_monster_floater (edict_t * self);
-void SP_monster_hover (edict_t * self);
-void SP_monster_mutant (edict_t * self);
-void SP_monster_supertank (edict_t * self);
-void SP_monster_boss2 (edict_t * self);
-void SP_monster_jorg (edict_t * self);
-void SP_monster_boss3_stand (edict_t * self);
-
-void SP_monster_commander_body (edict_t * self);
-
-
-void SP_turret_breach (edict_t * self);
-void SP_turret_base (edict_t * self);
-void SP_turret_driver (edict_t * self);
-
 //zucc - item replacement function
 void CheckItem (edict_t * ent);
 int LoadFlagsFromFile (char *mapname);
@@ -293,7 +261,7 @@ char ml_creator[101];
 placedata_t locationbase[MAX_LOCATIONS_IN_BASE];
 
 //AQ2:M
-spawn_t spawns[] = {
+static const spawn_t spawns[] = {
   {"item_health", SP_item_health},
   {"item_health_small", SP_item_health_small},
   {"item_health_large", SP_item_health_large},
@@ -340,17 +308,17 @@ spawn_t spawns[] = {
   {"target_speaker", SP_target_speaker},
   {"target_explosion", SP_target_explosion},
   {"target_changelevel", SP_target_changelevel},
-  {"target_secret", SP_target_secret},
-  {"target_goal", SP_target_goal},
+//  {"target_secret", SP_target_secret},
+//  {"target_goal", SP_target_goal},
   {"target_splash", SP_target_splash},
   {"target_spawner", SP_target_spawner},
   {"target_blaster", SP_target_blaster},
   {"target_crosslevel_trigger", SP_target_crosslevel_trigger},
   {"target_crosslevel_target", SP_target_crosslevel_target},
   {"target_laser", SP_target_laser},
-  {"target_help", SP_target_help},
+//  {"target_help", SP_target_help},
 // monster      {"target_actor", SP_target_actor},
-  {"target_lightramp", SP_target_lightramp},
+//  {"target_lightramp", SP_target_lightramp},
   {"target_earthquake", SP_target_earthquake},
   {"target_character", SP_target_character},
   {"target_string", SP_target_string},
@@ -358,16 +326,16 @@ spawn_t spawns[] = {
   {"worldspawn", SP_worldspawn},
   {"viewthing", SP_viewthing},
 
-  {"light", SP_light},
+//  {"light", SP_light},
   {"light_mine1", SP_light_mine1},
   {"light_mine2", SP_light_mine2},
   {"info_null", SP_info_null},
   {"func_group", SP_info_null},
   {"info_notnull", SP_info_notnull},
   {"path_corner", SP_path_corner},
-  {"point_combat", SP_point_combat},
+//  {"point_combat", SP_point_combat},
 
-  {"misc_explobox", SP_misc_explobox},
+//  {"misc_explobox", SP_misc_explobox},
   {"misc_banner", SP_misc_banner},
 
   {"misc_ctf_banner", SP_misc_ctf_banner},
@@ -379,7 +347,7 @@ spawn_t spawns[] = {
   {"misc_gib_leg", SP_misc_gib_leg},
   {"misc_gib_head", SP_misc_gib_head},
   // monster {"misc_insane", SP_misc_insane},
-  {"misc_deadsoldier", SP_misc_deadsoldier},
+  //{"misc_deadsoldier", SP_misc_deadsoldier},
   {"misc_viper", SP_misc_viper},
   {"misc_viper_bomb", SP_misc_viper_bomb},
   {"misc_bigviper", SP_misc_bigviper},
@@ -392,36 +360,7 @@ spawn_t spawns[] = {
   {"misc_eastertank", SP_misc_eastertank},
   {"misc_easterchick", SP_misc_easterchick},
   {"misc_easterchick2", SP_misc_easterchick2},
-/* // monsters
-        {"monster_berserk", SP_monster_berserk},
-        {"monster_gladiator", SP_monster_gladiator},
-        {"monster_gunner", SP_monster_gunner},
-        {"monster_infantry", SP_monster_infantry},
-        {"monster_soldier_light", SP_monster_soldier_light},
-        {"monster_soldier", SP_monster_soldier},
-        {"monster_soldier_ss", SP_monster_soldier_ss},
-        {"monster_tank", SP_monster_tank},
-        {"monster_tank_commander", SP_monster_tank},
-        {"monster_medic", SP_monster_medic},
-        {"monster_flipper", SP_monster_flipper},
-        {"monster_chick", SP_monster_chick},
-        {"monster_parasite", SP_monster_parasite},
-        {"monster_flyer", SP_monster_flyer},
-        {"monster_brain", SP_monster_brain},
-        {"monster_floater", SP_monster_floater},
-        {"monster_hover", SP_monster_hover},
-        {"monster_mutant", SP_monster_mutant},
-        {"monster_supertank", SP_monster_supertank},
-        {"monster_boss2", SP_monster_boss2},
-        {"monster_boss3_stand", SP_monster_boss3_stand},
-        {"monster_jorg", SP_monster_jorg},
 
-        {"monster_commander_body", SP_monster_commander_body},
-
-        {"turret_breach", SP_turret_breach},
-        {"turret_base", SP_turret_base},
-        {"turret_driver", SP_turret_driver},
-*/
   {NULL, NULL}
 };
 
@@ -434,7 +373,7 @@ Finds the spawn function for the entity and calls it
 */
 void ED_CallSpawn (edict_t * ent)
 {
-	spawn_t *s;
+	const spawn_t *s;
 	gitem_t *item;
 	int i;
 
@@ -453,18 +392,23 @@ void ED_CallSpawn (edict_t * ent)
 		if (!item->classname)
 			continue;
 		if (!strcmp (item->classname, ent->classname))
-		{			// found it
-			//FIREBLADE
+		{	// found it
+
+			//FIXME: We do same checks in SpawnItem, do we need these here? -M
 			if ((!teamplay->value || teamdm->value || ctf->value == 2) && !dm_choose->value)
 			{
-			//FIREBLADE
-				if (item->flags == IT_AMMO || item->flags == IT_WEAPON
-				|| item->flags == IT_FLAG /*|| item->flags == IT_ITEM || item->flags == IT_POWERUP*/)
-					SpawnItem (ent, item);
+				if (item->flags & (IT_AMMO|IT_WEAPON|IT_FLAG) /*|| item->flags & (IT_ITEM|IT_POWERUP)*/)
+					SpawnItem( ent, item );
+				else
+					G_FreeEdict( ent );
 			}
-			else if (ctf->value && item->flags == IT_FLAG)
+			else if (ctf->value && item->flags & IT_FLAG)
 			{
-				SpawnItem (ent, item);
+				SpawnItem(ent, item);
+			}
+			else
+			{
+				G_FreeEdict( ent );
 			}
 
 			return;
@@ -480,12 +424,12 @@ void ED_CallSpawn (edict_t * ent)
 			return;
 		}
 	}
-	//AQ2:TNG - Igor adding wp_flags/itm_flags
-	if (strcmp (ent->classname, "freed") != 0)
-	{
+
+	if(strcmp (ent->classname, "freed") != 0) {
 		gi.dprintf ("%s doesn't have a spawn function\n", ent->classname);
 	}
-	//AQ2:TNG End adding flags
+
+	G_FreeEdict( ent );
 }
 
 // zucc BD's checkitem function
@@ -495,7 +439,7 @@ void ED_CallSpawn (edict_t * ent)
 
 #define ITEM_SWITCH_COUNT 15
 
-char *sp_item[ITEM_SWITCH_COUNT][2] = {
+static char *sp_item[ITEM_SWITCH_COUNT][2] = {
   {"weapon_machinegun", "weapon_MP5"},
   //{"weapon_supershotgun","weapon_HC"},
   {"weapon_bfg", "weapon_M4"},
@@ -982,8 +926,6 @@ void SpawnEntities (char *mapname, char *entities, char *spawnpoint)
 	// AQ2:TNG End adding .flg files
 
 	G_FindTeams ();
-
-	PlayerTrail_Init ();
 
 	// TNG:Freud - Ghosts
 	num_ghost_players = 0;
