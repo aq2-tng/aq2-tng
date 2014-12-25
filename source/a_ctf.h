@@ -37,7 +37,7 @@ ctfstate_t;
 typedef struct ctfgame_s {
 	int team1, team2;
 	int total1, total2;	// these are only set when going into intermission!
-	float last_flag_capture;
+	int last_flag_capture;
 	int last_capture_team;
 	qboolean halftime;
 

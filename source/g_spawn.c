@@ -425,9 +425,9 @@ void ED_CallSpawn (edict_t * ent)
 		}
 	}
 
-	if(strcmp (ent->classname, "freed") != 0) {
+	/*if(strcmp (ent->classname, "freed") != 0) {
 		gi.dprintf ("%s doesn't have a spawn function\n", ent->classname);
-	}
+	}*/
 
 	G_FreeEdict( ent );
 }
@@ -721,7 +721,6 @@ void SpawnEntities (char *mapname, char *entities, char *spawnpoint)
 		gi.cvar_forceset(teams[i].teamscore->name, "0");
 	}
 
-	matchtime = 0;
 	day_cycle_at = 0;
 	team_round_going = team_game_going = team_round_countdown = 0;
 	lights_camera_action = holding_on_tie_check = 0;
@@ -1407,6 +1406,7 @@ void SP_worldspawn (edict_t * ent)
 	level.time = 0;
 	level.realFramenum = 0;
 	level.pauseFrames = 0;
+	level.matchTime = 0;
 
 	if (st.nextmap)
 		strcpy (level.nextmap, st.nextmap);

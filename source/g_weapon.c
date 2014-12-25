@@ -110,7 +110,7 @@ SpawnHole (trace_t * tr, vec3_t dir)
   lss->s.renderfx = RF_GLOW;
   lss->gravity = 0;
   lss->think = BulletHoleThink;
-  lss->nextthink = level.time + 1000;
+  lss->nextthink = level.framenum + 1000 * HZ;
   vectoangles (tr->plane.normal, lss->s.angles);
   VectorNormalize (dir);
   VectorMA (tr->endpos, 0, dir, origin);
@@ -815,7 +815,7 @@ fire_blaster (edict_t * self, vec3_t start, vec3_t dir, int damage, int speed,
   bolt->s.sound = gi.soundindex ("misc/lasfly.wav");
   bolt->owner = self;
   bolt->touch = blaster_touch;
-  bolt->nextthink = level.time + 2;
+  bolt->nextthink = level.framenum + 2 * HZ;
   bolt->think = G_FreeEdict;
   bolt->dmg = damage;
   bolt->classname = "bolt";
@@ -948,7 +948,7 @@ FIREBLADE*/
 
 void
 fire_grenade (edict_t * self, vec3_t start, vec3_t aimdir, int damage,
-	      int speed, float timer, float damage_radius)
+	      int speed, int timer, float damage_radius)
 {
   edict_t *grenade;
   vec3_t dir;
@@ -973,7 +973,7 @@ fire_grenade (edict_t * self, vec3_t start, vec3_t aimdir, int damage,
   grenade->s.modelindex = gi.modelindex ("models/objects/grenade/tris.md2");
   grenade->owner = self;
   grenade->touch = Grenade_Touch;
-  grenade->nextthink = level.time + timer;
+  grenade->nextthink = level.framenum + timer;
   grenade->think = Grenade_Explode;
   grenade->dmg = damage;
   grenade->dmg_radius = damage_radius;
@@ -984,7 +984,7 @@ fire_grenade (edict_t * self, vec3_t start, vec3_t aimdir, int damage,
 
 void
 fire_grenade2 (edict_t * self, vec3_t start, vec3_t aimdir, int damage,
-	       int speed, float timer, float damage_radius, qboolean held)
+	       int speed, int timer, float damage_radius, qboolean held)
 {
   edict_t *grenade;
   vec3_t dir;
@@ -1009,7 +1009,7 @@ fire_grenade2 (edict_t * self, vec3_t start, vec3_t aimdir, int damage,
   grenade->s.modelindex = gi.modelindex ("models/objects/grenade2/tris.md2");
   grenade->owner = self;
   grenade->touch = Grenade_Touch;
-  grenade->nextthink = level.time + timer;
+  grenade->nextthink = level.framenum + timer;
   grenade->think = Grenade_Explode;
   grenade->dmg = damage;
   grenade->dmg_radius = damage_radius;
@@ -1020,7 +1020,7 @@ fire_grenade2 (edict_t * self, vec3_t start, vec3_t aimdir, int damage,
     grenade->spawnflags = 1;
   //grenade->s.sound = gi.soundindex("weapons/hgrenc1b.wav");
 
-  if (timer <= 0.0)
+  if (timer <= 0)
     Grenade_Explode (grenade);
   else
     {
@@ -1115,7 +1115,7 @@ fire_rocket (edict_t * self, vec3_t start, vec3_t dir, int damage, int speed,
   rocket->s.modelindex = gi.modelindex ("models/objects/rocket/tris.md2");
   rocket->owner = self;
   rocket->touch = rocket_touch;
-  rocket->nextthink = level.time + 8000 / speed;
+  rocket->nextthink = level.framenum + 8000 * HZ / speed;
   rocket->think = G_FreeEdict;
   rocket->dmg = damage;
   rocket->radius_dmg = radius_damage;
@@ -1245,7 +1245,7 @@ bfg_explode (edict_t * self)
 	}
     }
 
-  self->nextthink = level.time + FRAMETIME;
+  self->nextthink = level.framenum + FRAMEDIV;
   self->s.frame++;
   if (self->s.frame == 5)
     self->think = G_FreeEdict;
@@ -1283,8 +1283,7 @@ bfg_touch (edict_t * self, edict_t * other, cplane_t * plane,
   self->s.frame = 0;
   self->s.sound = 0;
   self->s.effects &= ~EF_ANIM_ALLFAST;
-  self->think = bfg_explode;
-  self->nextthink = level.time + FRAMETIME;
+  NEXT_KEYFRAME(self, bfg_explode);
   self->enemy = other;
 
   gi.WriteByte (svc_temp_entity);
@@ -1383,7 +1382,7 @@ bfg_think (edict_t * self)
       gi.multicast (self->s.origin, MULTICAST_PHS);
     }
 
-  self->nextthink = level.time + FRAMETIME;
+  self->nextthink = level.framenum + FRAMEDIV;
 }
 
 
@@ -1407,15 +1406,12 @@ fire_bfg (edict_t * self, vec3_t start, vec3_t dir, int damage, int speed,
   bfg->s.modelindex = gi.modelindex ("sprites/s_bfg1.sp2");
   bfg->owner = self;
   bfg->touch = bfg_touch;
-  bfg->nextthink = level.time + 8000 / speed;
-  bfg->think = G_FreeEdict;
+  NEXT_KEYFRAME(bfg, bfg_think);
   bfg->radius_dmg = damage;
   bfg->dmg_radius = damage_radius;
   bfg->classname = "bfg blast";
   bfg->s.sound = gi.soundindex ("weapons/bfg__l1a.wav");
 
-  bfg->think = bfg_think;
-  bfg->nextthink = level.time + FRAMETIME;
   bfg->teammaster = bfg;
   bfg->teamchain = NULL;
 
@@ -1644,7 +1640,7 @@ knife_touch (edict_t * ent, edict_t * other, cplane_t * plane,
 
 	  if (knife)
 	    {
-	      knife->nextthink = level.time + .1;
+		  knife->nextthink = level.framenum + FRAMEDIV;
 	    }
 
 	}
@@ -1676,9 +1672,9 @@ knife_touch (edict_t * ent, edict_t * other, cplane_t * plane,
       //dropped->velocity[2] = 300;
 
       //dropped->think = drop_make_touchable;
-      //dropped->nextthink = level.time + 1;
+      //dropped->nextthink = level.framenum + 1 * HZ;
 
-      dropped->nextthink = level.time + 120;
+	  dropped->nextthink = level.framenum + 120 * HZ;
       dropped->think = G_FreeEdict;
 
       gi.linkentity (dropped);
@@ -1742,7 +1738,7 @@ knife_throw (edict_t * self, vec3_t start, vec3_t dir, int damage, int speed)
   knife->s.modelindex = gi.modelindex ("models/objects/knife/tris.md2");
   knife->owner = self;
   knife->touch = knife_touch;
-  knife->nextthink = level.time + 8000 / speed;
+  knife->nextthink = level.framenum + 8000 * HZ / speed;
   knife->think = G_FreeEdict;
   knife->dmg = damage;
   knife->s.sound = gi.soundindex ("misc/flyloop.wav");

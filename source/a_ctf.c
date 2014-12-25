@@ -261,7 +261,7 @@ int CTFGetRespawnTime(edict_t *ent)
 	int spawntime = ctf_respawn->value;
 	if(ent->client->resp.team == TEAM1 && ctfgame.spawn_red > -1)
 		spawntime = ctfgame.spawn_red;
-	if(ent->client->resp.team == TEAM2 && ctfgame.spawn_blue > -1)
+	else if(ent->client->resp.team == TEAM2 && ctfgame.spawn_blue > -1)
 		spawntime = ctfgame.spawn_blue;
 
 	gi.cprintf(ent, PRINT_HIGH, "You will respawn in %d seconds\n", spawntime);
@@ -721,7 +721,7 @@ qboolean CTFPickup_Flag(edict_t * ent, edict_t * other)
 					   CTFOtherTeamName(team));
 				other->client->pers.inventory[ITEM_INDEX(enemy_flag_item)] = 0;
 
-				ctfgame.last_flag_capture = level.time;
+				ctfgame.last_flag_capture = level.framenum;
 				ctfgame.last_capture_team = team;
 				if (team == TEAM1)
 					ctfgame.team1++;
@@ -817,7 +817,7 @@ qboolean CTFPickup_Flag(edict_t * ent, edict_t * other)
 static void CTFDropFlagTouch(edict_t * ent, edict_t * other, cplane_t * plane, csurface_t * surf)
 {
 	//owner (who dropped us) can't touch for two secs
-	if (other == ent->owner && ent->nextthink - level.time > CTF_AUTO_FLAG_RETURN_TIMEOUT - 2)
+	if (other == ent->owner && ent->nextthink > level.framenum + (CTF_AUTO_FLAG_RETURN_TIMEOUT - 2) * HZ)
 		return;
 
 	Touch_Item(ent, other, plane, surf);
@@ -861,7 +861,7 @@ void CTFDeadDropFlag(edict_t * self)
 
 	if (dropped) {
 		dropped->think = CTFDropFlagThink;
-		dropped->nextthink = level.time + CTF_AUTO_FLAG_RETURN_TIMEOUT;
+		dropped->nextthink = level.framenum + CTF_AUTO_FLAG_RETURN_TIMEOUT * HZ;
 		dropped->touch = CTFDropFlagTouch;
 	}
 }
@@ -884,7 +884,7 @@ void CTFDrop_Flag(edict_t * ent, gitem_t * item)
 
 		if (dropped) {
 			dropped->think = CTFDropFlagThink;
-			dropped->nextthink = level.time + CTF_AUTO_FLAG_RETURN_TIMEOUT;
+			dropped->nextthink = level.framenum + CTF_AUTO_FLAG_RETURN_TIMEOUT * HZ;
 			dropped->touch = CTFDropFlagTouch;
 		}
 	} else {
@@ -900,7 +900,7 @@ static void CTFFlagThink(edict_t * ent)
 {
 	if (ent->solid != SOLID_NOT)
 		ent->s.frame = 173 + (((ent->s.frame - 173) + 1) % 16);
-	ent->nextthink = level.time + FRAMETIME;
+	ent->nextthink = level.framenum + FRAMEDIV;
 }
 
 void CTFFlagSetup(edict_t * ent)
@@ -933,7 +933,7 @@ void CTFFlagSetup(edict_t * ent)
 
 	gi.linkentity(ent);
 
-	ent->nextthink = level.time + FRAMETIME;
+	ent->nextthink = level.framenum + 1;
 	ent->think = CTFFlagThink;
 }
 
@@ -1053,7 +1053,7 @@ void SetCTFStats(edict_t * ent)
 	ent->client->ps.stats[STAT_TEAM1_PIC] = p1;
 	ent->client->ps.stats[STAT_TEAM2_PIC] = p2;
 
-	if (ctfgame.last_flag_capture && level.time - ctfgame.last_flag_capture < 5) {
+	if (ctfgame.last_flag_capture && level.framenum < ctfgame.last_flag_capture + 5 * HZ) {
 		if (ctfgame.last_capture_team == TEAM1)
 			if ((level.realFramenum / FRAMEDIV) & 8)
 				ent->client->ps.stats[STAT_TEAM1_PIC] = p1;
@@ -1336,7 +1336,7 @@ The banner is 248 tall.
 static void misc_ctf_banner_think(edict_t * ent)
 {
 	ent->s.frame = (ent->s.frame + 1) % 16;
-	ent->nextthink = level.time + FRAMETIME;
+	ent->nextthink = level.framenum + FRAMEDIV;
 }
 
 void SP_misc_ctf_banner(edict_t * ent)
@@ -1351,7 +1351,7 @@ void SP_misc_ctf_banner(edict_t * ent)
 	gi.linkentity(ent);
 
 	ent->think = misc_ctf_banner_think;
-	ent->nextthink = level.time + FRAMETIME;
+	ent->nextthink = level.framenum + 1;
 }
 
 /*QUAKED misc_ctf_small_banner (1 .5 0) (-4 -32 0) (4 32 124) TEAM2
@@ -1370,7 +1370,7 @@ void SP_misc_ctf_small_banner(edict_t * ent)
 	gi.linkentity(ent);
 
 	ent->think = misc_ctf_banner_think;
-	ent->nextthink = level.time + FRAMETIME;
+	ent->nextthink = level.framenum + 1;
 }
 
 /*-----------------------------------------------------------------------*/

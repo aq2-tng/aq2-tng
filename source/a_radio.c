@@ -741,11 +741,11 @@ qboolean CheckForFlood( edict_t * ent )
 		radio->rd_Count++;
 	}
 	else {
-		if (level.framenum - radio->rd_time < (unsigned int)(radio_time->value * HZ)) {
+		if (level.framenum - radio->rd_time < (int)(radio_time->value * HZ)) {
 			if (++radio->rd_Count >= (int)radio_max->value) {
 				gi.cprintf( ent, PRINT_HIGH,
 					"[RADIO FLOOD PROTECTION]: Flood Detected, you are silenced for %d secs\n", (int)radio_ban->value );
-				radio->rd_mute = level.framenum + (unsigned int)(radio_ban->value * HZ);
+				radio->rd_mute = level.framenum + (int)(radio_ban->value * HZ);
 				return false;
 			}
 		}
@@ -770,10 +770,10 @@ qboolean CheckForRepeat( edict_t * ent, int radioCode )
 	}
 
 	if (radio->rd_lastRadio == radioCode) {	//He's trying to repeat it..
-		if (level.framenum - radio->rd_repTime < (unsigned int)(radio_repeat_time->value * HZ)) {
+		if (level.framenum - radio->rd_repTime < (int)(radio_repeat_time->value * HZ)) {
 			if (++radio->rd_repCount == (int)radio_repeat->value) {	//Busted
 				gi.cprintf( ent, PRINT_HIGH, "[RADIO FLOOD PROTECTION]: Repeat Flood Detected, you are silenced for %d secs\n", (int)radio_ban->value );
-				radio->rd_mute = level.framenum + (unsigned int)(radio_ban->value * HZ);
+				radio->rd_mute = level.framenum + (int)(radio_ban->value * HZ);
 				return false;
 			}
 		}

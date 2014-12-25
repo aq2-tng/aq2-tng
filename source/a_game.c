@@ -595,7 +595,7 @@ void EjectBlooder(edict_t * self, vec3_t start, vec3_t veloc)
 	blooder->s.effects |= EF_GIB;
 	blooder->owner = self;
 	blooder->touch = BlooderTouch;
-	blooder->nextthink = level.time + 3.2;
+	blooder->nextthink = level.framenum + 3.2 * HZ;
 	blooder->think = BlooderDie;
 	blooder->classname = "blooder";
 
@@ -834,7 +834,7 @@ void EjectShell(edict_t * self, vec3_t start, int toggle)
 
 	shell->owner = self;
 	shell->touch = ShellTouch;
-	shell->nextthink = level.time + 1.2 - (shells * .05);
+	shell->nextthink = level.framenum + (1.2 - (shells * .05)) * HZ;
 	shell->think = ShellDie;
 	shell->classname = "shell";
 
@@ -891,7 +891,7 @@ void AddDecal(edict_t * self, trace_t * tr)
 	dec = FindEdictByClassnum("decal", decals);
 
 	if (dec) {
-		dec->nextthink = level.time + .1;
+		dec->nextthink = level.framenum + FRAMEDIV;
 	}
 
 	decal->solid = SOLID_NOT;
@@ -902,7 +902,7 @@ void AddDecal(edict_t * self, trace_t * tr)
 	decal->owner = self;
 	decal->classnum = decals;
 	decal->touch = NULL;
-	decal->nextthink = level.time + 20;
+	decal->nextthink = level.framenum + 20 * HZ;
 	decal->think = DecalDie;
 	decal->classname = "decal";
 
@@ -934,7 +934,7 @@ void AddSplat(edict_t * self, vec3_t point, trace_t * tr)
 	spt = FindEdictByClassnum("splat", splats);
 
 	if (spt) {
-		spt->nextthink = level.time + .1;
+		spt->nextthink = level.framenum + FRAMEDIV;
 	}
 
 	splat->solid = SOLID_NOT;
@@ -954,7 +954,7 @@ void AddSplat(edict_t * self, vec3_t point, trace_t * tr)
 
 	splat->owner = self;
 	splat->touch = NULL;
-	splat->nextthink = level.time + 25;	// - (splats * .05);
+	splat->nextthink = level.framenum + 25 * HZ;	// - (splats * .05);
 
 	splat->think = SplatDie;
 	splat->classname = "splat";

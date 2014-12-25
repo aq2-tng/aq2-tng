@@ -188,7 +188,7 @@ use_target_explosion (edict_t * self, edict_t * other, edict_t * activator)
     }
 
   self->think = target_explosion_explode;
-  self->nextthink = level.time + self->delay;
+  self->nextthink = level.framenum + self->delay * HZ;
 }
 
 void
@@ -438,7 +438,7 @@ void SP_target_crosslevel_target (edict_t * self)
   self->svflags = SVF_NOCLIENT;
 
   self->think = target_crosslevel_target_think;
-  self->nextthink = level.time + self->delay;
+  self->nextthink = level.framenum + self->delay * HZ;
 }
 
 //==========================================================
@@ -515,7 +515,7 @@ void target_laser_think (edict_t * self)
 
   VectorCopy (tr.endpos, self->s.old_origin);
 
-  self->nextthink = level.time + FRAMETIME;
+  self->nextthink = level.framenum + 1;
 }
 
 void target_laser_on (edict_t * self)
@@ -605,7 +605,7 @@ void SP_target_laser (edict_t * self)
 {
   // let everything else get spawned before we start firing
   self->think = target_laser_start;
-  self->nextthink = level.time + 1;
+  self->nextthink = level.framenum + 1 * HZ;
 }
 
 //==========================================================
@@ -639,7 +639,7 @@ target_earthquake_think (edict_t * self)
     {
       gi.positioned_sound (self->s.origin, self, CHAN_AUTO, self->noise_index,
 			   1.0, ATTN_NONE, 0);
-      self->last_move_time = level.time + 0.5;
+	  self->last_move_time = level.time + 0.5;
     }
 
   for (i = 1, e = g_edicts + i; i < globals.num_edicts; i++, e++)
@@ -658,14 +658,14 @@ target_earthquake_think (edict_t * self)
     }
 
   if (level.time < self->timestamp)
-    self->nextthink = level.time + FRAMETIME;
+	  self->nextthink = level.framenum + 1;
 }
 
 void
 target_earthquake_use (edict_t * self, edict_t * other, edict_t * activator)
 {
   self->timestamp = level.time + self->count;
-  self->nextthink = level.time + FRAMETIME;
+  self->nextthink = level.framenum + 1;
   self->activator = activator;
   self->last_move_time = 0;
 }

@@ -348,6 +348,7 @@
 #define FL_TEAMSLAVE                    0x00000400	// not the first on the team
 #define FL_NO_KNOCKBACK                 0x00000800
 #define FL_POWER_ARMOR                  0x00001000	// power armor (if any) is active
+#define FL_ACCELERATE					0x20000000  // accelerative movement
 #define FL_RESPAWN                      0x80000000	// used for item respawning
 
 // variable server FPS
@@ -650,8 +651,9 @@ typedef struct
 
   int specspawn;		// determines if initial spawning has occured
 
-  unsigned int realFramenum; //when game paused, framenum stays the same
-  unsigned int pauseFrames;
+  int realFramenum; //when game paused, framenum stays the same
+  int pauseFrames;
+  float matchTime;
 }
 level_locals_t;
 
@@ -1129,9 +1131,9 @@ void fire_shotgun (edict_t * self, vec3_t start, vec3_t aimdir, int damage,
 void fire_blaster (edict_t * self, vec3_t start, vec3_t aimdir, int damage,
 		   int speed, int effect, qboolean hyperb);
 void fire_grenade (edict_t * self, vec3_t start, vec3_t aimdir, int damage,
-		   int speed, float timer, float damage_radius);
+		   int speed, int timer, float damage_radius);
 void fire_grenade2 (edict_t * self, vec3_t start, vec3_t aimdir, int damage,
-		    int speed, float timer, float damage_radius,
+	int speed, int timer, float damage_radius,
 		    qboolean held);
 void fire_rocket (edict_t * self, vec3_t start, vec3_t dir, int damage,
 		  int speed, float damage_radius, int radius_damage);
@@ -1151,8 +1153,6 @@ void fire_bullet_sparks (edict_t * self, vec3_t start, vec3_t aimdir,
 void fire_bullet_sniper (edict_t * self, vec3_t start, vec3_t aimdir,
 			 int damage, int kick, int hspread, int vspread,
 			 int mod);
-void fire_grenade3 (edict_t * self, vec3_t start, vec3_t aimdir, int damage,
-		    int speed);
 
 //
 // g_client.c
@@ -1326,8 +1326,8 @@ typedef struct
   int ctf_flagsince;
   int ctf_lastfraggedcarrier;
 
-  unsigned int joined_team;		// last frame # at which the player joined a team
-  unsigned int lastWave;			//last time used wave
+  int joined_team;		// last frame # at which the player joined a team
+  int lastWave;			//last time used wave
   int menu_shown;		// has the main menu been shown
   qboolean dm_selected;		// if dm weapon selection has been done once
 
@@ -1358,7 +1358,7 @@ typedef struct
   int ir;			// ir on or off (only matters if player has ir device, currently bandolier)
 
   int fire_time;
-  unsigned int ignore_time;		// framenum when the player called ignore - to prevent spamming
+  int ignore_time;		// framenum when the player called ignore - to prevent spamming
 
   qboolean weapon_after_bandage_warned;	// to fix message bug when calling weapon while bandaging
   qboolean punch_desired;	//controlled in ClientThink
@@ -1385,7 +1385,7 @@ typedef struct
   float glclear;
   float gldynamic;
   qboolean checked;
-  unsigned int checkframe[3];
+  int checkframe[3];
   int last_damaged_part;
   char last_damaged_players[256];
   //AQ2:TNG - Slicer Matchmode code
@@ -1464,7 +1464,7 @@ struct gclient_s
   vec3_t oldviewangles;
   vec3_t oldvelocity;
 
-  float next_drown_time;
+  int next_drown_framenum;
   int old_waterlevel;
   int breather_sound;
 
@@ -1483,15 +1483,15 @@ struct gclient_s
   int enviro_framenum;
 
   qboolean grenade_blew_up;
-  float grenade_time;
+  int grenade_framenum;
   int silencer_shots;
   int weapon_sound;
 
-  float pickup_msg_time;
+  int pickup_msg_time;
 
   int penalty;
 
-  float respawn_time;		// can respawn when time > this
+  int respawn_time;		// can respawn when time > this
   // zucc
   // weapon ammo information
 
@@ -1540,7 +1540,7 @@ struct gclient_s
   int bleedloc;
   vec3_t bleedloc_offset;	// location of bleeding (from origin)
   vec3_t bleednorm;
-  float bleeddelay;		// how long until we bleed again
+  int bleeddelay;		// how long until we bleed again
 
   int bandage_stopped;
   int have_laser;
@@ -1586,7 +1586,7 @@ struct gclient_s
   
   void *ctf_grapple;		// entity of grapple
   int ctf_grapplestate;		// true if pulling
-  float ctf_grapplereleasetime;	// time of grapple release
+  int ctf_grapplereleaseframe;	// frame of grapple release
 
   qboolean team_force;		// are we forcing a team change
 };
@@ -1668,7 +1668,7 @@ struct edict_s
   float yaw_speed;
   float ideal_yaw;
 
-  float nextthink;
+  int nextthink;
   void (*prethink) (edict_t * ent);
   void (*think) (edict_t * self);
   void (*blocked) (edict_t * self, edict_t * other);	//move to moveinfo?
@@ -1694,7 +1694,7 @@ struct edict_s
   int deadflag;
   qboolean show_hostile;
 
-  float powerarmor_time;
+  int powerarmor_framenum;
 
   char *map;			// target_changelevel
 

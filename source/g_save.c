@@ -456,244 +456,250 @@ field_t clientfields[] = {
   is loaded.
   ============
 */
-void InitGame (void)
+void InitGame( void )
 {
 	cvar_t *cv;
 
-	IRC_init ();
-	gi.dprintf ("==== InitGame ====\n");
+	IRC_init();
+	gi.dprintf( "==== InitGame ====\n" );
 
-	ReadConfigFile ();
-	ReadMOTDFile ();
+	ReadConfigFile();
+	ReadMOTDFile();
 
-	gun_x = gi.cvar ("gun_x", "0", 0);
-	gun_y = gi.cvar ("gun_y", "0", 0);
-	gun_z = gi.cvar ("gun_z", "0", 0);
+	gun_x = gi.cvar( "gun_x", "0", 0 );
+	gun_y = gi.cvar( "gun_y", "0", 0 );
+	gun_z = gi.cvar( "gun_z", "0", 0 );
 
 	//FIXME: sv_ prefix is wrong for these
-	sv_rollspeed = gi.cvar ("sv_rollspeed", "200", 0);
-	sv_rollangle = gi.cvar ("sv_rollangle", "2", 0);
-	sv_maxvelocity = gi.cvar ("sv_maxvelocity", "2000", 0);
-	sv_gravity = gi.cvar ("sv_gravity", "800", 0);
+	sv_rollspeed = gi.cvar( "sv_rollspeed", "200", 0 );
+	sv_rollangle = gi.cvar( "sv_rollangle", "2", 0 );
+	sv_maxvelocity = gi.cvar( "sv_maxvelocity", "2000", 0 );
+	sv_gravity = gi.cvar( "sv_gravity", "800", 0 );
 
 	// noset vars
-	dedicated = gi.cvar ("dedicated", "0", CVAR_NOSET);
+	dedicated = gi.cvar( "dedicated", "0", CVAR_NOSET );
 
 	// latched vars
-	sv_cheats = gi.cvar ("cheats", "0", CVAR_SERVERINFO | CVAR_LATCH);
-	gi.cvar ("gamename", GAMEVERSION, CVAR_SERVERINFO | CVAR_LATCH);
-	gi.cvar ("gamedate", __DATE__, CVAR_SERVERINFO | CVAR_LATCH);
+	sv_cheats = gi.cvar( "cheats", "0", CVAR_SERVERINFO | CVAR_LATCH );
+	gi.cvar( "gamename", GAMEVERSION, CVAR_SERVERINFO | CVAR_LATCH );
+	gi.cvar( "gamedate", __DATE__, CVAR_SERVERINFO | CVAR_LATCH );
 
-	maxclients = gi.cvar ("maxclients", "8", CVAR_SERVERINFO | CVAR_LATCH);
-	deathmatch = gi.cvar ("deathmatch", "1", CVAR_LATCH);
-	coop = gi.cvar ("coop", "0", CVAR_LATCH);
-	skill = gi.cvar ("skill", "1", CVAR_LATCH);
-	maxentities = gi.cvar ("maxentities", "1024", CVAR_LATCH);
+	maxclients = gi.cvar( "maxclients", "8", CVAR_SERVERINFO | CVAR_LATCH );
+	deathmatch = gi.cvar( "deathmatch", "1", CVAR_LATCH );
+	coop = gi.cvar( "coop", "0", CVAR_LATCH );
+	skill = gi.cvar( "skill", "1", CVAR_LATCH );
+	maxentities = gi.cvar( "maxentities", "1024", CVAR_LATCH );
 
 	if (!deathmatch->value)
 	{
-		gi.dprintf("Turning deathmatch on.\n");
-		gi.cvar_forceset("deathmatch", "1");
+		gi.dprintf( "Turning deathmatch on.\n" );
+		gi.cvar_forceset( "deathmatch", "1" );
 	}
 	if (coop->value)
 	{
-		gi.dprintf("Turning coop off.\n");
-		gi.cvar_forceset("coop", "0");
+		gi.dprintf( "Turning coop off.\n" );
+		gi.cvar_forceset( "coop", "0" );
 	}
 
 	// change anytime vars
-	dmflags = gi.cvar ("dmflags", "0", CVAR_SERVERINFO);
-	fraglimit = gi.cvar ("fraglimit", "0", CVAR_SERVERINFO);
-	timelimit = gi.cvar ("timelimit", "0", CVAR_SERVERINFO);
-	capturelimit = gi.cvar ("capturelimit", "0", CVAR_SERVERINFO);
-	password = gi.cvar ("password", "", CVAR_USERINFO);
-	filterban = gi.cvar ("filterban", "1", 0);
-	needpass = gi.cvar ("needpass", "0", CVAR_SERVERINFO);
-	radiolog = gi.cvar ("radiolog", "0", 0);
-	teamplay = gi.cvar ("teamplay", "0", CVAR_SERVERINFO | CVAR_LATCH);
-	motd_time = gi.cvar ("motd_time", "2", 0);
-	hostname = gi.cvar ("hostname", "unnamed", CVAR_SERVERINFO);
-	strtwpn = gi.cvar ("dmweapon", MK23_NAME, 0);
-	actionmaps = gi.cvar ("actionmaps", "1", 0);
+	dmflags = gi.cvar( "dmflags", "0", CVAR_SERVERINFO );
+	fraglimit = gi.cvar( "fraglimit", "0", CVAR_SERVERINFO );
+	timelimit = gi.cvar( "timelimit", "0", CVAR_SERVERINFO );
+	capturelimit = gi.cvar( "capturelimit", "0", CVAR_SERVERINFO );
+	password = gi.cvar( "password", "", CVAR_USERINFO );
+	filterban = gi.cvar( "filterban", "1", 0 );
+	needpass = gi.cvar( "needpass", "0", CVAR_SERVERINFO );
+	radiolog = gi.cvar( "radiolog", "0", 0 );
+	teamplay = gi.cvar( "teamplay", "0", CVAR_SERVERINFO | CVAR_LATCH );
+	motd_time = gi.cvar( "motd_time", "2", 0 );
+	hostname = gi.cvar( "hostname", "unnamed", CVAR_SERVERINFO );
+	strtwpn = gi.cvar( "dmweapon", MK23_NAME, 0 );
+	actionmaps = gi.cvar( "actionmaps", "1", 0 );
 	if (actionmaps->value && num_maps < 1)
 	{
-		gi.dprintf("No maps were read from the config file, \"actionmaps\" won't be used.\n");
-		gi.cvar_forceset("actionmaps", "0");
+		gi.dprintf( "No maps were read from the config file, \"actionmaps\" won't be used.\n" );
+		gi.cvar_forceset( "actionmaps", "0" );
 	}
-	nohud = gi.cvar ("nohud", "0", CVAR_LATCH);
-	roundlimit = gi.cvar ("roundlimit", "0", CVAR_SERVERINFO);
-	limchasecam = gi.cvar ("limchasecam", "0", CVAR_LATCH);
-	skipmotd = gi.cvar ("skipmotd", "0", 0);
-	roundtimelimit = gi.cvar ("roundtimelimit", "0", CVAR_SERVERINFO);
-	maxteamkills = gi.cvar ("maxteamkills", "0", 0);
-	twbanrounds = gi.cvar ("twbanrounds", "2", 0);
-	tkbanrounds = gi.cvar ("tkbanrounds", "2", 0);
-	noscore = gi.cvar ("noscore", "0", CVAR_LATCH);	// Was serverinfo
-	use_newscore = gi.cvar ("use_newscore", "1", 0);
+	nohud = gi.cvar( "nohud", "0", CVAR_LATCH );
+	roundlimit = gi.cvar( "roundlimit", "0", CVAR_SERVERINFO );
+	limchasecam = gi.cvar( "limchasecam", "0", CVAR_LATCH );
+	skipmotd = gi.cvar( "skipmotd", "0", 0 );
+	roundtimelimit = gi.cvar( "roundtimelimit", "0", CVAR_SERVERINFO );
+	maxteamkills = gi.cvar( "maxteamkills", "0", 0 );
+	twbanrounds = gi.cvar( "twbanrounds", "2", 0 );
+	tkbanrounds = gi.cvar( "tkbanrounds", "2", 0 );
+	noscore = gi.cvar( "noscore", "0", CVAR_LATCH );	// Was serverinfo
+	use_newscore = gi.cvar( "use_newscore", "1", 0 );
 	actionversion =
-	gi.cvar ("actionversion", "none set", CVAR_SERVERINFO | CVAR_LATCH);
-	gi.cvar_set ("actionversion", ACTION_VERSION);
-	use_voice = gi.cvar ("use_voice", "1", 0);	//slicer
-	ppl_idletime = gi.cvar ("ppl_idletime", "15", 0);
-	use_buggy_bandolier = gi.cvar ("use_buggy_bandolier", "0", 0);
-	use_tourney = gi.cvar ("use_tourney", "0", CVAR_SERVERINFO | CVAR_LATCH);
-	use_3teams = gi.cvar ("use_3teams", "0", CVAR_SERVERINFO | CVAR_LATCH);
-	use_kickvote = gi.cvar ("use_kickvote", "1", 0);	//slicer
-	use_mapvote = gi.cvar ("use_mapvote", "1", 0);	//slicer
-	use_scramblevote = gi.cvar ("use_scramblevote", "1", 0);	//slicer
-	ctf = gi.cvar ("ctf", "0", CVAR_SERVERINFO | CVAR_LATCH);
-	ctf_forcejoin = gi.cvar ("ctf_forcejoin", "", 0);
-	ctf_mode = gi.cvar ("ctf_mode", "0", 0);
-	ctf_dropflag = gi.cvar ("ctf_dropflag", "1", 0);
-	ctf_respawn = gi.cvar ("ctf_respawn", "4", 0);
-	ctf_model = gi.cvar ("ctf_model", "male", CVAR_LATCH);
-	use_grapple = gi.cvar ("use_grapple", "0", 0);
-	mv_public = gi.cvar ("mv_public", "0", 0);	//slicer 
-	vk_public = gi.cvar ("vk_public", "0", 0);	//slicer
-	punishkills = gi.cvar ("punishkills", "1", 0);	//slicer
-	mapvote_waittime = gi.cvar ("mapvote_waittime", "8", 0);
-	ff_afterround = gi.cvar ("ff_afterround", "1", 0);
-	uvtime = gi.cvar ("uvtime", "40", 0);
-	sv_gib = gi.cvar ("sv_gib", "1", 0);
-	sv_crlf = gi.cvar ("sv_crlf", "0", CVAR_LATCH); // 0 == DONT ALLOW IT
-	vrot = gi.cvar ("vrot", "0", 0);
-	rrot = gi.cvar ("rrot", "0", 0);
-	llsound = gi.cvar ("llsound", "1", CVAR_LATCH);
-	use_cvote = gi.cvar ("use_cvote", "0", 0);	// Removed it from Serverinfo
-	new_irvision = gi.cvar ("new_irvision", "0", 0);
-	use_rewards = gi.cvar ("use_rewards", "1", 0);
-	use_warnings = gi.cvar ("use_warnings", "1", 0);
-	check_time = gi.cvar ("check_time", "3", 0);
-	video_check = gi.cvar ("video_check", "0", 0);
-	video_max_3dfx = gi.cvar ("video_max_3dfx", "1.5", 0);
-	video_max_3dfxam = gi.cvar ("video_max_3dfxam", "1.5", 0);
-	video_max_opengl = gi.cvar ("video_max_opengl", "3.0", 0);
-	video_force_restart = gi.cvar ("video_force_restart", "0", CVAR_LATCH);
-	video_check_lockpvs = gi.cvar ("video_check_lockpvs", "0", 0);
-	video_check_glclear = gi.cvar ("video_check_glclear", "0", 0);
-	video_checktime = gi.cvar ("video_checktime", "15", 0);
-	hc_single = gi.cvar ("hc_single", "1", CVAR_LATCH);	//default ON
-	wp_flags = gi.cvar ("wp_flags", "511", 0);	// 511 = WPF_MK23 | WPF_MP5 | WPF_M4 | WPF_M3 | WPF_HC | WPF_SNIPER | WPF_DUAL | WPF_KNIFE | WPF_GRENADE
-	itm_flags = gi.cvar ("itm_flags", "63", 0);	// 63 = ITF_SIL | ITF_SLIP | ITF_BAND | ITF_KEV | ITF_LASER | ITF_HELM 
-	matchmode = gi.cvar ("matchmode", "0", CVAR_SERVERINFO | CVAR_LATCH);
-	hearall = gi.cvar ("hearall", "0", 0);	// used in matchmode
-	deadtalk = gi.cvar ("deadtalk", "0", 0);
+		gi.cvar( "actionversion", "none set", CVAR_SERVERINFO | CVAR_LATCH );
+	gi.cvar_set( "actionversion", ACTION_VERSION );
+	use_voice = gi.cvar( "use_voice", "1", 0 );	//slicer
+	ppl_idletime = gi.cvar( "ppl_idletime", "15", 0 );
+	use_buggy_bandolier = gi.cvar( "use_buggy_bandolier", "0", 0 );
+	use_tourney = gi.cvar( "use_tourney", "0", CVAR_SERVERINFO | CVAR_LATCH );
+	use_3teams = gi.cvar( "use_3teams", "0", CVAR_SERVERINFO | CVAR_LATCH );
+	use_kickvote = gi.cvar( "use_kickvote", "1", 0 );	//slicer
+	use_mapvote = gi.cvar( "use_mapvote", "1", 0 );	//slicer
+	use_scramblevote = gi.cvar( "use_scramblevote", "1", 0 );	//slicer
+	ctf = gi.cvar( "ctf", "0", CVAR_SERVERINFO | CVAR_LATCH );
+	ctf_forcejoin = gi.cvar( "ctf_forcejoin", "", 0 );
+	ctf_mode = gi.cvar( "ctf_mode", "0", 0 );
+	ctf_dropflag = gi.cvar( "ctf_dropflag", "1", 0 );
+	ctf_respawn = gi.cvar( "ctf_respawn", "4", 0 );
+	ctf_model = gi.cvar( "ctf_model", "male", CVAR_LATCH );
+	use_grapple = gi.cvar( "use_grapple", "0", 0 );
+	mv_public = gi.cvar( "mv_public", "0", 0 );	//slicer 
+	vk_public = gi.cvar( "vk_public", "0", 0 );	//slicer
+	punishkills = gi.cvar( "punishkills", "1", 0 );	//slicer
+	mapvote_waittime = gi.cvar( "mapvote_waittime", "8", 0 );
+	ff_afterround = gi.cvar( "ff_afterround", "1", 0 );
+	uvtime = gi.cvar( "uvtime", "40", 0 );
+	sv_gib = gi.cvar( "sv_gib", "1", 0 );
+	sv_crlf = gi.cvar( "sv_crlf", "0", CVAR_LATCH ); // 0 == DONT ALLOW IT
+	vrot = gi.cvar( "vrot", "0", 0 );
+	rrot = gi.cvar( "rrot", "0", 0 );
+	llsound = gi.cvar( "llsound", "1", CVAR_LATCH );
+	use_cvote = gi.cvar( "use_cvote", "0", 0 );	// Removed it from Serverinfo
+	new_irvision = gi.cvar( "new_irvision", "0", 0 );
+	use_rewards = gi.cvar( "use_rewards", "1", 0 );
+	use_warnings = gi.cvar( "use_warnings", "1", 0 );
+	check_time = gi.cvar( "check_time", "3", 0 );
+	video_check = gi.cvar( "video_check", "0", 0 );
+	video_max_3dfx = gi.cvar( "video_max_3dfx", "1.5", 0 );
+	video_max_3dfxam = gi.cvar( "video_max_3dfxam", "1.5", 0 );
+	video_max_opengl = gi.cvar( "video_max_opengl", "3.0", 0 );
+	video_force_restart = gi.cvar( "video_force_restart", "0", CVAR_LATCH );
+	video_check_lockpvs = gi.cvar( "video_check_lockpvs", "0", 0 );
+	video_check_glclear = gi.cvar( "video_check_glclear", "0", 0 );
+	video_checktime = gi.cvar( "video_checktime", "15", 0 );
+	hc_single = gi.cvar( "hc_single", "1", CVAR_LATCH );	//default ON
+	wp_flags = gi.cvar( "wp_flags", "511", 0 );	// 511 = WPF_MK23 | WPF_MP5 | WPF_M4 | WPF_M3 | WPF_HC | WPF_SNIPER | WPF_DUAL | WPF_KNIFE | WPF_GRENADE
+	itm_flags = gi.cvar( "itm_flags", "63", 0 );	// 63 = ITF_SIL | ITF_SLIP | ITF_BAND | ITF_KEV | ITF_LASER | ITF_HELM 
+	matchmode = gi.cvar( "matchmode", "0", CVAR_SERVERINFO | CVAR_LATCH );
+	hearall = gi.cvar( "hearall", "0", 0 );	// used in matchmode
+	deadtalk = gi.cvar( "deadtalk", "0", 0 );
 
-	teamdm = gi.cvar ("teamdm", "0", CVAR_LATCH);
-	teamdm_respawn = gi.cvar ("teamdm_respawn", "2", 0);
+	teamdm = gi.cvar( "teamdm", "0", CVAR_LATCH );
+	teamdm_respawn = gi.cvar( "teamdm_respawn", "2", 0 );
 
-	respawn_effect = gi.cvar("respawn_effect", "0", 0);
+	respawn_effect = gi.cvar( "respawn_effect", "0", 0 );
 
-	item_respawnmode = gi.cvar ("item_respawnmode", "0", CVAR_LATCH);
-	item_respawn = gi.cvar ("item_respawn", "59", 0);
-	weapon_respawn = gi.cvar ("weapon_respawn", "74", 0);
-	ammo_respawn = gi.cvar ("ammo_respawn", "30", 0);
+	item_respawnmode = gi.cvar( "item_respawnmode", "0", CVAR_LATCH );
+	item_respawn = gi.cvar( "item_respawn", "59", 0 );
+	weapon_respawn = gi.cvar( "weapon_respawn", "74", 0 );
+	ammo_respawn = gi.cvar( "ammo_respawn", "30", 0 );
 
-	wave_time = gi.cvar("wave_time", "5", 0);
+	wave_time = gi.cvar( "wave_time", "5", 0 );
 
-	mm_forceteamtalk = gi.cvar ("mm_forceteamtalk", "0", 0);
-	mm_adminpwd = gi.cvar ("mm_adminpwd", "0", 0);
-	mm_allowlock = gi.cvar ("mm_allowlock", "1", CVAR_LATCH);
-	mm_pausecount = gi.cvar ("mm_allowcount", "3", CVAR_LATCH);
-	mm_pausetime = gi.cvar ("mm_pausetime", "2", CVAR_LATCH);
+	mm_forceteamtalk = gi.cvar( "mm_forceteamtalk", "0", 0 );
+	mm_adminpwd = gi.cvar( "mm_adminpwd", "0", 0 );
+	mm_allowlock = gi.cvar( "mm_allowlock", "1", CVAR_LATCH );
+	mm_pausecount = gi.cvar( "mm_allowcount", "3", CVAR_LATCH );
+	mm_pausetime = gi.cvar( "mm_pausetime", "2", CVAR_LATCH );
 
-	teams[TEAM1].teamscore = gi.cvar ("t1", "0", CVAR_SERVERINFO);
-	teams[TEAM2].teamscore = gi.cvar ("t2", "0", CVAR_SERVERINFO);
-	teams[TEAM3].teamscore = gi.cvar ("t3", "0", CVAR_SERVERINFO);
-	stats_endmap = gi.cvar("stats_endmap", "1",0);
-	stats_afterround = gi.cvar ("stats_afterround", "0", 0);
+	teams[TEAM1].teamscore = gi.cvar( "t1", "0", CVAR_SERVERINFO );
+	teams[TEAM2].teamscore = gi.cvar( "t2", "0", CVAR_SERVERINFO );
+	teams[TEAM3].teamscore = gi.cvar( "t3", "0", CVAR_SERVERINFO );
+	stats_endmap = gi.cvar( "stats_endmap", "1", 0 );
+	stats_afterround = gi.cvar( "stats_afterround", "0", 0 );
 
-	auto_join = gi.cvar ("auto_join", "0", 0);
-	auto_equip = gi.cvar ("auto_equip", "0", 0);
-	auto_menu = gi.cvar ("auto_menu", "0", 0);
-	eventeams = gi.cvar ("eventeams", "0", 0);
-	use_balancer = gi.cvar ("use_balancer", "0", 0);
-	dm_choose = gi.cvar ("dm_choose", "0", 0);
-	dm_shield = gi.cvar ("dm_shield", "0", 0);
+	auto_join = gi.cvar( "auto_join", "0", 0 );
+	auto_equip = gi.cvar( "auto_equip", "0", 0 );
+	auto_menu = gi.cvar( "auto_menu", "0", 0 );
+	eventeams = gi.cvar( "eventeams", "0", 0 );
+	use_balancer = gi.cvar( "use_balancer", "0", 0 );
+	dm_choose = gi.cvar( "dm_choose", "0", 0 );
+	dm_shield = gi.cvar( "dm_shield", "0", 0 );
 
-	use_punch = gi.cvar ("use_punch", "1", 0);
+	use_punch = gi.cvar( "use_punch", "1", 0 );
 
 	//TNG:Freud - new spawning system
-	use_oldspawns = gi.cvar ("use_oldspawns", "0", CVAR_LATCH);
+	use_oldspawns = gi.cvar( "use_oldspawns", "0", CVAR_LATCH );
 	//TNG:Freud - ghosts
-	use_ghosts = gi.cvar ("use_ghosts", "0", CVAR_LATCH);
+	use_ghosts = gi.cvar( "use_ghosts", "0", CVAR_LATCH );
 
-	radio_max = gi.cvar ("radio_max", "3", 0);
-	radio_time = gi.cvar ("radio_time", "2", 0);
-	radio_ban = gi.cvar ("radio_ban", "15", 0);
+	radio_max = gi.cvar( "radio_max", "3", 0 );
+	radio_time = gi.cvar( "radio_time", "2", 0 );
+	radio_ban = gi.cvar( "radio_ban", "15", 0 );
 	//SLIC2
-	radio_repeat_time = gi.cvar ("radio_repeat_time", "1", 0);
-	radio_repeat = gi.cvar ("radio_repeat", "2", 0);
+	radio_repeat_time = gi.cvar( "radio_repeat_time", "1", 0 );
+	radio_repeat = gi.cvar( "radio_repeat", "2", 0 );
 	unique_weapons =
-	gi.cvar ("weapons", teamplay->value ? "1" : "1", CVAR_SERVERINFO | CVAR_LATCH);	// zucc changed teamplay to 1
-	unique_items = gi.cvar ("items", "1", CVAR_SERVERINFO | CVAR_LATCH);
-	ir = gi.cvar ("ir", "1", 0);
-	knifelimit = gi.cvar ("knifelimit", "40", 0);
-	allweapon = gi.cvar ("allweapon", "0", CVAR_SERVERINFO);
-	allitem = gi.cvar ("allitem", "0", CVAR_SERVERINFO);
-	tgren = gi.cvar ("tgren", "0", CVAR_SERVERINFO);
+		gi.cvar( "weapons", teamplay->value ? "1" : "1", CVAR_SERVERINFO | CVAR_LATCH );	// zucc changed teamplay to 1
+	unique_items = gi.cvar( "items", "1", CVAR_SERVERINFO | CVAR_LATCH );
+	ir = gi.cvar( "ir", "1", 0 );
+	knifelimit = gi.cvar( "knifelimit", "40", 0 );
+	allweapon = gi.cvar( "allweapon", "0", CVAR_SERVERINFO );
+	allitem = gi.cvar( "allitem", "0", CVAR_SERVERINFO );
+	tgren = gi.cvar( "tgren", "0", CVAR_SERVERINFO );
 	//SLIC2
 	/*flashgren = gi.cvar ("flashgren", "1", 0);
 	flashradius = gi.cvar ("flashradius", "300", 0);
 	flashtime = gi.cvar ("flashtime", "100", 0);*/
 	//SLIC2
-	sv_shelloff = gi.cvar ("shelloff", "1", 0);
-	bholelimit = gi.cvar ("bholelimit", "0", 0);
-	splatlimit = gi.cvar ("splatlimit", "0", 0);
-	darkmatch = gi.cvar ("darkmatch", "0", CVAR_LATCH);	// Darkmatch
-	day_cycle = gi.cvar ("day_cycle", "10", 0);	// Darkmatch cycle time.
-	use_classic = gi.cvar ("use_classic", "0", CVAR_SERVERINFO);	// Reset Spread and Grenade Strength to 1.52
+	sv_shelloff = gi.cvar( "shelloff", "1", 0 );
+	bholelimit = gi.cvar( "bholelimit", "0", 0 );
+	splatlimit = gi.cvar( "splatlimit", "0", 0 );
+	darkmatch = gi.cvar( "darkmatch", "0", CVAR_LATCH );	// Darkmatch
+	day_cycle = gi.cvar( "day_cycle", "10", 0 );	// Darkmatch cycle time.
+	use_classic = gi.cvar( "use_classic", "0", CVAR_SERVERINFO );	// Reset Spread and Grenade Strength to 1.52
 
-	CGF_SFX_InstallGlassSupport ();	// william for CGF (glass fx)
+	CGF_SFX_InstallGlassSupport();	// william for CGF (glass fx)
 
-	g_select_empty = gi.cvar ("g_select_empty", "0", CVAR_ARCHIVE);
+	g_select_empty = gi.cvar( "g_select_empty", "0", CVAR_ARCHIVE );
 
-	run_pitch = gi.cvar ("run_pitch", "0.002", 0);
-	run_roll = gi.cvar ("run_roll", "0.005", 0);
-	bob_up = gi.cvar ("bob_up", "0.005", 0);
-	bob_pitch = gi.cvar ("bob_pitch", "0.002", 0);
-	bob_roll = gi.cvar ("bob_roll", "0.002", 0);
+	run_pitch = gi.cvar( "run_pitch", "0.002", 0 );
+	run_roll = gi.cvar( "run_roll", "0.005", 0 );
+	bob_up = gi.cvar( "bob_up", "0.005", 0 );
+	bob_pitch = gi.cvar( "bob_pitch", "0.002", 0 );
+	bob_roll = gi.cvar( "bob_roll", "0.002", 0 );
 
 	// flood control
-	flood_threshold = gi.cvar ("flood_threshold", "4", 0);
+	flood_threshold = gi.cvar( "flood_threshold", "4", 0 );
 
-	warmup = gi.cvar ("warmup", "0", CVAR_LATCH);
+	warmup = gi.cvar( "warmup", "0", CVAR_LATCH );
 
 	// items
-	InitItems ();
+	InitItems();
 
 	game.helpmessage1[0] = '\0';
 	game.helpmessage2[0] = '\0';
 
 	// initialize all entities for this game
 	game.maxentities = maxentities->value;
-	g_edicts = gi.TagMalloc (game.maxentities * sizeof (g_edicts[0]), TAG_GAME);
+	g_edicts = gi.TagMalloc( game.maxentities * sizeof( g_edicts[0] ), TAG_GAME );
 	globals.edicts = g_edicts;
 	globals.max_edicts = game.maxentities;
 
 	// initialize all clients for this game
 	game.maxclients = (int)maxclients->value;
-	game.clients = gi.TagMalloc (game.maxclients * sizeof (game.clients[0]), TAG_GAME);
+	game.clients = gi.TagMalloc( game.maxclients * sizeof( game.clients[0] ), TAG_GAME );
 	globals.num_edicts = game.maxclients + 1;
 
 	if (ctf->value)
-		CTFInit ();
+		CTFInit();
 
 	//PG BUND - must be at end of gameinit:
-	vInitGame ();
+	vInitGame();
 
-	gi.dprintf ("Reading extra server features\n");
-	cv = gi.cvar("sv_features", NULL, 0);
+	gi.dprintf( "Reading extra server features\n" );
+	cv = gi.cvar( "sv_features", NULL, 0 );
 	if (cv) {
 		game.serverfeatures = (int)cv->value;
 
 		if (game.serverfeatures & GMF_CLIENTNUM) {
-			gi.dprintf ("...server supports GMF_CLIENTNUM\n");
+			gi.dprintf( "...server supports GMF_CLIENTNUM\n" );
 		}
 	}
 
 #if USE_FPS
 	// setup framerate parameters
+	if (!(game.serverfeatures & GMF_VARIABLE_FPS)) { //r1q2 doesnt report fps support
+		cv = gi.cvar( "version", NULL, 0 );
+		if (cv && !strncmp( cv->string, "R1Q2 ", 5 )) {
+			game.serverfeatures |= GMF_VARIABLE_FPS;
+		}
+	}
 	if (game.serverfeatures & GMF_VARIABLE_FPS) {
 		int framediv;
 
@@ -1237,6 +1243,6 @@ void ReadLevel (char *filename)
 		// fire any cross-level triggers
 		if (ent->classname && 
 			strcmp (ent->classname, "target_crosslevel_target") == 0)
-			ent->nextthink = level.time + ent->delay;
+			ent->nextthink = level.framenum + ent->delay * HZ;
 	}
 }

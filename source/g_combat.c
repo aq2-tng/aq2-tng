@@ -348,7 +348,7 @@ CheckPowerArmor (edict_t * ent, vec3_t point, vec3_t normal, int damage,
 		save = damage;
 
 	SpawnDamage (pa_te_type, point, normal, save);
-	ent->powerarmor_time = level.time + 0.2;
+	ent->powerarmor_framenum = level.framenum + 0.2 * HZ;
 
 	power_used = save / damagePerCell;
 
@@ -438,7 +438,7 @@ void BloodSprayThink (edict_t * self)
      self->think = G_FreeEdict;
      }
 
-     self->nextthink = level.time + 0.1;
+     self->nextthink = level.framenum + FRAMEDIV;
      gi.linkentity (self);
    */
 
@@ -451,7 +451,7 @@ void blood_spray_touch (edict_t * ent, edict_t * other, cplane_t * plane,
 	if (other == ent->owner)
 		return;
 	ent->think = G_FreeEdict;
-	ent->nextthink = level.time + 0.1;
+	ent->nextthink = level.framenum + 1;
 }
 
 
@@ -505,7 +505,7 @@ void spray_blood (edict_t * self, vec3_t start, vec3_t dir, int damage, int mod)
 	VectorClear (blood->maxs);
 	blood->s.modelindex = gi.modelindex ("sprites/null.sp2");
 	blood->owner = self;
-	blood->nextthink = level.time + speed / 1000;	//3.2;
+	blood->nextthink = level.framenum + speed * HZ / 1000;	//3.2;
 	blood->touch = blood_spray_touch;
 	blood->think = BloodSprayThink;
 	blood->dmg = damage;

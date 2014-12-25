@@ -526,7 +526,7 @@ void Sys_Error (const char *error, ...)
   vsnprintf (text, sizeof(text),error, argptr);
   va_end (argptr);
 
-  gi.error (ERR_FATAL, "%s", text);
+  gi.error("%s", text);
 }
 
 void Com_Printf (const char *msg, ...)
@@ -538,7 +538,7 @@ void Com_Printf (const char *msg, ...)
   vsnprintf (text, sizeof(text), msg, argptr);
   va_end (argptr);
 
-  gi.dprintf ("%s", text);
+  gi.dprintf("%s", text);
 }
 
 #endif
@@ -779,12 +779,15 @@ void CheckDMRules (void)
 	if (!deathmatch->value)
 		return;
 
-	if (!FRAMESYNC)
-		return;
-
 	//FIREBLADE
 	if (teamplay->value)
 	{
+		if (matchmode->value && team_game_going)
+			level.matchTime += FRAMETIME;
+
+		if (!FRAMESYNC)
+			return;
+
 		CheckTeamRules ();
 
 		if (ctf->value)
@@ -798,6 +801,9 @@ void CheckDMRules (void)
 	}
 	else				/* not teamplay */
 	{
+		if (!FRAMESYNC)
+			return;
+
 		if (timelimit->value)
 		{
 			if (level.time >= timelimit->value * 60)
@@ -822,10 +828,10 @@ void CheckDMRules (void)
 					{                                                                                           
 						gi.centerprintf (&g_edicts[i + 1], "ACTION!");                                      
 					}                                                                                           
-					else if (game.clients[i].ctf_uvtime % 10 == 0)                                              
+					else if (game.clients[i].ctf_uvtime % 10 == 0)
 					{                                                                                           
 						gi.centerprintf (&g_edicts[i + 1], "Shield %d",                                     
-						game.clients[i].ctf_uvtime / 10);                                                   
+							game.clients[i].ctf_uvtime / 10);
 					} 
 				}
 			}
@@ -992,6 +998,8 @@ void G_RunFrame (void)
 	// TNG Darkmatch Cycle
 	if(!level.pauseFrames)
 	{
+		int updateStatMode = (level.framenum % (80 * FRAMEDIV)) ? 0 : 1;
+
 		CycleLights ();
 
 		//
@@ -1016,7 +1024,7 @@ void G_RunFrame (void)
 
 			if (i > 0 && i <= game.maxclients)
 			{
-				if (!(level.framenum % 80)) 
+				if (updateStatMode)
 					stuffcmd(ent, "cmd_stat_mode $stat_mode\n");
 
 				// TNG Stats End
