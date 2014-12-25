@@ -149,7 +149,7 @@ qboolean _iCheckMapVotes (void);
 void Cmd_Votemap_f (edict_t * ent, char *t)
 {
 	char *oldvote;
-	unsigned int voteWaitTime;
+	int voteWaitTime;
 
 	if (!*t)
 	{
@@ -165,7 +165,7 @@ void Cmd_Votemap_f (edict_t * ent, char *t)
 	}
 
 	// BEGIN Igor[Rock]
-	voteWaitTime = (unsigned int)(mapvote_waittime->value * HZ);
+	voteWaitTime = (int)(mapvote_waittime->value * HZ);
 	if (level.realFramenum < voteWaitTime)
 	{
 		gi.cprintf (ent, PRINT_HIGH,

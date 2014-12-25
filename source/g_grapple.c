@@ -25,7 +25,7 @@ void CTFResetGrapple(edict_t *self)
 		gi.sound (self->owner, CHAN_RELIABLE+CHAN_WEAPON, gi.soundindex("weapons/grapple/grreset.wav"), volume, ATTN_NORM, 0);
 		cl = self->owner->client;
 		cl->ctf_grapple = NULL;
-		cl->ctf_grapplereleasetime = level.time;
+		cl->ctf_grapplereleaseframe = level.framenum;
 		cl->ctf_grapplestate = CTF_GRAPPLE_STATE_FLY; // we're firing, not on hook
 		cl->ps.pmove.pm_flags &= ~PMF_NO_PREDICTION;
 		G_FreeEdict(self);
@@ -243,7 +243,7 @@ void CTFFireGrapple (edict_t *self, vec3_t start, vec3_t dir, int damage, int sp
 //	grapple->s.sound = gi.soundindex ("misc/lasfly.wav");
 	grapple->owner = self;
 	grapple->touch = CTFGrappleTouch;
-//	grapple->nextthink = level.time + FRAMETIME;
+//	grapple->nextthink = level.framenum + 1;
 //	grapple->think = CTFGrappleThink;
 	grapple->dmg = damage;
 	self->client->ctf_grapple = grapple;

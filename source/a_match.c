@@ -56,14 +56,12 @@
 #include "g_local.h"
 #include "a_match.h"
 
-float matchtime = 0;
-
 void SendScores(void)
 {
-	int mins, secs;
+	unsigned int mins, secs, gametime = level.matchTime;
 
-	mins = matchtime / 60;
-	secs = (int)matchtime % 60;
+	mins = gametime / 60;
+	secs = gametime % 60;
 	if(use_3teams->value) {
 		gi.bprintf(PRINT_HIGH, "žžžžžžžžžžžžžžžžžžžžžžžžžžžžžžžžžžžžžžžžžžŸ\n");
 		gi.bprintf(PRINT_HIGH, " Team 1 Score - Team 2 Score - Team 3 Score\n");
@@ -73,9 +71,9 @@ void SendScores(void)
 	} else {
 		int team1score = 0, team2score = 0;
 
-		if(ctf->value)
+		if(ctf->value) {
 			GetCTFScores(&team1score, &team2score);
-		else {
+		} else {
 			team1score = teams[TEAM1].score;
 			team2score = teams[TEAM2].score;
 		}
@@ -525,7 +523,12 @@ void Cmd_TogglePause_f(edict_t * ent, qboolean pause)
 	}
 
 	if ((int)mm_pausecount->value < 1) {
-		gi.cprintf(ent, PRINT_HIGH, "Pause is disabled\n");
+		gi.cprintf(ent, PRINT_HIGH, "Pause is disabled, mm_pausecount is 0\n");
+		return;
+	}
+
+	if (mm_pausetime->value < FRAMETIME) {
+		gi.cprintf( ent, PRINT_HIGH, "Pause is disabled, mm_pausetime is 0\n" );
 		return;
 	}
 
@@ -564,7 +567,7 @@ void Cmd_TogglePause_f(edict_t * ent, qboolean pause)
 		teams[teamNum].pauses_used++;
 
 		CenterPrintAll (va("Game paused by %s\nTeam %i has %i pauses left", ent->client->pers.netname, ent->client->resp.team, (int)mm_pausecount->value - teams[ent->client->resp.team].pauses_used));
-		level.pauseFrames = (unsigned int)(mm_pausetime->value * 60.0f * HZ);
+		level.pauseFrames = (int)(mm_pausetime->value * 60.0f * HZ);
 		lastPaused = teamNum;
 	}
 	else

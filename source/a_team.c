@@ -1388,8 +1388,9 @@ void ResetScores (qboolean playerScores)
 	edict_t *ent;
 
 	team_round_going = team_round_countdown = team_game_going = 0;
-	current_round_length = matchtime = 0;
+	current_round_length = 0;
 	level.pauseFrames = 0;
+	level.matchTime = 0;
 	num_ghost_players = 0;
 
 	MakeAllLivePlayersObservers ();
@@ -1721,7 +1722,7 @@ void RunWarmup ()
 	int i;
 	edict_t *ent;
 
-	if (!warmup->value || matchtime > 0 || team_round_going || lights_camera_action || (team_round_countdown > 0 && team_round_countdown <= 101))
+	if (!warmup->value || level.matchTime > 0 || team_round_going || lights_camera_action || (team_round_countdown > 0 && team_round_countdown <= 101))
 		return;
 
 	if (!in_warmup)
@@ -1925,11 +1926,12 @@ int WonGame (int winner)
 		// AQ2:M - Matchmode
 		if (matchmode->value)
 		{
-			if (matchtime >= timelimit->value * 60)
+			if (level.matchTime >= timelimit->value * 60)
 			{
-				SendScores ();
+				SendScores();
 				teams[TEAM1].ready = teams[TEAM2].ready = teams[TEAM3].ready = 0;
-				team_round_going = team_round_countdown = team_game_going = matchtime = 0;
+				team_round_going = team_round_countdown = team_game_going = 0;
+				level.matchTime = 0;
 				MakeAllLivePlayersObservers ();
 				return 1;
 			}
@@ -1953,8 +1955,9 @@ int WonGame (int winner)
 			if (matchmode->value)
 			{
 				SendScores ();
-				teams[TEAM1].ready = teams[TEAM2].ready = teams[TEAM3].ready = matchtime = 0;
+				teams[TEAM1].ready = teams[TEAM2].ready = teams[TEAM3].ready = 0;
 				team_round_going = team_round_countdown = team_game_going = 0;
+				level.matchTime = 0;
 				MakeAllLivePlayersObservers ();
 				return 1;
 			}
@@ -1979,7 +1982,7 @@ int WonGame (int winner)
 	vNewRound ();
 	//PG BUND - END
 
-	if(teamplay->value  && (!timelimit->value || level.time <= ((timelimit->value * 60) - 5)))
+	if (teamplay->value && (!timelimit->value || level.time <= ((timelimit->value * 60) - 5)))
 	{
 		arg[0] = '\0';
 		for (i = 0; i < game.maxclients; i++)
@@ -2014,9 +2017,10 @@ void CheckTeamRules (void)
 		return;
 	}
 
-	// works like old CTF shield for TDM
-	if (dm_shield->value && (!teamplay->value || (teamdm->value && lights_camera_action == 0)) && !ctf->value)
+	// AQ2:TNG - JBravo adding UVtime
+	if (ctf->value || (dm_shield->value && (!teamplay->value || (teamdm->value && lights_camera_action == 0)) ))
 	{
+		int printType = (ctf->value && ctfgame.type == 2) ? 1 : 0;
 		for (i = 0; i < game.maxclients; i++)
 		{
 			if (!g_edicts[i + 1].inuse)
@@ -2026,30 +2030,7 @@ void CheckTeamRules (void)
 				game.clients[i].ctf_uvtime--;
 				if (!game.clients[i].ctf_uvtime && team_round_going)
 				{
-					gi.centerprintf (&g_edicts[i + 1], "ACTION!");
-				}
-				else if (game.clients[i].ctf_uvtime % 10 == 0)
-				{
-					gi.centerprintf (&g_edicts[i + 1], "Shield %d",
-					game.clients[i].ctf_uvtime / 10);
-				}
-			}
-		}
-	}
-
-// AQ2:TNG - JBravo adding UVtime
-	if(ctf->value)
-	{
-		for (i = 0; i < game.maxclients; i++)
-		{
-			if (!g_edicts[i + 1].inuse)
-				continue;
-			if (game.clients[i].ctf_uvtime > 0)
-			{
-				game.clients[i].ctf_uvtime--;
-				if (!game.clients[i].ctf_uvtime && team_round_going)
-				{
-					if(ctfgame.type == 2) {
+					if (printType) {
 						gi.centerprintf (&g_edicts[i + 1],
 							"ACTION!\n"
 							"\n"
@@ -2063,7 +2044,7 @@ void CheckTeamRules (void)
 				}
 				else if (game.clients[i].ctf_uvtime % 10 == 0)
 				{
-					if(ctfgame.type == 2) {
+					if (printType) {
 						gi.centerprintf (&g_edicts[i + 1],
 							"Shield %d\n"
 							"\n"
@@ -2083,9 +2064,6 @@ void CheckTeamRules (void)
 
 	if (matchmode->value)
 	{
-		if(team_game_going)
-			matchtime += 0.1f;
-
 		if(mm_allowlock->value)
 		{
 			for(i=TEAM1; i <= teamCount; i++)
@@ -2171,11 +2149,12 @@ void CheckTeamRules (void)
 			// AQ2:TNG - Slicer : Matchmode
 			if (matchmode->value)
 			{
-				if (matchtime >= timelimit->value * 60)
+				if (level.matchTime >= timelimit->value * 60)
 				{
 					SendScores ();
 					teams[TEAM1].ready = teams[TEAM2].ready = teams[TEAM3].ready = 0;
-					team_round_going = team_round_countdown = team_game_going = matchtime = 0;
+					team_round_going = team_round_countdown = team_game_going = 0;
+					level.matchTime = 0;
 					MakeAllLivePlayersObservers ();
 					return;
 				}
@@ -2316,7 +2295,7 @@ void CheckTeamRules (void)
 				float gametime;
 
 				if(matchmode->value)
-					gametime = matchtime;
+					gametime = level.matchTime;
 				else
 					gametime = level.time;
 
@@ -2325,17 +2304,15 @@ void CheckTeamRules (void)
 					gi.bprintf (PRINT_HIGH, "Timelimit hit.\n");
 					IRC_printf (IRC_T_GAME, "Timelimit hit.");
 					teams[TEAM1].ready = teams[TEAM2].ready = teams[TEAM3].ready = 0;
-					team_round_going = team_round_countdown =
-					team_game_going = 0;
+					team_round_going = team_round_countdown = team_game_going = 0;
 					if(matchmode->value) {
 						SendScores ();
 						MakeAllLivePlayersObservers ();
-					}
-					else {
+					} else {
 						ResetPlayers ();
 						EndDMLevel ();
 					}
-					matchtime = 0;
+					level.matchTime = 0;
 					return;
 				}
 			}
@@ -2775,6 +2752,9 @@ void A_ScoreboardMessage (edict_t * ent, edict_t * killer)
 		
 		if(matchmode->value) //Subs
 		{
+			i = level.matchTime;
+			mins = i / 60;
+			secs = i % 60;
 
 			for(i=TEAM1; i<= teamCount; i++)
 			{
@@ -2817,8 +2797,6 @@ void A_ScoreboardMessage (edict_t * ent, edict_t * killer)
 					offset[i]+39, teams[i].ready ? "Ready" : "Not Ready");
 			}
 
-			mins = matchtime / 60;
-			secs = matchtime - (mins * 60);
 			sprintf (string + strlen (string), "xv 112 yv 144 string \"Time: %d:%02d\" ", mins, secs);
 		}
 	}

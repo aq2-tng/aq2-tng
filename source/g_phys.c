@@ -92,23 +92,22 @@ SV_RunThink
 Runs thinking code for this frame if necessary
 =============
 */
-qboolean
-SV_RunThink (edict_t * ent)
+qboolean SV_RunThink(edict_t *ent)
 {
-  float thinktime;
+	int     thinkframe;
 
-  thinktime = ent->nextthink;
-  if (thinktime <= 0)
-    return true;
-  if (thinktime > level.time + 0.001)
-    return true;
+	thinkframe = ent->nextthink;
+	if (thinkframe <= 0)
+		return true;
+	if (thinkframe > level.framenum)
+		return true;
 
-  ent->nextthink = 0;
-  if (!ent->think)
-    gi.error ("NULL ent->think");
-  ent->think (ent);
+	ent->nextthink = 0;
+	if (!ent->think)
+		gi.error("NULL ent->think");
+	ent->think(ent);
 
-  return false;
+	return false;
 }
 
 /*
@@ -600,7 +599,7 @@ SV_Physics_Pusher (edict_t * ent)
 	}
     }
   if (pushed_p > &pushed[MAX_EDICTS])
-    gi.error (ERR_FATAL, "pushed_p > &pushed[MAX_EDICTS], memory corrupted");
+    gi.error("pushed_p > &pushed[MAX_EDICTS], memory corrupted");
 
   if (part)
     {
@@ -608,7 +607,7 @@ SV_Physics_Pusher (edict_t * ent)
       for (mv = ent; mv; mv = mv->teamchain)
 	{
 	  if (mv->nextthink > 0)
-	    mv->nextthink += FRAMETIME;
+		  mv->nextthink++;
 	}
 
       // if the pusher has a "blocked" function, call it
@@ -654,17 +653,18 @@ SV_Physics_Noclip
 A moving object that doesn't obey physics
 =============
 */
-void
-SV_Physics_Noclip (edict_t * ent)
+void SV_Physics_Noclip(edict_t *ent)
 {
 // regular thinking
-  if (!SV_RunThink (ent))
-    return;
+	if (!SV_RunThink(ent))
+		return;
+	if (!ent->inuse)
+		return;
 
-  VectorMA (ent->s.angles, FRAMETIME, ent->avelocity, ent->s.angles);
-  VectorMA (ent->s.origin, FRAMETIME, ent->velocity, ent->s.origin);
+	VectorMA(ent->s.angles, FRAMETIME, ent->avelocity, ent->s.angles);
+	VectorMA(ent->s.origin, FRAMETIME, ent->velocity, ent->s.origin);
 
-  gi.linkentity (ent);
+	gi.linkentity(ent);
 }
 
 /*
@@ -825,6 +825,8 @@ SV_Physics_Toss (edict_t * ent)
 
 // regular thinking
   SV_RunThink (ent);
+  if (!ent->inuse)
+	  return;
 
   // if not a team captain, so movement will be handled elsewhere
   if (ent->flags & FL_TEAMSLAVE)
@@ -932,13 +934,12 @@ G_RunEntity
 
 ================
 */
-void
-G_RunEntity (edict_t * ent)
+void G_RunEntity(edict_t *ent)
 {
   if (ent->prethink)
     ent->prethink (ent);
 
-  switch ((int) ent->movetype)
+  switch (ent->movetype)
     {
     case MOVETYPE_PUSH:
     case MOVETYPE_STOP:

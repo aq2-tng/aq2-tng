@@ -1120,7 +1120,7 @@ void Cmd_Kill_f (edict_t * ent)
 	}
 	// End punishkills
 
-	if ((level.time - ent->client->respawn_time) < 5)
+	if ((level.framenum - ent->client->respawn_time) < 5 * HZ)
 		return;
 	ent->flags &= ~FL_GODMODE;
 	ent->health = 0;

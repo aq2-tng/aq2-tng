@@ -97,7 +97,7 @@ static void SpawnSpec(gitem_t * item, edict_t * spot)
 	VectorScale(forward, 100, ent->velocity);
 	ent->velocity[2] = 300;
 
-	ent->nextthink = level.time + SPEC_RESPAWN_TIME;
+	ent->nextthink = level.framenum + SPEC_RESPAWN_TIME * HZ;
 	ent->think = SpecThink;
 
 	gi.linkentity(ent);
@@ -134,7 +134,7 @@ void SpecThink(edict_t * spec)
 		SpawnSpec(spec->item, spot);
 		G_FreeEdict(spec);
 	} else {
-		spec->nextthink = level.time + SPEC_RESPAWN_TIME;
+		spec->nextthink = level.framenum + SPEC_RESPAWN_TIME * HZ;
 		spec->think = SpecThink;
 	}
 }
@@ -145,26 +145,26 @@ static void MakeTouchSpecThink(edict_t * ent)
 
 	if (deathmatch->value && (!teamplay->value || teamdm->value || ctf->value == 2) && !allitem->value && !dm_choose->value) {
 		if(item_respawnmode->value) {
-			ent->nextthink = level.time + (item_respawn->value*0.5f);
+			ent->nextthink = level.framenum + (item_respawn->value*0.5f) * HZ;
 			ent->think = G_FreeEdict;
 		}
 		else {
-			ent->nextthink = level.time + item_respawn->value;
+			ent->nextthink = level.framenum + item_respawn->value * HZ;
 			ent->think = SpecThink;
 		}
 	} else if ((teamplay->value || dm_choose->value) && !allitem->value) {
 		//AQ2:TNG - Slicer This works for Special Items 
 		if (ctf->value || dm_choose->value) {
-			ent->nextthink = level.time + 6;
+			ent->nextthink = level.framenum + 6 * HZ;
 			ent->think = G_FreeEdict;
 		} else {
-			ent->nextthink = level.time + 60;
+			ent->nextthink = level.framenum + 60 * HZ;
 			ent->think = G_FreeEdict;
 		}
 	} else			// allitem->value is set
 
 	{
-		ent->nextthink = level.time + 1;
+		ent->nextthink = level.framenum + 1 * HZ;
 		ent->think = G_FreeEdict;
 	}
 }
@@ -175,7 +175,7 @@ void Drop_Spec(edict_t * ent, gitem_t * item)
 
 	spec = Drop_Item(ent, item);
 	//gi.cprintf(ent, PRINT_HIGH, "Dropping special item.\n");
-	spec->nextthink = level.time + 1;
+	spec->nextthink = level.framenum + 1 * HZ;
 	spec->think = MakeTouchSpecThink;
 	//zucc this and the one below should probably be -- not = 0, if
 	// a server turns on multiple item pickup.
@@ -196,7 +196,7 @@ void DeadDropSpec(edict_t * ent)
 			// hack the velocity to make it bounce random
 			dropped->velocity[0] = (rand() % 600) - 300;
 			dropped->velocity[1] = (rand() % 600) - 300;
-			dropped->nextthink = level.time + 1;
+			dropped->nextthink = level.framenum + 1 * HZ;
 			dropped->think = MakeTouchSpecThink;
 			dropped->owner = NULL;
 			dropped->spawnflags = DROPPED_PLAYER_ITEM;
@@ -223,7 +223,7 @@ void SetupSpecSpawn(void)
 		return;
 
 	ent = G_Spawn();
-	ent->nextthink = level.time + 4;
+	ent->nextthink = level.framenum + 4 * HZ;
 	ent->think = SpawnSpecs;
 	level.specspawn = 1;
 }

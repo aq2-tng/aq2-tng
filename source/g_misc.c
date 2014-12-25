@@ -107,12 +107,12 @@ void
 gib_think (edict_t * self)
 {
   self->s.frame++;
-  self->nextthink = level.time + FRAMETIME;
+  self->nextthink = level.framenum + FRAMEDIV;
 
   if (self->s.frame == 10)
     {
       self->think = G_FreeEdict;
-      self->nextthink = level.time + 8 + random () * 10;
+	  self->nextthink = level.framenum + (8 + random() * 10) * HZ;
     }
 }
 
@@ -139,8 +139,7 @@ gib_touch (edict_t * self, edict_t * other, cplane_t * plane,
       if (self->s.modelindex == sm_meat_index)
 	{
 	  self->s.frame++;
-	  self->think = gib_think;
-	  self->nextthink = level.time + FRAMETIME;
+	  NEXT_KEYFRAME(self, gib_think);
 	}
     }
 }
@@ -196,7 +195,7 @@ ThrowGib (edict_t * self, char *gibname, int damage, int type)
   gib->avelocity[2] = random () * 600;
 
   gib->think = G_FreeEdict;
-  gib->nextthink = level.time + 10 + random () * 10;
+  gib->nextthink = level.framenum + (10 + random() * 10) * HZ;
 
   gi.linkentity (gib);
 }
@@ -242,7 +241,7 @@ ThrowHead (edict_t * self, char *gibname, int damage, int type)
   self->avelocity[YAW] = crandom () * 600;
 
   self->think = G_FreeEdict;
-  self->nextthink = level.time + 10 + random () * 10;
+  self->nextthink = level.framenum + (10 + random() * 10) * HZ;
 
   gi.linkentity (self);
 }
@@ -322,7 +321,7 @@ ThrowDebris (edict_t * self, char *modelname, float speed, vec3_t origin)
   chunk->avelocity[1] = random () * 600;
   chunk->avelocity[2] = random () * 600;
   chunk->think = G_FreeEdict;
-  chunk->nextthink = level.time + 5 + random () * 5;
+  chunk->nextthink = level.framenum + (5 + random() * 5) * HZ;
   chunk->s.frame = 0;
   chunk->flags = 0;
   chunk->classname = "debris";
@@ -472,7 +471,7 @@ void
 TH_viewthing (edict_t * ent)
 {
   ent->s.frame = (ent->s.frame + 1) % 7;
-  ent->nextthink = level.time + FRAMETIME;
+  ent->nextthink = level.framenum + FRAMEDIV;
 }
 
 void
@@ -487,7 +486,7 @@ SP_viewthing (edict_t * ent)
   VectorSet (ent->maxs, 16, 16, 32);
   ent->s.modelindex = gi.modelindex ("models/objects/banner/tris.md2");
   gi.linkentity (ent);
-  ent->nextthink = level.time + 0.5;
+  ent->nextthink = KEYFRAME(0.5 * HZ);
   ent->think = TH_viewthing;
   return;
 }
@@ -700,7 +699,7 @@ SP_func_object (edict_t * self)
       self->solid = SOLID_BSP;
       self->movetype = MOVETYPE_PUSH;
       self->think = func_object_release;
-      self->nextthink = level.time + 2 * FRAMETIME;
+	  self->nextthink = level.framenum + 2;
     }
   else
     {
@@ -864,7 +863,7 @@ SP_func_explosive (edict_t * self)
 
   gi.linkentity (self);
   self->think = CGF_SFX_TestBreakableGlassAndRemoveIfNot_Think;
-  self->nextthink = level.time + FRAMETIME;
+  self->nextthink = level.framenum + FRAMEDIV;
 }
 
 
@@ -901,13 +900,10 @@ misc_blackhole_use (edict_t * ent, edict_t * other, edict_t * activator)
 void
 misc_blackhole_think (edict_t * self)
 {
-  if (++self->s.frame < 19)
-    self->nextthink = level.time + FRAMETIME;
-  else
-    {
-      self->s.frame = 0;
-      self->nextthink = level.time + FRAMETIME;
-    }
+	if (++self->s.frame >= 19) {
+		self->s.frame = 0;
+	}
+	self->nextthink = level.framenum + FRAMEDIV;
 }
 
 void
@@ -921,7 +917,7 @@ SP_misc_blackhole (edict_t * ent)
   ent->s.renderfx = RF_TRANSLUCENT;
   ent->use = misc_blackhole_use;
   ent->think = misc_blackhole_think;
-  ent->nextthink = level.time + 2 * FRAMETIME;
+  ent->nextthink = KEYFRAME(2 * FRAMEDIV);
   gi.linkentity (ent);
 }
 
@@ -931,13 +927,10 @@ SP_misc_blackhole (edict_t * ent)
 void
 misc_eastertank_think (edict_t * self)
 {
-  if (++self->s.frame < 293)
-    self->nextthink = level.time + FRAMETIME;
-  else
-    {
-      self->s.frame = 254;
-      self->nextthink = level.time + FRAMETIME;
-    }
+	if (++self->s.frame >= 293) {
+		self->s.frame = 254;
+	}
+	self->nextthink = level.framenum + FRAMEDIV;
 }
 
 void
@@ -950,7 +943,7 @@ SP_misc_eastertank (edict_t * ent)
   ent->s.modelindex = gi.modelindex ("models/monsters/tank/tris.md2");
   ent->s.frame = 254;
   ent->think = misc_eastertank_think;
-  ent->nextthink = level.time + 2 * FRAMETIME;
+  ent->nextthink = KEYFRAME(2 * FRAMEDIV);
   gi.linkentity (ent);
 }
 
@@ -961,13 +954,10 @@ SP_misc_eastertank (edict_t * ent)
 void
 misc_easterchick_think (edict_t * self)
 {
-  if (++self->s.frame < 247)
-    self->nextthink = level.time + FRAMETIME;
-  else
-    {
-      self->s.frame = 208;
-      self->nextthink = level.time + FRAMETIME;
-    }
+	if (++self->s.frame >= 247) {
+		self->s.frame = 208;
+	}
+	self->nextthink = level.framenum + FRAMEDIV;
 }
 
 void
@@ -980,7 +970,7 @@ SP_misc_easterchick (edict_t * ent)
   ent->s.modelindex = gi.modelindex ("models/monsters/bitch/tris.md2");
   ent->s.frame = 208;
   ent->think = misc_easterchick_think;
-  ent->nextthink = level.time + 2 * FRAMETIME;
+  ent->nextthink = KEYFRAME(2 * FRAMEDIV);
   gi.linkentity (ent);
 }
 
@@ -991,13 +981,10 @@ SP_misc_easterchick (edict_t * ent)
 void
 misc_easterchick2_think (edict_t * self)
 {
-  if (++self->s.frame < 287)
-    self->nextthink = level.time + FRAMETIME;
-  else
-    {
-      self->s.frame = 248;
-      self->nextthink = level.time + FRAMETIME;
-    }
+	if (++self->s.frame >= 287) {
+		self->s.frame = 248;
+	}
+	self->nextthink = level.framenum + FRAMEDIV;
 }
 
 void
@@ -1010,7 +997,7 @@ SP_misc_easterchick2 (edict_t * ent)
   ent->s.modelindex = gi.modelindex ("models/monsters/bitch/tris.md2");
   ent->s.frame = 248;
   ent->think = misc_easterchick2_think;
-  ent->nextthink = level.time + 2 * FRAMETIME;
+  ent->nextthink = KEYFRAME(2 * FRAMEDIV);
   gi.linkentity (ent);
 }
 
@@ -1024,7 +1011,7 @@ void
 misc_banner_think (edict_t * ent)
 {
   ent->s.frame = (ent->s.frame + 1) % 16;
-  ent->nextthink = level.time + FRAMETIME;
+  ent->nextthink = level.framenum + FRAMEDIV;
 }
 
 void
@@ -1036,8 +1023,7 @@ SP_misc_banner (edict_t * ent)
   ent->s.frame = rand () % 16;
   gi.linkentity (ent);
 
-  ent->think = misc_banner_think;
-  ent->nextthink = level.time + FRAMETIME;
+  NEXT_KEYFRAME(ent, misc_banner_think);
 }
 
 /*QUAKED misc_deadsoldier (1 .5 0) (-16 -16 0) (16 16 16) ON_BACK ON_STOMACH BACK_DECAP FETAL_POS SIT_DECAP IMPALED
@@ -1087,8 +1073,7 @@ SP_misc_viper (edict_t * ent)
   VectorSet (ent->mins, -16, -16, 0);
   VectorSet (ent->maxs, 16, 16, 32);
 
-  ent->think = func_train_find;
-  ent->nextthink = level.time + FRAMETIME;
+  NEXT_FRAME(ent, func_train_find);
   ent->use = misc_viper_use;
   ent->svflags |= SVF_NOCLIENT;
   ent->moveinfo.accel = ent->moveinfo.decel = ent->moveinfo.speed =
@@ -1227,8 +1212,7 @@ SP_misc_strogg_ship (edict_t * ent)
   VectorSet (ent->mins, -16, -16, 0);
   VectorSet (ent->maxs, 16, 16, 32);
 
-  ent->think = func_train_find;
-  ent->nextthink = level.time + FRAMETIME;
+  NEXT_FRAME(ent, func_train_find);
   ent->use = misc_strogg_ship_use;
   ent->svflags |= SVF_NOCLIENT;
   ent->moveinfo.accel = ent->moveinfo.decel = ent->moveinfo.speed =
@@ -1245,15 +1229,14 @@ misc_satellite_dish_think (edict_t * self)
 {
   self->s.frame++;
   if (self->s.frame < 38)
-    self->nextthink = level.time + FRAMETIME;
+	  self->nextthink = level.framenum + FRAMEDIV;
 }
 
 void
 misc_satellite_dish_use (edict_t * self, edict_t * other, edict_t * activator)
 {
   self->s.frame = 0;
-  self->think = misc_satellite_dish_think;
-  self->nextthink = level.time + FRAMETIME;
+  NEXT_KEYFRAME(self, misc_satellite_dish_think);
 }
 
 void
@@ -1313,7 +1296,7 @@ SP_misc_gib_arm (edict_t * ent)
   ent->avelocity[1] = random () * 200;
   ent->avelocity[2] = random () * 200;
   ent->think = G_FreeEdict;
-  ent->nextthink = level.time + 30;
+  ent->nextthink = level.framenum + 30 * HZ;
   gi.linkentity (ent);
 }
 
@@ -1335,7 +1318,7 @@ SP_misc_gib_leg (edict_t * ent)
   ent->avelocity[1] = random () * 200;
   ent->avelocity[2] = random () * 200;
   ent->think = G_FreeEdict;
-  ent->nextthink = level.time + 30;
+  ent->nextthink = level.framenum + 30 * HZ;
   gi.linkentity (ent);
 }
 
@@ -1357,7 +1340,7 @@ SP_misc_gib_head (edict_t * ent)
   ent->avelocity[1] = random () * 200;
   ent->avelocity[2] = random () * 200;
   ent->think = G_FreeEdict;
-  ent->nextthink = level.time + 30;
+  ent->nextthink = level.framenum + 30 * HZ;
   gi.linkentity (ent);
 }
 
@@ -1553,7 +1536,7 @@ func_clock_think (edict_t * self)
 	return;
     }
 
-  self->nextthink = level.time + 1;
+  self->nextthink = level.framenum + 1 * HZ;
 }
 
 void
@@ -1598,7 +1581,7 @@ SP_func_clock (edict_t * self)
   if (self->spawnflags & 4)
     self->use = func_clock_use;
   else
-    self->nextthink = level.time + 1;
+	  self->nextthink = level.framenum + 1 * HZ;
 }
 
 //=================================================================================

@@ -51,14 +51,13 @@ multi_trigger (edict_t * ent)
   if (ent->wait > 0)
     {
       ent->think = multi_wait;
-      ent->nextthink = level.time + ent->wait;
+	  ent->nextthink = level.framenum + ent->wait * HZ;
     }
   else
     {				// we can't just remove (self) here, because this is a touch function
       // called while looping through area links...
       ent->touch = NULL;
-      ent->nextthink = level.time + FRAMETIME;
-      ent->think = G_FreeEdict;
+	  NEXT_FRAME( ent, G_FreeEdict );
     }
 }
 

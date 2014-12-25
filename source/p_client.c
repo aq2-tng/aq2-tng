@@ -623,7 +623,7 @@ void SP_info_player_start(edict_t * self)
 	if (Q_stricmp(level.mapname, "security") == 0) {
 		// invoke one of our gross, ugly, disgusting hacks
 		self->think = SP_CreateCoopSpots;
-		self->nextthink = level.time + FRAMETIME;
+		self->nextthink = level.framenum + 1;
 	}
 }
 
@@ -665,7 +665,7 @@ void SP_info_player_coop(edict_t * self)
 	    (Q_stricmp(level.mapname, "power2") == 0) || (Q_stricmp(level.mapname, "strike") == 0)) {
 		// invoke one of our gross, ugly, disgusting hacks
 		self->think = SP_FixCoopSpots;
-		self->nextthink = level.time + FRAMETIME;
+		self->nextthink = level.framenum + 1;
 	}
 }
 
@@ -1467,7 +1467,7 @@ void TossItemsOnDeath(edict_t * ent)
 		drop->spawnflags |= DROPPED_PLAYER_ITEM;
 
 		drop->touch = Touch_Item;
-		drop->nextthink = level.time + (ent->client->quad_framenum - level.framenum) * FRAMETIME;
+		drop->nextthink = ent->client->quad_framenum;
 		drop->think = G_FreeEdict;
 	}
 
@@ -1533,7 +1533,7 @@ void TossClientWeapon(edict_t * self)
 		drop->spawnflags |= DROPPED_PLAYER_ITEM;
 
 		drop->touch = Touch_Item;
-		drop->nextthink = level.time + (self->client->quad_framenum - level.framenum) * FRAMETIME;
+		drop->nextthink = self->client->quad_framenum;
 		drop->think = G_FreeEdict;
 	}
 }
@@ -1624,13 +1624,13 @@ void player_die(edict_t * self, edict_t * inflictor, edict_t * attacker, int dam
 	self->svflags |= SVF_DEADMONSTER;
 	if (!self->deadflag) {
 		if (ctf->value) {
-			self->client->respawn_time = level.time + CTFGetRespawnTime(self);
+			self->client->respawn_time = level.framenum + CTFGetRespawnTime(self) * HZ;
 		}
 		else if(teamdm->value) {
-			self->client->respawn_time = level.time + teamdm_respawn->value;
+			self->client->respawn_time = level.framenum + (int)(teamdm_respawn->value * HZ);
 		}
 		else {
-			self->client->respawn_time = level.time + 1.0;
+			self->client->respawn_time = level.framenum + 1 * HZ;
 		}
 		LookAtKiller(self, inflictor, attacker);
 		self->client->ps.pmove.pm_type = PM_DEAD;
@@ -1694,10 +1694,10 @@ void player_die(edict_t * self, edict_t * inflictor, edict_t * attacker, int dam
 		self->client->ps.gunframe = 0;
 		// Reset Grenade Damage to 1.52 when requested:
 		if (use_classic->value)
-			fire_grenade2(self, self->s.origin, vec3_origin, 170, 0, 2, 170 * 2, false);
+			fire_grenade2(self, self->s.origin, vec3_origin, 170, 0, 2 * HZ, 170 * 2, false);
 		else
 			fire_grenade2(self, self->s.origin, vec3_origin, GRENADE_DAMRAD, 0,
-				      2, GRENADE_DAMRAD * 2, false);
+				      2 * HZ, GRENADE_DAMRAD * 2, false);
 	}
 	// Gibbing on really hard HC hit
 	if ((((self->health < -35) && (meansOfDeath == MOD_HC)) ||
@@ -2342,7 +2342,7 @@ void respawn(edict_t * self)
 			gi.multicast(self->s.origin, MULTICAST_PVS);
 		}
 
-		self->client->respawn_time = level.time + 2;
+		self->client->respawn_time = level.framenum + 2 * HZ;
 
 		return;
 	}
@@ -2976,7 +2976,7 @@ deathmatch mode, so clear everything out before starting them.
 */
 void ClientBeginDeathmatch(edict_t * ent)
 {
-	unsigned int checkFrame;
+	int checkFrame;
 
 	G_InitEdict(ent);
 
@@ -3037,7 +3037,7 @@ void ClientBeginDeathmatch(edict_t * ent)
 //FIREBLADE
 
 	//AQ2:TNG - Slicer: Set time to check clients
-	checkFrame = level.framenum + (unsigned int)(check_time->value * HZ);
+	checkFrame = level.framenum + (int)(check_time->value * HZ);
 	ent->client->resp.checkframe[0] = checkFrame;
 	ent->client->resp.checkframe[1] = checkFrame + 2 * HZ;
 	ent->client->resp.checkframe[2] = checkFrame + 3 * HZ;
@@ -3883,7 +3883,7 @@ void ClientBeginServerFrame(edict_t * ent)
 
 	if (ent->deadflag) {
 		// wait for any button just going down
-		if (level.time > client->respawn_time) {
+		if (level.framenum > client->respawn_time) {
 //FIREBLADE
 			if (((!ctf->value && !teamdm->value) || (ent->client->resp.team == NOTEAM || ent->client->resp.subteam))
 			    && (teamplay->value || (ent->client->pers.spectator

@@ -604,7 +604,7 @@ void P_FallingDamage (edict_t * ent)
 	delta = delta * delta * 0.0001;
 
 	// never take damage if just release grapple or on grapple
-	if (level.time - ent->client->ctf_grapplereleasetime <= FRAMETIME * 2 ||
+	if (level.framenum - ent->client->ctf_grapplereleaseframe <= 2*FRAMEDIV ||
 			(ent->client->ctf_grapple &&
 			 ent->client->ctf_grapplestate > CTF_GRAPPLE_STATE_FLY))
 			return;
@@ -658,7 +658,7 @@ void P_FallingDamage (edict_t * ent)
 		else			// all falls are far
 			ent->s.event = EV_FALLFAR;
 	}
-	ent->pain_debounce_framenum = level.framenum;	// no normal pain sound
+	ent->pain_debounce_framenum = KEYFRAME(FRAMEDIV);	// no normal pain sound
 	gi.dprintf("falling damage set debounce framenum to %d\n", level.framenum);
 
 	if (!deathmatch->value || !((int) dmflags->value & DF_NO_FALLING))
@@ -770,7 +770,7 @@ void P_WorldEffects (void)
 		{
 			current_player->air_finished_framenum = level.framenum + 10 * HZ;
 
-			if (((int)(current_client->breather_framenum - level.framenum) % (25 * FRAMEDIV)) == 0)
+			if (((current_client->breather_framenum - level.framenum) % (25 * FRAMEDIV)) == 0)
 			{
 				if (!current_client->breather_sound)
 					gi.sound (current_player, CHAN_AUTO,
@@ -788,10 +788,10 @@ void P_WorldEffects (void)
 		// if out of air, start drowning
 		if (current_player->air_finished_framenum < level.framenum)
 		{			// drown!
-			if (current_player->client->next_drown_time < level.time
-			&& current_player->health > 0)
+			if (current_player->client->next_drown_framenum < level.framenum
+				&& current_player->health > 0)
 			{
-				current_player->client->next_drown_time = level.time + 1;
+				current_player->client->next_drown_framenum = level.framenum + HZ;
 
 				// take more damage the longer underwater
 				current_player->dmg += 2;
@@ -809,7 +809,7 @@ void P_WorldEffects (void)
 					gi.sound (current_player, CHAN_VOICE,
 					gi.soundindex ("*gurp2.wav"), 1, ATTN_NORM, 0);
 
-				current_player->pain_debounce_framenum = level.framenum;
+				current_player->pain_debounce_framenum = KEYFRAME(FRAMEDIV);
 
 				T_Damage (current_player, world, world, vec3_origin,
 				current_player->s.origin, vec3_origin,
@@ -885,7 +885,7 @@ void G_SetClientEffects (edict_t * ent)
 	if (ent->health <= 0 || level.intermission_framenum)
 		return;
 
-	if (ent->powerarmor_time > level.time)
+	if (ent->powerarmor_framenum > level.framenum)
 	{
 		pa_type = PowerArmorType (ent);
 		if (pa_type == POWER_ARMOR_SCREEN)
@@ -905,14 +905,14 @@ void G_SetClientEffects (edict_t * ent)
 	if (ent->client->quad_framenum > level.framenum)
 	{
 		remaining = ent->client->quad_framenum - level.framenum;
-		if (remaining > 30 || (remaining & 4))
+		if (remaining > 3 * HZ || ((remaining / FRAMEDIV) & 4))
 			ent->s.effects |= EF_QUAD;
 	}
 
 	if (ent->client->invincible_framenum > level.framenum)
 	{
 		remaining = ent->client->invincible_framenum - level.framenum;
-		if (remaining > 30 || (remaining & 4))
+		if (remaining > 3 * HZ || ((remaining / FRAMEDIV) & 4))
 			ent->s.effects |= EF_PENT;
 	}
 
@@ -1152,10 +1152,10 @@ void Do_Bleeding (edict_t * ent)
 		{
 			ent->client->bleed_remain %= BLEED_TIME;
 		}
-		if (ent->client->bleeddelay <= level.time)
+		if (ent->client->bleeddelay <= level.framenum)
 		{
 			vec3_t pos;
-			ent->client->bleeddelay = level.time + 2;	// 2 seconds
+			ent->client->bleeddelay = level.framenum + 2 * HZ;	// 2 seconds
 			VectorAdd (ent->client->bleedloc_offset, ent->absmax, pos);
 			//gi.cprintf(ent, PRINT_HIGH, "Bleeding now.\n");
 			EjectBlooder (ent, pos, pos);
@@ -1232,7 +1232,7 @@ void ClientEndServerFrame (edict_t * ent)
 	//AQ2:TNG - Slicer : Stuffs the client x seconds after he enters the server, needed for Video check
 	if (ent->client->resp.checkframe[0] <= level.framenum)
 	{
-		ent->client->resp.checkframe[0] = level.framenum + (unsigned int)(video_checktime->value * HZ);
+		ent->client->resp.checkframe[0] = level.framenum + (int)(video_checktime->value * HZ);
 		if (video_check->value || video_check_lockpvs->value
 			|| video_check_glclear->value || darkmatch->value)
 			stuffcmd (ent, "%!fc $vid_ref\n");
@@ -1245,7 +1245,7 @@ void ClientEndServerFrame (edict_t * ent)
 	}
 	else if (ent->client->resp.checkframe[1] <= level.framenum)
 	{
-		ent->client->resp.checkframe[1] = level.framenum + (unsigned int)(video_checktime->value * HZ);
+		ent->client->resp.checkframe[1] = level.framenum + (int)(video_checktime->value * HZ);
 		ent->client->resp.checkframe[2] = level.framenum + HZ;
 		if (video_check->value || video_check_lockpvs->value
 			|| video_check_glclear->value || darkmatch->value)

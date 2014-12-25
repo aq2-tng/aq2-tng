@@ -48,7 +48,7 @@ void FL_make (edict_t * self)
 	self->flashlight->s.skinnum = 0;
 	self->flashlight->s.effects |= EF_HYPERBLASTER;	// Other effects can be used here, such as flag1, but these look corney and dull. Try stuff and tell me if you find anything cool (EF_HYPERBLASTER)
 	self->flashlight->think = FL_think;
-	self->flashlight->nextthink = level.time + 0.1;
+	self->flashlight->nextthink = level.framenum + FRAMEDIV;
 }
 
 /*
@@ -102,7 +102,7 @@ void FL_think (edict_t * self)
 	VectorCopy(tr.endpos,self->s.origin);
 
 	gi.linkentity (self);
-	self->nextthink = level.time + 0.1; */
+	self->nextthink = level.framenum + FRAMEDIV; */
 
 	if (self->owner->client->pers.firing_style == ACTION_FIRING_CLASSIC)
 		height = 8;
@@ -128,6 +128,6 @@ void FL_think (edict_t * self)
 	VectorCopy (tr.endpos, self->s.origin);
 
 	gi.linkentity (self);
-	self->nextthink = level.time + 0.1;
+	self->nextthink = level.framenum + FRAMEDIV;
 
 }

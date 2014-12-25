@@ -181,7 +181,7 @@ void SP_LaserSight(edict_t * self, gitem_t * item)
 	self->lasersight->s.modelindex = gi.modelindex("sprites/lsight.sp2");
 	self->lasersight->s.renderfx = RF_TRANSLUCENT;
 	self->lasersight->think = LaserSightThink;
-	self->lasersight->nextthink = level.time + 0.01;
+	self->lasersight->nextthink = level.framenum + 1;
 }
 
 /*---------------------------------------------
@@ -225,7 +225,7 @@ void LaserSightThink(edict_t * self)
 	vectoangles(tr.plane.normal, self->s.angles);
 	VectorCopy(tr.endpos, self->s.origin);
 	gi.linkentity(self);
-	self->nextthink = level.time + (0.1 / FRAMEDIV);
+	self->nextthink = level.framenum + 1;
 }
 
 void Cmd_New_Reload_f(edict_t * ent)
@@ -712,7 +712,7 @@ void Cmd_Bandage_f(edict_t * ent)
 			if(ent->client->quad_framenum > level.framenum)
 				damage *= 1.5f;
 
-			fire_grenade2(ent, ent->s.origin, vec3_origin, damage, 0, 2, damage * 2, false);
+			fire_grenade2(ent, ent->s.origin, vec3_origin, damage, 0, 2 * HZ, damage * 2, false);
 
 			INV_AMMO(ent, GRENADE_NUM)--;
 			if (INV_AMMO(ent, GRENADE_NUM) <= 0) {
@@ -1008,8 +1008,7 @@ void Cmd_TKOk(edict_t * ent)
 
 void Cmd_Time(edict_t * ent)
 {
-	int mins, secs, remaining, rmins, rsecs;
-	float gametime;
+	unsigned int mins, secs, remaining, rmins, rsecs, gametime;
 
 	if (!timelimit->value) {
 		gi.cprintf(ent, PRINT_HIGH, "Timelimit disabled\n");
@@ -1017,23 +1016,17 @@ void Cmd_Time(edict_t * ent)
 	}
 
 	if (matchmode->value)
-		gametime = matchtime;
+		gametime = level.matchTime;
 	else
 		gametime = level.time;
 
 	mins = gametime / 60;
-	secs = gametime - (mins * 60);
+	secs = gametime % 60;
 	remaining = (timelimit->value * 60) - gametime;
 	rmins = remaining / 60;
-	rsecs = remaining - (rmins * 60);
-
-	if (rmins < 0)
-		rmins = 0;
-	if (rsecs < 0)
-		rsecs = 0;
+	rsecs = remaining % 60;
 
 	gi.cprintf(ent, PRINT_HIGH, "Elapsed time: %d:%02d. Remaining time: %d:%02d\n", mins, secs, rmins, rsecs);
-
 }
 
 void Cmd_Roundtimeleft_f(edict_t * ent)
