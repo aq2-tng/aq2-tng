@@ -1118,6 +1118,9 @@ void CTFScoreboardMessage(edict_t * ent, edict_t * killer)
 	edict_t *cl_ent;
 	int team, maxsize = 1000;
 
+	string[0] = 0;
+	len = 0;
+
 	if (ent->client->scoreboardnum == 1) {
 		// sort the clients by team and score
 		total[0] = total[1] = 0;
@@ -1151,8 +1154,6 @@ void CTFScoreboardMessage(edict_t * ent, edict_t * killer)
 
 		// print level name and exit rules
 		// add the clients in sorted order
-		*string = 0;
-		len = 0;
 
 		// team one
 		sprintf(string, "if 30 xv 8 yv 8 pic 30 endif "
@@ -1321,8 +1322,10 @@ void CTFScoreboardMessage(edict_t * ent, edict_t * killer)
 		}
 	}
 
-	if (strlen(string) > 1023)	// for debugging...
+	if (strlen(string) > 1023) { // for debugging...
 		gi.dprintf("Warning: scoreboard string neared or exceeded max length\nDump:\n%s\n---\n", string);
+		string[1023] = '\0';
+	}
 
 	gi.WriteByte(svc_layout);
 	gi.WriteString(string);
@@ -1562,7 +1565,7 @@ void CTFCapReward(edict_t * ent)
 		ent->client->pers.inventory[ITEM_INDEX(GET_ITEM(KNIFE_NUM))] += 1;
 
 	if (client->resp.item->typeNum == BAND_NUM) {
-		band =+ 1;
+		band += 1;
 		if (tgren->value > 0)	// team grenades is turned on
 		{
 			item = GET_ITEM(GRENADE_NUM);

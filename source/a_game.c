@@ -1046,21 +1046,17 @@ void GetAmmo(edict_t * ent, char *buf)
 	strcpy(buf, "no ammo");
 }
 
-void GetNearbyTeammates(edict_t * self, char *buf)
+void GetNearbyTeammates(edict_t *self, char *buf)
 {
-	unsigned char nearby_teammates[8][16];
-	int nearby_teammates_num = 0, l;
+	edict_t *nearby_teammates[8];
+	size_t nearby_teammates_num = 0, l;
 	edict_t *ent = NULL;
-
-	nearby_teammates_num = 0;
 
 	while ((ent = findradius(ent, self->s.origin, 1500)) != NULL) {
 		if (ent == self || !ent->client || !CanDamage(ent, self) || !OnSameTeam(ent, self))
 			continue;
 
-		Q_strncpyz(nearby_teammates[nearby_teammates_num], ent->client->pers.netname, sizeof(nearby_teammates[0]));
-
-		nearby_teammates_num++;
+		nearby_teammates[nearby_teammates_num++] = ent;
 		if (nearby_teammates_num >= 8)
 			break;
 	}
@@ -1070,7 +1066,7 @@ void GetNearbyTeammates(edict_t * self, char *buf)
 		return;
 	}
 
-	strcpy(buf, nearby_teammates[0]);
+	strcpy(buf, nearby_teammates[0]->client->pers.netname);
 	for (l = 1; l < nearby_teammates_num; l++)
 	{
 		if (l == nearby_teammates_num - 1)
@@ -1078,6 +1074,6 @@ void GetNearbyTeammates(edict_t * self, char *buf)
 		else
 			Q_strncatz(buf, ", ", PARSE_BUFSIZE);
 
-		Q_strncatz(buf, nearby_teammates[l], PARSE_BUFSIZE);
+		Q_strncatz( buf, nearby_teammates[l]->client->pers.netname, PARSE_BUFSIZE );
 	}
 }

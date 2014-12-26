@@ -769,13 +769,13 @@ void AssignSkin (edict_t * ent, const char *s, qboolean nickChanged)
 
 	if (ctf->value && !matchmode->value)
 	{
-		Q_strncpyz(t, s, sizeof(t));
-
 		// forcing CTF model
 		if(ctf_model->string[0]) {
 			/* copy at most bytes that the skin name itself fits in with the delimieter and NULL */
-			strncpy(t, ctf_model->string, MAX_SKINLEN-strlen(CTF_TEAM1_SKIN)-2);
-			strcat(t, "/");
+			Q_strncpyz( t, ctf_model->string, MAX_SKINLEN-strlen(CTF_TEAM1_SKIN)-1 );
+			Q_strncatz(t, "/", sizeof(t));
+		} else {
+			Q_strncpyz(t, s, sizeof(t));
 		}
 
 		if ((p = strrchr (t, '/')) != NULL)
@@ -2513,6 +2513,7 @@ void A_ScoreboardMessage (edict_t * ent, edict_t * killer)
 	edict_t *cl_ent;
 	int maxsize = 1000, i, j, k;
 
+	string[0] = 0;
 
 	if (ent->client->scoreboardnum == 1)
 	{
@@ -2939,11 +2940,8 @@ void A_ScoreboardMessage (edict_t * ent, edict_t * killer)
 	}
 
 
-	if (strlen(string) > 1023)	// for debugging...
-	{
-		gi.dprintf
-		("Warning: scoreboard string neared or exceeded max length\nDump:\n%s\n---\n",
-		string);
+	if (strlen(string) > 1023) { // for debugging...
+		gi.dprintf("Warning: scoreboard string neared or exceeded max length\nDump:\n%s\n---\n", string);
 		string[1023] = '\0';
 	}
 

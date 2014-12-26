@@ -189,40 +189,40 @@ gitem_t *FindItem (char *pickup_name)
 
 //======================================================================
 
-void
-DoRespawn (edict_t * ent)
+void DoRespawn (edict_t * ent)
 {
-  if (ent->team)
-    {
-      edict_t *master;
-      int count;
-      int choice;
+#if 0
+	if (ent->team)
+	{
+		edict_t *master;
+		int count;
+		int choice;
 
-      master = ent->teammaster;
+		master = ent->teammaster;
 
-      //in ctf, when we are weapons stay, only the master of a team of weapons
-      //is spawned
-      // if (ctf->value &&
-      //    ((int)dmflags->value & DF_WEAPONS_STAY) &&
-      //    master->item && (master->item->flags & IT_WEAPON))
-      //  ent = master;
-      //else {
-      for (count = 0, ent = master; ent; ent = ent->chain, count++)
-	;
+		//in ctf, when we are weapons stay, only the master of a team of weapons
+		//is spawned
+		// if (ctf->value &&
+		//    ((int)dmflags->value & DF_WEAPONS_STAY) &&
+		//    master->item && (master->item->flags & IT_WEAPON))
+		//  ent = master;
+		//else {
+			for (count = 0, ent = master; ent; ent = ent->chain, count++)
+				;
 
-      choice = rand () % count;
+			choice = rand () % count;
 
-      for (count = 0, ent = master; count < choice; ent = ent->chain, count++)
-	;
-      //}
-    }
+			for (count = 0, ent = master; count < choice; ent = ent->chain, count++)
+				;
+		//}
+	}
+#endif
+	ent->svflags &= ~SVF_NOCLIENT;
+	ent->solid = SOLID_TRIGGER;
+	gi.linkentity(ent);
 
-  ent->svflags &= ~SVF_NOCLIENT;
-  ent->solid = SOLID_TRIGGER;
-  gi.linkentity (ent);
-
-  // send an effect
-  ent->s.event = EV_ITEM_RESPAWN;
+	// send an effect
+	ent->s.event = EV_ITEM_RESPAWN;
 }
 
 void SetRespawn (edict_t * ent, float delay)
@@ -1063,7 +1063,7 @@ void Touch_Item (edict_t * ent, edict_t * other, cplane_t * plane,
 
       // show icon and name on status bar
 //FIREBLADE (debug code)
-      if (!ent->item->icon || strlen (ent->item->icon) == 0)
+      if (!ent->item->icon || !ent->item->icon[0])
 	{
 	  if (ent->item->classname)
 	    gi.dprintf ("Warning: null icon filename (classname = %s)\n",
@@ -1247,9 +1247,10 @@ void droptofloor (edict_t * ent)
 	}
 
 	if (ent->model)
-		gi.setmodel (ent, ent->model);
-	else
-		gi.setmodel (ent, ent->item->world_model);
+		gi.setmodel(ent, ent->model);
+	else if (ent->item)
+		gi.setmodel(ent, ent->item->world_model);
+
 	ent->solid = SOLID_TRIGGER;
 	ent->movetype = MOVETYPE_TOSS;
 	ent->touch = Touch_Item;
@@ -1316,7 +1317,7 @@ void PrecacheItem (gitem_t * it)
 {
 	char *s, *start;
 	char data[MAX_QPATH];
-	int len;
+	size_t len;
 	gitem_t *ammo;
 
 	if (!it)
@@ -1351,9 +1352,11 @@ void PrecacheItem (gitem_t * it)
 			s++;
 
 		len = s - start;
-		if (len >= MAX_QPATH || len < 5)
-			gi.error ("PrecacheItem: %s has bad precache string", it->classname);
-		memcpy (data, start, len);
+		if (len >= MAX_QPATH || len < 5) {
+			gi.error( "PrecacheItem: %s has bad precache string", it->classname );
+			continue;
+		}
+		memcpy(data, start, len);
 		data[len] = 0;
 		if (*s)
 			s++;

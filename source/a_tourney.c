@@ -21,32 +21,30 @@ int LastOpponent = 0;
 tourneyindex_t t_eventlist[TOURNEYMAXEVENTS];
 int t_eventcount = 0;
 
-int
-_istourneysection (char *atoken)
+static int _istourneysection(const char *atoken)
 {
-  if (Q_stricmp (atoken, "[START]") == 0)
-    return 1;
-  if (Q_stricmp (atoken, "[END]") == 0)
-    return 2;
-  if (Q_stricmp (atoken, "[SPAWN]") == 0)
-    return 3;
+	if (Q_stricmp(atoken, "[START]") == 0)
+		return 1;
+	if (Q_stricmp(atoken, "[END]") == 0)
+		return 2;
+	if (Q_stricmp(atoken, "[SPAWN]") == 0)
+		return 3;
 
-  return 0;
+	return 0;
 }
 
-void _tourneyparseerror (parse_t parse, char *msg, char *atoken)
+static void _tourneyparseerror(parse_t *parse, const char *msg, const char *atoken)
 {
 	char buf[512];
 
 	if (atoken)
-		Com_sprintf (buf, sizeof(buf), msg, atoken);
+		Com_sprintf(buf, sizeof(buf), msg, atoken);
 	else
-		Q_strncpyz (buf, msg, sizeof(buf));
-	gi.dprintf ("Error in " TOURNEYINI " at line %i: %s.\n", parse.lnumber, buf);
+		Q_strncpyz(buf, msg, sizeof(buf));
+	gi.dprintf("Error in " TOURNEYINI " at line %i: %s.\n", parse->lnumber, buf);
 }
 
-void
-_tourneysetsection (tourneyindex_t * ti, int clevel)
+static void _tourneysetsection (tourneyindex_t * ti, int clevel)
 {
   switch (clevel)
     {
@@ -68,7 +66,7 @@ _tourneysetsection (tourneyindex_t * ti, int clevel)
 }
 
 //format: set [starttime/startspawn/endtime] at [time]
-qboolean _tourneyset (parse_t parse, int clevel, int cevent)
+static qboolean _tourneyset (parse_t parse, int clevel, int cevent)
 {
   char *mytok;
   int toknr;
@@ -91,7 +89,7 @@ qboolean _tourneyset (parse_t parse, int clevel, int cevent)
 	    {
 	      if (clevel != 1)
 		{
-		  _tourneyparseerror (parse,
+		  _tourneyparseerror(&parse,
 				      "%s is only supported in section [START]",
 				      mytok);
 		  toknr = 1000;
@@ -105,7 +103,7 @@ qboolean _tourneyset (parse_t parse, int clevel, int cevent)
 	    }
 	  else
 	    {
-	      _tourneyparseerror (parse, "not supported set option %s",
+	      _tourneyparseerror(&parse, "not supported set option %s",
 				  mytok);
 	      toknr = 1000;
 	    }
@@ -116,7 +114,7 @@ qboolean _tourneyset (parse_t parse, int clevel, int cevent)
 	    toknr++;
 	  else
 	    {
-	      _tourneyparseerror (parse, "\"at\" expected, %s found", mytok);
+	      _tourneyparseerror(&parse, "\"at\" expected, %s found", mytok);
 	      toknr = 1000;
 	    }
 	  break;
@@ -136,7 +134,7 @@ qboolean _tourneyset (parse_t parse, int clevel, int cevent)
     }
   if (toknr < 3)
     {
-      _tourneyparseerror (parse, "unexpected end of file in SET", NULL);
+      _tourneyparseerror(&parse, "unexpected end of file in SET", NULL);
     }
   return false;
 }
@@ -166,7 +164,7 @@ qboolean _tourneyplay (parse_t parse, int clevel, int cevent)
 	    toknr++;
 	  else
 	    {
-	      _tourneyparseerror (parse, "\"at\" expected, %s found", mytok);
+	      _tourneyparseerror(&parse, "\"at\" expected, %s found", mytok);
 	      toknr = 1000;
 	    }
 	  break;
@@ -185,7 +183,7 @@ qboolean _tourneyplay (parse_t parse, int clevel, int cevent)
     }
   if (toknr < 3)
     {
-      _tourneyparseerror (parse, "unexpected end of file in PLAY", NULL);
+      _tourneyparseerror(&parse, "unexpected end of file in PLAY", NULL);
     }
   return false;
 }
@@ -214,7 +212,7 @@ qboolean _tourneyprint (parse_t parse, int clevel, int cevent)
 	    toknr++;
 	  else
 	    {
-	      _tourneyparseerror (parse, "\"at\" expected, %s found", mytok);
+	      _tourneyparseerror(&parse, "\"at\" expected, %s found", mytok);
 	      toknr = 1000;
 	    }
 	  break;
@@ -233,7 +231,7 @@ qboolean _tourneyprint (parse_t parse, int clevel, int cevent)
     }
   if (toknr < 2)
     {
-      _tourneyparseerror (parse, "unexpected end of file in PRINT", NULL);
+      _tourneyparseerror(&parse, "unexpected end of file in PRINT", NULL);
     }
   return false;
 }
@@ -311,7 +309,7 @@ TourneyReadIni (void)
 
 	      clevel = _istourneysection (mytok);
 	      if (!clevel)
-		_tourneyparseerror (parse, "unknown command %s", mytok);
+		_tourneyparseerror(&parse, "unknown command %s", mytok);
 	      break;
 
 	    default:		// we're are in any other section
@@ -335,7 +333,7 @@ TourneyReadIni (void)
 	      else if (_istourneysection (mytok))
 		clevel = _istourneysection (mytok);
 	      else
-		_tourneyparseerror (parse, "unknown command %s", mytok);
+		_tourneyparseerror(&parse, "unknown command %s", mytok);
 	    }
 	}
       ParseEndFile (&parse);

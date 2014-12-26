@@ -422,9 +422,10 @@ void SVCmd_stuffcmd_f ()
 		return;
 	}
 
-	for (u = 0; u < strlen(user); u++)
+	u = strlen(user);
+	for (i = 0; i < u; i++)
 	{
-		if (!isdigit(user[u]))
+		if (!isdigit(user[i]))
 		{
 			gi.cprintf (NULL, PRINT_HIGH, "Usage: stuffcmd <user id> <text>\n");
 			return;

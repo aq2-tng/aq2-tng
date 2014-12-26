@@ -1814,7 +1814,7 @@ void InitClientPersistant(gclient_t * client)
 	if ((int) wp_flags->value & WPF_KNIFE) {
 		item = GET_ITEM(KNIFE_NUM);
 		client->pers.inventory[ITEM_INDEX(item)] = 1;
-		if (!(int) wp_flags->value & WPF_MK23) {
+		if (!((int)wp_flags->value & WPF_MK23)) {
 			client->pers.selected_item = ITEM_INDEX(item);
 			client->pers.weapon = item;
 			client->pers.lastweapon = item;
@@ -2206,8 +2206,10 @@ void SelectSpawnPoint(edict_t * ent, vec3_t origin, vec3_t angles)
 			if (!game.spawnpoint[0]) {	// there wasn't a spawnpoint without a target, so use any
 				spot = G_Find(spot, FOFS(classname), "info_player_start");
 			}
-			if (!spot)
+			if (!spot) {
 				gi.error("Couldn't find spawn point %s\n", game.spawnpoint);
+				return;
+			}
 		}
 	}
 

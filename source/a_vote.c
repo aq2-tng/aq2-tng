@@ -615,7 +615,7 @@ void MapVoteMenu (edict_t * ent, pmenu_t * p)
 	char buf[1024], sbuf[512];
 
 	PMenu_Close (ent);
-	if (_MostVotesStr (sbuf));
+	if (_MostVotesStr (sbuf))
 		sprintf (buf, "most: %s", sbuf);
 	if (xMenu_New (ent, MAPMENUTITLE, buf, AddMapToMenu) == false)
 		gi.cprintf (ent, PRINT_MEDIUM, "No map to vote for.\n");
@@ -725,7 +725,7 @@ void ReadMaplistFile (void)
 
 //Igor[Rock] BEGIN
   //load the saved values from the last run of the server
-  sprintf (maplistpath, "%s-votes", maplistpath);
+  Q_strncatz(maplistpath, "-votes", sizeof(maplistpath));
 
   maplist_file = fopen (maplistpath, "r");
   if (maplist_file != NULL)
