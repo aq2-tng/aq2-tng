@@ -1,3 +1,12 @@
 *.so
 *.o
 *.tar.gz
+*.dll
+*.lib
+*.obj
+*.sbr
+*.log
+*.map
+*.pdb
+*.ilk
+*.opensdf

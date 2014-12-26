@@ -9,10 +9,10 @@ char *INI_Find(FILE *fh, const char *section, const char *key)
 	char _ini_file[MAX_INI_SIZE];
 	static char _ini_ret[MAX_INI_STR_LEN];
 	char *line, *value;
-	char cur_section[MAX_INI_STR_LEN];
+	char cur_section[MAX_INI_STR_LEN] = "\0";
+	size_t length;
 
 	memset(&_ini_ret, 0, MAX_INI_STR_LEN);
-	memset(&cur_section, 0, MAX_INI_STR_LEN);
 	memset(&_ini_file, 0, MAX_INI_SIZE);
 
 	if(!fh) {
@@ -35,16 +35,22 @@ char *INI_Find(FILE *fh, const char *section, const char *key)
 	}
 
 	line = strtok(_ini_file, "\n");
-	do {
-		if(strlen(line) > 2 && line[0] != ';') {
+	while (line != NULL) {
+		length = strlen(line);
+		if (length > 2 && line[0] != ';') {
 
 			// remove DOS line endings
-			if(line[strlen(line)-1] == 0x0D)
-				line[strlen(line)-1] = 0x00;
+			if(line[length-1] == 0x0D) {
+				length--;
+				line[length] = 0x00;
+			}
 
-			if(line[0] == '[' && line[strlen(line)-1] == ']') {
-				memset(&cur_section, 0, MAX_INI_STR_LEN);
-				strncpy(cur_section, line+1, strlen(line)-2);
+			if(line[0] == '[' && line[length-1] == ']') {
+				length -= 1;
+				if (length > MAX_INI_STR_LEN) {
+					length = MAX_INI_STR_LEN;
+				}
+				Q_strncpyz(cur_section, line+1, length);
 			} else {
 				value = strstr(line, "=");
 				if(!value || value == line) {
@@ -55,19 +61,19 @@ char *INI_Find(FILE *fh, const char *section, const char *key)
 
 					/* this handles NULL (empty) section properly */
 					if(section == NULL || section[0] == 0) {
-					        if(cur_section[0] == 0 && strcmp(line, key) == 0) {
-							strncpy(_ini_ret, value, MAX_INI_STR_LEN);
+					   if(cur_section[0] == 0 && strcmp(line, key) == 0) {
+							Q_strncpyz(_ini_ret, value, MAX_INI_STR_LEN);
 							return _ini_ret;
 						}
 					} else if(strcmp(section, cur_section) == 0 && strcmp(line, key) == 0) {
-						strncpy(_ini_ret, value, MAX_INI_STR_LEN);
+						Q_strncpyz(_ini_ret, value, MAX_INI_STR_LEN);
 						return _ini_ret;
 					}
 				}
 			}
 		}
 		line = strtok(NULL, "\n");
-	} while(line != NULL);
+	}
 
 	return NULL;
 }

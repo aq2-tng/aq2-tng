@@ -2364,7 +2364,7 @@ void Weapon_Grenade (edict_t * ent)
 		{
 			if (!ent->client->grenade_framenum)
 			{
-				ent->client->grenade_framenum = level.framenum + (GRENADE_TIMER + 0.2) * HZ;
+				ent->client->grenade_framenum = level.framenum + GRENADE_TIMER + 2;
 				ent->client->weapon_sound = gi.soundindex ("weapons/hgrenc1b.wav");
 				//ent->client->weapon_sound = gi.soundindex("weapons/grenlb1b.wav");
 			}
@@ -2443,7 +2443,7 @@ weapon_grenadelauncher_fire (edict_t * ent)
   VectorScale (forward, -2, ent->client->kick_origin);
   ent->client->kick_angles[0] = -1;
 
-  fire_grenade (ent, start, forward, damage, 600 * HZ, 2.5, radius);
+  fire_grenade(ent, start, forward, damage, 600, 2.5 * HZ, radius);
 
   gi.WriteByte (svc_muzzleflash);
   gi.WriteShort (ent - g_edicts);

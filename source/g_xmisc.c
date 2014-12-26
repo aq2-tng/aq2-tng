@@ -316,7 +316,7 @@ qboolean CheckForRemark(char *src)
 	char *myptr;
 
 	myptr = StripSpaces(src);
-	if (strlen(myptr) == 0)
+	if (!myptr || !*myptr)
 		return (true);
 	if (*myptr == '#')
 		return (true);

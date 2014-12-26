@@ -538,9 +538,9 @@ void ED_ParseField (char *key, char *value, edict_t * ent)
 		if (!(f->flags & FFL_NOSPAWN) && !Q_stricmp (f->name, key))
 		{			// found it
 			if (f->flags & FFL_SPAWNTEMP)
-				b = (byte *) & st;
+				b = (byte *)&st;
 			else
-				b = (byte *) ent;
+				b = (byte *)ent;
 
 			switch (f->type)
 			{
@@ -548,7 +548,10 @@ void ED_ParseField (char *key, char *value, edict_t * ent)
 				*(char **) (b + f->ofs) = ED_NewString (value);
 				break;
 			case F_VECTOR:
-				sscanf (value, "%f %f %f", &vec[0], &vec[1], &vec[2]);
+                if (sscanf(value, "%f %f %f", &vec[0], &vec[1], &vec[2]) != 3) {
+                    gi.dprintf("ED_ParseField: couldn't parse '%s'\n", key);
+                    VectorClear(vec);
+                }
 				((float *) (b + f->ofs))[0] = vec[0];
 				((float *) (b + f->ofs))[1] = vec[1];
 				((float *) (b + f->ofs))[2] = vec[2];
@@ -567,15 +570,13 @@ void ED_ParseField (char *key, char *value, edict_t * ent)
 				break;
 			case F_IGNORE:
 				break;
-			// AQ:TNG JBravo fixing compiler warning. Still not sure 'bout this
 			default:
-				return;
-			// End compiler warning fix
+				break;
 			}
 			return;
 		}
 	}
-	gi.dprintf ("%s is not a field\n", key);
+	gi.dprintf("ED_ParseField: %s is not a field\n", key);
 }
 
 /*

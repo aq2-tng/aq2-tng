@@ -103,8 +103,10 @@ qboolean SV_RunThink(edict_t *ent)
 		return true;
 
 	ent->nextthink = 0;
-	if (!ent->think)
+	if (!ent->think) {
 		gi.error("NULL ent->think");
+		return false;
+	}
 	ent->think(ent);
 
 	return false;
