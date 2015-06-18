@@ -291,6 +291,11 @@
 #define		getEnt(entnum)	(edict_t *)((char *)globals.edicts + (globals.edict_size * entnum))	//AQ:TNG Slicer - This was missing
 #define		GAMEVERSION			"action"	// the "gameversion" client command will print this plus compile date
 
+#define GMF_CLIENTNUM		0x00000001
+#define GMF_MVDSPEC		0x00000004
+#define GMF_EXTRA_USERINFO	0x00001000
+#define G_FEATURES (/*GMF_EXTRA_USERINFO | GMF_MVDSPEC |*/ GMF_CLIENTNUM)
+
 // protocol bytes that can be directly added to messages
 #define svc_muzzleflash         1
 #define svc_muzzleflash2        2
@@ -549,6 +554,7 @@ typedef struct
 
   // cross level triggers
   int serverflags;
+  int serverfeatures;
 
   // items
   int num_items;
@@ -827,6 +833,7 @@ extern cvar_t *roundlimit;
 extern cvar_t *skipmotd;
 extern cvar_t *nohud;
 extern cvar_t *noscore;
+extern cvar_t *use_newscore;
 extern cvar_t *actionversion;
 extern cvar_t *use_voice;
 extern cvar_t *ppl_idletime;
@@ -866,6 +873,7 @@ extern cvar_t *darkmatch;
 extern cvar_t *day_cycle;	// If darkmatch is on, this value is the nr of seconds between each interval (day, dusk, night, dawn)
 
 extern cvar_t *hearall;		// used in match mode
+extern cvar_t *deadtalk;
 extern cvar_t *mm_forceteamtalk;
 extern cvar_t *mm_adminpwd;
 extern cvar_t *mm_allowlock;
@@ -902,6 +910,7 @@ extern cvar_t *hc_single;
 extern cvar_t *wp_flags;
 extern cvar_t *itm_flags;
 extern cvar_t *use_classic;	// Use_classic resets weapon balance to 1.52
+extern cvar_t *warmup;
 
 extern cvar_t *skill;
 extern cvar_t *fraglimit;
@@ -912,9 +921,7 @@ extern cvar_t *g_select_empty;
 extern cvar_t *dedicated;
 
 extern cvar_t *filterban;
-extern cvar_t *flood_msgs;
-extern cvar_t *flood_persecond;
-extern cvar_t *flood_waitdelay;
+extern cvar_t *flood_threshold;
 
 extern cvar_t *sv_gravity;
 extern cvar_t *sv_maxvelocity;
@@ -946,6 +953,7 @@ extern cvar_t *stats_afterround; // TNG Stats, collect stats between rounds
 
 extern cvar_t *auto_join;	// Automaticly join clients to teams they were on in last map.
 extern cvar_t *auto_equip;	// Remember weapons and items for players between maps.
+extern cvar_t *auto_menu;	// Automatically show the join menu
 
 extern cvar_t *dm_choose;
 extern cvar_t *dm_shield;
@@ -1011,6 +1019,7 @@ extern gitem_t itemlist[];
 //
 // g_cmds.c
 //
+qboolean FloodCheck (edict_t * ent);
 void Cmd_Help_f (edict_t * ent);
 void Cmd_Score_f (edict_t * ent);
 void Cmd_CPSI_f (edict_t * ent);
@@ -1369,6 +1378,8 @@ typedef struct
 
   int joined_team;		// last frame # at which the player joined a team
   int lastWave;			//last time used wave
+  int menu_shown;		// has the main menu been shown
+  qboolean dm_selected;		// if dm weapon selection has been done once
 
   // radio/partners stuff...
   int radio_delay;
@@ -1471,6 +1482,7 @@ struct gclient_s
   player_state_t ps;		// communicated by server to clients
 
   int ping;
+  int clientNum;
 
   // private to game
   client_persistant_t pers;
@@ -1556,11 +1568,7 @@ struct gclient_s
 
   float pickup_msg_time;
 
-  float flood_locktill;		// locked from talking
-
-  float flood_when[10];		// when messages were said
-
-  int flood_whenhead;		// head pointer for when said
+  int penalty;
 
   float respawn_time;		// can respawn when time > this
   // zucc

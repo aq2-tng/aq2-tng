@@ -458,6 +458,8 @@ field_t clientfields[] = {
 */
 void InitGame (void)
 {
+	cvar_t *cv;
+
 	IRC_init ();
 	gi.dprintf ("==== InitGame ====\n");
 
@@ -527,6 +529,7 @@ void InitGame (void)
 	twbanrounds = gi.cvar ("twbanrounds", "2", 0);
 	tkbanrounds = gi.cvar ("tkbanrounds", "2", 0);
 	noscore = gi.cvar ("noscore", "0", CVAR_LATCH);	// Was serverinfo
+	use_newscore = gi.cvar ("use_newscore", "1", 0);
 	actionversion =
 	gi.cvar ("actionversion", "none set", CVAR_SERVERINFO | CVAR_LATCH);
 	gi.cvar_set ("actionversion", ACTION_VERSION);
@@ -574,6 +577,7 @@ void InitGame (void)
 	itm_flags = gi.cvar ("itm_flags", "63", 0);	// 63 = ITF_SIL | ITF_SLIP | ITF_BAND | ITF_KEV | ITF_LASER | ITF_HELM 
 	matchmode = gi.cvar ("matchmode", "0", CVAR_SERVERINFO | CVAR_LATCH);
 	hearall = gi.cvar ("hearall", "0", 0);	// used in matchmode
+	deadtalk = gi.cvar ("deadtalk", "0", 0);
 
 	teamdm = gi.cvar ("teamdm", "0", CVAR_LATCH);
 	teamdm_respawn = gi.cvar ("teamdm_respawn", "2", 0);
@@ -601,6 +605,7 @@ void InitGame (void)
 
 	auto_join = gi.cvar ("auto_join", "0", 0);
 	auto_equip = gi.cvar ("auto_equip", "0", 0);
+	auto_menu = gi.cvar ("auto_menu", "0", 0);
 	eventeams = gi.cvar ("eventeams", "0", 0);
 	use_balancer = gi.cvar ("use_balancer", "0", 0);
 	dm_choose = gi.cvar ("dm_choose", "0", 0);
@@ -650,9 +655,9 @@ void InitGame (void)
 	bob_roll = gi.cvar ("bob_roll", "0.002", 0);
 
 	// flood control
-	flood_msgs = gi.cvar ("flood_msgs", "4", 0);
-	flood_persecond = gi.cvar ("flood_persecond", "4", 0);
-	flood_waitdelay = gi.cvar ("flood_waitdelay", "10", 0);
+	flood_threshold = gi.cvar ("flood_threshold", "4", 0);
+
+	warmup = gi.cvar ("warmup", "0", CVAR_LATCH);
 
 	// items
 	InitItems ();
@@ -676,6 +681,18 @@ void InitGame (void)
 
 	//PG BUND - must be at end of gameinit:
 	vInitGame ();
+
+	gi.dprintf ("Reading extra server features\n");
+	cv = gi.cvar("sv_features", NULL, 0);
+	if (cv) {
+		game.serverfeatures = (int)cv->value;
+
+		if (game.serverfeatures & GMF_CLIENTNUM) {
+			gi.dprintf ("...server supports GMF_CLIENTNUM\n");
+		}
+	}
+
+	gi.cvar_forceset("g_features", va("%d", G_FEATURES));
 }
 
 //=========================================================

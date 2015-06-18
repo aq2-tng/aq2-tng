@@ -916,7 +916,7 @@ void Cmd_Choose_f(edict_t * ent)
 	int itemNum = NO_NUM;
 
 	// only works in teamplay
-	if (!teamplay->value || teamdm->value || ctf->value == 2)
+	if ((!teamplay->value && !dm_choose->value) || teamdm->value || ctf->value == 2)
 		return;
 
 	s = gi.args();

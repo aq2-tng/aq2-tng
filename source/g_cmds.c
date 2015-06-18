@@ -214,6 +214,22 @@
 #include "g_local.h"
 #include "m_player.h"
 
+qboolean FloodCheck (edict_t *ent)
+{
+	if (flood_threshold->value)
+	{
+		ent->client->penalty++;
+
+		if (ent->client->penalty > flood_threshold->value)
+		{
+			gi.cprintf (ent, PRINT_HIGH, "You can't talk for %d seconds.\n", ent->client->penalty - (int) flood_threshold->value);
+			return 1;
+		}
+	}
+
+	return 0;
+}
+
 
 char *ClientTeam (edict_t * ent)
 {
@@ -857,6 +873,8 @@ void Cmd_Inven_f (edict_t * ent)
 		return;
 	}
 
+	cl->resp.menu_shown = true;
+
 	//FIREBLADE
 	if (teamdm->value || ctf->value == 2) {
 		if (ent->client->resp.team == NOTEAM) {
@@ -866,6 +884,7 @@ void Cmd_Inven_f (edict_t * ent)
 	}
 	else if (teamplay->value)
 	{
+		cl->resp.menu_shown = true;
 		if (ent->client->resp.team == NOTEAM)
 			OpenJoinMenu (ent);
 		else
@@ -1457,31 +1476,8 @@ void Cmd_Say_f (edict_t * ent, qboolean team, qboolean arg0, qboolean partner_ms
 
 	Q_strncatz(text, "\n", sizeof(text));
 
-	if (flood_msgs->value)
-	{
-		cl = ent->client;
-
-		if (realLtime < cl->flood_locktill)
-		{
-			gi.cprintf (ent, PRINT_HIGH, "You can't talk for %d more seconds.\n",
-					(int) (cl->flood_locktill - realLtime));
-			return;
-		}
-		i = cl->flood_whenhead - flood_msgs->value + 1;
-		if (i < 0)
-			i = (sizeof (cl->flood_when) / sizeof (cl->flood_when[0])) + i;
-		if (cl->flood_when[i] &&
-			realLtime - cl->flood_when[i] < flood_persecond->value)
-		{
-			cl->flood_locktill = realLtime + flood_waitdelay->value;
-			gi.cprintf (ent, PRINT_HIGH, "You can't talk for %d seconds.\n",
-				(int) flood_waitdelay->value);
-			return;
-		}
-		cl->flood_whenhead = (cl->flood_whenhead + 1) %
-			(sizeof (cl->flood_when) / sizeof (cl->flood_when[0]));
-		cl->flood_when[cl->flood_whenhead] = realLtime;
-	}
+	if (FloodCheck(ent))
+		return;
 	
 	if (dedicated->value) {
 		gi.cprintf (NULL, PRINT_CHAT, "%s", text);
@@ -1514,7 +1510,7 @@ void Cmd_Say_f (edict_t * ent, qboolean team, qboolean arg0, qboolean partner_ms
 		{
 			if ((ent->solid == SOLID_NOT || ent->deadflag == DEAD_DEAD) &&
 				(other->solid != SOLID_NOT && other->deadflag != DEAD_DEAD)
-				&& !ctf->value && !teamdm->value)	//AQ2:TNG Slicer
+				&& !ctf->value && !teamdm->value && !deadtalk->value)	//AQ2:TNG Slicer
 				continue;
 		}
 		//FIREBLADE

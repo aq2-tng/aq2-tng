@@ -300,6 +300,7 @@ cvar_t *roundlimit;
 cvar_t *skipmotd;
 cvar_t *nohud;
 cvar_t *noscore;
+cvar_t *use_newscore;
 cvar_t *actionversion;
 cvar_t *needpass;
 cvar_t *use_voice;
@@ -352,9 +353,7 @@ cvar_t *bob_up;
 cvar_t *bob_pitch;
 cvar_t *bob_roll;
 cvar_t *sv_cheats;
-cvar_t *flood_msgs;
-cvar_t *flood_persecond;
-cvar_t *flood_waitdelay;
+cvar_t *flood_threshold;
 cvar_t *unique_weapons;
 cvar_t *unique_items;
 cvar_t *ir;
@@ -386,6 +385,7 @@ cvar_t *matchmode;
 cvar_t *darkmatch;		// Darkmatch
 cvar_t *day_cycle;		// If darkmatch is on, this value is the nr of seconds between each interval (day, dusk, night, dawn)
 cvar_t *hearall;		// used for matchmode
+cvar_t *deadtalk;
 
 cvar_t *mm_forceteamtalk;
 cvar_t *mm_adminpwd;
@@ -415,6 +415,7 @@ cvar_t *stats_afterround;     // Collect TNG stats between rounds
 
 cvar_t *auto_join;
 cvar_t *auto_equip;
+cvar_t *auto_menu;
 
 cvar_t *dm_choose;
 
@@ -433,6 +434,7 @@ cvar_t *radio_repeat;		// same as radio_max, only for repeats
 cvar_t *radio_repeat_time;
 
 cvar_t *use_classic;		// Used to reset spread/gren strength to 1.52
+cvar_t *warmup;
 
 int pause_time = 0;
 
@@ -472,6 +474,8 @@ void ShutdownGame (void)
 	vExitGame ();
 	gi.FreeTags (TAG_LEVEL);
 	gi.FreeTags (TAG_GAME);
+
+	gi.cvar_forceset("g_features", "0");
 }
 
 
@@ -564,6 +568,13 @@ void ClientEndServerFrames (void)
 		ClientEndServerFrame (ent);
 	}
 
+	for (i = 0; i < maxclients->value; i++)
+	{
+		ent = g_edicts + 1 + i;
+		if (!ent->inuse || !ent->client || !ent->client->chase_target)
+			continue;
+		G_SetSpectatorStats (ent);
+	}
 }
 
 /*
