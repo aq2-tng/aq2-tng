@@ -115,14 +115,14 @@ float	BOTMV_FindBestDirection(edict_t	*bot, vec3_t vBestDest, vec3_t angles)
 	float	fBestDist = -1.0, fThisDist;
 	int		i;
 	vec3_t	vDir, vAngle, vThisAngle, vDest, vDest2;
-	vec3_t	vMins;
+	//vec3_t vMins;
 	trace_t	tTrace;
 
 //	if (bot->fLastBestDirection > (level.time - EYES_FREQ))
 //		return (0); // This means called too soon
 //	bot->fLastBestDirection = level.time;
 
-	VectorAdd(bot->mins, tv(0,0,STRIDESIZE), vMins);
+	//VectorAdd(bot->mins, tv(0,0,STRIDESIZE), vMins);
 
 	// check eight compass directions
 	VectorClear(vAngle);

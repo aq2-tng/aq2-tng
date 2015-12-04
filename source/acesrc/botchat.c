@@ -82,7 +82,7 @@ char *ltk_insults[DBC_INSULTS] =
 void LTK_Chat (edict_t *bot, edict_t *object, int speech)
 {
         char final[150];
-        char *text;
+        char *text = NULL;
 
         if ((!object) || (!object->client))
                 return;
@@ -91,11 +91,12 @@ void LTK_Chat (edict_t *bot, edict_t *object, int speech)
                 text = ltk_welcomes[rand()%DBC_WELCOMES];
         else if (speech == DBC_KILLED)
                 text = ltk_killeds[rand()%DBC_KILLEDS];
-        else if (speech = DBC_INSULT)
+        else if (speech == DBC_INSULT)
                 text = ltk_insults[rand()%DBC_INSULTS];
-        else if( debug_mode )
+        else
         {
-                gi.bprintf (PRINT_HIGH, "LTK_Chat: Unknown speech type attempted!(out of range)");
+                if( debug_mode )
+                        gi.bprintf (PRINT_HIGH, "LTK_Chat: Unknown speech type attempted!(out of range)");
                 return;
         }
 

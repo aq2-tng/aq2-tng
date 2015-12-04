@@ -154,13 +154,13 @@ int ACEND_FindCloseReachableNode(edict_t *self, int range, int type)
 int ACEND_DistanceToTargetNode(edict_t *self)
 {
 	float dist;
-	int node=-1;
+	//int node=-1;
 	vec3_t v;
 
 	VectorSubtract(nodes[self->goal_node].origin, self->s.origin,v); // subtract first
 	dist = v[0]*v[0] + v[1]*v[1] + v[2]*v[2];
 
-return dist;
+	return dist;
 }
 
 
@@ -1042,10 +1042,12 @@ void ACEND_ReverseLink( edict_t *self, int from, int to )
 	// Now for the self-referencing part, linear time for each link added
 	for(i=0;i<numnodes;i++)
 		if(path_table[i][from] != INVALID)
+		{
 			if(i == to)
 				path_table[i][to] = INVALID; // make sure we terminate
 			else
 				path_table[i][to] = path_table[i][from];
+		}
 }
 //R
 	
@@ -1135,11 +1137,13 @@ void ACEND_UpdateNodeEdge(edict_t *self, int from, int to)
 	// Now for the self-referencing part, linear time for each link added
 	for(i=0;i<numnodes;i++)
 		if(path_table[i][from] != INVALID)
+		{
 			if(i == to)
 				path_table[i][to] = INVALID; // make sure we terminate
 			else
 				path_table[i][to] = path_table[i][from];
-		
+		}
+        
 	// RiEvEr - check for the link going back the other way
 	// Reverse the input data so it works properly!
 	ACEND_ReverseLink( self, to, from );
@@ -1216,10 +1220,12 @@ void ACEND_ResolveAllPaths()
 				// Now for the self-referencing part linear time for each link added
 				for(i=0;i<numnodes;i++)
 					if(path_table[i][from] != -1)
+					{
 						if(i == to)
 							path_table[i][to] = -1; // make sure we terminate
 						else
 							path_table[i][to] = path_table[i][from];
+					}
 			}
 		}
 	}

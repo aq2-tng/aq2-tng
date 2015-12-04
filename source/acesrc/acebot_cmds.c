@@ -109,12 +109,13 @@ void debug_printf(char *fmt, ...)
 {
 	int     i;
 	char	bigbuffer[0x10000];
-	int		len;
+	//int	len;
 	va_list	argptr;
 	edict_t	*cl_ent;
 	
 	va_start (argptr,fmt);
-	len = vsprintf (bigbuffer,fmt,argptr);
+	//len = vsprintf (bigbuffer,fmt,argptr);
+	vsprintf (bigbuffer,fmt,argptr);
 	va_end (argptr);
 
 	if (dedicated->value)
@@ -138,13 +139,14 @@ void safe_cprintf (edict_t *ent, int printlevel, char *fmt, ...)
 {
 	char	bigbuffer[0x10000];
 	va_list		argptr;
-	int len;
+	//int len;
 
 	if (ent && (!ent->inuse || ent->is_bot))
 		return;
 
 	va_start (argptr,fmt);
-	len = vsprintf (bigbuffer,fmt,argptr);
+	//len = vsprintf (bigbuffer,fmt,argptr);
+	vsprintf (bigbuffer,fmt,argptr);
 	va_end (argptr);
 
 	real_cprintf(ent, printlevel, bigbuffer);
@@ -158,13 +160,14 @@ void safe_centerprintf (edict_t *ent, char *fmt, ...)
 {
 	char	bigbuffer[0x10000];
 	va_list		argptr;
-	int len;
+	//int len;
 
 	if (!ent->inuse || ent->is_bot)
 		return;
 	
 	va_start (argptr,fmt);
-	len = vsprintf (bigbuffer,fmt,argptr);
+	//len = vsprintf (bigbuffer,fmt,argptr);
+	vsprintf (bigbuffer,fmt,argptr);
 	va_end (argptr);
 	
 	real_centerprintf(ent, bigbuffer);
@@ -178,12 +181,13 @@ void safe_bprintf (int printlevel, char *fmt, ...)
 {
 	int i;
 	char	bigbuffer[0x10000];
-	int		len;
-	va_list		argptr;
+	//int	len;
+	va_list	argptr;
 	edict_t	*cl_ent;
 
 	va_start (argptr,fmt);
-	len = vsprintf (bigbuffer,fmt,argptr);
+	//len = vsprintf (bigbuffer,fmt,argptr);
+	vsprintf (bigbuffer,fmt,argptr);
 	va_end (argptr);
 
 	if (dedicated->value)

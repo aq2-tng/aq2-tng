@@ -1056,7 +1056,7 @@ void GetAmmo(edict_t * ent, char *buf)
 
 void GetNearbyTeammates(edict_t * self, char *buf)
 {
-	unsigned char nearby_teammates[8][16];
+	char nearby_teammates[8][16];
 	int nearby_teammates_num = 0, l;
 	edict_t *ent = NULL;
 

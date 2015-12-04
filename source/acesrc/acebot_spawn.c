@@ -141,7 +141,7 @@ void ACESP_LoadBotConfig()
 {
     FILE	*pIn;
 	cvar_t	*game_dir;
-	int		i;
+	//int		i;
 	char	filename[60];
 	// Scanner stuff
 	int		fileVersion = 0;
@@ -876,9 +876,9 @@ void ACESP_Respawn (edict_t *self)
 ///////////////////////////////////////////////////////////////////////
 edict_t *ACESP_FindFreeClient (void)
 {
-	edict_t *bot;
-	int	i;
-	int max_count=0;
+	edict_t *bot = NULL;
+	int i = 0;
+	int max_count = 0;
 	
 	// This is for the naming of the bots
 	for (i = maxclients->value; i > 0; i--)

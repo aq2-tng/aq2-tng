@@ -37,7 +37,7 @@ NULL will be returned if the end of the list is reached.
 
 =============
 */
-edict_t *G_Find (edict_t * from, int fieldofs, char *match)
+edict_t *G_Find (edict_t * from, ptrdiff_t fieldofs, char *match)
 {
 	char *s;
 

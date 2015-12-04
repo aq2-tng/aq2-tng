@@ -305,6 +305,8 @@
 #include "g_local.h"
 #include "cgf_sfx_glass.h"
 
+void CTFResetFlags( void );
+
 qboolean team_game_going = false;	// is a team game going right now?
 qboolean team_round_going = false;	// is an actual round of a team game going right now?
 
@@ -323,7 +325,7 @@ int	teamCount = 2;
 #define MAX_SPAWNS 512		// max DM spawn points supported
 
 edict_t *potential_spawns[MAX_SPAWNS];
-int num_potential_spawns;
+int num_potential_spawns = 0;
 edict_t *teamplay_spawns[MAX_TEAMS];
 trace_t trace_t_temp;		// used by our trace replace macro in ax_team.h
 
@@ -1293,7 +1295,7 @@ int UpdateJoinMenu (edict_t * ent)
 	static char team1players[28];
 	static char team2players[28];
 	static char team3players[28];
-	int num1 = 0, num2 = 0, num3 = 0, i;
+	int num1 = 0, num2 = 0, num3 = 0, i = 0;
 
 	if (ctf->value)
 	{
@@ -1372,6 +1374,8 @@ int UpdateJoinMenu (edict_t * ent)
 		joinmenu[9].text = team3players;
 	else
 		joinmenu[9].text = NULL;
+
+	return 0;
 }
 
 // AQ2:TNG END
@@ -2534,7 +2538,7 @@ void A_NewScoreboardMessage(edict_t * ent)
 		line++;
 	}
 
-	string[1024] = '\0';
+	string[1023] = '\0';
 
 	gi.WriteByte (svc_layout);
 	gi.WriteString (string);
@@ -2547,9 +2551,9 @@ void A_NewScoreboardMessage(edict_t * ent)
 void A_ScoreboardMessage (edict_t * ent, edict_t * killer)
 {
 	char string[1400], damage[50];
-	gclient_t *cl;
-	edict_t *cl_ent;
-	int maxsize = 1000, i, j, k;
+	//gclient_t *cl;
+	edict_t *cl_ent = NULL;
+	int maxsize = 1000, i = 0, j = 0, k = 0;
 
 
 	if (ent->client->scoreboardnum == 1)
@@ -2728,7 +2732,7 @@ void A_ScoreboardMessage (edict_t * ent, edict_t * killer)
 			{
 				if (i < total[j] && stoppedat[j] == -1)	// print next team member...
 				{
-					cl = &game.clients[sorted[j][i]];
+					//cl = &game.clients[sorted[j][i]];
 					cl_ent = g_edicts + 1 + sorted[j][i];
 					if (cl_ent->solid != SOLID_NOT && cl_ent->deadflag != DEAD_DEAD)
 						totalaliveprinted[j]++;

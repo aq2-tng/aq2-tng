@@ -154,6 +154,8 @@
 
 #include "g_local.h"
 
+void PrecacheItems();
+
 typedef struct
 {
   char *name;

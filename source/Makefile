@@ -1,6 +1,6 @@
 # GNU Make required
 #
-# Tested platforms: Linux x86
+# Tested platforms: Linux x86, Linux x86_64
 #
 
 GIT_REV=$(shell git rev-parse --short HEAD)
@@ -27,11 +27,11 @@ VERSION=$(REL_VERSION)
 endif
 
 CC?=gcc
-BASE_CFLAGS=-DC_ONLY -DVERSION=\"$(VERSION)\"
+BASE_CFLAGS=-DC_ONLY -DVERSION=\"$(VERSION)\" -Wall -fno-strict-aliasing
 
 #use these cflags to optimize it
 ifdef DEBUG
-	CFLAGS=$(BASE_CFLAGS) -g -Wall
+	CFLAGS=$(BASE_CFLAGS) -g
 else
 	CFLAGS=$(BASE_CFLAGS) -O2
 endif
@@ -39,6 +39,8 @@ endif
 ifdef X86
 ARCH=i386
 CFLAGS+=-m32
+else
+CFLAGS+=-march=native -mtune=native
 endif
 
 DO_CC=$(CC) $(CFLAGS) $(SHLIBCFLAGS) -o $@ -c $<

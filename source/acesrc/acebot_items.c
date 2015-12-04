@@ -72,8 +72,8 @@ void ACEIT_PlayerAdded(edict_t *ent)
 ///////////////////////////////////////////////////////////////////////
 void ACEIT_PlayerRemoved(edict_t *ent)
 {
-	int i;
-	int pos;
+	int i = 0;
+	int pos = 0;
 
 	// watch for 0 players
 	if(num_players == 0)

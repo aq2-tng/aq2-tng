@@ -807,10 +807,10 @@ extern int stopAP;
 
 extern edict_t *g_edicts;
 
-#define FOFS(x)  (int)&(((edict_t *)0)->x)
-#define STOFS(x) (int)&(((spawn_temp_t *)0)->x)
-#define LLOFS(x) (int)&(((level_locals_t *)0)->x)
-#define CLOFS(x) (int)&(((gclient_t *)0)->x)
+#define FOFS(x)  (ptrdiff_t)&(((edict_t *)0)->x)
+#define STOFS(x) (ptrdiff_t)&(((spawn_temp_t *)0)->x)
+#define LLOFS(x) (ptrdiff_t)&(((level_locals_t *)0)->x)
+#define CLOFS(x) (ptrdiff_t)&(((gclient_t *)0)->x)
 
 #define random()        ((rand () & 0x7fff) / ((float)0x7fff))
 #define crandom()       (2.0 * (random() - 0.5))
@@ -1055,7 +1055,7 @@ void Touch_Item (edict_t * ent, edict_t * other, cplane_t * plane,
 qboolean KillBox (edict_t * ent);
 void G_ProjectSource (vec3_t point, vec3_t distance, vec3_t forward,
 		      vec3_t right, vec3_t result);
-edict_t *G_Find (edict_t * from, int fieldofs, char *match);
+edict_t *G_Find (edict_t * from, ptrdiff_t fieldofs, char *match);
 edict_t *findradius (edict_t * from, vec3_t org, float rad);
 edict_t *G_PickTarget (char *targetname);
 void G_UseTargets (edict_t * ent, edict_t * activator);

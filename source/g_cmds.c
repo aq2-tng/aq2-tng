@@ -214,6 +214,8 @@
 #include "g_local.h"
 #include "m_player.h"
 
+void Cmd_NextMap_f( edict_t *ent );
+void Cmd_Placenode_f( edict_t *ent );
 
 char *ClientTeam (edict_t * ent)
 {

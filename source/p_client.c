@@ -320,6 +320,8 @@
 #include "m_player.h"
 #include "cgf_sfx_glass.h"
 
+void Cmd_Inven_f( edict_t *ent );
+
 void ClientUserinfoChanged(edict_t * ent, char *userinfo);
 void ClientDisconnect(edict_t * ent);
 void SP_misc_teleporter_dest(edict_t * ent);
@@ -2768,7 +2770,7 @@ void PutClientInServer(edict_t * ent)
 	client->team_wounds = save_team_wounds;
 	client->team_kills = save_team_kills;
 
-	if (save_ipaddr && client->ipaddr)
+	if (client->ipaddr)
 		strcpy(client->ipaddr, save_ipaddr);
 //FF
 	if (client->pers.health <= 0)

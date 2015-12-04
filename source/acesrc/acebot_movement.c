@@ -70,7 +70,7 @@ qboolean	CanMoveSafely(edict_t	*self, vec3_t angles)
 {
 	vec3_t	dir, angle, dest1, dest2;
 	trace_t	trace;
-	float	this_dist;
+	//float	this_dist;
 
 //	self->bot_ai.next_safety_time = level.time + EYES_FREQ;
 
@@ -96,7 +96,7 @@ qboolean	CanMoveSafely(edict_t	*self, vec3_t angles)
 		dest1[0] = trace.endpos[0];
 		dest1[1] = trace.endpos[1];
 		dest1[2] = trace.endpos[2] - 28;
-		this_dist = trace.fraction * TRACE_DIST_SHORT;
+		//this_dist = trace.fraction * TRACE_DIST_SHORT;
 
 		if (gi.pointcontents(dest1) & MASK_PLAYERSOLID)
 			return (true);
@@ -1009,7 +1009,7 @@ void ACEMV_Wander(edict_t *self, usercmd_t *ucmd)
 
 		self->s.angles[YAW] += random() * 180 - 90; 
 
-		if(!M_CheckBottom && !self->groundentity) // if there is ground continue otherwise wait for next move
+		if(!M_CheckBottom(self) && !self->groundentity) // if there is ground continue otherwise wait for next move
 			ucmd->forwardmove = 0;
 		else if( ACEMV_CanMove( self, MOVE_FORWARD))
 			ucmd->forwardmove = 200;
@@ -1127,8 +1127,10 @@ void ACEMV_Attack (edict_t *self, usercmd_t *ucmd)
 		c = random();
 
 		if(c < 0.10) //Werewolf: was 0.15
+		{
 			if (ACEMV_CanJump(self))
-			ucmd->upmove += 400;
+				ucmd->upmove += 400;
+		}
 		else if( c> 0.85 )	// Only crouch sometimes
 			ucmd->upmove -= 200;
 	}
@@ -1175,8 +1177,10 @@ void ACEMV_Attack (edict_t *self, usercmd_t *ucmd)
 			{
 				c = random();
 				if(c < 0.50)	//Only jump at 50% probability
+				{
 					if (ACEMV_CanJump(self))
 					ucmd->upmove = 400;
+				}
 				else if (c < 0.75 && ACEMV_CanMove(self,MOVE_LEFT))
 					ucmd->sidemove -= 200;
 				else if (ACEMV_CanMove(self,MOVE_RIGHT))
@@ -1256,7 +1260,7 @@ void ACEMV_Attack (edict_t *self, usercmd_t *ucmd)
 //
 qboolean	AntPathMove( edict_t *self )
 {
-	node_t *temp = &nodes[self->current_node];	// For checking our position
+	//node_t *temp = &nodes[self->current_node];	// For checking our position
 
 	if( level.time == (float)((int)level.time) )
 	{
