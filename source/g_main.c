@@ -353,9 +353,7 @@ cvar_t *bob_up;
 cvar_t *bob_pitch;
 cvar_t *bob_roll;
 cvar_t *sv_cheats;
-cvar_t *flood_msgs;
-cvar_t *flood_persecond;
-cvar_t *flood_waitdelay;
+cvar_t *flood_threshold;
 cvar_t *unique_weapons;
 cvar_t *unique_items;
 cvar_t *ir;
@@ -387,6 +385,7 @@ cvar_t *matchmode;
 cvar_t *darkmatch;		// Darkmatch
 cvar_t *day_cycle;		// If darkmatch is on, this value is the nr of seconds between each interval (day, dusk, night, dawn)
 cvar_t *hearall;		// used for matchmode
+cvar_t *deadtalk;
 
 cvar_t *mm_forceteamtalk;
 cvar_t *mm_adminpwd;
@@ -435,6 +434,7 @@ cvar_t *radio_repeat;		// same as radio_max, only for repeats
 cvar_t *radio_repeat_time;
 
 cvar_t *use_classic;		// Used to reset spread/gren strength to 1.52
+cvar_t *warmup;
 
 // BOTS
 cvar_t *ltk_jumpy;

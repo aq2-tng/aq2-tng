@@ -332,6 +332,9 @@ void Add_Frag(edict_t * ent)
 	char buf[256];
 	int frags = 0;
 
+	if (in_warmup)
+		return;
+
 	ent->client->resp.kills++;
 
 	if (teamplay->value && teamdm->value != 2)
@@ -1379,7 +1382,8 @@ void EjectWeapon(edict_t * ent, gitem_t * item)
 		drop = Drop_Item(ent, item);
 		ent->client->v_angle[YAW] += spread;
 		drop->spawnflags = DROPPED_PLAYER_ITEM;
-		drop->think = temp_think_specweap;
+		if (!in_warmup)
+			drop->think = temp_think_specweap;
 	}
 
 }
@@ -1866,7 +1870,7 @@ void InitClientResp(gclient_t * client)
 	client->resp.enterframe = level.framenum;
 	client->resp.coop_respawn = client->pers;
 
-	if (!dm_choose->value) {
+	if (!dm_choose->value && !warmup->value) {
 		if ((int) wp_flags->value & WPF_MP5) {
 			client->resp.weapon = GET_ITEM(MP5_NUM);
 		} else if ((int) wp_flags->value & WPF_MK23) {
@@ -2172,7 +2176,7 @@ void SelectSpawnPoint(edict_t * ent, vec3_t origin, vec3_t angles)
 	//FIREBLADE
 	if (ctf->value)
 		spot = SelectCTFSpawnPoint(ent);
-	else if (teamplay->value && !teamdm->value && ent->client->resp.team != NOTEAM) {
+	else if (teamplay->value && !teamdm->value && ent->client->resp.team != NOTEAM && !in_warmup) {
 		spot = SelectTeamplaySpawnPoint(ent);
 	} else {
 		//FIREBLADE
@@ -3733,8 +3737,9 @@ void ClientThink(edict_t * ent, usercmd_t * ucmd)
 		client->resp.fire_time = level.framenum;
 		client->resp.punch_desired = false;
 		//TempFile
+		//
 
-		if (ent->solid == SOLID_NOT && ent->deadflag != DEAD_DEAD) {
+		if (ent->solid == SOLID_NOT && ent->deadflag != DEAD_DEAD && !in_warmup) {
 			client->latched_buttons = 0;
 			if (client->chase_mode) {
 				// AQ:TNG - JBravo fixing Limchasecam
@@ -3846,6 +3851,9 @@ void ClientBeginServerFrame(edict_t * ent)
 		return;
 
 	client = ent->client;
+
+	if (client->penalty > 0 && level.framenum % 10 == 0)
+		client->penalty--;
 
 	// force spawn when weapon and item selected in dm
 	if (deathmatch->value && dm_choose->value && !teamplay->value && !client->resp.dm_selected) {
@@ -3968,7 +3976,7 @@ void ClientBeginServerFrame(edict_t * ent)
 				VectorCopy(ent->s.angles, client->v_angle);
 				gi.linkentity(ent);
 
-				if (teamplay->value) {
+				if (teamplay->value && !in_warmup) {
 					if(ent->client->resp.last_chase_target && ent->client->resp.last_chase_target->solid != SOLID_NOT
 							&& ent->client->resp.last_chase_target->deadflag != DEAD_DEAD)
 						ent->client->chase_target = ent->client->resp.last_chase_target;
@@ -4012,5 +4020,6 @@ void ClientBeginServerFrame(edict_t * ent)
 		client->resp.punch_desired = false;
 	}
 
-	client->latched_buttons = 0;
+	if (!in_warmup || ent->movetype != MOVETYPE_NOCLIP)
+		client->latched_buttons = 0;
 }

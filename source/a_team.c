@@ -305,8 +305,6 @@
 #include "g_local.h"
 #include "cgf_sfx_glass.h"
 
-void CTFResetFlags( void );
-
 qboolean team_game_going = false;	// is a team game going right now?
 qboolean team_round_going = false;	// is an actual round of a team game going right now?
 
@@ -318,6 +316,7 @@ int fragwarning = 0;		// countdown variable for "x Frags left"
 int holding_on_tie_check = 0;	// when a team "wins", countdown for a bit and wait...
 int current_round_length = 0;	// frames that the current team round has lasted
 int round_delay_time = 0;	// time gap between round end and new round
+int in_warmup = 0;		// if warmup is currently on
 
 team_t teams[TEAM_TOP];
 int	teamCount = 2;
@@ -1736,6 +1735,23 @@ void SpawnPlayers ()
 		ent = &g_edicts[1 + i];
 		if (ent->inuse && ent->client->resp.team != NOTEAM && ent->client->resp.subteam == 0)
 		{
+			// make sure teamplay spawners always have some weapon, warmup starts only after weapon selected
+			if (!ent->client->resp.weapon) {
+				if ((int) wp_flags->value & WPF_MP5) {
+					ent->client->resp.weapon = GET_ITEM(MP5_NUM);
+				} else if ((int) wp_flags->value & WPF_MK23) {
+					ent->client->resp.weapon = GET_ITEM(MK23_NUM);
+				} else if ((int) wp_flags->value & WPF_KNIFE) {
+					ent->client->resp.weapon = GET_ITEM(KNIFE_NUM);
+				} else {
+					ent->client->resp.weapon = GET_ITEM(MK23_NUM);
+				}
+			}
+
+			if (!ent->client->resp.item) {
+				ent->client->resp.item = GET_ITEM(KEV_NUM);
+			}
+
 			// ent->client->resp.last_killed_target = NULL;
 			ResetKills (ent);
 			//AQ2:TNG Slicer Last Damage Location
@@ -1776,6 +1792,36 @@ void SpawnPlayers ()
 					UpdateChaseCam (ent);
 				}
 			}
+		}
+	}
+}
+
+void RunWarmup ()
+{
+	int i;
+	edict_t *ent;
+
+	if (!warmup->value || matchtime > 0 || team_round_going || lights_camera_action || (team_round_countdown > 0 && team_round_countdown <= 101))
+		return;
+
+	if (!in_warmup)
+	{
+		in_warmup = 1;
+		InitTransparentList ();
+	}
+
+	for (i = 0; i < game.maxclients; i++)
+	{
+		ent = &g_edicts[1 + i];
+		int dead = (ent->solid == SOLID_NOT && ent->deadflag == DEAD_NO && ent->movetype == MOVETYPE_NOCLIP);
+		if (ent->inuse && ent->client->resp.team != NOTEAM && ent->client->resp.subteam == 0 && dead && ent->client->resp.weapon && ent->client->resp.item && ent->client->latched_buttons & BUTTON_ATTACK)
+		{
+			ent->client->resp.last_damaged_part = 0;
+			ent->client->resp.last_damaged_players[0] = '\0';
+			ent->client->latched_buttons = 0;
+			PutClientInServer (ent);
+			AddToTransparentList (ent);
+			gi.centerprintf(ent, "WARMUP");
 		}
 	}
 }
@@ -2159,6 +2205,7 @@ void CheckTeamRules (void)
 		{
 			if (BothTeamsHavePlayers ())
 			{
+				in_warmup = 0;
 				team_game_going = 1;
 				StartLCA ();
 			}
@@ -2197,6 +2244,8 @@ void CheckTeamRules (void)
 
 	if (!team_round_going)
 	{
+		RunWarmup();
+
 		if (timelimit->value)
 		{
 			// AQ2:TNG - Slicer : Matchmode
@@ -2245,8 +2294,16 @@ void CheckTeamRules (void)
 				}
 				else
 				{
-					CenterPrintAll ("The round will begin in 20 seconds!");
-					team_round_countdown = 201;
+					if (warmup->value) {
+						char buf[64];
+						int warmup_length = max(warmup->value, 20);
+						sprintf (buf, "The round will begin in %d seconds!", warmup_length);
+						CenterPrintAll (buf);
+						team_round_countdown = warmup_length * 10 + 1;
+					} else {
+						CenterPrintAll ("The round will begin in 20 seconds!");
+						team_round_countdown = 201;
+					}
 				}
 			}
 		}
@@ -2496,12 +2553,12 @@ void A_NewScoreboardMessage(edict_t * ent)
 	// print teams
 	for (i = TEAM1; i <= TEAM2; i++)
 	{
-		sprintf(buf, "xv 44 yv %d string2 \"  %-15s %3d Tim Png\"", line++ * lineh, teams[i].name, teams[i].score);
+		sprintf(buf, "xv 44 yv %d string2 \"%3d %-11s Frg Tim Png\"", line++ * lineh, teams[i].score, teams[i].name);
 		strcat(string, buf);
 
 		sprintf(buf, "xv 44 yv %d string2 \"%s\" ",
 			line++ * lineh,
-			"\x9D\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9F"
+			"\x9D\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9F \x9D\x9E\x9F \x9D\x9E\x9F \x9D\x9E\x9F"
 		);
 		strcat(string, buf);
 
@@ -2517,7 +2574,6 @@ void A_NewScoreboardMessage(edict_t * ent)
 
 			if (j >= total[i])
 			{
-				line++;
 				continue;
 			}
 
@@ -2525,9 +2581,9 @@ void A_NewScoreboardMessage(edict_t * ent)
 			edict_t *cl_ent = g_edicts + 1 + sorted[i][j];
 			int alive = (cl_ent->solid != SOLID_NOT && cl_ent->deadflag != DEAD_DEAD);
 
-			sprintf(buf, "xv 44 yv %d string \"%c %-15s %3d %3d %3d\"",
+			sprintf(buf, "xv 44 yv %d string%c \"%-15s %3d %3d %3d\"",
 					line++ * lineh,
-					(alive && dead ? '*' : ' '),
+					(alive && dead ? '2' : ' '),
 					cl->pers.netname,
 					cl->resp.score,
 					(level.framenum - cl->resp.enterframe) / 600,

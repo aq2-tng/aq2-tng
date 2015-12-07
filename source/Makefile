@@ -18,6 +18,16 @@ MACHINE=$(shell uname -m)
 SYSTEM=$(shell uname -s)
 ARCH=i386
 
+# this will fix raspberry pi dualcore gameARCH.so on build.
+ifeq ($(MACHINE),armv6l)
+ARCH=arm
+endif
+
+# this will fix raspberry pi quadcore gameARCH.so on build.
+ifeq ($(MACHINE),armv7l)
+ARCH=arm
+endif
+
 ifeq ($(MACHINE),x86_64)
 ARCH=x86_64
 endif
@@ -27,7 +37,7 @@ VERSION=$(REL_VERSION)
 endif
 
 CC?=gcc
-BASE_CFLAGS=-DC_ONLY -DVERSION=\"$(VERSION)\" -Wall -fno-strict-aliasing
+BASE_CFLAGS=-DC_ONLY -DVERSION=\"$(VERSION)\" -Wall -fno-strict-aliasing -march=native -mtune=native
 
 #use these cflags to optimize it
 ifdef DEBUG
@@ -39,8 +49,6 @@ endif
 ifdef X86
 ARCH=i386
 CFLAGS+=-m32
-else
-CFLAGS+=-march=native -mtune=native
 endif
 
 DO_CC=$(CC) $(CFLAGS) $(SHLIBCFLAGS) -o $@ -c $<

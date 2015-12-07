@@ -577,6 +577,7 @@ void InitGame (void)
 	itm_flags = gi.cvar ("itm_flags", "63", 0);	// 63 = ITF_SIL | ITF_SLIP | ITF_BAND | ITF_KEV | ITF_LASER | ITF_HELM 
 	matchmode = gi.cvar ("matchmode", "0", CVAR_SERVERINFO | CVAR_LATCH);
 	hearall = gi.cvar ("hearall", "0", 0);	// used in matchmode
+	deadtalk = gi.cvar ("deadtalk", "0", 0);
 
 	teamdm = gi.cvar ("teamdm", "0", CVAR_LATCH);
 	teamdm_respawn = gi.cvar ("teamdm_respawn", "2", 0);
@@ -654,9 +655,7 @@ void InitGame (void)
 	bob_roll = gi.cvar ("bob_roll", "0.002", 0);
 
 	// flood control
-	flood_msgs = gi.cvar ("flood_msgs", "4", 0);
-	flood_persecond = gi.cvar ("flood_persecond", "4", 0);
-	flood_waitdelay = gi.cvar ("flood_waitdelay", "10", 0);
+	flood_threshold = gi.cvar ("flood_threshold", "4", 0);
 
 	// bots
 	ltk_jumpy = gi.cvar("ltk_jumpy", "1", CVAR_SERVERINFO);
@@ -664,6 +663,8 @@ void InitGame (void)
 	ltk_showpath = gi.cvar( "ltk_showpath", "0", 0);
 	ltk_chat = gi.cvar( "ltk_chat", "1", 0);
 	ltk_routing = gi.cvar( "ltk_routing", "0", 0);
+
+	warmup = gi.cvar ("warmup", "0", CVAR_LATCH);
 
 	// items
 	InitItems ();
