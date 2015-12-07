@@ -332,6 +332,10 @@ qboolean Pickup_Special (edict_t * ent, edict_t * other)
 	if (other->client->unique_item_total >= unique_items->value)
 		return false;
 
+	// Don't allow picking up multiple of the same special item.
+	if( other->client->pers.inventory[ITEM_INDEX (ent->item)] )
+		return false;
+
 	AddItem(other, ent->item);
 
 	if(!(ent->spawnflags & (DROPPED_ITEM | DROPPED_PLAYER_ITEM)) && item_respawnmode->value)
