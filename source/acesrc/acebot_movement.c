@@ -1165,7 +1165,7 @@ void ACEMV_Attack (edict_t *self, usercmd_t *ucmd)
 			ucmd->buttons = BUTTON_ATTACK;
 			if(self->client->pers.weapon == FindItem(GRENADE_NAME))
 			{
-				self->client->ps.grenadewait = level.time + 2;
+				self->grenadewait = level.time + 2;
 				ucmd->forwardmove=-400; //Stalk back, behold of the holy Grenade!
 			}
 		}
@@ -1231,15 +1231,15 @@ void ACEMV_Attack (edict_t *self, usercmd_t *ucmd)
 //AQ2 END
 
 	// Werewolf: release trigger after 1 second for grenades
-	if ((self->client->ps.grenadewait == level.time + 1) && (self->solid != SOLID_NOT))
+	if ((self->grenadewait == level.time + 1) && (self->solid != SOLID_NOT))
 	{
 		ucmd->buttons = 0;
 	}
 
 	//Werewolf: Wait 3 seconds for grenade to launch before facing elsewhere
-	if (level.time >= self->client->ps.grenadewait)
+	if (level.time >= self->grenadewait)
 	{
-		self->client->ps.grenadewait = 0;
+		self->grenadewait = 0;
 		// Set direction
 		VectorSubtract (target, self->s.origin, self->move_vector);
 		vectoangles (self->move_vector, angles);

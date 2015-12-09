@@ -2814,6 +2814,7 @@ void PutClientInServer(edict_t * ent)
 	ent->last_node = -1;
 	ent->is_jumping = false;
 	ent->is_triggering = false;
+	ent->grenadewait = 0;
 #endif
 
 //FIREBLADE

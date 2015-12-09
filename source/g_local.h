@@ -1875,6 +1875,7 @@ struct edict_s
 	float	antLastCallTime;	// Check for calling complex pathsearcher 
 	// Who killed me? 
 	edict_t	*lastkilledby;	// Set in ClientObituary... 
+	int grenadewait; // Raptor007: Moved here from player_state_t.
 //AQ2 END 
  
 	// For node code 

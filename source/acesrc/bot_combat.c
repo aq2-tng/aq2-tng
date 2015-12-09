@@ -49,13 +49,13 @@ void BOTCOM_AimAt (edict_t *bot, vec3_t target, vec3_t angles)
 {
     vec3_t vDir, vStart;
 
-	if (level.time > bot->client->ps.grenadewait)
+	if (level.time > bot->grenadewait)
 	{
-		bot->client->ps.grenadewait = 0;
-	    VectorCopy(bot->s.origin, vStart);
-	    VectorSubtract(target, vStart, vDir);
+		bot->grenadewait = 0;
+		VectorCopy(bot->s.origin, vStart);
+		VectorSubtract(target, vStart, vDir);
 		VectorNormalize (vDir);
-	    vectoangles(vDir, angles);
+		vectoangles(vDir, angles);
 	}
 }
 
