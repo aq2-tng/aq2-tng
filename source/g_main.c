@@ -436,12 +436,13 @@ cvar_t *radio_repeat_time;
 cvar_t *use_classic;		// Used to reset spread/gren strength to 1.52
 cvar_t *warmup;
 
-// BOTS
+#ifndef NO_BOTS
 cvar_t *ltk_jumpy;
 cvar_t *ltk_skill;
 cvar_t *ltk_showpath;
 cvar_t *ltk_chat;
 cvar_t *ltk_routing;
+#endif
 
 int pause_time = 0;
 
@@ -477,9 +478,9 @@ void ShutdownGame (void)
 	gi.dprintf ("==== ShutdownGame ====\n");
 	IRC_printf (IRC_T_SERVER, "==== ShutdownGame ====");
 	IRC_exit ();
-// ACEBOT ADD
+#ifndef NO_BOTS
 	ACECM_Store();
-// ACEBOT END
+#endif
 	//PG BUND
 	vExitGame ();
 	gi.FreeTags (TAG_LEVEL);
@@ -500,7 +501,7 @@ void ShutdownGame (void)
 game_export_t *GetGameAPI (game_import_t * import)
 {
 	gi = *import;
-
+#ifndef NO_BOTS
 	/* proxy all calls trough the bot safe functions */
 	real_cprintf = gi.cprintf;
 	real_bprintf = gi.bprintf;
@@ -508,7 +509,7 @@ game_export_t *GetGameAPI (game_import_t * import)
 	gi.cprintf = safe_cprintf;
 	gi.bprintf = safe_bprintf;
 	gi.centerprintf = safe_centerprintf;
-
+#endif
 	globals.apiversion = GAME_API_VERSION;
 	globals.Init = InitGame;
 	globals.Shutdown = ShutdownGame;
@@ -620,9 +621,9 @@ void EndDMLevel (void)
 	struct tm *now;
 	time_t tnow;
 
-// ACEBOT ADD
+#ifndef NO_BOTS
 	ACECM_Store();
-// ACEBOT END
+#endif
 
 	tnow = time ((time_t *) 0);
 	now = localtime (&tnow);
@@ -1062,8 +1063,10 @@ void G_RunFrame (void)
 				// TNG Stats End
 
 				ClientBeginServerFrame (ent);
+#ifndef NO_BOTS
 				// allow bots to think
 				if(!ent->is_bot)
+#endif
 					continue;
 			}
 

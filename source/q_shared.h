@@ -1404,8 +1404,10 @@ typedef struct
 
   short stats[MAX_STATS];	// fast status bar updates
 
+#ifndef NO_BOTS
   // LTK BOT
   int grenadewait;
+#endif
 }
 player_state_t;
 

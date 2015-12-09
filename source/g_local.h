@@ -288,7 +288,9 @@
 #include	"tng_ini.h"
 #include	"tng_balancer.h"
 #include	"g_grapple.h"
+#ifndef NO_BOTS
 #include	"acesrc/botnav.h"
+#endif
 #define		getEnt(entnum)	(edict_t *)((char *)globals.edicts + (globals.edict_size * entnum))	//AQ:TNG Slicer - This was missing
 #define		GAMEVERSION			"action"	// the "gameversion" client command will print this plus compile date
 
@@ -836,7 +838,9 @@ extern cvar_t *nohud;
 extern cvar_t *noscore;
 extern cvar_t *use_newscore;
 extern cvar_t *actionversion;
+#ifndef NO_BOTS
 extern cvar_t *ltk_jumpy;
+#endif
 extern cvar_t *use_voice;
 extern cvar_t *ppl_idletime;
 extern cvar_t *use_tourney;
@@ -1844,7 +1848,7 @@ struct edict_s
   // PG BUND
   xmenu_t *x_menu;
 
-// ACEBOT_ADD 
+#ifndef NO_BOTS
 	int old_health;
 
 	int recheck_timeout;
@@ -1903,7 +1907,7 @@ struct edict_s
 	qboolean	bCrawl; 
 	qboolean	bLastJump; 
 	vec3_t	lastPosition; 
-// ACEBOT_END 
+#endif 
 };
 
 typedef struct
@@ -2159,4 +2163,6 @@ extern int pause_time;
 #define PARSE_BUFSIZE 256
 
 #include "a_ctf.h"
+#ifndef NO_BOTS
 #include "acesrc/acebot.h"
+#endif

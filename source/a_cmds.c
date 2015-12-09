@@ -1158,6 +1158,7 @@ void Cmd_Ghost_f(edict_t * ent)
 	}
 }
 
+#ifndef NO_BOTS
 void Cmd_Placenode_f (edict_t *ent)
 {
 	if(ent->waterlevel)
@@ -1165,3 +1166,4 @@ void Cmd_Placenode_f (edict_t *ent)
 	else
 		ACEND_AddNode(ent,NODE_MOVE);
 }
+#endif

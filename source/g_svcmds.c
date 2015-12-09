@@ -541,7 +541,7 @@ void ServerCommand (void)
 		SVCmd_ResetScores_f ();
 	else if (Q_stricmp (cmd, "softquit") == 0)
 		SVCmd_SoftQuit_f ();
-	// ACEBOT_ADD
+#ifndef NO_BOTS
 	else if(Q_stricmp (cmd, "botdebug") == 0)
 	{
  		if (strcmp(gi.argv(2),"on")==0)
@@ -582,7 +582,7 @@ void ServerCommand (void)
 	// Node saving
 	else if(Q_stricmp (cmd, "savenodes") == 0)
 		ACEND_SaveNodes();	
-	// ACEBOT_END
+#endif
 	else
 		gi.cprintf (NULL, PRINT_HIGH, "Unknown server command \"%s\"\n", cmd);
 }

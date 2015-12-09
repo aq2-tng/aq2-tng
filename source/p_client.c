@@ -740,7 +740,11 @@ void PrintDeathMessage(char *msg, edict_t * gibee)
 
 	for (j = 1; j <= game.maxclients; j++) {
 		other = &g_edicts[j];
+#ifndef NO_BOTS
 		if (!other->inuse || !other->client || other->is_bot)
+#else
+		if (!other->inuse || !other->client)
+#endif
 			continue;
 
 		// only print if he's NOT gibee, NOT attacker, and NOT alive! -TempFile
@@ -2317,13 +2321,13 @@ void CleanBodies()
 void respawn(edict_t * self)
 {
 	if (deathmatch->value || coop->value) {
-// ACEBOT_ADD special respawning code
+#ifndef NO_BOTS
 		if (self->is_bot)
 		{
 			ACESP_Respawn (self);
 			return;
 		}
-// ACEBOT_END
+#endif
 //FIREBLADE
 		if (self->solid != SOLID_NOT || self->deadflag == DEAD_DEAD)
 //FIREBLADE
@@ -2805,12 +2809,12 @@ void PutClientInServer(edict_t * ent)
 	ent->flags &= ~FL_NO_KNOCKBACK;
 	ent->svflags &= ~SVF_DEADMONSTER;
 
-// ACEBOT_ADD
+#ifndef NO_BOTS
 	ent->is_bot = false;
 	ent->last_node = -1;
 	ent->is_jumping = false;
 	ent->is_triggering = false;
-// ACEBOT_END
+#endif
 
 //FIREBLADE
 	if (!teamplay->value || ent->client->resp.team != NOTEAM) {
@@ -2982,9 +2986,9 @@ void PutClientInServer(edict_t * ent)
 	}
 }
 
-// ACEBOT_ADD
-char current_map[55];
-// ACEBOT_END
+#ifndef NO_BOTS
+char current_map[55] = "";
+#endif
 
 /*
 =====================
@@ -3016,9 +3020,9 @@ void ClientBeginDeathmatch(edict_t * ent)
 	vInitClient(ent);
 //PG BUND - END
 
-// ACEBOT_ADD
+#ifndef NO_BOTS
 	ACEIT_PlayerAdded(ent);
-// ACEBOT_END
+#endif
 
 	// locate ent at a spawn point
 	PutClientInServer(ent);
@@ -3058,7 +3062,7 @@ void ClientBeginDeathmatch(edict_t * ent)
 	ent->client->resp.motd_refreshes = 1;
 //FIREBLADE
 
-// ACEBOT_ADD
+#ifndef NO_BOTS
 	// If the map changes on us, init and reload the nodes
 	if(strcmp(level.mapname,current_map))
 	{
@@ -3074,8 +3078,7 @@ void ClientBeginDeathmatch(edict_t * ent)
 		}
 */		strcpy(current_map,level.mapname);
 	}
-
-// ACEBOT_END
+#endif
 
 	//AQ2:TNG - Slicer: Set time to check clients
 	ent->client->resp.checktime[0] = level.time + check_time->value;
@@ -3311,7 +3314,11 @@ qboolean ClientConnect(edict_t * ent, char *userinfo)
 
 	// We're not going to attempt to support reconnection...
 	// FIXME: why is this here and what does it do? doesn't work with bots! -hifi
+#ifndef NO_BOTS
 	if (ent->inuse == true && ent->is_bot == false) {
+#else
+	if (ent->inuse == true) {
+#endif
 		ClientDisconnect(ent);
 		ent->inuse = false;
 	}
@@ -3394,9 +3401,9 @@ void ClientDisconnect(edict_t * ent)
 	gi.bprintf(PRINT_HIGH, "%s disconnected\n", ent->client->pers.netname);
 	IRC_printf(IRC_T_SERVER, "%n disconnected", ent->client->pers.netname);
 
-// ACEBOT_ADD
+#ifndef NO_BOTS
 	ACEIT_PlayerRemoved(ent);
-// ACEBOT_END
+#endif
 
 	// go clear any clients that have this guy as their attacker
 	for (i = 1; i <= maxclients->value; i++) {
@@ -3904,8 +3911,10 @@ void ClientBeginServerFrame(edict_t * ent)
 			{
 				if (ent->movetype != MOVETYPE_NOCLIP)	// have we already done this?  see above...
 				{
+#ifndef NO_BOTS
 					if(!ent->is_bot)
 					{
+#endif
 						CopyToBodyQue(ent);
 						ent->solid = SOLID_NOT;
 						ent->svflags |= SVF_NOCLIENT;
@@ -3916,6 +3925,7 @@ void ClientBeginServerFrame(edict_t * ent)
 						gi.linkentity(ent);
 						gi.bprintf(PRINT_HIGH, "%s became a spectator\n", ent->client->pers.netname);
 						IRC_printf(IRC_T_SERVER, "%n became a spectator", ent->client->pers.netname);
+#ifndef NO_BOTS
 					}
 					else
 					{
@@ -3929,6 +3939,7 @@ void ClientBeginServerFrame(edict_t * ent)
 						//safe_bprintf(PRINT_HIGH, "%s rejoined the game\n", ent->client->pers.netname);
 						respawn(ent);
 					}
+#endif
 				}
 			}
 		} else {
