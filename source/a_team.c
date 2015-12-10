@@ -2551,9 +2551,12 @@ void A_NewScoreboardMessage(edict_t * ent)
 	}
 
 	// print teams
-	for (i = TEAM1; i <= TEAM2; i++)
+	for (i = TEAM1; i <= (use_3teams->value ? TEAM3 : TEAM2); i++)
 	{
-		sprintf(buf, "xv 44 yv %d string2 \"%3d %-11s Frg Tim Png\"", line++ * lineh, teams[i].score, teams[i].name);
+		sprintf(buf, "xv 44 yv %d string2 \"%s\"", line++ * lineh, teams[i].name);
+		strcat(string, buf);
+
+		sprintf(buf, "xv 44 yv %d string2 \"Wins:%2d %-7s Frg Tim Png\"", line++ * lineh, teams[i].score, "");
 		strcat(string, buf);
 
 		sprintf(buf, "xv 44 yv %d string2 \"%s\" ",
@@ -2581,13 +2584,18 @@ void A_NewScoreboardMessage(edict_t * ent)
 			edict_t *cl_ent = g_edicts + 1 + sorted[i][j];
 			int alive = (cl_ent->solid != SOLID_NOT && cl_ent->deadflag != DEAD_DEAD);
 
-			sprintf(buf, "xv 44 yv %d string%c \"%-15s %3d %3d %3d\"",
+			char ping_buf[ 4 ] = "BOT";
+#ifndef NO_BOTS
+			if( ! cl_ent->is_bot )
+#endif
+				snprintf( ping_buf, 4, "%3d", (cl->ping > 999 ? 999 : cl->ping) );
+			sprintf(buf, "xv 44 yv %d string%c \"%-15s %3d %3d %s\"",
 					line++ * lineh,
 					(alive && dead ? '2' : ' '),
 					cl->pers.netname,
 					cl->resp.score,
 					(level.framenum - cl->resp.enterframe) / 600,
-					(cl->ping > 999 ? 999 : cl->ping));
+					ping_buf);
 			strcat(string, buf);
 		}
 
@@ -2630,7 +2638,7 @@ void A_ScoreboardMessage (edict_t * ent, edict_t * killer)
 		int otherLines, scoreWidth = 3;
 
 		// new scoreboard for regular teamplay up to 16 players
-		if (use_newscore->value && teamplay->value && !use_3teams->value && !matchmode->value && !ctf->value) {
+		if (use_newscore->value && teamplay->value /* && !use_3teams->value */ && !matchmode->value && !ctf->value) {
 			return A_NewScoreboardMessage(ent);
 		}
 
@@ -2980,13 +2988,19 @@ void A_ScoreboardMessage (edict_t * ent, edict_t * killer)
 			ping = game.clients[sorted[i]].ping;
 			if (ping > 999)
 				ping = 999;
+			char ping_buf[ 4 ] = "BOT";
+#ifndef NO_BOTS
+			cl_ent = g_edicts + 1 + sorted[i];
+			if( ! cl_ent->is_bot )
+#endif
+				snprintf( ping_buf, 4, "%3d", ping );
 
 			if (noscore->value)
 			{
-				sprintf(string + strlen(string), "xv 0 yv %d string \"%-15s %4d %4d\" ",
+				sprintf(string + strlen(string), "xv 0 yv %d string \"%-15s %4d %4s\" ",
 					48 + i * 8,	game.clients[sorted[i]].pers.netname,
 					(level.framenum - game.clients[sorted[i]].resp.enterframe) / 600,
-					ping);
+					ping_buf);
 			}
 			else
 			{
@@ -3003,11 +3017,11 @@ void A_ScoreboardMessage (edict_t * ent, edict_t * killer)
 				}
 
 
-				sprintf(string + strlen(string), "xv 0 yv %d string \"%5d %-15s %4d %4d %6s",
+				sprintf(string + strlen(string), "xv 0 yv %d string \"%5d %-15s %4d %4s %6s",
 					48 + i * 8,	game.clients[sorted[i]].resp.score,
 					game.clients[sorted[i]].pers.netname,
 					(level.framenum - game.clients[sorted[i]].resp.enterframe) / 600,
-					ping, damage);
+					ping_buf, damage);
 
 				if(matchmode->value)
 				{
