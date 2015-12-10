@@ -11,9 +11,6 @@ void FL_make (edict_t * self)
 {
 	vec3_t start, forward, right, end;
 
-	if (!(darkmatch->value || use_flashlight->value))
-		return;
-
 	if ((self->deadflag == DEAD_DEAD) || (self->solid == SOLID_NOT))
 	{
 		if (self->flashlight)
@@ -33,6 +30,9 @@ void FL_make (edict_t * self)
 		self->flashlight = NULL;
 		return;
 	}
+
+	if (!(darkmatch->value || use_flashlight->value))
+		return;
 
 	AngleVectors (self->client->v_angle, forward, right, NULL);
 
