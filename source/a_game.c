@@ -1013,15 +1013,15 @@ void GetAmmo(edict_t * ent, char *buf)
 	if (ent->client->pers.weapon) {
 		switch (ent->client->curr_weap) {
 		case MK23_NUM:
-			sprintf(buf, "%d rounds (%d extra clips)",
+			sprintf(buf, "%d rounds (%d extra mags)",
 				ent->client->mk23_rds, ent->client->pers.inventory[ent->client->ammo_index]);
 			return;
 		case MP5_NUM:
-			sprintf(buf, "%d rounds (%d extra clips)",
+			sprintf(buf, "%d rounds (%d extra mags)",
 				ent->client->mp5_rds, ent->client->pers.inventory[ent->client->ammo_index]);
 			return;
 		case M4_NUM:
-			sprintf(buf, "%d rounds (%d extra clips)",
+			sprintf(buf, "%d rounds (%d extra mags)",
 				ent->client->m4_rds, ent->client->pers.inventory[ent->client->ammo_index]);
 			return;
 		case M3_NUM:
@@ -1037,7 +1037,7 @@ void GetAmmo(edict_t * ent, char *buf)
 				ent->client->sniper_rds, ent->client->pers.inventory[ent->client->ammo_index]);
 			return;
 		case DUAL_NUM:
-			sprintf(buf, "%d rounds (%d extra clips)",
+			sprintf(buf, "%d rounds (%d extra mags)",
 				ent->client->dual_rds, ent->client->pers.inventory[ent->client->ammo_index]);
 			return;
 		case KNIFE_NUM:
