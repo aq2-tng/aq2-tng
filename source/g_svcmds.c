@@ -570,12 +570,12 @@ void ServerCommand (void)
 		}
 	}
 	else if (Q_stricmp (cmd, "addbot") == 0)
-	{ 
-		if(teamplay->value) // name, skin, team
+	{
+		if(teamplay->value) // team, name, skin (ignored)
 			ACESP_SpawnBot (gi.argv(2), gi.argv(3), gi.argv(4), NULL);
 		else // name, skin
 			ACESP_SpawnBot (NULL, gi.argv(2), gi.argv(3), NULL);
-	}	
+	}
 	// removebot
 	else if(Q_stricmp (cmd, "removebot") == 0)
 		ACESP_RemoveBot(gi.argv(2));
