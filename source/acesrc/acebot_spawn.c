@@ -1113,7 +1113,7 @@ void ACESP_RemoveBot(char *name)
 		bot = g_edicts + i + 1;
 		if(bot->inuse)
 		{
-			if(bot->is_bot && (strcmp(bot->client->pers.netname,name)==0 || strcmp(name,"all")==0))
+			if(bot->is_bot && (strcasecmp(bot->client->pers.netname,name)==0 || strcasecmp(name,"all")==0 || !strlen(name)))
 			{
 				bot->health = 0;
 				player_die (bot, bot, bot, 100000, vec3_origin);
@@ -1124,6 +1124,8 @@ void ACESP_RemoveBot(char *name)
 				ClientDisconnect( bot );
 //				ACEIT_PlayerRemoved (bot);
 //				safe_bprintf (PRINT_MEDIUM, "%s removed\n", bot->client->pers.netname);
+				if( !strlen(name) )
+					break;
 			}
 		}
 	}
