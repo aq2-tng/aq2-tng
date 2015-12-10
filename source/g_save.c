@@ -642,6 +642,7 @@ void InitGame (void)
 	splatlimit = gi.cvar ("splatlimit", "0", 0);
 	darkmatch = gi.cvar ("darkmatch", "0", CVAR_LATCH);	// Darkmatch
 	day_cycle = gi.cvar ("day_cycle", "10", 0);	// Darkmatch cycle time.
+	use_flashlight = gi.cvar ("use_flashlight", "0", CVAR_SERVERINFO);
 	use_classic = gi.cvar ("use_classic", "0", CVAR_SERVERINFO);	// Reset Spread and Grenade Strength to 1.52
 
 	CGF_SFX_InstallGlassSupport ();	// william for CGF (glass fx)

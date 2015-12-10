@@ -919,7 +919,7 @@ void G_SetClientEffects (edict_t * ent)
 			ent->s.renderfx |= RF_SHELL_GREEN;
 	}
 	// TNG Flashlight
-	if ((darkmatch->value) && (ent->client) && (ent->flashlight))
+	if ((darkmatch->value || use_flashlight->value) && (ent->client) && (ent->flashlight))
 	{
 		//ent->s.effects |= EF_YELLOWSHELL; // no good one? :/
 		ent->s.renderfx |= RF_FULLBRIGHT;

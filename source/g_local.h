@@ -877,6 +877,7 @@ extern cvar_t *check_time;
 extern cvar_t *matchmode;
 extern cvar_t *darkmatch;
 extern cvar_t *day_cycle;	// If darkmatch is on, this value is the nr of seconds between each interval (day, dusk, night, dawn)
+extern cvar_t *use_flashlight;  // Allow flashlight when not darkmatch?
 
 extern cvar_t *hearall;		// used in match mode
 extern cvar_t *deadtalk;
