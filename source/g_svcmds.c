@@ -501,6 +501,49 @@ void SVCmd_SoftQuit_f (void)
 	softquit = 1;
 }
 
+void SVCmd_Slap_f (void)
+{
+	if( gi.argc() < 3 )
+	{
+		gi.cprintf( NULL, PRINT_HIGH, "Usage: sv slap <name> [<damage>]\n" );
+		return;
+	}
+	if( lights_camera_action )
+	{
+		gi.cprintf( NULL, PRINT_HIGH, "Can't slap yet!\n" );
+		return;
+	}
+
+	const char *name = gi.argv(2);
+	size_t name_len = strlen(name);
+	int damage = atoi(gi.argv(3));
+	vec3_t slap_dir = {0.f,0.f,10.f}, slap_point = {0.f,0.f,0.f}, slap_normal = {0.f,0.f,-1.f};
+	qboolean found_victim = false;
+
+	size_t i;
+	for( i = 0; i < maxclients->value ; i ++ )
+	{
+		edict_t *ent = g_edicts + i + 1;
+		if( ent->inuse && (strncasecmp( ent->client->pers.netname, name, name_len ) == 0) )
+		{
+			found_victim = true;
+			if( (ent->deadflag != DEAD_DEAD) && (ent->solid != SOLID_NOT) )
+			{
+				slap_dir[ 0 ] = (random() - 0.5f) * 2.f;
+				slap_dir[ 1 ] = (random() - 0.5f) * 2.f;
+				T_Damage( ent, g_edicts, g_edicts, slap_dir, slap_point, slap_normal, damage, 100, 0, MOD_KICK );
+				gi.sound( ent, CHAN_WEAPON, gi.soundindex("weapons/kick.wav"), 1, ATTN_NORM, 0 );
+				gi.bprintf( PRINT_HIGH, "Admin slapped %s for %i damage.\n", ent->client->pers.netname, damage );
+			}
+			else
+				gi.cprintf( NULL, PRINT_HIGH, "%s is already dead.\n", ent->client->pers.netname );
+		}
+	}
+
+	if( ! found_victim )
+		gi.cprintf( NULL, PRINT_HIGH, "Couldn't find %s to slap.\n", name );
+}
+
 /*
 =================
 ServerCommand
@@ -541,6 +584,8 @@ void ServerCommand (void)
 		SVCmd_ResetScores_f ();
 	else if (Q_stricmp (cmd, "softquit") == 0)
 		SVCmd_SoftQuit_f ();
+	else if (Q_stricmp (cmd, "slap") == 0)
+		SVCmd_Slap_f ();
 #ifndef NO_BOTS
 	else if(Q_stricmp (cmd, "botdebug") == 0)
 	{
