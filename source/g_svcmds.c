@@ -517,7 +517,7 @@ void SVCmd_Slap_f (void)
 	const char *name = gi.argv(2);
 	size_t name_len = strlen(name);
 	int damage = atoi(gi.argv(3));
-	vec3_t slap_dir = {0.f,0.f,10.f}, slap_point = {0.f,0.f,0.f}, slap_normal = {0.f,0.f,-1.f};
+	vec3_t slap_dir = {0.f,0.f,10.f}, slap_normal = {0.f,0.f,-1.f};
 	qboolean found_victim = false;
 
 	size_t i;
@@ -529,9 +529,9 @@ void SVCmd_Slap_f (void)
 			found_victim = true;
 			if( (ent->deadflag != DEAD_DEAD) && (ent->solid != SOLID_NOT) )
 			{
-				slap_dir[ 0 ] = (random() - 0.5f) * 2.f;
-				slap_dir[ 1 ] = (random() - 0.5f) * 2.f;
-				T_Damage( ent, g_edicts, g_edicts, slap_dir, slap_point, slap_normal, damage, 100, 0, MOD_KICK );
+				slap_dir[ 0 ] = crandom() * 5.f;
+				slap_dir[ 1 ] = crandom() * 5.f;
+				T_Damage( ent, world, world, slap_dir, ent->s.origin, slap_normal, damage, 100, 0, MOD_KICK );
 				gi.sound( ent, CHAN_WEAPON, gi.soundindex("weapons/kick.wav"), 1, ATTN_NORM, 0 );
 				gi.bprintf( PRINT_HIGH, "Admin slapped %s for %i damage.\n", ent->client->pers.netname, damage );
 			}
