@@ -1043,7 +1043,7 @@ void ACEMV_Attack (edict_t *self, usercmd_t *ucmd)
 {
 	float c;
 	vec3_t  target;
-	vec3_t  angles;
+	//vec3_t  angles;
 	vec3_t	attackvector;
 	float	dist;
 	qboolean	bHasWeapon;	// Needed to allow knife throwing and kick attacks
@@ -1212,8 +1212,9 @@ void ACEMV_Attack (edict_t *self, usercmd_t *ucmd)
 
 		// Not that complex. We miss by 0 to 80 units based on skill value and random factor
 		// Unless we have a sniper rifle!
-		if(self->client->pers.weapon == FindItem(SNIPER_NAME))
-			iFactor = 5;
+		// Raptor007: Disabled because sniper bots don't need any more advantages.
+		//if(self->client->pers.weapon == FindItem(SNIPER_NAME))
+		//	iFactor = 5;
 		target[0] += ( right * (10 - ltk_skill->value +((iFactor*(10 - ltk_skill->value)) *random())) );
 		target[2] += ( up * (10 - ltk_skill->value +((iFactor*(10 - ltk_skill->value)) *random())) );
 	}
@@ -1242,8 +1243,10 @@ void ACEMV_Attack (edict_t *self, usercmd_t *ucmd)
 		self->grenadewait = 0;
 		// Set direction
 		VectorSubtract (target, self->s.origin, self->move_vector);
-		vectoangles (self->move_vector, angles);
-		VectorCopy(angles,self->s.angles);
+		// Raptor007: Limit bot rotation speed in combat too.
+		//vectoangles (self->move_vector, angles);
+		//VectorCopy(angles,self->s.angles);
+		ACEMV_ChangeBotAngle( self );
 	}
 
 	// Store time we last saw an enemy
