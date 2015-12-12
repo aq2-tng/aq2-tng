@@ -642,6 +642,7 @@ void InitGame (void)
 	splatlimit = gi.cvar ("splatlimit", "0", 0);
 	darkmatch = gi.cvar ("darkmatch", "0", CVAR_LATCH);	// Darkmatch
 	day_cycle = gi.cvar ("day_cycle", "10", 0);	// Darkmatch cycle time.
+	use_flashlight = gi.cvar ("use_flashlight", "0", CVAR_SERVERINFO);
 	use_classic = gi.cvar ("use_classic", "0", CVAR_SERVERINFO);	// Reset Spread and Grenade Strength to 1.52
 
 	CGF_SFX_InstallGlassSupport ();	// william for CGF (glass fx)
@@ -656,6 +657,15 @@ void InitGame (void)
 
 	// flood control
 	flood_threshold = gi.cvar ("flood_threshold", "4", 0);
+
+#ifndef NO_BOTS
+	// bots
+	ltk_jumpy = gi.cvar("ltk_jumpy", "1", CVAR_SERVERINFO);
+	ltk_skill = gi.cvar( "ltk_skill", "5", 0);
+	ltk_showpath = gi.cvar( "ltk_showpath", "0", 0);
+	ltk_chat = gi.cvar( "ltk_chat", "1", 0);
+	ltk_routing = gi.cvar( "ltk_routing", "0", 0);
+#endif
 
 	warmup = gi.cvar ("warmup", "0", CVAR_LATCH);
 

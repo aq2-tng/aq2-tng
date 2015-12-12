@@ -1157,3 +1157,13 @@ void Cmd_Ghost_f(edict_t * ent)
 		gi.cprintf(ent, PRINT_HIGH, "No ghost match found\n");
 	}
 }
+
+#ifndef NO_BOTS
+void Cmd_Placenode_f (edict_t *ent)
+{
+	if(ent->waterlevel)
+		ACEND_AddNode(ent,NODE_WATER);
+	else
+		ACEND_AddNode(ent,NODE_MOVE);
+}
+#endif

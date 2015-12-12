@@ -320,6 +320,8 @@
 #include "m_player.h"
 #include "cgf_sfx_glass.h"
 
+void Cmd_Inven_f( edict_t *ent );
+
 void ClientUserinfoChanged(edict_t * ent, char *userinfo);
 void ClientDisconnect(edict_t * ent);
 void SP_misc_teleporter_dest(edict_t * ent);
@@ -738,7 +740,11 @@ void PrintDeathMessage(char *msg, edict_t * gibee)
 
 	for (j = 1; j <= game.maxclients; j++) {
 		other = &g_edicts[j];
+#ifndef NO_BOTS
+		if (!other->inuse || !other->client || other->is_bot)
+#else
 		if (!other->inuse || !other->client)
+#endif
 			continue;
 
 		// only print if he's NOT gibee, NOT attacker, and NOT alive! -TempFile
@@ -2315,6 +2321,13 @@ void CleanBodies()
 void respawn(edict_t * self)
 {
 	if (deathmatch->value || coop->value) {
+#ifndef NO_BOTS
+		if (self->is_bot)
+		{
+			ACESP_Respawn (self);
+			return;
+		}
+#endif
 //FIREBLADE
 		if (self->solid != SOLID_NOT || self->deadflag == DEAD_DEAD)
 //FIREBLADE
@@ -2765,7 +2778,7 @@ void PutClientInServer(edict_t * ent)
 	client->team_wounds = save_team_wounds;
 	client->team_kills = save_team_kills;
 
-	if (save_ipaddr && client->ipaddr)
+	if (client->ipaddr)
 		strcpy(client->ipaddr, save_ipaddr);
 //FF
 	if (client->pers.health <= 0)
@@ -2795,6 +2808,14 @@ void PutClientInServer(edict_t * ent)
 	ent->watertype = 0;
 	ent->flags &= ~FL_NO_KNOCKBACK;
 	ent->svflags &= ~SVF_DEADMONSTER;
+
+#ifndef NO_BOTS
+	ent->is_bot = false;
+	ent->last_node = -1;
+	ent->is_jumping = false;
+	ent->is_triggering = false;
+	ent->grenadewait = 0;
+#endif
 
 //FIREBLADE
 	if (!teamplay->value || ent->client->resp.team != NOTEAM) {
@@ -2966,6 +2987,10 @@ void PutClientInServer(edict_t * ent)
 	}
 }
 
+#ifndef NO_BOTS
+char current_map[55] = "";
+#endif
+
 /*
 =====================
 ClientBeginDeathmatch
@@ -2995,6 +3020,10 @@ void ClientBeginDeathmatch(edict_t * ent)
 	TourneyNewPlayer(ent);
 	vInitClient(ent);
 //PG BUND - END
+
+#ifndef NO_BOTS
+	ACEIT_PlayerAdded(ent);
+#endif
 
 	// locate ent at a spawn point
 	PutClientInServer(ent);
@@ -3033,6 +3062,24 @@ void ClientBeginDeathmatch(edict_t * ent)
 		PrintMOTD(ent);
 	ent->client->resp.motd_refreshes = 1;
 //FIREBLADE
+
+#ifndef NO_BOTS
+	// If the map changes on us, init and reload the nodes
+	if(strcmp(level.mapname,current_map))
+	{
+		
+		ACEND_InitNodes();
+		ACEND_LoadNodes();
+//		ACESP_LoadBots();
+		ACESP_LoadBotConfig();
+/*		if ((minplayers->value) && (!ent->is_bot) && (maxclients->value > 1))
+		{
+			for (tempi=0; tempi<minplayers->value; tempi++)
+				ACESP_SpawnBot( (int)rand() % 1, NULL, NULL, NULL);
+		}
+*/		strcpy(current_map,level.mapname);
+	}
+#endif
 
 	//AQ2:TNG - Slicer: Set time to check clients
 	ent->client->resp.checktime[0] = level.time + check_time->value;
@@ -3267,7 +3314,12 @@ qboolean ClientConnect(edict_t * ent, char *userinfo)
 	ResetKills(ent);
 
 	// We're not going to attempt to support reconnection...
+	// FIXME: why is this here and what does it do? doesn't work with bots! -hifi
+#ifndef NO_BOTS
+	if (ent->inuse == true && ent->is_bot == false) {
+#else
 	if (ent->inuse == true) {
+#endif
 		ClientDisconnect(ent);
 		ent->inuse = false;
 	}
@@ -3349,6 +3401,10 @@ void ClientDisconnect(edict_t * ent)
 
 	gi.bprintf(PRINT_HIGH, "%s disconnected\n", ent->client->pers.netname);
 	IRC_printf(IRC_T_SERVER, "%n disconnected", ent->client->pers.netname);
+
+#ifndef NO_BOTS
+	ACEIT_PlayerRemoved(ent);
+#endif
 
 	// go clear any clients that have this guy as their attacker
 	for (i = 1; i <= maxclients->value; i++) {
@@ -3856,16 +3912,35 @@ void ClientBeginServerFrame(edict_t * ent)
 			{
 				if (ent->movetype != MOVETYPE_NOCLIP)	// have we already done this?  see above...
 				{
-					CopyToBodyQue(ent);
-					ent->solid = SOLID_NOT;
-					ent->svflags |= SVF_NOCLIENT;
-					ent->movetype = MOVETYPE_NOCLIP;
-					ent->client->pers.health = 100;
-					ent->health = 100;
-					ent->deadflag = DEAD_NO;
-					gi.linkentity(ent);
-					gi.bprintf(PRINT_HIGH, "%s became a spectator\n", ent->client->pers.netname);
-					IRC_printf(IRC_T_SERVER, "%n became a spectator", ent->client->pers.netname);
+#ifndef NO_BOTS
+					if(!ent->is_bot)
+					{
+#endif
+						CopyToBodyQue(ent);
+						ent->solid = SOLID_NOT;
+						ent->svflags |= SVF_NOCLIENT;
+						ent->movetype = MOVETYPE_NOCLIP;
+						ent->client->pers.health = 100;
+						ent->health = 100;
+						ent->deadflag = DEAD_NO;
+						gi.linkentity(ent);
+						gi.bprintf(PRINT_HIGH, "%s became a spectator\n", ent->client->pers.netname);
+						IRC_printf(IRC_T_SERVER, "%n became a spectator", ent->client->pers.netname);
+#ifndef NO_BOTS
+					}
+					else
+					{
+						ent->client->chase_mode = 0;
+						ent->client->chase_target = NULL;
+						ent->client->desired_fov = 90;
+						ent->client->ps.fov = 90; // FB 5/31/99 added
+						ent->client->ps.pmove.pm_flags &= ~PMF_NO_PREDICTION;
+						ent->solid = SOLID_BBOX;
+						gi.linkentity(ent);
+						//safe_bprintf(PRINT_HIGH, "%s rejoined the game\n", ent->client->pers.netname);
+						respawn(ent);
+					}
+#endif
 				}
 			}
 		} else {

@@ -332,6 +332,10 @@ qboolean Pickup_Special (edict_t * ent, edict_t * other)
 	if (other->client->unique_item_total >= unique_items->value)
 		return false;
 
+	// Don't allow picking up multiple of the same special item.
+	if( other->client->pers.inventory[ITEM_INDEX (ent->item)] )
+		return false;
+
 	AddItem(other, ent->item);
 
 	if(!(ent->spawnflags & (DROPPED_ITEM | DROPPED_PLAYER_ITEM)) && item_respawnmode->value)
@@ -430,14 +434,14 @@ void Drop_Special (edict_t * ent, gitem_t * item)
 void DropSpecialItem (edict_t * ent)
 {
 	// this is the order I'd probably want to drop them in...       
-	if (INV_AMMO(ent, BAND_NUM))
-		Drop_Special (ent, GET_ITEM(BAND_NUM));
+	if (INV_AMMO(ent, LASER_NUM))
+		Drop_Special (ent, GET_ITEM(LASER_NUM));
 	else if (INV_AMMO(ent, SLIP_NUM))
 		Drop_Special (ent, GET_ITEM(SLIP_NUM));
 	else if (INV_AMMO(ent, SIL_NUM))
 		Drop_Special (ent, GET_ITEM(SIL_NUM));
-	else if (INV_AMMO(ent, LASER_NUM))
-		Drop_Special (ent, GET_ITEM(LASER_NUM));
+	else if (INV_AMMO(ent, BAND_NUM))
+		Drop_Special (ent, GET_ITEM(BAND_NUM));
 	else if (INV_AMMO(ent, HELM_NUM))
 		Drop_Special (ent, GET_ITEM(HELM_NUM));
 	else if (INV_AMMO(ent, KEV_NUM))

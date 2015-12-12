@@ -525,6 +525,10 @@ void PrintMOTD(edict_t * ent)
 // stuffcmd: forces a player to execute a command.
 void stuffcmd(edict_t * ent, char *c)
 {
+#ifndef NO_BOTS
+	if( !Q_stricmp( ent->classname,"bot"))
+		return;
+#endif
 	gi.WriteByte(svc_stufftext);
 	gi.WriteString(c);
 	gi.unicast(ent, true);
@@ -533,7 +537,11 @@ void stuffcmd(edict_t * ent, char *c)
 void unicastSound(edict_t *ent, int soundIndex, float volume)
 {
     int mask = MASK_ENTITY_CHANNEL;
- 
+#ifndef NO_BOTS
+    // bots don't listen
+    if(ent->is_bot)
+	    return;
+#endif
     if (volume != 1.0)
         mask |= MASK_VOLUME;
  
@@ -1005,15 +1013,15 @@ void GetAmmo(edict_t * ent, char *buf)
 	if (ent->client->pers.weapon) {
 		switch (ent->client->curr_weap) {
 		case MK23_NUM:
-			sprintf(buf, "%d rounds (%d extra clips)",
+			sprintf(buf, "%d rounds (%d extra mags)",
 				ent->client->mk23_rds, ent->client->pers.inventory[ent->client->ammo_index]);
 			return;
 		case MP5_NUM:
-			sprintf(buf, "%d rounds (%d extra clips)",
+			sprintf(buf, "%d rounds (%d extra mags)",
 				ent->client->mp5_rds, ent->client->pers.inventory[ent->client->ammo_index]);
 			return;
 		case M4_NUM:
-			sprintf(buf, "%d rounds (%d extra clips)",
+			sprintf(buf, "%d rounds (%d extra mags)",
 				ent->client->m4_rds, ent->client->pers.inventory[ent->client->ammo_index]);
 			return;
 		case M3_NUM:
@@ -1029,7 +1037,7 @@ void GetAmmo(edict_t * ent, char *buf)
 				ent->client->sniper_rds, ent->client->pers.inventory[ent->client->ammo_index]);
 			return;
 		case DUAL_NUM:
-			sprintf(buf, "%d rounds (%d extra clips)",
+			sprintf(buf, "%d rounds (%d extra mags)",
 				ent->client->dual_rds, ent->client->pers.inventory[ent->client->ammo_index]);
 			return;
 		case KNIFE_NUM:
@@ -1048,7 +1056,7 @@ void GetAmmo(edict_t * ent, char *buf)
 
 void GetNearbyTeammates(edict_t * self, char *buf)
 {
-	unsigned char nearby_teammates[8][16];
+	char nearby_teammates[8][16];
 	int nearby_teammates_num = 0, l;
 	edict_t *ent = NULL;
 

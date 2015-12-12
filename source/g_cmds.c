@@ -214,6 +214,9 @@
 #include "g_local.h"
 #include "m_player.h"
 
+void Cmd_NextMap_f( edict_t *ent );
+void Cmd_Placenode_f( edict_t *ent );
+
 qboolean FloodCheck (edict_t *ent)
 {
 	if (flood_threshold->value)
@@ -1285,10 +1288,10 @@ Cmd_Say_f
 */
 void Cmd_Say_f (edict_t * ent, qboolean team, qboolean arg0, qboolean partner_msg)
 {
-	int j, i, offset_of_text;
+	int j, /*i,*/ offset_of_text;
 	edict_t *other;
 	char *args, text[256], *s;
-	gclient_t *cl;
+	//gclient_t *cl;
 	int meing = 0, isadmin = 0;
 
 	if (gi.argc() < 2 && !arg0)
@@ -1585,6 +1588,11 @@ void ClientCommand (edict_t * ent)
 		return;			// not fully in game yet
 	// if (level.intermissiontime)
 	// return;
+
+#ifndef NO_BOTS
+	if(ACECM_Commands(ent))
+		return;
+#endif
 
 	cmd = gi.argv (0);
 
@@ -2024,6 +2032,17 @@ void ClientCommand (edict_t * ent)
 	{
 		Cmd_ResetScores_f(ent);
 	}
+#ifndef NO_BOTS
+        else if (Q_stricmp (cmd, "placenode") == 0)
+	{
+                Cmd_Placenode_f (ent);
+		return;
+	}
+	else if (Q_stricmp (cmd, "placetrigger") == 0)
+	{
+		ent->is_triggering = 1;
+	}
+#endif
 	else				// anything that doesn't match a command will be a chat
 		Cmd_Say_f (ent, false, true, false);
 }

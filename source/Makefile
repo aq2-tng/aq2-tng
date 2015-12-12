@@ -1,6 +1,6 @@
 # GNU Make required
 #
-# Tested platforms: Linux x86
+# Tested platforms: Linux x86, Linux x86_64
 #
 
 GIT_REV=$(shell git rev-parse --short HEAD)
@@ -37,11 +37,11 @@ VERSION=$(REL_VERSION)
 endif
 
 CC?=gcc
-BASE_CFLAGS=-DC_ONLY -DVERSION=\"$(VERSION)\"
+BASE_CFLAGS=-DC_ONLY -DVERSION=\"$(VERSION)\" -Wall -fno-strict-aliasing -march=native -mtune=native
 
 #use these cflags to optimize it
 ifdef DEBUG
-	CFLAGS=$(BASE_CFLAGS) -g -Wall
+	CFLAGS=$(BASE_CFLAGS) -g
 else
 	CFLAGS=$(BASE_CFLAGS) -O2
 endif
@@ -84,7 +84,13 @@ GAME_OBJS = \
 	g_turret.o g_utils.o g_weapon.o g_xmisc.o m_move.o \
 	p_client.o p_hud.o p_trail.o p_view.o p_weapon.o q_shared.o \
 	tng_stats.o tng_flashlight.o tng_irc.o tng_ini.o tng_balancer.o \
-	g_grapple.o
+	g_grapple.o \
+	acesrc/acebot_ai.o acesrc/acebot_nodes.o acesrc/bot_combat.o \
+	acesrc/bot_states.o acesrc/acebot_cmds.o acesrc/acebot_spawn.o \
+	acesrc/bot_env_doors.o acesrc/bot_utility.o acesrc/acebot_compress.o \
+	acesrc/bot_ai.o acesrc/bot_movement.o acesrc/bot_weapon.o \
+	acesrc/acebot_items.o acesrc/botchat.o acesrc/botnav.o \
+	acesrc/acebot_movement.o acesrc/bot_collision.o acesrc/botscan.o
 
 game$(ARCH).$(SHLIBEXT) : $(GAME_OBJS)
 	$(DO_LINK)

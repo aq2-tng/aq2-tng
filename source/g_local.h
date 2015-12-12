@@ -288,6 +288,9 @@
 #include	"tng_ini.h"
 #include	"tng_balancer.h"
 #include	"g_grapple.h"
+#ifndef NO_BOTS
+#include	"acesrc/botnav.h"
+#endif
 #define		getEnt(entnum)	(edict_t *)((char *)globals.edicts + (globals.edict_size * entnum))	//AQ:TNG Slicer - This was missing
 #define		GAMEVERSION			"action"	// the "gameversion" client command will print this plus compile date
 
@@ -806,10 +809,10 @@ extern int stopAP;
 
 extern edict_t *g_edicts;
 
-#define FOFS(x)  (int)&(((edict_t *)0)->x)
-#define STOFS(x) (int)&(((spawn_temp_t *)0)->x)
-#define LLOFS(x) (int)&(((level_locals_t *)0)->x)
-#define CLOFS(x) (int)&(((gclient_t *)0)->x)
+#define FOFS(x)  (ptrdiff_t)&(((edict_t *)0)->x)
+#define STOFS(x) (ptrdiff_t)&(((spawn_temp_t *)0)->x)
+#define LLOFS(x) (ptrdiff_t)&(((level_locals_t *)0)->x)
+#define CLOFS(x) (ptrdiff_t)&(((gclient_t *)0)->x)
 
 #define random()        ((rand () & 0x7fff) / ((float)0x7fff))
 #define crandom()       (2.0 * (random() - 0.5))
@@ -835,6 +838,9 @@ extern cvar_t *nohud;
 extern cvar_t *noscore;
 extern cvar_t *use_newscore;
 extern cvar_t *actionversion;
+#ifndef NO_BOTS
+extern cvar_t *ltk_jumpy;
+#endif
 extern cvar_t *use_voice;
 extern cvar_t *ppl_idletime;
 extern cvar_t *use_tourney;
@@ -871,6 +877,7 @@ extern cvar_t *check_time;
 extern cvar_t *matchmode;
 extern cvar_t *darkmatch;
 extern cvar_t *day_cycle;	// If darkmatch is on, this value is the nr of seconds between each interval (day, dusk, night, dawn)
+extern cvar_t *use_flashlight;  // Allow flashlight when not darkmatch?
 
 extern cvar_t *hearall;		// used in match mode
 extern cvar_t *deadtalk;
@@ -1054,7 +1061,7 @@ void Touch_Item (edict_t * ent, edict_t * other, cplane_t * plane,
 qboolean KillBox (edict_t * ent);
 void G_ProjectSource (vec3_t point, vec3_t distance, vec3_t forward,
 		      vec3_t right, vec3_t result);
-edict_t *G_Find (edict_t * from, int fieldofs, char *match);
+edict_t *G_Find (edict_t * from, ptrdiff_t fieldofs, char *match);
 edict_t *findradius (edict_t * from, vec3_t org, float rad);
 edict_t *G_PickTarget (char *targetname);
 void G_UseTargets (edict_t * ent, edict_t * activator);
@@ -1069,7 +1076,8 @@ void G_TouchSolids (edict_t * ent);
 
 char *G_CopyString (char *in);
 
-//float *tv (float x, float y, float z);
+// FIXME: re-enabled for bots
+float *tv (float x, float y, float z);
 char *vtos (vec3_t v);
 
 float vectoyaw (vec3_t vec);
@@ -1840,6 +1848,68 @@ struct edict_s
   int typeNum;
   // PG BUND
   xmenu_t *x_menu;
+
+#ifndef NO_BOTS
+	int old_health;
+
+	int recheck_timeout;
+	int jumphack_timeout;
+
+	qboolean is_bot; 
+	qboolean is_jumping; 
+	qboolean is_triggering; 
+	 
+	// For movement 
+	vec3_t move_vector;  
+	float next_move_time; 
+	float wander_timeout; 
+	float suicide_timeout; 
+ 
+//AQ2 ADD 
+	// Door and pause time stuff. 
+	float	last_door_time;	// Used to open doors without immediately closing them again! 
+	float	teamPauseTime;	// To stop the centipede effect and seperate the team out a little 
+	qboolean	teamReportedIn;	// Have we reported in yet? 
+	float	lastRadioTime;	// Don't use the radio too often 
+	// Path to follow 
+	ltklist_t	pathList;	// Single linked list of node numbers 
+	float	antLastCallTime;	// Check for calling complex pathsearcher 
+	// Who killed me? 
+	edict_t	*lastkilledby;	// Set in ClientObituary... 
+	int grenadewait; // Raptor007: Moved here from player_state_t.
+//AQ2 END 
+ 
+	// For node code 
+	int current_node; // current node 
+	int goal_node; // current goal node 
+	int next_node; // the node that will take us one step closer to our goal 
+	int node_timeout; 
+	int last_node; 
+	int tries; 
+	 
+	// AI related stuff 
+	int weaponchoice; 
+	int equipchoice; 
+	float	fLastZoomTime;	// Time we last changed sniper zoom mode 
+ 
+	// Enemy related 
+	qboolean	killchat;	// Have we reported an enemy death and taunted him 
+	vec3_t		lastSeen; 
+	qboolean	cansee; 
+ 
+	// States 
+	int state;	//ACE only 
+	int botState; 
+	int nextState; 
+	int secondaryState; 
+ 
+	// Movement 
+	int	bot_strafe; 
+	int bot_speed; 
+	qboolean	bCrawl; 
+	qboolean	bLastJump; 
+	vec3_t	lastPosition; 
+#endif 
 };
 
 typedef struct
@@ -2095,3 +2165,6 @@ extern int pause_time;
 #define PARSE_BUFSIZE 256
 
 #include "a_ctf.h"
+#ifndef NO_BOTS
+#include "acesrc/acebot.h"
+#endif

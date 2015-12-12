@@ -309,6 +309,8 @@ qboolean Pickup_Weapon (edict_t * ent, edict_t * other)
 	{
 		if (other->client->unique_weapon_total >= unique_weapons->value + band)
 			return false;		// we can't get it
+		if (teamplay->value && other->client->pers.inventory[index])
+			return false;
 
 		other->client->pers.inventory[index]++;
 		other->client->unique_weapon_total++;
@@ -322,6 +324,8 @@ qboolean Pickup_Weapon (edict_t * ent, edict_t * other)
 	{
 		if (other->client->unique_weapon_total >= unique_weapons->value + band)
 			return false;		// we can't get it
+		if (teamplay->value && other->client->pers.inventory[index])
+			return false;
 
 		other->client->pers.inventory[index]++;
 		other->client->unique_weapon_total++;
@@ -335,6 +339,8 @@ qboolean Pickup_Weapon (edict_t * ent, edict_t * other)
 	{
 		if (other->client->unique_weapon_total >= unique_weapons->value + band)
 			return false;		// we can't get it
+		if (teamplay->value && other->client->pers.inventory[index])
+			return false;
 
 		other->client->pers.inventory[index]++;
 		other->client->unique_weapon_total++;
@@ -363,6 +369,8 @@ qboolean Pickup_Weapon (edict_t * ent, edict_t * other)
 	{
 		if (other->client->unique_weapon_total >= unique_weapons->value + band)
 			return false;		// we can't get it
+		if (teamplay->value && other->client->pers.inventory[index])
+			return false;
 
 		other->client->pers.inventory[index]++;
 		other->client->unique_weapon_total++;
@@ -383,6 +391,8 @@ qboolean Pickup_Weapon (edict_t * ent, edict_t * other)
 	{
 		if (other->client->unique_weapon_total >= unique_weapons->value + band)
 			return false;		// we can't get it
+		if (teamplay->value && other->client->pers.inventory[index])
+			return false;
 
 		other->client->pers.inventory[index]++;
 		other->client->unique_weapon_total++;
@@ -2280,9 +2290,9 @@ weapon_grenade_fire (edict_t * ent, qboolean held)
   int damage = 125;
   float timer;
   int speed;
-  float radius;
+  //float radius;
 
-  radius = damage + 40;
+  //radius = damage + 40;
   if (is_quad)
     damage *= 4;
 
@@ -3936,7 +3946,7 @@ void Sniper_Fire (edict_t * ent)
 	//int i;
 	vec3_t start;
 	vec3_t forward, right;
-	vec3_t angles;
+	//vec3_t angles;
 	int damage = 250;
 	int kick = 200;
 	vec3_t offset;
@@ -4019,7 +4029,7 @@ void Sniper_Fire (edict_t * ent)
 	VectorClear(ent->client->kick_angles);
 
 	// get start / end positions
-	VectorAdd (ent->client->v_angle, ent->client->kick_angles, angles);
+	//VectorAdd (ent->client->v_angle, ent->client->kick_angles, angles);
 	AngleVectors (ent->client->v_angle, forward, right, NULL);
 	VectorSet (offset, 0, 0, ent->viewheight - 0);
 

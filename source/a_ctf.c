@@ -51,17 +51,23 @@
 
 ctfgame_t ctfgame;
 
-cvar_t *ctf;
-cvar_t *ctf_forcejoin;
-cvar_t *ctf_mode;
-cvar_t *ctf_dropflag;
-cvar_t *ctf_respawn;
-cvar_t *ctf_model;
+cvar_t *ctf = NULL;
+cvar_t *ctf_forcejoin = NULL;
+cvar_t *ctf_mode = NULL;
+cvar_t *ctf_dropflag = NULL;
+cvar_t *ctf_respawn = NULL;
+cvar_t *ctf_model = NULL;
+
+//-----------------------------------------------------------------------------
+
+void ChangePlayerSpawns();
+void MakeAllLivePlayersObservers();
+void ED_CallSpawn( edict_t *ent );
 
 /*--------------------------------------------------------------------------*/
 
-gitem_t *flag1_item;
-gitem_t *flag2_item;
+gitem_t *flag1_item = NULL;
+gitem_t *flag2_item = NULL;
 
 void CTFInit(void)
 {
@@ -338,7 +344,7 @@ void ResetPlayers()
 
 void CTFSwapTeams()
 {
-	vec3_t point;
+	//vec3_t point;
 	edict_t *ent;
 	int i;
 
@@ -1539,7 +1545,7 @@ void CTFCapReward(edict_t * ent)
 {
 	gclient_t *client;
 	gitem_t *item;
-	edict_t etemp;
+	//edict_t etemp;
 	int was_bandaging = 0;
 	int band;
 	int player_weapon;
