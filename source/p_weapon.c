@@ -309,8 +309,8 @@ qboolean Pickup_Weapon (edict_t * ent, edict_t * other)
 	{
 		if (other->client->unique_weapon_total >= unique_weapons->value + band)
 			return false;		// we can't get it
-		if (teamplay->value && other->client->pers.inventory[index])
-			return false;
+		if ((! allow_hoarding->value) && other->client->pers.inventory[index])
+			return false;		// we already have one
 
 		other->client->pers.inventory[index]++;
 		other->client->unique_weapon_total++;
@@ -324,8 +324,8 @@ qboolean Pickup_Weapon (edict_t * ent, edict_t * other)
 	{
 		if (other->client->unique_weapon_total >= unique_weapons->value + band)
 			return false;		// we can't get it
-		if (teamplay->value && other->client->pers.inventory[index])
-			return false;
+		if ((! allow_hoarding->value) && other->client->pers.inventory[index])
+			return false;		// we already have one
 
 		other->client->pers.inventory[index]++;
 		other->client->unique_weapon_total++;
@@ -339,8 +339,8 @@ qboolean Pickup_Weapon (edict_t * ent, edict_t * other)
 	{
 		if (other->client->unique_weapon_total >= unique_weapons->value + band)
 			return false;		// we can't get it
-		if (teamplay->value && other->client->pers.inventory[index])
-			return false;
+		if ((! allow_hoarding->value) && other->client->pers.inventory[index])
+			return false;		// we already have one
 
 		other->client->pers.inventory[index]++;
 		other->client->unique_weapon_total++;
@@ -369,8 +369,8 @@ qboolean Pickup_Weapon (edict_t * ent, edict_t * other)
 	{
 		if (other->client->unique_weapon_total >= unique_weapons->value + band)
 			return false;		// we can't get it
-		if (teamplay->value && other->client->pers.inventory[index])
-			return false;
+		if ((! allow_hoarding->value) && other->client->pers.inventory[index])
+			return false;		// we already have one
 
 		other->client->pers.inventory[index]++;
 		other->client->unique_weapon_total++;
@@ -391,8 +391,8 @@ qboolean Pickup_Weapon (edict_t * ent, edict_t * other)
 	{
 		if (other->client->unique_weapon_total >= unique_weapons->value + band)
 			return false;		// we can't get it
-		if (teamplay->value && other->client->pers.inventory[index])
-			return false;
+		if ((! allow_hoarding->value) && other->client->pers.inventory[index])
+			return false;		// we already have one
 
 		other->client->pers.inventory[index]++;
 		other->client->unique_weapon_total++;

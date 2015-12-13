@@ -367,6 +367,7 @@ cvar_t *flashtime;*/
 //SLIC2
 cvar_t *allweapon;
 cvar_t *allitem;
+cvar_t *allow_hoarding;
 cvar_t *sv_shelloff;
 cvar_t *bholelimit;
 cvar_t *splatlimit;

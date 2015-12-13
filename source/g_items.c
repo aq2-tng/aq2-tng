@@ -333,7 +333,7 @@ qboolean Pickup_Special (edict_t * ent, edict_t * other)
 		return false;
 
 	// Don't allow picking up multiple of the same special item.
-	if( other->client->pers.inventory[ITEM_INDEX (ent->item)] )
+	if( (! allow_hoarding->value) && other->client->pers.inventory[ITEM_INDEX(ent->item)] )
 		return false;
 
 	AddItem(other, ent->item);
