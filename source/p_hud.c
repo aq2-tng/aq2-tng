@@ -738,6 +738,14 @@ void G_SetStats (edict_t * ent)
 		ent->client->ps.stats[STAT_HELPICON] = gi.imageindex ("i_health");
 	}
 
+	// Hide health, ammo, and weapon when spectating.
+	if( /* (! old_spectator_hud->value) && */ (ent->health > 0) && ((ent->deadflag == DEAD_DEAD) || (ent->solid == SOLID_NOT)) )
+	{
+		ent->client->ps.stats[STAT_HEALTH_ICON] = 0;
+		ent->client->ps.stats[STAT_AMMO_ICON] = 0;
+		ent->client->ps.stats[STAT_SELECTED_ICON] = 0;
+	}
+
 	//
 	// layouts
 	//

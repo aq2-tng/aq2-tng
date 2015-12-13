@@ -1202,9 +1202,13 @@ xl < value > xr < value > yb < value > yt < value > xv < value > yv < value >
     "yb -58 " "string \"Viewing\" " "xv 64 " "stat_string 21 " "endif ";
 
 
-char *dm_statusbar = "yb     -24 "
+char *dm_statusbar = ""
+// team icon
+  "if 23 xl 0 yb -32 pic 23 endif "
+// standard bottom icons
+  "yb     -24 "
 // health
-  "xv     0 " "hnum " "xv     50 " "pic 0 "
+  "if 0 " "xv     0 " "hnum " "xv     50 " "pic 0 " "endif "
 // ammo
   "if 2 "
   "       xv      100 "
@@ -1274,14 +1278,16 @@ char *dm_statusbar = "yb     -24 "
   "       xv      0 " "       yv      0 " "       pic 18 " "endif "
 //  frags
   "xr     -50 " "yt 2 " "num 3 14"
-// team icon
-  "if 23 xl 0 yb -32 pic 23 endif "
 ;
 
 /* DM status bar for teamplay without individual scores -FB: */
-char *dm_noscore_statusbar = "yb     -24 "
+char *dm_noscore_statusbar = ""
+// team icon
+  "if 23 xl 0 yb -32 pic 23 endif "
+// standard bottom icons
+  "yb     -24 "
 // health
-  "xv     0 " "hnum " "xv     50 " "pic 0 "
+  "if 0 " "xv     0 " "hnum " "xv     50 " "pic 0 " "endif "
 // ammo
   "if 2 "
   "       xv      100 "
