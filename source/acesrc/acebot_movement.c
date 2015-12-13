@@ -1043,7 +1043,7 @@ void ACEMV_Attack (edict_t *self, usercmd_t *ucmd)
 {
 	float c;
 	vec3_t  target;
-	//vec3_t  angles;
+	vec3_t  angles;
 	vec3_t	attackvector;
 	float	dist;
 	qboolean	bHasWeapon;	// Needed to allow knife throwing and kick attacks
@@ -1206,17 +1206,28 @@ void ACEMV_Attack (edict_t *self, usercmd_t *ucmd)
 		&& (!(self->client->pers.weapon == FindItem(KNIFE_NAME))) // Knives accurate
 		)
 	{
-		short int	up, right, iFactor=7;
-		up = (random() < 0.5)? -1 :1;
-		right = (random() < 0.5)? -1 : 1;
+		short int sign[3], iFactor = 7;
+		sign[0] = (random() < 0.5) ? -1 : 1;
+		sign[1] = (random() < 0.5) ? -1 : 1;
+		sign[2] = (random() < 0.5) ? -1 : 1;
 
 		// Not that complex. We miss by 0 to 80 units based on skill value and random factor
 		// Unless we have a sniper rifle!
-		// Raptor007: Disabled because sniper bots don't need any more advantages.
-		//if(self->client->pers.weapon == FindItem(SNIPER_NAME))
-		//	iFactor = 5;
-		target[0] += ( right * (10 - ltk_skill->value +((iFactor*(10 - ltk_skill->value)) *random())) );
-		target[2] += ( up * (10 - ltk_skill->value +((iFactor*(10 - ltk_skill->value)) *random())) );
+		if(self->client->pers.weapon == FindItem(SNIPER_NAME))
+			iFactor = 5;
+
+		// Shoot less accurately if we just turned around and are far away.
+		vectoangles( attackvector, angles );
+		float yaw_diff = angles[YAW] - self->s.angles[YAW];
+		if( yaw_diff > 180.f )
+			yaw_diff -= 360.f;
+		else if( yaw_diff < -180.f )
+			yaw_diff += 360.f;
+		iFactor += abs( yaw_diff / 80.f ) * abs( dist / 700.f );
+
+		target[0] += sign[0] * (10 - ltk_skill->value + ( (  iFactor*(10 - ltk_skill->value)  ) * random() )) * 0.7f;
+		target[1] += sign[1] * (10 - ltk_skill->value + ( (  iFactor*(10 - ltk_skill->value)  ) * random() )) * 0.7f;
+		target[2] += sign[2] * (10 - ltk_skill->value + ( (  iFactor*(10 - ltk_skill->value)  ) * random() ));
 	}
 	//Werewolf: Snipers of skill 10 are complete lethal, so I don't use that code down there
 /*	else if (ltk_skill->value == 11)
