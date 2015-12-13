@@ -1385,7 +1385,12 @@ void ClientEndServerFrame (edict_t * ent)
 
 		for (stats_copy = 0; stats_copy < MAX_STATS; stats_copy++)
 		{
-			if (stats_copy >= STAT_TEAM_HEADER && stats_copy <= STAT_TEAM2_SCORE)
+			if (stats_copy == STAT_FLAG_PIC)
+			{
+				if (e->client->chase_mode != 2)
+					continue;		// only team/flag icon in chase mode 2
+			}
+			else if (stats_copy >= STAT_TEAM_HEADER && stats_copy <= STAT_TEAM2_SCORE)
 				continue;		// protect these
 			if (stats_copy >= STAT_TEAM3_PIC && stats_copy <= STAT_TEAM3_SCORE)
 				continue;		// protect these

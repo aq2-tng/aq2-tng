@@ -1273,9 +1273,10 @@ char *dm_statusbar = "yb     -24 "
   "       yb      0 "
   "       xv      0 " "       yv      0 " "       pic 18 " "endif "
 //  frags
-  "xr     -50 " "yt 2 " "num 3 14";
-
-
+  "xr     -50 " "yt 2 " "num 3 14"
+// team icon
+  "if 23 xv 0 yb -32 pic 23 endif "
+;
 
 /* DM status bar for teamplay without individual scores -FB: */
 char *dm_noscore_statusbar = "yb     -24 "
@@ -1354,7 +1355,9 @@ char *dm_noscore_statusbar = "yb     -24 "
 "yt 2 "
 "num 3 14"
 */
- ;
+// team icon
+  "if 23 xl 0 yb -32 pic 23 endif "
+;
 // END FB
 
 char *ctf_statusbar = "yb     -24 "

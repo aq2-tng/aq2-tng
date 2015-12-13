@@ -833,6 +833,15 @@ void SetIDView(edict_t * ent)
 
 	}
 
+	// Team icon.
+	if( ! ctf->value )
+	{
+		if( hud_team_icon->value && (ent->client->resp.team) != NOTEAM && (ent->deadflag != DEAD_DEAD) && (ent->solid != SOLID_NOT) )
+			ent->client->ps.stats[STAT_FLAG_PIC] = gi.imageindex(teams[ent->client->resp.team].skin_index);
+		else
+			ent->client->ps.stats[STAT_FLAG_PIC] = 0;
+	}
+
 	if (ent->client->chase_mode) {
 		if (ent->client->chase_target && ent->client->chase_target->inuse) {
 			ent->client->ps.stats[STAT_ID_VIEW] =
