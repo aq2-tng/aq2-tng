@@ -1275,7 +1275,7 @@ char *dm_statusbar = "yb     -24 "
 //  frags
   "xr     -50 " "yt 2 " "num 3 14"
 // team icon
-  "if 23 xv 0 yb -32 pic 23 endif "
+  "if 23 xl 0 yb -32 pic 23 endif "
 ;
 
 /* DM status bar for teamplay without individual scores -FB: */
