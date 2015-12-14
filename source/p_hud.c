@@ -731,19 +731,27 @@ void G_SetStats (edict_t * ent)
 			ent->client->ps.stats[STAT_HELPICON] = gi.imageindex (ent->client->pers.weapon->icon);
 		else
 			ent->client->ps.stats[STAT_HELPICON] = 0;
-	}
-	// TNG: Show health icon when bandaging (thanks to Dome for this code)
-	if (ent->client->weaponstate == WEAPON_BANDAGING || ent->client->bandaging || ent->client->bandage_stopped)
-	{
-		ent->client->ps.stats[STAT_HELPICON] = gi.imageindex ("i_health");
-	}
 
-	// Hide health, ammo, and weapon when spectating.
-	if( /* (! old_spectator_hud->value) && */ (ent->health > 0) && ((ent->deadflag == DEAD_DEAD) || (ent->solid == SOLID_NOT)) )
-	{
-		ent->client->ps.stats[STAT_HEALTH_ICON] = 0;
-		ent->client->ps.stats[STAT_AMMO_ICON] = 0;
-		ent->client->ps.stats[STAT_SELECTED_ICON] = 0;
+		// TNG: Show health icon when bandaging (thanks to Dome for this code)
+		if (ent->client->weaponstate == WEAPON_BANDAGING || ent->client->bandaging || ent->client->bandage_stopped)
+			ent->client->ps.stats[STAT_HELPICON] = gi.imageindex ("i_health");
+
+		// Hide health, ammo, and weapon when spectating.
+		if( /* (! old_spectator_hud->value) && */ (ent->health > 0) && ((ent->deadflag == DEAD_DEAD) || (ent->solid == SOLID_NOT)) )
+		{
+			ent->client->ps.stats[STAT_HEALTH_ICON] = 0;
+			ent->client->ps.stats[STAT_AMMO_ICON] = 0;
+			ent->client->ps.stats[STAT_SELECTED_ICON] = 0;
+		}
+
+		// Team icon.
+		if( teamplay->value && ! ctf->value )
+		{
+			if( hud_team_icon->value && (ent->client->resp.team != NOTEAM) && (ent->deadflag != DEAD_DEAD) && (ent->solid != SOLID_NOT) )
+				ent->client->ps.stats[STAT_FLAG_PIC] = gi.imageindex(teams[ent->client->resp.team].skin_index);
+			else
+				ent->client->ps.stats[STAT_FLAG_PIC] = 0;
+		}
 	}
 
 	//
@@ -753,7 +761,7 @@ void G_SetStats (edict_t * ent)
 
 	if (deathmatch->value)
 	{
-		if (ent->client->pers.health <= 0 || level.intermissiontime	|| ent->client->showscores)
+		if (ent->client->pers.health <= 0 || level.intermissiontime || ent->client->showscores)
 			ent->client->ps.stats[STAT_LAYOUTS] |= 1;
 		if (ent->client->showinventory && ent->client->pers.health > 0)
 			ent->client->ps.stats[STAT_LAYOUTS] |= 2;
