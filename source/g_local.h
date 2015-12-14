@@ -2123,7 +2123,7 @@ extern int tnums[ITEM_COUNT];
 #define BANDAGE_TIME    27	// 10 = 1 second
 #define BLEED_TIME      10	// 10 = 1 second is time for losing 1 health at slowest bleed rate
 // Igor's back in Time to hard grenades :-)
-//#define GRENADE_DAMRAD  170
+#define GRENADE_DAMRAD_CLASSIC  170
 #define GRENADE_DAMRAD  250
 
 //AQ2:TNG - Slicer New location support

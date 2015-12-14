@@ -1118,7 +1118,7 @@ void Drop_Weapon (edict_t * ent, gitem_t * item)
 
 				// Reset Grenade Damage to 1.52 when requested:
 				if (use_classic->value)
-					damage = 170;
+					damage = GRENADE_DAMRAD_CLASSIC;
 				else
 					damage = GRENADE_DAMRAD;
 				
@@ -2308,7 +2308,7 @@ weapon_grenade_fire (edict_t * ent, qboolean held)
 
   // Reset Grenade Damage to 1.52 when requested:
   if (use_classic->value)
-    fire_grenade2 (ent, start, forward, 170, speed, timer, 170 * 2, held);
+    fire_grenade2 (ent, start, forward, GRENADE_DAMRAD_CLASSIC, speed, timer, GRENADE_DAMRAD_CLASSIC * 2, held);
   else
     fire_grenade2 (ent, start, forward, GRENADE_DAMRAD, speed, timer,
 		   GRENADE_DAMRAD * 2, held);
@@ -3384,13 +3384,6 @@ void MP5_Fire (edict_t * ent)
 	else
 		height = 0;
 
-
-	// If requested, use 1.52 spread
-	if (use_classic->value)
-		spread = 250;
-	else
-		spread = MP5_SPREAD;
-
 	//If the user isn't pressing the attack button, advance the frame and go away....
 	if (!(ent->client->buttons & BUTTON_ATTACK) && !(ent->client->burst))
 	{
@@ -4105,12 +4098,6 @@ void Dual_Fire (edict_t * ent)
 		height = 8;
 	else
 		height = 0;
-
-	// Reset spread to 1.52 when requested
-	if (use_classic->value)
-		spread = 300;
-	else
-		spread = DUAL_SPREAD;
 
 	spread = AdjustSpread (ent, spread);
 
@@ -4827,7 +4814,7 @@ void gas_fire (edict_t * ent)
 
 	// Reset Grenade Damage to 1.52 when requested:
 	if (use_classic->value)
-		damage = 170;
+		damage = GRENADE_DAMRAD_CLASSIC;
 	else
 		damage = GRENADE_DAMRAD;
 
@@ -5052,7 +5039,7 @@ void Weapon_Gas (edict_t * ent)
 
 			// Reset Grenade Damage to 1.52 when requested:
 			if (use_classic->value)
-				damage = 170;
+				damage = GRENADE_DAMRAD_CLASSIC;
 			else
 				damage = GRENADE_DAMRAD;
 			
