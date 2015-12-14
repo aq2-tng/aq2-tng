@@ -727,7 +727,7 @@ void G_SetStats (edict_t * ent)
 		if (ent->client->resp.helpchanged && (level.framenum & 8))
 			ent->client->ps.stats[STAT_HELPICON] = gi.imageindex ("i_help");
 		else if ((ent->client->pers.hand == CENTER_HANDED || ent->client->ps.fov > 91)
-			&& ent->client->pers.weapon)
+			&& ent->client->pers.weapon && ent->deadflag != DEAD_DEAD && ent->solid != SOLID_NOT)
 			ent->client->ps.stats[STAT_HELPICON] = gi.imageindex (ent->client->pers.weapon->icon);
 		else
 			ent->client->ps.stats[STAT_HELPICON] = 0;
