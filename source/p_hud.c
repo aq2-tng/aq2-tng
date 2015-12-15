@@ -521,34 +521,38 @@ void G_SetStats (edict_t * ent)
 		}
 
 		// zucc display special item and special weapon
-		if (INV_AMMO(ent, SNIPER_NUM))
-			ent->client->ps.stats[STAT_WEAPONS_ICON] = gi.imageindex(GET_ITEM(SNIPER_NUM)->icon);
-		else if (INV_AMMO(ent, M4_NUM))
-			ent->client->ps.stats[STAT_WEAPONS_ICON] = gi.imageindex(GET_ITEM(M4_NUM)->icon);
-		else if (INV_AMMO(ent, MP5_NUM))
-			ent->client->ps.stats[STAT_WEAPONS_ICON] = gi.imageindex(GET_ITEM(MP5_NUM)->icon);
-		else if (INV_AMMO(ent, M3_NUM))
-			ent->client->ps.stats[STAT_WEAPONS_ICON] = gi.imageindex(GET_ITEM(M3_NUM)->icon);
-		else if (INV_AMMO(ent, HC_NUM))
-			ent->client->ps.stats[STAT_WEAPONS_ICON] = gi.imageindex(GET_ITEM(HC_NUM)->icon);
+		// Raptor007: Modified to rotate through all carried special weapons and items.
+
+		int icons[ 6 ], icon_count, i;
+		int cycle = hud_items_cycle->value;
+
+		icon_count = 0;
+		int weapon_ids[ 6 ] = { SNIPER_NUM, M4_NUM, MP5_NUM, M3_NUM, HC_NUM, DUAL_NUM };
+		for( i = 0; i < 6; i ++ )
+		{
+			if( INV_AMMO( ent, weapon_ids[i] ) )
+				icons[ icon_count ++ ] = gi.imageindex( GET_ITEM(weapon_ids[i])->icon );
+		}
+		if( icon_count && ! cycle )
+			icon_count = 1;
+		if( icon_count )
+			ent->client->ps.stats[STAT_WEAPONS_ICON] = icons[ (level.framenum/cycle) % icon_count ];
 		else
 			ent->client->ps.stats[STAT_WEAPONS_ICON] = 0;
 
-		if (INV_AMMO(ent, KEV_NUM))
-			ent->client->ps.stats[STAT_ITEMS_ICON] = gi.imageindex (GET_ITEM(KEV_NUM)->icon);
-		else if (INV_AMMO(ent, LASER_NUM))
-			ent->client->ps.stats[STAT_ITEMS_ICON] = gi.imageindex (GET_ITEM(LASER_NUM)->icon);
-		else if (INV_AMMO(ent, SLIP_NUM))
-			ent->client->ps.stats[STAT_ITEMS_ICON] = gi.imageindex (GET_ITEM(SLIP_NUM)->icon);
-		else if (INV_AMMO(ent, SIL_NUM))
-			ent->client->ps.stats[STAT_ITEMS_ICON] = gi.imageindex (GET_ITEM(SIL_NUM)->icon);
-		else if (INV_AMMO(ent, HELM_NUM))
-			ent->client->ps.stats[STAT_ITEMS_ICON] = gi.imageindex (GET_ITEM(HELM_NUM)->icon);
-		else if (INV_AMMO(ent, BAND_NUM))
-			ent->client->ps.stats[STAT_ITEMS_ICON] = gi.imageindex (GET_ITEM(BAND_NUM)->icon);
+		icon_count = 0;
+		int s_item_ids[ 6 ] = { KEV_NUM, HELM_NUM, BAND_NUM, SIL_NUM, SLIP_NUM, LASER_NUM };
+		for( i = 0; i < 6; i ++ )
+		{
+			if( INV_AMMO( ent, s_item_ids[i] ) )
+				icons[ icon_count ++ ] = gi.imageindex( GET_ITEM(s_item_ids[i])->icon );
+		}
+		if( icon_count && ! cycle )
+			icon_count = 1;
+		if( icon_count )
+			ent->client->ps.stats[STAT_ITEMS_ICON] = icons[ ((level.framenum+cycle/2)/cycle) % icon_count ];
 		else
 			ent->client->ps.stats[STAT_ITEMS_ICON] = 0;
-
 
 		// grenades remaining
 		if (INV_AMMO(ent, GRENADE_NUM))

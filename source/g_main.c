@@ -300,6 +300,7 @@ cvar_t *roundlimit;
 cvar_t *skipmotd;
 cvar_t *nohud;
 cvar_t *hud_team_icon;
+cvar_t *hud_items_cycle;
 cvar_t *noscore;
 cvar_t *use_newscore;
 cvar_t *actionversion;
