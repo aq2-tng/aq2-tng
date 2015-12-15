@@ -997,7 +997,7 @@ void ACESP_SetName(edict_t *bot, char *name, char *skin, char *team)
 extern char current_map[55];
 //
 
-char	*LocalTeamNames[3] = {"spectator", "1", "2" };
+char *LocalTeamNames[4] = { "spectator", "1", "2", "3" };
 
 ///////////////////////////////////////////////////////////////////////
 // Spawn the bot
