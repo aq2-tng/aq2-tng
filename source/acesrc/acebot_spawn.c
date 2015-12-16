@@ -244,6 +244,7 @@ void	ACESP_SpawnBotFromConfig( char *inString )
 	char	name[32];
 	char	modelskin[80];
 	int		team=0, weaponchoice=0, equipchoice=0;
+	char	gender[2] = "m";
 
 	// Scanner stuff
 	char	tokenString[81];
@@ -307,6 +308,12 @@ void	ACESP_SpawnBotFromConfig( char *inString )
 			continue;
 		}
 
+		if(count == 6 && ttype == SYMBOL )
+		{
+			gender[0] = tokenString[0];
+			continue;
+		}
+
 	}// End while
 	
 	bot = ACESP_FindFreeClient ();
@@ -330,6 +337,7 @@ void	ACESP_SpawnBotFromConfig( char *inString )
 	Info_SetValueForKey (userinfo, "skin", modelskin);
 	Info_SetValueForKey (userinfo, "hand", "2"); // bot is center handed for now!
 	Info_SetValueForKey (userinfo, "spectator", "0"); // NOT a spectator
+	Info_SetValueForKey (userinfo, "gender", gender);
 
 	ClientConnect (bot, userinfo);
 	
