@@ -2020,6 +2020,12 @@ void AddSplat (edict_t * self, vec3_t point, trace_t * tr);
 #define KNIFE_NAME   "Combat Knife"
 #define GRENADE_NAME "M26 Fragmentation Grenade"
 
+#define MK23_AMMO_NAME    "Pistol Magazine"
+#define MP5_AMMO_NAME     "MP5 Magazine"
+#define M4_AMMO_NAME      "M4 Magazine"
+#define SHOTGUN_AMMO_NAME "12 Gauge Shells"
+#define SNIPER_AMMO_NAME  "AP Sniper Ammo"
+
 #define SIL_NAME     "Silencer"
 #define SLIP_NAME    "Stealth Slippers"
 #define BAND_NAME    "Bandolier"
