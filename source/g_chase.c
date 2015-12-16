@@ -84,7 +84,7 @@ UpdateChaseCam (edict_t * ent)
       else if (angles[PITCH] < -89)
         angles[PITCH] = -89;
       VectorCopy (angles, ent->client->ps.viewangles);
-      VectorCopy (angles, ent->client->v_angle);
+      //VectorCopy (angles, ent->client->v_angle);
 
       VectorCopy (targ->s.origin, ownerv);
       ownerv[2] += targ->viewheight;
@@ -173,7 +173,7 @@ UpdateChaseCam (edict_t * ent)
       else
 	{
 	  VectorCopy (angles, ent->client->ps.viewangles);
-	  VectorCopy (angles, ent->client->v_angle);
+	  //VectorCopy (angles, ent->client->v_angle);
 	}
     }
 
