@@ -1929,10 +1929,18 @@ void MakeAllLivePlayersObservers ()
 			ent->client->resp.team == NOTEAM ||	ent->client->resp.subteam))
 			continue;
 
+#ifndef NO_BOTS
+		qboolean is_bot = ent->is_bot;
+		char *classname = ent->classname;
+#endif
 		saveteam = ent->client->resp.team;
 		ent->client->resp.team = NOTEAM;
 		PutClientInServer (ent);
 		ent->client->resp.team = saveteam;
+#ifndef NO_BOTS
+		ent->is_bot = is_bot;
+		ent->classname = classname;
+#endif
 	}
 }
 
