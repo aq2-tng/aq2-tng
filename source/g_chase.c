@@ -64,6 +64,7 @@ UpdateChaseCam (edict_t * ent)
   edict_t *targ;
   vec3_t forward, right;
   trace_t trace;
+  int i;
   vec3_t angles;
 
   if (ChaseTargetGone (ent))
@@ -79,12 +80,14 @@ UpdateChaseCam (edict_t * ent)
       ent->client->ps.fov = 90;
 
       VectorCopy (ent->client->resp.cmd_angles, angles);
+      for ( i = 0; i < 3; i ++ )
+        angles[i] += SHORT2ANGLE(ent->client->ps.pmove.delta_angles[i]);
       if (angles[PITCH] > 89)
         angles[PITCH] = 89;
       else if (angles[PITCH] < -89)
         angles[PITCH] = -89;
       VectorCopy (angles, ent->client->ps.viewangles);
-      //VectorCopy (angles, ent->client->v_angle);
+      VectorCopy (angles, ent->client->v_angle);
 
       VectorCopy (targ->s.origin, ownerv);
       ownerv[2] += targ->viewheight;
@@ -173,9 +176,12 @@ UpdateChaseCam (edict_t * ent)
       else
 	{
 	  VectorCopy (angles, ent->client->ps.viewangles);
-	  //VectorCopy (angles, ent->client->v_angle);
+	  VectorCopy (angles, ent->client->v_angle);
 	}
     }
+
+  for ( i = 0; i < 3; i ++ )
+    ent->client->ps.pmove.delta_angles[i] = ANGLE2SHORT(ent->client->v_angle[i] - ent->client->resp.cmd_angles[i]);
 
   ent->viewheight = 0;
   ent->client->ps.pmove.pm_flags |= PMF_NO_PREDICTION;
