@@ -978,39 +978,48 @@ void AddSplat(edict_t * self, vec3_t point, trace_t * tr)
 
 void GetWeaponName(edict_t * ent, char *buf)
 {
-	if (ent->client->pers.weapon) {
+	if (ent->solid != SOLID_NOT && ent->deadflag != DEAD_DEAD && ent->client->pers.weapon)
+	{
 		strcpy(buf, ent->client->pers.weapon->pickup_name);
 		return;
 	}
 
-	strcpy(buf, "No Weapon");
+	strcpy(buf, "no weapon");
 }
 
 void GetItemName(edict_t * ent, char *buf)
 {
 	int i;
 
-	for(i = 0; i<ITEM_COUNT; i++)
+	if (ent->solid != SOLID_NOT && ent->deadflag != DEAD_DEAD)
 	{
-		if (INV_AMMO(ent, tnums[i])) {
-			strcpy(buf, GET_ITEM(tnums[i])->pickup_name);
-			return;
+		for(i = 0; i<ITEM_COUNT; i++)
+		{
+			if (INV_AMMO(ent, tnums[i]))
+			{
+				strcpy(buf, GET_ITEM(tnums[i])->pickup_name);
+				return;
+			}
 		}
 	}
 
-	strcpy(buf, "No Item");
+	strcpy(buf, "no item");
 }
 
 void GetHealth(edict_t * ent, char *buf)
 {
-	sprintf(buf, "%d", ent->health);
+	if (ent->solid != SOLID_NOT && ent->deadflag != DEAD_DEAD)
+		sprintf(buf, "%d", ent->health);
+	else
+		sprintf(buf, "0");
 }
 
 void GetAmmo(edict_t * ent, char *buf)
 {
 	int ammo;
 
-	if (ent->client->pers.weapon) {
+	if (ent->solid != SOLID_NOT && ent->deadflag != DEAD_DEAD && ent->client->pers.weapon)
+	{
 		switch (ent->client->curr_weap) {
 		case MK23_NUM:
 			sprintf(buf, "%d round%s (%d extra mag%s)",

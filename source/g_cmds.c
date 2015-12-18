@@ -1468,7 +1468,7 @@ void Cmd_Say_f (edict_t * ent, qboolean team, qboolean arg0, qboolean partner_ms
 	if (strlen(text) >= 254)
 		text[254] = 0;
 	
-	if (ent->solid != SOLID_NOT && ent->deadflag != DEAD_DEAD)
+	//if (ent->solid != SOLID_NOT && ent->deadflag != DEAD_DEAD)
 	{
 		s = strchr(text + offset_of_text, '%');
 		if(s) {
