@@ -82,10 +82,10 @@ UpdateChaseCam (edict_t * ent)
       VectorCopy (ent->client->resp.cmd_angles, angles);
       for ( i = 0; i < 3; i ++ )
         angles[i] += SHORT2ANGLE(ent->client->ps.pmove.delta_angles[i]);
-      if (angles[PITCH] > 89)
-        angles[PITCH] = 89;
-      else if (angles[PITCH] < -89)
-        angles[PITCH] = -89;
+      //if (angles[PITCH] > 89)
+      //  angles[PITCH] = 89;
+      //else if (angles[PITCH] < -89)
+      //  angles[PITCH] = -89;
       VectorCopy (angles, ent->client->ps.viewangles);
       VectorCopy (angles, ent->client->v_angle);
 
@@ -170,8 +170,8 @@ UpdateChaseCam (edict_t * ent)
       if (targ->deadflag)
 	{
 	  ent->client->ps.viewangles[ROLL] = 40;
-	  ent->client->ps.viewangles[PITCH] = -15;
-	  ent->client->ps.viewangles[YAW] = targ->client->killer_yaw;
+	  ent->client->ps.viewangles[PITCH] = ent->client->v_angle[PITCH] = -15;
+	  ent->client->ps.viewangles[YAW] = ent->client->v_angle[YAW] = targ->client->killer_yaw;
 	}
       else
 	{

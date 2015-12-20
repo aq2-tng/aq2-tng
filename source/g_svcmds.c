@@ -587,6 +587,21 @@ void ServerCommand (void)
 		SVCmd_SoftQuit_f ();
 	else if (Q_stricmp (cmd, "slap") == 0)
 		SVCmd_Slap_f ();
+	else if (Q_stricmp (cmd, "showangles") == 0)
+	{
+		size_t i;
+		for( i = 0; i < maxclients->value ; i ++ )
+		{
+			edict_t *ent = g_edicts + i + 1;
+			if( ent->inuse )
+			{
+				gi.cprintf( NULL, PRINT_HIGH, "\n%-12.12s: resp.cmd_angles:       %5.1f, %6.1f, %5.1f\n", ent->client->pers.netname, ent->client->resp.cmd_angles[0], ent->client->resp.cmd_angles[1], ent->client->resp.cmd_angles[2] );
+				gi.cprintf( NULL, PRINT_HIGH,   "%-12.12s: v_angle:               %5.1f, %6.1f, %5.1f\n", ent->client->pers.netname, ent->client->v_angle[0], ent->client->v_angle[1], ent->client->v_angle[2] );
+				gi.cprintf( NULL, PRINT_HIGH,   "%-12.12s: ps.viewangles:         %5.1f, %6.1f, %5.1f\n", ent->client->pers.netname, ent->client->ps.viewangles[0], ent->client->ps.viewangles[1], ent->client->ps.viewangles[2] );
+				gi.cprintf( NULL, PRINT_HIGH,   "%-12.12s: ps.pmove.delta_angles: %5.1f, %6.1f, %5.1f\n", ent->client->pers.netname, SHORT2ANGLE(ent->client->ps.pmove.delta_angles[0]), SHORT2ANGLE(ent->client->ps.pmove.delta_angles[1]), SHORT2ANGLE(ent->client->ps.pmove.delta_angles[2]) );
+			}
+		}
+	}
 #ifndef NO_BOTS
 	else if(Q_stricmp (cmd, "botdebug") == 0)
 	{
