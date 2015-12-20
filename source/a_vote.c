@@ -398,7 +398,7 @@ qboolean _CheckMapVotes (void)
 
 	if (_iCheckMapVotes() == true)
 	{
-		gi.bprintf (PRINT_HIGH, "More than %i%% map votes reached.\n", (int)mapvote_pass->value);
+		gi.bprintf (PRINT_HIGH, "More than %i%%%% map votes reached.\n", (int)mapvote_pass->value);
 		return true;
 	}
 	return false;
@@ -413,7 +413,7 @@ qboolean _MostVotesStr (char *buf)
 	most = MapWithMostVotes(&p_most);
 	if (most != NULL)
 	{
-		sprintf (buf, "%s (%.2f%%%%)", most->mapname, p_most * 100.0f);
+		sprintf (buf, "%s (%.2f%%)", most->mapname, p_most * 100.0f);
 		return true;
 	}
 	else
