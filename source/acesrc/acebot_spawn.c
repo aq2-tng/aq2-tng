@@ -144,7 +144,9 @@ void ACESP_LoadBotConfig()
 {
     FILE	*pIn;
 	cvar_t	*game_dir;
-	//int		i;
+#ifdef _WIN32
+	int		i;
+#endif
 	char	filename[60];
 	// Scanner stuff
 	int		fileVersion = 0;

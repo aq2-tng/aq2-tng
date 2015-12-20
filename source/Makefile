@@ -58,7 +58,7 @@ SHLIBEXT?=so
 SHLIBLDFLAGS?=-shared
 
 ifdef WIN32
-CC=i686-w64-mingw32-gcc
+#CC=i686-w64-mingw32-gcc
 CFLAGS+=-DWIN32
 ARCH=x86
 SHLIBEXT=dll
