@@ -2760,7 +2760,7 @@ world_model_flags int               copied to 'ent->s.effects' (see s.effects fo
    0,
    NULL,
    /* icon */ "p_rebreather",
-   /* pickup */ KEV_NAME,
+   /* pickup */ HELM_NAME,
    /* width */ 2,
    60,
    NULL,
