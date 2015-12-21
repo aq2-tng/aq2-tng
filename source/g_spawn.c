@@ -1525,7 +1525,7 @@ void SP_worldspawn (edict_t * ent)
 			gi.imageindex ("i_ctf1t");
 			gi.imageindex ("i_ctf2t");
 		}
-		else if (noscore->value && teamplay->value)
+		else if ((noscore->value || hud_noscore->value) && teamplay->value)
 		{
 			gi.configstring (CS_STATUSBAR, dm_noscore_statusbar);
 		}

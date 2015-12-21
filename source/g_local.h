@@ -838,6 +838,7 @@ extern cvar_t *nohud;
 extern cvar_t *hud_team_icon;
 extern cvar_t *hud_items_cycle;
 extern cvar_t *noscore;
+extern cvar_t *hud_noscore;
 extern cvar_t *use_newscore;
 extern cvar_t *actionversion;
 #ifndef NO_BOTS
