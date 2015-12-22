@@ -288,7 +288,8 @@ void Cmd_Maplist_f (edict_t * ent, char *dummy)
 //
 void _MapInitClient (edict_t * ent)
 {
-	ent->client->resp.mapvote = NULL;
+	//ent->client->resp.mapvote = NULL;
+	_RemoveVoteFromMap(ent);
 }
 
 //
@@ -457,7 +458,7 @@ cvar_t *_InitMapVotelist (ini_t * ini)
 	mapvote_need = gi.cvar ("mapvote_need",
 		ReadIniStr (ini, MAPVOTESECTION, "mapvote_need", buf, "0"), CVAR_LATCH);
 	mapvote_pass = gi.cvar ("mapvote_pass",
-		ReadIniStr (ini, MAPVOTESECTION, "mapvote_pass", buf, "50"), CVAR_LATCH);
+		ReadIniStr (ini, MAPVOTESECTION, "mapvote_pass", buf, "51"), CVAR_LATCH);
 
 	return (use_mapvote);
 }
@@ -1365,7 +1366,7 @@ cvar_t *_InitConfiglist (ini_t * ini)
 	cvote_need = gi.cvar ("cvote_need",
 		ReadIniStr (ini, CONFIGVOTESECTION, "cvote_need", buf, "0"), CVAR_LATCH);
 	cvote_pass = gi.cvar ("cvote_pass",
-		ReadIniStr (ini, CONFIGVOTESECTION, "cvote_pass", buf, "50"), CVAR_LATCH);
+		ReadIniStr (ini, CONFIGVOTESECTION, "cvote_pass", buf, "51"), CVAR_LATCH);
 	return (use_cvote);
 }
 

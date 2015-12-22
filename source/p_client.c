@@ -1868,11 +1868,13 @@ void InitClientResp(gclient_t * client)
 	gitem_t *weapon = client->resp.weapon;
 	qboolean menu_shown = client->resp.menu_shown;
 	qboolean dm_selected = client->resp.dm_selected;
+	char *mapvote = client->resp.mapvote;
 
 	memset(&client->resp, 0, sizeof(client->resp));
 	client->resp.team = team;
 	client->resp.enterframe = level.framenum;
 	client->resp.coop_respawn = client->pers;
+	client->resp.mapvote = mapvote;
 
 	if (!dm_choose->value && !warmup->value) {
 		if ((int) wp_flags->value & WPF_MP5) {
