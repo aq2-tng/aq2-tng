@@ -2622,7 +2622,8 @@ void A_NewScoreboardMessage(edict_t * ent)
 //AQ2:TNG - Slicer Modified Scores for Match Mode
 void A_ScoreboardMessage (edict_t * ent, edict_t * killer)
 {
-	char string[1400], damage[50];
+	char string[1400] = "";
+	// char damage[50] = "";
 	//gclient_t *cl;
 	edict_t *cl_ent = NULL;
 	int maxsize = 1000, i = 0, j = 0, k = 0;
@@ -2935,6 +2936,10 @@ void A_ScoreboardMessage (edict_t * ent, edict_t * killer)
 					if (score > game.clients[sorted[j]].resp.score)
 						break;
 					if (score == game.clients[sorted[j]].resp.score &&
+						game.clients[i].resp.deaths < game.clients[sorted[j]].resp.deaths)
+							break;
+					if (score == game.clients[sorted[j]].resp.score &&
+						game.clients[i].resp.deaths == game.clients[sorted[j]].resp.deaths &&
 						game.clients[i].resp.damage_dealt > game.clients[sorted[j]].resp.damage_dealt)
 							break;
 				}
@@ -2953,6 +2958,14 @@ void A_ScoreboardMessage (edict_t * ent, edict_t * killer)
 			"xv 0 yv 32 string2 \"Player          Time Ping\" "
 			"xv 0 yv 40 string2 \"žžžžžžžžžžžžžŸ žžŸ žžŸ\" ");
 		}
+		else
+		// Raptor007: I think this works well for any teamplay mode.
+		{
+			strcpy (string,
+			"xv 0 yv 32 string2 \"Team Player          Time Ping Kills Deaths\" "
+			"xv 0 yv 40 string2 \"žžŸ žžžžžžžžžžžžžŸ žžŸ žžŸ žžžŸ žžžžŸ\" ");
+		}
+/*
 		else if (teamdm->value)
 		{
 			if(matchmode->value) {
@@ -2978,6 +2991,7 @@ void A_ScoreboardMessage (edict_t * ent, edict_t * killer)
 			"xv 0 yv 32 string2 \"Frags Player          Time Ping Damage Kills\" "
 			"xv 0 yv 40 string2 \"žžžŸ žžžžžžžžžžžžžŸ žžŸ žžŸ žžžžŸ žžžŸ\" ");
 		}
+*/
       /*
          {
          strcpy (string, "xv 0 yv 32 string2 \"Player          Time Ping\" "
@@ -3012,6 +3026,20 @@ void A_ScoreboardMessage (edict_t * ent, edict_t * killer)
 			}
 			else
 			{
+				sprintf(string + strlen(string), "xv 0 yv %d string \" %c%c%c %-15s %4d %4s %5i %6i\"",
+					48 + i * 8,
+					game.clients[sorted[i]].resp.team ? game.clients[sorted[i]].resp.team + '0' : ' ',
+					game.clients[sorted[i]].resp.captain ? 'C' : ' ',
+					game.clients[sorted[i]].resp.subteam ? 'S' : ' ',
+					game.clients[sorted[i]].pers.netname,
+					(level.framenum - game.clients[sorted[i]].resp.enterframe) / 600,
+					ping_buf,
+					game.clients[sorted[i]].resp.score,
+					game.clients[sorted[i]].resp.deaths);
+			}
+/*
+			else
+			{
 				if(teamdm->value) {
 					if (game.clients[sorted[i]].resp.deaths < 1000000)
 						sprintf (damage, "%i", game.clients[sorted[i]].resp.deaths);
@@ -3044,7 +3072,7 @@ void A_ScoreboardMessage (edict_t * ent, edict_t * killer)
 						game.clients[sorted[i]].resp.kills);
 				}
 			}
-
+*/
 			if (strlen(string) > (maxsize - 100) && i < (total - 2))
 			{
 				sprintf (string + strlen (string), "xv 0 yv %d string \"..and %d more\" ",
