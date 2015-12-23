@@ -864,7 +864,8 @@ SV_Physics_Toss (edict_t * ent)
     {
       if (!ent->splatted)
 	{
-	  AddSplat (ent->owner, ent->s.origin, &trace);
+          if ( trace.surface && (!( trace.ent && trace.ent->takedamage )) && ! (trace.surface->flags & SURF_SKY) )
+	    AddSplat (ent->owner, ent->s.origin, &trace);
 	  ent->splatted = true;
 	}
 
