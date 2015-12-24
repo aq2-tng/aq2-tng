@@ -57,6 +57,10 @@ DO_LINK=$(CC) $(CFLAGS) $(SHLIBLDFLAGS) -o $@ $(GAME_OBJS) $(SHLIBLIBS)
 SHLIBEXT?=so
 SHLIBLDFLAGS?=-shared
 
+ifneq (,$(findstring MINGW,$(SYSTEM))$(findstring CYGWIN,$(SYSTEM)))
+WIN32=true
+endif
+
 ifdef WIN32
 #CC=i686-w64-mingw32-gcc
 CFLAGS+=-DWIN32
