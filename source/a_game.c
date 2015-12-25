@@ -890,6 +890,15 @@ void AddDecal(edict_t * self, trace_t * tr)
 	if (bholelimit->value < 1)
 		return;
 
+	if (tr->ent && ( (strncasecmp( tr->ent->classname, "func_door", 9 ) == 0)
+	               || (strcasecmp( tr->ent->classname, "func_plat" ) == 0)
+	               || (strcasecmp( tr->ent->classname, "func_rotating" ) == 0)
+	               || (strcasecmp( tr->ent->classname, "func_train" ) == 0)
+	               || (strcasecmp( tr->ent->classname, "func_button" ) == 0) ))
+	{
+		return;
+	}
+
 	decal = G_Spawn();
 	++decals;
 
@@ -932,6 +941,15 @@ void AddSplat(edict_t * self, vec3_t point, trace_t * tr)
 
 	if (splatlimit->value < 1)
 		return;
+
+	if (tr->ent && ( (strncasecmp( tr->ent->classname, "func_door", 9 ) == 0)
+	               || (strcasecmp( tr->ent->classname, "func_plat" ) == 0)
+	               || (strcasecmp( tr->ent->classname, "func_rotating" ) == 0)
+	               || (strcasecmp( tr->ent->classname, "func_train" ) == 0)
+	               || (strcasecmp( tr->ent->classname, "func_button" ) == 0) ))
+	{
+		return;
+	}
 
 	splat = G_Spawn();
 	++splats;
