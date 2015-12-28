@@ -878,6 +878,24 @@ edict_t *FindEdictByClassnum(char *classname, int classnum)
 
 /********* Bulletholes/wall stuff ***********/
 
+// Decal/splat attached to some moving entity.
+void DecalOrSplatThink( edict_t *self )
+{
+	if( level.time >= self->wait )
+	{
+		G_FreeEdict(self);
+		return;
+	}
+
+	self->nextthink = level.time + .1;
+	vec3_t fwd, right, up;
+	AngleVectors( self->movetarget->s.angles, fwd, right, up );
+	self->s.origin[0] = self->movetarget->s.origin[0] + fwd[0] * self->move_origin[0] + right[0] * self->move_origin[1] + up[0] * self->move_origin[2];
+	self->s.origin[1] = self->movetarget->s.origin[1] + fwd[1] * self->move_origin[0] + right[1] * self->move_origin[1] + up[1] * self->move_origin[2];
+	self->s.origin[2] = self->movetarget->s.origin[2] + fwd[2] * self->move_origin[0] + right[2] * self->move_origin[1] + up[2] * self->move_origin[2];
+	VectorAdd( self->movetarget->s.angles, self->move_angles, self->s.angles );
+}
+
 void DecalDie(edict_t * self)
 {
 	G_FreeEdict(self);
@@ -890,13 +908,16 @@ void AddDecal(edict_t * self, trace_t * tr)
 	if (bholelimit->value < 1)
 		return;
 
+	qboolean attached = false;
+
 	if (tr->ent && ( (strncasecmp( tr->ent->classname, "func_door", 9 ) == 0)
 	               || (strcasecmp( tr->ent->classname, "func_plat" ) == 0)
 	               || (strcasecmp( tr->ent->classname, "func_rotating" ) == 0)
 	               || (strcasecmp( tr->ent->classname, "func_train" ) == 0)
 	               || (strcasecmp( tr->ent->classname, "func_button" ) == 0) ))
 	{
-		return;
+		//return;
+		attached = true;
 	}
 
 	decal = G_Spawn();
@@ -908,6 +929,7 @@ void AddDecal(edict_t * self, trace_t * tr)
 	dec = FindEdictByClassnum("decal", decals);
 
 	if (dec) {
+		dec->think = DecalDie;
 		dec->nextthink = level.time + .1;
 	}
 
@@ -916,16 +938,32 @@ void AddDecal(edict_t * self, trace_t * tr)
 	decal->s.modelindex = gi.modelindex("models/objects/holes/hole1/hole.md2");
 	VectorCopy(tr->endpos, decal->s.origin);
 	vectoangles(tr->plane.normal, decal->s.angles);
+	decal->s.angles[ROLL] = crandom() * 180.f;
+
 	decal->owner = self;
-	decal->classnum = decals;
 	decal->touch = NULL;
-	decal->nextthink = level.time + 20;
-	decal->think = DecalDie;
+	decal->nextthink = level.time + bholelife->value;
+	decal->think = bholelife->value ? DecalDie : 0;
 	decal->classname = "decal";
+	decal->classnum = decals;
 
 	gi.linkentity(decal);
 	if ((tr->ent) && (0 == Q_stricmp("func_explosive", tr->ent->classname))) {
 		CGF_SFX_AttachDecalToGlass(tr->ent, decal);
+	}
+	else if( attached )
+	{
+		decal->think = DecalOrSplatThink;
+		decal->wait = decal->nextthink;
+		decal->nextthink = level.time + .1;
+		decal->movetarget = tr->ent;
+		vec3_t fwd, right, up, offset;
+		AngleVectors( tr->ent->s.angles, fwd, right, up );
+		VectorSubtract( decal->s.origin, tr->ent->s.origin, offset );
+		decal->move_origin[0] = DotProduct( offset, fwd );
+		decal->move_origin[1] = DotProduct( offset, right );
+		decal->move_origin[2] = DotProduct( offset, up );
+		VectorSubtract( decal->s.angles, tr->ent->s.angles, decal->move_angles );
 	}
 }
 
@@ -942,13 +980,15 @@ void AddSplat(edict_t * self, vec3_t point, trace_t * tr)
 	if (splatlimit->value < 1)
 		return;
 
+	qboolean attached = false;
+
 	if (tr->ent && ( (strncasecmp( tr->ent->classname, "func_door", 9 ) == 0)
 	               || (strcasecmp( tr->ent->classname, "func_plat" ) == 0)
 	               || (strcasecmp( tr->ent->classname, "func_rotating" ) == 0)
 	               || (strcasecmp( tr->ent->classname, "func_train" ) == 0)
 	               || (strcasecmp( tr->ent->classname, "func_button" ) == 0) ))
 	{
-		return;
+		attached = true;
 	}
 
 	splat = G_Spawn();
@@ -960,6 +1000,7 @@ void AddSplat(edict_t * self, vec3_t point, trace_t * tr)
 	spt = FindEdictByClassnum("splat", splats);
 
 	if (spt) {
+		spt->think = SplatDie;
 		spt->nextthink = level.time + .1;
 	}
 
@@ -977,18 +1018,32 @@ void AddSplat(edict_t * self, vec3_t point, trace_t * tr)
 	VectorCopy(point, splat->s.origin);
 
 	vectoangles(tr->plane.normal, splat->s.angles);
+	splat->s.angles[ROLL] = crandom() * 180.f;
 
 	splat->owner = self;
 	splat->touch = NULL;
-	splat->nextthink = level.time + 25;	// - (splats * .05);
-
-	splat->think = SplatDie;
+	splat->nextthink = level.time + splatlife->value; // - (splats * .05);
+	splat->think = splatlife->value ? SplatDie : NULL;
 	splat->classname = "splat";
 	splat->classnum = splats;
 
 	gi.linkentity(splat);
 	if ((tr->ent) && (0 == Q_stricmp("func_explosive", tr->ent->classname))) {
 		CGF_SFX_AttachDecalToGlass(tr->ent, splat);
+	}
+	else if( attached )
+	{
+		splat->think = DecalOrSplatThink;
+		splat->wait = splat->nextthink;
+		splat->nextthink = level.time + .1;
+		splat->movetarget = tr->ent;
+		vec3_t fwd, right, up, offset;
+		AngleVectors( tr->ent->s.angles, fwd, right, up );
+		VectorSubtract( splat->s.origin, tr->ent->s.origin, offset );
+		splat->move_origin[0] = DotProduct( offset, fwd );
+		splat->move_origin[1] = DotProduct( offset, right );
+		splat->move_origin[2] = DotProduct( offset, up );
+		VectorSubtract( splat->s.angles, tr->ent->s.angles, splat->move_angles );
 	}
 }
 

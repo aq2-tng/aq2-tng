@@ -978,6 +978,8 @@ extern cvar_t *use_ghosts;
 extern cvar_t *sv_shelloff;
 extern cvar_t *splatlimit;
 extern cvar_t *bholelimit;
+extern cvar_t *splatlife;
+extern cvar_t *bholelife;
 
 #define world   (&g_edicts[0])
 

@@ -373,6 +373,8 @@ cvar_t *allow_hoarding;
 cvar_t *sv_shelloff;
 cvar_t *bholelimit;
 cvar_t *splatlimit;
+cvar_t *bholelife;
+cvar_t *splatlife;
 cvar_t *check_time;		// Time to wait before checks start ?
 cvar_t *video_check;
 cvar_t *video_checktime;

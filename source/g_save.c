@@ -644,6 +644,8 @@ void InitGame (void)
 	sv_shelloff = gi.cvar ("shelloff", "1", 0);
 	bholelimit = gi.cvar ("bholelimit", "0", 0);
 	splatlimit = gi.cvar ("splatlimit", "0", 0);
+	bholelife = gi.cvar ("bholelife", "20", 0);
+	splatlife = gi.cvar ("splatlife", "25", 0);
 	darkmatch = gi.cvar ("darkmatch", "0", CVAR_LATCH);	// Darkmatch
 	day_cycle = gi.cvar ("day_cycle", "10", 0);	// Darkmatch cycle time.
 	use_flashlight = gi.cvar ("use_flashlight", "0", CVAR_SERVERINFO);
