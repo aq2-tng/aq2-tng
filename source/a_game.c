@@ -882,28 +882,28 @@ void DecalOrSplatThink( edict_t *self )
 	}
 
 	self->nextthink = level.time + FRAMETIME;
-	vec3_t origin, angles, fwd, right, up;
 
 	if( self < self->movetarget )
 	{
 		// If the object we're attached to hasn't been updated yet this frame,
 		// we need to move ahead one frame's worth so we stay aligned with it.
-		VectorScale( self->movetarget->velocity, FRAMETIME, origin );
-		VectorAdd( self->movetarget->s.origin, origin, origin );
-		VectorScale( self->movetarget->avelocity, FRAMETIME, angles );
-		VectorAdd( self->movetarget->s.angles, angles, angles );
-		AngleVectors( angles, fwd, right, up );
+		VectorScale( self->movetarget->velocity, FRAMETIME, self->s.origin );
+		VectorAdd( self->movetarget->s.origin, self->s.origin, self->s.origin );
+		VectorScale( self->movetarget->avelocity, FRAMETIME, self->s.angles );
+		VectorAdd( self->movetarget->s.angles, self->s.angles, self->s.angles );
 	}
 	else
 	{
-		AngleVectors( self->movetarget->s.angles, fwd, right, up );
-		VectorCopy( self->movetarget->s.origin, origin );
+		VectorCopy( self->movetarget->s.origin, self->s.origin );
+		VectorCopy( self->movetarget->s.angles, self->s.angles );
 	}
 
-	self->s.origin[0] = origin[0] + fwd[0] * self->move_origin[0] + right[0] * self->move_origin[1] + up[0] * self->move_origin[2];
-	self->s.origin[1] = origin[1] + fwd[1] * self->move_origin[0] + right[1] * self->move_origin[1] + up[1] * self->move_origin[2];
-	self->s.origin[2] = origin[2] + fwd[2] * self->move_origin[0] + right[2] * self->move_origin[1] + up[2] * self->move_origin[2];
-	VectorAdd( self->movetarget->s.angles, self->move_angles, self->s.angles );
+	vec3_t fwd, right, up;
+	AngleVectors( self->s.angles, fwd, right, up ); // At this point, this is the angles of the entity we attached to.
+	self->s.origin[0] += fwd[0] * self->move_origin[0] + right[0] * self->move_origin[1] + up[0] * self->move_origin[2];
+	self->s.origin[1] += fwd[1] * self->move_origin[0] + right[1] * self->move_origin[1] + up[1] * self->move_origin[2];
+	self->s.origin[2] += fwd[2] * self->move_origin[0] + right[2] * self->move_origin[1] + up[2] * self->move_origin[2];
+	VectorAdd( self->s.angles, self->move_angles, self->s.angles );
 	VectorCopy( self->movetarget->velocity, self->velocity );
 	VectorCopy( self->movetarget->avelocity, self->avelocity );
 }
