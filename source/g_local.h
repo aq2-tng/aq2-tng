@@ -976,6 +976,7 @@ extern cvar_t *use_ghosts;
 
 // zucc from action
 extern cvar_t *sv_shelloff;
+extern cvar_t *shelllife;
 extern cvar_t *splatlimit;
 extern cvar_t *bholelimit;
 extern cvar_t *splatlife;

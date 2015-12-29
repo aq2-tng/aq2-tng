@@ -842,7 +842,7 @@ void EjectShell(edict_t * self, vec3_t start, int toggle)
 
 	shell->owner = self;
 	shell->touch = ShellTouch;
-	shell->nextthink = level.time + 1.2 - (shells * .05);
+	shell->nextthink = level.time + shelllife->value * (1.0 - (shells * .05));
 	shell->think = ShellDie;
 	shell->classname = "shell";
 
@@ -859,17 +859,11 @@ edict_t *FindEdictByClassnum(char *classname, int classnum)
 	int i;
 	edict_t *it;
 
-	for (i = 0; i < globals.num_edicts; i++) {
+	for (i = 0; i < globals.num_edicts; i++)
+	{
 		it = &g_edicts[i];
-		if (!it->classname)
-			continue;
-		if (!it->classnum)
-			continue;
-		if (Q_stricmp(it->classname, classname) == 0) {
-			if (it->classnum == classnum)
-				return it;
-		}
-
+		if (it->classname && (it->classnum == classnum) && (strcasecmp(it->classname, classname) == 0))
+			return it;
 	}
 
 	return NULL;
@@ -887,13 +881,31 @@ void DecalOrSplatThink( edict_t *self )
 		return;
 	}
 
-	self->nextthink = level.time + .1;
-	vec3_t fwd, right, up;
-	AngleVectors( self->movetarget->s.angles, fwd, right, up );
-	self->s.origin[0] = self->movetarget->s.origin[0] + fwd[0] * self->move_origin[0] + right[0] * self->move_origin[1] + up[0] * self->move_origin[2];
-	self->s.origin[1] = self->movetarget->s.origin[1] + fwd[1] * self->move_origin[0] + right[1] * self->move_origin[1] + up[1] * self->move_origin[2];
-	self->s.origin[2] = self->movetarget->s.origin[2] + fwd[2] * self->move_origin[0] + right[2] * self->move_origin[1] + up[2] * self->move_origin[2];
+	self->nextthink = level.time + FRAMETIME;
+	vec3_t origin, angles, fwd, right, up;
+
+	if( self < self->movetarget )
+	{
+		// If the object we're attached to hasn't been updated yet this frame,
+		// we need to move ahead one frame's worth so we stay aligned with it.
+		VectorScale( self->movetarget->velocity, FRAMETIME, origin );
+		VectorAdd( self->movetarget->s.origin, origin, origin );
+		VectorScale( self->movetarget->avelocity, FRAMETIME, angles );
+		VectorAdd( self->movetarget->s.angles, angles, angles );
+		AngleVectors( angles, fwd, right, up );
+	}
+	else
+	{
+		AngleVectors( self->movetarget->s.angles, fwd, right, up );
+		VectorCopy( self->movetarget->s.origin, origin );
+	}
+
+	self->s.origin[0] = origin[0] + fwd[0] * self->move_origin[0] + right[0] * self->move_origin[1] + up[0] * self->move_origin[2];
+	self->s.origin[1] = origin[1] + fwd[1] * self->move_origin[0] + right[1] * self->move_origin[1] + up[1] * self->move_origin[2];
+	self->s.origin[2] = origin[2] + fwd[2] * self->move_origin[0] + right[2] * self->move_origin[1] + up[2] * self->move_origin[2];
 	VectorAdd( self->movetarget->s.angles, self->move_angles, self->s.angles );
+	VectorCopy( self->movetarget->velocity, self->velocity );
+	VectorCopy( self->movetarget->avelocity, self->avelocity );
 }
 
 void DecalDie(edict_t * self)
@@ -916,7 +928,6 @@ void AddDecal(edict_t * self, trace_t * tr)
 	               || (strcasecmp( tr->ent->classname, "func_train" ) == 0)
 	               || (strcasecmp( tr->ent->classname, "func_button" ) == 0) ))
 	{
-		//return;
 		attached = true;
 	}
 
@@ -943,7 +954,7 @@ void AddDecal(edict_t * self, trace_t * tr)
 	decal->owner = self;
 	decal->touch = NULL;
 	decal->nextthink = level.time + bholelife->value;
-	decal->think = bholelife->value ? DecalDie : 0;
+	decal->think = bholelife->value ? DecalDie : NULL;
 	decal->classname = "decal";
 	decal->classnum = decals;
 
@@ -955,7 +966,6 @@ void AddDecal(edict_t * self, trace_t * tr)
 	{
 		decal->think = DecalOrSplatThink;
 		decal->wait = decal->nextthink;
-		decal->nextthink = level.time + .1;
 		decal->movetarget = tr->ent;
 		vec3_t fwd, right, up, offset;
 		AngleVectors( tr->ent->s.angles, fwd, right, up );
@@ -964,6 +974,7 @@ void AddDecal(edict_t * self, trace_t * tr)
 		decal->move_origin[1] = DotProduct( offset, right );
 		decal->move_origin[2] = DotProduct( offset, up );
 		VectorSubtract( decal->s.angles, tr->ent->s.angles, decal->move_angles );
+		DecalOrSplatThink( decal );
 	}
 }
 
@@ -1035,7 +1046,6 @@ void AddSplat(edict_t * self, vec3_t point, trace_t * tr)
 	{
 		splat->think = DecalOrSplatThink;
 		splat->wait = splat->nextthink;
-		splat->nextthink = level.time + .1;
 		splat->movetarget = tr->ent;
 		vec3_t fwd, right, up, offset;
 		AngleVectors( tr->ent->s.angles, fwd, right, up );
@@ -1044,6 +1054,7 @@ void AddSplat(edict_t * self, vec3_t point, trace_t * tr)
 		splat->move_origin[1] = DotProduct( offset, right );
 		splat->move_origin[2] = DotProduct( offset, up );
 		VectorSubtract( splat->s.angles, tr->ent->s.angles, splat->move_angles );
+		DecalOrSplatThink( splat );
 	}
 }
 

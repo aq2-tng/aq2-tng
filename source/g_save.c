@@ -642,6 +642,7 @@ void InitGame (void)
 	flashtime = gi.cvar ("flashtime", "100", 0);*/
 	//SLIC2
 	sv_shelloff = gi.cvar ("shelloff", "1", 0);
+	shelllife = gi.cvar ("shelllife", "1.2", 0);
 	bholelimit = gi.cvar ("bholelimit", "0", 0);
 	splatlimit = gi.cvar ("splatlimit", "0", 0);
 	bholelife = gi.cvar ("bholelife", "20", 0);
