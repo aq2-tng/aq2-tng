@@ -842,7 +842,8 @@ void EjectShell(edict_t * self, vec3_t start, int toggle)
 
 	shell->owner = self;
 	shell->touch = ShellTouch;
-	shell->nextthink = level.time + shelllife->value * (1.0 - (shells * .05));
+	float shell_subtract = shelllimit->value ? (1. / shelllimit->value) : 0.;
+	shell->nextthink = level.time + shelllife->value * (1.0 - (shells * shell_subtract));
 	shell->think = ShellDie;
 	shell->classname = "shell";
 
