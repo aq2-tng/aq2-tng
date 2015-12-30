@@ -1049,7 +1049,7 @@ void G_RunFrame (void)
 				// TNG Stats End
 
 				ClientBeginServerFrame (ent);
-                                continue;
+				continue;
 			}
 
 			G_RunEntity (ent);

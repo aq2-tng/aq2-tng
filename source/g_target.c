@@ -443,7 +443,7 @@ void
 use_target_blaster (edict_t * self, edict_t * other, edict_t * activator)
 {
   /*
-  int effect;
+  int effect;  // FIXME: This was set but never used.
 
   if (self->spawnflags & 2)
     effect = 0;
@@ -454,7 +454,7 @@ use_target_blaster (edict_t * self, edict_t * other, edict_t * activator)
   */
 
   fire_blaster (self, self->s.origin, self->movedir, self->dmg, self->speed,
-		EF_BLASTER, MOD_TARGET_BLASTER);
+		EF_BLASTER, MOD_TARGET_BLASTER);  // FIXME: Should this use effect instead of EF_BLASTER?
   gi.sound (self, CHAN_VOICE, self->noise_index, 1, ATTN_NORM, 0);
 }
 

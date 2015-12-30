@@ -2290,9 +2290,9 @@ weapon_grenade_fire (edict_t * ent, qboolean held)
   int damage = 125;
   float timer;
   int speed;
-  //float radius;
+  //float radius;  // FIXME: This was set but never used.
 
-  //radius = damage + 40;
+  //radius = damage + 40;  // FIXME: Should this be used somewhere?
   if (is_quad)
     damage *= 4;
 
@@ -3936,10 +3936,10 @@ void Weapon_HC (edict_t * ent)
 
 void Sniper_Fire (edict_t * ent)
 {
-	//int i;
+	//int i;  // FIXME: Should this be used somewhere?
 	vec3_t start;
 	vec3_t forward, right;
-	//vec3_t angles;
+	//vec3_t angles;  // FIXME: This was set below, but never used.
 	int damage = 250;
 	int kick = 200;
 	vec3_t offset;
@@ -4022,8 +4022,8 @@ void Sniper_Fire (edict_t * ent)
 	VectorClear(ent->client->kick_angles);
 
 	// get start / end positions
-	//VectorAdd (ent->client->v_angle, ent->client->kick_angles, angles);
-	AngleVectors (ent->client->v_angle, forward, right, NULL);
+	//VectorAdd (ent->client->v_angle, ent->client->kick_angles, angles);  // FIXME: Should this be used?
+	AngleVectors (ent->client->v_angle, forward, right, NULL);  // FIXME: Should this be angles instead of v_angle?
 	VectorSet (offset, 0, 0, ent->viewheight - 0);
 
 	P_ProjectSource (ent->client, ent->s.origin, offset, forward, right, start);

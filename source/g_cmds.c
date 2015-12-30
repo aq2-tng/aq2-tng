@@ -215,7 +215,6 @@
 #include "m_player.h"
 
 void Cmd_NextMap_f( edict_t *ent );
-void Cmd_Placenode_f( edict_t *ent );
 
 qboolean FloodCheck (edict_t *ent)
 {
@@ -1291,7 +1290,7 @@ void Cmd_Say_f (edict_t * ent, qboolean team, qboolean arg0, qboolean partner_ms
 	int j, /*i,*/ offset_of_text;
 	edict_t *other;
 	char *args, text[256], *s;
-	//gclient_t *cl;
+	//gclient_t *cl;  // FIXME: This was never used.
 	int meing = 0, isadmin = 0;
 
 	if (gi.argc() < 2 && !arg0)
@@ -1468,7 +1467,7 @@ void Cmd_Say_f (edict_t * ent, qboolean team, qboolean arg0, qboolean partner_ms
 	if (strlen(text) >= 254)
 		text[254] = 0;
 	
-	//if (ent->solid != SOLID_NOT && ent->deadflag != DEAD_DEAD)
+	//if (ent->solid != SOLID_NOT && ent->deadflag != DEAD_DEAD)  // Disabled so we parse dead chat too.
 	{
 		s = strchr(text + offset_of_text, '%');
 		if(s) {

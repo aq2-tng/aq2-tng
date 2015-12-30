@@ -490,10 +490,10 @@ qboolean _iCheckMapVotes (void)
 
 votelist_t *MapWithMostVotes (float *p)
 {
-	//int i;
+	//int i;  // FIXME: This was never used.
 	float p_most = 0.0f, votes = 0.f;
 	votelist_t *search = NULL, *most = NULL;
-	//edict_t *e;
+	//edict_t *e;  // FIXME: This was never used.
 
 	if (map_votes == NULL)
 		return (NULL);

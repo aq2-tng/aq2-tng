@@ -1374,7 +1374,7 @@ int UpdateJoinMenu (edict_t * ent)
 	else
 		joinmenu[9].text = NULL;
 
-	return 0;
+	return 0;  // FIXME: Should this ever return anything else?  Why does it have a return value?
 }
 
 // AQ2:TNG END
@@ -1758,7 +1758,7 @@ void SpawnPlayers ()
 			ent->client->resp.last_damaged_part = 0;
 			ent->client->resp.last_damaged_players[0] = '\0';
 			//AQ2:TNG END
-			PutClientInServer(ent);
+			PutClientInServer (ent);
 			AddToTransparentList (ent);
 		}
 	}
