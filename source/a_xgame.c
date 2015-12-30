@@ -703,6 +703,7 @@ void ParseSayText (edict_t * ent, char *text, size_t size)
 				break;
 			//AQ2:TNG END
 			default:
+				*pbuf++ = '%'; // Turn into double-percent for printf safety.
 				*pbuf++ = *p++;
 				break;
 			}

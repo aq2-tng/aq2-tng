@@ -294,13 +294,12 @@ void
 TourneyReadIni (void)
 {
   parse_t parse;
-  int clevel;
-  char *mytok;
-  qboolean inevent;
+  int clevel = 0;
+  char *mytok = NULL;
+  //qboolean inevent = false;
 
   t_eventcount = 0;
-  clevel = 0;
-  inevent = false;
+  //inevent = false;
   if (ParseStartFile (GAMEVERSION "/" TOURNEYINI, &parse) == true)
     {
       while ((mytok = ParseNextToken (&parse, STDSEPERATOR)))

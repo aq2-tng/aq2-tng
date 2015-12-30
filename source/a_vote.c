@@ -215,7 +215,7 @@ void Cmd_Maplist_f (edict_t * ent, char *dummy)
 	most = MapWithMostVotes (&p_most);
 
 	sprintf (msg_buf,
-		"List of maps that can be voted on:\nRequire more than %d%% votes (%.2f)\n\n",
+		"List of maps that can be voted on:\nRequire more than %d%%%% votes (%.2f)\n\n",
 		(int)mapvote_pass->value, mapvote_pass->value / 100.0f);
 
 	lines = chars_on_line = 0;
@@ -267,7 +267,7 @@ void Cmd_Maplist_f (edict_t * ent, char *dummy)
 
 	Q_strncatz(msg_buf, "\n\n", sizeof(msg_buf));
 	Com_sprintf (tmp_buf, sizeof(tmp_buf),
-		"%d/%d (%.2f%%) clients voted\n%d client%s minimum (%d%% required)",
+		"%d/%d (%.2f%%%%) clients voted\n%d client%s minimum (%d%%%% required)",
 		map_num_votes, map_num_clients,
 		(float)( (float)map_num_votes /
 		(float)(map_num_clients > 0 ? map_num_clients : 1) * 100.0f),	// TempFile changed to percentual display
@@ -284,7 +284,8 @@ void Cmd_Maplist_f (edict_t * ent, char *dummy)
 //
 void _MapInitClient (edict_t * ent)
 {
-	ent->client->resp.mapvote = NULL;
+	//ent->client->resp.mapvote = NULL;
+	_RemoveVoteFromMap(ent);
 }
 
 //
@@ -394,7 +395,7 @@ qboolean _CheckMapVotes (void)
 
 	if (_iCheckMapVotes() == true)
 	{
-		gi.bprintf (PRINT_HIGH, "More than %i%% map votes reached.\n", (int)mapvote_pass->value);
+		gi.bprintf (PRINT_HIGH, "More than %i%%%% map votes reached.\n", (int)mapvote_pass->value);
 		return true;
 	}
 	return false;
@@ -453,7 +454,7 @@ cvar_t *_InitMapVotelist (ini_t * ini)
 	mapvote_need = gi.cvar ("mapvote_need",
 		ReadIniStr (ini, MAPVOTESECTION, "mapvote_need", buf, "0"), CVAR_LATCH);
 	mapvote_pass = gi.cvar ("mapvote_pass",
-		ReadIniStr (ini, MAPVOTESECTION, "mapvote_pass", buf, "50"), CVAR_LATCH);
+		ReadIniStr (ini, MAPVOTESECTION, "mapvote_pass", buf, "51"), CVAR_LATCH);
 
 	return (use_mapvote);
 }
@@ -489,10 +490,10 @@ qboolean _iCheckMapVotes (void)
 
 votelist_t *MapWithMostVotes (float *p)
 {
-	int i;
-	float p_most = 0.0f, votes;
-	votelist_t *search, *most;
-	edict_t *e;
+	//int i;
+	float p_most = 0.0f, votes = 0.f;
+	votelist_t *search = NULL, *most = NULL;
+	//edict_t *e;
 
 	if (map_votes == NULL)
 		return (NULL);
@@ -841,10 +842,10 @@ void _DoKick (edict_t * target)
 {
 	char buf[128];
 
-	sprintf (buf, "more than %i%% voted for.", (int) kickvote_pass->value);
+	sprintf (buf, "more than %i%%%% voted for.", (int) kickvote_pass->value);
 	_ClrKickVotesOn (target);
 	if (kickvote_tempban->value)
-		Ban_TeamKiller(target, 1); //Ban for 1 game
+		Ban_TeamKiller( target, (int)kickvote_tempban->value ); // Ban for some games (usually 1)
 
 	KickClient (target, buf);
 }
@@ -895,9 +896,6 @@ void _CheckKickVote (void)
 	kickvotechanged = false;
 	playernum = _numclients ();
 
-	if (playernum < kickvote_need->value)
-		return;
-
 	maxvotes = 0;
 	mtarget = NULL;
 	playervoted = 0;
@@ -932,6 +930,8 @@ void _CheckKickVote (void)
 	Mostkickpercent = (float) (((float) maxvotes / (float) playernum) * 100.0);
 	Allkickvotes = (float) (((float) playervoted / (float) playernum) * 100.0);
 
+	if (playernum < kickvote_min->value)
+		return;
 	if (Allkickvotes < kickvote_need->value)
 		return;
 	if (Mostkickpercent < kickvote_pass->value)
@@ -1059,8 +1059,8 @@ void Cmd_Kicklist_f (edict_t * ent, char *argument)
 
   // adding vote settings
   Com_sprintf (tbuf, sizeof(tbuf), "Vote rules: %i client%s min. (currently %i),\n" \
-	   "%.1f%% must have voted overall (currently %.1f%%)\n" \
-	   "and %.1f%%%% on the same (currently %.1f%% on %s),\n" \
+	   "%.1f%%%% must have voted overall (currently %.1f%%%%)\n" \
+	   "and %.1f%%%% on the same (currently %.1f%%%% on %s),\n" \
 	   "kicked players %s be temporarily banned.\n\n",
 	   (int) (kickvote_min->value),
 	   (kickvote_min->value == 1) ? " " : "s ",
@@ -1163,7 +1163,7 @@ Cmd_Configlist_f (edict_t * ent, char *dummy)
 	most = ConfigWithMostVotes (&p_most);
 
 	sprintf (msg_buf,
-		"List of configs that can be voted on:\nRequire more than %d%% votes (%.2f)\n\n",
+		"List of configs that can be voted on:\nRequire more than %d%%%% votes (%.2f)\n\n",
 		(int) cvote_pass->value,
 		(float) ((float) cvote_pass->value / 100.0));
 
@@ -1205,7 +1205,7 @@ Cmd_Configlist_f (edict_t * ent, char *dummy)
 
 	Q_strncatz (msg_buf, "\n\n", sizeof(msg_buf));
 	Com_sprintf (tmp_buf, sizeof(tmp_buf), 
-		"%d/%d (%.2f%%) clients voted\n%d client%s minimum (%d%% required)",
+		"%d/%d (%.2f%%%%) clients voted\n%d client%s minimum (%d%%%% required)",
 		config_num_votes, config_num_clients,
 		(float) ((float) config_num_votes / (float) (config_num_clients >
 		0 ? config_num_clients : 1) * 100),
@@ -1311,7 +1311,7 @@ qboolean _ConfigMostVotesStr (char *buf)
 	most = ConfigWithMostVotes (&p_most);
 	if (most != NULL)
 	{
-		sprintf (buf, "%s (%.2f%%)", most->configname, p_most * 100.0);
+		sprintf (buf, "%s (%.2f%%%%)", most->configname, p_most * 100.0);
 		return true;
 	}
 	else
@@ -1352,7 +1352,7 @@ cvar_t *_InitConfiglist (ini_t * ini)
 	cvote_need = gi.cvar ("cvote_need",
 		ReadIniStr (ini, CONFIGVOTESECTION, "cvote_need", buf, "0"), CVAR_LATCH);
 	cvote_pass = gi.cvar ("cvote_pass",
-		ReadIniStr (ini, CONFIGVOTESECTION, "cvote_pass", buf, "50"), CVAR_LATCH);
+		ReadIniStr (ini, CONFIGVOTESECTION, "cvote_pass", buf, "51"), CVAR_LATCH);
 	return (use_cvote);
 }
 
@@ -1950,7 +1950,7 @@ void _CheckScrambleVote (void)
 
 	if (numvotes > 0)
 	{
-		sprintf (buf, "Scramble: %d votes (%.1f%%), need %.1f%%\n", numvotes, votes, scramblevote_pass->value);
+		sprintf (buf, "Scramble: %d votes (%.1f%%%%), need %.1f%%%%\n", numvotes, votes, scramblevote_pass->value);
 		gi.bprintf (PRINT_HIGH, strtostr2 (buf));
 	}
 

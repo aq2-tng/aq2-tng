@@ -134,7 +134,7 @@ void punch_attack(edict_t * ent)
 //PRINT_CHAT - got it by Riviera
 char *strtostr2(char *s)
 {
-	unsigned char *p = s;
+	unsigned char *p = (unsigned char*) s;
 
 	while (*p) {
 		if ((*p >= 0x1b && *p <= 0x7f)
@@ -143,7 +143,7 @@ char *strtostr2(char *s)
 
 		p++;
 	}
-	return (char *) s;
+	return s;
 }
 
 //plays a random sound/insane sound, insane1-9.wav
@@ -163,7 +163,7 @@ void PlayRandomInsaneSound(edict_t * ent)
 //returns next client entity that is within cube
 edict_t *findblock(edict_t * from, vec3_t p1, vec3_t p2)
 {
-	vec3_t eorg;
+	vec3_t eorg = {0.f,0.f,0.f};
 	int j;
 
 	if (!from)

@@ -72,23 +72,26 @@ UpdateChaseCam (edict_t * ent)
 
   targ = ent->client->resp.last_chase_target = ent->client->chase_target;
 
-  if (ent->client->chase_mode == 1)
+  if (ent->client->chase_mode == 1)  // 3rd-person
     {
       ent->client->clientNum = ent - g_edicts - 1;
       ent->client->ps.gunindex = ent->client->ps.gunframe = 0;
       ent->client->desired_fov = 90;
       ent->client->ps.fov = 90;
 
-      if (ent->client->resp.cmd_angles[PITCH] > 89)
-	ent->client->resp.cmd_angles[PITCH] = 89;
-      if (ent->client->resp.cmd_angles[PITCH] < -89)
-	ent->client->resp.cmd_angles[PITCH] = -89;
+      VectorCopy (ent->client->resp.cmd_angles, angles);
+      for ( i = 0; i < 3; i ++ )
+        angles[i] += SHORT2ANGLE(ent->client->ps.pmove.delta_angles[i]);
+      //if (angles[PITCH] > 89)
+      //  angles[PITCH] = 89;
+      //else if (angles[PITCH] < -89)
+      //  angles[PITCH] = -89;
+      VectorCopy (angles, ent->client->ps.viewangles);
+      VectorCopy (angles, ent->client->v_angle);
 
       VectorCopy (targ->s.origin, ownerv);
-
       ownerv[2] += targ->viewheight;
 
-      VectorCopy (ent->client->ps.viewangles, angles);
       AngleVectors (angles, forward, right, NULL);
       VectorNormalize (forward);
       VectorMA (ownerv, -150, forward, o);
@@ -139,15 +142,8 @@ UpdateChaseCam (edict_t * ent)
 	ent->client->ps.pmove.pm_type = PM_FREEZE;
 
       VectorCopy (goal, ent->s.origin);
-
-      for (i = 0; i < 3; i++)
-	ent->client->ps.pmove.delta_angles[i] =
-	  ANGLE2SHORT (ent->client->v_angle[i] -
-		       ent->client->resp.cmd_angles[i]);
-
-      VectorCopy (ent->client->resp.cmd_angles, ent->client->ps.viewangles);
     }
-  else             // chase_mode == 2
+  else  // in-eyes (chase_mode == 2)
     {
       ent->client->clientNum = targ - g_edicts - 1;
       VectorCopy (targ->client->v_angle, angles);
@@ -171,16 +167,11 @@ UpdateChaseCam (edict_t * ent)
       ent->client->ps.fov = targ->client->ps.fov;
       ent->client->desired_fov = targ->client->ps.fov;
 
-      for (i = 0; i < 3; i++)
-	ent->client->ps.pmove.delta_angles[i] =
-	  ANGLE2SHORT (targ->client->v_angle[i] -
-		       ent->client->resp.cmd_angles[i]);
-
       if (targ->deadflag)
 	{
 	  ent->client->ps.viewangles[ROLL] = 40;
-	  ent->client->ps.viewangles[PITCH] = -15;
-	  ent->client->ps.viewangles[YAW] = targ->client->killer_yaw;
+	  ent->client->ps.viewangles[PITCH] = ent->client->v_angle[PITCH] = -15;
+	  ent->client->ps.viewangles[YAW] = ent->client->v_angle[YAW] = targ->client->killer_yaw;
 	}
       else
 	{
@@ -188,6 +179,9 @@ UpdateChaseCam (edict_t * ent)
 	  VectorCopy (angles, ent->client->v_angle);
 	}
     }
+
+  for ( i = 0; i < 3; i ++ )
+    ent->client->ps.pmove.delta_angles[i] = ANGLE2SHORT(ent->client->v_angle[i] - ent->client->resp.cmd_angles[i]);
 
   ent->viewheight = 0;
   ent->client->ps.pmove.pm_flags |= PMF_NO_PREDICTION;

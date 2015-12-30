@@ -332,6 +332,10 @@ qboolean Pickup_Special (edict_t * ent, edict_t * other)
 	if (other->client->unique_item_total >= unique_items->value)
 		return false;
 
+	// Don't allow picking up multiple of the same special item.
+	if( (! allow_hoarding->value) && other->client->pers.inventory[ITEM_INDEX(ent->item)] )
+		return false;
+
 	AddItem(other, ent->item);
 
 	if(!(ent->spawnflags & (DROPPED_ITEM | DROPPED_PLAYER_ITEM)) && item_respawnmode->value)
@@ -430,14 +434,14 @@ void Drop_Special (edict_t * ent, gitem_t * item)
 void DropSpecialItem (edict_t * ent)
 {
 	// this is the order I'd probably want to drop them in...       
-	if (INV_AMMO(ent, BAND_NUM))
-		Drop_Special (ent, GET_ITEM(BAND_NUM));
+	if (INV_AMMO(ent, LASER_NUM))
+		Drop_Special (ent, GET_ITEM(LASER_NUM));
 	else if (INV_AMMO(ent, SLIP_NUM))
 		Drop_Special (ent, GET_ITEM(SLIP_NUM));
 	else if (INV_AMMO(ent, SIL_NUM))
 		Drop_Special (ent, GET_ITEM(SIL_NUM));
-	else if (INV_AMMO(ent, LASER_NUM))
-		Drop_Special (ent, GET_ITEM(LASER_NUM));
+	else if (INV_AMMO(ent, BAND_NUM))
+		Drop_Special (ent, GET_ITEM(BAND_NUM));
 	else if (INV_AMMO(ent, HELM_NUM))
 		Drop_Special (ent, GET_ITEM(HELM_NUM));
 	else if (INV_AMMO(ent, KEV_NUM))
@@ -2128,7 +2132,7 @@ world_model_flags int               copied to 'ent->s.effects' (see s.effects fo
    MK23_NAME,
    0,
    1,
-   "Pistol Clip",
+   MK23_AMMO_NAME,
    IT_WEAPON,
    NULL,
    0,
@@ -2152,7 +2156,7 @@ world_model_flags int               copied to 'ent->s.effects' (see s.effects fo
    MP5_NAME,
    0,
    0,
-   "Machinegun Magazine",
+   MP5_AMMO_NAME,
    IT_WEAPON,
    NULL,
    0,
@@ -2174,7 +2178,7 @@ world_model_flags int               copied to 'ent->s.effects' (see s.effects fo
    M4_NAME,
    0,
    0,
-   "M4 Clip",
+   M4_AMMO_NAME,
    IT_WEAPON,
    NULL,
    0,
@@ -2196,7 +2200,7 @@ world_model_flags int               copied to 'ent->s.effects' (see s.effects fo
    M3_NAME,
    0,
    0,
-   "12 Gauge Shells",
+   SHOTGUN_AMMO_NAME,
    IT_WEAPON,
    NULL,
    0,
@@ -2218,7 +2222,7 @@ world_model_flags int               copied to 'ent->s.effects' (see s.effects fo
    HC_NAME,
    0,
    0,
-   "12 Gauge Shells",
+   SHOTGUN_AMMO_NAME,
    IT_WEAPON,
    NULL,
    0,
@@ -2240,7 +2244,7 @@ world_model_flags int               copied to 'ent->s.effects' (see s.effects fo
    SNIPER_NAME,
    0,
    0,
-   "AP Sniper Ammo",
+   SNIPER_AMMO_NAME,
    IT_WEAPON,
    NULL,
    0,
@@ -2262,7 +2266,7 @@ world_model_flags int               copied to 'ent->s.effects' (see s.effects fo
    DUAL_NAME,
    0,
    0,
-   "Pistol Clip",
+   MK23_AMMO_NAME,
    IT_WEAPON,
    NULL,
    0,
@@ -2450,7 +2454,7 @@ world_model_flags int               copied to 'ent->s.effects' (see s.effects fo
    "models/items/ammo/clip/tris.md2", 0,
    NULL,
 /* icon */ "a_clip",
-/* pickup */ "Pistol Clip",
+/* pickup */ MK23_AMMO_NAME,
 /* width */ 3,
    1,
    NULL,
@@ -2473,7 +2477,7 @@ world_model_flags int               copied to 'ent->s.effects' (see s.effects fo
    "models/items/ammo/mag/tris.md2", 0,
    NULL,
 /* icon */ "a_mag",
-/* pickup */ "Machinegun Magazine",
+/* pickup */ MP5_AMMO_NAME,
 /* width */ 3,
    1,
    NULL,
@@ -2496,7 +2500,7 @@ world_model_flags int               copied to 'ent->s.effects' (see s.effects fo
    "models/items/ammo/m4/tris.md2", 0,
    NULL,
 /* icon */ "a_m4",
-/* pickup */ "M4 Clip",
+/* pickup */ M4_AMMO_NAME,
 /* width */ 3,
    1,
    NULL,
@@ -2518,7 +2522,7 @@ world_model_flags int               copied to 'ent->s.effects' (see s.effects fo
    "models/items/ammo/shells/medium/tris.md2", 0,
    NULL,
 /* icon */ "a_shells",
-/* pickup */ "12 Gauge Shells",
+/* pickup */ SHOTGUN_AMMO_NAME,
 /* width */ 3,
    7,
    NULL,
@@ -2540,7 +2544,7 @@ world_model_flags int               copied to 'ent->s.effects' (see s.effects fo
    "models/items/ammo/sniper/tris.md2", 0,
    NULL,
 /* icon */ "a_bullets",
-/* pickup */ "AP Sniper Ammo",
+/* pickup */ SNIPER_AMMO_NAME,
 /* width */ 3,
    10,
    NULL,
@@ -2570,7 +2574,7 @@ world_model_flags int               copied to 'ent->s.effects' (see s.effects fo
    0,
    NULL,
    /* icon */ "p_silencer",
-   /* pickup */ "Silencer",
+   /* pickup */ SIL_NAME,
    /* width */ 2,
    60,
    NULL,
@@ -2593,7 +2597,7 @@ world_model_flags int               copied to 'ent->s.effects' (see s.effects fo
    0,
    NULL,
 /* icon */ "slippers",
-/* pickup */ "Stealth Slippers",
+/* pickup */ SLIP_NAME,
 /* width */ 2,
    60,
    NULL,
@@ -2616,7 +2620,7 @@ world_model_flags int               copied to 'ent->s.effects' (see s.effects fo
    0,
    NULL,
    /* icon */ "p_bandolier",
-   /* pickup */ "Bandolier",
+   /* pickup */ BAND_NAME,
    /* width */ 2,
    60,
    NULL,
@@ -2638,7 +2642,7 @@ world_model_flags int               copied to 'ent->s.effects' (see s.effects fo
    0,
    NULL,
    /* icon */ "i_jacketarmor",
-   /* pickup */ "Kevlar Vest",
+   /* pickup */ KEV_NAME,
    /* width */ 2,
    60,
    NULL,
@@ -2660,7 +2664,7 @@ world_model_flags int               copied to 'ent->s.effects' (see s.effects fo
    0,
    NULL,
    /* icon */ "p_laser",
-   /* pickup */ "Lasersight",
+   /* pickup */ LASER_NAME,
    /* width */ 2,
    60,
    NULL,
@@ -2733,7 +2737,7 @@ world_model_flags int               copied to 'ent->s.effects' (see s.effects fo
    "models/items/silencer/tris.md2", EF_ROTATE,
    NULL,
 /* icon */ "p_silencer",
-/* pickup */ "Silencer",
+/* pickup */ SIL_NAME,
 /* width */ 2,
    60,
    NULL,
@@ -2756,7 +2760,7 @@ world_model_flags int               copied to 'ent->s.effects' (see s.effects fo
    0,
    NULL,
    /* icon */ "p_rebreather",
-   /* pickup */ "Kevlar Helmet",
+   /* pickup */ HELM_NAME,
    /* width */ 2,
    60,
    NULL,

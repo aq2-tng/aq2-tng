@@ -919,7 +919,7 @@ void G_SetClientEffects (edict_t * ent)
 			ent->s.renderfx |= RF_SHELL_GREEN;
 	}
 	// TNG Flashlight
-	if ((darkmatch->value) && (ent->client) && (ent->flashlight))
+	if ((darkmatch->value || use_flashlight->value) && (ent->client) && (ent->flashlight))
 	{
 		//ent->s.effects |= EF_YELLOWSHELL; // no good one? :/
 		ent->s.renderfx |= RF_FULLBRIGHT;
@@ -1385,7 +1385,12 @@ void ClientEndServerFrame (edict_t * ent)
 
 		for (stats_copy = 0; stats_copy < MAX_STATS; stats_copy++)
 		{
-			if (stats_copy >= STAT_TEAM_HEADER && stats_copy <= STAT_TEAM2_SCORE)
+			if (stats_copy == STAT_FLAG_PIC)
+			{
+				if (e->client->chase_mode != 2)
+					continue;	// only show team/flag icon when in chase mode 2
+			}
+			else if (stats_copy >= STAT_TEAM_HEADER && stats_copy <= STAT_TEAM2_SCORE)
 				continue;		// protect these
 			if (stats_copy >= STAT_TEAM3_PIC && stats_copy <= STAT_TEAM3_SCORE)
 				continue;		// protect these
@@ -1397,6 +1402,21 @@ void ClientEndServerFrame (edict_t * ent)
 				continue;
 			e->client->ps.stats[stats_copy] = ent->client->ps.stats[stats_copy];
 		}
+
+		//
+		// help icon / current weapon if not shown
+		//
+		if (e->client->resp.helpchanged && (level.framenum & 8))
+			e->client->ps.stats[STAT_HELPICON] = gi.imageindex ("i_help");
+		else if ((e->client->pers.hand == CENTER_HANDED || e->client->ps.fov > 91)
+			&& ent->client->pers.weapon && e->client->chase_mode == 2)
+			e->client->ps.stats[STAT_HELPICON] = gi.imageindex (ent->client->pers.weapon->icon);
+		else
+			e->client->ps.stats[STAT_HELPICON] = 0;
+
+		// TNG: Show health icon when bandaging (thanks to Dome for this code)
+		if (ent->client->weaponstate == WEAPON_BANDAGING || ent->client->bandaging || ent->client->bandage_stopped)
+			e->client->ps.stats[STAT_HELPICON] = gi.imageindex ("i_health");
 
 	//FB                e->client->ps.stats[STAT_LAYOUTS] = 1;
 	//FB                break;
