@@ -1758,7 +1758,14 @@ void SpawnPlayers ()
 			ent->client->resp.last_damaged_part = 0;
 			ent->client->resp.last_damaged_players[0] = '\0';
 			//AQ2:TNG END
-			PutClientInServer(ent);
+
+#ifndef NO_BOTS
+			if( !Q_stricmp(ent->classname, "bot") )
+				ACESP_PutClientInServer( ent, true,ent->client->resp.team);
+			else
+#endif
+				PutClientInServer(ent);
+
 			AddToTransparentList (ent);
 		}
 	}
@@ -1924,10 +1931,18 @@ void MakeAllLivePlayersObservers ()
 			ent->client->resp.team == NOTEAM ||	ent->client->resp.subteam))
 			continue;
 
+#ifndef NO_BOTS
+		qboolean is_bot = ent->is_bot;
+		char *classname = ent->classname;
+#endif
 		saveteam = ent->client->resp.team;
 		ent->client->resp.team = NOTEAM;
 		PutClientInServer (ent);
 		ent->client->resp.team = saveteam;
+#ifndef NO_BOTS
+		ent->is_bot = is_bot;
+		ent->classname = classname;
+#endif
 	}
 }
 
@@ -2579,8 +2594,12 @@ void A_NewScoreboardMessage(edict_t * ent)
 			edict_t *cl_ent = g_edicts + 1 + sorted[i][j];
 			int alive = (cl_ent->solid != SOLID_NOT && cl_ent->deadflag != DEAD_DEAD);
 
-			char ping_buf[ 4 ] = "   ";
-			snprintf( ping_buf, 4, "%3d", (cl->ping > 999 ? 999 : cl->ping) );
+			char ping_buf[ 4 ] = "BOT";
+#ifndef NO_BOTS
+			if( ! cl_ent->is_bot )
+#endif
+				snprintf( ping_buf, 4, "%3d", (cl->ping > 999 ? 999 : cl->ping) );
+
 			sprintf(buf, "xv 44 yv %d string%c \"%-15s %3d %3d %s\"",
 					line++ * lineh,
 					(alive && dead ? '2' : ' '),
@@ -2994,8 +3013,13 @@ void A_ScoreboardMessage (edict_t * ent, edict_t * killer)
 			ping = game.clients[sorted[i]].ping;
 			if (ping > 999)
 				ping = 999;
-			char ping_buf[ 4 ] = "   ";
-			snprintf( ping_buf, 4, "%3d", ping );
+
+			char ping_buf[ 4 ] = "BOT";
+#ifndef NO_BOTS
+			cl_ent = g_edicts + 1 + sorted[i];
+			if( ! cl_ent->is_bot )
+#endif
+				snprintf( ping_buf, 4, "%3d", ping );
 
 			if (noscore->value)
 			{

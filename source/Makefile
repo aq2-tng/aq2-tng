@@ -93,7 +93,13 @@ GAME_OBJS = \
 	g_turret.o g_utils.o g_weapon.o g_xmisc.o m_move.o \
 	p_client.o p_hud.o p_trail.o p_view.o p_weapon.o q_shared.o \
 	tng_stats.o tng_flashlight.o tng_irc.o tng_ini.o tng_balancer.o \
-	g_grapple.o
+	g_grapple.o \
+	acesrc/acebot_ai.o acesrc/acebot_nodes.o acesrc/bot_combat.o \
+	acesrc/bot_states.o acesrc/acebot_cmds.o acesrc/acebot_spawn.o \
+	acesrc/bot_env_doors.o acesrc/bot_utility.o acesrc/acebot_compress.o \
+	acesrc/bot_ai.o acesrc/bot_movement.o acesrc/bot_weapon.o \
+	acesrc/acebot_items.o acesrc/botchat.o acesrc/botnav.o \
+	acesrc/acebot_movement.o acesrc/bot_collision.o acesrc/botscan.o
 
 game$(ARCH).$(SHLIBEXT) : $(GAME_OBJS)
 	$(DO_LINK)

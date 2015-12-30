@@ -110,6 +110,10 @@ int _numclients (void)
 	for (i = 1; i <= maxclients->value; i++)
 	{
 		other = &g_edicts[i];
+#ifndef NO_BOTS
+		if (other->is_bot)
+			continue;
+#endif
 		if (other->inuse && Info_ValueForKey(other->client->pers.userinfo, "mvdspec")[0] == '\0')
 			count++;
 	}
@@ -843,6 +847,15 @@ void _DoKick (edict_t * target)
 	char buf[128];
 
 	sprintf (buf, "more than %i%%%% voted for.", (int) kickvote_pass->value);
+
+#ifndef NO_BOTS
+	if (target->is_bot)
+	{
+		ACESP_RemoveBot(target->client->pers.netname);
+		return;
+	}
+#endif
+
 	_ClrKickVotesOn (target);
 	if (kickvote_tempban->value)
 		Ban_TeamKiller( target, (int)kickvote_tempban->value ); // Ban for some games (usually 1)
@@ -931,7 +944,11 @@ void _CheckKickVote (void)
 	Allkickvotes = (float) (((float) playervoted / (float) playernum) * 100.0);
 
 	if (playernum < kickvote_min->value)
-		return;
+#ifndef NO_BOTS
+		if (! mtarget->is_bot)  // No minimum player count to kick bots.
+#endif
+			return;
+
 	if (Allkickvotes < kickvote_need->value)
 		return;
 	if (Mostkickpercent < kickvote_pass->value)

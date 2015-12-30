@@ -1589,6 +1589,11 @@ void ClientCommand (edict_t * ent)
 	// if (level.intermissiontime)
 	// return;
 
+#ifndef NO_BOTS
+	if(ACECM_Commands(ent))
+		return;
+#endif
+
 	cmd = gi.argv (0);
 
 	if (Q_stricmp (cmd, "players") == 0)
@@ -2027,6 +2032,17 @@ void ClientCommand (edict_t * ent)
 	{
 		Cmd_ResetScores_f(ent);
 	}
+#ifndef NO_BOTS
+        else if (Q_stricmp (cmd, "placenode") == 0)
+	{
+                Cmd_Placenode_f (ent);
+		return;
+	}
+	else if (Q_stricmp (cmd, "placetrigger") == 0)
+	{
+		ent->is_triggering = 1;
+	}
+#endif
 	else				// anything that doesn't match a command will be a chat
 		Cmd_Say_f (ent, false, true, false);
 }
