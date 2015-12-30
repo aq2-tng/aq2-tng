@@ -1758,12 +1758,14 @@ void SpawnPlayers ()
 			ent->client->resp.last_damaged_part = 0;
 			ent->client->resp.last_damaged_players[0] = '\0';
 			//AQ2:TNG END
+
 #ifndef NO_BOTS
 			if( !Q_stricmp(ent->classname, "bot") )
 				ACESP_PutClientInServer( ent, true,ent->client->resp.team);
 			else
 #endif
 				PutClientInServer(ent);
+
 			AddToTransparentList (ent);
 		}
 	}
@@ -2597,6 +2599,7 @@ void A_NewScoreboardMessage(edict_t * ent)
 			if( ! cl_ent->is_bot )
 #endif
 				snprintf( ping_buf, 4, "%3d", (cl->ping > 999 ? 999 : cl->ping) );
+
 			sprintf(buf, "xv 44 yv %d string%c \"%-15s %3d %3d %s\"",
 					line++ * lineh,
 					(alive && dead ? '2' : ' '),
@@ -3010,6 +3013,7 @@ void A_ScoreboardMessage (edict_t * ent, edict_t * killer)
 			ping = game.clients[sorted[i]].ping;
 			if (ping > 999)
 				ping = 999;
+
 			char ping_buf[ 4 ] = "BOT";
 #ifndef NO_BOTS
 			cl_ent = g_edicts + 1 + sorted[i];

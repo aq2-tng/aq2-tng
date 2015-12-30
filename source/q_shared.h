@@ -1404,12 +1404,6 @@ typedef struct
   int rdflags;			// refdef flags
 
   short stats[MAX_STATS];	// fast status bar updates
-
-#ifndef NO_BOTS
-  // LTK BOT
-  // Raptor007: Commented-out because this breaks multiplayer view models!
-  //int grenadewait;
-#endif
 }
 player_state_t;
 

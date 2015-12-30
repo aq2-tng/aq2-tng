@@ -1072,6 +1072,7 @@ void G_RunFrame (void)
 				// TNG Stats End
 
 				ClientBeginServerFrame (ent);
+
 #ifndef NO_BOTS
 				// allow bots to think
 				if(!ent->is_bot)
