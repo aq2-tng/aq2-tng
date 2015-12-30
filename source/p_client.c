@@ -2913,7 +2913,7 @@ void PutClientInServer(edict_t * ent)
 	gi.linkentity(ent);
 
 	//zucc give some ammo
-	//item = FindItem("Pistol Magazine");
+	//item = FindItem(MK23_AMMO_NAME);
 	// Add_Ammo(ent,item,1);
 	client->mk23_max = 12;
 	client->mp5_max = 30;

@@ -1361,8 +1361,6 @@ char *dm_noscore_statusbar = ""
 "yt 2 "
 "num 3 14"
 */
-// team icon
-  "if 23 xl 0 yb -32 pic 23 endif "
 ;
 // END FB
 

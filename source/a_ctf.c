@@ -344,7 +344,7 @@ void ResetPlayers()
 
 void CTFSwapTeams()
 {
-	//vec3_t point;
+	//vec3_t point;  // FIXME: This was never used.
 	edict_t *ent;
 	int i;
 
@@ -1545,7 +1545,7 @@ void CTFCapReward(edict_t * ent)
 {
 	gclient_t *client;
 	gitem_t *item;
-	//edict_t etemp;
+	//edict_t etemp;  // FIXME: This was never used.
 	int was_bandaging = 0;
 	int band;
 	int player_weapon;

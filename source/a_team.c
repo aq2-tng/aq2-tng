@@ -1374,7 +1374,7 @@ int UpdateJoinMenu (edict_t * ent)
 	else
 		joinmenu[9].text = NULL;
 
-	return 0;
+	return 0;  // FIXME: Should this ever return anything else?  Why does it have a return value?
 }
 
 // AQ2:TNG END
@@ -1764,7 +1764,7 @@ void SpawnPlayers ()
 				ACESP_PutClientInServer( ent, true,ent->client->resp.team);
 			else
 #endif
-				PutClientInServer(ent);
+				PutClientInServer (ent);
 
 			AddToTransparentList (ent);
 		}
