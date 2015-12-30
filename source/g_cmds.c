@@ -215,6 +215,9 @@
 #include "m_player.h"
 
 void Cmd_NextMap_f( edict_t *ent );
+#ifndef NO_BOTS
+void Cmd_Placenode_f( edict_t *ent );
+#endif
 
 qboolean FloodCheck (edict_t *ent)
 {
