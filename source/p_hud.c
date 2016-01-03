@@ -721,27 +721,28 @@ void G_SetStats (edict_t * ent)
 		ent->client->ps.stats[STAT_FRAGS] = ent->client->resp.score;
 
 		//
-		// help icon / current weapon if not shown
+		// bandaging icon / current weapon if not shown
 		//
-		if (ent->client->resp.helpchanged && (level.framenum & 8))
-			ent->client->ps.stats[STAT_HELPICON] = gi.imageindex ("i_help");
-		else if ((ent->client->pers.hand == CENTER_HANDED || ent->client->ps.fov > 91)
-			&& ent->client->pers.weapon && ent->deadflag != DEAD_DEAD && ent->solid != SOLID_NOT)
+		// TNG: Show health icon when bandaging (thanks to Dome for this code)
+		if (ent->client->weaponstate == WEAPON_BANDAGING || ent->client->bandaging || ent->client->bandage_stopped)
+			ent->client->ps.stats[STAT_HELPICON] = gi.imageindex ("i_health");
+		else if ((ent->client->pers.hand == CENTER_HANDED || ent->client->ps.fov > 91) && ent->client->pers.weapon)
 			ent->client->ps.stats[STAT_HELPICON] = gi.imageindex (ent->client->pers.weapon->icon);
 		else
 			ent->client->ps.stats[STAT_HELPICON] = 0;
 
-		// TNG: Show health icon when bandaging (thanks to Dome for this code)
-		if (ent->client->weaponstate == WEAPON_BANDAGING || ent->client->bandaging || ent->client->bandage_stopped)
-			ent->client->ps.stats[STAT_HELPICON] = gi.imageindex ("i_health");
-
-		// Hide health, ammo, and weapon when spectating.
+		// Hide health, ammo, weapon, and bandaging state when free spectating.
 		if( /* (! old_spectator_hud->value) && */ (ent->health > 0) && ((ent->deadflag == DEAD_DEAD) || (ent->solid == SOLID_NOT)) )
 		{
 			ent->client->ps.stats[STAT_HEALTH_ICON] = 0;
 			ent->client->ps.stats[STAT_AMMO_ICON] = 0;
 			ent->client->ps.stats[STAT_SELECTED_ICON] = 0;
+			ent->client->ps.stats[STAT_HELPICON] = 0;
 		}
+
+		// Help icon doesn't depend on whether you're alive or spectating.
+		if (ent->client->resp.helpchanged && (level.framenum & 8))
+			ent->client->ps.stats[STAT_HELPICON] = gi.imageindex ("i_help");
 
 		// Team icon.
 		if( teamplay->value && ! ctf->value )

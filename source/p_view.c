@@ -1404,19 +1404,17 @@ void ClientEndServerFrame (edict_t * ent)
 		}
 
 		//
-		// help icon / current weapon if not shown
+		// help icon / bandaging icon / current weapon if not shown
 		//
 		if (e->client->resp.helpchanged && (level.framenum & 8))
 			e->client->ps.stats[STAT_HELPICON] = gi.imageindex ("i_help");
-		else if ((e->client->pers.hand == CENTER_HANDED || e->client->ps.fov > 91)
-			&& ent->client->pers.weapon && e->client->chase_mode == 2)
+		// TNG: Show health icon when bandaging (thanks to Dome for this code)
+		else if (ent->client->weaponstate == WEAPON_BANDAGING || ent->client->bandaging || ent->client->bandage_stopped)
+			e->client->ps.stats[STAT_HELPICON] = gi.imageindex ("i_health");
+		else if ((e->client->pers.hand == CENTER_HANDED || e->client->ps.fov > 91) && ent->client->pers.weapon && e->client->chase_mode == 2)
 			e->client->ps.stats[STAT_HELPICON] = gi.imageindex (ent->client->pers.weapon->icon);
 		else
 			e->client->ps.stats[STAT_HELPICON] = 0;
-
-		// TNG: Show health icon when bandaging (thanks to Dome for this code)
-		if (ent->client->weaponstate == WEAPON_BANDAGING || ent->client->bandaging || ent->client->bandage_stopped)
-			e->client->ps.stats[STAT_HELPICON] = gi.imageindex ("i_health");
 
 	//FB                e->client->ps.stats[STAT_LAYOUTS] = 1;
 	//FB                break;
