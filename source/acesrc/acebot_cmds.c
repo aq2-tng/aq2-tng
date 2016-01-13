@@ -106,6 +106,10 @@ qboolean ACECM_Commands(edict_t *ent)
 ///////////////////////////////////////////////////////////////////////
 void ACECM_Store()
 {
+	// Stop overwriting good node tables with bad!
+	if( numnodes < 100 )
+		return;
+
 	ACEND_SaveNodes();
 }
 

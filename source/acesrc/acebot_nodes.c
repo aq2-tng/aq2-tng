@@ -1251,10 +1251,6 @@ void ACEND_SaveNodes()
 
 	version = LTK_NODEVERSION;
 
-	// Stop overwriting good node tables with bad!
-	if( numnodes < 100)
-		return;
-
 	game_dir = gi.cvar ("game", "", 0);
 
 	//@@ change 'nav' to 'terrain' to line up with William

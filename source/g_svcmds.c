@@ -642,7 +642,13 @@ void ServerCommand (void)
 		ACESP_RemoveBot(gi.argv(2));
 	// Node saving
 	else if(Q_stricmp (cmd, "savenodes") == 0)
-		ACEND_SaveNodes();	
+		ACEND_SaveNodes();
+	// Clear all node data.
+	else if(Q_stricmp (cmd, "initnodes") == 0)
+		ACEND_InitNodes();
+	// Generate map entity nodes (items/doors/etc) and load saved nodes; you should probably "initnodes" first.
+	else if(Q_stricmp (cmd, "loadnodes") == 0)
+		ACEND_LoadNodes();
 #endif
 	else
 		gi.cprintf (NULL, PRINT_HIGH, "Unknown server command \"%s\"\n", cmd);
