@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="8,00"
+	Version="9,00"
 	Name="game"
 	ProjectGUID="{51481E49-77D6-4431-B0EE-1E5F292D5FD7}"
+	TargetFrameworkVersion="131072"
 	>
 	<Platforms>
 		<Platform
@@ -84,6 +85,8 @@
 				MapFileName="../debug/gamex86.map"
 				SubSystem="2"
 				BaseAddress="0x20000000"
+				RandomizedBaseAddress="1"
+				DataExecutionPrevention="0"
 				ImportLibrary=".\..\debug/gamex86.lib"
 				TargetMachine="1"
 			/>
@@ -104,9 +107,6 @@
 			/>
 			<Tool
 				Name="VCAppVerifierTool"
-			/>
-			<Tool
-				Name="VCWebDeploymentTool"
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
@@ -180,6 +180,8 @@
 				ProgramDatabaseFile=".\..\ReleaseAXP/gameaxp.pdb"
 				SubSystem="2"
 				BaseAddress="0x20000000"
+				RandomizedBaseAddress="1"
+				DataExecutionPrevention="0"
 				ImportLibrary=".\..\ReleaseAXP/gameaxp.lib"
 			/>
 			<Tool
@@ -199,9 +201,6 @@
 			/>
 			<Tool
 				Name="VCAppVerifierTool"
-			/>
-			<Tool
-				Name="VCWebDeploymentTool"
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
@@ -273,6 +272,8 @@
 				ProgramDatabaseFile=".\..\DebugAxp/gameaxp.pdb"
 				SubSystem="2"
 				BaseAddress="0x20000000"
+				RandomizedBaseAddress="1"
+				DataExecutionPrevention="0"
 				ImportLibrary=".\..\DebugAxp/gameaxp.lib"
 			/>
 			<Tool
@@ -292,9 +293,6 @@
 			/>
 			<Tool
 				Name="VCAppVerifierTool"
-			/>
-			<Tool
-				Name="VCWebDeploymentTool"
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
@@ -370,6 +368,8 @@
 				ProgramDatabaseFile=".\..\release/gamex86.pdb"
 				SubSystem="2"
 				BaseAddress="0x20000000"
+				RandomizedBaseAddress="1"
+				DataExecutionPrevention="0"
 				ImportLibrary=".\..\release/gamex86.lib"
 				TargetMachine="1"
 			/>
@@ -390,9 +390,6 @@
 			/>
 			<Tool
 				Name="VCAppVerifierTool"
-			/>
-			<Tool
-				Name="VCWebDeploymentTool"
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
@@ -466,6 +463,8 @@
 				ModuleDefinitionFile=".\game.def"
 				GenerateMapFile="true"
 				MapFileName=".\PPRO\Intermediate/gamex86.map"
+				RandomizedBaseAddress="1"
+				DataExecutionPrevention="0"
 				ImportLibrary=".\PPRO\Output/gamex86.lib"
 				TargetMachine="1"
 			/>
@@ -486,9 +485,6 @@
 			/>
 			<Tool
 				Name="VCAppVerifierTool"
-			/>
-			<Tool
-				Name="VCWebDeploymentTool"
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"

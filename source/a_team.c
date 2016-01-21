@@ -1481,9 +1481,9 @@ int TeamHasPlayers (int team)
 	return players;
 }
 
-qboolean BothTeamsHavePlayers ()
+qboolean BothTeamsHavePlayers()
 {
-	int players[TEAM_TOP] = {0}, i;
+	int players[TEAM_TOP] = { 0 }, i, teamsWithPlayers;
 	edict_t *ent;
 
 	//AQ2:TNG Slicer Matchmode
@@ -1503,143 +1503,103 @@ qboolean BothTeamsHavePlayers ()
 			players[game.clients[i].resp.team]++;
 	}
 
-	if (use_3teams->value)
-		return ((players[1] && players[2]) || (players[1] && players[3]) || (players[2] && players[3]));
-	
-	return (players[1] && players[2]);
+	teamsWithPlayers = 0;
+	for (i = TEAM1; i <= teamCount; i++)
+	{
+		if (players[i]) {
+			teamsWithPlayers++;
+		}
+	}
+
+	return (teamsWithPlayers == teamCount);
 }
 
 // CheckForWinner: Checks for a winner (or not).
-int CheckForWinner ()
+int CheckForWinner()
 {
-	int players[TEAM_TOP] = {0}, i;
+	int players[TEAM_TOP] = { 0 }, i, teamNum, teamsWithPlayers;
 	edict_t *ent;
 
-	if(ctf->value || teamdm->value)
+	if (ctf->value || teamdm->value)
 		return WINNER_NONE;
 
 	for (i = 0; i < game.maxclients; i++)
 	{
 		ent = &g_edicts[1 + i];
-		if (!ent->inuse || game.clients[i].resp.team == NOTEAM)
+		if (!ent->inuse || ent->solid == SOLID_NOT)
 			continue;
-		if (ent->solid != SOLID_NOT)
-			players[game.clients[i].resp.team]++;
+
+		teamNum = game.clients[i].resp.team;
+		if (teamNum == NOTEAM)
+			continue;
+
+		players[teamNum]++;
 	}
 
-	if (players[1] && players[2])
-		return WINNER_NONE;
+	teamsWithPlayers = 0;
+	for (i = TEAM1; i <= teamCount; i++)
+	{
+		if (players[i]) {
+			teamsWithPlayers++;
+			teamNum = i;
+		}
+	}
 
-	if (use_3teams->value && ((players[1] && players[3]) || (players[2] && players[3])))
-		return WINNER_NONE;
-	
-	for(i=TEAM1; i<=teamCount; i++)
-		if(players[i])
-			return i;
+	if (teamsWithPlayers)
+		return (teamsWithPlayers > 1) ? WINNER_NONE : teamNum;
 
 	return WINNER_TIE;
-
 }
 
 // CheckForForcedWinner: A winner is being forced, find who it is.
 int CheckForForcedWinner()
 {
-	int onteam1 = 0, onteam2 = 0, onteam3 = 0, i;
-	int health1 = 0, health2 = 0, health3 = 0;
+	int players[TEAM_TOP] = { 0 };
+	int health[TEAM_TOP] = { 0 };
+	int i, teamNum, bestTeam, secondBest;
 	edict_t *ent;
 
 	for (i = 0; i < game.maxclients; i++)
 	{
 		ent = &g_edicts[1 + i];
-		if (!ent->inuse)
+		if (!ent->inuse || ent->solid == SOLID_NOT)
 			continue;
-		if (game.clients[i].resp.team == TEAM1 && ent->solid != SOLID_NOT)
-		{
-			onteam1++;
-			health1 += ent->health;
-		}
-		else if (game.clients[i].resp.team == TEAM2 && ent->solid != SOLID_NOT)
-		{
-			onteam2++;
-			health2 += ent->health;
-		}
-		else if (game.clients[i].resp.team == TEAM3 && ent->solid != SOLID_NOT)
-		{
-			onteam3++;
-			health3 += ent->health;
-		}
+		teamNum = game.clients[i].resp.team;
+		if (teamNum == NOTEAM)
+			continue;
+
+		players[teamNum]++;
+		health[teamNum] += ent->health;
 	}
 
-	if (use_3teams->value)
+	bestTeam = secondBest = NOTEAM;
+	for (i = TEAM1; i <= teamCount; i++)
 	{
-		if (onteam1 > onteam2)
-		{
-			if (onteam1 > onteam3)
-				return WINNER_TEAM1;
-			else if (onteam3 > onteam1)
-				return WINNER_TEAM3;
-			else if (health1 > health3)
-				return WINNER_TEAM1;
-			else if (health3 > health1)
-				return WINNER_TEAM3;
-			else
-				return WINNER_TIE;
+		if (players[i] < players[bestTeam]) {
+			continue;
 		}
-		else if (onteam2 > onteam1)
-		{
-			if (onteam2 > onteam3)
-				return WINNER_TEAM2;
-			else if (onteam3 > onteam2)
-				return WINNER_TEAM3;
-			else if (health2 > health3)
-				return WINNER_TEAM2;
-			else if (health3 > health2)
-				return WINNER_TEAM3;
-			else
-				return WINNER_TIE;
+		if (players[i] > players[bestTeam]) {
+			bestTeam = i;
+			secondBest = NOTEAM;
+			continue;
 		}
-		else if (onteam1 == onteam2 && onteam1 > onteam3)
-		{
-			if (health1 > health2)
-				return WINNER_TEAM1;
-			else if (health2 > health1)
-				return WINNER_TEAM2;
-			else
-				return WINNER_TIE;
+		//Same amound of players, check health
+		if (health[i] < health[bestTeam]) {
+			continue;
 		}
-		else if (onteam3 > onteam1)
-			return WINNER_TEAM3;
-
-		if (health1 > health2)
-		{
-			if (health1 > health3)
-				return WINNER_TEAM1;
-			else if (health3 > health1)
-				return WINNER_TEAM3;
+		if (health[i] > health[bestTeam]) {
+			bestTeam = i;
+			secondBest = NOTEAM;
+			continue;
 		}
-		else if (health2 > health1)
-		{
-			if (health2 > health3)
-				return WINNER_TEAM2;
-			else if (health3 > health2)
-				return WINNER_TEAM3;
-		}
-		else if (health3 > health1)
-			return WINNER_TEAM3;
+		//Same as bestTeam
+		secondBest = i;
 	}
-	else
-	{
-		if (onteam1 > onteam2)
-			return WINNER_TEAM1;
-		else if (onteam2 > onteam1)
-			return WINNER_TEAM2;
 
-		if (health1 > health2)
-			return WINNER_TEAM1;
-		else if (health2 > health1)
-			return WINNER_TEAM2;
-	}
-	return WINNER_TIE;
+	if (bestTeam == NOTEAM || secondBest != NOTEAM)
+		return WINNER_TIE;
+
+	return bestTeam;
 }
 
 void SpawnPlayers ()
