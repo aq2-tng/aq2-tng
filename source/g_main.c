@@ -1017,7 +1017,7 @@ void G_RunFrame (void)
 
 			level.current_entity = ent;
 
-			VectorCopy (ent->s.origin, ent->s.old_origin);
+			VectorCopy( ent->old_origin, ent->s.old_origin );
 
 			// if the ground entity moved, make sure we are still on it
 			if (ent->groundentity && ent->groundentity->linkcount != ent->groundentity_linkcount)
@@ -1065,6 +1065,13 @@ void G_RunFrame (void)
 	level.realFramenum++;
 	if (!level.pauseFrames)
 	{
+		// save old_origins for next frame
+		ent = &g_edicts[0];
+		for(i = 0; i < globals.num_edicts; i++, ent++)
+		{
+			if (ent->inuse)
+				VectorCopy( ent->s.origin, ent->old_origin );
+		}
 		level.framenum++;
 		level.time = level.framenum * FRAMETIME;
 	}

@@ -2260,8 +2260,12 @@ void CopyToBodyQue(edict_t * ent)
 	gi.unlinkentity(ent);
 
 	gi.unlinkentity(body);
+
 	body->s = ent->s;
 	body->s.number = body - g_edicts;
+	body->s.event = EV_OTHER_TELEPORT;
+	VectorCopy( body->s.origin, body->s.old_origin );
+	VectorCopy( body->s.origin, body->old_origin );
 
 	body->svflags = ent->svflags;
 	VectorCopy(ent->mins, body->mins);
@@ -2846,6 +2850,7 @@ void PutClientInServer(edict_t * ent)
 	VectorCopy(spawn_origin, ent->s.origin);
 	ent->s.origin[2] += 1;	// make sure off ground
 	VectorCopy(ent->s.origin, ent->s.old_origin);
+	VectorCopy(ent->s.origin, ent->old_origin);
 
 	// set the delta angle
 	for (i = 0; i < 3; i++)

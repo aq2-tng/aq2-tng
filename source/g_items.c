@@ -1190,6 +1190,8 @@ edict_t *Drop_Item (edict_t * ent, gitem_t * item)
 		VectorCopy (ent->s.origin, dropped->s.origin);
 	}
 
+	VectorCopy(dropped->s.origin, dropped->old_origin);
+
 	VectorScale (forward, 100, dropped->velocity);
 	dropped->velocity[2] = 300;
 
