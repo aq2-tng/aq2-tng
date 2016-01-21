@@ -1997,7 +1997,7 @@ void CheckTeamRules (void)
 		if (!round_delay_time)
 		{
 			TourneyNewRound ();
-			team_round_countdown = TourneySetTime (T_RSTART);
+			team_round_countdown = KEYFRAME( TourneySetTime( T_RSTART ) );
 			TourneyTimeEvent (T_START, team_round_countdown);
 		}
 		return;
@@ -2174,7 +2174,7 @@ void CheckTeamRules (void)
 				if (use_tourney->value)
 				{
 					TourneyNewRound ();
-					team_round_countdown = TourneySetTime (T_START);
+					team_round_countdown = KEYFRAME( TourneySetTime( T_START ) );
 					TourneyTimeEvent (T_START, team_round_countdown);
 				}
 				else
@@ -2189,6 +2189,7 @@ void CheckTeamRules (void)
 						CenterPrintAll ("The round will begin in 20 seconds!");
 						team_round_countdown = 201;
 					}
+					team_round_countdown = KEYFRAME( team_round_countdown );
 				}
 			}
 		}
@@ -2223,7 +2224,7 @@ void CheckTeamRules (void)
 			if (use_tourney->value)
 				round_delay_time = TourneySetTime (T_END);
 			else
-				team_round_countdown = 71;
+				team_round_countdown = KEYFRAME( 71 );
 			return;
 		}
 
@@ -2240,7 +2241,7 @@ void CheckTeamRules (void)
 				timewarning = fragwarning = 0;
 				lights_camera_action = 0;
 				holding_on_tie_check = 0;
-				team_round_countdown = 71;
+				team_round_countdown = KEYFRAME( 71 );
 				return;
 			}
 			// AQ:TNG Igor[Rock] changing sound dir

@@ -3648,11 +3648,6 @@ void ClientThink(edict_t * ent, usercmd_t * ucmd)
 		// stop manipulating doors
 		client->doortoggle = 0;
 
-		//Should move this to ClientBeginServerFrame? -M
-		if (ent->client->jumping && ent->solid != SOLID_NOT &&
-			!lights_camera_action && !ent->client->ctf_uvtime)
-				kick_attack(ent);
-
 		// touch other objects
 		for (i = 0; i < pm.numtouch; i++) {
 			other = pm.touchents[i];
@@ -3887,11 +3882,14 @@ void ClientBeginServerFrame(edict_t * ent)
 		return;
 	}
 
-	if (client->resp.punch_desired && ent->solid != SOLID_NOT)
+	if (ent->solid != SOLID_NOT)
 	{
-		if(!lights_camera_action && !ent->client->ctf_uvtime)
-			punch_attack(ent);
-
+		if (!lights_camera_action && !ent->client->ctf_uvtime) {
+			if (ent->client->jumping)
+				kick_attack( ent );
+			else if (client->resp.punch_desired)
+				punch_attack( ent );
+		}
 		client->resp.punch_desired = false;
 	}
 
