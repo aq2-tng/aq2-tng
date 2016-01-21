@@ -3508,22 +3508,6 @@ void ClientThink(edict_t * ent, usercmd_t * ucmd)
 			level.intermission_exit = 1;
 		return;
 	}
-	//FIREBLADE
-	//PG BUND
-	if ((int) motd_time->value > (client->resp.motd_refreshes * 2)
-	    && !(client->menu)) {
-		if (client->resp.last_motd_refresh + 2 * HZ < level.realFramenum) {
-			client->resp.last_motd_refresh = level.realFramenum;
-			client->resp.motd_refreshes++;
-			PrintMOTD(ent);
-		}
-	}
-	//FIREBLADE
-
-	// show team or weapon menu immediately when connected
-	if (auto_menu->value && !client->menu && !client->resp.menu_shown && (teamplay->value || dm_choose->value)) {
-		Cmd_Inven_f(ent);
-	}
 
 	if (level.pauseFrames > 0)
 	{
@@ -3702,31 +3686,11 @@ void ClientThink(edict_t * ent, usercmd_t * ucmd)
 		}
 	}
 
-	// ^^^
-	//PG BUND - BEGIN
-	if (ppl_idletime->value) {
-		if (ent->solid != SOLID_NOT && ent->deadflag != DEAD_DEAD) {
-			if (ucmd->forwardmove == 0 && ucmd->sidemove == 0) {
-				if (client->resp.idletime) {
-					if (level.framenum >= client->resp.idletime + (int)(ppl_idletime->value * HZ)) {
-						PlayRandomInsaneSound(ent);
-						client->resp.idletime = 0;
-					}
-				} else {
-					client->resp.idletime = level.framenum;
-				}
-			} else
-				client->resp.idletime = 0;
-		}
+	if (ucmd->forwardmove || ucmd->sidemove || client->oldbuttons != client->buttons) {
+		client->resp.idletime = 0;
+	} else if (!client->resp.idletime) {
+		client->resp.idletime = level.framenum;
 	}
-	//PG BUND - END
-
-	if (ent->client->autoreloading && (ent->client->weaponstate == WEAPON_END_MAG)
-	    && (ent->client->curr_weap == MK23_NUM)) {
-		ent->client->autoreloading = false;
-		Cmd_New_Reload_f(ent);
-	}
-	//TempFile - END
 }
 
 /*
@@ -3749,6 +3713,21 @@ void ClientBeginServerFrame(edict_t * ent)
 
 	if (level.intermission_framenum)
 		return;
+
+
+	if ((int)motd_time->value > (client->resp.motd_refreshes * 2) && !(client->menu)) {
+		if (client->resp.last_motd_refresh + 2 * HZ < level.realFramenum) {
+			client->resp.last_motd_refresh = level.realFramenum;
+			client->resp.motd_refreshes++;
+			PrintMOTD( ent );
+		}
+	}
+
+	// show team or weapon menu immediately when connected
+	if (auto_menu->value && !client->menu && !client->resp.menu_shown && (teamplay->value || dm_choose->value)) {
+		Cmd_Inven_f( ent );
+	}
+
 
 	// force spawn when weapon and item selected in dm
 	if (deathmatch->value && dm_choose->value && !teamplay->value && !client->resp.dm_selected) {
@@ -3891,6 +3870,19 @@ void ClientBeginServerFrame(edict_t * ent)
 				punch_attack( ent );
 		}
 		client->resp.punch_desired = false;
+
+		if (ppl_idletime->value > 0 && client->resp.idletime && ent->deadflag != DEAD_DEAD) {
+			if (level.framenum >= client->resp.idletime + (int)(ppl_idletime->value * HZ)) {
+				PlayRandomInsaneSound( ent );
+				client->resp.idletime = 0;
+			}
+		}
+
+		if (ent->client->autoreloading && (ent->client->weaponstate == WEAPON_END_MAG)
+			&& (ent->client->curr_weap == MK23_NUM)) {
+			ent->client->autoreloading = false;
+			Cmd_New_Reload_f( ent );
+		}
 	}
 
 	if (!in_warmup || ent->movetype != MOVETYPE_NOCLIP)
