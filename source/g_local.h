@@ -1761,6 +1761,9 @@ struct edict_s
   int typeNum;
   // PG BUND
   xmenu_t *x_menu;
+
+  // hack for proper s.old_origin updates
+  vec3_t		old_origin;
 };
 
 typedef struct

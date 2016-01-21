@@ -1448,6 +1448,7 @@ static void old_teleporter_touch(edict_t * self, edict_t * other, cplane_t * pla
 
 	VectorCopy(dest->s.origin, other->s.origin);
 	VectorCopy(dest->s.origin, other->s.old_origin);
+	VectorCopy(dest->s.origin, other->old_origin);
 
 	// clear the velocity and hold them in place briefly
 	VectorClear(other->velocity);

@@ -231,6 +231,7 @@ void CTFFireGrapple (edict_t *self, vec3_t start, vec3_t dir, int damage, int sp
 	grapple = G_Spawn();
 	VectorCopy (start, grapple->s.origin);
 	VectorCopy (start, grapple->s.old_origin);
+	VectorCopy (start, grapple->old_origin);
 	vectoangles (dir, grapple->s.angles);
 	VectorScale (dir, speed, grapple->velocity);
 	grapple->movetype = MOVETYPE_FLYMISSILE;

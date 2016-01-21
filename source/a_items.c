@@ -93,6 +93,7 @@ static void SpawnSpec(gitem_t * item, edict_t * spot)
 
 	AngleVectors(angles, forward, right, NULL);
 	VectorCopy(spot->s.origin, ent->s.origin);
+	VectorCopy(spot->s.origin, ent->old_origin);
 	ent->s.origin[2] += 16;
 	VectorScale(forward, 100, ent->velocity);
 	ent->velocity[2] = 300;

@@ -802,7 +802,7 @@ fire_blaster (edict_t * self, vec3_t start, vec3_t dir, int damage, int speed,
   bolt->svflags = SVF_DEADMONSTER;
 // ^^^
   VectorCopy (start, bolt->s.origin);
-  VectorCopy (start, bolt->s.old_origin);
+  VectorCopy (start, bolt->old_origin);
   vectoangles (dir, bolt->s.angles);
   VectorScale (dir, speed, bolt->velocity);
   bolt->movetype = MOVETYPE_FLYMISSILE;
@@ -959,6 +959,7 @@ fire_grenade (edict_t * self, vec3_t start, vec3_t aimdir, int damage,
 
   grenade = G_Spawn ();
   VectorCopy (start, grenade->s.origin);
+  VectorCopy (start, grenade->old_origin);
   VectorScale (aimdir, speed, grenade->velocity);
   VectorMA (grenade->velocity, 200 + crandom () * 10.0, up,
 	    grenade->velocity);
@@ -995,6 +996,7 @@ fire_grenade2 (edict_t * self, vec3_t start, vec3_t aimdir, int damage,
 
   grenade = G_Spawn ();
   VectorCopy (start, grenade->s.origin);
+  VectorCopy (start, grenade->old_origin);
   VectorScale (aimdir, speed, grenade->velocity);
   VectorMA (grenade->velocity, 200 + crandom () * 10.0, up,
 	    grenade->velocity);
@@ -1103,6 +1105,7 @@ fire_rocket (edict_t * self, vec3_t start, vec3_t dir, int damage, int speed,
 
   rocket = G_Spawn ();
   VectorCopy (start, rocket->s.origin);
+  VectorCopy( start, rocket->old_origin );
   VectorCopy (dir, rocket->movedir);
   vectoangles (dir, rocket->s.angles);
   VectorScale (dir, speed, rocket->velocity);
@@ -1394,6 +1397,7 @@ fire_bfg (edict_t * self, vec3_t start, vec3_t dir, int damage, int speed,
 
   bfg = G_Spawn ();
   VectorCopy (start, bfg->s.origin);
+  VectorCopy (start, bfg->old_origin);
   VectorCopy (dir, bfg->movedir);
   vectoangles (dir, bfg->s.angles);
   VectorScale (dir, speed, bfg->velocity);
@@ -1711,7 +1715,7 @@ knife_throw (edict_t * self, vec3_t start, vec3_t dir, int damage, int speed)
 
   VectorNormalize (dir);
   VectorCopy (start, knife->s.origin);
-  VectorCopy (start, knife->s.old_origin);
+  VectorCopy (start, knife->old_origin);
   vectoangles (dir, knife->s.angles);
   VectorScale (dir, speed, knife->velocity);
   knife->movetype = MOVETYPE_TOSS;
