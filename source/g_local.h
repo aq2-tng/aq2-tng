@@ -1216,6 +1216,7 @@ void FetchClientEntData (edict_t * ent);
 //
 void UpdateChaseCam (edict_t * ent);
 int ChaseTargetGone (edict_t * ent);
+void NextChaseMode( edict_t *ent );
 void ChaseNext (edict_t * ent);
 void ChasePrev (edict_t * ent);
 void GetChaseTarget (edict_t * ent);

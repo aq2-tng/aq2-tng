@@ -556,6 +556,16 @@ void ClientEndServerFrames (void)
 	int i;
 	edict_t *ent;
 
+	for (i = 0; i < game.maxclients; i++)
+	{
+		ent = g_edicts + 1 + i;
+		if (!ent->inuse || !ent->client)
+			continue;
+
+		if (ent->client->chase_mode && ent->client->chase_target)
+			UpdateChaseCam( ent );
+	}
+
 	// calc the player views now that all pushing
 	// and damage has been added
 	for (i = 0; i < game.maxclients; i++)

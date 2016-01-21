@@ -3685,42 +3685,7 @@ void ClientThink(edict_t * ent, usercmd_t * ucmd)
 
 		if (ent->solid == SOLID_NOT && ent->deadflag != DEAD_DEAD && !in_warmup) {
 			client->latched_buttons = 0;
-			if (client->chase_mode) {
-				// AQ:TNG - JBravo fixing Limchasecam
-				if ((limchasecam->value != 2) || (client->resp.team == NOTEAM)) {
-					if (client->chase_mode == 1) {
-						client->desired_fov = 90;
-						client->ps.fov = 90;
-						client->chase_mode++;
-					} else if ((limchasecam->value != 1) || (client->resp.team == NOTEAM)) {
-						client->chase_mode = 0;
-						client->chase_target = NULL;
-						client->desired_fov = 90;
-						client->ps.fov = 90;
-						client->ps.pmove.pm_flags &= ~PMF_NO_PREDICTION;
-						client->clientNum = ent - g_edicts - 1;
-						client->ps.gunframe = client->ps.gunindex = 0;
-						VectorClear (client->ps.gunoffset);
-						VectorClear (client->ps.kick_angles);
-					} else {
-						client->chase_mode = 1;
-						UpdateChaseCam(ent);
-					}
-				}
-			} else {
-				client->chase_target = NULL;
-				GetChaseTarget(ent);
-				if (client->chase_target != NULL) {
-					if (limchasecam->value == 2) {
-						client->chase_mode = 1;
-						UpdateChaseCam(ent);
-						client->chase_mode = 2;
-					} else {
-						client->chase_mode = 1;
-					}
-					UpdateChaseCam(ent);
-				}
-			}
+			NextChaseMode( ent );
 		} else if (!client->weapon_thunk && FRAMESYNC) {
 			client->weapon_thunk = true;
 			Think_Weapon(ent);
@@ -3735,22 +3700,13 @@ void ClientThink(edict_t * ent, usercmd_t * ucmd)
 					ChaseNext(ent);
 				} else {
 					GetChaseTarget(ent);
-					UpdateChaseCam(ent);
 				}
 			}
-		} else
+		} else {
 			client->ps.pmove.pm_flags &= ~PMF_JUMP_HELD;
-		//FIREBLADE
-			ChaseTargetGone(ent);	// run a check...result not important.
-		//FIREBLADE
+		}
 	}
-	// FROM 3.20 -FB
-	// update chase cam if being followed
-	for (i = 1; i <= game.maxclients; i++) {
-		other = g_edicts + i;
-		if (other->inuse && other->client->chase_mode && other->client->chase_target == ent)
-			UpdateChaseCam(other);
-	}
+
 	// ^^^
 	//PG BUND - BEGIN
 	if (ppl_idletime->value) {
@@ -3907,19 +3863,10 @@ void ClientBeginServerFrame(edict_t * ent)
 				VectorCopy(ent->s.angles, client->v_angle);
 				gi.linkentity(ent);
 
-				if (teamplay->value && !in_warmup) {
-					if(ent->client->resp.last_chase_target && ent->client->resp.last_chase_target->solid != SOLID_NOT
-							&& ent->client->resp.last_chase_target->deadflag != DEAD_DEAD)
-						ent->client->chase_target = ent->client->resp.last_chase_target;
-					if(ent->client->chase_target == NULL)
-						GetChaseTarget(ent);
-					if (ent->client->chase_target != NULL) {
-						ent->client->chase_mode = 1;
-						UpdateChaseCam(ent);
-						ent->client->chase_mode = 2;
-					}
+				if (teamplay->value && !in_warmup && limchasecam->value) {
+					ent->client->chase_mode = 0;
+					NextChaseMode( ent );
 				}
-
 			}
 //FIREBLADE
 			else {
