@@ -987,13 +987,6 @@ void G_RunFrame (void)
 	int i;
 	edict_t *ent;
 
-	level.realFramenum++;
-	if (!level.pauseFrames)
-	{
-		level.framenum++;
-		level.time = level.framenum * FRAMETIME;
-	}
-
 	// IRC poll
 	IRC_poll ();
 
@@ -1067,6 +1060,13 @@ void G_RunFrame (void)
 			gi.bprintf( PRINT_HIGH, "Game is paused for %i:%02i.\n", (level.pauseFrames / HZ) / 60, (level.pauseFrames / HZ) % 60 );
 		}
 		level.pauseFrames--;
+	}
+
+	level.realFramenum++;
+	if (!level.pauseFrames)
+	{
+		level.framenum++;
+		level.time = level.framenum * FRAMETIME;
 	}
 }
 
