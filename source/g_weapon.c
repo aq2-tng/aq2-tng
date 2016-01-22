@@ -979,6 +979,7 @@ fire_grenade (edict_t * self, vec3_t start, vec3_t aimdir, int damage,
   grenade->dmg = damage;
   grenade->dmg_radius = damage_radius;
   grenade->classname = "grenade";
+  grenade->typeNum = GRENADE_NUM;
 
   gi.linkentity (grenade);
 }
@@ -1016,6 +1017,7 @@ fire_grenade2 (edict_t * self, vec3_t start, vec3_t aimdir, int damage,
   grenade->dmg = damage;
   grenade->dmg_radius = damage_radius;
   grenade->classname = "hgrenade";
+  grenade->typeNum = GRENADE_NUM;
   if (held)
     grenade->spawnflags = 3;
   else
@@ -1747,6 +1749,7 @@ knife_throw (edict_t * self, vec3_t start, vec3_t dir, int damage, int speed)
   knife->dmg = damage;
   knife->s.sound = gi.soundindex ("misc/flyloop.wav");
   knife->classname = "thrown_knife";
+  knife->typeNum = KNIFE_NUM;
 
   PRETRACE ();
   tr =

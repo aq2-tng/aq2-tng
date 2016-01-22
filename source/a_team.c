@@ -1319,46 +1319,9 @@ void OpenJoinMenu (edict_t * ent)
 	PMenu_Open (ent, joinmenu, 11 /* magic for Auto-join menu item */, sizeof (joinmenu) / sizeof (pmenu_t));
 }
 
-int member_array (char *str, char *arr[], int num_elems)
-{
-	int l;
-
-	for (l = 0; l < num_elems; l++)
-	{
-		if (!strcmp (str, arr[l]))
-			return l;
-	}
-	return -1;
-}
-
 void CleanLevel ()
 {
-	char *remove_classnames[] = {
-		"weapon_Mk23",
-		"weapon_MP5",
-		"weapon_M4",
-		"weapon_M3",
-		"weapon_HC",
-		"weapon_Sniper",
-		"weapon_Dual",
-		"weapon_Knife",
-		"weapon_Grenade",
-		"ammo_sniper",
-		"ammo_clip",
-		"ammo_mag",
-		"ammo_m4",
-		"ammo_m3",
-		"item_quiet",
-		"item_slippers",
-		"item_band",
-		"item_lasersight",
-		"item_vest",
-		"thrown_knife",
-		"hgrenade",
-		"item_helmet"
-	};
-	int i;
-	int base;
+	int i, base;
 	edict_t *ent;
 
 	base = 1 + game.maxclients + BODY_QUEUE_SIZE;
@@ -1367,14 +1330,34 @@ void CleanLevel ()
 	{
 		if (!ent->classname)
 			continue;
-		if (member_array (ent->classname, remove_classnames,
-			sizeof (remove_classnames) / sizeof (char *)) > -1)
-		{
-			G_FreeEdict (ent);
+
+		switch (ent->typeNum) {
+			case MK23_NUM:
+			case MP5_NUM:
+			case M4_NUM:
+			case M3_NUM:
+			case HC_NUM:
+			case SNIPER_NUM:
+			case DUAL_NUM:
+			case KNIFE_NUM:
+			case GRENADE_NUM:
+			case SIL_NUM:
+			case SLIP_NUM:
+			case BAND_NUM:
+			case KEV_NUM:
+			case LASER_NUM:
+			case HELM_NUM:
+			case MK23_ANUM:
+			case MP5_ANUM:
+			case M4_ANUM:
+			case SHELL_ANUM:
+			case SNIPER_ANUM:
+				G_FreeEdict( ent );
+				break;
 		}
 	}
 
-	CleanBodies ();
+	CleanBodies();
 
 	// fix glass
 	CGF_SFX_RebuildAllBrokenGlass ();
@@ -2149,7 +2132,6 @@ void CheckTeamRules (void)
 						CenterPrintAll ("The round will begin in 20 seconds!");
 						team_round_countdown = 201;
 					}
-					team_round_countdown = team_round_countdown;
 				}
 			}
 		}
