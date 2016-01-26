@@ -787,6 +787,15 @@ extern int snd_fry;
 #define MOD_TOTAL						37
 #define MOD_FRIENDLY_FIRE               0x8000000
 
+// types of locations that can be hit
+#define LOC_HDAM		1	// head
+#define LOC_CDAM		2	// chest
+#define LOC_SDAM		3	// stomach
+#define LOC_LDAM		4	// legs
+#define LOC_KVLR_HELMET 5	// kevlar helmet	Freud, for %D
+#define LOC_KVLR_VEST	6	// kevlar vest 		Freud, for %D
+#define LOC_NO			7	// Shot by shotgun or handcannon
+#define LOC_MAX			8
 
 extern int meansOfDeath;
 // zucc for hitlocation of death
@@ -1231,6 +1240,18 @@ void Weapon_Generic( edict_t * ent, int FRAME_ACTIVATE_LAST, int FRAME_FIRE_LAST
 #define ANIM_REVERSE            -1
 
 #define MAX_SKINLEN				32
+
+#define MAX_GUNSTAT MOD_GRENADE //Max MOD to track
+
+typedef struct gunStats_s
+{
+	int shots;		//Number of shots
+	int hits;		//Number of hits
+	int headshots;	//Number of headshots
+	int kills;		//Number of kills
+} gunStats_t;
+
+
 // client data that stays across multiple level loads
 typedef struct
 {
@@ -1294,8 +1315,6 @@ typedef struct
 
   int damage_dealt;		// keep track of damage dealt by player to other players
 
-  int streak;			// kills in a row
-
   gitem_t *item;		// item for teamplay
 
   gitem_t *weapon;		// weapon for teamplay
@@ -1345,20 +1364,17 @@ typedef struct
 
   qboolean weapon_after_bandage_warned;	// to fix message bug when calling weapon while bandaging
   qboolean punch_desired;	//controlled in ClientThink
-
-  int hs_streak;		// Headshots in a Row
 	
   int stat_mode;    		// Automatical Send of statistics to client
   int stat_mode_intermission;
 
-  int stats_locations[10];	// All locational damage
+  int shotsTotal;					//Total number of shots
+  int hitsTotal;					//Total number of hits
+  int streakKills;					//Kills in a row
+  int streakHS;						//Headshots in a Row
 
-  int stats_shots_t;		// Total nr of shots for TNG Stats
-  int stats_shots_h;		// Total nr of hits for TNG Stats
-
-  int stats_shots[100];       // Shots fired
-  int stats_hits[100];                // Shots hit
-  int stats_headshot[100];    // Shots in head
+  int hitsLocations[LOC_MAX];		//Number of hits for different locations
+  gunStats_t gunstats[MAX_GUNSTAT]; //Number of shots/hits for different guns
 
   //AQ2:TNG - Slicer: Video Checking and further Cheat cheking vars
   char vidref[16];
@@ -1757,13 +1773,11 @@ typedef struct
 	int score;
 	int kills;
 	int damage_dealt;
-	int stats_shots_t;
-	int stats_shots_h;
+	int shotsTotal;
+	int hitsTotal;
 
-	int stats_locations[10];
-	int stats_shots[100];
-	int stats_hits[100];
-	int stats_headshot[100];
+	int hitsLocations[LOC_MAX];
+	gunStats_t gunstats[MAX_GUNSTAT];
 	int team;
 	gitem_t *weapon;
 	gitem_t *item;
@@ -1922,15 +1936,6 @@ typedef struct itemList_s
 
 extern itemList_t items[ILIST_COUNT];
 extern int tnums[ITEM_COUNT];
-
-// types of locations that can be hit
-#define LOC_HDAM 1		// head
-#define LOC_CDAM 2		// chest
-#define LOC_SDAM 3		// stomach
-#define LOC_LDAM 4		// legs
-#define LOC_KVLR_HELMET 5	// kevlar helmet	Freud, for %D
-#define LOC_KVLR_VEST 6		// kevlar vest 		Freud, for %D
-#define LOC_NO 7		// Shot by shotgun or handcannon
 
 // sniper modes
 #define SNIPER_1X 0

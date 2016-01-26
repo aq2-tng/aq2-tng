@@ -341,17 +341,17 @@ void Add_Frag(edict_t * ent)
 
 		if (ent->solid != SOLID_NOT && ent->deadflag != DEAD_DEAD)
 		{
-			ent->client->resp.streak++;
-			if (ent->client->resp.streak % 5 == 0 && use_rewards->value)
+			ent->client->resp.streakKills++;
+			if (ent->client->resp.streakKills % 5 == 0 && use_rewards->value)
 			{
 				sprintf(buf, "IMPRESSIVE %s!", ent->client->pers.netname);
 				CenterPrintAll(buf);
 				gi.sound(&g_edicts[0], CHAN_VOICE | CHAN_NO_PHS_ADD,
 					 gi.soundindex("tng/impressive.wav"), 1.0, ATTN_NONE, 0.0);
 			}
-			else if (ent->client->resp.streak % 12 == 0 && use_rewards->value)
+			else if (ent->client->resp.streakKills % 12 == 0 && use_rewards->value)
 			{
-				sprintf(buf, "EXCELLENT %s (%dx)!", ent->client->pers.netname,ent->client->resp.streak/12);
+				sprintf(buf, "EXCELLENT %s (%dx)!", ent->client->pers.netname,ent->client->resp.streakKills/12);
 				CenterPrintAll(buf);
 				gi.sound(&g_edicts[0], CHAN_VOICE | CHAN_NO_PHS_ADD,
 					 gi.soundindex("tng/excellent.wav"), 1.0, ATTN_NONE, 0.0);
@@ -364,15 +364,15 @@ void Add_Frag(edict_t * ent)
 	} else { //Deathmatch
 
 		if (ent->solid != SOLID_NOT && ent->deadflag != DEAD_DEAD)
-			ent->client->resp.streak++;
+			ent->client->resp.streakKills++;
 
-		if (ent->client->resp.streak < 4)
+		if (ent->client->resp.streakKills < 4)
 			frags = 1;
-		else if (ent->client->resp.streak < 8)
+		else if (ent->client->resp.streakKills < 8)
 			frags = 2;
-		else if (ent->client->resp.streak < 16)
+		else if (ent->client->resp.streakKills < 16)
 			frags = 4;
-		else if (ent->client->resp.streak < 32)
+		else if (ent->client->resp.streakKills < 32)
 			frags = 8;
 		else
 			frags = 16;
@@ -381,15 +381,15 @@ void Add_Frag(edict_t * ent)
 		{
 			gi.bprintf(PRINT_MEDIUM,
 				"%s has %d kills in a row and receives %d frags for the kill!\n",
-				ent->client->pers.netname, ent->client->resp.streak, frags);
+				ent->client->pers.netname, ent->client->resp.streakKills, frags );
 			IRC_printf(IRC_T_GAME,
 				"%n has %k kills in a row and receives %k frags for the kill!",
-				ent->client->pers.netname, ent->client->resp.streak, frags);
+				ent->client->pers.netname, ent->client->resp.streakKills, frags );
 		}
 		ent->client->resp.score += frags;
 
-		if(ent->client->resp.streak)
-			gi.cprintf(ent, PRINT_HIGH, "Kill count: %d\n", ent->client->resp.streak);
+		if(ent->client->resp.streakKills)
+			gi.cprintf(ent, PRINT_HIGH, "Kill count: %d\n", ent->client->resp.streakKills);
 
 		if(teamdm->value)
 			teams[ent->client->resp.team].score += frags;
@@ -426,7 +426,7 @@ void Add_Frag(edict_t * ent)
 void Subtract_Frag(edict_t * ent)
 {
 	ent->client->resp.score--;
-	ent->client->resp.streak = 0;
+	ent->client->resp.streakKills = 0;
 	if(teamdm->value)
 		teams[ent->client->resp.team].score--;
 }
@@ -909,7 +909,7 @@ void ClientObituary(edict_t * self, edict_t * inflictor, edict_t * attacker)
 			{
 				if (!teamplay->value || !OnSameTeam(self, self->client->attacker))
 				{
-					self->client->resp.streak = 0;
+					self->client->resp.streakKills = 0;
 					Add_Frag(self->client->attacker);
 					self->client->resp.deaths++;
 				}
@@ -1280,7 +1280,7 @@ void ClientObituary(edict_t * self, edict_t * inflictor, edict_t * attacker)
 				if (!teamplay->value || mod != MOD_TELEFRAG) {
 					Add_Frag(attacker);
 					attacker->client->pers.num_kills++;
-					self->client->resp.streak = 0;
+					self->client->resp.streakKills = 0;
 					self->client->resp.deaths++;
 				}
 			}
@@ -3377,17 +3377,13 @@ void CreateGhost(edict_t * ent)
 		}
 		// Statistics
 
-		ghost_players[num_ghost_players].stats_shots_t = ent->client->resp.stats_shots_t;
-		ghost_players[num_ghost_players].stats_shots_h = ent->client->resp.stats_shots_h;
+		ghost_players[num_ghost_players].shotsTotal = ent->client->resp.shotsTotal;
+		ghost_players[num_ghost_players].hitsTotal = ent->client->resp.hitsTotal;
 
-		memcpy(ghost_players[num_ghost_players].stats_locations, ent->client->resp.stats_locations,
-		       sizeof(ent->client->resp.stats_locations));
-		memcpy(ghost_players[num_ghost_players].stats_shots, ent->client->resp.stats_shots,
-		       sizeof(ent->client->resp.stats_shots));
-		memcpy(ghost_players[num_ghost_players].stats_hits, ent->client->resp.stats_hits,
-		       sizeof(ent->client->resp.stats_hits));
-		memcpy(ghost_players[num_ghost_players].stats_headshot, ent->client->resp.stats_headshot,
-		       sizeof(ent->client->resp.stats_headshot));
+		memcpy(ghost_players[num_ghost_players].hitsLocations, ent->client->resp.hitsLocations,
+		       sizeof(ent->client->resp.hitsLocations));
+		memcpy(ghost_players[num_ghost_players].gunstats, ent->client->resp.gunstats,
+		       sizeof(ent->client->resp.gunstats));
 
 		num_ghost_players++;
 	} else {

@@ -501,7 +501,7 @@ T_Damage (edict_t * targ, edict_t * inflictor, edict_t * attacker, vec3_t dir,
 	int head_success = 0;
 	int instant_dam = 1;
 	float z_rel;
-	int height;
+	int height, gotArmor = 0;
 	float from_top;
 	vec_t dist;
 	float targ_maxs2;		//FB 6/1/99
@@ -575,28 +575,15 @@ T_Damage (edict_t * targ, edict_t * inflictor, edict_t * attacker, vec3_t dir,
 
 		{
 
-			// TNG Stats - Add +1 to hit, make sure that hc and m3 are handles differently
-
-			if ((attacker->client) && (mod != MOD_M3) && (mod != MOD_HC)) {
-				strcpy(attacker->client->resp.last_damaged_players, targ->client->pers.netname);
-
-				if (!teamplay->value || team_round_going || stats_afterround->value) {
-					attacker->client->resp.stats_hits[mod]++;
-					attacker->client->resp.stats_shots_h++;
-				}
-			}
- 
-			// TNG Stats END
-
-
 			if (mod == MOD_MK23 || mod == MOD_MP5 || mod == MOD_M4 ||
 				mod == MOD_SNIPER || mod == MOD_DUAL || mod == MOD_KNIFE ||
 				mod == MOD_KNIFE_THROWN)
 			{
+
 				z_rel = point[2] - targ->s.origin[2];
 				from_top = targ_maxs2 - z_rel;
 				if (from_top < 0.0)	//FB 6/1/99
-				from_top = 0.0;	//Slightly negative values were being handled wrong
+					from_top = 0.0;	//Slightly negative values were being handled wrong
 				bleeding = 1;
 				instant_dam = 0;
 
@@ -609,14 +596,6 @@ T_Damage (edict_t * targ, edict_t * inflictor, edict_t * attacker, vec3_t dir,
 					else if (dist > 1400.0)
 						damage = (int) (damage * 1 / 2);
 				}
-
-
-	      //gi.cprintf(targ, PRINT_HIGH, "z_rel is %f\n leg: %f stomach: %f chest: %f\n", z_rel, LEG_DAMAGE, STOMACH_DAMAGE, CHEST_DAMAGE );
-	      //gi.cprintf(targ, PRINT_HIGH, "point[2]: %f targ->s.origin[2]: %f height: %d\n", point[2], targ->s.origin[2], height );
-	      //gi.cprintf(targ, PRINT_HIGH, "abs(trag->min[2]): %d targ_max[2] %d\n", (int)abs(targ->mins[2]), (int)targ_maxs2);
-	      //gi.cprintf(attacker, PRINT_HIGH, "abs(trag->min[2]): %d targ_max[2] %d\n", (int)abs(targ->mins[2]), (int)targ_maxs2); 
-	      //gi.cprintf(attacker, PRINT_HIGH, "abs(trag->min[0]): %d targ_max[0] %d\n", (int)abs(targ->mins[0]), (int)targ->maxs[0]); 
-	      //gi.cprintf(attacker, PRINT_HIGH, "abs(trag->min[1]): %d targ_max[1] %d\n", (int)abs(targ->mins[1]), (int)targ->maxs[1]); 
 
 
 				if (from_top < 2 * HEAD_HEIGHT)
@@ -636,39 +615,31 @@ T_Damage (edict_t * targ, edict_t * inflictor, edict_t * attacker, vec3_t dir,
 
 				if (head_success)
 				{
+					damage_type = LOC_HDAM;
+					if (mod != MOD_KNIFE && mod != MOD_KNIFE_THROWN) //Knife doesnt care about helmet
+						gotArmor = INV_AMMO( targ, HELM_NUM );
+
 					if (attacker->client)
 					{
-						if (!teamplay->value || team_round_going || stats_afterround->value) {
-							attacker->client->resp.stats_headshot[mod]++;
-						}
-						//AQ2:TNG Slicer Last Damage Location
-						if (INV_AMMO(targ, HELM_NUM)) {
-							attacker->client->resp.last_damaged_part = LOC_KVLR_HELMET;
-							if ((!teamplay->value || team_round_going || stats_afterround->value))
-								attacker->client->resp.stats_locations[LOC_KVLR_HELMET]++;
-						} else {
-							attacker->client->resp.last_damaged_part = LOC_HDAM;
-							if ((!teamplay->value || team_round_going || stats_afterround->value))
-								attacker->client->resp.stats_locations[LOC_HDAM]++;
-						}
+						Stats_AddHit( attacker, mod, (gotArmor) ? LOC_KVLR_HELMET : LOC_HDAM );
 
 						//AQ2:TNG END
 						if (!OnSameTeam (targ, attacker))
-							attacker->client->resp.hs_streak++;
-
-						// AQ:TNG Igor[Rock] changing sound dir
-						if (attacker->client->resp.hs_streak == 3)
 						{
-							if (use_rewards->value)
+							attacker->client->resp.streakHS++;
+							// AQ:TNG Igor[Rock] changing sound dir
+							if(attacker->client->resp.streakHS % 3 == 0)
 							{
-								sprintf (buf, "ACCURACY %s!", attacker->client->pers.netname);
-								CenterPrintAll (buf);
-								gi.sound (&g_edicts[0], CHAN_VOICE | CHAN_NO_PHS_ADD,
-									gi.soundindex ("tng/accuracy.wav"), 1.0, ATTN_NONE, 0.0);
+								if (use_rewards->value)
+								{
+									sprintf (buf, "ACCURACY %s!", attacker->client->pers.netname);
+									CenterPrintAll (buf);
+									gi.sound (&g_edicts[0], CHAN_VOICE | CHAN_NO_PHS_ADD,
+										gi.soundindex ("tng/accuracy.wav"), 1.0, ATTN_NONE, 0.0);
+								}
 							}
-							attacker->client->resp.hs_streak = 0;
+							// end of changing sound dir
 						}
-						// end of changing sound dir
 					}
 
 					if (INV_AMMO(targ, HELM_NUM) && mod != MOD_KNIFE
@@ -727,18 +698,13 @@ T_Damage (edict_t * targ, edict_t * inflictor, edict_t * attacker, vec3_t dir,
 					gi.cprintf (targ, PRINT_HIGH, "Leg damage\n");
 					if (attacker->client)
 					{
-						attacker->client->resp.hs_streak = 0;
+						Stats_AddHit( attacker, mod, LOC_LDAM );
 						gi.cprintf (attacker, PRINT_HIGH, "You hit %s in the legs\n",
 							targ->client->pers.netname);
 					}
 					damage_type = LOC_LDAM;
 					targ->client->leg_damage = 1;
 					targ->client->leghits++;
-					//AQ2:TNG Slicer Last Damage Location
-					attacker->client->resp.last_damaged_part = LOC_LDAM;
-					//AQ2:TNG END
-					if (!teamplay->value || team_round_going || stats_afterround->value)
-						attacker->client->resp.stats_locations[LOC_LDAM]++; // TNG Stats
 				}
 				else if (z_rel < STOMACH_DAMAGE)
 				{
@@ -746,7 +712,7 @@ T_Damage (edict_t * targ, edict_t * inflictor, edict_t * attacker, vec3_t dir,
 					gi.cprintf (targ, PRINT_HIGH, "Stomach damage\n");
 					if (attacker->client)
 					{
-						attacker->client->resp.hs_streak = 0;
+						Stats_AddHit(attacker, mod, LOC_SDAM);
 						gi.cprintf (attacker, PRINT_HIGH, "You hit %s in the stomach\n",
 							targ->client->pers.netname);
 					}
@@ -754,17 +720,15 @@ T_Damage (edict_t * targ, edict_t * inflictor, edict_t * attacker, vec3_t dir,
 					//TempFile bloody gibbing
 					if (mod == MOD_SNIPER && sv_gib->value)
 						ThrowGib (targ, "models/objects/gibs/sm_meat/tris.md2", damage, GIB_ORGANIC);
-					//AQ2:TNG Slicer Last Damage Location
-					attacker->client->resp.last_damaged_part = LOC_SDAM;
-					//AQ2:TNG END
-					if (!teamplay->value || team_round_going || stats_afterround->value)
-						attacker->client->resp.stats_locations[LOC_SDAM]++; // TNG Stats
 				}
 				else		//(z_rel < CHEST_DAMAGE)
 				{
+					if (mod != MOD_KNIFE && mod != MOD_KNIFE_THROWN) //Knife doesnt care about kevlar
+						gotArmor = INV_AMMO( targ, KEV_NUM );
+
 					if (attacker->client)
 					{
-						attacker->client->resp.hs_streak = 0;
+						Stats_AddHit(attacker, mod, (gotArmor) ? LOC_KVLR_VEST : LOC_CDAM);
 					}
 
 					if (INV_AMMO(targ, KEV_NUM) && mod != MOD_KNIFE
@@ -816,18 +780,6 @@ T_Damage (edict_t * targ, edict_t * inflictor, edict_t * attacker, vec3_t dir,
 						if (mod == MOD_SNIPER && sv_gib->value)
 							ThrowGib (targ, "models/objects/gibs/sm_meat/tris.md2", damage, GIB_ORGANIC);
 					}
-					//AQ2:TNG Slicer Last Damage Location
-					if (INV_AMMO(targ, KEV_NUM) && mod != MOD_KNIFE && mod != MOD_KNIFE_THROWN) {
-						attacker->client->resp.last_damaged_part = LOC_KVLR_VEST;
-						if (!teamplay->value || team_round_going || stats_afterround->value)
-							attacker->client->resp.stats_locations[LOC_KVLR_VEST]++; // TNG Stats
-					} else {
-						attacker->client->resp.last_damaged_part = LOC_CDAM;
-						if (!teamplay->value || team_round_going || stats_afterround->value)
-							attacker->client->resp.stats_locations[LOC_CDAM]++; // TNG Stats
-					}
-					//AQ2:TNG END
-
 				}
 	      /*else
 	         {   

@@ -1741,7 +1741,7 @@ void ClientCommand (edict_t * ent)
 
 	else if (Q_stricmp (cmd, "streak") == 0)
 	{
-		gi.cprintf(ent,PRINT_HIGH,"Your Killing Streak is: %d\n",ent->client->resp.streak);
+		gi.cprintf(ent,PRINT_HIGH,"Your Killing Streak is: %d\n",ent->client->resp.streakKills);
 		return;
 	}
 	//SLIC2

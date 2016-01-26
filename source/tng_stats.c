@@ -78,19 +78,51 @@ void ResetStats(edict_t *ent)
 	if(!ent->client)
 		return;
 
-	ent->client->resp.stats_shots_t = 0;
-	ent->client->resp.stats_shots_h = 0;
+	ent->client->resp.shotsTotal = 0;
+	ent->client->resp.hitsTotal = 0;
 
-	for(i=0; i<10; i++)
-		ent->client->resp.stats_locations[i] = 0;
+	for (i = 0; i<LOC_MAX; i++)
+		ent->client->resp.hitsLocations[i] = 0;
 
-	for(i=0; i<100; i++)
-	{
-		ent->client->resp.stats_shots[i] = 0;
-		ent->client->resp.stats_hits[i] = 0;
-		ent->client->resp.stats_headshot[i] = 0;
+	memset( &ent->client->resp.gunstats, 0, sizeof( gunStats_t ) );
+}
+
+void Stats_AddShot( edict_t *ent, int gun )
+{
+	if ((unsigned)gun >= MAX_GUNSTAT) {
+		gi.dprintf( "Stats_AddShot: Bad gun number!\n" );
+		return;
+	}
+
+	if (!teamplay->value || team_round_going || stats_afterround->value) {
+		ent->client->resp.shotsTotal += 1;	// TNG Stats, +1 hit
+		ent->client->resp.gunstats[gun].shots += 1;	// TNG Stats, +1 hit
 	}
 }
+
+void Stats_AddHit( edict_t *ent, int gun, int hitPart )
+{
+	int headShot = (hitPart == LOC_HDAM || hitPart == LOC_KVLR_HELMET) ? 1 : 0;
+
+	if ((unsigned)gun >= MAX_GUNSTAT) {
+		gi.dprintf( "Stats_AddHit: Bad gun number!\n" );
+		return;
+	}
+
+	ent->client->resp.last_damaged_part = hitPart;
+	if (!teamplay->value || team_round_going || stats_afterround->value) {
+		ent->client->resp.hitsTotal++;
+		ent->client->resp.gunstats[gun].hits++;
+		ent->client->resp.hitsLocations[hitPart]++;
+
+		if (headShot)
+			ent->client->resp.gunstats[gun].headshots++;
+	}
+	if (!headShot) {
+		ent->client->resp.streakHS = 0;
+	}
+}
+
 
 void Cmd_Stats_f (edict_t *targetent, char *arg)
 {
@@ -101,10 +133,10 @@ void Cmd_Stats_f (edict_t *targetent, char *arg)
 *                                               */
 	
 	double	perc_hit;
-	int		total, hits, i, y, len;
-	char		location[64];
-	char		stathead[64], current_weapon[64];
-	edict_t	*ent, *cl_ent;
+	int		total, hits, i, y, len, locHits;
+	char		*string, stathead[64];
+	edict_t		*ent, *cl_ent;
+	gunStats_t	*gun;
 
 	if (!targetent->inuse)
 		return;
@@ -123,9 +155,10 @@ void Cmd_Stats_f (edict_t *targetent, char *arg)
 					continue;
 
 				hits = total = 0;
-				for (y = 0; y < 100 ; y++) {
-					hits += cl_ent->client->resp.stats_hits[y];
-					total += cl_ent->client->resp.stats_shots[y];
+				gun = cl_ent->client->resp.gunstats;
+				for (y = 0; y < MAX_GUNSTAT; y++, gun++) {
+					hits += gun->hits;
+					total += gun->shots;
 				}
 
 				if (hits > 0)
@@ -155,9 +188,10 @@ void Cmd_Stats_f (edict_t *targetent, char *arg)
 
 	// Global Stats:
 	hits = total = 0;
-	for (y = 0; y < 100 ; y++) {
-		hits += ent->client->resp.stats_hits[y];
-		total += ent->client->resp.stats_shots[y];
+	gun = ent->client->resp.gunstats;
+	for (y = 0; y < MAX_GUNSTAT; y++, gun++) {
+		hits += gun->hits;
+		total += gun->shots;
 	}
 
 	sprintf(stathead, "\nŸ Statistics for %s ", ent->client->pers.netname);
@@ -178,36 +212,48 @@ void Cmd_Stats_f (edict_t *targetent, char *arg)
 
 	gi.cprintf (targetent, PRINT_HIGH, "Weapon             Accuracy Hits/Shots  Headshots\n");		
 
-	for (y = 0; y < 100 ; y++) {
+	gun = ent->client->resp.gunstats;
+	for (y = 0; y < MAX_GUNSTAT; y++, gun++) {
 
-		if (ent->client->resp.stats_shots[y] <= 0)
+		if (gun->shots <= 0)
 			continue;
 
-		if (y == MOD_MK23)
-			strcpy(current_weapon, "Pistol            ");
-		else if (y == MOD_DUAL)
-			strcpy(current_weapon, "Dual Pistols      ");
-		else if (y == MOD_KNIFE)
-			strcpy(current_weapon, "Slashing Knife    ");
-		else if (y == MOD_KNIFE_THROWN)
-			strcpy(current_weapon, "Throwing Knife    ");
-		else if (y == MOD_M4)
-			strcpy(current_weapon, "M4 Assault Rifle  ");
-		else if (y == MOD_MP5)
-			strcpy(current_weapon, "MP5 Submachinegun ");
-		else if (y == MOD_SNIPER)
-			strcpy(current_weapon, "Sniper Rifle      ");
-		else if (y == MOD_HC)
-			strcpy(current_weapon, "Handcannon        ");
-		else if (y == MOD_M3)
-			strcpy(current_weapon, "M3 Shotgun        ");
-		else
-			strcpy(current_weapon, "Unknown Weapon    ");
+		switch (y) {
+		case MOD_MK23:
+			string = "Pistol            ";
+			break;
+		case MOD_DUAL:
+			string = "Dual Pistols      ";
+			break;
+		case MOD_KNIFE:
+			string = "Slashing Knife    ";
+			break;
+		case MOD_KNIFE_THROWN:
+			string = "Throwing Knife    ";
+			break;
+		case MOD_M4:
+			string = "M4 Assault Rifle  ";
+			break;
+		case MOD_MP5:
+			string = "MP5 Submachinegun ";
+			break;
+		case MOD_SNIPER:
+			string = "Sniper Rifle      ";
+			break;
+		case MOD_HC:
+			string = "Handcannon        ";
+			break;
+		case MOD_M3:
+			string = "M3 Shotgun        ";
+			break;
+		default:
+			string = "Unknown Weapon    ";
+			break;
+		}
 
-		perc_hit = (((double) ent->client->resp.stats_hits[y] /
-			(double) ent->client->resp.stats_shots[y]) * 100.0);	// Percentage of shots that hit
-
-		gi.cprintf(targetent, PRINT_HIGH, "%s %6.2f  %5i/%-5i    %i\n", current_weapon, perc_hit, ent->client->resp.stats_hits[y], ent->client->resp.stats_shots[y], ent->client->resp.stats_headshot[y]); 
+		perc_hit = (((double)gun->hits/(double)gun->shots) * 100.0);	// Percentage of shots that hit
+		gi.cprintf( targetent, PRINT_HIGH, "%s %6.2f  %5i/%-5i    %i\n",
+			string, perc_hit, gun->hits, gun->shots, gun->headshots);
 	}
 
 	gi.cprintf (targetent, PRINT_HIGH, "\nŸ\n");
@@ -216,31 +262,42 @@ void Cmd_Stats_f (edict_t *targetent, char *arg)
 	// Final Part
 	gi.cprintf (targetent, PRINT_HIGH, "Location                         Hits     (%%)\n");		
 
-	for (y = 0;y < 10;y++) {
-		if (ent->client->resp.stats_locations[y] <= 0)
+	for (y = 0; y < LOC_MAX; y++) {
+		locHits = ent->client->resp.hitsLocations[y];
+
+		if (locHits <= 0)
 			continue;
 
-		perc_hit = (((double) ent->client->resp.stats_locations[y] / (double) hits) * 100.0);
+		perc_hit = (((double)locHits / (double)hits) * 100.0);
 
-		if (y == LOC_HDAM)
-			strcpy(location, "Head");
-		else if (y == LOC_CDAM)
-			strcpy(location, "Chest");
-		else if (y == LOC_SDAM)
-			strcpy(location, "Stomach");
-		else if (y == LOC_LDAM)
-			strcpy(location, "Legs");
-		else if (y == LOC_KVLR_HELMET)
-			strcpy(location, "Kevlar Helmet");
-		else if (y == LOC_KVLR_VEST)
-			strcpy(location, "Kevlar Vest");
-		else if (y == LOC_NO)
-			strcpy(location, "Spread (Shotgun/Handcannon)");
-		else
-			strcpy(location, "Unknown");
+		switch (y) {
+		case LOC_HDAM:
+			string = "Head";
+			break;
+		case LOC_CDAM:
+			string = "Chest";
+			break;
+		case LOC_SDAM:
+			string = "Stomach";
+			break;
+		case LOC_LDAM:
+			string = "Legs";
+			break;
+		case LOC_KVLR_HELMET:
+			string = "Kevlar Helmet";
+			break;
+		case LOC_KVLR_VEST:
+			string = "Kevlar Vest";
+			break;
+		case LOC_NO:
+			string = "Spread (Shotgun/Handcannon)";
+			break;
+		default:
+			string = "Unknown";
+			break;
+		}
 
-		gi.cprintf(targetent, PRINT_HIGH, "%-26s %10i  (%6.2f)\n", location, ent->client->resp.stats_locations[y], perc_hit);
-
+		gi.cprintf( targetent, PRINT_HIGH, "%-26s %10i  (%6.2f)\n", string, locHits, perc_hit );
 	}
 	gi.cprintf (targetent, PRINT_HIGH, "\n");
 
@@ -397,13 +454,13 @@ void A_ScoreboardEndLevel (edict_t * ent, edict_t * killer)
       ping = game.clients[sorted[i]].ping;
       if (ping > 999)
 	ping = 999;
-      shots = game.clients[sorted[i]].resp.stats_shots_t;
+	  shots = game.clients[sorted[i]].resp.shotsTotal;
       if (shots > 9999)
 	shots = 9999;
       if (shots != 0)
 	accuracy =
 	  (((double)
-	    game.clients[sorted[i]].resp.stats_shots_h / (double) shots) *
+	    game.clients[sorted[i]].resp.hitsTotal / (double) shots) *
 	   100.0);
       else
 	accuracy = 0;
