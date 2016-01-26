@@ -275,130 +275,6 @@ void SpawnDamage (int type, vec3_t origin, vec3_t normal, int damage)
   DAMAGE_NO_PROTECTION    kills godmode, armor, everything
   ============
 */
-static int
-CheckPowerArmor (edict_t * ent, vec3_t point, vec3_t normal, int damage,
-		 int dflags)
-{
-	gclient_t *client;
-	int save;
-	int power_armor_type;
-	// AQ:TNG - JBravo fixing compilerwarnings.
-	// Bah.  JB will crash da servah if dis is wrong.
-	int index = 0;
-	// JBravo.
-	int damagePerCell;
-	int pa_te_type;
-	int power = 0;
-	int power_used;
-
-	if (!damage)
-		return 0;
-
-	client = ent->client;
-
-	if (dflags & DAMAGE_NO_ARMOR)
-		return 0;
-
-	if (client)
-	{
-		power_armor_type = PowerArmorType (ent);
-		if (power_armor_type != POWER_ARMOR_NONE)
-		{
-			index = ITEM_INDEX (FindItem ("Cells"));
-			power = client->pers.inventory[index];
-		}
-	}
-	else
-		return 0;
-
-	if (power_armor_type == POWER_ARMOR_NONE)
-		return 0;
-	if (!power)
-		return 0;
-
-	if (power_armor_type == POWER_ARMOR_SCREEN)
-	{
-		vec3_t vec;
-		float dot;
-		vec3_t forward;
-
-		// only works if damage point is in front
-		AngleVectors (ent->s.angles, forward, NULL, NULL);
-		VectorSubtract (point, ent->s.origin, vec);
-		VectorNormalize (vec);
-		dot = DotProduct (vec, forward);
-		if (dot <= 0.3)
-			return 0;
-
-		damagePerCell = 1;
-		pa_te_type = TE_SCREEN_SPARKS;
-		damage = damage / 3;
-	}
-	else
-	{
-		damagePerCell = 2;
-		pa_te_type = TE_SHIELD_SPARKS;
-		damage = (2 * damage) / 3;
-	}
-
-	save = power * damagePerCell;
-	if (!save)
-		return 0;
-	if (save > damage)
-		save = damage;
-
-	SpawnDamage (pa_te_type, point, normal, save);
-	ent->powerarmor_framenum = level.framenum + 0.2 * HZ;
-
-	power_used = save / damagePerCell;
-
-	if (client)
-		client->pers.inventory[index] -= power_used;
-
-	return save;
-}
-
-static int
-CheckArmor (edict_t * ent, vec3_t point, vec3_t normal, int damage,
-	    int te_sparks, int dflags)
-{
-	gclient_t *client;
-	int save;
-	int index;
-	gitem_t *armor;
-
-	if (!damage)
-		return 0;
-
-	client = ent->client;
-
-	if (!client)
-		return 0;
-
-	if (dflags & DAMAGE_NO_ARMOR)
-		return 0;
-
-	index = ArmorIndex (ent);
-	if (!index)
-		return 0;
-
-	armor = GetItemByIndex (index);
-
-	if (dflags & DAMAGE_ENERGY)
-		save = ceil (((gitem_armor_t *) armor->info)->energy_protection * damage);
-	else
-		save = ceil (((gitem_armor_t *) armor->info)->normal_protection * damage);
-	if (save >= client->pers.inventory[index])
-		save = client->pers.inventory[index];
-
-	if (!save)
-		return 0;
-
-	client->pers.inventory[index] -= save;
-	SpawnDamage (te_sparks, point, normal, save);
-
-	return save;
-}
 
 
 qboolean CheckTeamDamage (edict_t * targ, edict_t * attacker)
@@ -1100,10 +976,10 @@ T_Damage (edict_t * targ, edict_t * inflictor, edict_t * attacker, vec3_t dir,
 		save = damage;
 	}
 
-	psave = CheckPowerArmor (targ, point, normal, take, dflags);
+	psave = 0; // CheckPowerArmor( targ, point, normal, take, dflags );
 	take -= psave;
 
-	asave = CheckArmor (targ, point, normal, take, te_sparks, dflags);
+	asave = 0; // CheckArmor( targ, point, normal, take, te_sparks, dflags );
 	take -= asave;
 
 	//treat cheat/powerup savings the same as armor

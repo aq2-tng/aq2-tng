@@ -871,7 +871,6 @@ G_SetClientEffects
 */
 void G_SetClientEffects (edict_t * ent)
 {
-	int pa_type;
 	int remaining;
 
 	ent->s.effects = 0;
@@ -884,20 +883,6 @@ void G_SetClientEffects (edict_t * ent)
 
 	if (ent->health <= 0 || level.intermission_framenum)
 		return;
-
-	if (ent->powerarmor_framenum > level.framenum)
-	{
-		pa_type = PowerArmorType (ent);
-		if (pa_type == POWER_ARMOR_SCREEN)
-		{
-			ent->s.effects |= EF_POWERSCREEN;
-		}
-		else if (pa_type == POWER_ARMOR_SHIELD)
-		{
-			ent->s.effects |= EF_COLOR_SHELL;
-			ent->s.renderfx |= RF_SHELL_GREEN;
-		}
-	}
 
 	if (ctf->value)
 		CTFEffects (ent);
@@ -995,10 +980,6 @@ void G_SetClientSound (edict_t * ent)
 
 	if (ent->waterlevel && (ent->watertype & (CONTENTS_LAVA | CONTENTS_SLIME)))
 		ent->s.sound = snd_fry;
-	else if (strcmp (weap, "weapon_railgun") == 0)
-		ent->s.sound = gi.soundindex ("weapons/rg_hum.wav");
-	else if (strcmp (weap, "weapon_bfg") == 0)
-		ent->s.sound = gi.soundindex ("weapons/bfg_hum.wav");
 	else if (ent->client->weapon_sound)
 		ent->s.sound = ent->client->weapon_sound;
 	else
