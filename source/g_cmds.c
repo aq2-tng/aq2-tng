@@ -1094,34 +1094,19 @@ void Cmd_InvDrop_f (edict_t * ent)
 Cmd_Kill_f
 =================
 */
+void SuicidePunish( edict_t *ent );
+
 void Cmd_Kill_f (edict_t * ent)
 {
 	//FIREBLADE
 	if (ent->solid == SOLID_NOT || ent->deadflag == DEAD_DEAD)
 		return;
-	//FIREBLADE
-	// AQ:TNG - JBravo adding punishkills
-	if (punishkills->value)
-	{
-		if (ent->client->attacker && ent->client->attacker->client &&
-		(ent->client->attacker->client != ent->client))
-		{
-			char deathmsg[64];
-			Com_sprintf(deathmsg, sizeof(deathmsg), "%s ph34rs %s so much %s committed suicide! :)\n",
-				ent->client->pers.netname, ent->client->attacker->client->pers.netname,
-				ent->client->resp.radio.gender ? "she" : "he");
-			PrintDeathMessage(deathmsg, ent);
-			if(team_round_going || !OnSameTeam(ent, ent->client->attacker)) {
-				Add_Frag (ent->client->attacker);
-				Subtract_Frag (ent);
-				ent->client->resp.deaths++;
-			}
-		}
-	}
-	// End punishkills
-
+	
 	if ((level.framenum - ent->client->respawn_time) < 5 * HZ)
 		return;
+
+	SuicidePunish( ent );
+
 	ent->flags &= ~FL_GODMODE;
 	ent->health = 0;
 	meansOfDeath = MOD_SUICIDE;

@@ -194,9 +194,9 @@ void Cmd_Stats_f (edict_t *targetent, char *arg)
 		total += gun->shots;
 	}
 
-	sprintf(stathead, "\nŸ Statistics for %s ", ent->client->pers.netname);
+	sprintf(stathead, "\nŸ Statistics for %s ", ent->client->pers.netname);
 	len = strlen(stathead);
-	for (i = len; i < 50; i++) {
+	for (i = len; i < 55; i++) {
 		stathead[i] = '';
 	}
 	stathead[i] = 0;
@@ -206,11 +206,11 @@ void Cmd_Stats_f (edict_t *targetent, char *arg)
 
 	if (!total) {
 		gi.cprintf (targetent, PRINT_HIGH, "\n  Player has not fired a shot.\n");
-		gi.cprintf (targetent, PRINT_HIGH, "\nŸ\n\n");
+		gi.cprintf (targetent, PRINT_HIGH, "\nŸ\n\n");
 		return;
 	}
 
-	gi.cprintf (targetent, PRINT_HIGH, "Weapon             Accuracy Hits/Shots  Headshots\n");		
+	gi.cprintf (targetent, PRINT_HIGH, "Weapon             Accuracy Hits/Shots Kills Headshots\n");		
 
 	gun = ent->client->resp.gunstats;
 	for (y = 0; y < MAX_GUNSTAT; y++, gun++) {
@@ -252,11 +252,11 @@ void Cmd_Stats_f (edict_t *targetent, char *arg)
 		}
 
 		perc_hit = (((double)gun->hits/(double)gun->shots) * 100.0);	// Percentage of shots that hit
-		gi.cprintf( targetent, PRINT_HIGH, "%s %6.2f  %5i/%-5i    %i\n",
-			string, perc_hit, gun->hits, gun->shots, gun->headshots);
+		gi.cprintf( targetent, PRINT_HIGH, "%s %6.2f  %5i/%-5i  %3i   %i\n",
+			string, perc_hit, gun->hits, gun->shots, gun->kills, gun->headshots );
 	}
 
-	gi.cprintf (targetent, PRINT_HIGH, "\nŸ\n");
+	gi.cprintf (targetent, PRINT_HIGH, "\nŸ\n");
 
 
 	// Final Part
@@ -307,7 +307,7 @@ void Cmd_Stats_f (edict_t *targetent, char *arg)
 		perc_hit = 0.0;
 
 	gi.cprintf (targetent, PRINT_HIGH, "Average Accuracy:                        %.2f\n", perc_hit); // Average
-	gi.cprintf (targetent, PRINT_HIGH, "\nŸ\n\n");
+	gi.cprintf (targetent, PRINT_HIGH, "\nŸ\n\n");
 
 }
 

@@ -325,7 +325,7 @@ void ClientDisconnect(edict_t * ent);
 void SP_misc_teleporter_dest(edict_t * ent);
 void CopyToBodyQue(edict_t * ent);
 
-void Add_Frag(edict_t * ent)
+void Add_Frag(edict_t * ent, int mod)
 {
 	char buf[256];
 	int frags = 0;
@@ -334,6 +334,9 @@ void Add_Frag(edict_t * ent)
 		return;
 
 	ent->client->resp.kills++;
+	if (mod > 0 && mod < MAX_GUNSTAT) {
+		ent->client->resp.gunstats[mod].kills++;
+	}
 
 	if (teamplay->value && teamdm->value != 2)
 	{
@@ -910,7 +913,7 @@ void ClientObituary(edict_t * self, edict_t * inflictor, edict_t * attacker)
 				if (!teamplay->value || !OnSameTeam(self, self->client->attacker))
 				{
 					self->client->resp.streakKills = 0;
-					Add_Frag(self->client->attacker);
+					Add_Frag(self->client->attacker, MOD_FRIENDLY_FIRE);
 					self->client->resp.deaths++;
 				}
 			}
@@ -1278,7 +1281,7 @@ void ClientObituary(edict_t * self, edict_t * inflictor, edict_t * attacker)
 				}
 			} else {
 				if (!teamplay->value || mod != MOD_TELEFRAG) {
-					Add_Frag(attacker);
+					Add_Frag(attacker, mod);
 					attacker->client->pers.num_kills++;
 					self->client->resp.streakKills = 0;
 					self->client->resp.deaths++;
