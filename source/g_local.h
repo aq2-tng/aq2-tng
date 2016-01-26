@@ -1249,6 +1249,7 @@ typedef struct gunStats_s
 	int hits;		//Number of hits
 	int headshots;	//Number of headshots
 	int kills;		//Number of kills
+	int damage;		//Damage dealt
 } gunStats_t;
 
 
@@ -1830,7 +1831,7 @@ void SpawnDamage (int type, vec3_t origin, vec3_t normal, int damage);
 void Killed (edict_t * targ, edict_t * inflictor, edict_t * attacker,
 	     int damage, vec3_t point);
 
-void Add_Frag (edict_t * ent);
+void Add_Frag(edict_t * ent, int mod);
 void Subtract_Frag (edict_t * ent);
 
 void PrintDeathMessage(char *msg, edict_t * gibee);

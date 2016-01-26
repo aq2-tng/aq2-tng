@@ -753,6 +753,28 @@ void CreditsMenu (edict_t * ent, pmenu_t * p)
 }
 
 
+void SuicidePunish( edict_t *ent )
+{
+	if (punishkills->value)
+	{
+		if (ent->client->attacker && ent->client->attacker->client &&
+			(ent->client->attacker->client != ent->client))
+		{
+			char deathmsg[64];
+			Com_sprintf( deathmsg, sizeof( deathmsg ), "%s ph34rs %s so much %s committed suicide! :)\n",
+				ent->client->pers.netname, ent->client->attacker->client->pers.netname,
+				ent->client->resp.radio.gender ? "she" : "he" );
+			PrintDeathMessage( deathmsg, ent );
+			if (team_round_going || !OnSameTeam( ent, ent->client->attacker )) {
+				Add_Frag( ent->client->attacker, MOD_SUICIDE );
+				Subtract_Frag( ent );
+				ent->client->resp.deaths++;
+			}
+		}
+	}
+}
+
+
 char *TeamName (int team)
 {
 	if (team >= TEAM1 && team <= TEAM3)
@@ -944,24 +966,8 @@ void JoinTeam (edict_t * ent, int desired_team, int skip_menuclose)
 
 	if (ent->solid != SOLID_NOT)	// alive, in game
 	{
-		if (punishkills->value)
-		{
-			if (ent->client->attacker && ent->client->attacker->client &&
-			(ent->client->attacker->client != ent->client))
-			{
-				char deathmsg[64];
-				Com_sprintf(deathmsg, sizeof(deathmsg), "%s ph34rs %s so much %s committed suicide! :)\n",
-					ent->client->pers.netname, ent->client->attacker->client->pers.netname,
-					ent->client->resp.radio.gender ? "she" : "he");
-				PrintDeathMessage(deathmsg, ent);
-				IRC_printf (IRC_T_DEATH, deathmsg);
-				if(team_round_going || !OnSameTeam(ent, ent->client->attacker)) {
-					Add_Frag (ent->client->attacker);
-					Subtract_Frag (ent);
-					ent->client->resp.deaths++;
-				}
-			}
-		}
+		SuicidePunish( ent );
+
 		ent->health = 0;
 		player_die (ent, ent, ent, 100000, vec3_origin);
 		ent->deadflag = DEAD_DEAD;
@@ -1015,24 +1021,8 @@ void LeaveTeam (edict_t * ent)
 
 	if (ent->solid != SOLID_NOT)	// alive, in game
 	{
-		if (punishkills->value)
-		{
-			if (ent->client->attacker && ent->client->attacker->client &&
-			(ent->client->attacker->client != ent->client))
-			{
-				char deathmsg[64];
-				Com_sprintf(deathmsg, sizeof(deathmsg), "%s ph34rs %s so much %s committed suicide! :)\n",
-					ent->client->pers.netname, ent->client->attacker->client->pers.netname,
-					ent->client->resp.radio.gender ? "she" : "he");
-				PrintDeathMessage(deathmsg, ent);
-				IRC_printf (IRC_T_DEATH, deathmsg);
-				if(team_round_going || !OnSameTeam(ent, ent->client->attacker)) {
-					Add_Frag (ent->client->attacker);
-					Subtract_Frag (ent);
-					ent->client->resp.deaths++;
-				}
-			}
-		}
+		SuicidePunish( ent );
+
 		ent->health = 0;
 		player_die (ent, ent, ent, 100000, vec3_origin);
 		ent->deadflag = DEAD_DEAD;

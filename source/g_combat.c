@@ -986,8 +986,12 @@ T_Damage (edict_t * targ, edict_t * inflictor, edict_t * attacker, vec3_t dir,
 			{
 				//Added these here also, if this is the last shot and before shots is from
 				//different attacker, msg's would go to wrong client -M
-				if (!OnSameTeam (attacker, targ))
+				if (!OnSameTeam( attacker, targ )) {
 					attacker->client->resp.damage_dealt += damage;
+					if (mod > 0 && mod < MAX_GUNSTAT) {
+						attacker->client->resp.gunstats[mod].damage += damage;
+					}
+				}
 			
 				client->attacker = attacker;
 				client->attacker_mod = mod;
@@ -1055,8 +1059,12 @@ T_Damage (edict_t * targ, edict_t * inflictor, edict_t * attacker, vec3_t dir,
 		}
 		if (attacker->client)
 		{
-			if (!OnSameTeam (attacker, targ))
+			if (!OnSameTeam(attacker, targ)) {
 				attacker->client->resp.damage_dealt += damage;
+				if (mod > 0 && mod < MAX_GUNSTAT) {
+					attacker->client->resp.gunstats[mod].damage += damage;
+				}
+			}
 
 			client->attacker = attacker;
 			client->attacker_mod = mod;
