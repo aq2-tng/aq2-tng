@@ -746,22 +746,23 @@ extern int snd_fry;
 
 // means of death
 #define MOD_UNKNOWN                     0
-#define MOD_BLASTER                     1
-#define MOD_SHOTGUN                     2
-#define MOD_SSHOTGUN                    3
-#define MOD_MACHINEGUN                  4
-#define MOD_CHAINGUN                    5
-#define MOD_GRENADE                     6
-#define MOD_G_SPLASH                    7
-#define MOD_ROCKET                      8
-#define MOD_R_SPLASH                    9
-#define MOD_HYPERBLASTER                10
-#define MOD_RAILGUN                     11
-#define MOD_BFG_LASER                   12
-#define MOD_BFG_BLAST                   13
-#define MOD_BFG_EFFECT                  14
-#define MOD_HANDGRENADE                 15
-#define MOD_HG_SPLASH                   16
+
+#define MOD_MK23                        1
+#define MOD_MP5                         2
+#define MOD_M4                          3
+#define MOD_M3                          4
+#define MOD_HC                          5
+#define MOD_SNIPER                      6
+#define MOD_DUAL                        7
+#define MOD_KNIFE                       8
+#define MOD_KNIFE_THROWN                9
+#define MOD_GRENADE                     10
+#define MOD_G_SPLASH                    11
+#define MOD_HANDGRENADE                 12
+#define MOD_HG_SPLASH                   13
+#define MOD_PUNCH                       14
+#define MOD_BLASTER                     15
+#define MOD_HYPERBLASTER                16
 #define MOD_WATER                       17
 #define MOD_SLIME                       18
 #define MOD_LAVA                        19
@@ -780,21 +781,10 @@ extern int snd_fry;
 #define MOD_HIT                         32
 #define MOD_TARGET_BLASTER              33
 //zucc
-#define MOD_MK23                        34
-#define MOD_MP5                         35
-#define MOD_M4                          36
-#define MOD_M3                          37
-#define MOD_HC                          38
-#define MOD_SNIPER                      39
-#define MOD_DUAL                        40
-#define MOD_KNIFE                       41
-#define MOD_KNIFE_THROWN                42
-#define MOD_BLEEDING                    43
-#define MOD_GAS                         44
-#define MOD_KICK                        45
-//PG BUND
-#define MOD_PUNCH                       50
-#define MOD_GRAPPLE			51
+#define MOD_BLEEDING                    34
+#define MOD_KICK                        35
+#define MOD_GRAPPLE						36
+#define MOD_TOTAL						37
 #define MOD_FRIENDLY_FIRE               0x8000000
 
 
@@ -1133,12 +1123,6 @@ void fire_grenade (edict_t * self, vec3_t start, vec3_t aimdir, int damage,
 void fire_grenade2 (edict_t * self, vec3_t start, vec3_t aimdir, int damage,
 	int speed, int timer, float damage_radius,
 		    qboolean held);
-void fire_rocket (edict_t * self, vec3_t start, vec3_t dir, int damage,
-		  int speed, float damage_radius, int radius_damage);
-void fire_rail (edict_t * self, vec3_t start, vec3_t aimdir, int damage,
-		int kick);
-void fire_bfg (edict_t * self, vec3_t start, vec3_t dir, int damage,
-	       int speed, float damage_radius);
 
 // zucc
 int knife_attack (edict_t * self, vec3_t start, vec3_t aimdir, int damage,

@@ -853,17 +853,6 @@ void ClientObituary(edict_t * self, edict_t * inflictor, edict_t * attacker)
 			else
 				message = "tripped on his own grenade";
 			break;
-		case MOD_R_SPLASH:
-			if (IsNeutral(self))
-				message = "blew itself up";
-			else if (IsFemale(self))
-				message = "blew herself up";
-			else
-				message = "blew himself up";
-			break;
-		case MOD_BFG_BLAST:
-			message = "should have used a smaller gun";
-			break;
 		default:
 			if (IsNeutral(self))
 				message = "killed itself";
@@ -1188,9 +1177,6 @@ void ClientObituary(edict_t * self, edict_t * inflictor, edict_t * attacker)
 				message2 = "'s flying Combat Knife";
 			}
 			break;
-		case MOD_GAS:
-			message = " sucks down some toxic gas thanks to";
-			break;
 		case MOD_KICK:
 			n = rand() % 3 + 1;
 			if (n == 1) {
@@ -1238,20 +1224,6 @@ void ClientObituary(edict_t * self, edict_t * inflictor, edict_t * attacker)
 		case MOD_BLASTER:
 			message = "was blasted by";
 			break;
-		case MOD_SHOTGUN:
-			message = "was gunned down by";
-			break;
-		case MOD_SSHOTGUN:
-			message = "was blown away by";
-			message2 = "'s super shotgun";
-			break;
-		case MOD_MACHINEGUN:
-			message = "was machinegunned by";
-			break;
-		case MOD_CHAINGUN:
-			message = "was cut in half by";
-			message2 = "'s chaingun";
-			break;
 		case MOD_GRENADE:
 			message = "was popped by";
 			message2 = "'s grenade";
@@ -1260,32 +1232,9 @@ void ClientObituary(edict_t * self, edict_t * inflictor, edict_t * attacker)
 			message = "was shredded by";
 			message2 = "'s shrapnel";
 			break;
-		case MOD_ROCKET:
-			message = "ate";
-			message2 = "'s rocket";
-			break;
-		case MOD_R_SPLASH:
-			message = "almost dodged";
-			message2 = "'s rocket";
-			break;
 		case MOD_HYPERBLASTER:
 			message = "was melted by";
 			message2 = "'s hyperblaster";
-			break;
-		case MOD_RAILGUN:
-			message = "was railed by";
-			break;
-		case MOD_BFG_LASER:
-			message = "saw the pretty lights from";
-			message2 = "'s BFG";
-			break;
-		case MOD_BFG_BLAST:
-			message = "was disintegrated by";
-			message2 = "'s BFG blast";
-			break;
-		case MOD_BFG_EFFECT:
-			message = "couldn't hide from";
-			message2 = "'s BFG";
 			break;
 		case MOD_HANDGRENADE:
 			message = " caught";
