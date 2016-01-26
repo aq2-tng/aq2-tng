@@ -687,34 +687,6 @@ void player_pain(edict_t * self, edict_t * other, float kick, int damage)
 	// player pain is handled at the end of the frame in P_DamageFeedback
 }
 
-qboolean IsFemale(edict_t * ent)
-{
-	char *info;
-
-	if (!ent->client)
-		return false;
-
-	// "gender" below used to be "skin", 3.20 change -FB
-	info = Info_ValueForKey(ent->client->pers.userinfo, "gender");
-	if (info[0] == 'f' || info[0] == 'F')
-		return true;
-	return false;
-}
-
-// FROM 3.20  -FB
-qboolean IsNeutral(edict_t * ent)
-{
-	char *info;
-
-	if (!ent->client)
-		return false;
-
-	info = Info_ValueForKey(ent->client->pers.userinfo, "gender");
-	if (info[0] != 'f' && info[0] != 'F' && info[0] != 'm' && info[0] != 'M')
-		return true;
-	return false;
-}
-
 // ^^^
 
 // PrintDeathMessage: moved the actual printing of the death messages to here, to handle
@@ -795,12 +767,12 @@ void ClientObituary(edict_t * self, edict_t * inflictor, edict_t * attacker)
 		if (self->client->push_timeout)
 			special = 1;
 		//message = "hit the ground hard, real hard";
-		if (IsNeutral(self))
-			message = "plummets to its death";
-		else if (IsFemale(self))
+		if (self->client->pers.gender == GENDER_MALE)
+			message = "plummets to his death";
+		else if (self->client->pers.gender == GENDER_FEMALE)
 			message = "plummets to her death";
 		else
-			message = "plummets to his death";
+			message = "plummets to its death";
 		break;
 	case MOD_CRUSH:
 		message = "was flattened";
@@ -841,28 +813,28 @@ void ClientObituary(edict_t * self, edict_t * inflictor, edict_t * attacker)
 			message = "tried to put the pin back in";
 			break;
 		case MOD_HG_SPLASH:
-			if (IsNeutral(self))
-				message = "didn't throw its grenade far enough";
-			if (IsFemale(self))
+			if (self->client->pers.gender == GENDER_MALE)
+				message = "didn't throw his grenade far enough";
+			else if (self->client->pers.gender == GENDER_FEMALE)
 				message = "didn't throw her grenade far enough";
 			else
-				message = "didn't throw his grenade far enough";
+				message = "didn't throw its grenade far enough";
 			break;
 		case MOD_G_SPLASH:
-			if (IsNeutral(self))
-				message = "tripped on its own grenade";
-			else if (IsFemale(self))
+			if (self->client->pers.gender == GENDER_MALE)
+				message = "tripped on his own grenade";
+			else if (self->client->pers.gender == GENDER_FEMALE)
 				message = "tripped on her own grenade";
 			else
-				message = "tripped on his own grenade";
+				message = "tripped on its own grenade";
 			break;
 		default:
-			if (IsNeutral(self))
-				message = "killed itself";
-			else if (IsFemale(self))
+			if (self->client->pers.gender == GENDER_MALE)
+				message = "killed himself";
+			else if (self->client->pers.gender == GENDER_FEMALE)
 				message = "killed herself";
 			else
-				message = "killed himself";
+				message = "killed itself";
 			break;
 		}
 	}
@@ -921,12 +893,7 @@ void ClientObituary(edict_t * self, edict_t * inflictor, edict_t * attacker)
 		}
 		else
 		{
-			if (IsNeutral(self))
-				sprintf(death_msg, "%s plummets to its death\n", self->client->pers.netname);
-			else if (IsFemale(self))
-				sprintf(death_msg, "%s plummets to her death\n", self->client->pers.netname);
-			else
-				sprintf(death_msg, "%s plummets to his death\n", self->client->pers.netname);
+			sprintf(death_msg, "%s plummets to %s death\n", self->client->pers.netname, GENDER_STR(self, "his", "her", "its"));
 
 			PrintDeathMessage(death_msg, self);
 			IRC_printf(IRC_T_DEATH, death_msg);
@@ -955,12 +922,12 @@ void ClientObituary(edict_t * self, edict_t * inflictor, edict_t * attacker)
 		case MOD_MK23:	// zucc
 			switch (loc) {
 			case LOC_HDAM:
-				if (IsNeutral(self))
-					message = " has a hole in its head from";
-				else if (IsFemale(self))
+				if (self->client->pers.gender == GENDER_MALE)
+					message = " has a hole in his head from";
+				else if (self->client->pers.gender == GENDER_FEMALE)
 					message = " has a hole in her head from";
 				else
-					message = " has a hole in his head from";
+					message = " has a hole in its head from";
 				message2 = "'s Mark 23 pistol";
 				break;
 			case LOC_CDAM:
@@ -968,12 +935,12 @@ void ClientObituary(edict_t * self, edict_t * inflictor, edict_t * attacker)
 				message2 = "'s Mark 23 pistol";
 				break;
 			case LOC_SDAM:
-				if (IsNeutral(self))
-					message = " loses its lunch to";
-				else if (IsFemale(self))
+				if (self->client->pers.gender == GENDER_MALE)
+					message = " loses his lunch to";
+				else if (self->client->pers.gender == GENDER_FEMALE)
 					message = " loses her lunch to";
 				else
-					message = " loses his lunch to";
+					message = " loses its lunch to";
 				message2 = "'s .45 caliber pistol round";
 				break;
 			case LOC_LDAM:
@@ -1000,12 +967,12 @@ void ClientObituary(edict_t * self, edict_t * inflictor, edict_t * attacker)
 				message2 = "'s 10mm MP5 round";
 				break;
 			case LOC_LDAM:
-				if (IsNeutral(self))
-					message = " had its legs blown off thanks to";
-				else if (IsFemale(self))
+				if (self->client->pers.gender == GENDER_MALE)
+					message = " had his legs blown off thanks to";
+				else if (self->client->pers.gender == GENDER_FEMALE)
 					message = " had her legs blown off thanks to";
 				else
-					message = " had his legs blown off thanks to";
+					message = " had its legs blown off thanks to";
 				message2 = "'s MP5/10 Submachinegun";
 				break;
 			default:
@@ -1072,12 +1039,12 @@ void ClientObituary(edict_t * self, edict_t * inflictor, edict_t * attacker)
 			switch (loc) {
 			case LOC_HDAM:
 				if (self->client->ps.fov < 90) {
-					if (IsNeutral(self))
-						message = " saw the sniper bullet go through its scope thanks to";
-					else if (IsFemale(self))
+					if (self->client->pers.gender == GENDER_MALE)
+						message = " saw the sniper bullet go through his scope thanks to";
+					else if (self->client->pers.gender == GENDER_FEMALE)
 						message = " saw the sniper bullet go through her scope thanks to";
 					else
-						message = " saw the sniper bullet go through his scope thanks to";
+						message = " saw the sniper bullet go through its scope thanks to";
 				} else
 					message = " caught a sniper bullet between the eyes from";
 				break;
@@ -1121,12 +1088,12 @@ void ClientObituary(edict_t * self, edict_t * inflictor, edict_t * attacker)
 		case MOD_KNIFE:
 			switch (loc) {
 			case LOC_HDAM:
-				if (IsNeutral(self))
-					message = " had its throat slit by";
-				else if (IsFemale(self))
+				if (self->client->pers.gender == GENDER_MALE)
+					message = " had his throat slit by";
+				else if (self->client->pers.gender == GENDER_FEMALE)
 					message = " had her throat slit by";
 				else
-					message = " had his throat slit by";
+					message = " had its throat slit by";
 				break;
 			case LOC_CDAM:
 				message = " had open heart surgery, compliments of";
@@ -1146,33 +1113,33 @@ void ClientObituary(edict_t * self, edict_t * inflictor, edict_t * attacker)
 			switch (loc) {
 				case LOC_HDAM:
 				message = " caught";
-				if (IsNeutral(self))
-					message2 = "'s flying knife with its forehead";
-				else if (IsFemale(self))
+				if (self->client->pers.gender == GENDER_MALE)
+					message2 = "'s flying knife with his forehead";
+				else if (self->client->pers.gender == GENDER_FEMALE)
 					message2 = "'s flying knife with her forehead";
 				else
-					message2 = "'s flying knife with his forehead";
+					message2 = "'s flying knife with its forehead";
 				break;
 			case LOC_CDAM:
 				message = "'s ribs don't help against";
 				message2 = "'s flying knife";
 				break;
 			case LOC_SDAM:
-				if (IsNeutral(self))
-					message = " sees the contents of its own stomach thanks to";
-				else if (IsFemale(self))
+				if (self->client->pers.gender == GENDER_MALE)
+					message = " sees the contents of his own stomach thanks to";
+				else if (self->client->pers.gender == GENDER_FEMALE)
 					message = " sees the contents of her own stomach thanks to";
 				else
-					message = " sees the contents of his own stomach thanks to";
+					message = " sees the contents of its own stomach thanks to";
 				message2 = "'s flying knife";
 				break;
 			case LOC_LDAM:
-				if (IsNeutral(self))
-					message = " had its legs cut off thanks to";
-				else if (IsFemale(self))
+				if (self->client->pers.gender == GENDER_MALE)
+					message = " had his legs cut off thanks to";
+				else if (self->client->pers.gender == GENDER_FEMALE)
 					message = " had her legs cut off thanks to";
 				else
-					message = " had his legs cut off thanks to";
+					message = " had its legs cut off thanks to";
 				message2 = "'s flying knife";
 				break;
 			default:
@@ -1183,32 +1150,32 @@ void ClientObituary(edict_t * self, edict_t * inflictor, edict_t * attacker)
 		case MOD_KICK:
 			n = rand() % 3 + 1;
 			if (n == 1) {
-				if (IsNeutral(self))
-					message = " got its ass kicked by";
-				else if (IsFemale(self))
+				if (self->client->pers.gender == GENDER_MALE)
+					message = " got his ass kicked by";
+				else if (self->client->pers.gender == GENDER_FEMALE)
 					message = " got her ass kicked by";
 				else
-					message = " got his ass kicked by";
+					message = " got its ass kicked by";
 			} else if (n == 2) {
-				if (IsNeutral(self)) {
+				if (self->client->pers.gender == GENDER_MALE) {
 					message = " couldn't remove";
-					message2 = "'s boot from its ass";
-				} else if (IsFemale(self)) {
+					message2 = "'s boot from his ass";
+				} else if (self->client->pers.gender == GENDER_FEMALE) {
 					message = " couldn't remove";
 					message2 = "'s boot from her ass";
 				} else {
 					message = " couldn't remove";
-					message2 = "'s boot from his ass";
+					message2 = "'s boot from its ass";
 				}
 			} else {
-				if (IsNeutral(self)) {
-					message = " had a Bruce Lee put on it by";
+				if (self->client->pers.gender == GENDER_MALE) {
+					message = " had a Bruce Lee put on him by";
 					message2 = ", with a quickness";
-				} else if (IsFemale(self)) {
+				} else if (self->client->pers.gender == GENDER_FEMALE) {
 					message = " had a Bruce Lee put on her by";
 					message2 = ", with a quickness";
 				} else {
-					message = " had a Bruce Lee put on him by";
+					message = " had a Bruce Lee put on it by";
 					message2 = ", with a quickness";
 				}
 			}
@@ -3096,6 +3063,7 @@ void ClientUserinfoChanged(edict_t * ent, char *userinfo)
 {
 	char *s, *r, tnick[16];
 	qboolean nickChanged = false;
+	gclient_t *client = ent->client;
 
 	// check for malformed or illegal info strings
 	if (!Info_Validate(userinfo)) {
@@ -3107,24 +3075,24 @@ void ClientUserinfoChanged(edict_t * ent, char *userinfo)
 	if(!tnick[0])
 		strcpy(tnick, "unnamed");
 
-	if(strcmp(ent->client->pers.netname, tnick))
+	if(strcmp(client->pers.netname, tnick))
 	{
 		// on the initial update, we won't broadcast the message.
-		if (ent->client->pers.netname[0])
+		if (client->pers.netname[0])
 		{
-			gi.bprintf(PRINT_MEDIUM, "%s is now known as %s.\n", ent->client->pers.netname, tnick);	//TempFile
-			IRC_printf(IRC_T_SERVER, "%n is now known as %n.", ent->client->pers.netname, tnick);
+			gi.bprintf(PRINT_MEDIUM, "%s is now known as %s.\n", client->pers.netname, tnick);	//TempFile
+			IRC_printf(IRC_T_SERVER, "%n is now known as %n.", client->pers.netname, tnick);
 			nickChanged = true;
 		}
-		strcpy(ent->client->pers.netname, tnick);
+		strcpy(client->pers.netname, tnick);
 	}
 
 	//FIREBLADE     
 	s = Info_ValueForKey(userinfo, "spectator");
-	ent->client->pers.spectator = (strcmp(s, "0") != 0);
+	client->pers.spectator = (strcmp(s, "0") != 0);
 
 	r = Info_ValueForKey(userinfo, "rate");
-	ent->client->rate = atoi(r);
+	client->rate = atoi(r);
 	//FIREBLADE
 
 	// set skin
@@ -3141,33 +3109,27 @@ void ClientUserinfoChanged(edict_t * ent, char *userinfo)
 	// combine name and skin into a configstring
 	AssignSkin(ent, s, nickChanged);
 
-	/* Not used in Action.
-	   // fov
-	   if (deathmatch->value && ((int)dmflags->value & DF_FIXED_FOV))
-	   {
-	   ent->client->ps.fov = 90;
-	   }
-	   else
-	   {
-	   ent->client->ps.fov = atoi(Info_ValueForKey(userinfo, "fov"));
-	   if (ent->client->ps.fov < 1)
-	   ent->client->ps.fov = 90;
-	   else if (ent->client->ps.fov > 160)
-	   ent->client->ps.fov = 160;
-	   }
-	 */
-	ent->client->pers.firing_style = ACTION_FIRING_CENTER;
+	client->pers.firing_style = ACTION_FIRING_CENTER;
 	// handedness
 	s = Info_ValueForKey(userinfo, "hand");
 	if (strlen(s)) {
-		ent->client->pers.hand = atoi(s);
+		client->pers.hand = atoi(s);
 		if (strstr(s, "classic high") != NULL)
-			ent->client->pers.firing_style = ACTION_FIRING_CLASSIC_HIGH;
+			client->pers.firing_style = ACTION_FIRING_CLASSIC_HIGH;
 		else if (strstr(s, "classic") != NULL)
-			ent->client->pers.firing_style = ACTION_FIRING_CLASSIC;
+			client->pers.firing_style = ACTION_FIRING_CLASSIC;
 	}
 	// save off the userinfo in case we want to check something later
-	Q_strncpyz(ent->client->pers.userinfo, userinfo, sizeof(ent->client->pers.userinfo));
+	Q_strncpyz(client->pers.userinfo, userinfo, sizeof(client->pers.userinfo));
+
+	s = Info_ValueForKey( client->pers.userinfo, "gender" );
+	if (s[0] == 'f' || s[0] == 'F') {
+		client->pers.gender = GENDER_FEMALE;
+	} else if (s[0] == 'm' || s[0] == 'M') {
+		client->pers.gender = GENDER_MALE;
+	} else {
+		client->pers.gender = GENDER_NEUTRAL;
+	}
 
 	// zucc vwep
 	ShowGun(ent);

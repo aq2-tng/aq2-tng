@@ -1014,7 +1014,7 @@ void JoinTeam (edict_t * ent, int desired_team, int skip_menuclose)
 
 void LeaveTeam (edict_t * ent)
 {
-	char *g;
+	char *genderstr;
 	
 	if (ent->client->resp.team == NOTEAM)
 		return;
@@ -1027,16 +1027,11 @@ void LeaveTeam (edict_t * ent)
 		player_die (ent, ent, ent, 100000, vec3_origin);
 		ent->deadflag = DEAD_DEAD;
 	}
+	
+	genderstr = GENDER_STR(ent, "his", "her", "its");
 
-	if (IsNeutral (ent))
-		g = "its";
-	else if (IsFemale (ent))
-		g = "her";
-	else
-		g = "his";
-
-	gi.bprintf (PRINT_HIGH, "%s left %s team.\n", ent->client->pers.netname, g);
-	IRC_printf (IRC_T_GAME, "%n left %n team.", ent->client->pers.netname, g);
+	gi.bprintf (PRINT_HIGH, "%s left %s team.\n", ent->client->pers.netname, genderstr);
+	IRC_printf (IRC_T_GAME, "%n left %n team.", ent->client->pers.netname, genderstr);
 
 	MM_LeftTeam( ent );
 

@@ -1009,8 +1009,6 @@ fire_grenade2 (edict_t * self, vec3_t start, vec3_t aimdir, int damage,
 void P_ProjectSource (gclient_t * client, vec3_t point, vec3_t distance,
 		      vec3_t forward, vec3_t right, vec3_t result);
 
-qboolean IsFemale (edict_t * ent);
-
 void kick_attack (edict_t * ent)
 {
 	vec3_t start;
@@ -1020,6 +1018,7 @@ void kick_attack (edict_t * ent)
 	int kick = 400;
 	trace_t tr;
 	vec3_t end;
+	char *genderstr;
 
 
 	AngleVectors (ent->client->v_angle, forward, right, NULL);
@@ -1091,8 +1090,10 @@ void kick_attack (edict_t * ent)
 			tr.ent->client->reload_attempts = 0;
 			DropSpecialWeapon (tr.ent);
 
+			genderstr = GENDER_STR( tr.ent, "his", "her", "its" );
+
 			gi.cprintf (ent, PRINT_HIGH, "You kick %s's %s from %s hands!\n",
-				tr.ent->client->pers.netname,(tr.ent->client->pers.weapon)->pickup_name, IsFemale(tr.ent) ? "her" : "his");
+				tr.ent->client->pers.netname,(tr.ent->client->pers.weapon)->pickup_name, genderstr);
 
 			gi.cprintf (tr.ent, PRINT_HIGH,	"%s kicked your weapon from your hands!\n",
 				ent->client->pers.netname);
