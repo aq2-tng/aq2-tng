@@ -1132,17 +1132,13 @@ void Cmd_Ghost_f(edict_t * ent)
 				ent->client->resp.item = ghost_players[x].item;
 			}
 
-			ent->client->resp.stats_shots_t = ghost_players[x].stats_shots_t;
-			ent->client->resp.stats_shots_h = ghost_players[x].stats_shots_h;
+			ent->client->resp.shotsTotal = ghost_players[x].shotsTotal;
+			ent->client->resp.hitsTotal = ghost_players[x].hitsTotal;
 
-			memcpy(ent->client->resp.stats_locations, ghost_players[x].stats_locations,
-			       sizeof(ghost_players[x].stats_locations));
-			memcpy(ent->client->resp.stats_shots, ghost_players[x].stats_shots,
-			       sizeof(ghost_players[x].stats_shots));
-			memcpy(ent->client->resp.stats_hits, ghost_players[x].stats_hits,
-			       sizeof(ghost_players[x].stats_hits));
-			memcpy(ent->client->resp.stats_headshot, ghost_players[x].stats_headshot,
-			       sizeof(ghost_players[x].stats_headshot));
+			memcpy(ent->client->resp.hitsLocations, ghost_players[x].hitsLocations,
+			       sizeof(ghost_players[x].hitsLocations));
+			memcpy(ent->client->resp.gunstats, ghost_players[x].gunstats,
+			       sizeof(ghost_players[x].gunstats));
 		}
 	}
 	if (found == true) {

@@ -683,40 +683,11 @@ void ProduceShotgunDamageReport (edict_t * self)
 	}
 	gi.cprintf (self, PRINT_HIGH, "You hit %s in the body\n", textbuf);
 
-	self->client->resp.last_damaged_part = LOC_NO;
-
 	// TNG Stats
-	if (!teamplay->value || team_round_going || stats_afterround->value) {
-
-		self->client->resp.stats_shots_h += total;
-
-		if (self->client->curr_weap == M3_NUM)
-			self->client->resp.stats_hits[MOD_M3] += total;
-		else if (self->client->curr_weap == HC_NUM)
-			self->client->resp.stats_hits[MOD_HC] += total;
-
-		/*
-
-		if (self->client->curr_weap == M3_NUM)
-		self->client->resp.stats_shotgun_shots_h += total_to_print;
-
-		if (self->client->curr_weap == HC_NUM)
-		self->client->resp.stats_hc_shots_h += total_to_print;
-		*/
-
-	}
-
-/*
-  self->client->resp.stats_shots_h += total_to_print;
-  if (self->client->curr_weap == M3_NUM)
-    self->client->resp.stats_shotgun_shots_h += total_to_print;
-  if (self->client->curr_weap == HC_NUM)
-    self->client->resp.stats_hc_shots_h += total_to_print;
-  if (mod == MOD_M3)
-    self->client->resp.stats_shotgun_shots_h += total_to_print;
-  if (mod == MOD_HC)
-    self->client->resp.stats_hc_shots_h += total_to_print; */
-//FB 6/2/99
+	if (self->client->curr_weap == M3_NUM)
+		Stats_AddHit(self, MOD_M3, LOC_NO);
+	else if (self->client->curr_weap == HC_NUM)
+		Stats_AddHit(self, MOD_HC, LOC_NO);
 }
 
 
