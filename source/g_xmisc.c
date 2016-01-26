@@ -45,6 +45,7 @@ void punch_attack(edict_t * ent)
 	int kick = 100;
 	int randmodify;
 	trace_t tr;
+	char *genderstr;
 
 	AngleVectors(ent->client->v_angle, forward, right, NULL);
 	VectorScale(forward, 0, ent->client->kick_origin);
@@ -106,8 +107,10 @@ void punch_attack(edict_t * ent)
 				|| tr.ent->client->curr_weap == HC_NUM) && damage >= 15)
 			{
 				DropSpecialWeapon(tr.ent);
+
+				genderstr = GENDER_STR( tr.ent, "his", "her", "its" );
 				gi.cprintf (ent, PRINT_HIGH, "You hit %s's %s from %s hands!\n",
-					tr.ent->client->pers.netname,(tr.ent->client->pers.weapon)->pickup_name, IsFemale(tr.ent) ? "her" : "his");
+					tr.ent->client->pers.netname,(tr.ent->client->pers.weapon)->pickup_name, genderstr);
 
 				gi.cprintf(tr.ent, PRINT_HIGH, "%s hit your weapon from your hands!\n",
 					ent->client->pers.netname);

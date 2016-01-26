@@ -483,8 +483,6 @@ void VerifyHeadShot (vec3_t point, vec3_t dir, float height, vec3_t newpoint)
 #define CHEST_DAMAGE (height/1.4) - abs(targ->mins[2])
 
 #define HEAD_HEIGHT 12.0
-qboolean IsFemale (edict_t * ent);
-
 
 void
 T_Damage (edict_t * targ, edict_t * inflictor, edict_t * attacker, vec3_t dir,
@@ -740,12 +738,6 @@ T_Damage (edict_t * targ, edict_t * inflictor, edict_t * attacker, vec3_t dir,
 								targ->client->pers.netname);
 							gi.cprintf (targ, PRINT_HIGH, "Kevlar Vest absorbed most of %s's shot\n",
 								attacker->client->pers.netname);
-							/*
-							if (IsFemale(targ))
-							gi.cprintf(attacker, PRINT_HIGH, "You bruised %s through her Kevlar Vest\n", targ->client->pers.netname);
-							else
-							gi.cprintf(attacker, PRINT_HIGH, "You bruised %s through his Kevlar Vest\n", targ->client->pers.netname);
-							*/
 						}
 						gi.sound (targ, CHAN_ITEM, gi.soundindex ("misc/vest.wav"), 1,
 							ATTN_NORM, 0);

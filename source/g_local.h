@@ -1243,6 +1243,14 @@ void Weapon_Generic( edict_t * ent, int FRAME_ACTIVATE_LAST, int FRAME_FIRE_LAST
 
 #define MAX_GUNSTAT MOD_GRENADE //Max MOD to track
 
+typedef enum {
+	GENDER_MALE,
+	GENDER_FEMALE,
+	GENDER_NEUTRAL
+} gender_t;
+
+#define GENDER_STR( ent, he, she, it ) (((ent)->client->pers.gender == GENDER_MALE) ? he : (((ent)->client->pers.gender == GENDER_FEMALE) ? she : it))
+
 typedef struct gunStats_s
 {
 	int shots;		//Number of shots
@@ -1287,6 +1295,7 @@ typedef struct
   int score;			// for calculating total unit score in coop games
 
   //FIREBLADE
+  gender_t	gender;
   qboolean spectator;
   int firing_style;
   //FIREBLADE
