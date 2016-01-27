@@ -647,8 +647,6 @@ typedef struct
 
   int body_que;			// dead bodies
 
-  int power_cubes;		// ugly necessity for coop
-
   int specspawn;		// determines if initial spawning has occured
 
   int realFramenum; //when game paused, framenum stays the same
@@ -1290,10 +1288,6 @@ typedef struct
   gitem_t *weapon;
   gitem_t *lastweapon;
 
-  int power_cubes;		// used for tracking the cubes in coop games
-
-  int score;			// for calculating total unit score in coop games
-
   //FIREBLADE
   gender_t	gender;
   qboolean spectator;
@@ -1307,8 +1301,6 @@ client_persistant_t;
 // client data that stays across deathmatch respawns
 typedef struct
 {
-  client_persistant_t coop_respawn;	// what to set client->pers to on a respawn
-
   int enterframe;		// level.framenum the client entered the game
 
   int score;			// frags, etc

@@ -63,7 +63,7 @@
 
 void MoveClientToIntermission (edict_t * ent)
 {
-	if (deathmatch->value || coop->value)
+	if (deathmatch->value)
 	{
 		ent->client->showscores = true;
 		ent->client->scoreboardnum = 1;
@@ -104,7 +104,7 @@ void MoveClientToIntermission (edict_t * ent)
 
 	// add the layout
 
-	if (deathmatch->value || coop->value)
+	if (deathmatch->value)
 	{
 		DeathmatchScoreboardMessage (ent, NULL);
 		gi.unicast (ent, true);
@@ -142,25 +142,7 @@ void BeginIntermission (edict_t * targ)
 	level.intermission_framenum = level.realFramenum;
 	level.changemap = targ->map;
 
-	if (strchr(level.changemap, '*'))
-	{
-		if (coop->value)
-		{
-			for (i = 0; i < game.maxclients; i++)
-			{
-				client = g_edicts + 1 + i;
-				if (!client->inuse)
-					continue;
-				// strip players of all keys between units
-				for (n = 0; n < MAX_ITEMS; n++)
-				{
-					if (itemlist[n].flags & IT_KEY)
-						client->client->pers.inventory[n] = 0;
-				}
-			}
-		}
-	}
-	else
+	if (!strchr(level.changemap, '*'))
 	{
 		if (!deathmatch->value)
 		{
@@ -356,7 +338,7 @@ void Cmd_Score_f (edict_t * ent)
     PMenu_Close (ent);
   //FIREBLADE
 	
-  if (!deathmatch->value && !coop->value)
+  if (!deathmatch->value)
     return;
 	
   if (ent->client->showscores)

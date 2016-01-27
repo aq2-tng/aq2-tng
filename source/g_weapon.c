@@ -1064,8 +1064,7 @@ void kick_attack (edict_t * ent)
 			// AQ:TNG
 		}
 		else if (((tr.ent != ent) && ((deathmatch->value
-			&& ((int) (dmflags->value) & (DF_MODELTEAMS | DF_SKINTEAMS)))
-			|| coop->value)	&& OnSameTeam (tr.ent, ent)))
+			&& ((int) (dmflags->value) & (DF_MODELTEAMS | DF_SKINTEAMS))))	&& OnSameTeam (tr.ent, ent)))
 			return;
 		// zucc stop powerful upwards kicking
 		//forward[2] = 0;

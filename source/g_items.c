@@ -224,9 +224,6 @@ qboolean Pickup_Powerup (edict_t * ent, edict_t * other)
 	if ((skill->value == 1 && quantity >= 2) || (skill->value >= 2 && quantity >= 1))
 		return false;
 
-	if ((coop->value) && (ent->item->flags & IT_STAY_COOP) && (quantity > 0))
-		return false;
-
 	other->client->pers.inventory[ITEM_INDEX (ent->item)]++;
 
 	if (deathmatch->value)
@@ -882,8 +879,7 @@ void Touch_Item (edict_t * ent, edict_t * other, cplane_t * plane,
   if (!taken)
     return;
 
-  if (!((coop->value) && (ent->item->flags & IT_STAY_COOP))
-      || (ent->spawnflags & (DROPPED_ITEM | DROPPED_PLAYER_ITEM)))
+  if (ent->spawnflags & (DROPPED_ITEM | DROPPED_PLAYER_ITEM))
     {
       if (ent->flags & FL_RESPAWN)
 	ent->flags &= ~FL_RESPAWN;
@@ -1359,18 +1355,6 @@ void SpawnItem (edict_t * ent, gitem_t * item)
 				return;
 			}
 		}
-	}
-
-	if (coop->value && (strcmp (ent->classname, "key_power_cube") == 0))
-	{
-		ent->spawnflags |= (1 << (8 + level.power_cubes));
-		level.power_cubes++;
-	}
-
-	// don't let them drop items that stay in a coop game
-	if ((coop->value) && (item->flags & IT_STAY_COOP))
-	{
-		item->drop = NULL;
 	}
 
 	//Don't spawn the flags unless enabled

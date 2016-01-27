@@ -169,7 +169,6 @@ void SP_item_health_mega (edict_t * self);
 
 void SP_info_player_start (edict_t * ent);
 void SP_info_player_deathmatch (edict_t * ent);
-void SP_info_player_coop (edict_t * ent);
 void SP_info_player_intermission (edict_t * ent);
 
 void SP_func_plat (edict_t * ent);
@@ -269,7 +268,6 @@ static const spawn_t spawns[] = {
 
   {"info_player_start", SP_info_player_start},
   {"info_player_deathmatch", SP_info_player_deathmatch},
-  {"info_player_coop", SP_info_player_coop},
   {"info_player_intermission", SP_info_player_intermission},
 
   {"info_player_team1", SP_info_player_team1},
@@ -884,8 +882,7 @@ void SpawnEntities (char *mapname, char *entities, char *spawnpoint)
 			}
 			else
 			{
-				if (		/* ((coop->value) && (ent->spawnflags & SPAWNFLAG_NOT_COOP)) || */
-					((skill->value == 0)
+				if (((skill->value == 0)
 					&& (ent->spawnflags & SPAWNFLAG_NOT_EASY))
 					|| ((skill->value == 1)
 					&& (ent->spawnflags & SPAWNFLAG_NOT_MEDIUM))
