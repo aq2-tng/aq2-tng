@@ -490,13 +490,11 @@ void InitGame( void )
 	skill = gi.cvar( "skill", "1", CVAR_LATCH );
 	maxentities = gi.cvar( "maxentities", "1024", CVAR_LATCH );
 
-	if (!deathmatch->value)
-	{
+	if (!deathmatch->value) {
 		gi.dprintf( "Turning deathmatch on.\n" );
 		gi.cvar_forceset( "deathmatch", "1" );
 	}
-	if (coop->value)
-	{
+	if (coop->value) {
 		gi.dprintf( "Turning coop off.\n" );
 		gi.cvar_forceset( "coop", "0" );
 	}

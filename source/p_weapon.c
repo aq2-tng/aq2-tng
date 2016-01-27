@@ -262,7 +262,7 @@ qboolean Pickup_Weapon (edict_t * ent, edict_t * other)
 
 	index = ITEM_INDEX (ent->item);
 
-	if ((((int)dmflags->value & DF_WEAPONS_STAY) || coop->value)
+	if (((int)dmflags->value & DF_WEAPONS_STAY)
 		&& other->client->pers.inventory[index])
 	{
 		if (!(ent->spawnflags & (DROPPED_ITEM | DROPPED_PLAYER_ITEM)))
@@ -460,8 +460,6 @@ qboolean Pickup_Weapon (edict_t * ent, edict_t * other)
 				else
 					SetRespawn (ent, ammo_respawn->value);
 			}
-			if (coop->value)
-				ent->flags |= FL_RESPAWN;
 		}
 		return true;
 	}
@@ -489,8 +487,6 @@ qboolean Pickup_Weapon (edict_t * ent, edict_t * other)
 					else
 						SetRespawn (ent, 30);
 				}
-				if (coop->value)
-					ent->flags |= FL_RESPAWN;
 			}
 		}
 	}

@@ -77,8 +77,7 @@ void punch_attack(edict_t * ent)
 				}
 			}
 			else if (((tr.ent != ent) && ((deathmatch->value &&
-				((int) (dmflags->value) & (DF_MODELTEAMS | DF_SKINTEAMS)))
-				|| coop->value) && OnSameTeam(tr.ent, ent)))
+				((int) (dmflags->value) & (DF_MODELTEAMS | DF_SKINTEAMS)))) && OnSameTeam(tr.ent, ent)))
 				return;
 
 			// add some random damage, damage range from 8 to 20.

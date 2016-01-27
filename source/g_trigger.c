@@ -240,49 +240,8 @@ trigger_key_use (edict_t * self, edict_t * other, edict_t * activator)
 
   gi.sound (activator, CHAN_AUTO, gi.soundindex ("misc/keyuse.wav"), 1,
 	    ATTN_NORM, 0);
-  if (coop->value)
-    {
-      int player;
-      edict_t *ent;
 
-      if (strcmp (self->item->classname, "key_power_cube") == 0)
-	{
-	  int cube;
-
-	  for (cube = 0; cube < 8; cube++)
-	    if (activator->client->pers.power_cubes & (1 << cube))
-	      break;
-	  for (player = 1; player <= game.maxclients; player++)
-	    {
-	      ent = &g_edicts[player];
-	      if (!ent->inuse)
-		continue;
-	      if (!ent->client)
-		continue;
-	      if (ent->client->pers.power_cubes & (1 << cube))
-		{
-		  ent->client->pers.inventory[index]--;
-		  ent->client->pers.power_cubes &= ~(1 << cube);
-		}
-	    }
-	}
-      else
-	{
-	  for (player = 1; player <= game.maxclients; player++)
-	    {
-	      ent = &g_edicts[player];
-	      if (!ent->inuse)
-		continue;
-	      if (!ent->client)
-		continue;
-	      ent->client->pers.inventory[index] = 0;
-	    }
-	}
-    }
-  else
-    {
-      activator->client->pers.inventory[index]--;
-    }
+  activator->client->pers.inventory[index]--;
 
   G_UseTargets (self, activator);
 

@@ -546,88 +546,11 @@ void Add_TeamKill(edict_t * attacker)
 // Gross, ugly, disgustuing hack section
 //
 
-// this function is an ugly as hell hack to fix some map flaws
-//
-// the coop spawn spots on some maps are SNAFU.  There are coop spots
-// with the wrong targetname as well as spots with no name at all
-//
-// we use carnal knowledge of the maps to fix the coop spot targetnames to match
-// that of the nearest named single player spot
-
-static void SP_FixCoopSpots(edict_t * self)
-{
-	edict_t *spot;
-	vec3_t d;
-
-	spot = NULL;
-
-	while (1) {
-		spot = G_Find(spot, FOFS(classname), "info_player_start");
-		if (!spot)
-			return;
-		if (!spot->targetname)
-			continue;
-		VectorSubtract(self->s.origin, spot->s.origin, d);
-		if (VectorLength(d) < 384) {
-			if ((!self->targetname)
-			    || Q_stricmp(self->targetname, spot->targetname) != 0) {
-//                              gi.dprintf("FixCoopSpots changed %s at %s targetname from %s to %s\n", self->classname, vtos(self->s.origin), self->targetname, spot->targetname);
-				self->targetname = spot->targetname;
-			}
-			return;
-		}
-	}
-}
-
-// now if that one wasn't ugly enough for you then try this one on for size
-// some maps don't have any coop spots at all, so we need to create them
-// where they should have been
-
-static void SP_CreateCoopSpots(edict_t * self)
-{
-	edict_t *spot;
-
-	if (Q_stricmp(level.mapname, "security") == 0) {
-		spot = G_Spawn();
-		spot->classname = "info_player_coop";
-		spot->s.origin[0] = 188 - 64;
-		spot->s.origin[1] = -164;
-		spot->s.origin[2] = 80;
-		spot->targetname = "jail3";
-		spot->s.angles[1] = 90;
-
-		spot = G_Spawn();
-		spot->classname = "info_player_coop";
-		spot->s.origin[0] = 188 + 64;
-		spot->s.origin[1] = -164;
-		spot->s.origin[2] = 80;
-		spot->targetname = "jail3";
-		spot->s.angles[1] = 90;
-
-		spot = G_Spawn();
-		spot->classname = "info_player_coop";
-		spot->s.origin[0] = 188 + 128;
-		spot->s.origin[1] = -164;
-		spot->s.origin[2] = 80;
-		spot->targetname = "jail3";
-		spot->s.angles[1] = 90;
-
-		return;
-	}
-}
-
 /*QUAKED info_player_start (1 0 0) (-16 -16 -24) (16 16 32)
 The normal starting point for a level.
 */
-void SP_info_player_start(edict_t * self)
+void SP_info_player_start( edict_t * self )
 {
-	if (!coop->value)
-		return;
-	if (Q_stricmp(level.mapname, "security") == 0) {
-		// invoke one of our gross, ugly, disgusting hacks
-		self->think = SP_CreateCoopSpots;
-		self->nextthink = level.framenum + 1;
-	}
 }
 
 /*QUAKED info_player_deathmatch (1 0 1) (-16 -16 -24) (16 16 32)
@@ -640,36 +563,6 @@ void SP_info_player_deathmatch(edict_t * self)
 		return;
 	}
 	SP_misc_teleporter_dest(self);
-}
-
-/*QUAKED info_player_coop (1 0 1) (-16 -16 -24) (16 16 32)
-potential spawning position for coop games
-*/
-
-void SP_info_player_coop(edict_t * self)
-{
-	if (!coop->value) {
-		G_FreeEdict(self);
-		return;
-	}
-
-	if ((Q_stricmp(level.mapname, "jail2") == 0) ||
-	    (Q_stricmp(level.mapname, "jail4") == 0) ||
-	    (Q_stricmp(level.mapname, "mine1") == 0) ||
-	    (Q_stricmp(level.mapname, "mine2") == 0) ||
-	    (Q_stricmp(level.mapname, "mine3") == 0) ||
-	    (Q_stricmp(level.mapname, "mine4") == 0) ||
-	    (Q_stricmp(level.mapname, "lab") == 0) ||
-	    (Q_stricmp(level.mapname, "boss1") == 0) ||
-	    (Q_stricmp(level.mapname, "fact3") == 0) ||
-	    (Q_stricmp(level.mapname, "biggun") == 0) ||
-	    (Q_stricmp(level.mapname, "space") == 0) ||
-	    (Q_stricmp(level.mapname, "command") == 0) ||
-	    (Q_stricmp(level.mapname, "power2") == 0) || (Q_stricmp(level.mapname, "strike") == 0)) {
-		// invoke one of our gross, ugly, disgusting hacks
-		self->think = SP_FixCoopSpots;
-		self->nextthink = level.framenum + 1;
-	}
 }
 
 /*QUAKED info_player_intermission (1 0 1) (-16 -16 -24) (16 16 32)
@@ -735,16 +628,13 @@ void ClientObituary(edict_t * self, edict_t * inflictor, edict_t * attacker)
 
 	self->client->resp.ctf_capstreak = 0;
 
-	if (!deathmatch->value && !coop->value)
+	if (!deathmatch->value)
 	{
 		sprintf(death_msg, "%s died\n", self->client->pers.netname);
 		PrintDeathMessage(death_msg, self);
 		IRC_printf(IRC_T_DEATH, death_msg);
 		return;
 	}
-
-	if (coop->value && attacker->client)
-		meansOfDeath |= MOD_FRIENDLY_FIRE;
 
 	if (attacker && attacker != self && attacker->client && OnSameTeam(self, attacker))
 		meansOfDeath |= MOD_FRIENDLY_FIRE;
@@ -1785,7 +1675,6 @@ void InitClientResp(gclient_t * client)
 	memset(&client->resp, 0, sizeof(client->resp));
 	client->resp.team = team;
 	client->resp.enterframe = level.framenum;
-	client->resp.coop_respawn = client->pers;
 
 	if (!dm_choose->value && !warmup->value) {
 		if ((int) wp_flags->value & WPF_MP5) {
@@ -1894,8 +1783,6 @@ void SaveClientData(void)
 		game.clients[i].pers.health = ent->health;
 		game.clients[i].pers.max_health = ent->max_health;
 		game.clients[i].pers.powerArmorActive = (ent->flags & FL_POWER_ARMOR);
-		if (coop->value)
-			game.clients[i].pers.score = ent->client->resp.score;
 	}
 }
 
@@ -1905,8 +1792,6 @@ void FetchClientEntData(edict_t * ent)
 	ent->max_health = ent->client->pers.max_health;
 	if (ent->client->pers.powerArmorActive)
 		ent->flags |= FL_POWER_ARMOR;
-	if (coop->value)
-		ent->client->resp.score = ent->client->pers.score;
 }
 
 /*
@@ -2046,39 +1931,6 @@ edict_t *SelectDeathmatchSpawnPoint(void)
 		return SelectRandomDeathmatchSpawnPoint();
 }
 
-edict_t *SelectCoopSpawnPoint(edict_t * ent)
-{
-	int index;
-	edict_t *spot = NULL;
-	char *target;
-
-	index = ent->client - game.clients;
-
-	// player 0 starts in normal player spawn point
-	if (!index)
-		return NULL;
-
-	spot = NULL;
-
-	// assume there are four coop spots at each spawnpoint
-	while (1) {
-		spot = G_Find(spot, FOFS(classname), "info_player_coop");
-		if (!spot)
-			return NULL;	// we didn't have enough...
-
-		target = spot->targetname;
-		if (!target)
-			target = "";
-		if (Q_stricmp(game.spawnpoint, target) == 0) {	// this is a coop spawn point for one of the clients here
-			index--;
-			if (!index)
-				return spot;	// this is it
-		}
-	}
-
-	return spot;
-}
-
 /*
 ===========
 SelectSpawnPoint
@@ -2099,8 +1951,6 @@ void SelectSpawnPoint(edict_t * ent, vec3_t origin, vec3_t angles)
 		//FIREBLADE
 		if (deathmatch->value)
 			spot = SelectDeathmatchSpawnPoint();
-		else if (coop->value)
-			spot = SelectCoopSpawnPoint(ent);
 	}
 
 	// find a single player start spot
@@ -2239,7 +2089,7 @@ void CleanBodies()
 
 void respawn(edict_t * self)
 {
-	if (deathmatch->value || coop->value) {
+	if (deathmatch->value) {
 //FIREBLADE
 		if (self->solid != SOLID_NOT || self->deadflag == DEAD_DEAD)
 //FIREBLADE
@@ -2654,21 +2504,6 @@ void PutClientInServer(edict_t * ent)
 		memcpy(userinfo, client->pers.userinfo, sizeof(userinfo));
 		InitClientPersistant(client);
 		ClientUserinfoChanged(ent, userinfo);
-	} else if (coop->value) {
-		int n;
-		char userinfo[MAX_INFO_STRING];
-
-		resp = client->resp;
-		memcpy(userinfo, client->pers.userinfo, sizeof(userinfo));
-		// this is kind of ugly, but it's how we want to handle keys in coop
-		for (n = 0; n < MAX_ITEMS; n++) {
-			if (itemlist[n].flags & IT_KEY)
-				resp.coop_respawn.inventory[n] = client->pers.inventory[n];
-		}
-		client->pers = resp.coop_respawn;
-		ClientUserinfoChanged(ent, userinfo);
-		if (resp.score > client->pers.score)
-			client->pers.score = resp.score;
 	} else {
 		memset(&resp, 0, sizeof(resp));
 	}
@@ -2733,7 +2568,7 @@ void PutClientInServer(edict_t * ent)
 	VectorClear(ent->velocity);
 
 	// clear playerstate values
-	memset(&ent->client->ps, 0, sizeof(client->ps));
+	memset(&client->ps, 0, sizeof(client->ps));
 
 	client->ps.pmove.origin[0] = spawn_origin[0] * 8;
 	client->ps.pmove.origin[1] = spawn_origin[1] * 8;
@@ -2801,13 +2636,13 @@ void PutClientInServer(edict_t * ent)
 // AQ2:TNG - JBravo adding UVtime
 	if (ctf->value) {
 		if (team_round_going && !lights_camera_action && uvtime->value && ent->client->resp.team != NOTEAM) {
-			ent->client->ctf_uvtime = uvtime->value;
+			client->ctf_uvtime = uvtime->value;
 		}
 	}
 //FIREBLADE
 	if (!going_observer && !teamplay->value) {	// this handles telefrags...
 		if (dm_shield->value && (!teamplay->value || (teamdm->value && team_round_going && !lights_camera_action)) && uvtime->value) {
-			ent->client->ctf_uvtime = uvtime->value;
+			client->ctf_uvtime = uvtime->value;
 		}
 		KillBox(ent);
 	}
@@ -3412,9 +3247,9 @@ void ClientThink(edict_t * ent, usercmd_t * ucmd)
 		client->ps.pmove.pm_type = PM_FREEZE;
 		// 
 		if (level.realFramenum > level.intermission_framenum + 4 * HZ) {
-			if (ent->inuse && ent->client->resp.stat_mode > 0
-			    && ent->client->resp.stat_mode_intermission == 0) {
-				ent->client->resp.stat_mode_intermission = 1;
+			if (ent->inuse && client->resp.stat_mode > 0
+			    && client->resp.stat_mode_intermission == 0) {
+				client->resp.stat_mode_intermission = 1;
 				Cmd_Stats_f(ent, ltm);
 			}
 		}
@@ -3482,7 +3317,7 @@ void ClientThink(edict_t * ent, usercmd_t * ucmd)
 		client->old_pmove = pm.s;
 
 		// really stopping jumping with leg damage
-		if (ent->client->leg_damage && ent->groundentity && pm.s.velocity[2] > 10) {
+		if (client->leg_damage && ent->groundentity && pm.s.velocity[2] > 10) {
 			pm.s.velocity[2] = 0.0;
 		}
 
@@ -3706,11 +3541,11 @@ void ClientBeginServerFrame(edict_t * ent)
 				}
 			}
 		} else {
-			ent->client->chase_mode = 0;
-			ent->client->chase_target = NULL;
-			ent->client->desired_fov = 90;
-			ent->client->ps.fov = 90;	//FB 5/31/99 added
-			ent->client->ps.pmove.pm_flags &= ~PMF_NO_PREDICTION;
+			client->chase_mode = 0;
+			client->chase_target = NULL;
+			client->desired_fov = 90;
+			client->ps.fov = 90;	//FB 5/31/99 added
+			client->ps.pmove.pm_flags &= ~PMF_NO_PREDICTION;
 			ent->solid = SOLID_BBOX;
 			gi.linkentity(ent);
 			gi.bprintf(PRINT_HIGH, "%s rejoined the game\n", ent->client->pers.netname);
@@ -3732,7 +3567,7 @@ void ClientBeginServerFrame(edict_t * ent)
 		// wait for any button just going down
 		if (level.framenum > client->respawn_time) {
 //FIREBLADE
-			if (((!ctf->value && !teamdm->value) || (ent->client->resp.team == NOTEAM || ent->client->resp.subteam))
+			if (((!ctf->value && !teamdm->value) || (client->resp.team == NOTEAM || client->resp.subteam))
 			    && (teamplay->value || (ent->client->pers.spectator
 					&& ent->solid == SOLID_NOT && ent->deadflag == DEAD_DEAD))) {
 				CopyToBodyQue(ent);
@@ -3778,8 +3613,8 @@ void ClientBeginServerFrame(edict_t * ent)
 
 	if (ent->solid != SOLID_NOT)
 	{
-		if (!lights_camera_action && !ent->client->ctf_uvtime) {
-			if (ent->client->jumping)
+		if (!lights_camera_action && !client->ctf_uvtime) {
+			if (client->jumping)
 				kick_attack( ent );
 			else if (client->resp.punch_desired)
 				punch_attack( ent );
@@ -3793,9 +3628,9 @@ void ClientBeginServerFrame(edict_t * ent)
 			}
 		}
 
-		if (ent->client->autoreloading && (ent->client->weaponstate == WEAPON_END_MAG)
-			&& (ent->client->curr_weap == MK23_NUM)) {
-			ent->client->autoreloading = false;
+		if (client->autoreloading && (client->weaponstate == WEAPON_END_MAG)
+			&& (client->curr_weap == MK23_NUM)) {
+			client->autoreloading = false;
 			Cmd_New_Reload_f( ent );
 		}
 	}

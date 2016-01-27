@@ -565,8 +565,7 @@ T_Damage (edict_t * targ, edict_t * inflictor, edict_t * attacker, vec3_t dir,
 	{
 		if (!((targ != attacker) &&
 		((deathmatch->value && ((int)dmflags->value
-		& (DF_MODELTEAMS | DF_SKINTEAMS)))
-		|| coop->value) && (attacker && attacker->client
+		& (DF_MODELTEAMS | DF_SKINTEAMS)))) && (attacker && attacker->client
 		&& OnSameTeam (targ, attacker) &&	 
 		((int)dmflags->value & DF_NO_FRIENDLY_FIRE)
 		&& (team_round_going && ff_afterround->value))))
@@ -824,8 +823,7 @@ T_Damage (edict_t * targ, edict_t * inflictor, edict_t * attacker, vec3_t dir,
 	// if enabled you can't hurt teammates (but you can hurt yourself)
 	// knockback still occurs
 	if (targ != attacker &&
-		((deathmatch->value && ((int)dmflags->value & (DF_MODELTEAMS | DF_SKINTEAMS)))
-		|| coop->value))
+		(deathmatch->value && ((int)dmflags->value & (DF_MODELTEAMS | DF_SKINTEAMS))))
 	{
 		if (OnSameTeam (targ, attacker))
 		{
