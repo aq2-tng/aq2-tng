@@ -259,9 +259,9 @@ void PrintMOTD(edict_t * ent)
 		else  // So it's not Teamplay?
 		{
 			// Set the appropiate Deathmatch mode
-			if ((int)dmflags->value & DF_MODELTEAMS)
+			if (DMFLAGS(DF_MODELTEAMS))
 				server_type = "Deathmatch (Teams by Model)";
-			else if ((int)dmflags->value & DF_SKINTEAMS)
+			else if (DMFLAGS(DF_SKINTEAMS))
 				server_type = "Deathmatch (Teams by Skin)";
 			else
 				server_type = "Deathmatch (No Teams)";
@@ -425,7 +425,7 @@ void PrintMOTD(edict_t * ent)
 		/*
 		 *  Are the dmflags set to disallow Friendly Fire?
 		 */
-		if (teamplay->value && !((int) dmflags->value & DF_NO_FRIENDLY_FIRE)) {
+		if (teamplay->value && !DMFLAGS(DF_NO_FRIENDLY_FIRE)) {
 			sprintf(msg_buf + strlen(msg_buf), "Friendly Fire Enabled\n");
 			lines++;
 		}

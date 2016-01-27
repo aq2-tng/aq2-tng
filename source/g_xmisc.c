@@ -70,14 +70,14 @@ void punch_attack(edict_t * ent)
 
 				if ((tr.ent != ent) && tr.ent->client && ent->client &&
 					(tr.ent->client->resp.team == ent->client->resp.team) &&
-					((int)dmflags->value & DF_NO_FRIENDLY_FIRE))
+					DMFLAGS(DF_NO_FRIENDLY_FIRE))
 				{
 					if (team_round_going || !ff_afterround->value)
 						return;
 				}
 			}
 			else if (((tr.ent != ent) && ((deathmatch->value &&
-				((int) (dmflags->value) & (DF_MODELTEAMS | DF_SKINTEAMS)))) && OnSameTeam(tr.ent, ent)))
+				DMFLAGS( (DF_MODELTEAMS | DF_SKINTEAMS) ))) && OnSameTeam( tr.ent, ent )))
 				return;
 
 			// add some random damage, damage range from 8 to 20.

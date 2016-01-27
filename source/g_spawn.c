@@ -750,7 +750,7 @@ void SpawnEntities (char *mapname, char *entities, char *spawnpoint)
 			gi.dprintf ("CTF Enabled - Forcing Tourney off\n");
 			gi.cvar_forceset(use_tourney->name, "0");
 		}
-		if (!((int) (dmflags->value) & DF_NO_FRIENDLY_FIRE))
+		if (!DMFLAGS(DF_NO_FRIENDLY_FIRE))
 		{
 			gi.dprintf ("CTF Enabled - Forcing Friendly Fire off\n");
 			gi.cvar_forceset(dmflags->name, va("%i", (int)dmflags->value | DF_NO_FRIENDLY_FIRE));

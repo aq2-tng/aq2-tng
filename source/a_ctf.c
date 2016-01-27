@@ -361,7 +361,7 @@ void CTFAssignTeam(gclient_t * who)
 
 	who->resp.ctf_state = CTF_STATE_START;
 
-	if (!((int) dmflags->value & DF_CTF_FORCEJOIN)) {
+	if (!DMFLAGS(DF_CTF_FORCEJOIN)) {
 		who->resp.team = NOTEAM;
 		return;
 	}
@@ -403,15 +403,6 @@ edict_t *SelectCTFSpawnPoint(edict_t * ent)
 	int selection;
 	float range, range1, range2;
 	char *cname;
-
-	/*if (ent->client->resp.ctf_state != CTF_STATE_START) {
-		if (rand() & 1) {
-			if ((int) (dmflags->value) & DF_SPAWN_FARTHEST)
-				return SelectFarthestDeathmatchSpawnPoint();
-			else
-				return SelectRandomDeathmatchSpawnPoint();
-		}
-	}*/ //Why the fuck this was here? -Mani
 
 	ent->client->resp.ctf_state = CTF_STATE_PLAYING;
 

@@ -526,7 +526,7 @@ T_Damage (edict_t * targ, edict_t * inflictor, edict_t * attacker, vec3_t dir,
 		// AQ2:TNG - JBravo adding FF after rounds
 		if (targ != attacker && targ->client && attacker->client &&
 			targ->client->resp.team == attacker->client->resp.team &&
-			((int)(dmflags->value) & (DF_NO_FRIENDLY_FIRE))) {
+			DMFLAGS(DF_NO_FRIENDLY_FIRE)) {
 				if (team_round_going)
 					return;
 				else if (!ff_afterround->value)
@@ -564,10 +564,9 @@ T_Damage (edict_t * targ, edict_t * inflictor, edict_t * attacker, vec3_t dir,
 	if (targ->client)
 	{
 		if (!((targ != attacker) &&
-		((deathmatch->value && ((int)dmflags->value
-		& (DF_MODELTEAMS | DF_SKINTEAMS)))) && (attacker && attacker->client
+		((deathmatch->value && DMFLAGS((DF_MODELTEAMS | DF_SKINTEAMS)))) && (attacker && attacker->client
 		&& OnSameTeam (targ, attacker) &&	 
-		((int)dmflags->value & DF_NO_FRIENDLY_FIRE)
+		DMFLAGS(DF_NO_FRIENDLY_FIRE)
 		&& (team_round_going && ff_afterround->value))))
 
 		{
@@ -822,13 +821,11 @@ T_Damage (edict_t * targ, edict_t * inflictor, edict_t * attacker, vec3_t dir,
 	// friendly fire avoidance
 	// if enabled you can't hurt teammates (but you can hurt yourself)
 	// knockback still occurs
-	if (targ != attacker &&
-		(deathmatch->value && ((int)dmflags->value & (DF_MODELTEAMS | DF_SKINTEAMS))))
+	if (targ != attacker && deathmatch->value && DMFLAGS( (DF_MODELTEAMS | DF_SKINTEAMS) ))
 	{
 		if (OnSameTeam (targ, attacker))
 		{
-			if ((int)dmflags->value & DF_NO_FRIENDLY_FIRE &&
-				(team_round_going || !ff_afterround->value))
+			if (DMFLAGS(DF_NO_FRIENDLY_FIRE) && (team_round_going || !ff_afterround->value))
 				damage = 0;
 			else
 				mod |= MOD_FRIENDLY_FIRE;

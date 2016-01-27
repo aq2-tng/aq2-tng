@@ -618,7 +618,7 @@ void EndDMLevel (void)
 	IRC_printf (IRC_T_GAME, "Game ending at: %s", ltm);
 
 	// stay on same level flag
-	if ((int) dmflags->value & DF_SAME_LEVEL)
+	if (DMFLAGS(DF_SAME_LEVEL))
 	{
 		ent = G_Spawn ();
 		ent->classname = "target_changelevel";

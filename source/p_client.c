@@ -758,7 +758,7 @@ void ClientObituary(edict_t * self, edict_t * inflictor, edict_t * attacker)
 			self->client->attacker->client->pers.num_kills++;
 
 			//MODIFIED FOR FF -FB
-			if (!((int)dmflags->value & DF_NO_FRIENDLY_FIRE)
+			if (!DMFLAGS(DF_NO_FRIENDLY_FIRE)
 				&& teamplay->value && OnSameTeam(self, self->client->attacker))
 			{
 				if (team_round_going || !ff_afterround->value) {
@@ -1260,7 +1260,7 @@ void TossItemsOnDeath(edict_t * ent)
 	}
 // special items
 
-	if (!((int) (dmflags->value) & DF_QUAD_DROP))
+	if (!DMFLAGS(DF_QUAD_DROP))
 		quad = false;
 	else
 		quad = (ent->client->quad_framenum > (level.framenum + HZ));
@@ -1318,7 +1318,7 @@ void TossClientWeapon(edict_t * self)
 	if (item && (strcmp(item->pickup_name, "Blaster") == 0))
 		item = NULL;
 
-	if (!((int) (dmflags->value) & DF_QUAD_DROP))
+	if (!DMFLAGS(DF_QUAD_DROP))
 		quad = false;
 	else
 		quad = (self->client->quad_framenum > (level.framenum + HZ));
@@ -1925,7 +1925,7 @@ edict_t *SelectFarthestDeathmatchSpawnPoint(void)
 
 edict_t *SelectDeathmatchSpawnPoint(void)
 {
-	if ((int) (dmflags->value) & DF_SPAWN_FARTHEST)
+	if (DMFLAGS(DF_SPAWN_FARTHEST))
 		return SelectFarthestDeathmatchSpawnPoint();
 	else
 		return SelectRandomDeathmatchSpawnPoint();
@@ -2579,7 +2579,7 @@ void PutClientInServer(edict_t * ent)
 		client->ps.pmove.pm_flags &= ~PMF_NO_PREDICTION;
 		//AQ2:TNG End
 	}
-	if (deathmatch->value && ((int) dmflags->value & DF_FIXED_FOV)) {
+	if (deathmatch->value && DMFLAGS(DF_FIXED_FOV)) {
 		client->ps.fov = 90;
 	} else {
 		client->ps.fov = atoi(Info_ValueForKey(client->pers.userinfo, "fov"));
@@ -3602,7 +3602,7 @@ void ClientBeginServerFrame(edict_t * ent)
 					buttonMask = -1;
 
 				if ((client->latched_buttons & buttonMask) ||
-				    (deathmatch->value && ((int) dmflags->value & DF_FORCE_RESPAWN))) {
+				    (deathmatch->value && DMFLAGS(DF_FORCE_RESPAWN))) {
 					respawn(ent);
 					client->latched_buttons = 0;
 				}

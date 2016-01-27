@@ -246,13 +246,13 @@ char *ClientTeam (edict_t * ent)
 	if (!p)
 		return value;
 
-	if ((int) (dmflags->value) & DF_MODELTEAMS)
+	if (DMFLAGS(DF_MODELTEAMS))
 	{
 		*p = 0;
 		return value;
 	}
 
-	// if ((int)(dmflags->value) & DF_SKINTEAMS)
+	// if (DMFLAGS(DF_SKINTEAMS))
 	return ++p;
 }
 
@@ -268,7 +268,7 @@ qboolean OnSameTeam (edict_t * ent1, edict_t * ent2)
 		return ent1->client->resp.team == ent2->client->resp.team;
 	//FIREBLADE
 
-	if (!((int) (dmflags->value) & (DF_MODELTEAMS | DF_SKINTEAMS)))
+	if (!DMFLAGS( (DF_MODELTEAMS | DF_SKINTEAMS) ))
 		return false;
 
 	Q_strncpyz (ent1Team, ClientTeam(ent1), sizeof(ent1Team));
@@ -1321,7 +1321,7 @@ void Cmd_Say_f (edict_t * ent, qboolean team, qboolean arg0, qboolean partner_ms
 	if (!teamplay->value)
 	{
 		//FIREBLADE
-		if (!((int)(dmflags->value) & (DF_MODELTEAMS | DF_SKINTEAMS)))
+		if (!DMFLAGS( (DF_MODELTEAMS | DF_SKINTEAMS) ))
 			team = false;
 	}
 	else if (matchmode->value)

@@ -262,8 +262,7 @@ qboolean Pickup_Weapon (edict_t * ent, edict_t * other)
 
 	index = ITEM_INDEX (ent->item);
 
-	if (((int)dmflags->value & DF_WEAPONS_STAY)
-		&& other->client->pers.inventory[index])
+	if (DMFLAGS(DF_WEAPONS_STAY) && other->client->pers.inventory[index])
 	{
 		if (!(ent->spawnflags & (DROPPED_ITEM | DROPPED_PLAYER_ITEM)))
 			return false;		// leave the weapon for others to pickup
@@ -455,7 +454,7 @@ qboolean Pickup_Weapon (edict_t * ent, edict_t * other)
 		{
 			if (deathmatch->value)
 			{
-				if ((int)(dmflags->value) & DF_WEAPONS_STAY)
+				if (DMFLAGS(DF_WEAPONS_STAY))
 					ent->flags |= FL_RESPAWN;
 				else
 					SetRespawn (ent, ammo_respawn->value);
@@ -473,7 +472,7 @@ qboolean Pickup_Weapon (edict_t * ent, edict_t * other)
 			// give them some ammo with it
 			ammo = FindItem (ent->item->ammo);
 
-			if ((int)dmflags->value & DF_INFINITE_AMMO)
+			if (DMFLAGS(DF_INFINITE_AMMO))
 				Add_Ammo (other, ammo, 1000);
 			else
 				Add_Ammo (other, ammo, ammo->quantity);
@@ -482,7 +481,7 @@ qboolean Pickup_Weapon (edict_t * ent, edict_t * other)
 			{
 				if (deathmatch->value)
 				{
-					if ((int)dmflags->value & DF_WEAPONS_STAY)
+					if (DMFLAGS(DF_WEAPONS_STAY))
 						ent->flags |= FL_RESPAWN;
 					else
 						SetRespawn (ent, 30);
@@ -499,7 +498,7 @@ qboolean Pickup_Weapon (edict_t * ent, edict_t * other)
 	if (!(ent->spawnflags & (DROPPED_ITEM | DROPPED_PLAYER_ITEM))
 		&& (SPEC_WEAPON_RESPAWN) && special)
 	{
-		if(((int)dmflags->value & DF_WEAPON_RESPAWN) &&
+		if(DMFLAGS(DF_WEAPON_RESPAWN) &&
 			(!teamplay->value || teamdm->value || ctf->value == 2))
 			SetRespawn (ent, weapon_respawn->value);
 		else
@@ -879,7 +878,7 @@ void temp_think_specweap (edict_t * ent)
 {
 	ent->touch = Touch_Item;
 
-	if(((int)dmflags->value & DF_WEAPON_RESPAWN) && (!teamplay->value || teamdm->value || ctf->value == 2))
+	if(DMFLAGS(DF_WEAPON_RESPAWN) && (!teamplay->value || teamdm->value || ctf->value == 2))
 	{
 		ent->nextthink = level.framenum + (weapon_respawn->value * 0.6f) * HZ;
 		ent->think = G_FreeEdict;
@@ -941,7 +940,7 @@ void Drop_Weapon (edict_t * ent, gitem_t * item)
 	gitem_t *replacement;
 	edict_t *temp = NULL;
 
-	if ((int) (dmflags->value) & DF_WEAPONS_STAY)
+	if (DMFLAGS(DF_WEAPONS_STAY))
 		return;
 
 	// AQ:TNG - JBravo fixing weapon farming
@@ -2295,7 +2294,7 @@ void weapon_grenade_fire (edict_t * ent, qboolean held)
 	else
 		fire_grenade2 (ent, start, forward, GRENADE_DAMRAD, speed, timer, GRENADE_DAMRAD * 2, held);
 
-	if (!((int) dmflags->value & DF_INFINITE_AMMO))
+	if (!DMFLAGS(DF_INFINITE_AMMO))
 		ent->client->pers.inventory[ent->client->ammo_index]--;
 
 	ent->client->grenade_framenum = level.framenum + 1 * HZ;
@@ -2873,7 +2872,7 @@ void M3_Fire (edict_t * ent)
 	ent->client->ps.gunframe++;
 	PlayerNoise (ent, start, PNOISE_WEAPON);
 
-	//if (! ( (int)dmflags->value & DF_INFINITE_AMMO ) )
+	//if (!DMFLAGS(DF_INFINITE_AMMO))
 	//      ent->client->pers.inventory[ent->client->ammo_index]--;
 	ent->client->shot_rds--;
 
@@ -2992,7 +2991,7 @@ void HC_Fire (edict_t * ent)
 	ent->client->ps.gunframe++;
 	PlayerNoise (ent, start, PNOISE_WEAPON);
 
-	//      if (! ( (int)dmflags->value & DF_INFINITE_AMMO ) )
+	//      if (!DMFLAGS(DF_INFINITE_AMMO))
 	//              ent->client->pers.inventory[ent->client->ammo_index] -= 2;
 
 	if (ent->client->resp.hc_mode)
@@ -3027,7 +3026,7 @@ void HC_Fire (edict_t * ent)
         ent->client->ps.gunframe++;
         PlayerNoise(ent, start, PNOISE_WEAPON);
 	
-	//      if (! ( (int)dmflags->value & DF_INFINITE_AMMO ) )
+	//      if (!DMFLAGS(DF_INFINITE_AMMO))
 	//              ent->client->pers.inventory[ent->client->ammo_index] -= 2;
 
         ent->client->cannon_rds -= 2;

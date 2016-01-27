@@ -3006,7 +3006,7 @@ void SelectFarTeamplaySpawnPoint (int team, qboolean teams_assigned[])
 		preferred_spawn_points = 3;
 
 	//FB 6/1/99 - make DF_SPAWN_FARTHEST force far spawn points in TP
-	if ((int) dmflags->value & DF_SPAWN_FARTHEST)
+	if (DMFLAGS(DF_SPAWN_FARTHEST))
 		preferred_spawn_points = 1;
 	//FB 6/1/99
 
@@ -3147,7 +3147,7 @@ qboolean NS_SelectFarTeamplaySpawnPoint (int team, qboolean teams_assigned[])
 		preferred_spawn_points = 3;
 
 	//FB 6/1/99 - make DF_SPAWN_FARTHEST force far spawn points in TP
-	if ((int) dmflags->value & DF_SPAWN_FARTHEST)
+	if (DMFLAGS(DF_SPAWN_FARTHEST))
 		preferred_spawn_points = 1;
 	//FB 6/1/99
 
