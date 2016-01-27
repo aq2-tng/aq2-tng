@@ -829,7 +829,7 @@ void SetIDView(edict_t * ent)
 
 //FIREBLADE
 	if (ent->solid != SOLID_NOT && !teamplay->value) {
-		if (!((int) (dmflags->value) & (DF_MODELTEAMS | DF_SKINTEAMS)))
+		if (!DMFLAGS( (DF_MODELTEAMS | DF_SKINTEAMS) ))
 			return;	// won't ever work in non-teams so don't run the code...
 
 	}

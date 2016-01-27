@@ -114,7 +114,7 @@ void MoveClientToIntermission (edict_t * ent)
 
 void BeginIntermission (edict_t * targ)
 {
-	int i, n;
+	int i;
 	edict_t *ent, *client;
 
 	if (level.intermission_framenum)

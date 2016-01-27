@@ -316,7 +316,7 @@ static void RadioBroadcast (edict_t * ent, int partner, char *msg)
 
 	if (!teamplay->value)
 	{
-		if (!((int) (dmflags->value) & (DF_MODELTEAMS | DF_SKINTEAMS)))
+		if (!DMFLAGS( (DF_MODELTEAMS | DF_SKINTEAMS) ))
 			return;			// don't allow in a non-team setup...
 	}
 
@@ -438,7 +438,7 @@ void Cmd_Radiogender_f (edict_t * ent)
 
 	if (!teamplay->value)
 	{
-		if (!((int) (dmflags->value) & (DF_MODELTEAMS | DF_SKINTEAMS)))
+		if (!DMFLAGS( (DF_MODELTEAMS | DF_SKINTEAMS) ))
 			return;			// don't allow in a non-team setup...
 	}
 
@@ -475,7 +475,7 @@ void Cmd_Radio_power_f (edict_t * ent)
 
 	if (!teamplay->value)
 	{
-		if (!((int) (dmflags->value) & (DF_MODELTEAMS | DF_SKINTEAMS)))
+		if (!DMFLAGS( (DF_MODELTEAMS | DF_SKINTEAMS) ))
 			return;			// don't allow in a non-team setup...
 	}
 
@@ -492,7 +492,7 @@ void Cmd_Channel_f (edict_t * ent)
 
 	if (!teamplay->value)
 	{
-		if (!((int) (dmflags->value) & (DF_MODELTEAMS | DF_SKINTEAMS)))
+		if (!DMFLAGS( (DF_MODELTEAMS | DF_SKINTEAMS) ))
 			return;			// don't allow in a non-team setup...
 	}
 
@@ -566,7 +566,7 @@ void Cmd_Partner_f (edict_t * ent)
 
 	if (!teamplay->value)
 	{
-		if (!((int) (dmflags->value) & (DF_MODELTEAMS | DF_SKINTEAMS)))
+		if (!DMFLAGS( (DF_MODELTEAMS | DF_SKINTEAMS) ))
 			return;			// don't allow in a non-team setup...
 	}
 
@@ -640,7 +640,7 @@ void Cmd_Unpartner_f (edict_t * ent)
 
 	if (!teamplay->value)
 	{
-		if (!((int) (dmflags->value) & (DF_MODELTEAMS | DF_SKINTEAMS)))
+		if (!DMFLAGS( (DF_MODELTEAMS | DF_SKINTEAMS) ))
 			return;			// don't allow in a non-team setup...
 	}
 
@@ -673,7 +673,7 @@ void Cmd_Deny_f (edict_t * ent)
 
 	if (!teamplay->value)
 	{
-		if (!((int) (dmflags->value) & (DF_MODELTEAMS | DF_SKINTEAMS)))
+		if (!DMFLAGS( (DF_MODELTEAMS | DF_SKINTEAMS) ))
 			return;			// don't allow in a non-team setup...
 	}
 
@@ -702,7 +702,7 @@ void Cmd_Say_partner_f (edict_t * ent)
 {
 	if (!teamplay->value)
 	{
-		if (!((int) (dmflags->value) & (DF_MODELTEAMS | DF_SKINTEAMS)))
+		if (!DMFLAGS( (DF_MODELTEAMS | DF_SKINTEAMS) ))
 			return;			// don't allow in a non-team setup...
 	}
 

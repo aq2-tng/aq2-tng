@@ -181,7 +181,7 @@ void DoRespawn (edict_t * ent)
 		//in ctf, when we are weapons stay, only the master of a team of weapons
 		//is spawned
 		// if (ctf->value &&
-		//    ((int)dmflags->value & DF_WEAPONS_STAY) &&
+		//    DMFLAGS(DF_WEAPONS_STAY) &&
 		//    master->item && (master->item->flags & IT_WEAPON))
 		//  ent = master;
 		//else {
@@ -230,7 +230,7 @@ qboolean Pickup_Powerup (edict_t * ent, edict_t * other)
 	{
 		if (!(ent->spawnflags & DROPPED_ITEM))
 			SetRespawn (ent, ent->item->quantity);
-		//if (((int)dmflags->value & DF_INSTANT_ITEMS)
+		//if (DMFLAGS(DF_INSTANT_ITEMS)
 		//	|| ((ent->item->use == Use_Quad) && (ent->spawnflags & DROPPED_PLAYER_ITEM)))
 		//{
 			if ((ent->item->use == Use_Quad) && (ent->spawnflags & DROPPED_PLAYER_ITEM))
@@ -712,7 +712,7 @@ qboolean Pickup_Ammo (edict_t * ent, edict_t * other)
 	qboolean weapon;
 
 	weapon = (ent->item->flags & IT_WEAPON);
-	if ((weapon) && ((int) dmflags->value & DF_INFINITE_AMMO))
+	if ((weapon) && DMFLAGS(DF_INFINITE_AMMO))
 		count = 1000;
 	else if (ent->count)
 		count = ent->count;
@@ -1328,7 +1328,7 @@ void SpawnItem (edict_t * ent, gitem_t * item)
 	// some items will be prevented in deathmatch
 	if (deathmatch->value)
 	{
-		if ((int) dmflags->value & DF_NO_ITEMS)
+		if (DMFLAGS(DF_NO_ITEMS))
 		{
 			if (item->pickup == Pickup_Powerup)
 			{
@@ -1337,7 +1337,7 @@ void SpawnItem (edict_t * ent, gitem_t * item)
 			}
 		}
 		// zucc remove health from the game
-		if (1 /*(int)dmflags->value & DF_NO_HEALTH */ )
+		if (1 /*DMFLAGS(DF_NO_HEALTH) */ )
 		{
 			if (item->pickup == Pickup_Health
 			|| item->pickup == Pickup_Adrenaline
@@ -1347,7 +1347,7 @@ void SpawnItem (edict_t * ent, gitem_t * item)
 				return;
 			}
 		}
-		if ((int) dmflags->value & DF_INFINITE_AMMO)
+		if (DMFLAGS(DF_INFINITE_AMMO))
 		{
 			if (item->flags == IT_AMMO)
 			{
@@ -2208,7 +2208,7 @@ gives +1 to maximum health
 void
 SP_item_health (edict_t * self)
 {
-  if (1)			//deathmatch->value && ((int)dmflags->value & DF_NO_HEALTH) )
+  if (1)			//deathmatch->value && DMFLAGS(DF_NO_HEALTH) )
     {
       G_FreeEdict (self);
       return;
@@ -2225,7 +2225,7 @@ SP_item_health (edict_t * self)
 void
 SP_item_health_small (edict_t * self)
 {
-  if (1)			//deathmatch->value && ((int)dmflags->value & DF_NO_HEALTH) )
+  if (1)			//deathmatch->value && DMFLAGS(DF_NO_HEALTH) )
     {
       G_FreeEdict (self);
       return;
@@ -2243,7 +2243,7 @@ SP_item_health_small (edict_t * self)
 void
 SP_item_health_large (edict_t * self)
 {
-  if (1)			//deathmatch->value && ((int)dmflags->value & DF_NO_HEALTH) )
+  if (1)			//deathmatch->value && DMFLAGS(DF_NO_HEALTH) )
     {
       G_FreeEdict (self);
       return;
@@ -2260,7 +2260,7 @@ SP_item_health_large (edict_t * self)
 void
 SP_item_health_mega (edict_t * self)
 {
-  if (1)			//deathmatch->value && ((int)dmflags->value & DF_NO_HEALTH) )
+  if (1)			//deathmatch->value && DMFLAGS(DF_NO_HEALTH) )
     {
       G_FreeEdict (self);
       return;
