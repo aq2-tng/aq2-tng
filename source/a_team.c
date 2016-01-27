@@ -328,8 +328,6 @@ int num_potential_spawns;
 edict_t *teamplay_spawns[MAX_TEAMS];
 trace_t trace_t_temp;		// used by our trace replace macro in ax_team.h
 
-int num_teams = 3;		// teams in current game, fixed at 2 for now...
-
 // <TNG:Freud New spawning variables>
 int NS_num_used_farteamplay_spawns[MAX_TEAMS];
 int NS_num_potential_spawns[MAX_TEAMS];
