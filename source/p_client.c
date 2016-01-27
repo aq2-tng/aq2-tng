@@ -599,7 +599,8 @@ void PrintDeathMessage(char *msg, edict_t * gibee)
 
 	// First, let's print the message for gibee and its attacker. -TempFile
 	gi.cprintf(gibee, PRINT_MEDIUM, "%s", msg);
-	gi.cprintf(gibee->client->attacker, PRINT_MEDIUM, "%s", msg);
+	if (gibee->client->attacker && gibee->client->attacker != gibee)
+		gi.cprintf(gibee->client->attacker, PRINT_MEDIUM, "%s", msg);
 
 	if(!team_round_going)
 		return;
@@ -645,57 +646,6 @@ void ClientObituary(edict_t * self, edict_t * inflictor, edict_t * attacker)
 	message = NULL;
 	message2 = "";
 
-	switch (mod) {
-	case MOD_BREAKINGGLASS:
-		message = "ate too much glass";
-		break;
-	case MOD_SUICIDE:
-		message = "is done with the world";
-		break;
-	case MOD_FALLING:
-		// moved falling to the end
-		if (self->client->push_timeout)
-			special = 1;
-		//message = "hit the ground hard, real hard";
-		if (self->client->pers.gender == GENDER_MALE)
-			message = "plummets to his death";
-		else if (self->client->pers.gender == GENDER_FEMALE)
-			message = "plummets to her death";
-		else
-			message = "plummets to its death";
-		break;
-	case MOD_CRUSH:
-		message = "was flattened";
-		break;
-	case MOD_WATER:
-		message = "sank like a rock";
-		break;
-	case MOD_SLIME:
-		message = "melted";
-		break;
-	case MOD_LAVA:
-		message = "does a back flip into the lava";
-		break;
-	case MOD_EXPLOSIVE:
-	case MOD_BARREL:
-		message = "blew up";
-		break;
-	case MOD_EXIT:
-		message = "found a way out";
-		break;
-	case MOD_TARGET_LASER:
-		message = "saw the light";
-		break;
-	case MOD_TARGET_BLASTER:
-		message = "got blasted";
-		break;
-	case MOD_BOMB:
-	case MOD_SPLASH:
-	case MOD_TRIGGER_HURT:
-		message = "was in the wrong place";
-		break;
-	}
-
 	if (attacker == self)
 	{
 		switch (mod) {
@@ -729,25 +679,63 @@ void ClientObituary(edict_t * self, edict_t * inflictor, edict_t * attacker)
 		}
 	}
 
-	if (message && !special)
-	{
-		sprintf(death_msg, "%s %s\n", self->client->pers.netname, message);
-		PrintDeathMessage(death_msg, self);
-		IRC_printf(IRC_T_DEATH, death_msg);
-
-		// AQ:TNG - JBravo: Since it's op to teamkill after rounds, why not plummet?
-		if (deathmatch->value) {
-			if (!teamplay->value || team_round_going || !ff_afterround->value)  {
-				Subtract_Frag(self);
-			}
+	if (!message) {
+		switch (mod) {
+		case MOD_BREAKINGGLASS:
+			message = "ate too much glass";
+			break;
+		case MOD_SUICIDE:
+			message = "is done with the world";
+			break;
+		case MOD_FALLING:
+			// moved falling to the end
+			if (self->client->push_timeout)
+				special = 1;
+			//message = "hit the ground hard, real hard";
+			if (self->client->pers.gender == GENDER_MALE)
+				message = "plummets to his death";
+			else if (self->client->pers.gender == GENDER_FEMALE)
+				message = "plummets to her death";
+			else
+				message = "plummets to its death";
+			break;
+		case MOD_CRUSH:
+			message = "was flattened";
+			break;
+		case MOD_WATER:
+			message = "sank like a rock";
+			break;
+		case MOD_SLIME:
+			message = "melted";
+			break;
+		case MOD_LAVA:
+			message = "does a back flip into the lava";
+			break;
+		case MOD_EXPLOSIVE:
+		case MOD_BARREL:
+			message = "blew up";
+			break;
+		case MOD_EXIT:
+			message = "found a way out";
+			break;
+		case MOD_TARGET_LASER:
+			message = "saw the light";
+			break;
+		case MOD_TARGET_BLASTER:
+			message = "got blasted";
+			break;
+		case MOD_BOMB:
+		case MOD_SPLASH:
+		case MOD_TRIGGER_HURT:
+			message = "was in the wrong place";
+			break;
 		}
-
-		self->enemy = NULL;
-		return;
 	}
-	else if (special)	// handle falling with an attacker set
+
+	if (message)
 	{
-		if (self->client->attacker && self->client->attacker->client
+		// handle falling with an attacker set
+		if (special && self->client->attacker && self->client->attacker->client
 		&& (self->client->attacker->client != self->client))
 		{
 			sprintf(death_msg, "%s was taught how to fly by %s\n",
@@ -783,14 +771,19 @@ void ClientObituary(edict_t * self, edict_t * inflictor, edict_t * attacker)
 		}
 		else
 		{
-			sprintf(death_msg, "%s plummets to %s death\n", self->client->pers.netname, GENDER_STR(self, "his", "her", "its"));
+			sprintf( death_msg, "%s %s\n", self->client->pers.netname, message );
+			PrintDeathMessage( death_msg, self );
+			IRC_printf( IRC_T_DEATH, death_msg );
 
-			PrintDeathMessage(death_msg, self);
-			IRC_printf(IRC_T_DEATH, death_msg);
-			if (deathmatch->value)
-				Subtract_Frag(self);	//self->client->resp.score--;
+			// AQ:TNG - JBravo: Since it's op to teamkill after rounds, why not plummet?
+			if (deathmatch->value) {
+				if (!teamplay->value || team_round_going || !ff_afterround->value)  {
+					Subtract_Frag( self );
+					self->client->resp.deaths++;
+				}
+			}
+
 			self->enemy = NULL;
-			self->client->resp.deaths++;
 		}
 		return;
 	}
