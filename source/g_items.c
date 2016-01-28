@@ -1052,6 +1052,7 @@ void droptofloor (edict_t * ent)
 	}
 
 	VectorCopy (tr.endpos, ent->s.origin);
+	VectorCopy (tr.endpos, ent->old_origin);
 
 	if (ent->team)
 	{

@@ -218,6 +218,7 @@ void CTFSetFlag(int team, char *str)
 		SPAWNFLAG_NOT_COOP | SPAWNFLAG_NOT_DEATHMATCH);
 
 	VectorCopy(position, ent->s.origin);
+	VectorCopy(position, ent->old_origin);
 
 	ED_CallSpawn (ent);
 }
@@ -921,6 +922,7 @@ void CTFFlagSetup(edict_t * ent)
 	}
 
 	VectorCopy(tr.endpos, ent->s.origin);
+	VectorCopy(tr.endpos, ent->old_origin);
 
 	gi.linkentity(ent);
 
