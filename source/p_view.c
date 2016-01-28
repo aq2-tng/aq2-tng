@@ -661,7 +661,7 @@ void P_FallingDamage (edict_t * ent)
 	ent->pain_debounce_framenum = KEYFRAME(FRAMEDIV);	// no normal pain sound
 	gi.dprintf("falling damage set debounce framenum to %d\n", level.framenum);
 
-	if (!deathmatch->value || !DMFLAGS(DF_NO_FALLING))
+	if (!DMFLAGS(DF_NO_FALLING))
 	{
 		damage = (int) (((delta - 30) / 2));
 		if (damage < 1)

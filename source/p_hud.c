@@ -63,11 +63,9 @@
 
 void MoveClientToIntermission (edict_t * ent)
 {
-	if (deathmatch->value)
-	{
-		ent->client->showscores = true;
-		ent->client->scoreboardnum = 1;
-	}
+	ent->client->showscores = true;
+	ent->client->scoreboardnum = 1;
+
 	VectorCopy (level.intermission_origin, ent->s.origin);
 	ent->client->ps.pmove.origin[0] = level.intermission_origin[0] * 8;
 	ent->client->ps.pmove.origin[1] = level.intermission_origin[1] * 8;
@@ -103,13 +101,8 @@ void MoveClientToIntermission (edict_t * ent)
 	//FIREBLADE
 
 	// add the layout
-
-	if (deathmatch->value)
-	{
-		DeathmatchScoreboardMessage (ent, NULL);
-		gi.unicast (ent, true);
-	}
-
+	DeathmatchScoreboardMessage (ent, NULL);
+	gi.unicast (ent, true);
 }
 
 void BeginIntermission (edict_t * targ)
@@ -141,15 +134,6 @@ void BeginIntermission (edict_t * targ)
 
 	level.intermission_framenum = level.realFramenum;
 	level.changemap = targ->map;
-
-	if (!strchr(level.changemap, '*'))
-	{
-		if (!deathmatch->value)
-		{
-			level.intermission_exit = 1;	// go immediately to the next level
-			return;
-		}
-	}
 
 	level.intermission_exit = 0;
 
@@ -331,20 +315,16 @@ void DeathmatchScoreboard (edict_t * ent)
 */
 void Cmd_Score_f (edict_t * ent)
 {
-  ent->client->showinventory = false;
+	ent->client->showinventory = false;
 	
-  //FIREBLADE
-  if (ent->client->menu)
-    PMenu_Close (ent);
-  //FIREBLADE
+	//FIREBLADE
+	if (ent->client->menu)
+		PMenu_Close (ent);
 	
-  if (!deathmatch->value)
-    return;
-	
-  if (ent->client->showscores)
-  {
-    //FIREBLADE
-    if (teamplay->value && ent->client->scoreboardnum < 2)	// toggle scoreboards...
+	if (ent->client->showscores)
+	{
+		//FIREBLADE
+		if (teamplay->value && ent->client->scoreboardnum < 2)	// toggle scoreboards...
 		{
 			ent->client->scoreboardnum++;
 			DeathmatchScoreboard (ent);
@@ -356,11 +336,11 @@ void Cmd_Score_f (edict_t * ent)
 		return;
 	}
 	
-  ent->client->showscores = true;
-  //FIREBLADE
-  ent->client->scoreboardnum = 1;
-  //FIREBLADE
-  DeathmatchScoreboard (ent);
+	ent->client->showscores = true;
+	//FIREBLADE
+	ent->client->scoreboardnum = 1;
+	//FIREBLADE
+	DeathmatchScoreboard (ent);
 }
 
 

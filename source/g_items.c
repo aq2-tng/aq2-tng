@@ -226,18 +226,15 @@ qboolean Pickup_Powerup (edict_t * ent, edict_t * other)
 
 	other->client->pers.inventory[ITEM_INDEX (ent->item)]++;
 
-	if (deathmatch->value)
-	{
-		if (!(ent->spawnflags & DROPPED_ITEM))
-			SetRespawn (ent, ent->item->quantity);
-		//if (DMFLAGS(DF_INSTANT_ITEMS)
-		//	|| ((ent->item->use == Use_Quad) && (ent->spawnflags & DROPPED_PLAYER_ITEM)))
-		//{
-			if ((ent->item->use == Use_Quad) && (ent->spawnflags & DROPPED_PLAYER_ITEM))
-				quad_drop_timeout_hack = ent->nextthink - level.framenum;
-			ent->item->use (other, ent->item);
-		//}
-	}
+	if (!(ent->spawnflags & DROPPED_ITEM))
+		SetRespawn (ent, ent->item->quantity);
+	//if (DMFLAGS(DF_INSTANT_ITEMS)
+	//	|| ((ent->item->use == Use_Quad) && (ent->spawnflags & DROPPED_PLAYER_ITEM)))
+	//{
+		if ((ent->item->use == Use_Quad) && (ent->spawnflags & DROPPED_PLAYER_ITEM))
+			quad_drop_timeout_hack = ent->nextthink - level.framenum;
+		ent->item->use (other, ent->item);
+	//}
 
 	return true;
 }
@@ -432,14 +429,11 @@ void Drop_General (edict_t * ent, gitem_t * item)
 
 qboolean Pickup_Adrenaline (edict_t * ent, edict_t * other)
 {
-	if (!deathmatch->value)
-		other->max_health += 1;
-
 	if (other->health < other->max_health)
 		other->health = other->max_health;
 
-	if (!(ent->spawnflags & DROPPED_ITEM) && (deathmatch->value))
-		SetRespawn (ent, ent->item->quantity);
+	if (!(ent->spawnflags & DROPPED_ITEM))
+		SetRespawn(ent, ent->item->quantity);
 
 	return true;
 }
@@ -448,7 +442,7 @@ qboolean Pickup_AncientHead (edict_t * ent, edict_t * other)
 {
 	other->max_health += 2;
 
-	if (!(ent->spawnflags & DROPPED_ITEM) && (deathmatch->value))
+	if (!(ent->spawnflags & DROPPED_ITEM))
 		SetRespawn (ent, ent->item->quantity);
 
 	return true;
@@ -486,7 +480,7 @@ qboolean Pickup_Bandolier (edict_t * ent, edict_t * other)
 			other->client->pers.inventory[index] = other->client->pers.max_shells;
 	}
 
-	if (!(ent->spawnflags & DROPPED_ITEM) && (deathmatch->value))
+	if (!(ent->spawnflags & DROPPED_ITEM))
 		SetRespawn (ent, ent->item->quantity);
 
 	return true;
@@ -564,7 +558,7 @@ qboolean Pickup_Pack (edict_t * ent, edict_t * other)
 		other->client->pers.inventory[index] = other->client->pers.max_slugs;
 	}
 
-	if (!(ent->spawnflags & DROPPED_ITEM) && (deathmatch->value))
+	if (!(ent->spawnflags & DROPPED_ITEM))
 		SetRespawn (ent, ent->item->quantity);
 
 	return true;
@@ -726,12 +720,11 @@ qboolean Pickup_Ammo (edict_t * ent, edict_t * other)
 
 	if (weapon && !oldcount)
 	{
-		if (other->client->pers.weapon != ent->item
-		&& (!deathmatch->value || other->client->pers.weapon == FindItem("blaster")))
+		if (other->client->pers.weapon != ent->item && other->client->pers.weapon == FindItem("blaster"))
 			other->client->newweapon = ent->item;
 	}
 
-	if (!(ent->spawnflags & (DROPPED_ITEM | DROPPED_PLAYER_ITEM)) && (deathmatch->value))
+	if (!(ent->spawnflags & (DROPPED_ITEM | DROPPED_PLAYER_ITEM)))
 		SetRespawn (ent, ammo_respawn->value);
 
 	return true;
@@ -770,7 +763,7 @@ void MegaHealth_think (edict_t * self)
 		return;
 	}
 
-	if (!(self->spawnflags & DROPPED_ITEM) && (deathmatch->value))
+	if (!(self->spawnflags & DROPPED_ITEM))
 		SetRespawn (self, 20);
 	else
 		G_FreeEdict (self);
@@ -810,7 +803,7 @@ qboolean Pickup_Health (edict_t * ent, edict_t * other)
 	}
 	else
 	{
-		if (!(ent->spawnflags & DROPPED_ITEM) && (deathmatch->value))
+		if (!(ent->spawnflags & DROPPED_ITEM))
 			SetRespawn (ent, 30);
 	}
 
@@ -902,19 +895,17 @@ static void drop_temp_touch (edict_t * ent, edict_t * other, cplane_t * plane,
 static void drop_make_touchable (edict_t * ent)
 {
 	ent->touch = Touch_Item;
-	if (deathmatch->value)
+
+	//AQ2:TNG - Slicer
+	if (ctf->value)
 	{
-		//AQ2:TNG - Slicer
-		if (ctf->value)
-		{
-			ent->nextthink = level.framenum + 6 * HZ;
-			ent->think = G_FreeEdict;
-		}
-		else
-		{
-			ent->nextthink = level.framenum + 119 * HZ;
-			ent->think = G_FreeEdict;
-		}
+		ent->nextthink = level.framenum + 6 * HZ;
+		ent->think = G_FreeEdict;
+	}
+	else
+	{
+		ent->nextthink = level.framenum + 119 * HZ;
+		ent->think = G_FreeEdict;
 	}
 }
 
@@ -1327,34 +1318,31 @@ void SpawnItem (edict_t * ent, gitem_t * item)
 	//AQ2:TNG End adding flags
 
 	// some items will be prevented in deathmatch
-	if (deathmatch->value)
+	if (DMFLAGS(DF_NO_ITEMS))
 	{
-		if (DMFLAGS(DF_NO_ITEMS))
+		if (item->pickup == Pickup_Powerup)
 		{
-			if (item->pickup == Pickup_Powerup)
-			{
-				G_FreeEdict (ent);
-				return;
-			}
+			G_FreeEdict (ent);
+			return;
 		}
-		// zucc remove health from the game
-		if (1 /*DMFLAGS(DF_NO_HEALTH) */ )
+	}
+	// zucc remove health from the game
+	if (1 /*DMFLAGS(DF_NO_HEALTH) */ )
+	{
+		if (item->pickup == Pickup_Health
+		|| item->pickup == Pickup_Adrenaline
+		|| item->pickup == Pickup_AncientHead)
 		{
-			if (item->pickup == Pickup_Health
-			|| item->pickup == Pickup_Adrenaline
-			|| item->pickup == Pickup_AncientHead)
-			{
-				G_FreeEdict (ent);
-				return;
-			}
+			G_FreeEdict (ent);
+			return;
 		}
-		if (DMFLAGS(DF_INFINITE_AMMO))
+	}
+	if (DMFLAGS(DF_INFINITE_AMMO))
+	{
+		if (item->flags == IT_AMMO)
 		{
-			if (item->flags == IT_AMMO)
-			{
-				G_FreeEdict (ent);
-				return;
-			}
+			G_FreeEdict (ent);
+			return;
 		}
 	}
 

@@ -390,15 +390,13 @@ void Cmd_Give_f (edict_t * ent)
 	edict_t *it_ent;
 	edict_t etemp;
 
-	if (deathmatch->value && !sv_cheats->value)
-	{
-		gi.cprintf (ent, PRINT_HIGH, "You must run the server with '+set cheats 1' to enable this command.\n");
+	if (!sv_cheats->value) {
+		gi.cprintf(ent, PRINT_HIGH, "You must run the server with '+set cheats 1' to enable this command.\n");
 		return;
 	}
 
-	if (ent->solid == SOLID_NOT)
-	{
-		gi.cprintf (ent, PRINT_HIGH, "This command can't be used by spectators.\n");
+	if (ent->solid == SOLID_NOT) {
+		gi.cprintf(ent, PRINT_HIGH, "This command can't be used by spectators.\n");
 		return;
 	}
 
@@ -602,10 +600,8 @@ void Cmd_God_f (edict_t * ent)
 {
 	char *msg;
 
-	if (deathmatch->value && !sv_cheats->value)
-	{
-		gi.cprintf (ent, PRINT_HIGH,
-		"You must run the server with '+set cheats 1' to enable this command.\n");
+	if (!sv_cheats->value) {
+		gi.cprintf(ent, PRINT_HIGH, "You must run the server with '+set cheats 1' to enable this command.\n");
 		return;
 	}
 
@@ -632,10 +628,8 @@ void Cmd_Notarget_f (edict_t * ent)
 {
 	char *msg;
 
-	if (deathmatch->value && !sv_cheats->value)
-	{
-		gi.cprintf (ent, PRINT_HIGH,
-		"You must run the server with '+set cheats 1' to enable this command.\n");
+	if (!sv_cheats->value) {
+		gi.cprintf(ent, PRINT_HIGH, "You must run the server with '+set cheats 1' to enable this command.\n");
 		return;
 	}
 
@@ -660,10 +654,8 @@ void Cmd_Noclip_f (edict_t * ent)
 {
 	char *msg;
 
-	if (deathmatch->value && !sv_cheats->value)
-	{
-		gi.cprintf (ent, PRINT_HIGH,
-		"You must run the server with '+set cheats 1' to enable this command.\n");
+	if (!sv_cheats->value) {
+		gi.cprintf(ent, PRINT_HIGH, "You must run the server with '+set cheats 1' to enable this command.\n");
 		return;
 	}
 

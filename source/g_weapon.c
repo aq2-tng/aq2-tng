@@ -1014,8 +1014,7 @@ void kick_attack (edict_t * ent)
 	vec3_t start;
 	vec3_t forward, right;
 	vec3_t offset;
-	int damage = 20;
-	int kick = 400;
+	int damage = 20, kick = 400, friendlyFire = 0;
 	trace_t tr;
 	vec3_t end;
 	char *genderstr;
@@ -1046,26 +1045,19 @@ void kick_attack (edict_t * ent)
 		if (tr.ent->health <= 0)
 			return;
 
-		if (teamplay->value)
+		if (tr.ent->client)
 		{
-			// AQ2:TNG - JBravo adding UVtime
-			if (tr.ent->client && tr.ent->client->ctf_uvtime)
+			if (tr.ent->client->ctf_uvtime)
 				return;
+			
+			if (tr.ent != ent && ent->client && OnSameTeam( tr.ent, ent ))
+				friendlyFire = 1;
 
-			//                                        if (tr.ent != ent && tr.ent->client && ent->client &&
-			//                                                tr.ent->client->resp.team == ent->client->resp.team)
-			// AQ:TNG - JBravo adding FF after rounds
-			if ((tr.ent != ent) && (tr.ent->client && ent->client) &&
-				(tr.ent->client->resp.team == ent->client->resp.team) &&
-				team_round_going)
-				return;
-			if (!ff_afterround->value)
-				return;
-			// AQ:TNG
+			if (friendlyFire/* && DMFLAGS(DF_NO_FRIENDLY_FIRE)*/){
+				if (!teamplay->value || team_round_going || !ff_afterround->value)
+					return;
+			}
 		}
-		else if (((tr.ent != ent) && ((deathmatch->value
-			&& DMFLAGS( (DF_MODELTEAMS | DF_SKINTEAMS) ))) && OnSameTeam( tr.ent, ent )))
-			return;
 		// zucc stop powerful upwards kicking
 		//forward[2] = 0;
 		// glass fx

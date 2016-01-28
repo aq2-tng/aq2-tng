@@ -786,9 +786,6 @@ void CheckDMRules (void)
 	if (level.intermission_framenum)
 		return;
 
-	if (!deathmatch->value)
-		return;
-
 	//FIREBLADE
 	if (teamplay->value)
 	{
