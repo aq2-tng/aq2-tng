@@ -623,7 +623,7 @@ void ClientObituary(edict_t * self, edict_t * inflictor, edict_t * attacker)
 	char *message;
 	char *message2;
 	char death_msg[1024];	// enough in all situations? -FB
-	qboolean ff;
+	qboolean friendlyFire;
 	int special = 0;
 	int n;
 
@@ -637,10 +637,7 @@ void ClientObituary(edict_t * self, edict_t * inflictor, edict_t * attacker)
 		return;
 	}
 
-	if (attacker && attacker != self && attacker->client && OnSameTeam(self, attacker))
-		meansOfDeath |= MOD_FRIENDLY_FIRE;
-
-	ff = meansOfDeath & MOD_FRIENDLY_FIRE;
+	friendlyFire = meansOfDeath & MOD_FRIENDLY_FIRE;
 	mod = meansOfDeath & ~MOD_FRIENDLY_FIRE;
 	loc = locOfDeath;	// useful for location based hits
 	message = NULL;
@@ -746,13 +743,10 @@ void ClientObituary(edict_t * self, edict_t * inflictor, edict_t * attacker)
 			self->client->attacker->client->pers.num_kills++;
 
 			//MODIFIED FOR FF -FB
-			if (!DMFLAGS(DF_NO_FRIENDLY_FIRE)
-				&& teamplay->value && OnSameTeam(self, self->client->attacker))
+			if (OnSameTeam(self, self->client->attacker))
 			{
-				if (team_round_going || !ff_afterround->value) {
-					// AQ:TNG - JBravo adding tkok
+				if (!DMFLAGS(DF_NO_FRIENDLY_FIRE) && (!teamplay->value || team_round_going || !ff_afterround->value)) {
 					self->enemy = self->client->attacker;
-					// End adding tkok
 					Add_TeamKill(self->client->attacker);
 					Subtract_Frag(self->client->attacker);	//attacker->client->resp.score--;
 					self->client->resp.deaths++;
@@ -760,12 +754,9 @@ void ClientObituary(edict_t * self, edict_t * inflictor, edict_t * attacker)
 			}
 			else
 			{
-				if (!teamplay->value || !OnSameTeam(self, self->client->attacker))
-				{
-					self->client->resp.streakKills = 0;
-					Add_Frag(self->client->attacker, MOD_FRIENDLY_FIRE);
-					self->client->resp.deaths++;
-				}
+				self->client->resp.streakKills = 0;
+				Add_Frag(self->client->attacker, MOD_UNKNOWN);
+				self->client->resp.deaths++;
 			}
 
 		}
@@ -775,12 +766,9 @@ void ClientObituary(edict_t * self, edict_t * inflictor, edict_t * attacker)
 			PrintDeathMessage( death_msg, self );
 			IRC_printf( IRC_T_DEATH, death_msg );
 
-			// AQ:TNG - JBravo: Since it's op to teamkill after rounds, why not plummet?
-			if (deathmatch->value) {
-				if (!teamplay->value || team_round_going || !ff_afterround->value)  {
-					Subtract_Frag( self );
-					self->client->resp.deaths++;
-				}
+			if (!teamplay->value || team_round_going || !ff_afterround->value)  {
+				Subtract_Frag( self );
+				self->client->resp.deaths++;
 			}
 
 			self->enemy = NULL;
@@ -1121,7 +1109,7 @@ void ClientObituary(edict_t * self, edict_t * inflictor, edict_t * attacker)
 			if (!deathmatch->value)
 				return;
 
-			if (ff) {
+			if (friendlyFire) {
 				if (!teamplay->value || team_round_going || !ff_afterround->value)
 				{
 					self->enemy = attacker; //tkok
@@ -1380,7 +1368,7 @@ player_die
 */
 void player_die(edict_t * self, edict_t * inflictor, edict_t * attacker, int damage, vec3_t point)
 {
-	int n;
+	int n, mod;
 
 	VectorClear(self->avelocity);
 
@@ -1465,8 +1453,10 @@ void player_die(edict_t * self, edict_t * inflictor, edict_t * attacker, int dam
 	self->client->enviro_framenum = 0;
 
 	//zucc remove lasersight
-	if (self->lasersight)
-		SP_LaserSight(self, NULL);
+	if (self->lasersight) {
+		G_FreeEdict(self->lasersight);
+		self->lasersight = NULL;
+	}
 
 	// TNG Turn Flashlight off
 	if (self->flashlight)
@@ -1501,9 +1491,11 @@ void player_die(edict_t * self, edict_t * inflictor, edict_t * attacker, int dam
 			fire_grenade2(self, self->s.origin, vec3_origin, GRENADE_DAMRAD, 0,
 				      2 * HZ, GRENADE_DAMRAD * 2, false);
 	}
+
+	mod = meansOfDeath & ~MOD_FRIENDLY_FIRE;
 	// Gibbing on really hard HC hit
-	if ((((self->health < -35) && (meansOfDeath == MOD_HC)) ||
-	     ((self->health < -20) && (meansOfDeath == MOD_M3))) && (sv_gib->value)) {
+	if ((((self->health < -35) && (mod == MOD_HC)) ||
+		((self->health < -20) && (mod == MOD_M3))) && (sv_gib->value)) {
 		gi.sound(self, CHAN_BODY, gi.soundindex("misc/udeath.wav"), 1, ATTN_NORM, 0);
 		for (n = 0; n < 5; n++)
 			ThrowGib(self, "models/objects/gibs/sm_meat/tris.md2", damage, GIB_ORGANIC);
@@ -1536,11 +1528,11 @@ void player_die(edict_t * self, edict_t * inflictor, edict_t * attacker, int dam
 					self->client->anim_end = FRAME_death308;
 					break;
 				}
-			if ((meansOfDeath == MOD_SNIPER) || (meansOfDeath == MOD_KNIFE)
-			    || (meansOfDeath == MOD_KNIFE_THROWN)) {
+			if ((mod == MOD_SNIPER) || (mod == MOD_KNIFE)
+				|| (mod == MOD_KNIFE_THROWN)) {
 				gi.sound(self, CHAN_VOICE, gi.soundindex("misc/glurp.wav"), 1, ATTN_NORM, 0);
 				// TempFile - BEGIN sniper gibbing
-				if (meansOfDeath == MOD_SNIPER) {
+				if (mod == MOD_SNIPER) {
 					int n;
 
 					switch (locOfDeath) {
@@ -3075,8 +3067,10 @@ void ClientDisconnect(edict_t * ent)
 		TossItemsOnDeath(ent);
 
 	// zucc free the lasersight if applicable
-	if (ent->lasersight)
-		SP_LaserSight(ent, NULL);
+	if (ent->lasersight) {
+		G_FreeEdict(ent->lasersight);
+		ent->lasersight = NULL;
+	}
 
 	// TNG Free Flashlight
 	if (ent->flashlight)
@@ -3084,8 +3078,6 @@ void ClientDisconnect(edict_t * ent)
 
 	if (teamplay->value && ent->solid == SOLID_TRIGGER)
 		RemoveFromTransparentList(ent);
-
-	ent->lasersight = NULL;
 
 	gi.bprintf(PRINT_HIGH, "%s disconnected\n", ent->client->pers.netname);
 	IRC_printf(IRC_T_SERVER, "%n disconnected", ent->client->pers.netname);
