@@ -330,6 +330,7 @@ void blood_spray_touch (edict_t * ent, edict_t * other, cplane_t * plane,
 void spray_blood (edict_t * self, vec3_t start, vec3_t dir, int damage, int mod)
 {
 	edict_t *blood;
+	vec3_t	temp;
 	int speed;
 
 	switch (mod)
@@ -363,11 +364,12 @@ void spray_blood (edict_t * self, vec3_t start, vec3_t dir, int damage, int mod)
 
 
 	blood = G_Spawn ();
-	VectorNormalize (dir);
+	VectorNormalize2(dir, temp);
 	VectorCopy (start, blood->s.origin);
-	VectorCopy (dir, blood->movedir);
-	vectoangles (dir, blood->s.angles);
-	VectorScale (dir, speed, blood->velocity);
+	VectorCopy (start, blood->old_origin);
+	VectorCopy (temp, blood->movedir);
+	vectoangles (temp, blood->s.angles);
+	VectorScale (temp, speed, blood->velocity);
 	blood->movetype = MOVETYPE_BLOOD;
 	blood->clipmask = MASK_SHOT;
 	blood->solid = SOLID_BBOX;
@@ -392,68 +394,53 @@ void spray_sniper_blood (edict_t * self, vec3_t start, vec3_t dir)
 	vec3_t forward;
 	int mod = MOD_SNIPER;
 
-	VectorCopy (dir, forward);
+	forward[0] = dir[0];
+	forward[1] = dir[1];
+	forward[2] = dir[2] + 0.03f;
 
-	forward[2] += .03f;
+	spray_blood( self, start, forward, 0, mod );
 
-	spray_blood (self, start, forward, 0, mod);
+	forward[2] = dir[2] - 0.03f;
+	spray_blood( self, start, forward, 0, mod );
+	forward[2] = dir[2];
 
+	if (dir[0] && dir[1]) {
+		vec3_t diff = { 0.0f, 0.0f, 0.0f };
+		if (dir[0] > 0.0f)
+		{
+			if (dir[1] > 0.0f) {
+				diff[0] = -0.03f;
+				diff[1] = 0.03f;
+			}
+			else {
+				diff[0] = 0.03f;
+				diff[1] = 0.03f;
+			}
+		}
+		else
+		{
+			if (dir[1] > 0.0f) {
+				diff[0] = -0.03f;
+				diff[1] = -0.03f;
+			}
+			else {
+				diff[0] = 0.03f;
+				diff[1] = -0.03f;
+			}
+		}
 
-	VectorCopy (dir, forward);
-	forward[2] -= .03f;
-	spray_blood (self, start, forward, 0, mod);
+		forward[0] = dir[0] + diff[0];
+		forward[1] = dir[1] + diff[1];
 
+		spray_blood( self, start, forward, 0, mod );
 
-	VectorCopy (dir, forward);
-	if ((forward[0] > 0) && (forward[1] > 0))
-	{
-		forward[0] -= .03f;
-		forward[1] += .03f;
+		forward[0] = dir[0] - diff[0];
+		forward[1] = dir[1] - diff[1];
+
+		spray_blood( self, start, forward, 0, mod );
 	}
-	if ((forward[0] > 0) && (forward[1] < 0))
-	{
-		forward[0] += .03f;
-		forward[1] += .03f;
-	}
-	if ((forward[0] < 0) && (forward[1] > 0))
-	{
-		forward[0] -= .03f;
-		forward[1] -= .03f;
-	}
-	if ((forward[0] < 0) && (forward[1] < 0))
-	{
-		forward[0] += .03f;
-		forward[1] -= .03f;
-	}
-	spray_blood (self, start, forward, 0, mod);
 
-
-	VectorCopy (dir, forward);
-	if ((forward[0] > 0) && (forward[1] > 0))
-	{
-		forward[0] += .03f;
-		forward[1] -= .03f;
-	}
-	if ((forward[0] > 0) && (forward[1] < 0))
-	{
-		forward[0] -= .03f;
-		forward[1] -= .03f;
-	}
-	if ((forward[0] < 0) && (forward[1] > 0))
-	{
-		forward[0] += .03f;
-		forward[1] += .03f;
-	}
-	if ((forward[0] < 0) && (forward[1] < 0))
-	{
-		forward[0] -= .03f;
-		forward[1] += .03f;
-	}
-	spray_blood (self, start, forward, 0, mod);
-
-	VectorCopy (dir, forward);
-	spray_blood (self, start, forward, 0, mod);
-
+	spray_blood( self, start, dir, 0, mod );
 }
 
 
@@ -791,9 +778,9 @@ T_Damage (edict_t * targ, edict_t * inflictor, edict_t * attacker, vec3_t dir,
 	// friendly fire avoidance
 	// if enabled you can't hurt teammates (but you can hurt yourself)
 	// knockback still occurs
-	if (friendlyFire && DMFLAGS( (DF_MODELTEAMS | DF_SKINTEAMS) ))
+	if (friendlyFire)
 	{
-		if (DMFLAGS(DF_NO_FRIENDLY_FIRE) && (team_round_going || !ff_afterround->value))
+		if (DMFLAGS(DF_NO_FRIENDLY_FIRE) && (!teamplay->value || team_round_going || !ff_afterround->value))
 			damage = 0;
 		else
 			mod |= MOD_FRIENDLY_FIRE;

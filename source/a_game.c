@@ -587,6 +587,7 @@ void EjectBlooder(edict_t * self, vec3_t start, vec3_t veloc)
 	blooder = G_Spawn();
 	VectorCopy(veloc, forward);
 	VectorCopy(start, blooder->s.origin);
+	VectorCopy(start, blooder->old_origin);
 	spd = 0;
 	VectorScale(forward, spd, blooder->velocity);
 	blooder->solid = SOLID_NOT;
@@ -783,6 +784,7 @@ void EjectShell(edict_t * self, vec3_t start, int toggle)
 	}
 
 	VectorCopy(start, shell->s.origin);
+	VectorCopy(start, shell->old_origin);
 	if (fix == 0)		// we want some velocity on those center handed ones
 		fix = 1;
 	if (self->client->curr_weap == SNIPER_NUM)
@@ -898,6 +900,7 @@ void AddDecal(edict_t * self, trace_t * tr)
 	decal->movetype = MOVETYPE_NONE;
 	decal->s.modelindex = gi.modelindex("models/objects/holes/hole1/hole.md2");
 	VectorCopy(tr->endpos, decal->s.origin);
+	VectorCopy(tr->endpos, decal->old_origin);
 	vectoangles(tr->plane.normal, decal->s.angles);
 	decal->owner = self;
 	decal->classnum = decals;
@@ -949,6 +952,7 @@ void AddSplat(edict_t * self, vec3_t point, trace_t * tr)
 		splat->s.modelindex = gi.modelindex("models/objects/splats/splat3/splat.md2");
 
 	VectorCopy(point, splat->s.origin);
+	VectorCopy(point, splat->old_origin);
 
 	vectoangles(tr->plane.normal, splat->s.angles);
 
