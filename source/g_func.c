@@ -1250,8 +1250,8 @@ void SP_func_door(edict_t *ent)
 
 	if (!ent->speed)
 		ent->speed = 100;
-	if (deathmatch->value)
-		ent->speed *= 2;
+
+	ent->speed *= 2;
 
 	if (!ent->accel)
 		ent->accel = ent->speed;

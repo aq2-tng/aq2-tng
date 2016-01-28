@@ -43,7 +43,7 @@ void punch_attack(edict_t * ent)
 	vec3_t start, forward, right, offset, end;
 	int damage = 7;
 	int kick = 100;
-	int randmodify;
+	int randmodify, friendlyFire = 0;
 	trace_t tr;
 	char *genderstr;
 
@@ -63,22 +63,19 @@ void punch_attack(edict_t * ent)
 			if (tr.ent->health <= 0)
 				return;
 			
-			if (teamplay->value) {
-				// AQ2:TNG - JBravo adding UVtime
-				if (tr.ent->client && tr.ent->client->ctf_uvtime)
+			if (tr.ent->client)
+			{
+				if (tr.ent->client->ctf_uvtime)
 					return;
 
-				if ((tr.ent != ent) && tr.ent->client && ent->client &&
-					(tr.ent->client->resp.team == ent->client->resp.team) &&
-					DMFLAGS(DF_NO_FRIENDLY_FIRE))
-				{
-					if (team_round_going || !ff_afterround->value)
+				if (tr.ent != ent && ent->client && OnSameTeam(tr.ent, ent))
+					friendlyFire = 1;
+
+				if (friendlyFire && DMFLAGS(DF_NO_FRIENDLY_FIRE)){
+					if (!teamplay->value || team_round_going || !ff_afterround->value)
 						return;
 				}
 			}
-			else if (((tr.ent != ent) && ((deathmatch->value &&
-				DMFLAGS( (DF_MODELTEAMS | DF_SKINTEAMS) ))) && OnSameTeam( tr.ent, ent )))
-				return;
 
 			// add some random damage, damage range from 8 to 20.
 			randmodify = rand() % 13 + 1;

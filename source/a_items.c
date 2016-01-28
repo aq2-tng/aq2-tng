@@ -144,7 +144,7 @@ static void MakeTouchSpecThink(edict_t * ent)
 {
 	ent->touch = Touch_Item;
 
-	if (deathmatch->value && (!teamplay->value || teamdm->value || ctf->value == 2) && !allitem->value && !dm_choose->value) {
+	if ((!teamplay->value || teamdm->value || ctf->value == 2) && !allitem->value && !dm_choose->value) {
 		if(item_respawnmode->value) {
 			ent->nextthink = level.framenum + (item_respawn->value*0.5f) * HZ;
 			ent->think = G_FreeEdict;

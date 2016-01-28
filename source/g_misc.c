@@ -540,24 +540,23 @@ light_use (edict_t * self, edict_t * other, edict_t * activator)
     }
 }
 
-void
-SP_light (edict_t * self)
+void SP_light (edict_t * self)
 {
-  // no targeted lights in deathmatch, because they cause global messages
-  if (!self->targetname || deathmatch->value)
-    {
-      G_FreeEdict (self);
-      return;
-    }
+	// no targeted lights in deathmatch, because they cause global messages
+	//if (!self->targetname || deathmatch->value)
+	//{
+		G_FreeEdict (self);
+		return;
+	/*}
 
-  if (self->style >= 32)
-    {
-      self->use = light_use;
-      if (self->spawnflags & START_OFF)
-	gi.configstring (CS_LIGHTS + self->style, "a");
-      else
-	gi.configstring (CS_LIGHTS + self->style, "m");
-    }
+	if (self->style >= 32)
+	{
+		self->use = light_use;
+		if (self->spawnflags & START_OFF)
+			gi.configstring (CS_LIGHTS + self->style, "a");
+		else
+			gi.configstring (CS_LIGHTS + self->style, "m");
+	}*/
 }
 
 
@@ -819,8 +818,7 @@ func_explosive_spawn (edict_t * self, edict_t * other, edict_t * activator)
   gi.linkentity (self);
 }
 
-void
-SP_func_explosive (edict_t * self)
+void SP_func_explosive (edict_t * self)
 {
   /* removed for glass fx
      if (deathmatch->value)

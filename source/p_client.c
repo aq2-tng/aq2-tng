@@ -558,10 +558,6 @@ potential spawning position for deathmatch games
 */
 void SP_info_player_deathmatch(edict_t * self)
 {
-	if (!deathmatch->value) {
-		G_FreeEdict(self);
-		return;
-	}
 	SP_misc_teleporter_dest(self);
 }
 
@@ -628,14 +624,6 @@ void ClientObituary(edict_t * self, edict_t * inflictor, edict_t * attacker)
 	int n;
 
 	self->client->resp.ctf_capstreak = 0;
-
-	if (!deathmatch->value)
-	{
-		sprintf(death_msg, "%s died\n", self->client->pers.netname);
-		PrintDeathMessage(death_msg, self);
-		IRC_printf(IRC_T_DEATH, death_msg);
-		return;
-	}
 
 	friendlyFire = meansOfDeath & MOD_FRIENDLY_FIRE;
 	mod = meansOfDeath & ~MOD_FRIENDLY_FIRE;
@@ -1099,15 +1087,12 @@ void ClientObituary(edict_t * self, edict_t * inflictor, edict_t * attacker)
 			break;
 		}	//end of case (mod)
 
-		if (message) {
-			//FIREBLADE
+		if (message)
+		{
 			sprintf(death_msg, "%s%s %s%s\n", self->client->pers.netname,
 			message, attacker->client->pers.netname, message2);
 			PrintDeathMessage(death_msg, self);
 			IRC_printf(IRC_T_KILL, death_msg);
-			//FIREBLADE
-			if (!deathmatch->value)
-				return;
 
 			if (friendlyFire) {
 				if (!teamplay->value || team_round_going || !ff_afterround->value)
@@ -1134,10 +1119,8 @@ void ClientObituary(edict_t * self, edict_t * inflictor, edict_t * attacker)
 	PrintDeathMessage(death_msg, self);
 	IRC_printf(IRC_T_DEATH, death_msg);
 
-	if (deathmatch->value){
-		Subtract_Frag(self);	//self->client->resp.score--;
-		self->client->resp.deaths++;
-	}
+	Subtract_Frag(self);	//self->client->resp.score--;
+	self->client->resp.deaths++;
 }
 
 void Touch_Item(edict_t * ent, edict_t * other, cplane_t * plane, csurface_t * surf);
@@ -1290,9 +1273,6 @@ void TossClientWeapon(edict_t * self)
 	qboolean quad;
 	float spread;
 
-	if (!deathmatch->value)
-		return;
-
 	item = self->client->pers.weapon;
 	if (!self->client->pers.inventory[self->client->ammo_index])
 		item = NULL;
@@ -1438,8 +1418,7 @@ void player_die(edict_t * self, edict_t * inflictor, edict_t * attacker, int dam
 		CTFPlayerResetGrapple(self);
 
 		//FIREBLADE
-		if (deathmatch->value && !teamplay->value)
-			//FIREBLADE
+		if (!teamplay->value)
 			Cmd_Help_f(self);	// show scores
 
 		// always reset chase to killer, even if NULL
@@ -1933,18 +1912,13 @@ void SelectSpawnPoint(edict_t * ent, vec3_t origin, vec3_t angles)
 	else if (teamplay->value && !teamdm->value && ent->client->resp.team != NOTEAM && !in_warmup) {
 		spot = SelectTeamplaySpawnPoint(ent);
 	} else {
-		//FIREBLADE
-		if (deathmatch->value)
-			spot = SelectDeathmatchSpawnPoint();
+		spot = SelectDeathmatchSpawnPoint();
 	}
 
 	// find a single player start spot
 	if (!spot) {
-//FIREBLADE
-		if (deathmatch->value) {
-			gi.dprintf("Warning: failed to find deathmatch spawn point\n");
-		}
-//FIREBLADE
+		gi.dprintf("Warning: failed to find deathmatch spawn point\n");
+
 		while ((spot = G_Find(spot, FOFS(classname), "info_player_start")) != NULL) {
 			if (!game.spawnpoint[0] && !spot->targetname)
 				break;
@@ -2074,17 +2048,15 @@ void CleanBodies()
 
 void respawn(edict_t * self)
 {
-	if (deathmatch->value) {
-//FIREBLADE
-		if (self->solid != SOLID_NOT || self->deadflag == DEAD_DEAD)
-//FIREBLADE
-			CopyToBodyQue(self);
-		PutClientInServer(self);
-		if (ctf->value || teamdm->value)
-			AddToTransparentList(self);
+	if (self->solid != SOLID_NOT || self->deadflag == DEAD_DEAD)
+		CopyToBodyQue(self);
+
+	PutClientInServer(self);
+	if (ctf->value || teamdm->value)
+		AddToTransparentList(self);
 
 //FIREBLADE
-		self->svflags &= ~SVF_NOCLIENT;
+	self->svflags &= ~SVF_NOCLIENT;
 //FIREBLADE
 
 // Disable all this... -FB
@@ -2095,19 +2067,14 @@ void respawn(edict_t * self)
 //                self->client->ps.pmove.pm_flags = PMF_TIME_TELEPORT;
 //                self->client->ps.pmove.pm_time = 14;
 
-		if(respawn_effect->value) {
-			gi.WriteByte(svc_muzzleflash);
-			gi.WriteShort(self - g_edicts);
-			gi.WriteByte(MZ_RESPAWN);
-			gi.multicast(self->s.origin, MULTICAST_PVS);
-		}
-
-		self->client->respawn_time = level.framenum + 2 * HZ;
-
-		return;
+	if(respawn_effect->value) {
+		gi.WriteByte(svc_muzzleflash);
+		gi.WriteShort(self - g_edicts);
+		gi.WriteByte(MZ_RESPAWN);
+		gi.multicast(self->s.origin, MULTICAST_PVS);
 	}
-	// restart the entire server
-	gi.AddCommandString("menu_loadgame\n");
+
+	self->client->respawn_time = level.framenum + 2 * HZ;
 }
 
 //==============================================================
@@ -2462,14 +2429,10 @@ void PutClientInServer(edict_t * ent)
 	int i;
 	client_persistant_t saved;
 	client_respawn_t resp;
-
-	// zucc for ammo
-//      gitem_t *item;
-
-//FF
 	int save_team_wounds;
 	int save_team_kills;
 	char save_ipaddr[100];
+	char userinfo[MAX_INFO_STRING];
 
 //FF
 
@@ -2482,16 +2445,10 @@ void PutClientInServer(edict_t * ent)
 	client = ent->client;
 
 	// deathmatch wipes most client data every spawn
-	if (deathmatch->value) {
-		char userinfo[MAX_INFO_STRING];
-
-		resp = client->resp;
-		memcpy(userinfo, client->pers.userinfo, sizeof(userinfo));
-		InitClientPersistant(client);
-		ClientUserinfoChanged(ent, userinfo);
-	} else {
-		memset(&resp, 0, sizeof(resp));
-	}
+	resp = client->resp;
+	memcpy(userinfo, client->pers.userinfo, sizeof(userinfo));
+	InitClientPersistant(client);
+	ClientUserinfoChanged(ent, userinfo);
 
 	// clear everything but the persistant data
 	saved = client->pers;
@@ -2564,7 +2521,7 @@ void PutClientInServer(edict_t * ent)
 		client->ps.pmove.pm_flags &= ~PMF_NO_PREDICTION;
 		//AQ2:TNG End
 	}
-	if (deathmatch->value && DMFLAGS(DF_FIXED_FOV)) {
+	if (DMFLAGS(DF_FIXED_FOV)) {
 		client->ps.fov = 90;
 	} else {
 		client->ps.fov = atoi(Info_ValueForKey(client->pers.userinfo, "fov"));
@@ -2688,7 +2645,7 @@ void PutClientInServer(edict_t * ent)
 
 		if ((teamplay->value && !teamdm->value && ctf->value != 2) || (!ctf->value && dm_choose->value))
 			EquipClient(ent);
-		else if (deathmatch->value)
+		else
 			EquipClientDM(ent);
 
 		if (ent->client->menu) {
@@ -2769,7 +2726,7 @@ void ClientBeginDeathmatch(edict_t * ent)
 		JoinTeam(ent, ent->client->resp.saved_team, 1);
 
 //FIREBLADE
-	if (deathmatch->value && !teamplay->value && ent->solid == SOLID_NOT)
+	if (!teamplay->value && ent->solid == SOLID_NOT)
 	{
 		gi.bprintf(PRINT_HIGH, "%s became a spectator\n", ent->client->pers.netname);
 		IRC_printf(IRC_T_SERVER, "%n became a spectator", ent->client->pers.netname);
@@ -2802,71 +2759,9 @@ to be placed into the game.  This will happen every level load.
 */
 void ClientBegin(edict_t * ent)
 {
-	int i;
-
 	ent->client = game.clients + (ent - g_edicts - 1);
 
-	if (deathmatch->value) {
-		ClientBeginDeathmatch(ent);
-		return;
-	}
-
-	//PG BUND - BEGIN
-	ResetKills(ent);
-	//AQ2:TNG - Slicer :Dunno Why these Vars Are Here, as it calls InitClientResp..
-	//Adding The Last_damaged_part anyway
-	ent->client->resp.last_damaged_part = 0;
-	ent->client->resp.last_damaged_players[0] = '\0';
-	//AQ2:TNG END
-	ent->client->resp.killed_teammates = 0;
-	ent->client->resp.idletime = 0;
-	TourneyNewPlayer(ent);
-
-	// client voting initialization
-	vInitClient(ent);
-	//PG BUND - END          
-
-	// if there is already a body waiting for us (a loadgame), just
-	// take it, otherwise spawn one from scratch
-	if (ent->inuse == true) {
-		// the client has cleared the client side viewangles upon
-		// connecting to the server, which is different than the
-		// state when the game is saved, so we need to compensate
-		// with deltaangles
-		for (i = 0; i < 3; i++)
-			ent->client->ps.pmove.delta_angles[i] = ANGLE2SHORT(ent->client->ps.viewangles[i]);
-	} else {
-		// a spawn point will completely reinitialize the entity
-		// except for the persistant data that was initialized at
-		// ClientConnect() time
-		G_InitEdict(ent);
-		ent->classname = "player";
-		ResetKills(ent);
-		InitClientResp(ent->client);
-		PutClientInServer(ent);
-	}
-
-	if (level.intermission_framenum) {
-		MoveClientToIntermission(ent);
-	} else {
-		// send effect if in a multiplayer game
-		if (game.maxclients > 1) {
-//FIREBLADE
-			if (!teamplay->value) {
-//FIREBLADE
-				gi.WriteByte(svc_muzzleflash);
-				gi.WriteShort(ent - g_edicts);
-				gi.WriteByte(MZ_LOGIN);
-				gi.multicast(ent->s.origin, MULTICAST_PVS);
-			}
-
-			gi.bprintf(PRINT_HIGH, "%s entered the game\n", ent->client->pers.netname);
-			IRC_printf(IRC_T_SERVER, "%n entered the game", ent->client->pers.netname);
-		}
-	}
-
-	// make sure all view stuff is valid
-	ClientEndServerFrame(ent);
+	ClientBeginDeathmatch(ent);
 }
 
 /*
@@ -3465,7 +3360,7 @@ void ClientBeginServerFrame(edict_t * ent)
 
 
 	// force spawn when weapon and item selected in dm
-	if (deathmatch->value && dm_choose->value && !teamplay->value && !client->resp.dm_selected) {
+	if (dm_choose->value && !teamplay->value && !client->resp.dm_selected) {
 		if (client->resp.weapon && (client->resp.item || itm_flags->value == 0)) {
 			client->resp.dm_selected = 1;
 			client->chase_mode = 0;
@@ -3490,7 +3385,7 @@ void ClientBeginServerFrame(edict_t * ent)
 	}
 
 //FIREBLADE
-	if (deathmatch->value && !teamplay->value &&
+	if (!teamplay->value &&
 	    ((ent->solid == SOLID_NOT && ent->deadflag != DEAD_DEAD) != ent->client->pers.spectator)) {
 		if (ent->solid != SOLID_NOT || ent->deadflag == DEAD_DEAD) {
 			if (ent->deadflag != DEAD_DEAD) {
@@ -3580,14 +3475,9 @@ void ClientBeginServerFrame(edict_t * ent)
 //FIREBLADE
 			else {
 				// in deathmatch, only wait for attack button
+				buttonMask = BUTTON_ATTACK;
 
-				if (deathmatch->value)
-					buttonMask = BUTTON_ATTACK;
-				else
-					buttonMask = -1;
-
-				if ((client->latched_buttons & buttonMask) ||
-				    (deathmatch->value && DMFLAGS(DF_FORCE_RESPAWN))) {
+				if ((client->latched_buttons & buttonMask) ||DMFLAGS(DF_FORCE_RESPAWN)) {
 					respawn(ent);
 					client->latched_buttons = 0;
 				}

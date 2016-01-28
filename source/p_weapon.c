@@ -174,82 +174,32 @@ PlayerNoise
         to a noise in hopes of seeing the player from there.
         ===============
 */
-void
-PlayerNoise (edict_t * who, vec3_t where, int type)
+void PlayerNoise (edict_t * who, vec3_t where, int type)
 {
-  edict_t *noise;
-
-  if (type == PNOISE_WEAPON)
-    {
-      if (who->client->silencer_shots)
+	if (type == PNOISE_WEAPON)
 	{
-	  who->client->silencer_shots--;
-	  return;
+		if (who->client->silencer_shots)
+		{
+			who->client->silencer_shots--;
+			return;
+		}
 	}
-    }
-
-  if (deathmatch->value)
-    return;
-
-  if (who->flags & FL_NOTARGET)
-    return;
-
-
-  if (!who->mynoise)
-    {
-      noise = G_Spawn ();
-      noise->classname = "player_noise";
-      VectorSet (noise->mins, -8, -8, -8);
-      VectorSet (noise->maxs, 8, 8, 8);
-      noise->owner = who;
-      noise->svflags = SVF_NOCLIENT;
-      who->mynoise = noise;
-
-      noise = G_Spawn ();
-      noise->classname = "player_noise";
-      VectorSet (noise->mins, -8, -8, -8);
-      VectorSet (noise->maxs, 8, 8, 8);
-      noise->owner = who;
-      noise->svflags = SVF_NOCLIENT;
-      who->mynoise2 = noise;
-    }
-
-  if (type == PNOISE_SELF || type == PNOISE_WEAPON)
-    {
-      noise = who->mynoise;
-      level.sound_entity = noise;
-      level.sound_entity_framenum = level.framenum;
-    }
-  else				// type == PNOISE_IMPACT
-    {
-      noise = who->mynoise2;
-      level.sound2_entity = noise;
-      level.sound2_entity_framenum = level.framenum;
-    }
-
-  VectorCopy (where, noise->s.origin);
-  VectorSubtract (where, noise->maxs, noise->absmin);
-  VectorAdd (where, noise->maxs, noise->absmax);
-  noise->teleport_time = level.time;
-  gi.linkentity (noise);
 }
 
 
-void
-PlaceHolder (edict_t * ent)
+void PlaceHolder (edict_t * ent)
 {
-  ent->nextthink = level.framenum + 1000 * HZ;
+	ent->nextthink = level.framenum + 1000 * HZ;
 }
 
 // keep the entity around so we can find it later if we need to respawn the weapon there
-void
-SetSpecWeapHolder (edict_t * ent)
+void SetSpecWeapHolder (edict_t * ent)
 {
-  ent->flags |= FL_RESPAWN;
-  ent->svflags |= SVF_NOCLIENT;
-  ent->solid = SOLID_NOT;
-  ent->think = PlaceHolder;
-  gi.linkentity (ent);
+	ent->flags |= FL_RESPAWN;
+	ent->svflags |= SVF_NOCLIENT;
+	ent->solid = SOLID_NOT;
+	ent->think = PlaceHolder;
+	gi.linkentity(ent);
 }
 
 qboolean Pickup_Weapon (edict_t * ent, edict_t * other)
@@ -452,13 +402,10 @@ qboolean Pickup_Weapon (edict_t * ent, edict_t * other)
 		other->client->pers.inventory[index]++;
 		if (!(ent->spawnflags & (DROPPED_ITEM | DROPPED_PLAYER_ITEM)))
 		{
-			if (deathmatch->value)
-			{
-				if (DMFLAGS(DF_WEAPONS_STAY))
-					ent->flags |= FL_RESPAWN;
-				else
-					SetRespawn (ent, ammo_respawn->value);
-			}
+			if (DMFLAGS(DF_WEAPONS_STAY))
+				ent->flags |= FL_RESPAWN;
+			else
+				SetRespawn(ent, ammo_respawn->value);
 		}
 		return true;
 	}
@@ -479,13 +426,10 @@ qboolean Pickup_Weapon (edict_t * ent, edict_t * other)
 
 			if (!(ent->spawnflags & DROPPED_PLAYER_ITEM))
 			{
-				if (deathmatch->value)
-				{
-					if (DMFLAGS(DF_WEAPONS_STAY))
-						ent->flags |= FL_RESPAWN;
-					else
-						SetRespawn (ent, 30);
-				}
+				if (DMFLAGS(DF_WEAPONS_STAY))
+					ent->flags |= FL_RESPAWN;
+				else
+					SetRespawn(ent, 30);
 			}
 		}
 	}
@@ -883,12 +827,12 @@ void temp_think_specweap (edict_t * ent)
 		ent->nextthink = level.framenum + (weapon_respawn->value * 0.6f) * HZ;
 		ent->think = G_FreeEdict;
 	}
-	else if (ctf->value || (dm_choose->value && !teamplay->value && deathmatch->value))
+	else if (ctf->value || (dm_choose->value && !teamplay->value))
 	{
 		ent->nextthink = level.framenum + 6 * HZ;
 		ent->think = ThinkSpecWeap;
 	}
-	else if (deathmatch->value && (!teamplay->value || teamdm->value) && !allweapon->value)
+	else if ((!teamplay->value || teamdm->value) && !allweapon->value)
 	{
 		ent->nextthink = level.framenum + weapon_respawn->value * HZ;
 		ent->think = ThinkSpecWeap;
@@ -2847,12 +2791,9 @@ void M3_Fire (edict_t * ent)
 
 	setFFState (ent);
 	InitShotgunDamageReport ();	//FB 6/3/99
-	if (deathmatch->value)
-		fire_shotgun (ent, start, forward, damage, kick, 800, 800,
-			12 /*DEFAULT_DEATHMATCH_SHOTGUN_COUNT */ , MOD_M3);
-	else
-		fire_shotgun (ent, start, forward, damage, kick, 800, 800,
-			12 /*DEFAULT_SHOTGUN_COUNT */ , MOD_M3);
+
+	fire_shotgun (ent, start, forward, damage, kick, 800, 800,
+		12 /*DEFAULT_DEATHMATCH_SHOTGUN_COUNT */ , MOD_M3);
 
 	Stats_AddShot(ent, MOD_M3);
 
