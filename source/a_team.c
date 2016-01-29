@@ -1781,7 +1781,7 @@ void PrintScores (void)
 	}
 }
 
-static qboolean CheckTimelimit( void )
+qboolean CheckTimelimit( void )
 {
 	if (timelimit->value > 0)
 	{
@@ -1983,7 +1983,7 @@ int WonGame (int winner)
 }
 
 
-void CheckTeamRules (void)
+int CheckTeamRules (void)
 {
 	int winner, i;
 	int checked_tie = 0;
@@ -1999,13 +1999,13 @@ void CheckTeamRules (void)
 			team_round_countdown = TourneySetTime( T_RSTART );
 			TourneyTimeEvent (T_START, team_round_countdown);
 		}
-		return;
+		return 0;
 	}
 
 	if (lights_camera_action)
 	{
 		ContinueLCA ();
-		return;
+		return 0;
 	}
 
 	if (team_round_going)
@@ -2015,7 +2015,7 @@ void CheckTeamRules (void)
 	{
 		holding_on_tie_check--;
 		if (holding_on_tie_check > 0)
-			return;
+			return 0;
 		holding_on_tie_check = 0;
 		checked_tie = 1;
 	}
@@ -2062,7 +2062,7 @@ void CheckTeamRules (void)
 
 	// check these rules every 1.5 seconds...
 	if (++rulecheckfrequency % 15 && !checked_tie)
-		return;
+		return 0;
 
 	if (matchmode->value)
 	{
@@ -2085,12 +2085,12 @@ void CheckTeamRules (void)
 		RunWarmup();
 
 		if (CheckTimelimit())
-			return;
+			return 1;
 
 		if (vCheckVote()) {
 			EndDMLevel ();
 			team_round_going = team_round_countdown = team_game_going = 0;
-			return;
+			return 1;
 		}
 
 		if (!team_round_countdown)
@@ -2125,12 +2125,20 @@ void CheckTeamRules (void)
 		if (ctf->value || teamdm->value)
 		{
 			if (CheckTimelimit())
-				return;
+				return 1;
+
+			if (ctf->value && CTFCheckRules())
+			{
+				ResetPlayers();
+				EndDMLevel();
+				team_round_going = team_round_countdown = team_game_going = 0;
+				return 1;
+			}
 
 			if (vCheckVote()) {
 				EndDMLevel ();
 				team_round_going = team_round_countdown = team_game_going = 0;
-				return;
+				return 1;
 			}
 
 			if (!BothTeamsHavePlayers())
@@ -2146,7 +2154,7 @@ void CheckTeamRules (void)
 				/* try to restart the game */
 				while (CheckForUnevenTeams( NULL ));
 			}
-			return; //CTF and teamDM dont need to check winner, its not round based
+			return 0; //CTF and teamDM dont need to check winner, its not round based
 		}
 
 		if ((winner = CheckForWinner ()) != WINNER_NONE)
@@ -2154,10 +2162,10 @@ void CheckTeamRules (void)
 			if (!checked_tie)
 			{
 				holding_on_tie_check = 50;
-				return;
+				return 0;
 			}
 			if (WonGame(winner))
-				return;
+				return 1;
 
 			team_round_going = 0;
 			lights_camera_action = 0;
@@ -2168,12 +2176,14 @@ void CheckTeamRules (void)
 				round_delay_time = TourneySetTime (T_END);
 			else
 				team_round_countdown = 71;
-			return;
+
+			return 0;
 		}
 
 		if (CheckRoundTimeLimit())
-			return;
+			return 1;
 	}
+	return 0;
 }
 
 
