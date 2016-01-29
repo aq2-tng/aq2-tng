@@ -65,7 +65,7 @@ void punch_attack(edict_t * ent)
 			
 			if (tr.ent->client)
 			{
-				if (tr.ent->client->ctf_uvtime)
+				if (tr.ent->client->uvTime)
 					return;
 
 				if (tr.ent != ent && ent->client && OnSameTeam(tr.ent, ent))

@@ -820,28 +820,6 @@ void CheckDMRules (void)
 			}
 		}
 
-		if (dm_shield->value)
-		{
-			for (i = 0; i < game.maxclients; i++)
-			{
-				if (!g_edicts[i + 1].inuse)
-					continue;
-				if (game.clients[i].ctf_uvtime > 0)
-				{
-					game.clients[i].ctf_uvtime--;                                                               
-					if (!game.clients[i].ctf_uvtime)                                        
-					{                                                                                           
-						gi.centerprintf (&g_edicts[i + 1], "ACTION!");                                      
-					}                                                                                           
-					else if (game.clients[i].ctf_uvtime % 10 == 0)
-					{                                                                                           
-						gi.centerprintf (&g_edicts[i + 1], "Shield %d",                                     
-							game.clients[i].ctf_uvtime / 10);
-					} 
-				}
-			}
-		}
-
 		//FIREBLADE
 		//PG BUND - BEGIN
 		if (vCheckVote () == true)

@@ -781,8 +781,8 @@ qboolean CTFPickup_Flag(edict_t * ent, edict_t * other)
 		return false;
 	}
 // AQ2:TNG - JBravo adding UVtime
-	if (other->client->ctf_uvtime) {
-		other->client->ctf_uvtime = 0;
+	if (other->client->uvTime) {
+		other->client->uvTime = 0;
 		gi.centerprintf(other, "Flag taken! Shields are DOWN! Run for it!");
 	} else {
 		gi.centerprintf(other, "You've got the ENEMY FLAG! Run for it!");

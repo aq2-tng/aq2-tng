@@ -1624,8 +1624,7 @@ void InitClientPersistant(gclient_t * client)
 	//AQ2:TNG - Slicer Moved This To Here
 	//client->pers.num_kills = 0;
 	//AQ2:TNG END
-// AQ2:TNG - JBravo adding UVtime
-	client->ctf_uvtime = 0;
+	client->uvTime = 0;
 }
 // SLIC2 If resp structure gets memset to 0 lets cleannup unecessary initiations ( to 0 ) here
 void InitClientResp(gclient_t * client)
@@ -2575,22 +2574,13 @@ void PutClientInServer(edict_t * ent)
 			ent->client->ps.gunindex = 0;
 		}
 	}
-// AQ2:TNG - JBravo adding UVtime
-	if (ctf->value) {
-		if (team_round_going && !lights_camera_action && uvtime->value && ent->client->resp.team != NOTEAM) {
-			client->ctf_uvtime = uvtime->value;
-		}
-	}
-//FIREBLADE
+
+	// we must link before killbox since it uses absmin/absmax
+	gi.linkentity(ent);
+
 	if (!going_observer && !teamplay->value) {	// this handles telefrags...
-		if (dm_shield->value && (!teamplay->value || (teamdm->value && team_round_going && !lights_camera_action)) && uvtime->value) {
-			client->ctf_uvtime = uvtime->value;
-		}
 		KillBox(ent);
 	}
-//FIREBLADE
-
-	gi.linkentity(ent);
 
 	//zucc give some ammo
 	//item = FindItem("Pistol Clip");     
@@ -2636,7 +2626,17 @@ void PutClientInServer(edict_t * ent)
 //TempFile
 
 //FIREBLADE
-	if (!going_observer) {
+	if (!going_observer)
+	{
+		if ((int)uvtime->value > 0) {
+			if (teamplay->value) {
+				if ((ctf->value || teamdm->value) && team_round_going && !lights_camera_action && client->resp.team != NOTEAM) {
+					client->uvTime = uvtime->value;
+				}
+			} else if (dm_shield->value) {
+				client->uvTime = uvtime->value;
+			}
+		}
 
 		// items up here so that the bandolier will change equipclient below
 		if (allitem->value) {
@@ -3488,7 +3488,7 @@ void ClientBeginServerFrame(edict_t * ent)
 
 	if (ent->solid != SOLID_NOT)
 	{
-		if (!lights_camera_action && !client->ctf_uvtime) {
+		if (!lights_camera_action && !client->uvTime) {
 			if (client->jumping)
 				kick_attack( ent );
 			else if (client->resp.punch_desired)
@@ -3507,6 +3507,42 @@ void ClientBeginServerFrame(edict_t * ent)
 			&& (client->curr_weap == MK23_NUM)) {
 			client->autoreloading = false;
 			Cmd_New_Reload_f( ent );
+		}
+	}
+
+	if (client->uvTime && FRAMESYNC) {
+		client->uvTime--;
+		if (!client->uvTime)
+		{
+			if (team_round_going)
+			{
+				if (ctf->value && ctfgame.type == 2) {
+					gi.centerprintf( ent,
+						"ACTION!\n"
+						"\n"
+						"You are %s the %s base!",
+						(client->resp.team == ctfgame.offence ?
+						"ATTACKING" : "DEFENDING"),
+						CTFOtherTeamName( ctfgame.offence ) );
+				} else {
+					gi.centerprintf( ent, "ACTION!" );
+				}
+			}
+		}
+		else if (client->uvTime % 10 == 0)
+		{
+			if (ctf->value && ctfgame.type == 2) {
+				gi.centerprintf( ent,
+					"Shield %d\n"
+					"\n"
+					"You are %s the %s base!",
+					client->uvTime / 10,
+					(client->resp.team == ctfgame.offence ?
+					"ATTACKING" : "DEFENDING"),
+					CTFOtherTeamName( ctfgame.offence ) );
+			} else {
+				gi.centerprintf( ent, "Shield %d", client->uvTime / 10 );
+			}
 		}
 	}
 
