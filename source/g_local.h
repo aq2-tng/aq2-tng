@@ -623,25 +623,7 @@ typedef struct
 
   char *changemap;
 
-  edict_t *sight_client;	// changed once each frame for coop games
-
-  edict_t *sight_entity;
-  int sight_entity_framenum;
-  edict_t *sound_entity;
-  int sound_entity_framenum;
-  edict_t *sound2_entity;
-  int sound2_entity_framenum;
-
   int pic_health;
-
-  int total_secrets;
-  int found_secrets;
-
-  int total_goals;
-  int found_goals;
-
-  int total_monsters;
-  int killed_monsters;
 
   edict_t *current_entity;	// entity running from G_RunFrame
 
@@ -815,7 +797,6 @@ extern edict_t *g_edicts;
 
 extern cvar_t *maxentities;
 extern cvar_t *deathmatch;
-extern cvar_t *coop;
 extern cvar_t *dmflags;
 extern cvar_t *needpass;
 extern cvar_t *hostname;
@@ -911,7 +892,6 @@ extern cvar_t *itm_flags;
 extern cvar_t *use_classic;	// Use_classic resets weapon balance to 1.52
 extern cvar_t *warmup;
 
-extern cvar_t *skill;
 extern cvar_t *fraglimit;
 extern cvar_t *timelimit;
 extern cvar_t *capturelimit;

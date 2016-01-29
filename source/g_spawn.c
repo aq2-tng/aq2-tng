@@ -699,7 +699,6 @@ void SpawnEntities (char *mapname, char *entities, char *spawnpoint)
 	int inhibit = 0;
 	char *com_token;
 	int i;
-	float skill_level;
 	//AQ2:TNG New Location Code
 	char locfile[MAX_QPATH], line[256];
 	FILE *f;
@@ -822,14 +821,6 @@ void SpawnEntities (char *mapname, char *entities, char *spawnpoint)
 			gi.cvar_forceset(teamplay->name, "1");
 		}
 	}
-
-	skill_level = floor (skill->value);
-	if (skill_level < 0)
-		skill_level = 0;
-	if (skill_level > 3)
-		skill_level = 3;
-	if (skill->value != skill_level)
-		gi.cvar_forceset ("skill", va("%f", skill_level));
 
 	SaveClientData ();
 
@@ -1052,76 +1043,6 @@ xl < value > xr < value > yb < value > yt < value > xv < value > yv < value >
   if <stat
   >ifeq < stat > <value > ifbit < stat > <value > endif
 #endif
-  char *single_statusbar = "yb     -24 "
-// health
-    "xv     0 " "hnum " "xv     50 " "pic 0 "
-// ammo
-    "if 2 "
-    "       xv      100 "
-    "       anum " "       xv      150 " "       pic 2 " "endif "
-/*
-// armor
-"if 4 "
-"       xv      200 "
-"       rnum "
-"       xv      250 "
-"       pic 4 "
-"endif "
-*/
-// selected item
-    "if 6 " "       xv      296 " "       pic 6 " "endif " "yb     -50 "
-// picked up item
-    "if 7 "
-    "       xv      0 "
-    "       pic 7 "
-    "       xv      26 "
-    "       yb      -42 "
-    "       stat_string 8 " "       yb      -50 " "endif "
-// timer
-    "if 9 "
-    "       xv      262 "
-    "       num     2       10 "
-    "       xv      296 " "       pic     9 " "endif "
-//  help / weapon icon 
-    "if 11 " "       xv      148 " "       pic     11 " "endif "
-// zucc
-// sniper zoom graphic/icon
-    "if 18 "
-    "       xr      0 "
-    "       yb      0 "
-    "       xv      0 " "       yv      0 " "       pic 18 " "endif "
-// clip(s)
-// puts them all the way on the right side of the screen
-    "if 16 "
-    "       xv      0 "
-    "       yv      0 "
-    "       yb      -24 "
-    "       xr      -60 "
-    "       num 2   17 " "       xr      -24 " "       pic 16 " "endif "
-// zucc special item ( vest etc )
-    "if 19 "
-    "       xv      0 "
-    "       yv      0 "
-    "       yb      -72 " "       xr      -24 " "       pic 19 " "endif "
-// zucc special weapon
-    "if 20 "
-    "       xv      0 "
-    "       yv      0 "
-    "       yb      -48 " "       xr      -24 " "       pic 20 " "endif "
-// zucc grenades
-    "if 28 "
-    "       xv      0 "
-    "               yv              0 "
-    "               yb              -96 "
-    "               xr              -60 "
-    "       num 2 29 "
-    "       xr      -24 "
-    "       pic 28 "
-    "endif "
-    "if 21 "
-    "xv 0 "
-    "yb -58 " "string \"Viewing\" " "xv 64 " "stat_string 21 " "endif ";
-
 
 char *dm_statusbar = "yb     -24 "
 // health
