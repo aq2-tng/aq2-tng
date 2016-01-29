@@ -218,12 +218,6 @@ void SetRespawn (edict_t * ent, float delay)
 
 qboolean Pickup_Powerup (edict_t * ent, edict_t * other)
 {
-	int quantity;
-
-	quantity = other->client->pers.inventory[ITEM_INDEX (ent->item)];
-	if ((skill->value == 1 && quantity >= 2) || (skill->value >= 2 && quantity >= 1))
-		return false;
-
 	other->client->pers.inventory[ITEM_INDEX (ent->item)]++;
 
 	if (!(ent->spawnflags & DROPPED_ITEM))
@@ -2194,72 +2188,68 @@ gives +1 to maximum health
 
 /*QUAKED item_health (.3 .3 1) (-16 -16 -16) (16 16 16)
 */
-void
-SP_item_health (edict_t * self)
+void SP_item_health (edict_t * self)
 {
-  if (1)			//deathmatch->value && DMFLAGS(DF_NO_HEALTH) )
-    {
-      G_FreeEdict (self);
-      return;
-    }
+	if (1)	//DMFLAGS(DF_NO_HEALTH) )
+	{
+		G_FreeEdict(self);
+		return;
+	}
 
-  self->model = "models/items/healing/medium/tris.md2";
-  self->count = 10;
-  SpawnItem (self, FindItem ("Health"));
-  gi.soundindex ("items/n_health.wav");
+	self->model = "models/items/healing/medium/tris.md2";
+	self->count = 10;
+	SpawnItem(self, FindItem ("Health"));
+	gi.soundindex("items/n_health.wav");
 }
 
 /*QUAKED item_health_small (.3 .3 1) (-16 -16 -16) (16 16 16)
 */
-void
-SP_item_health_small (edict_t * self)
+void SP_item_health_small (edict_t * self)
 {
-  if (1)			//deathmatch->value && DMFLAGS(DF_NO_HEALTH) )
-    {
-      G_FreeEdict (self);
-      return;
-    }
+	if (1)	//DMFLAGS(DF_NO_HEALTH) )
+	{
+		G_FreeEdict(self);
+		return;
+	}
 
-  self->model = "models/items/healing/stimpack/tris.md2";
-  self->count = 2;
-  SpawnItem (self, FindItem ("Health"));
-  self->style = HEALTH_IGNORE_MAX;
-  gi.soundindex ("items/s_health.wav");
+	self->model = "models/items/healing/stimpack/tris.md2";
+	self->count = 2;
+	SpawnItem(self, FindItem ("Health"));
+	self->style = HEALTH_IGNORE_MAX;
+	gi.soundindex("items/s_health.wav");
 }
 
 /*QUAKED item_health_large (.3 .3 1) (-16 -16 -16) (16 16 16)
 */
-void
-SP_item_health_large (edict_t * self)
+void SP_item_health_large (edict_t * self)
 {
-  if (1)			//deathmatch->value && DMFLAGS(DF_NO_HEALTH) )
-    {
-      G_FreeEdict (self);
-      return;
-    }
+	if (1)	//DMFLAGS(DF_NO_HEALTH) )
+	{
+		G_FreeEdict(self);
+		return;
+	}
 
-  self->model = "models/items/healing/large/tris.md2";
-  self->count = 25;
-  SpawnItem (self, FindItem ("Health"));
-  gi.soundindex ("items/l_health.wav");
+	self->model = "models/items/healing/large/tris.md2";
+	self->count = 25;
+	SpawnItem(self, FindItem ("Health"));
+	gi.soundindex("items/l_health.wav");
 }
 
 /*QUAKED item_health_mega (.3 .3 1) (-16 -16 -16) (16 16 16)
 */
-void
-SP_item_health_mega (edict_t * self)
+void SP_item_health_mega (edict_t * self)
 {
-  if (1)			//deathmatch->value && DMFLAGS(DF_NO_HEALTH) )
-    {
-      G_FreeEdict (self);
-      return;
-    }
+	if (1)	//DMFLAGS(DF_NO_HEALTH) )
+	{
+		G_FreeEdict(self);
+		return;
+	}
 
-  self->model = "models/items/mega_h/tris.md2";
-  self->count = 100;
-  SpawnItem (self, FindItem ("Health"));
-  gi.soundindex ("items/m_health.wav");
-  self->style = HEALTH_IGNORE_MAX | HEALTH_TIMED;
+	self->model = "models/items/mega_h/tris.md2";
+	self->count = 100;
+	SpawnItem(self, FindItem ("Health"));
+	gi.soundindex("items/m_health.wav");
+	self->style = HEALTH_IGNORE_MAX | HEALTH_TIMED;
 }
 
 

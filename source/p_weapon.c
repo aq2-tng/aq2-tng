@@ -436,7 +436,7 @@ qboolean Pickup_Weapon (edict_t * ent, edict_t * other)
 	/* zucc - don't want auto switching
 	if (other->client->pers.weapon != ent->item && 
 	(other->client->pers.inventory[index] == 1) &&
-	( !deathmatch->value || other->client->pers.weapon == FindItem("blaster") ) )
+	( other->client->pers.weapon == FindItem("blaster") ) )
 	other->client->newweapon = ent->item;
 	*/
 	if (!(ent->spawnflags & (DROPPED_ITEM | DROPPED_PLAYER_ITEM))
