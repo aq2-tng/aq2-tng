@@ -1781,6 +1781,127 @@ void PrintScores (void)
 	}
 }
 
+static qboolean CheckTimelimit( void )
+{
+	if (timelimit->value > 0)
+	{
+		float gametime;
+
+		if (matchmode->value)
+			gametime = level.matchTime;
+		else
+			gametime = level.time;
+
+		if (gametime >= timelimit->value * 60)
+		{
+			int i;
+
+			for (i = TEAM1; i < TEAM_TOP; i++) {
+				teams[i].ready = 0;
+			}
+			timewarning = fragwarning = 0;
+			if (matchmode->value) {
+				SendScores();
+				team_round_going = team_round_countdown = team_game_going = 0;
+				MakeAllLivePlayersObservers();
+			} else {
+				gi.bprintf( PRINT_HIGH, "Timelimit hit.\n" );
+				IRC_printf( IRC_T_GAME, "Timelimit hit." );
+				if (ctf->value || teamdm->value)
+					ResetPlayers();
+				EndDMLevel();
+			}
+			team_round_going = team_round_countdown = team_game_going = 0;
+			level.matchTime = 0;
+			return true;
+		}
+	}
+	return false;
+}
+
+int WonGame(int winner);
+
+static qboolean CheckRoundTimeLimit( void )
+{
+	if (roundtimelimit->value > 0)
+	{
+		int roundLimitFrames = (int)(roundtimelimit->value * 600);
+		if (current_round_length >= roundLimitFrames)
+		{
+			int winTeam = NOTEAM;
+
+			gi.bprintf( PRINT_HIGH, "Round timelimit hit.\n" );
+			IRC_printf( IRC_T_GAME, "Round timelimit hit." );
+
+			winTeam = CheckForForcedWinner();
+			if (WonGame( winTeam ))
+				return true;
+
+			team_round_going = 0;
+			timewarning = fragwarning = 0;
+			lights_camera_action = 0;
+			holding_on_tie_check = 0;
+			team_round_countdown = 71;
+			return true;
+		}
+
+		if (use_warnings->value && timewarning < 2)
+		{
+			roundLimitFrames -= current_round_length;
+			if (roundLimitFrames <= 600)
+			{
+				CenterPrintAll( "1 MINUTE LEFT..." );
+				gi.sound( &g_edicts[0], CHAN_VOICE | CHAN_NO_PHS_ADD, gi.soundindex( "tng/1_minute.wav" ), 1.0, ATTN_NONE, 0.0 );
+				timewarning = 2;
+			}
+			else if (roundLimitFrames <= 1800 && timewarning < 1 && roundtimelimit->value > 3)
+			{
+				CenterPrintAll( "3 MINUTES LEFT..." );
+				gi.sound( &g_edicts[0], CHAN_VOICE | CHAN_NO_PHS_ADD, gi.soundindex( "tng/3_minutes.wav" ), 1.0, ATTN_NONE, 0.0 );
+				timewarning = 1;
+			}
+		}
+	}
+	return false;
+}
+
+static qboolean CheckRoundLimit( void )
+{
+	if (roundlimit->value > 0)
+	{
+		int i, winTeam = NOTEAM;
+
+		for (i = TEAM1; i <= teamCount; i++) {
+			if (teams[i].score >= (int)roundlimit->value) {
+				winTeam = i;
+				break;
+			}
+		}
+
+		if (winTeam != NOTEAM)
+		{
+			for (i = TEAM1; i < TEAM_TOP; i++) {
+				teams[i].ready = 0;
+			}
+
+			timewarning = fragwarning = 0;
+			if (matchmode->value) {
+				SendScores();
+				team_round_going = team_round_countdown = team_game_going = 0;
+				MakeAllLivePlayersObservers();
+			} else {
+				gi.bprintf( PRINT_HIGH, "Roundlimit hit.\n" );
+				IRC_printf( IRC_T_GAME, "Roundlimit hit." );
+				EndDMLevel();
+			}
+			team_round_going = team_round_countdown = team_game_going = 0;
+			level.matchTime = 0;
+			return true;
+		}
+	}
+	return false;
+}
+
 // WonGame: returns true if we're exiting the level.
 int WonGame (int winner)
 {
@@ -1833,66 +1954,18 @@ int WonGame (int winner)
 		}
 	}
 
-	if (timelimit->value)
-	{
-		// AQ2:M - Matchmode
-		if (matchmode->value)
-		{
-			if (level.matchTime >= timelimit->value * 60)
-			{
-				SendScores();
-				teams[TEAM1].ready = teams[TEAM2].ready = teams[TEAM3].ready = 0;
-				team_round_going = team_round_countdown = team_game_going = 0;
-				level.matchTime = 0;
-				MakeAllLivePlayersObservers ();
-				return 1;
-			}
-		}
-		else if (level.time >= timelimit->value * 60)
-		{
-			gi.bprintf (PRINT_HIGH, "Timelimit hit.\n");
-			IRC_printf (IRC_T_GAME, "Timelimit hit.");
-			EndDMLevel ();
-			team_round_going = team_round_countdown = team_game_going = 0;
-			return 1;
-		}
-	}
+	if (CheckTimelimit())
+		return 1;
 	
-	if (roundlimit->value && !ctf->value)
-	{
-		if (teams[TEAM1].score >= roundlimit->value
-			|| teams[TEAM2].score >= roundlimit->value
-			|| teams[TEAM3].score >= roundlimit->value)
-		{
-			if (matchmode->value)
-			{
-				SendScores ();
-				teams[TEAM1].ready = teams[TEAM2].ready = teams[TEAM3].ready = 0;
-				team_round_going = team_round_countdown = team_game_going = 0;
-				level.matchTime = 0;
-				MakeAllLivePlayersObservers ();
-				return 1;
-			}
-			else
-			{
-				gi.bprintf (PRINT_HIGH, "Roundlimit hit.\n");
-				IRC_printf (IRC_T_GAME, "Roundlimit hit.");
-				EndDMLevel ();
-				team_round_going = team_round_countdown = team_game_going = 0;
-				return 1;
-			}
-		}
-	}
+	if (CheckRoundLimit())
+		return 1;
 	
-	//PG BUND - BEGIN
-	if (vCheckVote () == true)
-	{
+	if (vCheckVote()) {
 		EndDMLevel ();
 		team_round_going = team_round_countdown = team_game_going = 0;
 		return 1;
 	}
 	vNewRound ();
-	//PG BUND - END
 
 	if (teamplay->value && (!timelimit->value || level.time <= ((timelimit->value * 60) - 5)))
 	{
@@ -1927,22 +2000,6 @@ void CheckTeamRules (void)
 			TourneyTimeEvent (T_START, team_round_countdown);
 		}
 		return;
-	}
-
-	if (matchmode->value)
-	{
-		if(mm_allowlock->value)
-		{
-			for(i=TEAM1; i <= teamCount; i++)
-			{
-				if (teams[i].locked && !TeamHasPlayers(i))
-				{
-					teams[i].locked = 0;
-					sprintf(buf, "%s unlocked (no players)", TeamName(i));
-					CenterPrintAll(buf);
-				}
-			}
-		}
 	}
 
 	if (lights_camera_action)
@@ -2007,46 +2064,34 @@ void CheckTeamRules (void)
 	if (++rulecheckfrequency % 15 && !checked_tie)
 		return;
 
+	if (matchmode->value)
+	{
+		if (mm_allowlock->value)
+		{
+			for (i = TEAM1; i <= teamCount; i++)
+			{
+				if (teams[i].locked && !TeamHasPlayers( i ))
+				{
+					teams[i].locked = 0;
+					sprintf( buf, "%s unlocked (no players)", TeamName( i ) );
+					CenterPrintAll( buf );
+				}
+			}
+		}
+	}
+
 	if (!team_round_going)
 	{
 		RunWarmup();
 
-		if (timelimit->value)
-		{
-			// AQ2:TNG - Slicer : Matchmode
-			if (matchmode->value)
-			{
-				if (level.matchTime >= timelimit->value * 60)
-				{
-					SendScores ();
-					teams[TEAM1].ready = teams[TEAM2].ready = teams[TEAM3].ready = 0;
-					team_round_going = team_round_countdown = team_game_going = 0;
-					level.matchTime = 0;
-					MakeAllLivePlayersObservers ();
-					return;
-				}
-			}
-			//AQ2:TNG END
-			else if (level.time >= timelimit->value * 60)
-			{
-				gi.bprintf (PRINT_HIGH, "Timelimit hit.\n");
-				IRC_printf (IRC_T_GAME, "Timelimit hit.");
-				if (ctf->value)
-					ResetPlayers ();
-				EndDMLevel ();
-				team_round_going = team_round_countdown = team_game_going = 0;
-				return;
-			}
-		}
+		if (CheckTimelimit())
+			return;
 
-//PG BUND - BEGIN
-		if (vCheckVote () == true)
-		{
+		if (vCheckVote()) {
 			EndDMLevel ();
 			team_round_going = team_round_countdown = team_game_going = 0;
 			return;
 		}
-//PG BUND - END
 
 		if (!team_round_countdown)
 		{
@@ -2079,12 +2124,29 @@ void CheckTeamRules (void)
 	{
 		if (ctf->value || teamdm->value)
 		{
-			if (vCheckVote () == true)
-			{
+			if (CheckTimelimit())
+				return;
+
+			if (vCheckVote()) {
 				EndDMLevel ();
 				team_round_going = team_round_countdown = team_game_going = 0;
 				return;
 			}
+
+			if (!BothTeamsHavePlayers())
+			{
+				if (!matchmode->value || TeamsReady())
+					CenterPrintAll( "Not enough players to play!" );
+				else
+					CenterPrintAll( "Both Teams Must Be Ready!" );
+
+				team_round_going = team_round_countdown = team_game_going = 0;
+				MakeAllLivePlayersObservers();
+
+				/* try to restart the game */
+				while (CheckForUnevenTeams( NULL ));
+			}
+			return; //CTF and teamDM dont need to check winner, its not round based
 		}
 
 		if ((winner = CheckForWinner ()) != WINNER_NONE)
@@ -2100,6 +2162,7 @@ void CheckTeamRules (void)
 			team_round_going = 0;
 			lights_camera_action = 0;
 			holding_on_tie_check = 0;
+			timewarning = fragwarning = 0;
 
 			if (use_tourney->value)
 				round_delay_time = TourneySetTime (T_END);
@@ -2108,97 +2171,8 @@ void CheckTeamRules (void)
 			return;
 		}
 
-		if (roundtimelimit->value && !ctf->value && !teamdm->value)
-		{
-			if (current_round_length > roundtimelimit->value * 600)
-			{
-				gi.bprintf (PRINT_HIGH, "Round timelimit hit.\n");
-				IRC_printf (IRC_T_GAME, "Round timelimit hit.");
-				winner = CheckForForcedWinner ();
-				if (WonGame (winner))
-					return;
-				team_round_going = 0;
-				timewarning = fragwarning = 0;
-				lights_camera_action = 0;
-				holding_on_tie_check = 0;
-				team_round_countdown = 71;
-				return;
-			}
-			// AQ:TNG Igor[Rock] changing sound dir
-
-			if(use_warnings->value)
-			{
-				if (current_round_length > (roundtimelimit->value - 1) * 600)
-				{
-					if (timewarning < 2)
-					{
-						CenterPrintAll ("1 MINUTE LEFT...");
-						gi.sound (&g_edicts[0], CHAN_VOICE | CHAN_NO_PHS_ADD,
-						gi.soundindex ("tng/1_minute.wav"), 1.0,
-						ATTN_NONE, 0.0);
-						timewarning = 2;
-					}
-				}
-				else if (current_round_length > (roundtimelimit->value - 3) * 600
-					&& roundtimelimit->value > 3)
-				{
-					if (timewarning < 1)
-					{
-						CenterPrintAll ("3 MINUTES LEFT...");
-						gi.sound (&g_edicts[0], CHAN_VOICE | CHAN_NO_PHS_ADD,
-						gi.soundindex ("tng/3_minutes.wav"), 1.0,
-						ATTN_NONE, 0.0);
-						timewarning = 1;
-					}
-				}
-			}
-	  // end of changing sound dir
-		}
-
-		if (ctf->value || teamdm->value)
-		{
-			if(timelimit->value)
-			{
-				float gametime;
-
-				if(matchmode->value)
-					gametime = level.matchTime;
-				else
-					gametime = level.time;
-
-				if (gametime >= timelimit->value * 60)
-				{
-					gi.bprintf (PRINT_HIGH, "Timelimit hit.\n");
-					IRC_printf (IRC_T_GAME, "Timelimit hit.");
-					teams[TEAM1].ready = teams[TEAM2].ready = teams[TEAM3].ready = 0;
-					team_round_going = team_round_countdown = team_game_going = 0;
-					if(matchmode->value) {
-						SendScores ();
-						MakeAllLivePlayersObservers ();
-					} else {
-						ResetPlayers ();
-						EndDMLevel ();
-					}
-					level.matchTime = 0;
-					return;
-				}
-			}
-				
-			if (!BothTeamsHavePlayers ())
-			{
-				if (!matchmode->value || TeamsReady())
-					CenterPrintAll ("Not enough players to play!");
-				else
-					CenterPrintAll ("Both Teams Must Be Ready!");
-	
-				team_round_going = team_round_countdown = team_game_going = 0;
-				MakeAllLivePlayersObservers ();
-
-				/* try to restart the game */
-				while(CheckForUnevenTeams(NULL));
-			}
-
-		}
+		if (CheckRoundTimeLimit())
+			return;
 	}
 }
 
