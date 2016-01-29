@@ -155,6 +155,12 @@
 # define id386 0
 #endif
 
+#if __GNUC__ >= 4
+#define q_offsetof(t, m)    __builtin_offsetof(t, m)
+#else
+#define q_offsetof(t, m)    ((size_t)&((t *)0)->m)
+#endif
+
 //==============================================
 
 typedef unsigned char byte;
