@@ -1044,326 +1044,105 @@ xl < value > xr < value > yb < value > yt < value > xv < value > yv < value >
   >ifeq < stat > <value > ifbit < stat > <value > endif
 #endif
 
-char *dm_statusbar =
-	"yb -24 "
-// health
-	"xv 0 " "hnum " "xv 50 " "pic 0 "
-// ammo
-	"if 2 "
-		"xv 100 "
-		"anum "
-		"xv 150 "
-		"pic 2 "
-	"endif "
-/*
-// armor
-	"if 4 "
-		"xv 200 "
-		"rnum "
-		"xv 250 "
-		"pic 4 "
-	"endif "
-*/
-// selected item
-	"if 6 "
-		"xv 296 "
-		"pic 6 "
-	"endif "
-  
-	"yb -50 "
-// picked up item
-	"if 7 "
-		"xv 0 "
-		"pic 7 "
-		"xv 26 "
-		"yb -42 "
-		"stat_string 8 "
-		"yb -50 "
-	"endif "
-/*
-// timer
-	"if 9 "
-		"xv 246 "
-		"num 2 10 "
-		"xv 296 "
-		"pic 9 "
-	"endif "
-*/
-//  help / weapon icon 
-	"if 11 "
-		"xv 148 "
-		"pic 11 "
-	"endif "
-// zucc clip(s)
-	"if 16 "
-		"xv 0 "
-		"yv 0 "
-		"yb -24 "
-		"xr -60 "
-		"num 2 17 "
-		"xr -24 "
-		"pic 16 "
-	"endif "
-// zucc special item ( vest etc )
-	"if 19 "
-		"xv 0 "
-		"yv 0 "
-		"yb -72 " 
-		"xr -24 " 
-		"pic 19 "
-	"endif "
-// zucc special weapon
-	"if 20 "
-		"xv 0 "
-		"yv 0 "
-		"yb -48 "
-		"xr -24 "
-		"pic 20 "
-	"endif "
-// zucc grenades
-	"if 28 "
-		"xv 0 "
-		"yv 0 "
-		"yb -96 "
-		"xr -60 "
-		"num 2 29 "
-		"xr -24 "
-		"pic 28 "
+#define STATBAR_COMMON \
+	"yb -24 " \
+/* health */ \
+	"xv 0 " "hnum " "xv 50 " "pic 0 " \
+/* ammo */ \
+	"if 2 " \
+		"xv 100 " \
+		"anum " \
+		"xv 150 " \
+		"pic 2 " \
+	"endif " \
+/* selected item */ \
+	"if 6 " \
+		"xv 296 " \
+		"pic 6 " \
+	"endif " \
+	"yb -50 " \
+/* picked up item */ \
+	"if 7 " \
+		"xv 0 " \
+		"pic 7 " \
+		"xv 26 " \
+		"yb -42 " \
+		"stat_string 8 " \
+		"yb -50 " \
+	"endif " \
+/*  help / weapon icon */ \
+	"if 11 " \
+		"xv 148 " \
+		"pic 11 " \
+	"endif " \
+/* clip(s) */ \
+	"if 16 " \
+		"xv 0 " \
+		"yv 0 " \
+		"yb -24 " \
+		"xr -60 " \
+		"num 2 17 " \
+		"xr -24 " \
+		"pic 16 " \
+	"endif " \
+/* special item ( vest etc ) */ \
+	"if 19 " \
+		"xv 0 " \
+		"yv 0 " \
+		"yb -72 " \
+		"xr -24 " \
+		"pic 19 " \
+	"endif " \
+/* special weapon */ \
+	"if 20 " \
+		"xv 0 " \
+		"yv 0 " \
+		"yb -48 " \
+		"xr -24 " \
+		"pic 20 " \
+	"endif " \
+/* grenades */ \
+	"if 28 " \
+		"xv 0 " \
+		"yv 0 " \
+		"yb -96 " \
+		"xr -60 " \
+		"num 2 29 " \
+		"xr -24 " \
+		"pic 28 " \
+	"endif " \
+/* spec viewing */ \
+	"if 21 " \
+		"xv 0 " \
+		"yb -58 " \
+		"string \"Viewing\" " \
+		"xv 64 " \
+		"stat_string 21 " \
+	"endif " \
+/* sniper graphic/icon */ \
+	"if 18 " \
+		"xr 0 " \
+		"yb 0 " \
+		"xv 0 " \
+		"yv 0 " \
+		"pic 18 " \
 	"endif "
 
-	"if 21 "
-		"xv 0 "
-		"yb -58 "
-		"string \"Viewing\" "
-		"xv 64 "
-		"stat_string 21 "
-	"endif "
-// sniper graphic/icon
-	"if 18 "
-		"xr 0 "
-		"yb 0 "
-		"xv 0 "
-		"yv 0 "
-		"pic 18 "
-	"endif "
+/* DM status bar for teamplay without individual scores -FB: */
+char *dm_noscore_statusbar =
+	STATBAR_COMMON
+;
+
+char *dm_statusbar =
+	STATBAR_COMMON
 //  frags
 	"xr -50 "
 	"yt 2 "
 	"num 3 14 "
 ;
 
-/* DM status bar for teamplay without individual scores -FB: */
-char *dm_noscore_statusbar =
-	"yb -24 "
-// health
-	"xv 0 " "hnum " "xv 50 " "pic 0 "
-// ammo
-	"if 2 "
-		"xv 100 "
-		"anum "
-		"xv 150 "
-		"pic 2 "
-	"endif "
-/*
-// armor
-	"if 4 "
-		"xv 200 "
-		"rnum "
-		"xv 250 "
-		"pic 4 "
-	"endif "
-*/
-// selected item
-	"if 6 "
-		"xv 296 "
-		"pic 6 "
-	"endif "
-  
-	"yb -50 "
-// picked up item
-	"if 7 "
-		"xv 0 "
-		"pic 7 "
-		"xv 26 "
-		"yb -42 "
-		"stat_string 8 "
-		"yb -50 "
-	"endif "
-/*
-// timer
-	"if 9 "
-		"xv 246 "
-		"num 2 10 "
-		"xv 296 "
-		"pic 9 "
-	"endif "
-*/
-//  help / weapon icon 
-	"if 11 "
-		"xv 148 "
-		"pic 11 "
-	"endif "
-// zucc clip(s)
-	"if 16 "
-		"xv 0 "
-		"yv 0 "
-		"yb -24 "
-		"xr -60 "
-		"num 2 17 "
-		"xr -24 "
-		"pic 16 "
-	"endif "
-// zucc special item ( vest etc )
-	"if 19 "
-		"xv 0 "
-		"yv 0 "
-		"yb -72 " 
-		"xr -24 " 
-		"pic 19 "
-	"endif "
-// zucc special weapon
-	"if 20 "
-		"xv 0 "
-		"yv 0 "
-		"yb -48 "
-		"xr -24 "
-		"pic 20 "
-	"endif "
-// zucc grenades
-	"if 28 "
-		"xv 0 "
-		"yv 0 "
-		"yb -96 "
-		"xr -60 "
-		"num 2 29 "
-		"xr -24 "
-		"pic 28 "
-	"endif "
-
-	"if 21 "
-		"xv 0 "
-		"yb -58 "
-		"string \"Viewing\" "
-		"xv 64 "
-		"stat_string 21 "
-	"endif "
-// sniper graphic/icon
-	"if 18 "
-		"xr 0 "
-		"yb 0 "
-		"xv 0 "
-		"yv 0 "
-		"pic 18 "
-	"endif "
-//  frags
-/*  "xr -50 "
-  "yt 2 "
-  "num 3 14 "*/
-;
-// END FB
-
 char *ctf_statusbar =
-	"yb -24 "
-// health
-	"xv 0 " "hnum " "xv 50 " "pic 0 "
-// ammo
-	"if 2 "
-		"xv 100 "
-		"anum "
-		"xv 150 "
-		"pic 2 "
-	"endif "
-/*
-// armor
-	"if 4 "
-		"xv 200 "
-		"rnum "
-		"xv 250 "
-		"pic 4 "
-	"endif "
-*/
-// selected item
-	"if 6 "
-		"xv 296 "
-		"pic 6 "
-	"endif "
-  
-	"yb -50 "
-// picked up item
-	"if 7 "
-		"xv 0 "
-		"pic 7 "
-		"xv 26 "
-		"yb -42 "
-		"stat_string 8 "
-		"yb -50 "
-	"endif "
-/*
-// timer
-	"if 9 "
-		"xv 246 "
-		"num 2 10 "
-		"xv 296 "
-		"pic 9 "
-	"endif "
-*/
-//  help / weapon icon 
-	"if 11 "
-		"xv 148 "
-		"pic 11 "
-	"endif "
-// zucc clip(s)
-	"if 16 "
-		"xv 0 "
-		"yv 0 "
-		"yb -24 "
-		"xr -60 "
-		"num 2 17 "
-		"xr -24 "
-		"pic 16 "
-	"endif "
-// zucc special item ( vest etc )
-	"if 19 "
-		"xv 0 "
-		"yv 0 "
-		"yb -72 " 
-		"xr -24 " 
-		"pic 19 "
-	"endif "
-// zucc special weapon
-	"if 20 "
-		"xv 0 "
-		"yv 0 "
-		"yb -48 "
-		"xr -24 "
-		"pic 20 "
-	"endif "
-// zucc grenades
-	"if 28 "
-		"xv 0 "
-		"yv 0 "
-		"yb -96 "
-		"xr -60 "
-		"num 2 29 "
-		"xr -24 "
-		"pic 28 "
-	"endif "
-
-	"if 21 "
-		"xv 0 "
-		"yb -58 "
-		"string \"Viewing\" "
-		"xv 64 "
-		"stat_string 21 "
-	"endif "
-// sniper graphic/icon
-	"if 18 "
-		"xr 0 "
-		"yb 0 "
-		"xv 0 "
-		"yv 0 "
-		"pic 18 "
-	"endif "
+	STATBAR_COMMON
 //  frags
 	"xr -50 "
 	"yt 2 "
