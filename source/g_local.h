@@ -1563,7 +1563,7 @@ struct gclient_s
 
   int desired_zoom;		//either 0, 1, 2, 4 or 6. This is set to 0 if no zooming shall be done, and is set to 0 after zooming is done.
 
-  int ctf_uvtime;		// AQ2:TNG - JBravo adding UVtime
+  int uvTime;
   
   void *ctf_grapple;		// entity of grapple
   int ctf_grapplestate;		// true if pulling

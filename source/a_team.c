@@ -1929,51 +1929,6 @@ void CheckTeamRules (void)
 		return;
 	}
 
-	// AQ2:TNG - JBravo adding UVtime
-	if (ctf->value || (dm_shield->value && (!teamplay->value || (teamdm->value && lights_camera_action == 0)) ))
-	{
-		int printType = (ctf->value && ctfgame.type == 2) ? 1 : 0;
-		for (i = 0; i < game.maxclients; i++)
-		{
-			if (!g_edicts[i + 1].inuse)
-				continue;
-			if (game.clients[i].ctf_uvtime > 0)
-			{
-				game.clients[i].ctf_uvtime--;
-				if (!game.clients[i].ctf_uvtime && team_round_going)
-				{
-					if (printType) {
-						gi.centerprintf (&g_edicts[i + 1],
-							"ACTION!\n"
-							"\n"
-							"You are %s the %s base!",
-							(game.clients[i].resp.team == ctfgame.offence ?
-								"ATTACKING" : "DEFENDING"),
-							CTFOtherTeamName(ctfgame.offence));
-					} else {
-						gi.centerprintf (&g_edicts[i + 1], "ACTION!");
-					}
-				}
-				else if (game.clients[i].ctf_uvtime % 10 == 0)
-				{
-					if (printType) {
-						gi.centerprintf (&g_edicts[i + 1],
-							"Shield %d\n"
-							"\n"
-							"You are %s the %s base!",
-							game.clients[i].ctf_uvtime / 10,
-							(game.clients[i].resp.team == ctfgame.offence ?
-								"ATTACKING" : "DEFENDING"),
-							CTFOtherTeamName(ctfgame.offence));
-					} else {
-						gi.centerprintf (&g_edicts[i + 1], "Shield %d",
-							game.clients[i].ctf_uvtime / 10);
-					}
-				}
-			}
-		}
-	}
-
 	if (matchmode->value)
 	{
 		if(mm_allowlock->value)

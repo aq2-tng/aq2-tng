@@ -500,12 +500,11 @@ T_Damage (edict_t * targ, edict_t * inflictor, edict_t * attacker, vec3_t dir,
 		if (lights_camera_action)
 			return;
 
-		// AQ2:TNG - JBravo adding UVtime
 		if (client)
 		{
-			if (client->ctf_uvtime > 0)
+			if (client->uvTime > 0)
 				return;
-			if (attacker->client && attacker->client->ctf_uvtime > 0)
+			if (attacker->client && attacker->client->uvTime > 0)
 				return;
 		}
 

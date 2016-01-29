@@ -576,7 +576,7 @@ void P_FallingDamage (edict_t * ent)
 	int damage;
 	vec3_t dir;
 
-	if (lights_camera_action || ent->client->ctf_uvtime > 0)
+	if (lights_camera_action || ent->client->uvTime > 0)
 		return;
 	
 	if (ent->s.modelindex != 255)
@@ -908,7 +908,7 @@ void G_SetClientEffects (edict_t * ent)
 		ent->s.renderfx |= (RF_SHELL_RED | RF_SHELL_GREEN | RF_SHELL_BLUE);
 	}
 	// AQ2:TNG - JBravo adding UVtime
-	if ((ctf->value || dm_shield->value) && ((ent->client->ctf_uvtime & 4) || (lights_camera_action & 4)))
+	if ((ent->client->uvTime & 4) || (ctf->value && (lights_camera_action & 4)))
 	{
 		ent->s.effects |= EF_COLOR_SHELL;
 		if (ent->client->resp.team == TEAM1)
