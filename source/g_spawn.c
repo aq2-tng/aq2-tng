@@ -729,6 +729,8 @@ void G_LoadLocations( void )
 					ml_creator[i] = *param++;
 				}
 				ml_creator[i] = 0;
+				while (i > 0 && ml_creator[i - 1] == ' ') //Remove railing spaces
+					ml_creator[--i] = 0;
 			}
 			continue;
 		}
