@@ -73,7 +73,7 @@ void OpenWeaponMenu (edict_t *);
 void OpenItemMenu (edict_t * ent);
 void JoinTeam (edict_t * ent, int desired_team, int skip_menuclose);
 edict_t *FindOverlap (edict_t * ent, edict_t * last_overlap);
-void CheckTeamRules (void);
+int CheckTeamRules (void);
 void A_Scoreboard (edict_t * ent);
 void Team_f (edict_t * ent);
 qboolean StartClient (edict_t * ent);

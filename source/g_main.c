@@ -450,6 +450,7 @@ void ReadLevel (char *filename);
 void InitGame (void);
 void G_RunFrame (void);
 
+qboolean CheckTimelimit(void);
 int dosoft;
 int softquit = 0;
 
@@ -793,44 +794,24 @@ void CheckDMRules (void)
 		if (!FRAMESYNC)
 			return;
 
-		CheckTeamRules ();
-
-		if (ctf->value)
-		{
-			if (CTFCheckRules ())
-			{
-				ResetPlayers ();
-				EndDMLevel ();
-			}
-		}
+		if (CheckTeamRules())
+			return;
 	}
 	else				/* not teamplay */
 	{
 		if (!FRAMESYNC)
 			return;
 
-		if (timelimit->value)
-		{
-			if (level.time >= timelimit->value * 60)
-			{
-				gi.bprintf (PRINT_HIGH, "Timelimit hit.\n");
-				IRC_printf (IRC_T_GAME, "Timelimit hit.");
-				EndDMLevel ();
-				return;
-			}
-		}
+		if (CheckTimelimit())
+			return;
 
-		//FIREBLADE
-		//PG BUND - BEGIN
-		if (vCheckVote () == true)
-		{
-			EndDMLevel ();
+		if (vCheckVote()) {
+			EndDMLevel();
 			return;
 		}
-		//PG BUND - END
 	}
 
-	if (fraglimit->value)
+	if (fraglimit->value > 0)
 	{
 		for (i = 0; i < game.maxclients; i++)
 		{
@@ -842,7 +823,7 @@ void CheckDMRules (void)
 				gi.bprintf (PRINT_HIGH, "Fraglimit hit.\n");
 				IRC_printf (IRC_T_GAME, "Fraglimit hit.");
 				if (ctf->value)
-				ResetPlayers ();
+					ResetPlayers ();
 				EndDMLevel ();
 				return;
 			}
