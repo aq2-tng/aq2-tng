@@ -90,7 +90,7 @@ void Cmd_Kill_f(edict_t * ent);	// Used for killing people when they sub off
 void Cmd_Sub_f(edict_t * ent)
 {
 	if (!matchmode->value) {
-		gi.cprintf(ent, PRINT_HIGH, "This command need matchmode to be enabled\n");
+		gi.cprintf(ent, PRINT_HIGH, "This command needs matchmode to be enabled\n");
 		return;
 	}
 
@@ -158,7 +158,7 @@ void MM_SetCaptain( int teamNum, edict_t *ent )
 
 		for (i = TEAM1; i <= teamCount; i++) {
 			if (i != teamNum && teams[teamNum].wantReset)
-				gi.cprintf( ent, PRINT_HIGH, "Team %i want to reset scores, type 'resetscores' to accept\n", i );
+				gi.cprintf( ent, PRINT_HIGH, "Team %i wants to reset scores, type 'resetscores' to accept\n", i );
 		}
 	}
 }
@@ -190,7 +190,7 @@ void Cmd_Captain_f(edict_t * ent)
 	edict_t *oldCaptain;
 
 	if (!matchmode->value) {
-		gi.cprintf(ent, PRINT_HIGH, "This command need matchmode to be enabled\n");
+		gi.cprintf(ent, PRINT_HIGH, "This command needs matchmode to be enabled\n");
 		return;
 	}
 
@@ -207,7 +207,7 @@ void Cmd_Captain_f(edict_t * ent)
 	}
 
 	if (oldCaptain) {
-		gi.cprintf( ent, PRINT_HIGH, "Your team already has a Captain\n" );
+		gi.cprintf( ent, PRINT_HIGH, "Your team already has a captain\n" );
 		return;
 	}
 
@@ -222,7 +222,7 @@ void Cmd_Ready_f(edict_t * ent)
 	team_t	*team;
 
 	if (!matchmode->value) {
-		gi.cprintf(ent, PRINT_HIGH, "This command need matchmode to be enabled\n");
+		gi.cprintf(ent, PRINT_HIGH, "This command needs matchmode to be enabled\n");
 		return;
 	}
 
@@ -240,9 +240,9 @@ void Cmd_Ready_f(edict_t * ent)
 
 	if((teamdm->value || ctf->value) && team_round_going) {
 		if(teamdm->value)
-			gi.cprintf(ent, PRINT_HIGH, "You cant unready in teamdm, use 'pausegame' instead\n");
+			gi.cprintf(ent, PRINT_HIGH, "You can't unready in teamdm, use 'pausegame' instead\n");
 		else
-			gi.cprintf(ent, PRINT_HIGH, "You cant unready in ctf, use 'pausegame' instead\n");
+			gi.cprintf(ent, PRINT_HIGH, "You can't unready in ctf, use 'pausegame' instead\n");
 		return;
 	}
 
@@ -258,12 +258,12 @@ void Cmd_Teamname_f(edict_t * ent)
 	team_t *team;
 
 	if (!matchmode->value) {
-		gi.cprintf(ent, PRINT_HIGH, "This command need matchmode to be enabled\n");
+		gi.cprintf(ent, PRINT_HIGH, "This command needs matchmode to be enabled\n");
 		return;
 	}
 
 	if(ctf->value) {
-		gi.cprintf(ent, PRINT_HIGH, "You cant change teamnames in ctf mode\n");
+		gi.cprintf(ent, PRINT_HIGH, "You can't change teamnames in ctf mode\n");
 		return;
 	}
 
@@ -280,18 +280,18 @@ void Cmd_Teamname_f(edict_t * ent)
 	}
 
 	if (team->ready) {
-		gi.cprintf( ent, PRINT_HIGH, "You cannot use this while 'Ready'\n" );
+		gi.cprintf( ent, PRINT_HIGH, "You can't use this while 'ready'\n" );
 		return;
 	}
 
 	if (team_round_going || team_game_going) {
-		gi.cprintf(ent, PRINT_HIGH, "You cannot use this while playing\n");
+		gi.cprintf(ent, PRINT_HIGH, "You can't use this while playing\n");
 		return;
 	}
 
 	argc = gi.argc();
 	if (argc < 2) {
-		gi.cprintf( ent, PRINT_HIGH, "Your Team Name is %s\n", team->name );
+		gi.cprintf( ent, PRINT_HIGH, "Your team name is %s\n", team->name );
 		return;
 	}
 
@@ -305,10 +305,10 @@ void Cmd_Teamname_f(edict_t * ent)
 	if (!temp[0])
 		strcpy( temp, "noname" );
 
-	gi.dprintf("%s (Team %i) is now known as %s\n", team->name, teamNum, temp);
-	IRC_printf(IRC_T_GAME, "%n (Team %i) is now known as %n", team->name, teamNum, temp);
+	gi.dprintf("%s (team %i) is now known as %s\n", team->name, teamNum, temp);
+	IRC_printf(IRC_T_GAME, "%n (team %i) is now known as %n", team->name, teamNum, temp);
 	strcpy(team->name, temp);
-	gi.cprintf(ent, PRINT_HIGH, "New Team Name: %s\n", team->name);
+	gi.cprintf(ent, PRINT_HIGH, "New team name: %s\n", team->name);
 
 }
 
@@ -321,7 +321,7 @@ void Cmd_Teamskin_f(edict_t * ent)
 	edict_t *e;*/
 
 	if (!matchmode->value) {
-		gi.cprintf(ent, PRINT_HIGH, "This command need matchmode to be enabled\n");
+		gi.cprintf(ent, PRINT_HIGH, "This command needs matchmode to be enabled\n");
 		return;
 	}
 
@@ -337,21 +337,21 @@ void Cmd_Teamskin_f(edict_t * ent)
 		return;
 	}
 	if (team->ready) {
-		gi.cprintf(ent, PRINT_HIGH, "You cannot use this while 'Ready'\n");
+		gi.cprintf(ent, PRINT_HIGH, "You can't use this while 'Ready'\n");
 		return;
 	}
 	if (team_round_going || team_game_going) {
-		gi.cprintf(ent, PRINT_HIGH, "You cannot use this while playing\n");
+		gi.cprintf(ent, PRINT_HIGH, "You can't use this while playing\n");
 		return;
 	}
 	if (gi.argc() < 2) {
-		gi.cprintf(ent, PRINT_HIGH, "Your Team Skin is %s\n", team->skin);
+		gi.cprintf(ent, PRINT_HIGH, "Your team skin is %s\n", team->skin);
 		return;
 	}
 
 	s = gi.argv(1);
 	if(!strcmp(s, team->skin)) {
-		gi.cprintf(ent, PRINT_HIGH, "Your Team Skin is Already %s\n", s);
+		gi.cprintf(ent, PRINT_HIGH, "Your team skin is already %s\n", s);
 		return;
 	}
 
@@ -374,7 +374,7 @@ void Cmd_Teamskin_f(edict_t * ent)
 		if(e->client->resp.team == team)
 			AssignSkin(e, teams[team].skin, false);
 	}*/
-	gi.cprintf(ent, PRINT_HIGH, "New Team Skin: %s\n", team->skin);
+	gi.cprintf(ent, PRINT_HIGH, "New team skin: %s\n", team->skin);
 }
 
 void Cmd_TeamLock_f(edict_t * ent, int a_switch)
@@ -384,7 +384,7 @@ void Cmd_TeamLock_f(edict_t * ent, int a_switch)
 	team_t *team;
 
 	if (!matchmode->value) {
-		gi.cprintf(ent, PRINT_HIGH, "This command need matchmode to be enabled\n");
+		gi.cprintf(ent, PRINT_HIGH, "This command needs matchmode to be enabled\n");
 		return;
 	}
 
@@ -419,7 +419,7 @@ void Cmd_SetAdmin_f (edict_t * ent)
 {
 	if (ent->client->resp.admin) {
 		gi.cprintf( ent, PRINT_HIGH, "You are no longer a match admin.\n" );
-		gi.dprintf( "%s is no longer a Match Admin\n", ent->client->pers.netname );
+		gi.dprintf( "%s is no longer a match admin\n", ent->client->pers.netname );
 		ent->client->resp.admin = 0;
 	}
 
@@ -429,12 +429,12 @@ void Cmd_SetAdmin_f (edict_t * ent)
 	}
 
 	if (strcmp( mm_adminpwd->string, "0" ) == 0) {
-		gi.cprintf( ent, PRINT_HIGH, "Admin Mode is not enabled on this server..\n" );
+		gi.cprintf( ent, PRINT_HIGH, "Match admin mode is not enabled on this server..\n" );
 		return;
 	}
 
 	if (gi.argc() < 2) {
-		gi.cprintf (ent, PRINT_HIGH, "Usage:  matchadmin <password>\n");
+		gi.cprintf (ent, PRINT_HIGH, "Usage: matchadmin <password>\n");
 		return;
 	}
 
@@ -444,8 +444,8 @@ void Cmd_SetAdmin_f (edict_t * ent)
 	}
 
 	gi.cprintf (ent, PRINT_HIGH, "You are now a match admin.\n");
-	gi.dprintf ("%s is now a Match Admin\n", ent->client->pers.netname);
-	IRC_printf (IRC_T_GAME, "%n is now a Match Admin", ent->client->pers.netname);
+	gi.dprintf ("%s is now a match admin\n", ent->client->pers.netname);
+	IRC_printf (IRC_T_GAME, "%n is now a match admin", ent->client->pers.netname);
 	ent->client->resp.admin = 1;
 }
 
@@ -454,14 +454,14 @@ void Cmd_ResetScores_f(edict_t * ent)
 	int i, teamNum, otherCaptain = 0;
 
 	if (!matchmode->value) {
-		gi.cprintf(ent, PRINT_HIGH, "This command need matchmode to be enabled\n");
+		gi.cprintf(ent, PRINT_HIGH, "This command needs matchmode to be enabled\n");
 		return;
 	}
 
 	if(ent->client->resp.admin) //Admins can resetscores
 	{
 		ResetScores(true);
-		gi.bprintf(PRINT_HIGH, "Scores and time was resetted by match admin %s\n", ent->client->pers.netname);
+		gi.bprintf(PRINT_HIGH, "Scores and time were reset by match admin %s\n", ent->client->pers.netname);
 		return;
 	}
 
@@ -480,7 +480,7 @@ void Cmd_ResetScores_f(edict_t * ent)
 		teams[teamNum].wantReset = 0;
 		for (i = TEAM1; i<teamCount + 1; i++) {
 			if (i != teamNum && teams[i].captain) {
-				gi.cprintf(teams[i].captain, PRINT_HIGH, "Team %i doesnt want to reset afterall", teamNum);
+				gi.cprintf(teams[i].captain, PRINT_HIGH, "Team %i doesn't want to reset afterall", teamNum);
 			}
 		}
 		gi.cprintf(ent, PRINT_HIGH, "Your score reset request cancelled\n");
@@ -495,20 +495,20 @@ void Cmd_ResetScores_f(edict_t * ent)
 	if(i == teamCount+1)
 	{
 		ResetScores(true);
-		gi.bprintf(PRINT_HIGH, "Scores and time was resetted by request of captains\n");
+		gi.bprintf(PRINT_HIGH, "Scores and time were reset by request of captains\n");
 		return;
 	}
 
 	for (; i<teamCount + 1; i++) {
 		if (!teams[i].wantReset && teams[i].captain) {
-			gi.cprintf(teams[i].captain, PRINT_HIGH, "Team %i want to reset scores, type 'resetscores' to accept\n", teamNum);
+			gi.cprintf(teams[i].captain, PRINT_HIGH, "Team %i wants to reset scores, type 'resetscores' to accept\n", teamNum);
 			otherCaptain = 1;
 		}
 	}
 	if(otherCaptain)
-		gi.cprintf(ent, PRINT_HIGH, "Your score reset request was send to other team captain\n");
+		gi.cprintf(ent, PRINT_HIGH, "Your score reset request was sent to the other team captain\n");
 	else
-		gi.cprintf(ent, PRINT_HIGH, "Other team need captain and his accept to reset the scores\n");
+		gi.cprintf(ent, PRINT_HIGH, "Other team needs a captain and his acceptance to reset the scores\n");
 
 }
 
@@ -518,7 +518,7 @@ void Cmd_TogglePause_f(edict_t * ent, qboolean pause)
 	int		teamNum;
 
 	if (!matchmode->value) {
-		gi.cprintf(ent, PRINT_HIGH, "This command need matchmode to be enabled\n");
+		gi.cprintf(ent, PRINT_HIGH, "This command needs matchmode to be enabled\n");
 		return;
 	}
 
@@ -539,12 +539,12 @@ void Cmd_TogglePause_f(edict_t * ent, qboolean pause)
 	}
 
 	if (!team_round_going) {
-		gi.cprintf(ent, PRINT_HIGH, "No match going so why pause?\n");
+		gi.cprintf(ent, PRINT_HIGH, "No match running, so why pause?\n");
 		//return;
 	}
 
 	if (ent->client->resp.subteam) {
-		gi.cprintf(ent, PRINT_HIGH, "You cant pause when substitute\n");
+		gi.cprintf(ent, PRINT_HIGH, "You can't pause when substitute\n");
 		return;
 	}
 
@@ -584,7 +584,7 @@ void Cmd_TogglePause_f(edict_t * ent, qboolean pause)
 		}
 		if(lastPaused != teamNum)
 		{
-			gi.cprintf(ent, PRINT_HIGH, "You cannot unpause when pause is made by other team\n");
+			gi.cprintf(ent, PRINT_HIGH, "You can't unpause when paused by the other team\n");
 			return;
 		}
 		level.pauseFrames = 10 * HZ;
