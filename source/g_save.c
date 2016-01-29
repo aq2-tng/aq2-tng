@@ -345,14 +345,14 @@ void InitGame( void )
 	gi.cvar( "gamedate", __DATE__, CVAR_SERVERINFO | CVAR_LATCH );
 
 	maxclients = gi.cvar( "maxclients", "8", CVAR_SERVERINFO | CVAR_LATCH );
-	deathmatch = gi.cvar( "deathmatch", "1", CVAR_LATCH );
 	maxentities = gi.cvar( "maxentities", "1024", CVAR_LATCH );
 
+
+	deathmatch = gi.cvar( "deathmatch", "1", CVAR_LATCH );
 	if (!deathmatch->value) {
 		gi.dprintf( "Turning deathmatch on.\n" );
 		gi.cvar_forceset( "deathmatch", "1" );
 	}
-
 	cv = gi.cvar( "coop", "0", CVAR_LATCH );
 	if (cv->value) {
 		gi.dprintf( "Turning coop off.\n" );
@@ -523,16 +523,17 @@ void InitGame( void )
 	game.helpmessage1[0] = '\0';
 	game.helpmessage2[0] = '\0';
 
-	// initialize all entities for this game
-	game.maxentities = maxentities->value;
-	g_edicts = gi.TagMalloc( game.maxentities * sizeof( g_edicts[0] ), TAG_GAME );
-	globals.edicts = g_edicts;
-	globals.max_edicts = game.maxentities;
-
 	// initialize all clients for this game
 	game.maxclients = (int)maxclients->value;
-	game.clients = gi.TagMalloc( game.maxclients * sizeof( game.clients[0] ), TAG_GAME );
+	game.clients = gi.TagMalloc( game.maxclients * sizeof(game.clients[0]), TAG_GAME );
 	globals.num_edicts = game.maxclients + 1;
+
+	// initialize all entities for this game
+	game.maxentities = maxentities->value;
+	clamp(game.maxentities, globals.num_edicts, MAX_EDICTS);
+	g_edicts = gi.TagMalloc( game.maxentities * sizeof(g_edicts[0]), TAG_GAME );
+	globals.edicts = g_edicts;
+	globals.max_edicts = game.maxentities;
 
 	if (ctf->value)
 		CTFInit();

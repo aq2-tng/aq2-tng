@@ -254,7 +254,6 @@ int LoadFlagsFromFile (char *mapname);
 
 //AQ2:TNG - Slicer New location code
 int ml_count = 0;
-char ml_build[6];
 char ml_creator[101];
 //AQ2:TNG END
 placedata_t locationbase[MAX_LOCATIONS_IN_BASE];
@@ -642,47 +641,152 @@ All but the first will have the FL_TEAMSLAVE flag set.
 All but the last will have the teamchain field set to the next one
 ================
 */
-void
-G_FindTeams (void)
+void G_FindTeams (void)
 {
-  edict_t *e, *e2, *chain;
-  int i, j;
-  int c, c2;
+	edict_t *e, *e2, *chain;
+	int i, j;
+	int c, c2;
 
-  c = 0;
-  c2 = 0;
-  for (i = 1, e = g_edicts + i; i < globals.num_edicts; i++, e++)
-    {
-      if (!e->inuse)
-	continue;
-      if (!e->team)
-	continue;
-      if (e->flags & FL_TEAMSLAVE)
-	continue;
-      chain = e;
-      e->teammaster = e;
-      c++;
-      c2++;
-      for (j = i + 1, e2 = e + 1; j < globals.num_edicts; j++, e2++)
+	c = 0;
+	c2 = 0;
+	for (i = 1, e = g_edicts + i; i < globals.num_edicts; i++, e++)
 	{
-	  if (!e2->inuse)
-	    continue;
-	  if (!e2->team)
-	    continue;
-	  if (e2->flags & FL_TEAMSLAVE)
-	    continue;
-	  if (!strcmp (e->team, e2->team))
-	    {
-	      c2++;
-	      chain->teamchain = e2;
-	      e2->teammaster = e;
-	      chain = e2;
-	      e2->flags |= FL_TEAMSLAVE;
-	    }
+		if (!e->inuse || !e->team)
+			continue;
+		if (e->flags & FL_TEAMSLAVE)
+			continue;
+		chain = e;
+		e->teammaster = e;
+		c++;
+		c2++;
+		for (j = i + 1, e2 = e + 1; j < globals.num_edicts; j++, e2++)
+		{
+			if (!e2->inuse || !e2->team)
+				continue;
+			if (e2->flags & FL_TEAMSLAVE)
+				continue;
+			if (!strcmp (e->team, e2->team))
+			{
+				c2++;
+				chain->teamchain = e2;
+				e2->teammaster = e;
+				chain = e2;
+				e2->flags |= FL_TEAMSLAVE;
+			}
+		}
 	}
-    }
 
-  gi.dprintf ("%i teams with %i entities\n", c, c2);
+	gi.dprintf ("%i teams with %i entities\n", c, c2);
+}
+
+void G_LoadLocations( void )
+{
+	//AQ2:TNG New Location Code
+	char	locfile[MAX_QPATH], buffer[256];
+	FILE	*f;
+	int		i, x, y, z, rx, ry, rz;
+	char	*locationstr, *param, *line;
+	cvar_t	*game_cvar;
+	placedata_t *loc;
+
+	memset( ml_creator, 0, sizeof( ml_creator ) );
+	ml_count = 0;
+
+	game_cvar = gi.cvar ("game", "", 0);
+
+	if (!*game_cvar->string)
+		Com_sprintf(locfile, sizeof(locfile), "%s/tng/%s.aqg", GAMEVERSION, level.mapname);
+	else
+		Com_sprintf(locfile, sizeof(locfile), "%s/tng/%s.aqg", game_cvar->string, level.mapname);
+
+	f = fopen( locfile, "r" );
+	if (!f) {
+		gi.dprintf( "No location file for %s\n", level.mapname );
+		return;
+	}
+
+	gi.dprintf( "Location file: %s\n", level.mapname );
+
+	do
+	{
+		line = fgets( buffer, sizeof( buffer ), f );
+		if (!line) {
+			break;
+		}
+
+		if (strlen( line ) < 12)
+			continue;
+
+		if (line[0] == '#')
+		{
+			param = line + 1;
+			while (*param == ' ') { param++; }
+			if (*param && !Q_strnicmp(param, "creator", 7))
+			{
+				param += 8;
+				while (*param == ' ') { param++; }
+				for (i = 0; *param >= ' ' && i < sizeof( ml_creator ) - 1; i++) {
+					ml_creator[i] = *param++;
+				}
+				ml_creator[i] = 0;
+			}
+			continue;
+		}
+
+		param = strtok( line, " :\r\n\0" );
+		// TODO: better support for file comments
+		if (!param || param[0] == '#')
+			continue;
+
+		x = atoi( param );
+
+		param = strtok( NULL, " :\r\n\0" );
+		if (!param)
+			continue;
+		y = atoi( param );
+
+		param = strtok( NULL, " :\r\n\0" );
+		if (!param)
+			continue;
+		z = atoi( param );
+
+		param = strtok( NULL, " :\r\n\0" );
+		if (!param)
+			continue;
+		rx = atoi( param );
+
+		param = strtok( NULL, " :\r\n\0" );
+		if (!param)
+			continue;
+		ry = atoi( param );
+
+		param = strtok( NULL, " :\r\n\0" );
+		if (!param)
+			continue;
+		rz = atoi( param );
+
+		param = strtok( NULL, "\r\n\0" );
+		if (!param)
+			continue;
+		locationstr = param;
+
+		loc = &locationbase[ml_count++];
+		loc->x = x;
+		loc->y = y;
+		loc->z = z;
+		loc->rx = rx;
+		loc->ry = ry;
+		loc->rz = rz;
+		Q_strncpyz( loc->desc, locationstr, sizeof( loc->desc ) );
+
+		if (ml_count >= MAX_LOCATIONS_IN_BASE) {
+			gi.dprintf( "Cannot read more than %d locations.\n", MAX_LOCATIONS_IN_BASE );
+			break;
+		}
+	} while (1);
+
+	fclose( f );
+	gi.dprintf( "Found %d locations.\n", ml_count );
 }
 
 /*
@@ -699,15 +803,6 @@ void SpawnEntities (char *mapname, char *entities, char *spawnpoint)
 	int inhibit = 0;
 	char *com_token;
 	int i;
-	//AQ2:TNG New Location Code
-	char locfile[MAX_QPATH], line[256];
-	FILE *f;
-	int readmore, x, y, z, rx, ry, rz, count;
-	char *locationstr, *param;
-	cvar_t *game_cvar;
-	int u;
-	//    placedata_t temp;
-
 
 	// Reset teamplay stuff
 	for(i = TEAM1; i < TEAM_TOP; i++)
@@ -918,117 +1013,7 @@ void SpawnEntities (char *mapname, char *entities, char *spawnpoint)
 			NS_GetSpawnPoints();
 	}
 
-	//AQ2:TNG Slicer - New location  code
-	memset (ml_build, 0, sizeof (ml_build));
-	memset (ml_creator, 0, sizeof (ml_creator));
-
-
-	game_cvar = gi.cvar ("game", "", 0);
-
-	if (!*game_cvar->string)
-		Com_sprintf(locfile, sizeof(locfile), "%s/tng/%s.aqg", GAMEVERSION, level.mapname);
-	else
-		Com_sprintf(locfile, sizeof(locfile), "%s/tng/%s.aqg", game_cvar->string, level.mapname);
-
-	f = fopen (locfile, "rt");
-	if (!f)
-	{
-		ml_count = 0;
-		gi.dprintf ("No location file for %s\n", level.mapname);
-		return;
-	}
-
-	gi.dprintf ("Location file: %s\n", level.mapname);
-
-	readmore = 1;
-	count = 0;
-
-	while (readmore)
-	{
-		readmore = (fgets (line, 256, f) != NULL);
-		param = strtok (line, " :\r\n\0");
-		if (line[0] == '#' && line[2] == 'C')
-		{
-			u = 0;
-			for (i = 10; line[i] != '\n'; i++)
-			{
-				if (line[i] == '\r') continue;
-					ml_creator[u] = line[i];
-				u++;
-			}
-		}
-		if (line[0] == '#' && line[2] == 'B')
-		{
-			u = 0;
-			for (i = 8; line[i] != '\n'; i++)
-			{
-				if (line[i] != ' ' && line[i] != '\r')
-				{
-					ml_build[u] = line[i];
-					u++;
-				}
-			}
-		}
-		ml_build[5] = 0;
-		ml_creator[100] = 0;
-
-		// TODO: better support for file comments
-		if (!param || param[0] == '#')
-			continue;
-
-		x = atoi (param);
-
-		param = strtok (NULL, " :\r\n\0");
-		if (!param)
-			continue;
-		y = atoi (param);
-
-		param = strtok (NULL, " :\r\n\0");
-		if (!param)
-			continue;
-		z = atoi (param);
-
-		param = strtok (NULL, " :\r\n\0");
-		if (!param)
-			continue;
-		rx = atoi (param);
-
-		param = strtok (NULL, " :\r\n\0");
-		if (!param)
-			continue;
-		ry = atoi (param);
-
-		param = strtok (NULL, " :\r\n\0");
-		if (!param)
-			continue;
-		rz = atoi (param);
-
-		param = strtok (NULL, "\r\n\0");
-		if (!param)
-			continue;
-		locationstr = param;
-
-		locationbase[count].x = x;
-		locationbase[count].y = y;
-		locationbase[count].z = z;
-		locationbase[count].rx = rx;
-		locationbase[count].ry = ry;
-		locationbase[count].rz = rz;
-		Q_strncpyz (locationbase[count].desc, locationstr, sizeof(locationbase[count].desc));
-
-		count++;
-
-		if (count >= MAX_LOCATIONS_IN_BASE)
-		{
-			gi.dprintf ("Cannot read more than %d locations.\n", MAX_LOCATIONS_IN_BASE);
-			break;
-		}
-	}
-
-	ml_count = count;
-	fclose (f);
-	gi.dprintf ("Found %d locations.\n", count);
-
+	G_LoadLocations();
 }
 
 

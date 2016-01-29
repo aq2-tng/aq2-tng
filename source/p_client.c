@@ -2575,12 +2575,12 @@ void PutClientInServer(edict_t * ent)
 		}
 	}
 
-	// we must link before killbox since it uses absmin/absmax
-	gi.linkentity(ent);
 
 	if (!going_observer && !teamplay->value) {	// this handles telefrags...
 		KillBox(ent);
 	}
+
+	gi.linkentity( ent );
 
 	//zucc give some ammo
 	//item = FindItem("Pistol Clip");     

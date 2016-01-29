@@ -42,11 +42,8 @@
 #define MAX_TEAMS       3
 #define TEAM_TOP        (MAX_TEAMS+1)
 
-#define WINNER_NONE     0
-#define WINNER_TEAM1    1
-#define WINNER_TEAM2    2
-#define WINNER_TEAM3    3
-#define WINNER_TIE      4
+#define WINNER_NONE     NOTEAM
+#define WINNER_TIE      TEAM_TOP
 
 // Pre- and post-trace code for our teamplay anti-stick stuff.  If there are
 // still "transparent" (SOLID_TRIGGER) players, they need to be set to
