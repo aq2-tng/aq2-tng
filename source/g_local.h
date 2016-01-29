@@ -1965,7 +1965,6 @@ placedata_t;
 // Externals for accessing location structures
 extern int ml_count;
 extern placedata_t locationbase[];
-extern char ml_build[6];
 extern char ml_creator[101];
 //AQ2:TNG END
 
