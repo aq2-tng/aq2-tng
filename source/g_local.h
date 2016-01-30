@@ -1014,14 +1014,13 @@ gitem_t *FindItemByClassname (char *classname);
 gitem_t *FindItemByNum (int num);
 #define ITEM_INDEX(x) ((x)-itemlist)
 #define INV_AMMO(ent, num) ((ent)->client->pers.inventory[items[(num)].index])
-#define GET_ITEM(num) (GetItemByIndex(items[(num)].index))
+#define GET_ITEM(num) (&itemlist[items[(num)].index])
 edict_t *Drop_Item (edict_t * ent, gitem_t * item);
 void SetRespawn (edict_t * ent, float delay);
 void ChangeWeapon (edict_t * ent);
 void PrecacheItems( void );
 void SpawnItem (edict_t * ent, gitem_t * item);
 void Think_Weapon (edict_t * ent);
-gitem_t *GetItemByIndex (int index);
 qboolean Add_Ammo (edict_t * ent, gitem_t * item, int count);
 void Touch_Item (edict_t * ent, edict_t * other, cplane_t * plane,
 		 csurface_t * surf);
@@ -1032,7 +1031,7 @@ void Touch_Item (edict_t * ent, edict_t * other, cplane_t * plane,
 qboolean KillBox (edict_t * ent);
 void G_ProjectSource (vec3_t point, vec3_t distance, vec3_t forward,
 		      vec3_t right, vec3_t result);
-edict_t *G_Find (edict_t * from, int fieldofs, char *match);
+edict_t *G_Find( edict_t * from, size_t fieldofs, char *match );
 edict_t *findradius (edict_t * from, vec3_t org, float rad);
 edict_t *G_PickTarget (char *targetname);
 void G_UseTargets (edict_t * ent, edict_t * activator);
@@ -1873,40 +1872,44 @@ void AddSplat (edict_t * self, vec3_t point, trace_t * tr);
 #define ITF_HELM      0x00000020
 //AQ2:TNG End adding flags
 
-#define NO_NUM					-1
+#define NO_NUM					0
 
-#define MK23_NUM				0
-#define MP5_NUM					1
-#define M4_NUM					2
-#define M3_NUM					3
-#define HC_NUM					4
-#define SNIPER_NUM				5
-#define DUAL_NUM				6
-#define KNIFE_NUM				7
-#define GRENADE_NUM				8
+#define MK23_NUM				1
+#define MP5_NUM					2
+#define M4_NUM					3
+#define M3_NUM					4
+#define HC_NUM					5
+#define SNIPER_NUM				6
+#define DUAL_NUM				7
+#define KNIFE_NUM				8
+#define GRENADE_NUM				9
 
-#define SIL_NUM					9
-#define SLIP_NUM				10
-#define BAND_NUM				11
-#define KEV_NUM					12
-#define LASER_NUM				13
-#define HELM_NUM				14
+#define SIL_NUM					10
+#define SLIP_NUM				11
+#define BAND_NUM				12
+#define KEV_NUM					13
+#define LASER_NUM				14
+#define HELM_NUM				15
 
-#define MK23_ANUM				15
-#define MP5_ANUM				16
-#define M4_ANUM					17
-#define SHELL_ANUM				18
-#define SNIPER_ANUM				19
+#define MK23_ANUM				16
+#define MP5_ANUM				17
+#define M4_ANUM					18
+#define SHELL_ANUM				19
+#define SNIPER_ANUM				20
 
-#define FLAG_T1_NUM				20
-#define FLAG_T2_NUM				21
+#define FLAG_T1_NUM				21
+#define FLAG_T2_NUM				22
 
-#define GRAPPLE_NUM				22
+#define GRAPPLE_NUM				23
+
+#define ITEM_MAX_NUM			24
 
 #define WEAPON_COUNT			9
 #define ITEM_COUNT				6
 #define AMMO_COUNT				5
-#define ILIST_COUNT				WEAPON_COUNT+ITEM_COUNT+AMMO_COUNT
+#define WEAPON_FIRST			1
+#define ITEM_FIRST				WEAPON_FIRST+WEAPON_COUNT
+#define AMMO_FIRST				ITEM_FIRST+ITEM_COUNT
 
 typedef struct itemList_s
 {
@@ -1914,8 +1917,7 @@ typedef struct itemList_s
 	int		flag;
 } itemList_t;
 
-extern itemList_t items[ILIST_COUNT];
-extern int tnums[ITEM_COUNT];
+extern itemList_t items[ITEM_MAX_NUM];
 
 // sniper modes
 #define SNIPER_1X 0

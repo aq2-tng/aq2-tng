@@ -40,13 +40,6 @@
 // time before they will get respawned
 #define SPEC_TECH_TIMEOUT       60
 
-int tnums[ITEM_COUNT] = {
-	SIL_NUM, SLIP_NUM, BAND_NUM, KEV_NUM, LASER_NUM,
-	HELM_NUM
-};
-
-//int tnumspawned[ITEM_COUNT] = { 0 };
-
 void SpecThink(edict_t * spec);
 
 static edict_t *FindSpecSpawn(void)
@@ -108,21 +101,20 @@ void SpawnSpecs(edict_t * ent)
 {
 	gitem_t *spec;
 	edict_t *spot;
-	int i;
+	int i, itemNum;
 
 	if(item_respawnmode->value)
 		return;
 
 	for(i = 0; i<ITEM_COUNT; i++)
 	{
-		if ((spec = GET_ITEM(tnums[i])) != NULL && (spot = FindSpecSpawn()) != NULL) {
-			//AQ2:TNG - Igor adding itm_flags
-			if ((int)itm_flags->value & items[tnums[i]].flag)
-			{
-				//gi.dprintf("Spawning special item '%s'.\n", tnames[i]);
-				SpawnSpec(spec, spot);
-			}
-			//AQ2:TNG End adding itm_flags
+		itemNum = ITEM_FIRST + i;
+		if (!((int)itm_flags->value & items[itemNum].flag))
+			continue;
+
+		if ((spec = GET_ITEM(itemNum)) != NULL && (spot = FindSpecSpawn()) != NULL) {
+			//gi.dprintf("Spawning special item '%s'.\n", tnames[i]);
+			SpawnSpec(spec, spot);
 		}
 	}
 }
@@ -187,12 +179,13 @@ void DeadDropSpec(edict_t * ent)
 {
 	gitem_t *spec;
 	edict_t *dropped;
-	int i;
+	int i, itemNum;
 
 	for(i = 0; i<ITEM_COUNT; i++)
 	{
-		if (INV_AMMO(ent, tnums[i]) > 0) {
-			spec = GET_ITEM(tnums[i]);
+		itemNum = ITEM_FIRST + i;
+		if (INV_AMMO(ent, itemNum) > 0) {
+			spec = GET_ITEM(itemNum);
 			dropped = Drop_Item(ent, spec);
 			// hack the velocity to make it bounce random
 			dropped->velocity[0] = (rand() % 600) - 300;

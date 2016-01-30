@@ -1269,6 +1269,8 @@ void Cmd_Say_f (edict_t * ent, qboolean team, qboolean arg0, qboolean partner_ms
 		return;
 	
 	args = gi.args();
+	if (!args || !*args)
+		return;
 
 	if (!sv_crlf->value)
 	{
@@ -1284,15 +1286,10 @@ void Cmd_Say_f (edict_t * ent, qboolean team, qboolean arg0, qboolean partner_ms
 	{
 		if (!Q_stricmp("%me", gi.argv(0))) {
 			meing = 4;
-			if(!args || !*args)
-				return;
 		}
 	}
 	else
 	{
-		if(!args || !*args)
-			return;
-
 		if (!Q_strnicmp("%me", args, 3))
 			meing = 4;
 		else if (!Q_strnicmp("%me", args + 1, 3))
