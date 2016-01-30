@@ -454,85 +454,30 @@ qboolean Pickup_Weapon (edict_t * ent, edict_t * other)
 
 
 // zucc vwep 3.17(?) vwep support
-void
-ShowGun (edict_t * ent)
+void ShowGun (edict_t * ent)
 {
 
-  int nIndex;
-  char *pszIcon;
+	int nIndex;
 
-  // No weapon?
-  if (!ent->client->pers.weapon)
-    {
-      ent->s.modelindex2 = 0;
-      return;
-    }
+	// No weapon?
+	if (!ent->client->pers.weapon) {
+		ent->s.modelindex2 = 0;
+		return;
+	}
 
-  // Determine the weapon's precache index.
+	// Determine the weapon's precache index.
+	nIndex = ent->client->pers.weapon->typeNum;
 
-  nIndex = 0;
-  pszIcon = ent->client->pers.weapon->icon;
+	// Clear previous weapon model.
+	ent->s.skinnum &= 255;
 
-  if (strcmp (pszIcon, "w_mk23") == 0)
-    nIndex = 1;
-  else if (strcmp (pszIcon, "w_mp5") == 0)
-    nIndex = 2;
-  else if (strcmp (pszIcon, "w_m4") == 0)
-    nIndex = 3;
-  else if (strcmp (pszIcon, "w_cannon") == 0)
-    nIndex = 4;
-  else if (strcmp (pszIcon, "w_super90") == 0)
-    nIndex = 5;
-  else if (strcmp (pszIcon, "w_sniper") == 0)
-    nIndex = 6;
-  else if (strcmp (pszIcon, "w_akimbo") == 0)
-    nIndex = 7;
-  else if (strcmp (pszIcon, "w_knife") == 0)
-    nIndex = 8;
-  else if (strcmp (pszIcon, "a_m61frag") == 0)
-    nIndex = 9;
-
-  // Clear previous weapon model.
-  ent->s.skinnum &= 255;
-
-  // Set new weapon model.
-  ent->s.skinnum |= (nIndex << 8);
-  ent->s.modelindex2 = 255;
-  /*
-     char heldmodel[128];
-     int len;
-
-     if(!ent->client->pers.weapon)
-     {
-     ent->s.modelindex2 = 0;
-     return;
-     }
-
-     strcpy(heldmodel, "players/");
-     strcat(heldmodel, Info_ValueForKey (ent->client->pers.userinfo, "skin"));
-     for(len = 8; heldmodel[len]; len++)
-     {
-     if(heldmodel[len] == '/')
-     heldmodel[++len] = '\0';
-     }
-     strcat(heldmodel, ent->client->pers.weapon->icon);      
-     strcat(heldmodel, ".md2");
-     //gi.dprintf ("%s\n", heldmodel);
-     ent->s.modelindex2 = gi.modelindex(heldmodel);  
-   */
+	// Set new weapon model.
+	ent->s.skinnum |= (nIndex << 8);
+	ent->s.modelindex2 = 255;
 }
-
-
-
-
-
-
-
-
 
 //#define GRENADE_IDLE_FIRST 40
 //#define GRENADE_IDLE_LAST 69
-
 
 /*
 ===============
@@ -601,26 +546,12 @@ void ChangeWeapon (edict_t * ent)
 	ShowGun (ent);
 	// zucc done
 
-	switch(ent->client->pers.weapon->typeNum) {
-	case MK23_NUM:
-	case MP5_NUM:
-	case M4_NUM:
-	case M3_NUM:
-	case HC_NUM:
-	case SNIPER_NUM:
-	case DUAL_NUM:
-	case KNIFE_NUM:
-	case GRAPPLE_NUM:
-		ent->client->curr_weap = ent->client->pers.weapon->typeNum;
-		break;
-	case GRENADE_NUM:
+	ent->client->curr_weap = ent->client->pers.weapon->typeNum;
+	if (ent->client->curr_weap == GRENADE_NUM) {
 		// Fix the "use grenades;drop bandolier" bug, caused infinite grenades.
-		if (teamplay->value && INV_AMMO(ent, GRENADE_NUM) == 0)
-			INV_AMMO(ent, GRENADE_NUM) = 1;
-
-		ent->client->curr_weap = ent->client->pers.weapon->typeNum;
-		break;
-    }
+		if (teamplay->value && INV_AMMO( ent, GRENADE_NUM ) == 0)
+			INV_AMMO( ent, GRENADE_NUM ) = 1;
+	}
 
 	if (INV_AMMO(ent, LASER_NUM))
 		SP_LaserSight (ent, GET_ITEM(LASER_NUM));	//item->use(ent, item);

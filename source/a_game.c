@@ -984,12 +984,13 @@ void GetWeaponName(edict_t * ent, char *buf)
 
 void GetItemName(edict_t * ent, char *buf)
 {
-	int i;
+	int i, itemNum;
 
-	for(i = 0; i<ITEM_COUNT; i++)
+	for (i = 0; i<ITEM_COUNT; i++)
 	{
-		if (INV_AMMO(ent, tnums[i])) {
-			strcpy(buf, GET_ITEM(tnums[i])->pickup_name);
+		itemNum = ITEM_FIRST + i;
+		if (INV_AMMO(ent,itemNum)) {
+			strcpy(buf, GET_ITEM(itemNum)->pickup_name);
 			return;
 		}
 	}

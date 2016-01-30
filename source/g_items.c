@@ -94,17 +94,9 @@ static int quad_drop_timeout_hack;
 
 /*
 ===============
-GetItemByIndex
+FindItemByNum
 ===============
 */
-gitem_t *GetItemByIndex (int index)
-{
-	if (index == 0 || index >= game.num_items)
-		return NULL;
-
-	return &itemlist[index];
-}
-
 gitem_t *FindItemByNum (int num)
 {
 	int i;
@@ -117,7 +109,7 @@ gitem_t *FindItemByNum (int num)
 			return it;
 	}
 
-	return NULL;
+	return &itemlist[0];
 }
 /*
 ===============
@@ -278,11 +270,11 @@ qboolean Pickup_ItemPack (edict_t * ent, edict_t * other)
 
 	while(count < 2)
 	{
-		item = newrand(ITEM_COUNT);
-		if (INV_AMMO(ent, tnums[item]) > 0 || !((int)itm_flags->value & items[tnums[item]].flag))
+		item = ITEM_FIRST + newrand( ITEM_COUNT );
+		if (INV_AMMO(ent, item) > 0 || !((int)itm_flags->value & items[item].flag))
 			continue;
 
-		spec = GET_ITEM(tnums[item]);
+		spec = GET_ITEM(item);
 		AddItem(other, spec);
 		count++;
 	}
@@ -1374,30 +1366,6 @@ gitem_t itemlist[] = {
   // WEAPONS 
   //
 
-/* weapon_grapple (.3 .3 1) (-16 -16 -16) (16 16 16)^M
-always owned, never in the world^M
-*/
-	{
-		"weapon_grapple",
-		NULL,
-		Use_Weapon,
-		NULL,
-		CTFWeapon_Grapple,
-		"misc/w_pkup.wav",
-		NULL, 0,
-		"models/weapons/grapple/tris.md2",
-		/* icon */              "w_grapple",
-		/* pickup */    "Grapple",
-		0,
-		0,
-		NULL,
-		IT_WEAPON,
-		NULL,
-		0,
-		/* precache */ "weapons/grapple/grfire.wav weapons/grapple/grpull.wav weapons/grapple/grhang.wav weapons/grapple/grreset.wav weapons/grapple/grhit.wav",
-		GRAPPLE_NUM
-	},
-
 // zucc - New Weapons
 /*
 gitem_t
@@ -1629,6 +1597,29 @@ world_model_flags int               copied to 'ent->s.effects' (see s.effects fo
   GRENADE_NUM}
   ,
 
+/* weapon_grapple (.3 .3 1) (-16 -16 -16) (16 16 16)^M
+always owned, never in the world^M
+*/
+	{
+		"weapon_grapple",
+		NULL,
+		Use_Weapon,
+		NULL,
+		CTFWeapon_Grapple,
+		"misc/w_pkup.wav",
+		NULL, 0,
+		"models/weapons/grapple/tris.md2",
+		/* icon */              "w_grapple",
+		/* pickup */    "Grapple",
+		0,
+		0,
+		NULL,
+		IT_WEAPON,
+		NULL,
+		0,
+		/* precache */ "weapons/grapple/grfire.wav weapons/grapple/grpull.wav weapons/grapple/grhang.wav weapons/grapple/grreset.wav weapons/grapple/grhit.wav",
+		GRAPPLE_NUM
+	},
 
 
   //
@@ -2253,18 +2244,17 @@ void SP_item_health_mega (edict_t * self)
 }
 
 
-itemList_t items[ILIST_COUNT];
+itemList_t items[ITEM_MAX_NUM];
 
 void InitItems (void)
 {
 	int i;
 
 	game.num_items = sizeof (itemlist) / sizeof (itemlist[0]) - 1;
-
-	for(i=0; i<ILIST_COUNT; i++)
-	{
+	
+	memset( items, 0, sizeof( items ) );
+	for (i = 1; i < ITEM_MAX_NUM; i++) {
 		items[i].index = ITEM_INDEX(FindItemByNum(i));
-		items[i].flag = 0;
 	}
 
 	items[MK23_NUM].flag = WPF_MK23;
