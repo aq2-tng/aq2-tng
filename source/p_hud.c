@@ -443,7 +443,7 @@ void G_SetStats (edict_t * ent)
 		// ammo by weapon
 		// 
 		//
-		if (ent->client->pers.weapon)
+		if (ent->client->pers.weapon && ent->client->curr_weap)
 		{
 			switch (ent->client->curr_weap) {
 			case MK23_NUM:
@@ -487,7 +487,7 @@ void G_SetStats (edict_t * ent)
 				ent->client->ps.stats[STAT_AMMO] = 0;
 				break;
 			default:
-				gi.dprintf ("Failed to find weapon/icon for hud.\n");
+				gi.dprintf ("Failed to find hud weapon/icon for num %d.\n", ent->client->curr_weap);
 				break;
 			}
 		}

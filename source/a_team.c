@@ -1043,158 +1043,116 @@ void ReturnToMain (edict_t * ent, pmenu_t * p)
 	OpenJoinMenu (ent);
 }
 
+static char *menu_itemnames[ITEM_MAX_NUM] = {
+	"",
+	MK23_NAME,
+	MP5_NAME,
+	M4_NAME,
+	M3_NAME,
+	HC_NAME,
+	"SSG 3000 Sniper Rifle",
+	"Akimbo Pistols",
+	"Combat Knives",
+	GRENADE_NAME,
+
+	SIL_NAME,
+	SLIP_NAME,
+	BAND_NAME,
+	KEV_NAME,
+	"Laser Sight",
+	HELM_NAME,
+	""
+};
+
+typedef struct menuentry_s
+{
+	int		itemNum;
+	void (*SelectFunc) (edict_t * ent, struct pmenu_s * entry);
+} menuentry_t;
+
 void OpenItemMenu (edict_t * ent)
 {
-	//AQ2:TNG - Igor adding itm_flags
-	static char *menu_itemnames[] = {
-		"Kevlar Vest",
-		"Laser Sight",
-		"Stealth Slippers",
-		"Silencer",
-		"Bandolier",
-		"Kevlar Helmet"
+	menuentry_t *menuEntry, menu_items[] = {
+		{ KEV_NUM, SelectItem1 },
+		{ LASER_NUM, SelectItem2 },
+		{ SLIP_NUM, SelectItem3 },
+		{ SIL_NUM, SelectItem4 },
+		{ BAND_NUM, SelectItem5 },
+		{ HELM_NUM, SelectItem6 }
 		};
-	int pos;
+	int i, count, pos = 4;
 
-	if (itm_flags->value != 0)
+
+	count = sizeof( menu_items ) / sizeof( menu_items[0] );
+
+	if ((int)itm_flags->value & ITF_MASK)
 	{
-		pos = 4;
-		if ((int)itm_flags->value & ITF_KEV)
-		{
-			itemmenu[pos].text = menu_itemnames[0];
-			itemmenu[pos].SelectFunc = SelectItem1;
+		for (menuEntry = menu_items, i = 0; i < count; i++, menuEntry++) {
+			if (!ITF_ALLOWED(menuEntry->itemNum))
+				continue;
+
+			itemmenu[pos].text = menu_itemnames[menuEntry->itemNum];
+			itemmenu[pos].SelectFunc = menuEntry->SelectFunc;
 			pos++;
 		}
 
-		if ((int)itm_flags->value & ITF_LASER)
+		if ( pos > 4 )
 		{
-			itemmenu[pos].text = menu_itemnames[1];
-			itemmenu[pos].SelectFunc = SelectItem2;
-			pos++;
-		}
+			for (; pos < 10; pos++)
+			{
+				itemmenu[pos].text = NULL;
+				itemmenu[pos].SelectFunc = NULL;
+			}
 
-		if ((int)itm_flags->value & ITF_SLIP)
-		{
-			itemmenu[pos].text = menu_itemnames[2];
-			itemmenu[pos].SelectFunc = SelectItem3;
-			pos++;
+			PMenu_Open(ent, itemmenu, 4, sizeof(itemmenu) / sizeof(pmenu_t));
+			return;
 		}
-
-		if ((int)itm_flags->value & ITF_SIL)
-		{
-			itemmenu[pos].text = menu_itemnames[3];
-			itemmenu[pos].SelectFunc = SelectItem4;
-			pos++;
-		}
-
-		if ((int)itm_flags->value & ITF_BAND)
-		{
-			itemmenu[pos].text = menu_itemnames[4];
-			itemmenu[pos].SelectFunc = SelectItem5;
-			pos++;
-		}
-
-		if ((int)itm_flags->value & ITF_HELM)
-		{
-			itemmenu[pos].text = menu_itemnames[5];
-			itemmenu[pos].SelectFunc = SelectItem6;
-			pos++;
-		}
-
-		for (; pos < 10; pos++)
-		{
-			itemmenu[pos].text = NULL;
-			itemmenu[pos].SelectFunc = NULL;
-		}
-
-		//AQ2:TNG End adding itm_flags
-		PMenu_Open (ent, itemmenu, 4, sizeof (itemmenu) / sizeof (pmenu_t));
 	}
-	else
-	{
-		PMenu_Close (ent);
-	}
+
+	PMenu_Close(ent);
 }
 
 void OpenWeaponMenu (edict_t * ent)
 {
-	//AQ2:TNG - Igor adding wp_flags
-	static char *menu_weapnames[] = {
-		"MP5/10 Submachinegun",
-		"M3 Super90 Assault Shotgun",
-		"Handcannon",
-		"SSG 3000 Sniper Rifle",
-		"M4 Assault Rifle",
-		"Combat Knives",
-		"Akimbo Pistols"
-		};
-	int pos;
+	menuentry_t *menuEntry, menu_items[] = {
+		{ MP5_NUM, SelectWeapon2 },
+		{ M3_NUM, SelectWeapon3 },
+		{ HC_NUM, SelectWeapon4 },
+		{ SNIPER_NUM, SelectWeapon5 },
+		{ M4_NUM, SelectWeapon6 },
+		{ KNIFE_NUM, SelectWeapon0 },
+		{ DUAL_NUM, SelectWeapon9 }
+	};
+	int i, count, pos = 4;
 
-	if ((int) wp_flags->value & ~(WPF_MK23 | WPF_GRENADE))
+
+	count = sizeof( menu_items ) / sizeof( menu_items[0] );
+
+	if ((int)wp_flags->value & WPF_MASK)
 	{
-		pos = 4;
-		if ((int) wp_flags->value & WPF_MP5)
-		{
-			weapmenu[pos].text = menu_weapnames[0];
-			weapmenu[pos].SelectFunc = SelectWeapon2;
+		for (menuEntry = menu_items, i = 0; i < count; i++, menuEntry++) {
+			if (!WPF_ALLOWED(menuEntry->itemNum))
+				continue;
+
+			weapmenu[pos].text = menu_itemnames[menuEntry->itemNum];
+			weapmenu[pos].SelectFunc = menuEntry->SelectFunc;
 			pos++;
 		}
 
-		if ((int) wp_flags->value & WPF_M3)
+		if (pos > 4)
 		{
-			weapmenu[pos].text = menu_weapnames[1];
-			weapmenu[pos].SelectFunc = SelectWeapon3;
-			pos++;
-		}
+			for (; pos < 11; pos++)
+			{
+				weapmenu[pos].text = NULL;
+				weapmenu[pos].SelectFunc = NULL;
+			}
 
-		if ((int) wp_flags->value & WPF_HC)
-		{
-			weapmenu[pos].text = menu_weapnames[2];
-			weapmenu[pos].SelectFunc = SelectWeapon4;
-			pos++;
+			PMenu_Open(ent, weapmenu, 4, sizeof(weapmenu) / sizeof(pmenu_t));
+			return;
 		}
-
-		if ((int) wp_flags->value & WPF_SNIPER)
-		{
-			weapmenu[pos].text = menu_weapnames[3];
-			weapmenu[pos].SelectFunc = SelectWeapon5;
-			pos++;
-		}
-
-		if ((int) wp_flags->value & WPF_M4)
-		{
-			weapmenu[pos].text = menu_weapnames[4];
-			weapmenu[pos].SelectFunc = SelectWeapon6;
-			pos++;
-		}
-
-		if ((int) wp_flags->value & WPF_KNIFE)
-		{
-			weapmenu[pos].text = menu_weapnames[5];
-			weapmenu[pos].SelectFunc = SelectWeapon0;
-			pos++;
-		}
-
-		if ((int) wp_flags->value & WPF_DUAL)
-		{
-			weapmenu[pos].text = menu_weapnames[6];
-			weapmenu[pos].SelectFunc = SelectWeapon9;
-			pos++;
-		}
-
-		for (; pos < 11; pos++)
-		{
-			weapmenu[pos].text = NULL;
-			weapmenu[pos].SelectFunc = NULL;
-		}
-
-		PMenu_Open (ent, weapmenu, 4, sizeof (weapmenu) / sizeof (pmenu_t));
 	}
-	else
-	{
-		OpenItemMenu (ent);
-	}
-	//AQ2:TNG End adding wp_flags
+
+	OpenItemMenu(ent);
 }
 
 // AQ2:TNG Deathwatch - Updated this for the new menu
@@ -1589,11 +1547,11 @@ void SpawnPlayers ()
 		{
 			// make sure teamplay spawners always have some weapon, warmup starts only after weapon selected
 			if (!ent->client->resp.weapon) {
-				if ((int) wp_flags->value & WPF_MP5) {
+				if (WPF_ALLOWED(MP5_NUM)) {
 					ent->client->resp.weapon = GET_ITEM(MP5_NUM);
-				} else if ((int) wp_flags->value & WPF_MK23) {
+				} else if (WPF_ALLOWED(MK23_NUM)) {
 					ent->client->resp.weapon = GET_ITEM(MK23_NUM);
-				} else if ((int) wp_flags->value & WPF_KNIFE) {
+				} else if (WPF_ALLOWED(KNIFE_NUM)) {
 					ent->client->resp.weapon = GET_ITEM(KNIFE_NUM);
 				} else {
 					ent->client->resp.weapon = GET_ITEM(MK23_NUM);

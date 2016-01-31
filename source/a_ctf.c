@@ -1554,8 +1554,7 @@ void CTFCapReward(edict_t * ent)
 	client = ent->client;
 
 	// give initial knife if none
-	if ((int)wp_flags->value & WPF_KNIFE &&
-			ent->client->pers.inventory[ITEM_INDEX(GET_ITEM(KNIFE_NUM))] == 0)
+	if (WPF_ALLOWED(KNIFE_NUM) && ent->client->pers.inventory[ITEM_INDEX(GET_ITEM(KNIFE_NUM))] == 0)
 		ent->client->pers.inventory[ITEM_INDEX(GET_ITEM(KNIFE_NUM))] += 1;
 
 	if (client->resp.item->typeNum == BAND_NUM) {
@@ -1569,7 +1568,7 @@ void CTFCapReward(edict_t * ent)
 	}
 
 	// give pistol clips
-	if ((int)wp_flags->value & WPF_MK23) {
+	if (WPF_ALLOWED(MK23_ANUM)) {
 		item = GET_ITEM(MK23_ANUM);
 		client->mk23_rds = client->mk23_max;
 		client->pers.inventory[ITEM_INDEX(item)] = 1*band;
