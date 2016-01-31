@@ -1379,35 +1379,6 @@ void ClientEndServerFrame (edict_t * ent)
 
 	G_SetStats (ent);
 
-	//FIREBLADE
-	for (i = 1; i <= game.maxclients; i++)
-	{
-		int stats_copy;
-		edict_t *e = g_edicts + i;
-
-		if (!ent->inuse || e->client->chase_mode == 0 || e->client->chase_target != ent)
-			continue;
-
-		for (stats_copy = 0; stats_copy < MAX_STATS; stats_copy++)
-		{
-			if (stats_copy >= STAT_TEAM_HEADER && stats_copy <= STAT_TEAM2_SCORE)
-				continue;		// protect these
-			if (stats_copy >= STAT_TEAM3_PIC && stats_copy <= STAT_TEAM3_SCORE)
-				continue;		// protect these
-			if (stats_copy == STAT_LAYOUTS || stats_copy == STAT_ID_VIEW)
-				continue;		// protect these
-			if (stats_copy == STAT_SNIPER_ICON && e->client->chase_mode != 2)
-				continue;		// only show sniper lens when in chase mode 2
-			if (stats_copy == STAT_FRAGS)
-				continue;
-			e->client->ps.stats[stats_copy] = ent->client->ps.stats[stats_copy];
-		}
-
-	//FB                e->client->ps.stats[STAT_LAYOUTS] = 1;
-	//FB                break;
-	}
-	//FIREBLADE
-
 	G_SetClientEvent (ent);
 
 	G_SetClientEffects (ent);

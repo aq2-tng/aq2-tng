@@ -1358,15 +1358,16 @@ void SP_worldspawn (edict_t * ent)
 	//-------------------
 
 	// precache vwep models
-	gi.modelindex ("#w_mk23.md2");
-	gi.modelindex ("#w_mp5.md2");
-	gi.modelindex ("#w_m4.md2");
-	gi.modelindex ("#w_cannon.md2");
-	gi.modelindex ("#w_super90.md2");
-	gi.modelindex ("#w_sniper.md2");
-	gi.modelindex ("#w_akimbo.md2");
-	gi.modelindex ("#w_knife.md2");
-	gi.modelindex ("#a_m61frag.md2");
+	// THIS ORDER MUST MATCH THE DEFINES IN g_local.h
+	gi.modelindex("#w_mk23.md2");
+	gi.modelindex("#w_mp5.md2");
+	gi.modelindex("#w_m4.md2");
+	gi.modelindex("#w_super90.md2");
+	gi.modelindex("#w_cannon.md2");
+	gi.modelindex("#w_sniper.md2");
+	gi.modelindex("#w_akimbo.md2");
+	gi.modelindex("#w_knife.md2");
+	gi.modelindex("#a_m61frag.md2");
 
 	gi.modelindex ("sprites/null.sp2");	// null sprite
 	gi.modelindex ("sprites/lsight.sp2");	// laser sight dot sprite
