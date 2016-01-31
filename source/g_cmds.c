@@ -1269,7 +1269,7 @@ void Cmd_Say_f (edict_t * ent, qboolean team, qboolean arg0, qboolean partner_ms
 		return;
 	
 	args = gi.args();
-	if (!args || !*args)
+	if (!args)
 		return;
 
 	if (!sv_crlf->value)
@@ -1286,10 +1286,15 @@ void Cmd_Say_f (edict_t * ent, qboolean team, qboolean arg0, qboolean partner_ms
 	{
 		if (!Q_stricmp("%me", gi.argv(0))) {
 			meing = 4;
+			if (!*args)
+				return;
 		}
 	}
 	else
 	{
+		if (!*args)
+			return;
+
 		if (!Q_strnicmp("%me", args, 3))
 			meing = 4;
 		else if (!Q_strnicmp("%me", args + 1, 3))
@@ -1545,6 +1550,142 @@ void Cmd_Ent_Count_f (edict_t * ent)
 }
 
 //SLICER END
+static void dmflagsSettings( char *s, size_t size, int flags )
+{
+	if (!flags) {
+		Q_strncatz( s, "NONE", size );
+		return;
+	}
+	if (flags & DF_NO_HEALTH)
+		Q_strncatz( s, "1 = no health ", size );
+	if (flags & DF_NO_ITEMS)
+		Q_strncatz( s, "2 = no items ", size );
+	if (flags & DF_WEAPONS_STAY)
+		Q_strncatz( s, "4 = weapons stay ", size );
+	if (flags & DF_NO_FALLING)
+		Q_strncatz( s, "8 = no fall damage ", size );
+	if (flags & DF_INSTANT_ITEMS)
+		Q_strncatz( s, "16 = instant items ", size );
+	if (flags & DF_SAME_LEVEL)
+		Q_strncatz( s, "32 = same level ", size );
+	if (flags & DF_SKINTEAMS)
+		Q_strncatz( s, "64 = skinteams ", size );
+	if (flags & DF_MODELTEAMS)
+		Q_strncatz( s, "128 = modelteams ", size );
+	if (flags & DF_NO_FRIENDLY_FIRE)
+		Q_strncatz( s, "256 = no ff ", size );
+	if (flags & DF_SPAWN_FARTHEST)
+		Q_strncatz( s, "512 = spawn fartherst ", size );
+	if (flags & DF_FORCE_RESPAWN)
+		Q_strncatz( s, "1024 = forse respawn ", size );
+	//if(flags & DF_NO_ARMOR)
+	//	Q_strncatz(s, "2048 = no armor ", size);
+	if (flags & DF_ALLOW_EXIT)
+		Q_strncatz( s, "4096 = allow exit ", size );
+	if (flags & DF_INFINITE_AMMO)
+		Q_strncatz( s, "8192 = infinite ammo ", size );
+	if (flags & DF_QUAD_DROP)
+		Q_strncatz( s, "16384 = quad drop ", size );
+	if (flags & DF_FIXED_FOV)
+		Q_strncatz( s, "32768 = fixed fov ", size );
+
+	if (flags & DF_WEAPON_RESPAWN)
+		Q_strncatz( s, "65536 = weapon respawn ", size );
+}
+
+extern char *menu_itemnames[ITEM_MAX_NUM];
+
+static void wpflagsSettings( char *s, size_t size, int flags )
+{
+	int i, num;
+
+	if (!(flags & WPF_MASK)) {
+		Q_strncatz( s, "No weapons", size );
+		return;
+	}
+	if ((flags & WPF_MASK) == WPF_MASK) {
+		Q_strncatz( s, "All weapons", size );
+		return;
+	}
+
+	for (i = 0; i<WEAPON_COUNT; i++) {
+		num = WEAPON_FIRST + i;
+		if (flags == items[WEAPON_FIRST + i].flag) {
+			Q_strncatz( s, va("%s only", menu_itemnames[num]), size );
+			return;
+		}
+	}
+
+	for (i = 0; i<WEAPON_COUNT; i++) {
+		num = WEAPON_FIRST + i;
+		if (flags & items[num].flag) {
+			Q_strncatz( s, va("%d = %s ", items[num].flag, menu_itemnames[num]), size );
+		}
+	}
+}
+
+static void itmflagsSettings( char *s, size_t size, int flags )
+{
+	int i, num;
+
+	if (!(flags & ITF_MASK)) {
+		Q_strncatz( s, "No items", size );
+		return;
+	}
+	if ((flags & ITF_MASK) == ITF_MASK) {
+		Q_strncatz( s, "All items", size );
+		return;
+	}
+
+	for (i = 0; i<ITEM_COUNT; i++) {
+		num = ITEM_FIRST + i;
+		if (flags == items[num].flag) {
+			Q_strncatz( s, va("%s only", menu_itemnames[num]), size );
+			return;
+		}
+	}
+
+	for (i = 0; i<ITEM_COUNT; i++) {
+		num = ITEM_FIRST + i;
+		if (flags & items[num].flag) {
+			Q_strncatz( s, va("%d = %s ", items[num].flag, menu_itemnames[num]), size );
+		}
+	}
+}
+
+//Print current match settings
+static void Cmd_PrintSettings_f( edict_t * ent )
+{
+	char text[1024] = "\0";
+	size_t length = 0;
+
+	if (game.serverfeatures & GMF_CLIENTNUM) {
+		Com_sprintf( text, sizeof( text ), "Server fps = %d\n", game.framerate );
+		length = strlen( text );
+	}
+
+	Com_sprintf( text + length, sizeof( text ) - length, "dmflags %i: ", (int)dmflags->value );
+	dmflagsSettings( text, sizeof( text ), (int)dmflags->value );
+
+	length = strlen( text );
+	Com_sprintf( text + length, sizeof( text ) - length, "\nwp_flags %i: ", (int)wp_flags->value );
+	wpflagsSettings( text, sizeof( text ), (int)wp_flags->value );
+
+	length = strlen( text );
+	Com_sprintf( text + length, sizeof( text ) - length, "\nitm_flags %i: ", (int)itm_flags->value );
+	itmflagsSettings( text, sizeof( text ), (int)itm_flags->value );
+
+	length = strlen( text );
+	Com_sprintf( text + length, sizeof( text ) - length, "\n"
+		"timelimit   %2d roundlimit  %2d roundtimelimit %2d\n"
+		"limchasecam %2d tgren       %2d hc_single      %2d\n"
+		"use_punch   %2d use_classic %2d\n",
+		(int)timelimit->value, (int)roundlimit->value, (int)roundtimelimit->value,
+		(int)limchasecam->value, (int)tgren->value, (int)hc_single->value,
+		(int)use_punch->value, (int)use_classic->value );
+
+	gi.cprintf( ent, PRINT_HIGH, text );
+}
 
 /*
 =================
@@ -1997,6 +2138,10 @@ void ClientCommand (edict_t * ent)
 	else if (Q_stricmp(cmd, "resetscores") == 0)
 	{
 		Cmd_ResetScores_f(ent);
+	}
+	else if (Q_stricmp(cmd, "gamesettings") == 0)
+	{
+		Cmd_PrintSettings_f( ent );
 	}
 	else				// anything that doesn't match a command will be a chat
 		Cmd_Say_f (ent, false, true, false);

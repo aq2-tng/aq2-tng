@@ -1043,7 +1043,7 @@ void ReturnToMain (edict_t * ent, pmenu_t * p)
 	OpenJoinMenu (ent);
 }
 
-static char *menu_itemnames[ITEM_MAX_NUM] = {
+char *menu_itemnames[ITEM_MAX_NUM] = {
 	"",
 	MK23_NAME,
 	MP5_NAME,
