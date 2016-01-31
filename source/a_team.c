@@ -2578,6 +2578,7 @@ void A_NewScoreboardMessage(edict_t * ent)
 			gclient_t *cl = &game.clients[sorted[i][j]];
 			edict_t *cl_ent = g_edicts + 1 + sorted[i][j];
 			int alive = (cl_ent->solid != SOLID_NOT && cl_ent->deadflag != DEAD_DEAD);
+			int leveltime = (level.framenum - cl->resp.enterframe) / 600;
 
 			char ping_buf[ 4 ] = "   ";
 			snprintf( ping_buf, 4, "%3d", (cl->ping > 999 ? 999 : cl->ping) );
@@ -2586,7 +2587,7 @@ void A_NewScoreboardMessage(edict_t * ent)
 					(alive && dead ? '2' : ' '),
 					cl->pers.netname,
 					cl->resp.score,
-					(level.framenum - cl->resp.enterframe) / 600,
+					(leveltime > 9999 ? 9999 : leveltime),
 					ping_buf);
 			strcat(string, buf);
 		}
