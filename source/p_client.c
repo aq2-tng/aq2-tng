@@ -1164,60 +1164,39 @@ void TossItemsOnDeath(edict_t * ent)
 {
 	gitem_t *item;
 	qboolean quad;
+	int i;
 
 	// don't bother dropping stuff when allweapons/items is active
-	if (allitem->value && allweapon->value) {
+	if (allitem->value) {
 		// remove the lasersight because then the observer might have it
 		item = GET_ITEM(LASER_NUM);
 		ent->client->pers.inventory[ITEM_INDEX(item)] = 0;
-		return;
+		if(allweapon->value)
+			return;
+
+		SP_LaserSight(ent, item);
+	} else {
+		DeadDropSpec(ent);
+		if (allweapon->value)// don't drop weapons if allweapons is on
+			return;
 	}
 
-	// don't drop weapons if allweapons is on
-	if (allweapon->value) {
-		DeadDropSpec(ent);
-		return;
-	}
-	// only drop items if allitems is not on
-	if (!allitem->value)
-		DeadDropSpec(ent);
-	else {			// remove the lasersight because then the observer might have it
-		item = GET_ITEM(LASER_NUM);
-		ent->client->pers.inventory[ITEM_INDEX(item)] = 0;
-		SP_LaserSight(ent, item);
-	}
-	if (((int) wp_flags->value & WPF_MK23) && ((int) wp_flags->value & WPF_DUAL)) {
+	if (WPF_ALLOWED(MK23_NUM) && WPF_ALLOWED(DUAL_NUM)) {
 		// give the player a dual pistol so they can be sure to drop one
 		item = GET_ITEM(DUAL_NUM);
 		ent->client->pers.inventory[ITEM_INDEX(item)]++;
 		EjectItem(ent, item);
 	}
+
 	// check for every item we want to drop when a player dies
-	item = GET_ITEM(MP5_NUM);
-	while (ent->client->pers.inventory[ITEM_INDEX(item)] > 0) {
-		ent->client->pers.inventory[ITEM_INDEX(item)]--;
-		EjectWeapon(ent, item);
+	for (i = MP5_NUM; i < DUAL_NUM; i++) {
+		item = GET_ITEM( i );
+		while (ent->client->pers.inventory[ITEM_INDEX( item )] > 0) {
+			ent->client->pers.inventory[ITEM_INDEX( item )]--;
+			EjectWeapon( ent, item );
+		}
 	}
-	item = GET_ITEM(M4_NUM);
-	while (ent->client->pers.inventory[ITEM_INDEX(item)] > 0) {
-		ent->client->pers.inventory[ITEM_INDEX(item)]--;
-		EjectWeapon(ent, item);
-	}
-	item = GET_ITEM(M3_NUM);
-	while (ent->client->pers.inventory[ITEM_INDEX(item)] > 0) {
-		ent->client->pers.inventory[ITEM_INDEX(item)]--;
-		EjectWeapon(ent, item);
-	}
-	item = GET_ITEM(HC_NUM);
-	while (ent->client->pers.inventory[ITEM_INDEX(item)] > 0) {
-		ent->client->pers.inventory[ITEM_INDEX(item)]--;
-		EjectWeapon(ent, item);
-	}
-	item = GET_ITEM(SNIPER_NUM);
-	while (ent->client->pers.inventory[ITEM_INDEX(item)] > 0) {
-		ent->client->pers.inventory[ITEM_INDEX(item)]--;
-		EjectWeapon(ent, item);
-	}
+
 	item = GET_ITEM(KNIFE_NUM);
 	if (ent->client->pers.inventory[ITEM_INDEX(item)] > 0) {
 		EjectItem(ent, item);
@@ -1243,27 +1222,6 @@ void TossItemsOnDeath(edict_t * ent)
 		drop->nextthink = ent->client->quad_framenum;
 		drop->think = G_FreeEdict;
 	}
-
-#if 0
-	item = FindItem(SIL_NAME);
-	if (ent->client->pers.inventory[ITEM_INDEX(item)])
-		EjectItem(ent, item);
-	item = FindItem(SLIP_NAME);
-	if (ent->client->pers.inventory[ITEM_INDEX(item)])
-		EjectItem(ent, item);
-	item = FindItem(BAND_NAME);
-	if (ent->client->pers.inventory[ITEM_INDEX(item)])
-		EjectItem(ent, item);
-	item = FindItem(KEV_NAME);
-	if (ent->client->pers.inventory[ITEM_INDEX(item)])
-		EjectItem(ent, item);
-	item = FindItem(HELM_NAME);
-	if (ent->client->pers.inventory[ITEM_INDEX(item)])
-		EjectItem(ent, item);
-	item = FindItem(LASER_NAME);
-	if (ent->client->pers.inventory[ITEM_INDEX(item)])
-		EjectItem(ent, item);
-#endif
 }
 
 void TossClientWeapon(edict_t * self)
@@ -1584,10 +1542,10 @@ void InitClientPersistant(gclient_t * client)
 	client->pers.weapon = item;
 	client->pers.lastweapon = item;
 
-	if ((int) wp_flags->value & WPF_KNIFE) {
+	if (WPF_ALLOWED(KNIFE_NUM)) {
 		item = GET_ITEM(KNIFE_NUM);
 		client->pers.inventory[ITEM_INDEX(item)] = 1;
-		if (!((int)wp_flags->value & WPF_MK23)) {
+		if (!WPF_ALLOWED(MK23_NUM)) {
 			client->pers.selected_item = ITEM_INDEX(item);
 			client->pers.weapon = item;
 			client->pers.lastweapon = item;
@@ -1614,9 +1572,9 @@ void InitClientPersistant(gclient_t * client)
 	client->machinegun_shots = 0;
 	client->unique_weapon_total = 0;
 	client->unique_item_total = 0;
-	if ((int) wp_flags->value & WPF_MK23) {
+	if (WPF_ALLOWED(MK23_NUM)) {
 		client->curr_weap = MK23_NUM;
-	} else if ((int) wp_flags->value & WPF_KNIFE) {
+	} else if (WPF_ALLOWED(KNIFE_NUM)) {
 		client->curr_weap = KNIFE_NUM;
 	} else {
 		client->curr_weap = MK23_NUM;
@@ -1640,11 +1598,11 @@ void InitClientResp(gclient_t * client)
 	client->resp.enterframe = level.framenum;
 
 	if (!dm_choose->value && !warmup->value) {
-		if ((int) wp_flags->value & WPF_MP5) {
+		if (WPF_ALLOWED(MP5_NUM)) {
 			client->resp.weapon = GET_ITEM(MP5_NUM);
-		} else if ((int) wp_flags->value & WPF_MK23) {
+		} else if (WPF_ALLOWED(MK23_NUM)) {
 			client->resp.weapon = GET_ITEM(MK23_NUM);
-		} else if ((int) wp_flags->value & WPF_KNIFE) {
+		} else if (WPF_ALLOWED(KNIFE_NUM)) {
 			client->resp.weapon = GET_ITEM(KNIFE_NUM);
 		} else {
 			client->resp.weapon = GET_ITEM(MK23_NUM);
@@ -2089,59 +2047,45 @@ void AllWeapons(edict_t * ent)
 			continue;
 		if (!(it->flags & IT_WEAPON))
 			continue;
+
+		if (!it->typeNum || !WPF_ALLOWED(it->typeNum))
+			continue;
+
 		switch(it->typeNum) {
 		case MK23_NUM:
-			if ((int)wp_flags->value & WPF_MK23) {
-				ent->client->pers.inventory[i] = 1;
-				ent->client->mk23_rds = ent->client->mk23_max;
-			}
+			ent->client->pers.inventory[i] = 1;
+			ent->client->mk23_rds = ent->client->mk23_max;
 			break;
 		case MP5_NUM:
-			if ((int)wp_flags->value & WPF_MP5) {
-				ent->client->pers.inventory[i] = 1;
-				ent->client->mp5_rds = ent->client->mp5_max;
-			}
+			ent->client->pers.inventory[i] = 1;
+			ent->client->mp5_rds = ent->client->mp5_max;
 			break;
 		case M4_NUM:
-			if ((int)wp_flags->value & WPF_M4) {
-				ent->client->pers.inventory[i] = 1;
-				ent->client->m4_rds = ent->client->m4_max;	    
-			}
+			ent->client->pers.inventory[i] = 1;
+			ent->client->m4_rds = ent->client->m4_max;	    
 			break;
 		case M3_NUM:
-			if ((int)wp_flags->value & WPF_M3) {
-				ent->client->pers.inventory[i] = 1;
-				ent->client->shot_rds = ent->client->shot_max;
-			}
+			ent->client->pers.inventory[i] = 1;
+			ent->client->shot_rds = ent->client->shot_max;
 			break;
 		case HC_NUM:
-			if ((int)wp_flags->value & WPF_HC) {
-				ent->client->pers.inventory[i] = 1;
-				ent->client->cannon_rds = ent->client->cannon_max;
-				ent->client->shot_rds = ent->client->shot_max;
-			}
+			ent->client->pers.inventory[i] = 1;
+			ent->client->cannon_rds = ent->client->cannon_max;
+			ent->client->shot_rds = ent->client->shot_max;
 			break;
 		case SNIPER_NUM:
-			if ((int)wp_flags->value & WPF_SNIPER) {
-				ent->client->pers.inventory[i] = 1;
-				ent->client->sniper_rds = ent->client->sniper_max;
-			}
+			ent->client->pers.inventory[i] = 1;
+			ent->client->sniper_rds = ent->client->sniper_max;
 			break;
 		case DUAL_NUM:
-			if ((int)wp_flags->value & WPF_DUAL) {
-				ent->client->pers.inventory[i] = 1;
-				ent->client->dual_rds = ent->client->dual_max;
-			}
+			ent->client->pers.inventory[i] = 1;
+			ent->client->dual_rds = ent->client->dual_max;
 			break;
 		case KNIFE_NUM:
-			if ((int)wp_flags->value & WPF_KNIFE) {
-				ent->client->pers.inventory[i] = 10;
-			}
+			ent->client->pers.inventory[i] = 10;
 			break;
 		case GRENADE_NUM:
-			if ((int)wp_flags->value & WPF_GRENADE) {
-				ent->client->pers.inventory[i] = tgren->value;
-			}
+			ent->client->pers.inventory[i] = tgren->value;
 			break;
 		}
 	}
@@ -2205,7 +2149,7 @@ void EquipClient(edict_t * ent)
 
 	}
 	// set them up with initial pistol ammo
-	if ((int)wp_flags->value & WPF_MK23) {
+	if (WPF_ALLOWED(MK23_ANUM)) {
 		item = GET_ITEM(MK23_ANUM);
 		if (band)
 			client->pers.inventory[ITEM_INDEX(item)] = 2;
@@ -2592,7 +2536,7 @@ void PutClientInServer(edict_t * ent)
 	client->sniper_max = 6;
 	client->cannon_max = 2;
 	client->dual_max = 24;
-	if ((int) wp_flags->value & WPF_MK23) {
+	if (WPF_ALLOWED(MK23_NUM)) {
 		client->mk23_rds = client->mk23_max;
 		client->dual_rds = client->mk23_max;
 	} else {

@@ -959,7 +959,7 @@ void Cmd_Choose_f(edict_t * ent)
 	case SNIPER_NUM:
 	case KNIFE_NUM:
 	case M4_NUM:
-		if (!((int)wp_flags->value & items[itemNum].flag)) {
+		if (!WPF_ALLOWED(itemNum)) {
 			gi.cprintf(ent, PRINT_HIGH, "Weapon disabled on this server.\n");
 			return;
 		}
@@ -971,7 +971,7 @@ void Cmd_Choose_f(edict_t * ent)
 	case SIL_NUM:
 	case HELM_NUM:
 	case BAND_NUM:
-		if (!((int)itm_flags->value & items[itemNum].flag)) {
+		if (!ITF_ALLOWED(itemNum)) {
 			gi.cprintf(ent, PRINT_HIGH, "Item disabled on this server.\n");
 			return;
 		}

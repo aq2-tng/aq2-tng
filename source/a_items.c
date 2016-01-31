@@ -109,7 +109,7 @@ void SpawnSpecs(edict_t * ent)
 	for(i = 0; i<ITEM_COUNT; i++)
 	{
 		itemNum = ITEM_FIRST + i;
-		if (!((int)itm_flags->value & items[itemNum].flag))
+		if (!ITF_ALLOWED(itemNum))
 			continue;
 
 		if ((spec = GET_ITEM(itemNum)) != NULL && (spot = FindSpecSpawn()) != NULL) {

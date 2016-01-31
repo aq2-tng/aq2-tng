@@ -1853,25 +1853,6 @@ void AddSplat (edict_t * self, vec3_t point, trace_t * tr);
 #define HELM_NAME    "Kevlar Helmet"
 #define LASER_NAME   "Lasersight"
 
-//AQ2:TNG - Igor adding wp_flags/itm_flags
-#define WPF_MK23      0x00000001
-#define WPF_MP5       0x00000002
-#define WPF_M4        0x00000004
-#define WPF_M3        0x00000008
-#define WPF_HC        0x00000010
-#define WPF_SNIPER    0x00000020
-#define WPF_DUAL      0x00000040
-#define WPF_KNIFE     0x00000080
-#define WPF_GRENADE   0x00000100
-
-#define ITF_SIL       0x00000001
-#define ITF_SLIP      0x00000002
-#define ITF_BAND      0x00000004
-#define ITF_KEV       0x00000008
-#define ITF_LASER     0x00000010
-#define ITF_HELM      0x00000020
-//AQ2:TNG End adding flags
-
 #define NO_NUM					0
 
 #define MK23_NUM				1
@@ -1910,6 +1891,21 @@ void AddSplat (edict_t * self, vec3_t point, trace_t * tr);
 #define WEAPON_FIRST			1
 #define ITEM_FIRST				WEAPON_FIRST+WEAPON_COUNT
 #define AMMO_FIRST				ITEM_FIRST+ITEM_COUNT
+
+//AQ2:TNG - Igor adding wp_flags/itm_flags
+#define STRINGIFY(x) #x
+#define TOSTRING(x) STRINGIFY(x)
+
+#define WPF_MASK				((1 << WEAPON_COUNT) - 1)
+#define WPF_DEFAULT				511 //WPF_MASK
+#define WPF_DEFAULT_STR			TOSTRING(WPF_DEFAULT)
+#define WPF_ALLOWED(typeNum)	((int)wp_flags->value & items[typeNum].flag)
+
+#define ITF_MASK				((1 << ITEM_COUNT) - 1)
+#define ITF_DEFAULT				63 //ITF_MASK
+#define ITF_DEFAULT_STR			TOSTRING(ITF_DEFAULT)
+#define ITF_ALLOWED(typeNum)	((int)itm_flags->value & items[typeNum].flag)
+//AQ2:TNG End adding flags
 
 typedef struct itemList_s
 {

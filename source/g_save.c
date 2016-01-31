@@ -431,8 +431,8 @@ void InitGame( void )
 	video_check_glclear = gi.cvar( "video_check_glclear", "0", 0 );
 	video_checktime = gi.cvar( "video_checktime", "15", 0 );
 	hc_single = gi.cvar( "hc_single", "1", CVAR_LATCH );	//default ON
-	wp_flags = gi.cvar( "wp_flags", "511", 0 );	// 511 = WPF_MK23 | WPF_MP5 | WPF_M4 | WPF_M3 | WPF_HC | WPF_SNIPER | WPF_DUAL | WPF_KNIFE | WPF_GRENADE
-	itm_flags = gi.cvar( "itm_flags", "63", 0 );	// 63 = ITF_SIL | ITF_SLIP | ITF_BAND | ITF_KEV | ITF_LASER | ITF_HELM 
+	wp_flags = gi.cvar( "wp_flags", WPF_DEFAULT_STR, 0 );
+	itm_flags = gi.cvar( "itm_flags", ITF_DEFAULT_STR, 0 );
 	matchmode = gi.cvar( "matchmode", "0", CVAR_SERVERINFO | CVAR_LATCH );
 	hearall = gi.cvar( "hearall", "0", 0 );	// used in matchmode
 	deadtalk = gi.cvar( "deadtalk", "0", 0 );

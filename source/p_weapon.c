@@ -230,7 +230,7 @@ qboolean Pickup_Weapon (edict_t * ent, edict_t * other)
 
 	if (ent->item->typeNum == MK23_NUM)
 	{
-		if (!((int)wp_flags->value & WPF_MK23))
+		if (!WPF_ALLOWED(MK23_NUM))
 			return false;
 
 		if (other->client->pers.inventory[index])	// already has one
@@ -355,7 +355,7 @@ qboolean Pickup_Weapon (edict_t * ent, edict_t * other)
 	}
 	else if (ent->item->typeNum == DUAL_NUM)
 	{
-		if (!((int)wp_flags->value & WPF_MK23))
+		if (!WPF_ALLOWED(MK23_NUM))
 			return false;
 
 		if (other->client->pers.inventory[index])	// already has one

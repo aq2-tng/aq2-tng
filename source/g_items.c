@@ -271,7 +271,7 @@ qboolean Pickup_ItemPack (edict_t * ent, edict_t * other)
 	while(count < 2)
 	{
 		item = ITEM_FIRST + newrand( ITEM_COUNT );
-		if (INV_AMMO(ent, item) > 0 || !((int)itm_flags->value & items[item].flag))
+		if (INV_AMMO(ent, item) > 0 || !ITF_ALLOWED(item))
 			continue;
 
 		spec = GET_ITEM(item);
@@ -643,29 +643,25 @@ qboolean Add_Ammo (edict_t * ent, gitem_t * item, int count)
 	if (!ent->client)
 		return false;
 
-	switch(item->tag) {
-	case AMMO_BULLETS:
-		if (((int)wp_flags->value & WPF_MK23) || ((int)wp_flags->value & WPF_DUAL))
+	switch(item->typeNum) {
+	case MK23_ANUM:
+		if (WPF_ALLOWED(item->typeNum))
 			max = ent->client->pers.max_bullets;
 		break;
-	case AMMO_SHELLS:
-		if (((int)wp_flags->value & WPF_M3) || ((int)wp_flags->value & WPF_HC))
+	case SHELL_ANUM:
+		if (WPF_ALLOWED(item->typeNum))
 			max = ent->client->pers.max_shells;
 		break;
-	case AMMO_ROCKETS:
-		if ((int)wp_flags->value & WPF_MP5)
+	case MP5_ANUM:
+		if (WPF_ALLOWED(item->typeNum))
 			max = ent->client->pers.max_rockets;
 		break;
-	case AMMO_GRENADES:
-		if ((int)wp_flags->value & WPF_GRENADE)
-			max = ent->client->pers.max_grenades;
-		break;
-	case AMMO_CELLS:
-		if ((int)wp_flags->value & WPF_M4)
+	case M4_ANUM:
+		if (WPF_ALLOWED(item->typeNum))
 			max = ent->client->pers.max_cells;
 		break;
-	case AMMO_SLUGS:
-		if ((int)wp_flags->value & WPF_SNIPER)
+	case SNIPER_ANUM:
+		if (WPF_ALLOWED(item->typeNum))
 			max = ent->client->pers.max_slugs;
 		break;
 	default:
@@ -1192,116 +1188,32 @@ void SpawnItem (edict_t * ent, gitem_t * item)
 		}
 	}
 
-	//AQ2:TNG - Igor adding wp_flags/itm_flags
-
 	// Weapons and Ammo
-	switch(item->typeNum)
+	if (item->typeNum)
 	{
-	case MK23_NUM:
-	case MK23_ANUM:
-		if (!((int)wp_flags->value & WPF_MK23)) {
-			G_FreeEdict (ent);
-			return;
+		if (item->typeNum < ITEM_FIRST) { //Weapons
+			if (!WPF_ALLOWED(item->typeNum)) {
+				G_FreeEdict( ent );
+				return;
+			}
+		} else if (item->typeNum < AMMO_FIRST) { //Items
+			if (!ITF_ALLOWED(item->typeNum)) {
+				G_FreeEdict( ent );
+				return;
+			}
+		} else if (item->typeNum < AMMO_FIRST+AMMO_COUNT) { //Ammo
+			if (!WPF_ALLOWED(item->typeNum)) {
+				G_FreeEdict( ent );
+				return;
+			}
+		} else {
+			//Don't spawn the flags unless enabled
+			if (!ctf->value && (item->typeNum == FLAG_T1_NUM || item->typeNum == FLAG_T2_NUM)) {
+				G_FreeEdict( ent );
+				return;
+			}
 		}
-		break;
-	case MP5_NUM:
-	case MP5_ANUM:
-		if (!((int)wp_flags->value & WPF_MP5)) {
-			G_FreeEdict (ent);
-			return;
-		}
-		break;
-	case M4_NUM:
-	case M4_ANUM:
-		if (!((int)wp_flags->value & WPF_M4)) {
-			G_FreeEdict (ent);
-			return;
-		}
-		break;
-	case M3_NUM:
-		if (!((int)wp_flags->value & WPF_M3)) {
-			G_FreeEdict (ent);
-			return;
-		}
-		break;
-	case HC_NUM:
-		if (!((int)wp_flags->value & WPF_HC)) {
-			G_FreeEdict (ent);
-			return;
-		}
-		break;
-	case SHELL_ANUM:
-		if (!(((int)wp_flags->value & WPF_M3) || ((int)wp_flags->value & WPF_HC))) {
-			G_FreeEdict (ent);
-			return;
-		}
-		break;
-	case SNIPER_NUM:
-	case SNIPER_ANUM:
-		if (!((int)wp_flags->value & WPF_SNIPER)) {
-			G_FreeEdict (ent);
-			return;
-		}
-		break;
-	case DUAL_NUM:
-		if (!((int)wp_flags->value & WPF_DUAL)) {
-			G_FreeEdict (ent);
-			return;
-		}
-		break;
-	case KNIFE_NUM:
-		if (!((int)wp_flags->value & WPF_KNIFE)) {
-			G_FreeEdict (ent);
-			return;
-		}
-		break;
-
-	case GRENADE_NUM:
-		if (!((int)wp_flags->value & WPF_GRENADE)) {
-			G_FreeEdict (ent);
-			return;
-		}
-		break;
-	// Items
-	case SIL_NUM:
-		if (!((int)itm_flags->value & ITF_SIL)) {
-			G_FreeEdict (ent);
-			return;
-		}
-		break;
-	case SLIP_NUM:
-		if (!((int)itm_flags->value & ITF_SLIP)) {
-			G_FreeEdict (ent);
-			return;
-		}
-		break;
-	case BAND_NUM:
-		if (!((int)itm_flags->value & ITF_BAND)) {
-			G_FreeEdict (ent);
-			return;
-		}
-		break;
-	case KEV_NUM:
-		if (!((int)itm_flags->value & ITF_KEV)) {
-			G_FreeEdict (ent);
-			return;
-		}
-		break;
-	case LASER_NUM:
-		if (!((int)itm_flags->value & ITF_LASER)) {
-			G_FreeEdict (ent);
-			return;
-		}
-		break;
-	case HELM_NUM:
-		if (!((int)itm_flags->value & ITF_HELM)) {
-			G_FreeEdict (ent);
-			return;
-		}
-		break;
 	}
-
-	//AQ2:TNG End adding flags
 
 	// some items will be prevented in deathmatch
 	if (DMFLAGS(DF_NO_ITEMS))
@@ -1332,13 +1244,6 @@ void SpawnItem (edict_t * ent, gitem_t * item)
 		}
 	}
 
-	//Don't spawn the flags unless enabled
-	if (!ctf->value && (item->typeNum == FLAG_T1_NUM || item->typeNum == FLAG_T2_NUM))
-	{
-		G_FreeEdict (ent);
-		return;
-	}
-
 	ent->item = item;
 	ent->nextthink = level.framenum + 2;	// items start after other solids
 	ent->think = droptofloor;
@@ -1349,8 +1254,7 @@ void SpawnItem (edict_t * ent, gitem_t * item)
 		gi.modelindex (ent->model);
 
 	//flags are server animated and have special handling
-	if (ctf->value && (item->typeNum == FLAG_T1_NUM || item->typeNum == FLAG_T2_NUM))
-	{
+	if (item->typeNum == FLAG_T1_NUM || item->typeNum == FLAG_T2_NUM) {
 		ent->think = CTFFlagSetup;
 	}
 }
@@ -2256,23 +2160,18 @@ void InitItems (void)
 	for (i = 1; i < ITEM_MAX_NUM; i++) {
 		items[i].index = ITEM_INDEX(FindItemByNum(i));
 	}
-
-	items[MK23_NUM].flag = WPF_MK23;
-	items[MP5_NUM].flag = WPF_MP5;
-	items[M4_NUM].flag = WPF_M4;
-	items[M3_NUM].flag = WPF_M3;
-	items[HC_NUM].flag = WPF_HC;
-	items[SNIPER_NUM].flag = WPF_SNIPER;
-	items[DUAL_NUM].flag = WPF_DUAL;
-	items[KNIFE_NUM].flag = WPF_KNIFE;
-	items[GRENADE_NUM].flag = WPF_GRENADE;
-
-	items[SIL_NUM].flag = ITF_SIL;
-	items[SLIP_NUM].flag = ITF_SLIP;
-	items[BAND_NUM].flag = ITF_BAND;
-	items[KEV_NUM].flag = ITF_KEV;
-	items[LASER_NUM].flag = ITF_LASER;
-	items[HELM_NUM].flag = ITF_HELM;
+	
+	for (i = 0; i<WEAPON_COUNT; i++) {
+		items[WEAPON_FIRST + i].flag = 1 << i;
+	}
+	for (i = 0; i<ITEM_COUNT; i++) {
+		items[ITEM_FIRST + i].flag = 1 << i;
+	}
+	items[MK23_ANUM].flag = items[MK23_NUM].flag | items[DUAL_NUM].flag;
+	items[MP5_ANUM].flag = items[MP5_NUM].flag;
+	items[M4_ANUM].flag = items[M4_NUM].flag;
+	items[SHELL_ANUM].flag = items[M3_NUM].flag | items[HC_NUM].flag;
+	items[SNIPER_ANUM].flag = items[SNIPER_NUM].flag;
 }
 
 
