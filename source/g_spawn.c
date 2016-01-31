@@ -392,20 +392,25 @@ void ED_CallSpawn (edict_t * ent)
 		{	// found it
 
 			//FIXME: We do same checks in SpawnItem, do we need these here? -M
-			if ((!teamplay->value || teamdm->value || ctf->value == 2) && !dm_choose->value)
+			if (!teamplay->value || teamdm->value)
 			{
-				if (item->flags & (IT_AMMO|IT_WEAPON|IT_FLAG) /*|| item->flags & (IT_ITEM|IT_POWERUP)*/)
-					SpawnItem( ent, item );
+				if (item->flags & (IT_AMMO|IT_WEAPON) && !dm_choose->value)
+					SpawnItem(ent, item);
 				else
-					G_FreeEdict( ent );
+					G_FreeEdict(ent);
 			}
-			else if (ctf->value && item->flags & IT_FLAG)
+			else if (ctf->value)
 			{
-				SpawnItem(ent, item);
+				if(item->flags & IT_FLAG)
+					SpawnItem(ent, item);
+				else if(ctf->value == 2 && (item->flags & (IT_AMMO|IT_WEAPON|IT_ITEM|IT_POWERUP)))
+					SpawnItem(ent, item);
+				else
+					G_FreeEdict(ent);
 			}
 			else
 			{
-				G_FreeEdict( ent );
+				G_FreeEdict(ent);
 			}
 
 			return;

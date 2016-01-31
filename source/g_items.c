@@ -1140,26 +1140,15 @@ Makes sure the client loads all necessary data on connect to avoid lag.
 */
 void PrecacheItems( void )
 {
-	PrecacheItem(FindItemByClassname("weapon_Mk23"));
-	PrecacheItem(FindItemByClassname("weapon_MP5"));
-	PrecacheItem(FindItemByClassname("weapon_M4"));
-	PrecacheItem(FindItemByClassname("weapon_M3"));
-	PrecacheItem(FindItemByClassname("weapon_HC"));
-	PrecacheItem(FindItemByClassname("weapon_Sniper"));
-	PrecacheItem(FindItemByClassname("weapon_Dual"));
-	PrecacheItem(FindItemByClassname("weapon_Knife"));
-	PrecacheItem(FindItemByClassname("weapon_Grenade"));
-	PrecacheItem(FindItemByClassname("item_quiet"));
-	PrecacheItem(FindItemByClassname("item_band"));
-	PrecacheItem(FindItemByClassname("item_lasersight"));
-	PrecacheItem(FindItemByClassname("item_slippers"));
-	PrecacheItem(FindItemByClassname("item_vest"));
-	PrecacheItem(FindItemByClassname("item_helmet"));
-	PrecacheItem(FindItemByClassname("item_bandolier"));
+	int i;
+
+	for (i = 1; i<AMMO_FIRST; i++) {
+		PrecacheItem( GET_ITEM(i) );
+	}
 
 	if (ctf->value) {
-		PrecacheItem(FindItemByClassname("item_flag_team1"));
-		PrecacheItem(FindItemByClassname("item_flag_team2"));
+		PrecacheItem( GET_ITEM(FLAG_T1_NUM) );
+		PrecacheItem( GET_ITEM(FLAG_T2_NUM) );
 	}
 }
 
@@ -1176,43 +1165,41 @@ be on an entity that hasn't spawned yet.
 */
 void SpawnItem (edict_t * ent, gitem_t * item)
 {
-	PrecacheItem (item);
-
-	if (ent->spawnflags)
-	{
-		if (strcmp (ent->classname, "key_power_cube") != 0)
-		{
-			ent->spawnflags = 0;
-			gi.dprintf ("%s at %s has invalid spawnflags set\n", ent->classname,
-			vtos (ent->s.origin));
-		}
-	}
-
 	// Weapons and Ammo
 	if (item->typeNum)
 	{
 		if (item->typeNum < ITEM_FIRST) { //Weapons
-			if (!WPF_ALLOWED(item->typeNum)) {
-				G_FreeEdict( ent );
-				return;
-			}
-		} else if (item->typeNum < AMMO_FIRST) { //Items
-			if (!ITF_ALLOWED(item->typeNum)) {
-				G_FreeEdict( ent );
-				return;
-			}
-		} else if (item->typeNum < AMMO_FIRST+AMMO_COUNT) { //Ammo
-			if (!WPF_ALLOWED(item->typeNum)) {
-				G_FreeEdict( ent );
-				return;
-			}
-		} else {
-			//Don't spawn the flags unless enabled
-			if (!ctf->value && (item->typeNum == FLAG_T1_NUM || item->typeNum == FLAG_T2_NUM)) {
+			if (!WPF_ALLOWED( item->typeNum )) {
 				G_FreeEdict( ent );
 				return;
 			}
 		}
+		else if (item->typeNum < AMMO_FIRST) { //Items
+			if (!ITF_ALLOWED( item->typeNum )) {
+				G_FreeEdict( ent );
+				return;
+			}
+		}
+		else if (item->typeNum < AMMO_FIRST + AMMO_COUNT) { //Ammo
+			if (!WPF_ALLOWED( item->typeNum )) {
+				G_FreeEdict( ent );
+				return;
+			}
+		}
+		else if (item->typeNum == FLAG_T1_NUM || item->typeNum == FLAG_T2_NUM) {
+			//Don't spawn the flags unless enabled
+			if (!ctf->value) {
+				G_FreeEdict( ent );
+				return;
+			}
+		}
+		else { //Weapons/items/ammo is always precached
+			PrecacheItem( item );
+		}
+	}
+	else
+	{
+		PrecacheItem( item );
 	}
 
 	// some items will be prevented in deathmatch
