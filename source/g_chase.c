@@ -151,7 +151,6 @@ void UpdateChaseCam( edict_t * ent )
 
 		PRETRACE();
 		trace = gi.trace( ownerv, vec3_origin, vec3_origin, o, targ, MASK_SOLID );
-		POSTTRACE();
 
 		VectorCopy( trace.endpos, goal );
 
@@ -160,9 +159,7 @@ void UpdateChaseCam( edict_t * ent )
 		// pad for floors and ceilings
 		VectorCopy( goal, o );
 		o[2] += 6;
-		PRETRACE();
 		trace = gi.trace( goal, vec3_origin, vec3_origin, o, targ, MASK_SOLID );
-		POSTTRACE();
 		if (trace.fraction < 1) {
 			VectorCopy( trace.endpos, goal );
 			goal[2] -= 6;
@@ -170,7 +167,6 @@ void UpdateChaseCam( edict_t * ent )
 
 		VectorCopy( goal, o );
 		o[2] -= 6;
-		PRETRACE();
 		trace = gi.trace( goal, vec3_origin, vec3_origin, o, targ, MASK_SOLID );
 		POSTTRACE();
 		if (trace.fraction < 1) {
@@ -335,12 +331,12 @@ void GetChaseTarget( edict_t * ent )
 
 	targ = ent->client->resp.last_chase_target;
 	if (!targ) {
-		targ = g_edicts + 1;
+		targ = g_edicts + game.maxclients;
 	}
 	else {
-		targ = targ + 1;
-		if (targ < (g_edicts + 1) || targ > (g_edicts + game.maxclients)) {
-			targ = g_edicts + 1;
+		targ = targ - 1;
+		if (targ < (g_edicts + 1)) {
+			targ = g_edicts + game.maxclients;
 		}
 	}
 
