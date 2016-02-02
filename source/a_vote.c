@@ -284,8 +284,7 @@ void Cmd_Maplist_f (edict_t * ent, char *dummy)
 //
 void _MapInitClient (edict_t * ent)
 {
-	//ent->client->resp.mapvote = NULL;
-	_RemoveVoteFromMap(ent);
+	ent->client->resp.mapvote = NULL;
 }
 
 //
