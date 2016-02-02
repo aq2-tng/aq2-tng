@@ -438,8 +438,6 @@ void _MapWithMostVotes (void)
 //
 void _ClearMapVotes (void)
 {
-	map_votes = NULL;
-	map_num_maps = 0;
 	map_num_votes = 0;
 	map_num_clients = 0;
 	map_need_to_check_votes = true;
@@ -451,6 +449,8 @@ cvar_t *_InitMapVotelist (ini_t * ini)
 	char buf[1024];
 
 	// note that this is done whether we have set "use_mapvote" or not!
+	map_votes = NULL;
+	map_num_maps = 0;
 	_ClearMapVotes();
 	ReadMaplistFile ();
 
