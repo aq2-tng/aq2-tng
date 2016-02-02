@@ -436,16 +436,22 @@ void _MapWithMostVotes (void)
 }
 
 //
-cvar_t *_InitMapVotelist (ini_t * ini)
+void _ClearMapVotes (void)
 {
-	char buf[1024];
-
-	// note that this is done whether we have set "use_mapvote" or not!
 	map_votes = NULL;
 	map_num_maps = 0;
 	map_num_votes = 0;
 	map_num_clients = 0;
 	map_need_to_check_votes = true;
+}
+
+//
+cvar_t *_InitMapVotelist (ini_t * ini)
+{
+	char buf[1024];
+
+	// note that this is done whether we have set "use_mapvote" or not!
+	_ClearMapVotes();
 	ReadMaplistFile ();
 
 	use_mapvote = gi.cvar ("use_mapvote", "0", 0);
