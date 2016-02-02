@@ -520,8 +520,6 @@ void InitGame( void )
 	// items
 	InitItems();
 
-	game.helpmessage1[0] = '\0';
-	game.helpmessage2[0] = '\0';
 
 	// initialize all clients for this game
 	game.maxclients = (int)maxclients->value;

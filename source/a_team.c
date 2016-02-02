@@ -392,6 +392,9 @@ void TransparentListSet( solid_t solid_type )
 	transparent_list_t *entry;
 
 	for (entry = transparent_list; entry; entry = entry->next) {
+		if (entry->ent->solid == solid_type)
+			continue;
+
 		entry->ent->solid = solid_type;
 		gi.linkentity( entry->ent );
 	}
@@ -1313,6 +1316,8 @@ void ResetScores (qboolean playerScores)
 
 	team_round_going = team_round_countdown = team_game_going = 0;
 	current_round_length = 0;
+	lights_camera_action = holding_on_tie_check = 0;
+	timewarning = fragwarning = 0;
 	level.pauseFrames = 0;
 	level.matchTime = 0;
 	num_ghost_players = 0;
@@ -2988,6 +2993,7 @@ qboolean NS_SelectRandomTeamplaySpawnPoint (int team, qboolean teams_assigned[])
 }
 
 // TNG:Freud
+#define MAX_USABLESPAWNS 3
 // NS_SelectFarTeamplaySpawnPoint
 // Selects farthest teamplay spawn point from available spawns.
 qboolean NS_SelectFarTeamplaySpawnPoint (int team, qboolean teams_assigned[])
@@ -2995,7 +3001,7 @@ qboolean NS_SelectFarTeamplaySpawnPoint (int team, qboolean teams_assigned[])
 	int u, x, y, z, spawn_to_use, preferred_spawn_points, num_already_used,
 	total_good_spawn_points;
 	float closest_spawn_distance, distance;
-	edict_t *usable_spawns[3];
+	edict_t *usable_spawns[MAX_USABLESPAWNS];
 	qboolean used;
 	int num_usable;
 
@@ -3058,6 +3064,9 @@ qboolean NS_SelectFarTeamplaySpawnPoint (int team, qboolean teams_assigned[])
 		if (used == false) {
 			usable_spawns[num_usable] = spawn_distances[NS_num_potential_spawns[team] - z - 1].s;
 			num_usable++;
+			if (num_usable >= MAX_USABLESPAWNS) {
+				break;
+			}
 		}
 	}
 	if (num_usable < 1) {
@@ -3065,7 +3074,7 @@ qboolean NS_SelectFarTeamplaySpawnPoint (int team, qboolean teams_assigned[])
 		return false;
 	}
 
-	spawn_to_use = newrand (num_usable);
+	spawn_to_use = newrand(num_usable);
 
 	NS_used_farteamplay_spawns[team][NS_num_used_farteamplay_spawns[team]] = usable_spawns[spawn_to_use];
 	NS_num_used_farteamplay_spawns[team]++;

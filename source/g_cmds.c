@@ -1213,7 +1213,7 @@ void Cmd_Wave_f (edict_t * ent)
 
 	if(wave_time->value > 0)
 	{
-		if(ent->client->resp.lastWave + ((int)wave_time->value * 10) > level.framenum)
+		if(ent->client->resp.lastWave + ((int)wave_time->value * HZ) > level.framenum)
 			return;
 
 		ent->client->resp.lastWave = level.framenum;

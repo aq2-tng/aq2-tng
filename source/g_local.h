@@ -567,10 +567,6 @@ gitem_t;
 //
 typedef struct
 {
-  char helpmessage1[512];
-  char helpmessage2[512];
-  int helpchanged;		// flash F1 icon if non 0, play sound and increment only if 1, 2, or 3
-
   gclient_t *clients;		// [maxclients]
 
   // can't store spawnpoint in level, because
@@ -695,24 +691,6 @@ typedef struct
   void (*endfunc) (edict_t *);
 }
 moveinfo_t;
-
-
-typedef struct
-{
-  void (*aifunc) (edict_t * self, float dist);
-  float dist;
-  void (*thinkfunc) (edict_t * self);
-}
-mframe_t;
-
-typedef struct
-{
-  int firstframe;
-  int lastframe;
-  mframe_t *frame;
-  void (*endfunc) (edict_t * self);
-}
-mmove_t;
 
 
 extern game_locals_t game;
@@ -1284,8 +1262,6 @@ typedef struct
 
   vec3_t cmd_angles;		// angles sent over in the last command
 
-  int game_helpchanged;
-  int helpchanged;
   int sniper_mode;		//level of zoom
 
   int kills;			// real kills

@@ -955,29 +955,6 @@ G_SetClientSound
 */
 void G_SetClientSound (edict_t * ent)
 {
-	char *weap;
-
-	if (ent->client->resp.game_helpchanged != game.helpchanged)
-	{
-		ent->client->resp.game_helpchanged = game.helpchanged;
-		ent->client->resp.helpchanged = 1;
-	}
-
-	// help beep (no more than three times)
-	if (ent->client->resp.helpchanged && ent->client->resp.helpchanged <= 3
-		&& !((level.realFramenum / FRAMEDIV) & 63))
-		{
-			ent->client->resp.helpchanged++;
-			gi.sound (ent, CHAN_VOICE, gi.soundindex ("misc/pc_up.wav"), 1,
-			ATTN_STATIC, 0);
-		}
-
-
-	if (ent->client->pers.weapon)
-		weap = ent->client->pers.weapon->classname;
-	else
-		weap = "";
-
 	if (ent->waterlevel && (ent->watertype & (CONTENTS_LAVA | CONTENTS_SLIME)))
 		ent->s.sound = snd_fry;
 	else if (ent->client->weapon_sound)
@@ -1126,8 +1103,7 @@ void Do_Bleeding (edict_t * ent)
 		{
 			meansOfDeath = ent->client->attacker_mod;
 			locOfDeath = ent->client->attacker_loc;
-			Killed (ent, ent->client->attacker, ent->client->attacker, damage,
-			ent->s.origin);
+			Killed(ent, ent->client->attacker, ent->client->attacker, damage, ent->s.origin);
 		}
 		else
 		{

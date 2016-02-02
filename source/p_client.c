@@ -1988,19 +1988,17 @@ void CopyToBodyQue(edict_t * ent)
 
 void CleanBodies()
 {
-	edict_t *ptr;
 	int i;
+	edict_t *ent;
 
-	ptr = g_edicts + game.maxclients + 1;
-	i = 0;
-	while (i < BODY_QUEUE_SIZE) {
-		gi.unlinkentity(ptr);
-		ptr->solid = SOLID_NOT;
-		ptr->movetype = MOVETYPE_NOCLIP;
-		ptr->svflags |= SVF_NOCLIENT;
-		ptr++;
-		i++;
+	ent = g_edicts + game.maxclients + 1;
+	for (i = 0; i < BODY_QUEUE_SIZE; i++, ent++) {
+		gi.unlinkentity( ent );
+		ent->solid = SOLID_NOT;
+		ent->movetype = MOVETYPE_NOCLIP;
+		ent->svflags |= SVF_NOCLIENT;
 	}
+	level.body_que = 0;
 }
 
 void respawn(edict_t * self)
@@ -3029,25 +3027,6 @@ trace_t q_gameabi PM_trace(vec3_t start, vec3_t mins, vec3_t maxs, vec3_t end)
 		return gi.trace(start, mins, maxs, end, pm_passent, MASK_DEADSOLID);
 }
 
-unsigned CheckBlock(void *b, int c)
-{
-	int v, i;
-
-	v = 0;
-	for (i = 0; i < c; i++)
-		v += ((byte *) b)[i];
-	return v;
-}
-
-void PrintPmove(pmove_t * pm)
-{
-	unsigned c1, c2;
-
-	c1 = CheckBlock(&pm->s, sizeof(pm->s));
-	c2 = CheckBlock(&pm->cmd, sizeof(pm->cmd));
-	Com_Printf("sv %3i:%i %i\n", pm->cmd.impulse, c1, c2);
-}
-
 /*
 ==============
 ClientThink
@@ -3090,7 +3069,7 @@ void ClientThink(edict_t * ent, usercmd_t * ucmd)
 	}
 	pm_passent = ent;
 	// FROM 3.20 -FB
-	if (ent->client->chase_mode) {
+	if (client->chase_mode) {
 		client->resp.cmd_angles[0] = SHORT2ANGLE(ucmd->angles[0]);
 		client->resp.cmd_angles[1] = SHORT2ANGLE(ucmd->angles[1]);
 		client->resp.cmd_angles[2] = SHORT2ANGLE(ucmd->angles[2]);
@@ -3151,13 +3130,13 @@ void ClientThink(edict_t * ent, usercmd_t * ucmd)
 		}
 
 		// zucc stumbling associated with leg damage
-		if ((level.framenum / game.framediv) % 6 <= 2 && ent->client->leg_damage) {
+		if ((level.framenum / game.framediv) % 6 <= 2 && client->leg_damage) {
 			//Slow down code FOO/zucc
 			for (i = 0; i < 3; i++) {
 				if ((i < 2 || ent->velocity[2] > 0) && (ent->groundentity && pm.groundentity))
 					ent->velocity[i] /= 4 * ent->client->leghits;	//FOO       
 			}
-			if ((level.framenum / game.framediv) % (6 * 12) == 0 && ent->client->leg_damage > 1)
+			if ((level.framenum / game.framediv) % (6 * 12) == 0 && client->leg_damage > 1)
 				gi.sound(ent, CHAN_BODY, gi.soundindex(va("*pain100_1.wav")), 1, ATTN_NORM, 0);
 			ent->velocity[0] = (float) ((int) (ent->velocity[0] * 8)) / 8;
 			ent->velocity[1] = (float) ((int) (ent->velocity[1] * 8)) / 8;
@@ -3172,7 +3151,7 @@ void ClientThink(edict_t * ent, usercmd_t * ucmd)
 
 		// don't play sounds if they have leg damage, they can't jump anyway
 		if (ent->groundentity && !pm.groundentity && (pm.cmd.upmove >= 10)
-		    && (pm.waterlevel == 0) && !ent->client->leg_damage) {
+		    && (pm.waterlevel == 0) && !client->leg_damage) {
 			/* don't play jumps period.
 			   gi.sound(ent, CHAN_VOICE, gi.soundindex("*jump1.wav"), 1, ATTN_NORM, 0);
 			   PlayerNoise(ent, ent->s.origin, PNOISE_SELF);

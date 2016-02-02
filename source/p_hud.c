@@ -573,10 +573,7 @@ void G_SetStats (edict_t * ent)
 		//
 		// help icon / current weapon if not shown
 		//
-		if (ent->client->resp.helpchanged && ((level.framenum / FRAMEDIV) & 8))
-			ent->client->ps.stats[STAT_HELPICON] = gi.imageindex ("i_help");
-		else if ((ent->client->pers.hand == CENTER_HANDED || ent->client->ps.fov > 91)
-			&& ent->client->pers.weapon)
+		if ((ent->client->pers.hand == CENTER_HANDED || ent->client->ps.fov > 91) && ent->client->pers.weapon)
 			ent->client->ps.stats[STAT_HELPICON] = gi.imageindex (ent->client->pers.weapon->icon);
 		else
 			ent->client->ps.stats[STAT_HELPICON] = 0;
