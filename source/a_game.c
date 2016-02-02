@@ -245,8 +245,6 @@ void PrintMOTD(edict_t * ent)
 		{
 			if (ctf->value) // Is it CTF?
 				server_type = "Capture the Flag";
-			else if (matchmode->value) // Is it Matchmode?
-				server_type = "Matchmode";
 			else if (use_3teams->value) // Is it 3 Teams?
 				server_type = "3 Team Teamplay";
 			else if (teamdm->value) // Is it TeamDM?
@@ -255,6 +253,11 @@ void PrintMOTD(edict_t * ent)
 				server_type = "Tourney";
 			else // No? Then it must be Teamplay
 				server_type = "Teamplay";
+
+			if (matchmode->value)
+				sprintf(msg_buf + strlen(msg_buf), "Matchmode: %s\n", server_type);
+			else
+				sprintf(msg_buf + strlen(msg_buf), "Game Type: %s\n", server_type);
 		}
 		else  // So it's not Teamplay?
 		{
@@ -265,8 +268,9 @@ void PrintMOTD(edict_t * ent)
 				server_type = "Deathmatch (Teams by Skin)";
 			else
 				server_type = "Deathmatch (No Teams)";
+
+			sprintf(msg_buf + strlen(msg_buf), "Game Type: %s\n", server_type);
 		}
-		sprintf(msg_buf + strlen(msg_buf), "Game Type: %s\n", server_type);
 		lines++;
 
 		/* new CTF settings added here for better readability */

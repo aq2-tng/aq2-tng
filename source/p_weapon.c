@@ -228,8 +228,8 @@ qboolean Pickup_Weapon (edict_t * ent, edict_t * other)
 	// zucc special cases for picking up weapons
 	// the mk23 should never be dropped, probably
 
-	if (ent->item->typeNum == MK23_NUM)
-	{
+	switch (ent->item->typeNum) {
+	case MK23_NUM:
 		if (!WPF_ALLOWED(MK23_NUM))
 			return false;
 
@@ -253,9 +253,7 @@ qboolean Pickup_Weapon (edict_t * ent, edict_t * other)
 		}
 		return true;
 
-	}
-	else if (ent->item->typeNum == MP5_NUM)
-	{
+	case MP5_NUM:
 		if (other->client->unique_weapon_total >= unique_weapons->value + band)
 			return false;		// we can't get it
 
@@ -266,9 +264,9 @@ qboolean Pickup_Weapon (edict_t * ent, edict_t * other)
 		}
 		special = 1;
 		gi.cprintf (other, PRINT_HIGH, "%s - Unique Weapon\n", ent->item->pickup_name);
-	}
-	else if (ent->item->typeNum == M4_NUM)
-	{
+		break;
+
+	case M4_NUM:
 		if (other->client->unique_weapon_total >= unique_weapons->value + band)
 			return false;		// we can't get it
 
@@ -279,9 +277,9 @@ qboolean Pickup_Weapon (edict_t * ent, edict_t * other)
 		}
 		special = 1;
 		gi.cprintf (other, PRINT_HIGH, "%s - Unique Weapon\n", ent->item->pickup_name);   
-	}
-	else if (ent->item->typeNum == M3_NUM)
-	{
+		break;
+
+	case M3_NUM:
 		if (other->client->unique_weapon_total >= unique_weapons->value + band)
 			return false;		// we can't get it
 
@@ -306,10 +304,9 @@ qboolean Pickup_Weapon (edict_t * ent, edict_t * other)
 		}
 		special = 1;
 		gi.cprintf (other, PRINT_HIGH, "%s - Unique Weapon\n", ent->item->pickup_name);        
+		break;
 
-	}
-	else if (ent->item->typeNum == HC_NUM)
-	{
+	case HC_NUM:
 		if (other->client->unique_weapon_total >= unique_weapons->value + band)
 			return false;		// we can't get it
 
@@ -325,11 +322,10 @@ qboolean Pickup_Weapon (edict_t * ent, edict_t * other)
 				other->client->pers.inventory[index2] += 5;
 		}
 		gi.cprintf (other, PRINT_HIGH, "%s - Unique Weapon\n", ent->item->pickup_name);
-		special = 1;   
+		special = 1;
+		break;
 
-	}
-	else if (ent->item->typeNum == SNIPER_NUM)
-	{
+	case SNIPER_NUM:
 		if (other->client->unique_weapon_total >= unique_weapons->value + band)
 			return false;		// we can't get it
 
@@ -352,9 +348,9 @@ qboolean Pickup_Weapon (edict_t * ent, edict_t * other)
 		}
 		special = 1;
 		gi.cprintf (other, PRINT_HIGH, "%s - Unique Weapon\n", ent->item->pickup_name);
-	}
-	else if (ent->item->typeNum == DUAL_NUM)
-	{
+		break;
+	
+	case DUAL_NUM:
 		if (!WPF_ALLOWED(MK23_NUM))
 			return false;
 
@@ -380,9 +376,8 @@ qboolean Pickup_Weapon (edict_t * ent, edict_t * other)
 				SetRespawn (ent, weapon_respawn->value);
 		}
 		return true;
-	}
-	else if (ent->item->typeNum == KNIFE_NUM)
-	{
+	
+	case KNIFE_NUM:
 		if (other->client->pers.inventory[index] < other->client->knife_max)
 		{
 			other->client->pers.inventory[index]++;
@@ -390,9 +385,8 @@ qboolean Pickup_Weapon (edict_t * ent, edict_t * other)
 		}
 
 		return false;
-	}
-	else if (ent->item->typeNum == GRENADE_NUM)
-	{
+
+	case GRENADE_NUM:
 		if (teamplay->value && !teamdm->value && ctf->value != 2 && !band)
 			return false;
 
@@ -408,10 +402,8 @@ qboolean Pickup_Weapon (edict_t * ent, edict_t * other)
 				SetRespawn(ent, ammo_respawn->value);
 		}
 		return true;
-	}
-	else
-	{
-
+	
+	default:
 		other->client->pers.inventory[index]++;
 
 		if (!(ent->spawnflags & DROPPED_ITEM))
@@ -432,6 +424,7 @@ qboolean Pickup_Weapon (edict_t * ent, edict_t * other)
 					SetRespawn(ent, 30);
 			}
 		}
+		break;
 	}
 	/* zucc - don't want auto switching
 	if (other->client->pers.weapon != ent->item && 
@@ -1031,13 +1024,12 @@ void Drop_Weapon (edict_t * ent, gitem_t * item)
 //zucc drop special weapon (only 1 of them)
 void DropSpecialWeapon (edict_t * ent)
 {
+	int itemNum;
+
+	itemNum = ent->client->pers.weapon ? ent->client->pers.weapon->typeNum : 0;
 
 	// first check if their current weapon is a special weapon, if so, drop it.
-	if (ent->client->pers.weapon->typeNum == MP5_NUM
-		|| ent->client->pers.weapon->typeNum == M4_NUM
-		|| ent->client->pers.weapon->typeNum == M3_NUM
-		|| ent->client->pers.weapon->typeNum == HC_NUM
-		|| ent->client->pers.weapon->typeNum == SNIPER_NUM)
+	if (itemNum >= MP5_NUM && itemNum <= SNIPER_NUM)
 		Drop_Weapon (ent, ent->client->pers.weapon);
 	else if (INV_AMMO(ent, SNIPER_NUM) > 0)
 		Drop_Weapon (ent, GET_ITEM(SNIPER_NUM));
@@ -1050,7 +1042,7 @@ void DropSpecialWeapon (edict_t * ent)
 	else if (INV_AMMO(ent, M4_NUM) > 0)
 		Drop_Weapon (ent, GET_ITEM(M4_NUM));
 	// special case, aq does this, guess I can support it
-	else if (ent->client->pers.weapon->typeNum == DUAL_NUM)
+	else if (itemNum == DUAL_NUM)
 		ent->client->newweapon = GET_ITEM(MK23_NUM);
 
 }
@@ -1059,33 +1051,27 @@ void DropSpecialWeapon (edict_t * ent)
 // for when they drop the bandolier and they are over the weapon limit
 void DropExtraSpecial (edict_t * ent)
 {
-	gitem_t *item;
+	int itemNum;
 
-
-	if (ent->client->pers.weapon->typeNum == MP5_NUM
-		|| ent->client->pers.weapon->typeNum == M4_NUM
-		|| ent->client->pers.weapon->typeNum == M3_NUM
-		|| ent->client->pers.weapon->typeNum == HC_NUM
-		|| ent->client->pers.weapon->typeNum == SNIPER_NUM)
+	itemNum = ent->client->pers.weapon ? ent->client->pers.weapon->typeNum : 0;
+	if (itemNum >= MP5_NUM && itemNum <= SNIPER_NUM)
 	{
-		item = ent->client->pers.weapon;
 		// if they have more than 1 then they are willing to drop one           
-		if (ent->client->pers.inventory[ITEM_INDEX (item)] > 1)
-		{
+		if (INV_AMMO(ent, itemNum) > 1) {
 			Drop_Weapon (ent, ent->client->pers.weapon);
 			return;
 		}
 	}
 	// otherwise drop some weapon they aren't using
-	if (INV_AMMO(ent, SNIPER_NUM) > 0 && SNIPER_NUM != ent->client->pers.weapon->typeNum)
+	if (INV_AMMO(ent, SNIPER_NUM) > 0 && SNIPER_NUM != itemNum)
 			Drop_Weapon (ent, GET_ITEM(SNIPER_NUM));
-	else if (INV_AMMO(ent, HC_NUM) > 0 && HC_NUM != ent->client->pers.weapon->typeNum)
+	else if (INV_AMMO(ent, HC_NUM) > 0 && HC_NUM != itemNum)
 		Drop_Weapon (ent, GET_ITEM(HC_NUM));
-	else if (INV_AMMO(ent, M3_NUM) > 0 && M3_NUM != ent->client->pers.weapon->typeNum)
+	else if (INV_AMMO(ent, M3_NUM) > 0 && M3_NUM != itemNum)
 		Drop_Weapon (ent, GET_ITEM(M3_NUM));
-	else if (INV_AMMO(ent, MP5_NUM) > 0	&& MP5_NUM != ent->client->pers.weapon->typeNum)
+	else if (INV_AMMO(ent, MP5_NUM) > 0	&& MP5_NUM != itemNum)
 		Drop_Weapon (ent, GET_ITEM(MP5_NUM));
-	else if (INV_AMMO(ent, M4_NUM) > 0 && M4_NUM != ent->client->pers.weapon->typeNum)
+	else if (INV_AMMO(ent, M4_NUM) > 0 && M4_NUM != itemNum)
 		Drop_Weapon (ent, GET_ITEM(M4_NUM));
 	else
 		gi.dprintf ("Couldn't find the appropriate weapon to drop.\n");
@@ -1416,6 +1402,9 @@ Weapon_Generic (edict_t * ent, int FRAME_ACTIVATE_LAST, int FRAME_FIRE_LAST,
 			else
 				count = ent->client->cannon_max;
 			ent->client->cannon_rds += count;
+			if (ent->client->cannon_rds > ent->client->cannon_max)
+				ent->client->cannon_rds = ent->client->cannon_max;
+
 			(ent->client->pers.inventory[ent->client->ammo_index]) -= count;
 		}
 		else

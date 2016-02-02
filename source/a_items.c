@@ -103,6 +103,8 @@ void SpawnSpecs(edict_t * ent)
 	edict_t *spot;
 	int i, itemNum;
 
+	G_FreeEdict(ent);
+
 	if(item_respawnmode->value)
 		return;
 
