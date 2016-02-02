@@ -566,23 +566,24 @@ void G_SetStats (edict_t * ent)
 		ent->client->ps.stats[STAT_SELECTED_ITEM] = ent->client->pers.selected_item;
 
 		//
-		// frags
-		//
-		ent->client->ps.stats[STAT_FRAGS] = ent->client->resp.score;
-
-		//
 		// help icon / current weapon if not shown
 		//
 		if ((ent->client->pers.hand == CENTER_HANDED || ent->client->ps.fov > 91) && ent->client->pers.weapon)
 			ent->client->ps.stats[STAT_HELPICON] = gi.imageindex (ent->client->pers.weapon->icon);
 		else
 			ent->client->ps.stats[STAT_HELPICON] = 0;
+
+		// TNG: Show health icon when bandaging (thanks to Dome for this code)
+		if (ent->client->weaponstate == WEAPON_BANDAGING || ent->client->bandaging || ent->client->bandage_stopped)
+		{
+			ent->client->ps.stats[STAT_HELPICON] = gi.imageindex( "i_health" );
+		}
 	}
-	// TNG: Show health icon when bandaging (thanks to Dome for this code)
-	if (ent->client->weaponstate == WEAPON_BANDAGING || ent->client->bandaging || ent->client->bandage_stopped)
-	{
-		ent->client->ps.stats[STAT_HELPICON] = gi.imageindex ("i_health");
-	}
+
+	//
+	// frags
+	//
+	ent->client->ps.stats[STAT_FRAGS] = ent->client->resp.score;
 
 	//
 	// layouts
