@@ -98,6 +98,8 @@ int ACEND_FindCost(int from, int to)
 		curnode = path_table[curnode][to];
 		if(curnode == INVALID) // something has corrupted the path abort
 			return INVALID;
+		if(cost > numnodes) // Sanity check to avoid infinite loop.
+		        return INVALID;
 		cost++;
 	}
 	
