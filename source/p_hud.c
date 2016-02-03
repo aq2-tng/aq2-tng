@@ -392,9 +392,8 @@ void G_SetStats (edict_t * ent)
 		else
 		{
 			item = &itemlist[ent->client->ammo_index];
-			ent->client->ps.stats[STAT_CLIP_ICON] = gi.imageindex (item->icon);
-			ent->client->ps.stats[STAT_CLIP] =
-			ent->client->pers.inventory[ent->client->ammo_index];
+			ent->client->ps.stats[STAT_CLIP_ICON] = gi.imageindex(item->icon);
+			ent->client->ps.stats[STAT_CLIP] = ent->client->pers.inventory[ent->client->ammo_index];
 		}
 
 		// zucc display special item and special weapon
@@ -518,15 +517,6 @@ void G_SetStats (edict_t * ent)
 		ent->client->ps.stats[STAT_ARMOR] = 0;
 
 		//
-		// pickup message
-		//
-		if (level.framenum > ent->client->pickup_msg_time)
-		{
-			ent->client->ps.stats[STAT_PICKUP_ICON] = 0;
-			ent->client->ps.stats[STAT_PICKUP_STRING] = 0;
-		}
-
-		//
 		// timers
 		//
 		if (ent->client->quad_framenum > level.framenum)
@@ -568,16 +558,22 @@ void G_SetStats (edict_t * ent)
 		//
 		// help icon / current weapon if not shown
 		//
-		if ((ent->client->pers.hand == CENTER_HANDED || ent->client->ps.fov > 91) && ent->client->pers.weapon)
+		// TNG: Show health icon when bandaging (thanks to Dome for this code)
+		if (ent->client->weaponstate == WEAPON_BANDAGING || ent->client->bandaging || ent->client->bandage_stopped)
+			ent->client->ps.stats[STAT_HELPICON] = level.pic_health;
+		else if ((ent->client->pers.hand == CENTER_HANDED || ent->client->ps.fov > 91) && ent->client->pers.weapon)
 			ent->client->ps.stats[STAT_HELPICON] = gi.imageindex (ent->client->pers.weapon->icon);
 		else
 			ent->client->ps.stats[STAT_HELPICON] = 0;
+	}
 
-		// TNG: Show health icon when bandaging (thanks to Dome for this code)
-		if (ent->client->weaponstate == WEAPON_BANDAGING || ent->client->bandaging || ent->client->bandage_stopped)
-		{
-			ent->client->ps.stats[STAT_HELPICON] = gi.imageindex( "i_health" );
-		}
+	//
+	// pickup message
+	//
+	if (level.realFramenum > ent->client->pickup_msg_time)
+	{
+		ent->client->ps.stats[STAT_PICKUP_ICON] = 0;
+		ent->client->ps.stats[STAT_PICKUP_STRING] = 0;
 	}
 
 	//
