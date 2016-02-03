@@ -913,8 +913,9 @@ void Cmd_IR_f(edict_t * ent)
 
 void Cmd_Choose_f(edict_t * ent)
 {
-	char *s;
+	char *s, *wpnText, *itmText;
 	int itemNum = NO_NUM;
+	gitem_t *item;
 
 	// only works in teamplay
 	if ((!teamplay->value && !dm_choose->value) || teamdm->value || ctf->value == 2)
@@ -982,8 +983,13 @@ void Cmd_Choose_f(edict_t * ent)
 		return;
 	}
 
-	gi.cprintf(ent, PRINT_HIGH, "Weapon selected: %s\nItem selected: %s\n",
-		   (ent->client->resp.weapon)->pickup_name, (ent->client->resp.item)->pickup_name);
+	item = ent->client->resp.weapon;
+	wpnText = (item && item->pickup_name) ? item->pickup_name : "NONE";
+
+	item = ent->client->resp.item;
+	itmText = (item && item->pickup_name) ? item->pickup_name : "NONE";
+
+	gi.cprintf(ent, PRINT_HIGH, "Weapon selected: %s\nItem selected: %s\n", wpnText, itmText );
 }
 
 // AQ:TNG - JBravo adding tkok

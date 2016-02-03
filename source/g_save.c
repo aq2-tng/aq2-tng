@@ -466,7 +466,7 @@ void InitGame( void )
 	auto_menu = gi.cvar( "auto_menu", "0", 0 );
 	eventeams = gi.cvar( "eventeams", "0", 0 );
 	use_balancer = gi.cvar( "use_balancer", "0", 0 );
-	dm_choose = gi.cvar( "dm_choose", "0", 0 );
+	dm_choose = gi.cvar( "dm_choose", "0", CVAR_LATCH );
 	dm_shield = gi.cvar( "dm_shield", "0", 0 );
 
 	use_punch = gi.cvar( "use_punch", "1", 0 );

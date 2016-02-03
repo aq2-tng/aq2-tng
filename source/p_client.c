@@ -3119,28 +3119,44 @@ void ClientThink(edict_t * ent, usercmd_t * ucmd)
 		client->ps.pmove = pm.s;
 		client->old_pmove = pm.s;
 
-		// really stopping jumping with leg damage
-		if (client->leg_damage && ent->groundentity && pm.s.velocity[2] > 10) {
-			pm.s.velocity[2] = 0.0;
-		}
-
 		for (i = 0; i < 3; i++) {
 			ent->s.origin[i] = pm.s.origin[i] * 0.125;
 			ent->velocity[i] = pm.s.velocity[i] * 0.125;
 		}
 
-		// zucc stumbling associated with leg damage
-		if ((level.framenum / game.framediv) % 6 <= 2 && client->leg_damage) {
-			//Slow down code FOO/zucc
-			for (i = 0; i < 3; i++) {
-				if ((i < 2 || ent->velocity[2] > 0) && (ent->groundentity && pm.groundentity))
-					ent->velocity[i] /= 4 * ent->client->leghits;	//FOO       
+		if (client->leg_damage)
+		{
+			// really stopping jumping with leg damage
+			if (ent->groundentity && pm.s.velocity[2] > 10) {
+				ent->velocity[2] = 0.0;
 			}
-			if ((level.framenum / game.framediv) % (6 * 12) == 0 && client->leg_damage > 1)
-				gi.sound(ent, CHAN_BODY, gi.soundindex(va("*pain100_1.wav")), 1, ATTN_NORM, 0);
-			ent->velocity[0] = (float) ((int) (ent->velocity[0] * 8)) / 8;
-			ent->velocity[1] = (float) ((int) (ent->velocity[1] * 8)) / 8;
-			ent->velocity[2] = (float) ((int) (ent->velocity[2] * 8)) / 8;
+
+			// zucc stumbling associated with leg damage
+			if ((level.framenum / game.framediv) % 6 <= 2) {
+				//Slow down code FOO/zucc
+				if (ent->groundentity && pm.groundentity) {
+					ent->velocity[0] /= 4 * ent->client->leghits;	//FOO  
+					ent->velocity[1] /= 4 * ent->client->leghits;	//FOO  
+					if (ent->velocity[2] > 0)
+						ent->velocity[2] /= 4 * ent->client->leghits;	//FOO     
+				}
+				if ((level.framenum / game.framediv) % (6 * 12) == 0 && client->leg_damage > 1)
+					gi.sound(ent, CHAN_BODY, gi.soundindex(va("*pain100_1.wav")), 1, ATTN_NORM, 0);
+
+				ent->velocity[0] = (float)((int)(ent->velocity[0] * 8)) / 8;
+				ent->velocity[1] = (float)((int)(ent->velocity[1] * 8)) / 8;
+				ent->velocity[2] = (float)((int)(ent->velocity[2] * 8)) / 8;
+			}
+
+		} else {
+			// don't play sounds if they have leg damage, they can't jump anyway
+			if (ent->groundentity && !pm.groundentity && pm.cmd.upmove >= 10 && pm.waterlevel == 0) {
+				/* don't play jumps period.
+				gi.sound(ent, CHAN_VOICE, gi.soundindex("*jump1.wav"), 1, ATTN_NORM, 0);
+				PlayerNoise(ent, ent->s.origin, PNOISE_SELF);
+				*/
+				ent->client->jumping = 1;
+			}
 		}
 
 		VectorCopy(pm.mins, ent->mins);
@@ -3148,16 +3164,6 @@ void ClientThink(edict_t * ent, usercmd_t * ucmd)
 		client->resp.cmd_angles[0] = SHORT2ANGLE(ucmd->angles[0]);
 		client->resp.cmd_angles[1] = SHORT2ANGLE(ucmd->angles[1]);
 		client->resp.cmd_angles[2] = SHORT2ANGLE(ucmd->angles[2]);
-
-		// don't play sounds if they have leg damage, they can't jump anyway
-		if (ent->groundentity && !pm.groundentity && (pm.cmd.upmove >= 10)
-		    && (pm.waterlevel == 0) && !client->leg_damage) {
-			/* don't play jumps period.
-			   gi.sound(ent, CHAN_VOICE, gi.soundindex("*jump1.wav"), 1, ATTN_NORM, 0);
-			   PlayerNoise(ent, ent->s.origin, PNOISE_SELF);
-			 */
-			ent->client->jumping = 1;
-		}
 
 		ent->viewheight = pm.viewheight;
 		ent->waterlevel = pm.waterlevel;

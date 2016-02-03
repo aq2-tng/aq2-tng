@@ -801,65 +801,49 @@ Touch_Item
 void Touch_Item (edict_t * ent, edict_t * other, cplane_t * plane,
 	    csurface_t * surf)
 {
-  qboolean taken;
+	qboolean taken;
 
-  if (!other->client)
-    return;
-  if (other->health < 1)
-    return;			// dead people can't pickup
-  if (!ent->item->pickup)
-    return;			// not a grabbable item?
+	if (!other->client)
+		return;
+	if (other->health < 1)
+		return;			// dead people can't pickup
+	if (!ent->item || !ent->item->pickup)
+		return;			// not a grabbable item?
 
-  taken = ent->item->pickup (ent, other);
-
-  if (taken)
-    {
-      // flash the screen
-      other->client->bonus_alpha = 0.25;
-
-      // show icon and name on status bar
-//FIREBLADE (debug code)
-      if (!ent->item->icon || !ent->item->icon[0])
+	taken = ent->item->pickup(ent, other);
+	if (taken)
 	{
-	  if (ent->item->classname)
-	    gi.dprintf ("Warning: null icon filename (classname = %s)\n",
-			ent->item->classname);
-	  else
-	    gi.dprintf ("Warning: null icon filename (no classname)\n");
+		// flash the screen
+		other->client->bonus_alpha = 0.25;
 
+		// show icon and name on status bar
+		other->client->ps.stats[STAT_PICKUP_ICON] = gi.imageindex(ent->item->icon);
+		other->client->ps.stats[STAT_PICKUP_STRING] = CS_ITEMS + ITEM_INDEX (ent->item);
+		other->client->pickup_msg_time = level.realFramenum + 3 * HZ;
+
+		// change selected item
+		if (ent->item->use)
+			other->client->pers.selected_item = other->client->ps.stats[STAT_SELECTED_ITEM] = ITEM_INDEX(ent->item);
+		else
+			gi.sound(other, CHAN_ITEM, gi.soundindex(ent->item->pickup_sound), 1, ATTN_NORM, 0);
 	}
-//FIREBLADE
-      other->client->ps.stats[STAT_PICKUP_ICON] = gi.imageindex (ent->item->icon);
-      other->client->ps.stats[STAT_PICKUP_STRING] = CS_ITEMS + ITEM_INDEX (ent->item);
-      other->client->pickup_msg_time = level.framenum + 3 * HZ;
 
-      // change selected item
-      if (ent->item->use)
-	other->client->pers.selected_item =
-	  other->client->ps.stats[STAT_SELECTED_ITEM] =
-	  ITEM_INDEX (ent->item);
+	if (!(ent->spawnflags & ITEM_TARGETS_USED))
+	{
+		G_UseTargets(ent, other);
+		ent->spawnflags |= ITEM_TARGETS_USED;
+	}
 
-      else
-	gi.sound (other, CHAN_ITEM, gi.soundindex (ent->item->pickup_sound),
-		  1, ATTN_NORM, 0);
-    }
+	if (!taken)
+		return;
 
-  if (!(ent->spawnflags & ITEM_TARGETS_USED))
-    {
-      G_UseTargets (ent, other);
-      ent->spawnflags |= ITEM_TARGETS_USED;
-    }
-
-  if (!taken)
-    return;
-
-  if (ent->spawnflags & (DROPPED_ITEM | DROPPED_PLAYER_ITEM))
-    {
-      if (ent->flags & FL_RESPAWN)
-	ent->flags &= ~FL_RESPAWN;
-      else
-	G_FreeEdict (ent);
-    }
+	if (ent->spawnflags & (DROPPED_ITEM | DROPPED_PLAYER_ITEM))
+	{
+		if (ent->flags & FL_RESPAWN)
+			ent->flags &= ~FL_RESPAWN;
+		else
+			G_FreeEdict (ent);
+	}
 }
 
 //======================================================================
