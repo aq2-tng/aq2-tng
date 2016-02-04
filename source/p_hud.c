@@ -392,36 +392,39 @@ void G_SetStats (edict_t * ent)
 		else
 		{
 			item = &itemlist[ent->client->ammo_index];
-			ent->client->ps.stats[STAT_CLIP_ICON] = gi.imageindex(item->icon);
+			if (item->typeNum < AMMO_MAX)
+				ent->client->ps.stats[STAT_CLIP_ICON] = level.pic_items[item->typeNum];
+			else
+				ent->client->ps.stats[STAT_CLIP_ICON] = gi.imageindex(item->icon);
 			ent->client->ps.stats[STAT_CLIP] = ent->client->pers.inventory[ent->client->ammo_index];
 		}
 
 		// zucc display special item and special weapon
 		if (INV_AMMO(ent, SNIPER_NUM))
-			ent->client->ps.stats[STAT_WEAPONS_ICON] = gi.imageindex(GET_ITEM(SNIPER_NUM)->icon);
+			ent->client->ps.stats[STAT_WEAPONS_ICON] = level.pic_items[SNIPER_NUM];
 		else if (INV_AMMO(ent, M4_NUM))
-			ent->client->ps.stats[STAT_WEAPONS_ICON] = gi.imageindex(GET_ITEM(M4_NUM)->icon);
+			ent->client->ps.stats[STAT_WEAPONS_ICON] = level.pic_items[M4_NUM];
 		else if (INV_AMMO(ent, MP5_NUM))
-			ent->client->ps.stats[STAT_WEAPONS_ICON] = gi.imageindex(GET_ITEM(MP5_NUM)->icon);
+			ent->client->ps.stats[STAT_WEAPONS_ICON] = level.pic_items[MP5_NUM];
 		else if (INV_AMMO(ent, M3_NUM))
-			ent->client->ps.stats[STAT_WEAPONS_ICON] = gi.imageindex(GET_ITEM(M3_NUM)->icon);
+			ent->client->ps.stats[STAT_WEAPONS_ICON] = level.pic_items[M3_NUM];
 		else if (INV_AMMO(ent, HC_NUM))
-			ent->client->ps.stats[STAT_WEAPONS_ICON] = gi.imageindex(GET_ITEM(HC_NUM)->icon);
+			ent->client->ps.stats[STAT_WEAPONS_ICON] = level.pic_items[HC_NUM];
 		else
 			ent->client->ps.stats[STAT_WEAPONS_ICON] = 0;
 
 		if (INV_AMMO(ent, KEV_NUM))
-			ent->client->ps.stats[STAT_ITEMS_ICON] = gi.imageindex (GET_ITEM(KEV_NUM)->icon);
+			ent->client->ps.stats[STAT_ITEMS_ICON] = level.pic_items[KEV_NUM];
 		else if (INV_AMMO(ent, LASER_NUM))
-			ent->client->ps.stats[STAT_ITEMS_ICON] = gi.imageindex (GET_ITEM(LASER_NUM)->icon);
+			ent->client->ps.stats[STAT_ITEMS_ICON] = level.pic_items[LASER_NUM];
 		else if (INV_AMMO(ent, SLIP_NUM))
-			ent->client->ps.stats[STAT_ITEMS_ICON] = gi.imageindex (GET_ITEM(SLIP_NUM)->icon);
+			ent->client->ps.stats[STAT_ITEMS_ICON] = level.pic_items[SLIP_NUM];
 		else if (INV_AMMO(ent, SIL_NUM))
-			ent->client->ps.stats[STAT_ITEMS_ICON] = gi.imageindex (GET_ITEM(SIL_NUM)->icon);
+			ent->client->ps.stats[STAT_ITEMS_ICON] = level.pic_items[SIL_NUM];
 		else if (INV_AMMO(ent, HELM_NUM))
-			ent->client->ps.stats[STAT_ITEMS_ICON] = gi.imageindex (GET_ITEM(HELM_NUM)->icon);
+			ent->client->ps.stats[STAT_ITEMS_ICON] = level.pic_items[HELM_NUM];
 		else if (INV_AMMO(ent, BAND_NUM))
-			ent->client->ps.stats[STAT_ITEMS_ICON] = gi.imageindex (GET_ITEM(BAND_NUM)->icon);
+			ent->client->ps.stats[STAT_ITEMS_ICON] = level.pic_items[BAND_NUM];
 		else
 			ent->client->ps.stats[STAT_ITEMS_ICON] = 0;
 
@@ -429,7 +432,7 @@ void G_SetStats (edict_t * ent)
 		// grenades remaining
 		if (INV_AMMO(ent, GRENADE_NUM))
 		{
-			ent->client->ps.stats[STAT_GRENADE_ICON] = gi.imageindex ("a_m61frag");
+			ent->client->ps.stats[STAT_GRENADE_ICON] = level.pic_weapon_ammo[GRENADE_NUM];
 			ent->client->ps.stats[STAT_GRENADES] = INV_AMMO(ent, GRENADE_NUM);
 		}
 		else
@@ -446,39 +449,39 @@ void G_SetStats (edict_t * ent)
 		{
 			switch (ent->client->curr_weap) {
 			case MK23_NUM:
-				ent->client->ps.stats[STAT_AMMO_ICON] = gi.imageindex("a_bullets");
+				ent->client->ps.stats[STAT_AMMO_ICON] = level.pic_weapon_ammo[ent->client->curr_weap];
 				ent->client->ps.stats[STAT_AMMO] = ent->client->mk23_rds;
 				break;
 			case MP5_NUM:
-				ent->client->ps.stats[STAT_AMMO_ICON] = gi.imageindex("a_bullets");
+				ent->client->ps.stats[STAT_AMMO_ICON] = level.pic_weapon_ammo[ent->client->curr_weap];
 				ent->client->ps.stats[STAT_AMMO] = ent->client->mp5_rds;
 				break;
 			case M4_NUM:
-				ent->client->ps.stats[STAT_AMMO_ICON] = gi.imageindex("a_bullets");
+				ent->client->ps.stats[STAT_AMMO_ICON] = level.pic_weapon_ammo[ent->client->curr_weap];
 				ent->client->ps.stats[STAT_AMMO] = ent->client->m4_rds;
 				break;
 			case M3_NUM:
-				ent->client->ps.stats[STAT_AMMO_ICON] = gi.imageindex("a_shells");
+				ent->client->ps.stats[STAT_AMMO_ICON] = level.pic_weapon_ammo[ent->client->curr_weap];
 				ent->client->ps.stats[STAT_AMMO] = ent->client->shot_rds;
 				break;
 			case HC_NUM:
-				ent->client->ps.stats[STAT_AMMO_ICON] = gi.imageindex("a_shells");
+				ent->client->ps.stats[STAT_AMMO_ICON] = level.pic_weapon_ammo[ent->client->curr_weap];
 				ent->client->ps.stats[STAT_AMMO] = ent->client->cannon_rds;
 				break;
 			case SNIPER_NUM:
-				ent->client->ps.stats[STAT_AMMO_ICON] = gi.imageindex("a_bullets");
+				ent->client->ps.stats[STAT_AMMO_ICON] = level.pic_weapon_ammo[ent->client->curr_weap];
 				ent->client->ps.stats[STAT_AMMO] = ent->client->sniper_rds;
 				break;
 			case DUAL_NUM:
-				ent->client->ps.stats[STAT_AMMO_ICON] = gi.imageindex("a_bullets");
+				ent->client->ps.stats[STAT_AMMO_ICON] = level.pic_weapon_ammo[ent->client->curr_weap];
 				ent->client->ps.stats[STAT_AMMO] = ent->client->dual_rds;
 				break;
 			case KNIFE_NUM:
-				ent->client->ps.stats[STAT_AMMO_ICON] = gi.imageindex("w_knife");
+				ent->client->ps.stats[STAT_AMMO_ICON] = level.pic_weapon_ammo[ent->client->curr_weap];
 				ent->client->ps.stats[STAT_AMMO] = INV_AMMO(ent, KNIFE_NUM);
 				break;
 			case GRENADE_NUM:
-				ent->client->ps.stats[STAT_AMMO_ICON] = gi.imageindex("a_m61frag");
+				ent->client->ps.stats[STAT_AMMO_ICON] = level.pic_weapon_ammo[ent->client->curr_weap];
 				ent->client->ps.stats[STAT_AMMO] = INV_AMMO(ent, GRENADE_NUM);
 				break;
 			case GRAPPLE_NUM:
@@ -489,6 +492,9 @@ void G_SetStats (edict_t * ent)
 				gi.dprintf ("Failed to find hud weapon/icon for num %d.\n", ent->client->curr_weap);
 				break;
 			}
+		} else {
+			ent->client->ps.stats[STAT_AMMO_ICON] = 0;
+			ent->client->ps.stats[STAT_AMMO] = 0;
 		}
 
 		//
@@ -503,12 +509,8 @@ void G_SetStats (edict_t * ent)
 			|| ent->client->weaponstate == WEAPON_BUSY
 			|| ent->client->no_sniper_display)
 			ent->client->ps.stats[STAT_SNIPER_ICON] = 0;
-		else if (ent->client->resp.sniper_mode == SNIPER_2X)
-			ent->client->ps.stats[STAT_SNIPER_ICON] = gi.imageindex ("scope2x");
-		else if (ent->client->resp.sniper_mode == SNIPER_4X)
-			ent->client->ps.stats[STAT_SNIPER_ICON] = gi.imageindex ("scope4x");
-		else if (ent->client->resp.sniper_mode == SNIPER_6X)
-			ent->client->ps.stats[STAT_SNIPER_ICON] = gi.imageindex ("scope6x");
+		else
+			ent->client->ps.stats[STAT_SNIPER_ICON] = level.pic_sniper_mode[ent->client->resp.sniper_mode];
 
 		//
 		// armor
@@ -548,10 +550,15 @@ void G_SetStats (edict_t * ent)
 		//
 		// selected item
 		//
-		if (ent->client->pers.selected_item == -1)
+		if (ent->client->pers.selected_item < 1) {
 			ent->client->ps.stats[STAT_SELECTED_ICON] = 0;
-		else
-			ent->client->ps.stats[STAT_SELECTED_ICON] =	gi.imageindex (itemlist[ent->client->pers.selected_item].icon);
+		} else {
+			item = &itemlist[ent->client->pers.selected_item];
+			if (item->typeNum < AMMO_MAX)
+				ent->client->ps.stats[STAT_SELECTED_ICON] = level.pic_items[item->typeNum];
+			else
+				ent->client->ps.stats[STAT_SELECTED_ICON] = gi.imageindex(item->icon);
+		}
 
 		ent->client->ps.stats[STAT_SELECTED_ITEM] = ent->client->pers.selected_item;
 
@@ -562,7 +569,7 @@ void G_SetStats (edict_t * ent)
 		if (ent->client->weaponstate == WEAPON_BANDAGING || ent->client->bandaging || ent->client->bandage_stopped)
 			ent->client->ps.stats[STAT_HELPICON] = level.pic_health;
 		else if ((ent->client->pers.hand == CENTER_HANDED || ent->client->ps.fov > 91) && ent->client->pers.weapon)
-			ent->client->ps.stats[STAT_HELPICON] = gi.imageindex (ent->client->pers.weapon->icon);
+			ent->client->ps.stats[STAT_HELPICON] = level.pic_items[ent->client->pers.weapon->typeNum];
 		else
 			ent->client->ps.stats[STAT_HELPICON] = 0;
 	}

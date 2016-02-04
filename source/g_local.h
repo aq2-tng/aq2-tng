@@ -532,6 +532,127 @@ gitem_armor_t;
 #define IT_ITEM                 64
 #define IT_FLAG                 128
 
+
+// weapon names
+/*
+bind 2 "use M3 Super 90 Assault Shotgun;"
+bind 3 "use MP5/10 Submachinegun"
+bind 4 "use Handcannon"
+bind 5 "use M4 Assault Rifle"
+bind 6 "use Sniper Rifle"
+*/
+#define MK23_NAME    "MK23 Pistol"
+#define MP5_NAME     "MP5/10 Submachinegun"
+#define M4_NAME      "M4 Assault Rifle"
+#define M3_NAME      "M3 Super 90 Assault Shotgun"
+#define HC_NAME      "Handcannon"
+#define SNIPER_NAME  "Sniper Rifle"
+#define DUAL_NAME    "Dual MK23 Pistols"
+#define KNIFE_NAME   "Combat Knife"
+#define GRENADE_NAME "M26 Fragmentation Grenade"
+
+#define SIL_NAME     "Silencer"
+#define SLIP_NAME    "Stealth Slippers"
+#define BAND_NAME    "Bandolier"
+#define KEV_NAME     "Kevlar Vest"
+#define HELM_NAME    "Kevlar Helmet"
+#define LASER_NAME   "Lasersight"
+
+#define NO_NUM					0
+
+#define MK23_NUM				1
+#define MP5_NUM					2
+#define M4_NUM					3
+#define M3_NUM					4
+#define HC_NUM					5
+#define SNIPER_NUM				6
+#define DUAL_NUM				7
+#define KNIFE_NUM				8
+#define GRENADE_NUM				9
+
+#define SIL_NUM					10
+#define SLIP_NUM				11
+#define BAND_NUM				12
+#define KEV_NUM					13
+#define LASER_NUM				14
+#define HELM_NUM				15
+
+#define MK23_ANUM				16
+#define MP5_ANUM				17
+#define M4_ANUM					18
+#define SHELL_ANUM				19
+#define SNIPER_ANUM				20
+
+#define FLAG_T1_NUM				21
+#define FLAG_T2_NUM				22
+
+#define GRAPPLE_NUM				23
+
+#define ITEM_MAX_NUM			24
+
+#define WEAPON_COUNT			9
+#define ITEM_COUNT				6
+#define AMMO_COUNT				5
+#define WEAPON_FIRST			1
+#define WEAPON_MAX				WEAPON_FIRST+WEAPON_COUNT
+#define ITEM_FIRST				WEAPON_MAX
+#define ITEM_MAX				ITEM_FIRST+ITEM_COUNT
+#define AMMO_FIRST				ITEM_MAX
+#define AMMO_MAX				AMMO_FIRST+AMMO_COUNT
+
+//AQ2:TNG - Igor adding wp_flags/itm_flags
+#define STRINGIFY(x) #x
+#define TOSTRING(x) STRINGIFY(x)
+
+#define WPF_MASK				((1 << WEAPON_COUNT) - 1)
+#define WPF_DEFAULT				511 //WPF_MASK
+#define WPF_DEFAULT_STR			TOSTRING(WPF_DEFAULT)
+#define WPF_ALLOWED(typeNum)	((int)wp_flags->value & items[typeNum].flag)
+
+#define ITF_MASK				((1 << ITEM_COUNT) - 1)
+#define ITF_DEFAULT				63 //ITF_MASK
+#define ITF_DEFAULT_STR			TOSTRING(ITF_DEFAULT)
+#define ITF_ALLOWED(typeNum)	((int)itm_flags->value & items[typeNum].flag)
+//AQ2:TNG End adding flags
+
+typedef struct itemList_s
+{
+	int		index;
+	int		flag;
+} itemList_t;
+
+extern itemList_t items[ITEM_MAX_NUM];
+
+// sniper modes
+#define SNIPER_1X		0
+#define SNIPER_2X		1
+#define SNIPER_4X		2
+#define SNIPER_6X		3
+#define SNIPER_MODE_MAX	4
+
+//TempFile sniper zoom moved to constants
+#define SNIPER_FOV1		90
+#define SNIPER_FOV2		45
+#define SNIPER_FOV4		20
+#define SNIPER_FOV6		10
+
+#define GRENADE_IDLE_FIRST  40
+#define GRENADE_IDLE_LAST   69
+#define GRENADE_THROW_FIRST 4
+#define GRENADE_THROW_LAST  9	// throw it on frame 8?
+
+
+// these should be server variables, when I get around to it
+//#define UNIQUE_WEAPONS_ALLOWED 2
+//#define UNIQUE_ITEMS_ALLOWED   1
+#define SPEC_WEAPON_RESPAWN 1
+#define BANDAGE_TIME    27	// 10 = 1 second
+#define BLEED_TIME      10	// 10 = 1 second is time for losing 1 health at slowest bleed rate
+// Igor's back in Time to hard grenades :-)
+//#define GRENADE_DAMRAD  170
+#define GRENADE_DAMRAD  250
+
+
 typedef struct gitem_s
 {
   char *classname;		// spawning name
@@ -620,6 +741,9 @@ typedef struct
   char *changemap;
 
   int pic_health;
+  int pic_items[ITEM_MAX_NUM];
+  int pic_weapon_ammo[WEAPON_MAX];
+  int pic_sniper_mode[SNIPER_MODE_MAX];
 
   edict_t *current_entity;	// entity running from G_RunFrame
 
@@ -1804,120 +1928,6 @@ void EjectBlooder (edict_t * self, vec3_t start, vec3_t veloc);
 void EjectShell (edict_t * self, vec3_t start, int toggle);
 void AddDecal (edict_t * self, trace_t * tr);
 void AddSplat (edict_t * self, vec3_t point, trace_t * tr);
-// weapon names
-/*
-   bind 2 "use M3 Super 90 Assault Shotgun;"
-   bind 3 "use MP5/10 Submachinegun"
-   bind 4 "use Handcannon"
-   bind 5 "use M4 Assault Rifle"
-   bind 6 "use Sniper Rifle"
- */
-#define MK23_NAME    "MK23 Pistol"
-#define MP5_NAME     "MP5/10 Submachinegun"
-#define M4_NAME      "M4 Assault Rifle"
-#define M3_NAME      "M3 Super 90 Assault Shotgun"
-#define HC_NAME      "Handcannon"
-#define SNIPER_NAME  "Sniper Rifle"
-#define DUAL_NAME    "Dual MK23 Pistols"
-#define KNIFE_NAME   "Combat Knife"
-#define GRENADE_NAME "M26 Fragmentation Grenade"
-
-#define SIL_NAME     "Silencer"
-#define SLIP_NAME    "Stealth Slippers"
-#define BAND_NAME    "Bandolier"
-#define KEV_NAME     "Kevlar Vest"
-#define HELM_NAME    "Kevlar Helmet"
-#define LASER_NAME   "Lasersight"
-
-#define NO_NUM					0
-
-#define MK23_NUM				1
-#define MP5_NUM					2
-#define M4_NUM					3
-#define M3_NUM					4
-#define HC_NUM					5
-#define SNIPER_NUM				6
-#define DUAL_NUM				7
-#define KNIFE_NUM				8
-#define GRENADE_NUM				9
-
-#define SIL_NUM					10
-#define SLIP_NUM				11
-#define BAND_NUM				12
-#define KEV_NUM					13
-#define LASER_NUM				14
-#define HELM_NUM				15
-
-#define MK23_ANUM				16
-#define MP5_ANUM				17
-#define M4_ANUM					18
-#define SHELL_ANUM				19
-#define SNIPER_ANUM				20
-
-#define FLAG_T1_NUM				21
-#define FLAG_T2_NUM				22
-
-#define GRAPPLE_NUM				23
-
-#define ITEM_MAX_NUM			24
-
-#define WEAPON_COUNT			9
-#define ITEM_COUNT				6
-#define AMMO_COUNT				5
-#define WEAPON_FIRST			1
-#define ITEM_FIRST				WEAPON_FIRST+WEAPON_COUNT
-#define AMMO_FIRST				ITEM_FIRST+ITEM_COUNT
-
-//AQ2:TNG - Igor adding wp_flags/itm_flags
-#define STRINGIFY(x) #x
-#define TOSTRING(x) STRINGIFY(x)
-
-#define WPF_MASK				((1 << WEAPON_COUNT) - 1)
-#define WPF_DEFAULT				511 //WPF_MASK
-#define WPF_DEFAULT_STR			TOSTRING(WPF_DEFAULT)
-#define WPF_ALLOWED(typeNum)	((int)wp_flags->value & items[typeNum].flag)
-
-#define ITF_MASK				((1 << ITEM_COUNT) - 1)
-#define ITF_DEFAULT				63 //ITF_MASK
-#define ITF_DEFAULT_STR			TOSTRING(ITF_DEFAULT)
-#define ITF_ALLOWED(typeNum)	((int)itm_flags->value & items[typeNum].flag)
-//AQ2:TNG End adding flags
-
-typedef struct itemList_s
-{
-	int		index;
-	int		flag;
-} itemList_t;
-
-extern itemList_t items[ITEM_MAX_NUM];
-
-// sniper modes
-#define SNIPER_1X 0
-#define SNIPER_2X 1
-#define SNIPER_4X 2
-#define SNIPER_6X 3
-
-//TempFile sniper zoom moved to constants
-#define SNIPER_FOV1	90
-#define SNIPER_FOV2	45
-#define SNIPER_FOV4	20
-#define SNIPER_FOV6	10
-
-#define GRENADE_IDLE_FIRST  40
-#define GRENADE_IDLE_LAST   69
-#define GRENADE_THROW_FIRST 4
-#define GRENADE_THROW_LAST  9	// throw it on frame 8?
-
-
-// these should be server variables, when I get around to it
-//#define UNIQUE_WEAPONS_ALLOWED 2
-//#define UNIQUE_ITEMS_ALLOWED   1
-#define SPEC_WEAPON_RESPAWN 1
-#define BANDAGE_TIME    27	// 10 = 1 second
-#define BLEED_TIME      10	// 10 = 1 second is time for losing 1 health at slowest bleed rate
-// Igor's back in Time to hard grenades :-)
-//#define GRENADE_DAMRAD  170
-#define GRENADE_DAMRAD  250
 
 //AQ2:TNG - Slicer New location support
 #define MAX_LOCATIONS_IN_BASE		256	// Max amount of locations
