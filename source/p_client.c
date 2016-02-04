@@ -775,8 +775,6 @@ void ClientObituary(edict_t * self, edict_t * inflictor, edict_t * attacker)
 	self->enemy = attacker;
 	if (attacker && attacker->client)
 	{
-		AddKilledPlayer(attacker, self);
-
 		switch (mod) {
 		case MOD_MK23:	// zucc
 			switch (loc) {
@@ -1093,6 +1091,7 @@ void ClientObituary(edict_t * self, edict_t * inflictor, edict_t * attacker)
 			message, attacker->client->pers.netname, message2);
 			PrintDeathMessage(death_msg, self);
 			IRC_printf(IRC_T_KILL, death_msg);
+			AddKilledPlayer(attacker, self);
 
 			if (friendlyFire) {
 				if (!teamplay->value || team_round_going || !ff_afterround->value)

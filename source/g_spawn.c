@@ -1161,7 +1161,8 @@ Only used for the world.
 
 void SP_worldspawn (edict_t * ent)
 {
-	int i;
+	int i, bullets, shells;
+	char *picname;
 
 	ent->movetype = MOVETYPE_PUSH;
 	ent->solid = SOLID_BSP;
@@ -1249,17 +1250,32 @@ void SP_worldspawn (edict_t * ent)
 	gi.imageindex ("field_3");
 
 	// zucc - preload sniper stuff
-	gi.imageindex ("scope2x");
-	gi.imageindex ("scope4x");
-	gi.imageindex ("scope6x");
+	level.pic_sniper_mode[1] = gi.imageindex("scope2x");
+	level.pic_sniper_mode[2] = gi.imageindex("scope4x");
+	level.pic_sniper_mode[3] = gi.imageindex("scope6x");
 
 	//FIREBLADE
-	gi.soundindex ("atl/lights.wav");
-	gi.soundindex ("atl/camera.wav");
-	gi.soundindex ("atl/action.wav");
-	gi.imageindex ("tag1");
-	gi.imageindex ("tag2");
-	gi.imageindex ("tag3");
+	gi.imageindex("tag1");
+	gi.imageindex("tag2");
+	gi.imageindex("tag3");
+
+	for (i = 1; i < AMMO_MAX; i++) {
+		picname = GET_ITEM(i)->icon;
+		if (picname)
+			level.pic_items[i] = gi.imageindex( picname );
+	}
+
+	bullets = gi.imageindex("a_bullets");
+	shells = gi.imageindex("a_shells");
+	level.pic_weapon_ammo[MK23_NUM] = bullets;
+	level.pic_weapon_ammo[MP5_NUM] = bullets;
+	level.pic_weapon_ammo[M4_NUM] = bullets;
+	level.pic_weapon_ammo[M3_NUM] = shells;
+	level.pic_weapon_ammo[HC_NUM] = shells;
+	level.pic_weapon_ammo[SNIPER_NUM] = bullets;
+	level.pic_weapon_ammo[DUAL_NUM] = bullets;
+	level.pic_weapon_ammo[KNIFE_NUM] = gi.imageindex("w_knife");
+	level.pic_weapon_ammo[GRENADE_NUM] = gi.imageindex("a_m61frag");
 
 	if (teamplay->value)
 	{
@@ -1275,22 +1291,25 @@ void SP_worldspawn (edict_t * ent)
 	}
 
 	// AQ2:TNG - Igor adding precache for sounds
-	gi.soundindex ("tng/no_team_wins.wav");
-	gi.soundindex ("tng/team1_wins.wav");
-	gi.soundindex ("tng/team2_wins.wav");
-	gi.soundindex ("tng/team3_wins.wav");
-	gi.soundindex ("tng/1_minute.wav");
-	gi.soundindex ("tng/3_minutes.wav");
-	gi.soundindex ("tng/1_frag.wav");
-	gi.soundindex ("tng/2_frags.wav");
-	gi.soundindex ("tng/3_frags.wav");
-	gi.soundindex ("tng/impressive.wav");
-	gi.soundindex ("tng/excellent.wav");
-	gi.soundindex ("tng/accuracy.wav");
-	gi.soundindex ("tng/clanwar.wav");
-	gi.soundindex ("tng/disabled.wav");
-	gi.soundindex ("tng/enabled.wav");
-	gi.soundindex ("misc/flashlight.wav"); // Caching Flashlight
+	gi.soundindex("atl/lights.wav");
+	gi.soundindex("atl/camera.wav");
+	gi.soundindex("atl/action.wav");
+	gi.soundindex("tng/no_team_wins.wav");
+	gi.soundindex("tng/team1_wins.wav");
+	gi.soundindex("tng/team2_wins.wav");
+	gi.soundindex("tng/team3_wins.wav");
+	gi.soundindex("tng/1_minute.wav");
+	gi.soundindex("tng/3_minutes.wav");
+	gi.soundindex("tng/1_frag.wav");
+	gi.soundindex("tng/2_frags.wav");
+	gi.soundindex("tng/3_frags.wav");
+	gi.soundindex("tng/impressive.wav");
+	gi.soundindex("tng/excellent.wav");
+	gi.soundindex("tng/accuracy.wav");
+	gi.soundindex("tng/clanwar.wav");
+	gi.soundindex("tng/disabled.wav");
+	gi.soundindex("tng/enabled.wav");
+	gi.soundindex("misc/flashlight.wav"); // Caching Flashlight
 	// AQ2:TNG - end of precache sounds
 
 	// disabled these because they are seriously silly to precache -hifi
@@ -1427,20 +1446,19 @@ void SP_worldspawn (edict_t * ent)
 	else
 		gi.configstring (CS_LIGHTS + 0, "m");	// 0 normal
 
-	gi.configstring (CS_LIGHTS + 1, "mmnmmommommnonmmonqnmmo");	// 1 FLICKER (first variety)
-	gi.configstring (CS_LIGHTS + 2,
-			"abcdefghijklmnopqrstuvwxyzyxwvutsrqponmlkjihgfedcba");	// 2 SLOW STRONG PULSE
-	gi.configstring (CS_LIGHTS + 3, "mmmmmaaaaammmmmaaaaaabcdefgabcdefg");	// 3 CANDLE (first variety)
-	gi.configstring (CS_LIGHTS + 4, "mamamamamama");	// 4 FAST STROBE
-	gi.configstring (CS_LIGHTS + 5, "jklmnopqrstuvwxyzyxwvutsrqponmlkj");	// 5 GENTLE PULSE 1
-	gi.configstring (CS_LIGHTS + 6, "nmonqnmomnmomomno");	// 6 FLICKER (second variety)
-	gi.configstring (CS_LIGHTS + 7, "mmmaaaabcdefgmmmmaaaammmaamm");	// 7 CANDLE (second variety)
-	gi.configstring (CS_LIGHTS + 8, "mmmaaammmaaammmabcdefaaaammmmabcdefmmmaaaa");	// 8 CANDLE (third variety)
-	gi.configstring (CS_LIGHTS + 9, "aaaaaaaazzzzzzzz");	// 9 SLOW STROBE (fourth variety)
-	gi.configstring (CS_LIGHTS + 10, "mmamammmmammamamaaamammma");	// 10 FLUORESCENT FLICKER
-	gi.configstring (CS_LIGHTS + 11, "abcdefghijklmnopqrrqponmlkjihgfedcba");	// 11 SLOW PULSE NOT FADE TO BLACK
+	gi.configstring(CS_LIGHTS + 1, "mmnmmommommnonmmonqnmmo");	// 1 FLICKER (first variety)
+	gi.configstring(CS_LIGHTS + 2, "abcdefghijklmnopqrstuvwxyzyxwvutsrqponmlkjihgfedcba");	// 2 SLOW STRONG PULSE
+	gi.configstring(CS_LIGHTS + 3, "mmmmmaaaaammmmmaaaaaabcdefgabcdefg");	// 3 CANDLE (first variety)
+	gi.configstring(CS_LIGHTS + 4, "mamamamamama");	// 4 FAST STROBE
+	gi.configstring(CS_LIGHTS + 5, "jklmnopqrstuvwxyzyxwvutsrqponmlkj");	// 5 GENTLE PULSE 1
+	gi.configstring(CS_LIGHTS + 6, "nmonqnmomnmomomno");	// 6 FLICKER (second variety)
+	gi.configstring(CS_LIGHTS + 7, "mmmaaaabcdefgmmmmaaaammmaamm");	// 7 CANDLE (second variety)
+	gi.configstring(CS_LIGHTS + 8, "mmmaaammmaaammmabcdefaaaammmmabcdefmmmaaaa");	// 8 CANDLE (third variety)
+	gi.configstring(CS_LIGHTS + 9, "aaaaaaaazzzzzzzz");	// 9 SLOW STROBE (fourth variety)
+	gi.configstring(CS_LIGHTS + 10, "mmamammmmammamamaaamammma");	// 10 FLUORESCENT FLICKER
+	gi.configstring(CS_LIGHTS + 11, "abcdefghijklmnopqrrqponmlkjihgfedcba");	// 11 SLOW PULSE NOT FADE TO BLACK
 	// styles 32-62 are assigned by the light program for switchable lights
-	gi.configstring (CS_LIGHTS + 63, "a");	// 63 testing
+	gi.configstring(CS_LIGHTS + 63, "a");	// 63 testing
 
 	//FB 6/2/99
 	if (took_damage != NULL)
