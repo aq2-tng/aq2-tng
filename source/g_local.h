@@ -745,6 +745,20 @@ typedef struct
   int pic_weapon_ammo[WEAPON_MAX];
   int pic_sniper_mode[SNIPER_MODE_MAX];
 
+
+  int snd_fry;
+  int snd_lights;
+  int snd_camera;
+  int snd_action;
+  int snd_teamwins[TEAM_TOP];
+  int snd_silencer;
+  int snd_headshot;
+  int snd_vesthit;
+  int snd_knifethrow;
+  int snd_kick;
+  int snd_noammo;
+
+
   edict_t *current_entity;	// entity running from G_RunFrame
 
   int body_que;			// dead bodies
@@ -824,7 +838,6 @@ extern game_export_t globals;
 extern spawn_temp_t st;
 
 extern int sm_meat_index;
-extern int snd_fry;
 
 // means of death
 #define MOD_UNKNOWN                     0

@@ -1067,8 +1067,7 @@ void kick_attack (edict_t * ent)
 			T_Damage (tr.ent, ent, ent, forward, tr.endpos,
 				tr.plane.normal, damage, kick, 0, MOD_KICK);
 
-		gi.sound (ent, CHAN_WEAPON, gi.soundindex ("weapons/kick.wav"),
-		1, ATTN_NORM, 0);
+		gi.sound(ent, CHAN_WEAPON, level.snd_kick, 1, ATTN_NORM, 0);
 		PlayerNoise (ent, ent->s.origin, PNOISE_SELF);
 		ent->client->jumping = 0;	// only 1 jumpkick per jump
 		if (tr.ent->client && (tr.ent->client->curr_weap == M4_NUM
@@ -1320,7 +1319,7 @@ knife_throw (edict_t * self, vec3_t start, vec3_t dir, int damage, int speed)
   knife->nextthink = level.framenum + 8000 * HZ / speed;
   knife->think = G_FreeEdict;
   knife->dmg = damage;
-  knife->s.sound = gi.soundindex ("misc/flyloop.wav");
+  knife->s.sound = level.snd_knifethrow;
   knife->classname = "thrown_knife";
   knife->typeNum = KNIFE_NUM;
 
