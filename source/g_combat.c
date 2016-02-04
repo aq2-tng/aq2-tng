@@ -609,7 +609,7 @@ T_Damage (edict_t * targ, edict_t * inflictor, edict_t * attacker, vec3_t dir,
 						gi.cprintf(attacker, PRINT_HIGH, "You hit %s in the head\n", client->pers.netname);
 
 					if (mod != MOD_KNIFE && mod != MOD_KNIFE_THROWN)
-						gi.sound(targ, CHAN_VOICE, gi.soundindex("misc/headshot.wav"), 1, ATTN_NORM, 0);
+						gi.sound(targ, CHAN_VOICE, level.snd_headshot, 1, ATTN_NORM, 0);
 				}
 				else if (mod == MOD_SNIPER)
 				{
@@ -623,7 +623,7 @@ T_Damage (edict_t * targ, edict_t * inflictor, edict_t * attacker, vec3_t dir,
 							attacker->client->pers.netname);
 					}
 					damage = (int) (damage * 0.325);
-					gi.sound(targ, CHAN_VOICE, gi.soundindex("misc/headshot.wav"), 1, ATTN_NORM, 0);
+					gi.sound(targ, CHAN_VOICE, level.snd_headshot, 1, ATTN_NORM, 0);
 				}
 				else
 				{
@@ -634,7 +634,7 @@ T_Damage (edict_t * targ, edict_t * inflictor, edict_t * attacker, vec3_t dir,
 						gi.cprintf( targ, PRINT_HIGH, "Kevlar Helmet absorbed a part of %s's shot\n",
 							attacker->client->pers.netname );
 					}
-					gi.sound(targ, CHAN_ITEM, gi.soundindex("misc/vest.wav"), 1, ATTN_NORM, 0);
+					gi.sound(targ, CHAN_ITEM, level.snd_vesthit, 1, ATTN_NORM, 0);
 					damage = (int)(damage / 2);
 					bleeding = 0;
 					instant_dam = 1;
@@ -715,7 +715,7 @@ T_Damage (edict_t * targ, edict_t * inflictor, edict_t * attacker, vec3_t dir,
 						gi.cprintf(targ, PRINT_HIGH, "Kevlar Vest absorbed most of %s's shot\n",
 							attacker->client->pers.netname);
 					}
-					gi.sound(targ, CHAN_ITEM, gi.soundindex("misc/vest.wav"), 1, ATTN_NORM, 0);
+					gi.sound(targ, CHAN_ITEM, level.snd_vesthit, 1, ATTN_NORM, 0);
 					damage = (int)(damage / 10);
 					bleeding = 0;
 					instant_dam = 1;

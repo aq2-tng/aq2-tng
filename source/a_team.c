@@ -1641,8 +1641,7 @@ void StartLCA ()
 	else
 	{
 		CenterPrintAll ("LIGHTS...");
-		gi.sound (&g_edicts[0], CHAN_VOICE | CHAN_NO_PHS_ADD,
-			gi.soundindex ("atl/lights.wav"), 1.0, ATTN_NONE, 0.0);
+		gi.sound(&g_edicts[0], CHAN_VOICE | CHAN_NO_PHS_ADD, level.snd_lights, 1.0, ATTN_NONE, 0.0);
 		lights_camera_action = 43;	// TempFile changed from 41
 	}
 	SpawnPlayers ();
@@ -1682,26 +1681,24 @@ void ContinueLCA ()
 		TourneyTimeEvent (T_SPAWN, lights_camera_action);
 		if (lights_camera_action == 1)
 		{
-			StartRound ();
+			StartRound();
 		}
 	}
 	else
 	{
 		if (lights_camera_action == 23)
 		{
-			CenterPrintAll ("CAMERA...");
-			gi.sound (&g_edicts[0], CHAN_VOICE | CHAN_NO_PHS_ADD,
-			gi.soundindex ("atl/camera.wav"), 1.0, ATTN_NONE, 0.0);
+			CenterPrintAll("CAMERA...");
+			gi.sound(&g_edicts[0], CHAN_VOICE | CHAN_NO_PHS_ADD, level.snd_camera , 1.0, ATTN_NONE, 0.0);
 		}
 		else if (lights_camera_action == 3)
 		{
-			CenterPrintAll ("ACTION!");
-			gi.sound (&g_edicts[0], CHAN_VOICE | CHAN_NO_PHS_ADD,
-			gi.soundindex ("atl/action.wav"), 1.0, ATTN_NONE, 0.0);
+			CenterPrintAll("ACTION!");
+			gi.sound(&g_edicts[0], CHAN_VOICE | CHAN_NO_PHS_ADD, level.snd_action, 1.0, ATTN_NONE, 0.0);
 		}
 		else if (lights_camera_action == 1)
 		{
-			StartRound ();
+			StartRound();
 		}
 	}
 	lights_camera_action--;
@@ -1880,7 +1877,7 @@ int WonGame (int winner)
 		IRC_printf (IRC_T_GAME, "It was a tie, no points awarded!");
 
 		if(use_warnings->value)
-			gi.sound (&g_edicts[0], CHAN_VOICE | CHAN_NO_PHS_ADD,	gi.soundindex ("tng/no_team_wins.wav"), 1.0, ATTN_NONE, 0.0);
+			gi.sound(&g_edicts[0], CHAN_VOICE | CHAN_NO_PHS_ADD, level.snd_teamwins[0], 1.0, ATTN_NONE, 0.0);
 		PrintScores ();
 	}
 	else
@@ -1908,7 +1905,7 @@ int WonGame (int winner)
 			IRC_printf (IRC_T_GAME, "%n won!", TeamName(winner));
 			// AQ:TNG Igor[Rock] changing sound dir
 			if(use_warnings->value)
-				gi.sound (&g_edicts[0], CHAN_VOICE | CHAN_NO_PHS_ADD,	gi.soundindex (va("tng/team%i_wins.wav", winner)), 1.0, ATTN_NONE,	0.0);
+				gi.sound(&g_edicts[0], CHAN_VOICE | CHAN_NO_PHS_ADD, level.snd_teamwins[winner], 1.0, ATTN_NONE, 0.0);
 			// end of changing sound dir
 			teams[winner].score++;
 			gi.cvar_forceset(teams[winner].teamscore->name, va("%i", teams[winner].score));

@@ -92,7 +92,7 @@ void punch_attack(edict_t * ent)
 
 			T_Damage(tr.ent, ent, ent, forward, tr.endpos, tr.plane.normal,
 				damage, kick, 0, MOD_PUNCH);
-			gi.sound(ent, CHAN_WEAPON, gi.soundindex("weapons/kick.wav"), 1, ATTN_NORM, 0);
+			gi.sound(ent, CHAN_WEAPON, level.snd_kick, 1, ATTN_NORM, 0);
 			PlayerNoise(ent, ent->s.origin, PNOISE_SELF);
 
 			//only hit weapon out of hand if damage >= 15

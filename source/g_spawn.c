@@ -1281,23 +1281,29 @@ void SP_worldspawn (edict_t * ent)
 	{
 		for(i = TEAM1; i < TEAM_TOP; i++)
 		{
-			if (teams[i].skin_index[0] == 0)
-			{
-				gi.dprintf ("No skin was specified for team %i in config file. Exiting.\n", i);
-				exit (1);
+			if (teams[i].skin_index[0] == 0) {
+				gi.dprintf("No skin was specified for team %i in config file. Exiting.\n", i);
+				exit(1);
 			}
-			gi.imageindex (teams[i].skin_index);
+			gi.imageindex(teams[i].skin_index);
 		}
+
+		level.snd_lights = gi.soundindex("atl/lights.wav");
+		level.snd_camera = gi.soundindex("atl/camera.wav");
+		level.snd_action = gi.soundindex("atl/action.wav");
+		level.snd_teamwins[0] = gi.soundindex("tng/no_team_wins.wav");
+		level.snd_teamwins[1] = gi.soundindex("tng/team1_wins.wav");
+		level.snd_teamwins[2] = gi.soundindex("tng/team2_wins.wav");
+		level.snd_teamwins[3] = gi.soundindex("tng/team3_wins.wav");
 	}
 
-	// AQ2:TNG - Igor adding precache for sounds
-	gi.soundindex("atl/lights.wav");
-	gi.soundindex("atl/camera.wav");
-	gi.soundindex("atl/action.wav");
-	gi.soundindex("tng/no_team_wins.wav");
-	gi.soundindex("tng/team1_wins.wav");
-	gi.soundindex("tng/team2_wins.wav");
-	gi.soundindex("tng/team3_wins.wav");
+	level.snd_silencer = gi.soundindex("misc/silencer.wav");	// all silencer weapons
+	level.snd_headshot = gi.soundindex("misc/headshot.wav");	// headshot sound
+	level.snd_vesthit = gi.soundindex("misc/vest.wav");		// kevlar hit
+	level.snd_knifethrow = gi.soundindex("misc/flyloop.wav");	// throwing knife
+	level.snd_kick = gi.soundindex("weapons/kick.wav");	// not loaded by any item, kick sound
+	level.snd_noammo = gi.soundindex("weapons/noammo.wav");
+
 	gi.soundindex("tng/1_minute.wav");
 	gi.soundindex("tng/3_minutes.wav");
 	gi.soundindex("tng/1_frag.wav");
@@ -1310,74 +1316,57 @@ void SP_worldspawn (edict_t * ent)
 	gi.soundindex("tng/disabled.wav");
 	gi.soundindex("tng/enabled.wav");
 	gi.soundindex("misc/flashlight.wav"); // Caching Flashlight
-	// AQ2:TNG - end of precache sounds
 
-	// disabled these because they are seriously silly to precache -hifi
-	/*
-	gi.soundindex("boss3/bs3idle1.wav");
-	gi.soundindex("user/letsrock.wav");
-	gi.soundindex("makron/laf4.wav");
-	gi.soundindex("world/elv.wav");
-	*/
+
 	gi.soundindex("world/10_0.wav");	// countdown
 	gi.soundindex("world/xian1.wav");	// intermission music
 	gi.soundindex("misc/secret.wav");	// used for ctf swap sound
-	gi.soundindex("misc/silencer.wav");	// all silencer weapons
-	gi.soundindex("misc/headshot.wav");	// headshot sound
-	gi.soundindex("misc/vest.wav");		// kevlar hit
-	gi.soundindex("misc/flyloop.wav");	// throwing knife
-	gi.soundindex("weapons/kick.wav");	// not loaded by any item, kick sound
 	gi.soundindex("weapons/grenlf1a.wav");	// respawn sound
 
-	PrecacheItems ();
-	PrecacheRadioSounds ();
-	//PG BUND - Begin
-	PrecacheUserSounds ();
-	//AQ2:TNG - Slicer Old location support
-	//DescListInit(level.mapname);
-	//AQ2:TNG END
-	TourneyInit ();
-	vInitLevel ();
-	//PG BUND - End
+	PrecacheItems();
+	PrecacheRadioSounds();
+	PrecacheUserSounds();
 
+	TourneyInit();
+	vInitLevel();
 
 	if (!st.gravity)
-		gi.cvar_set ("sv_gravity", "800");
+		gi.cvar_set("sv_gravity", "800");
 	else
-		gi.cvar_set ("sv_gravity", st.gravity);
+		gi.cvar_set("sv_gravity", st.gravity);
 
-	snd_fry = gi.soundindex ("player/fry.wav");	// standing in lava / slime
+	level.snd_fry = gi.soundindex("player/fry.wav");	// standing in lava / slime
 
-	gi.soundindex ("player/lava1.wav");
-	gi.soundindex ("player/lava2.wav");
+	gi.soundindex("player/lava1.wav");
+	gi.soundindex("player/lava2.wav");
 
-	gi.soundindex ("misc/pc_up.wav");
-	gi.soundindex ("misc/talk1.wav");
+	gi.soundindex("misc/pc_up.wav");
+	gi.soundindex("misc/talk1.wav");
 
-	gi.soundindex ("misc/udeath.wav");
-	gi.soundindex ("misc/glurp.wav");
+	gi.soundindex("misc/udeath.wav");
+	gi.soundindex("misc/glurp.wav");
 
 	// gibs
-	gi.soundindex ("items/respawn1.wav");
+	gi.soundindex("items/respawn1.wav");
 
 	// sexed sounds
-	gi.soundindex ("*death1.wav");
-	gi.soundindex ("*death2.wav");
-	gi.soundindex ("*death3.wav");
-	gi.soundindex ("*death4.wav");
-	gi.soundindex ("*fall1.wav");
-	gi.soundindex ("*fall2.wav");
-	gi.soundindex ("*gurp1.wav");	// drowning damage
-	gi.soundindex ("*gurp2.wav");
-	gi.soundindex ("*jump1.wav");	// player jump
-	gi.soundindex ("*pain25_1.wav");
-	gi.soundindex ("*pain25_2.wav");
-	gi.soundindex ("*pain50_1.wav");
-	gi.soundindex ("*pain50_2.wav");
-	gi.soundindex ("*pain75_1.wav");
-	gi.soundindex ("*pain75_2.wav");
-	gi.soundindex ("*pain100_1.wav");
-	gi.soundindex ("*pain100_2.wav");
+	gi.soundindex("*death1.wav");
+	gi.soundindex("*death2.wav");
+	gi.soundindex("*death3.wav");
+	gi.soundindex("*death4.wav");
+	gi.soundindex("*fall1.wav");
+	gi.soundindex("*fall2.wav");
+	gi.soundindex("*gurp1.wav");	// drowning damage
+	gi.soundindex("*gurp2.wav");
+	gi.soundindex("*jump1.wav");	// player jump
+	gi.soundindex("*pain25_1.wav");
+	gi.soundindex("*pain25_2.wav");
+	gi.soundindex("*pain50_1.wav");
+	gi.soundindex("*pain50_2.wav");
+	gi.soundindex("*pain75_1.wav");
+	gi.soundindex("*pain75_2.wav");
+	gi.soundindex("*pain100_1.wav");
+	gi.soundindex("*pain100_2.wav");
 
 	//-------------------
 
@@ -1393,38 +1382,37 @@ void SP_worldspawn (edict_t * ent)
 	gi.modelindex("#w_knife.md2");
 	gi.modelindex("#a_m61frag.md2");
 
-	gi.modelindex ("sprites/null.sp2");	// null sprite
-	gi.modelindex ("sprites/lsight.sp2");	// laser sight dot sprite
+	gi.modelindex("sprites/null.sp2");	// null sprite
+	gi.modelindex("sprites/lsight.sp2");	// laser sight dot sprite
 
-	gi.soundindex ("player/gasp1.wav");	// gasping for air
-	gi.soundindex ("player/gasp2.wav");	// head breaking surface, not gasping
+	gi.soundindex("player/gasp1.wav");	// gasping for air
+	gi.soundindex("player/gasp2.wav");	// head breaking surface, not gasping
 
-	gi.soundindex ("player/watr_in.wav");	// feet hitting water
-	gi.soundindex ("player/watr_out.wav");	// feet leaving water
+	gi.soundindex("player/watr_in.wav");	// feet hitting water
+	gi.soundindex("player/watr_out.wav");	// feet leaving water
 
-	gi.soundindex ("player/watr_un.wav");	// head going underwater
+	gi.soundindex("player/watr_un.wav");	// head going underwater
 
-	gi.soundindex ("player/u_breath1.wav");
-	gi.soundindex ("player/u_breath2.wav");
+	gi.soundindex("player/u_breath1.wav");
+	gi.soundindex("player/u_breath2.wav");
 
-	gi.soundindex ("items/pkup.wav");	// bonus item pickup
-	gi.soundindex ("world/land.wav");	// landing thud
-	gi.soundindex ("misc/h2ohit1.wav");	// landing splash
+	gi.soundindex("items/pkup.wav");	// bonus item pickup
+	gi.soundindex("world/land.wav");	// landing thud
+	gi.soundindex("misc/h2ohit1.wav");	// landing splash
 
-	gi.soundindex ("items/damage.wav");
-	gi.soundindex ("items/protect.wav");
-	gi.soundindex ("items/protect4.wav");
-	gi.soundindex ("weapons/noammo.wav");
+	gi.soundindex("items/damage.wav");
+	gi.soundindex("items/protect.wav");
+	gi.soundindex("items/protect4.wav");
 
-	gi.soundindex ("infantry/inflies1.wav");
+	gi.soundindex("infantry/inflies1.wav");
 
-	sm_meat_index = gi.modelindex ("models/objects/gibs/sm_meat/tris.md2");
-	gi.modelindex ("models/objects/gibs/arm/tris.md2");
-	gi.modelindex ("models/objects/gibs/bone/tris.md2");
-	gi.modelindex ("models/objects/gibs/bone2/tris.md2");
-	gi.modelindex ("models/objects/gibs/chest/tris.md2");
-	gi.modelindex ("models/objects/gibs/skull/tris.md2");
-	gi.modelindex ("models/objects/gibs/head2/tris.md2");
+	sm_meat_index = gi.modelindex("models/objects/gibs/sm_meat/tris.md2");
+	gi.modelindex("models/objects/gibs/arm/tris.md2");
+	gi.modelindex("models/objects/gibs/bone/tris.md2");
+	gi.modelindex("models/objects/gibs/bone2/tris.md2");
+	gi.modelindex("models/objects/gibs/chest/tris.md2");
+	gi.modelindex("models/objects/gibs/skull/tris.md2");
+	gi.modelindex("models/objects/gibs/head2/tris.md2");
 
 
 //

@@ -278,7 +278,6 @@ game_export_t globals;
 spawn_temp_t st;
 
 int sm_meat_index;
-int snd_fry;
 int meansOfDeath;
 int locOfDeath;
 int stopAP;
