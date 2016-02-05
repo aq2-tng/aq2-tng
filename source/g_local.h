@@ -1120,8 +1120,6 @@ extern gitem_t itemlist[];
 qboolean FloodCheck (edict_t * ent);
 void Cmd_Help_f (edict_t * ent);
 void Cmd_Score_f (edict_t * ent);
-void Cmd_CPSI_f (edict_t * ent);
-void Cmd_VidRef_f (edict_t * ent);
 void Cmd_Inven_f( edict_t * ent );
 
 //

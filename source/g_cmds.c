@@ -281,7 +281,7 @@ qboolean OnSameTeam (edict_t * ent1, edict_t * ent2)
 }
 
 
-void SelectNextItem (edict_t * ent, int itflags)
+static void SelectNextItem (edict_t * ent, int itflags)
 {
 	gclient_t *cl;
 	int i, index;
@@ -290,8 +290,7 @@ void SelectNextItem (edict_t * ent, int itflags)
 	cl = ent->client;
 
 	//FIREBLADE
-	if (cl->menu)
-	{
+	if (cl->menu) {
 		PMenu_Next (ent);
 		return;
 	}
@@ -319,7 +318,7 @@ void SelectNextItem (edict_t * ent, int itflags)
 	cl->pers.selected_item = -1;
 }
 
-void SelectPrevItem (edict_t * ent, int itflags)
+static void SelectPrevItem (edict_t * ent, int itflags)
 {
 	gclient_t *cl;
 	int i, index;
@@ -328,8 +327,7 @@ void SelectPrevItem (edict_t * ent, int itflags)
 	cl = ent->client;
 
 	//FIREBLADE
-	if (cl->menu)
-	{
+	if (cl->menu) {
 		PMenu_Prev (ent);
 		return;
 	}
@@ -379,7 +377,7 @@ Cmd_Give_f
 Give items to a client
 ==================
 */
-void Cmd_Give_f (edict_t * ent)
+static void Cmd_Give_f (edict_t * ent)
 {
 	char *name;
 	char fixedname[32];
@@ -389,11 +387,6 @@ void Cmd_Give_f (edict_t * ent)
 	qboolean give_all;
 	edict_t *it_ent;
 	edict_t etemp;
-
-	if (!sv_cheats->value) {
-		gi.cprintf(ent, PRINT_HIGH, "You must run the server with '+set cheats 1' to enable this command.\n");
-		return;
-	}
 
 	if (ent->solid == SOLID_NOT) {
 		gi.cprintf(ent, PRINT_HIGH, "This command can't be used by spectators.\n");
@@ -596,14 +589,9 @@ Sets client to godmode
 argv(0) god
 ==================
 */
-void Cmd_God_f (edict_t * ent)
+static void Cmd_God_f (edict_t * ent)
 {
 	char *msg;
-
-	if (!sv_cheats->value) {
-		gi.cprintf(ent, PRINT_HIGH, "You must run the server with '+set cheats 1' to enable this command.\n");
-		return;
-	}
 
 	ent->flags ^= FL_GODMODE;
 	if (!(ent->flags & FL_GODMODE))
@@ -624,14 +612,9 @@ Sets client to notarget
 argv(0) notarget
 ==================
 */
-void Cmd_Notarget_f (edict_t * ent)
+static void Cmd_Notarget_f (edict_t * ent)
 {
 	char *msg;
-
-	if (!sv_cheats->value) {
-		gi.cprintf(ent, PRINT_HIGH, "You must run the server with '+set cheats 1' to enable this command.\n");
-		return;
-	}
 
 	ent->flags ^= FL_NOTARGET;
 	if (!(ent->flags & FL_NOTARGET))
@@ -650,14 +633,9 @@ Cmd_Noclip_f
 argv(0) noclip
 ==================
 */
-void Cmd_Noclip_f (edict_t * ent)
+static void Cmd_Noclip_f (edict_t * ent)
 {
 	char *msg;
-
-	if (!sv_cheats->value) {
-		gi.cprintf(ent, PRINT_HIGH, "You must run the server with '+set cheats 1' to enable this command.\n");
-		return;
-	}
 
 	if (ent->movetype == MOVETYPE_NOCLIP)
 	{
@@ -681,7 +659,7 @@ Cmd_Use_f
 Use an inventory item
 ==================
 */
-void Cmd_Use_f (edict_t * ent)
+static void Cmd_Use_f (edict_t * ent)
 {
 	gitem_t *it;
 	char *s;
@@ -778,7 +756,7 @@ Cmd_Drop_f
 Drop an inventory item
 ==================
 */
-void Cmd_Drop_f (edict_t * ent)
+static void Cmd_Drop_f (edict_t * ent)
 {
 	int index;
 	gitem_t *it;
@@ -943,7 +921,7 @@ void Cmd_InvUse_f (edict_t * ent)
 Cmd_WeapPrev_f
 =================
 */
-void Cmd_WeapPrev_f (edict_t * ent)
+static void Cmd_WeapPrev_f (edict_t * ent)
 {
 	gclient_t *cl;
 	int i, index;
@@ -982,7 +960,7 @@ void Cmd_WeapPrev_f (edict_t * ent)
 Cmd_WeapNext_f
 =================
 */
-void Cmd_WeapNext_f (edict_t * ent)
+static void Cmd_WeapNext_f (edict_t * ent)
 {
 	gclient_t *cl;
 	int i, index;
@@ -1021,7 +999,7 @@ void Cmd_WeapNext_f (edict_t * ent)
 Cmd_WeapLast_f
 =================
 */
-void Cmd_WeapLast_f (edict_t * ent)
+static void Cmd_WeapLast_f (edict_t * ent)
 {
 	gclient_t *cl;
 	int index;
@@ -1051,7 +1029,7 @@ void Cmd_WeapLast_f (edict_t * ent)
 Cmd_InvDrop_f
 =================
 */
-void Cmd_InvDrop_f (edict_t * ent)
+static void Cmd_InvDrop_f (edict_t * ent)
 {
 	gitem_t *it;
 
@@ -1150,7 +1128,7 @@ int PlayerSort (void const *a, void const *b)
 Cmd_Players_f
 =================
 */
-void Cmd_Players_f (edict_t * ent)
+static void Cmd_Players_f (edict_t * ent)
 {
 	int i;
 	int count = 0;
@@ -1200,7 +1178,7 @@ void Cmd_Players_f (edict_t * ent)
 Cmd_Wave_f
 =================
 */
-void Cmd_Wave_f (edict_t * ent)
+static void Cmd_Wave_f (edict_t * ent)
 {
 	int i;
 
@@ -1499,7 +1477,7 @@ void Cmd_Say_f (edict_t * ent, qboolean team, qboolean arg0, qboolean partner_ms
 
 }
 
-void Cmd_PlayerList_f (edict_t * ent)
+static void Cmd_PlayerList_f (edict_t * ent)
 {
 	int i;
 	char st[64];
@@ -1535,7 +1513,7 @@ void Cmd_PlayerList_f (edict_t * ent)
 }
 
 //SLICER
-void Cmd_Ent_Count_f (edict_t * ent)
+static void Cmd_Ent_Count_f (edict_t * ent)
 {
 	int x = 0;
 	edict_t *e;
@@ -1687,477 +1665,73 @@ static void Cmd_PrintSettings_f( edict_t * ent )
 	gi.cprintf( ent, PRINT_HIGH, text );
 }
 
-/*
-=================
-ClientCommand
-=================
-*/
-void ClientCommand (edict_t * ent)
-{
-	char *cmd;
-
-	if (!ent->client)
-		return;			// not fully in game yet
-	// if (level.intermission_framenum)
-	// return;
-
-	cmd = gi.argv (0);
-
-	if (Q_stricmp (cmd, "players") == 0)
-	{
-		Cmd_Players_f (ent);
-		return;
-	}
-	else if (Q_stricmp (cmd, "say") == 0)
-	{
-		Cmd_Say_f (ent, false, false, false);
-		return;
-	}
-	else if (Q_stricmp (cmd, "say_team") == 0)
-	{
-		/* people use automatic triggers with AprQ2 that are fine in teamplay but flood the server in dm */
-		if(!teamplay->value)
-			return;
+static void Cmd_SayAll_f (edict_t * ent) {
+	Cmd_Say_f (ent, false, false, false);
+}
+static void Cmd_SayTeam_f (edict_t * ent) {
+	if (teamplay->value) // disable mm2 trigger flooding
 		Cmd_Say_f (ent, true, false, false);
-		return;
-	}
-	else if (Q_stricmp (cmd, "score") == 0)
-	{
-		Cmd_Score_f (ent);
-		return;
-	}
-	else if (Q_stricmp (cmd, "help") == 0)
-	{
-		Cmd_Help_f (ent);
-		return;
-	}
-	else if (Q_stricmp (cmd, "use") == 0)
-	{
-		if(level.pauseFrames)
-			return;
-		Cmd_Use_f (ent);
-		return;
-	}
-	else if (Q_stricmp (cmd, "drop") == 0)
-	{
-		if(level.pauseFrames)
-			return;
-		Cmd_Drop_f (ent);
-		return;
-	}
-	else if (Q_stricmp (cmd, "give") == 0)
-	{
-		Cmd_Give_f (ent);
-		return;
-	}
-	else if (Q_stricmp (cmd, "god") == 0)
-	{
-		Cmd_God_f (ent);
-		return;
-	}
-	else if (Q_stricmp (cmd, "notarget") == 0)
-	{
-		Cmd_Notarget_f (ent);
-		return;
-	}
-	else if (Q_stricmp (cmd, "noclip") == 0)
-	{
-		Cmd_Noclip_f (ent);
-		return;
-	}
-	else if (Q_stricmp (cmd, "inven") == 0)
-	{
-		Cmd_Inven_f (ent);
-		return;
-	}
-	else if (Q_stricmp (cmd, "invnext") == 0)
-	{
-		SelectNextItem (ent, -1);
-		return;
-	}
-	else if (Q_stricmp (cmd, "invprev") == 0)
-	{
-		SelectPrevItem (ent, -1);
-		return;
-	}
-	else if (Q_stricmp (cmd, "invnextw") == 0)
-	{
-		SelectNextItem (ent, IT_WEAPON);
-		return;
-	}
-	else if (Q_stricmp (cmd, "invprevw") == 0)
-	{
-		SelectPrevItem (ent, IT_WEAPON);
-		return;
-	}
-	else if (Q_stricmp (cmd, "invnextp") == 0)
-	{
-		SelectNextItem (ent, IT_POWERUP);
-		return;
-	}
-	else if (Q_stricmp (cmd, "invprevp") == 0)
-	{
-		SelectPrevItem (ent, IT_POWERUP);
-		return;
-	}
-	else if (Q_stricmp (cmd, "invuse") == 0)
-	{
-		Cmd_InvUse_f (ent);
-		return;
-	}
-	else if (Q_stricmp (cmd, "invdrop") == 0)
-	{
-		Cmd_InvDrop_f (ent);
-		return;
-	}
-	else if (Q_stricmp (cmd, "weapprev") == 0)
-	{
-		if(level.pauseFrames)
-			return;
-		Cmd_WeapPrev_f (ent);
-		return;
-	}
-	else if (Q_stricmp (cmd, "weapnext") == 0)
-	{
-		if(level.pauseFrames)
-			return;
-		Cmd_WeapNext_f (ent);
-		return;
-	}
-	else if (Q_stricmp (cmd, "weaplast") == 0)
-	{
-		if(level.pauseFrames)
-			return;
-		Cmd_WeapLast_f (ent);
-		return;
-	}
-	else if (Q_stricmp (cmd, "kill") == 0)
-	{
-		Cmd_Kill_f (ent);
-		return;
-	}
-	else if (Q_stricmp (cmd, "putaway") == 0)
-	{
-		Cmd_PutAway_f (ent);
-		return;
-	}
-	else if (Q_stricmp (cmd, "wave") == 0)
-	{
-		if(level.pauseFrames)
-			return;
-		Cmd_Wave_f (ent);
-		return;
-	}
-//zucc
-//      else if (Q_stricmp (cmd, "laser") == 0)
-//              SP_LaserSight (ent);
+}
 
-	//SLIC2
+static void Cmd_Streak_f (edict_t * ent) {
+	gi.cprintf(ent,PRINT_HIGH, "Your Killing Streak is: %d\n", ent->client->resp.streakKills);
+}
 
-	else if (Q_stricmp (cmd, "streak") == 0)
-	{
-		gi.cprintf(ent,PRINT_HIGH,"Your Killing Streak is: %d\n",ent->client->resp.streakKills);
-		return;
-	}
-	//SLIC2
-	else if (Q_stricmp (cmd, "reload") == 0)
-	{
-		if(level.pauseFrames)
-			return;
-		Cmd_New_Reload_f (ent);
-		return;
-	}
-	else if (Q_stricmp (cmd, "weapon") == 0)
-	{
-		if(level.pauseFrames)
-			return;
-		Cmd_New_Weapon_f (ent);
-		return;
-	}
-	else if (Q_stricmp (cmd, "opendoor") == 0)
-	{
-		if(level.pauseFrames)
-			return;
-		Cmd_OpenDoor_f (ent);
-		return;
-	}
-	else if (Q_stricmp (cmd, "bandage") == 0)
-	{
-		if(level.pauseFrames)
-			return;
-		Cmd_Bandage_f (ent);
-		return;
-	}
-	else if (Q_stricmp (cmd, "id") == 0)
-	{
-		Cmd_ID_f (ent);
-		return;
-	}
-	else if (Q_stricmp (cmd, "irvision") == 0)
-	{
-		if(level.pauseFrames)
-			return;
-		Cmd_IR_f (ent);
-		return;
-	}
-	else if (Q_stricmp (cmd, "playerlist") == 0)
-	{
-		Cmd_PlayerList_f (ent);
-		return;
-	}
-	else if (Q_stricmp (cmd, "team") == 0 && teamplay->value)
-	{
-		Team_f (ent);
-		return;
-	}
-	else if (Q_stricmp (cmd, "radio") == 0)
-	{
-		Cmd_Radio_f (ent);
-		return;
-	}
-	else if (Q_stricmp (cmd, "radiogender") == 0)
-	{
-		Cmd_Radiogender_f (ent);
-		return;
-	}
-	else if (Q_stricmp (cmd, "radio_power") == 0)
-	{
-		Cmd_Radio_power_f (ent);
-		return;
-	}
-	else if (Q_stricmp (cmd, "radiopartner") == 0)
-	{
-		Cmd_Radiopartner_f (ent);
-		return;
-	}
-	else if (Q_stricmp (cmd, "radioteam") == 0)
-	{
-		Cmd_Radioteam_f (ent);
-		return;
-	}
-	else if (Q_stricmp (cmd, "channel") == 0)
-	{
-		Cmd_Channel_f (ent);
-		return;
-	}
-	else if (Q_stricmp (cmd, "say_partner") == 0)
-	{
-		Cmd_Say_partner_f (ent);
-		return;
-	}
-	else if (Q_stricmp (cmd, "partner") == 0)
-	{
-		Cmd_Partner_f (ent);
-		return;
-	}
-	else if (Q_stricmp (cmd, "unpartner") == 0)
-	{
-		Cmd_Unpartner_f (ent);
-		return;
-	}
-	else if (Q_stricmp (cmd, "motd") == 0)
-	{
-		PrintMOTD (ent);
-		return;
-	}
-	else if (Q_stricmp (cmd, "deny") == 0)
-	{
-		Cmd_Deny_f (ent);
-		return;
-	}
-	else if (Q_stricmp (cmd, "choose") == 0)
-	{
-		Cmd_Choose_f (ent);
-		return;
-	}
-	else if (Q_stricmp (cmd, "tkok") == 0)
-	{
-		Cmd_TKOk (ent);
-		return;
-	}
-	else if (Q_stricmp (cmd, "time") == 0)
-	{
-		Cmd_Time (ent);
-		return;
-	}
-	else if (Q_stricmp (cmd, "voice") == 0)
-	{
-		if(level.pauseFrames)
-			return;
-		if(use_voice->value)
-			Cmd_Voice_f (ent);
-		return;
-	}
-//  else if (Q_stricmp (cmd, "addpoint") == 0 && sv_cheats->value)
-//    {
-//      Cmd_Addpoint_f (ent);	// See TF's additions below
-//      return;
-//    }
-	else if (Q_stricmp (cmd, "setflag1") == 0 && sv_cheats->value)
-	{
-		Cmd_SetFlag1_f (ent);
-		return;
-	}
-	else if (Q_stricmp (cmd, "setflag2") == 0 && sv_cheats->value)
-	{
-		Cmd_SetFlag2_f (ent);
-		return;
-	}
-	else if (Q_stricmp (cmd, "saveflags") == 0 && sv_cheats->value)
-	{
-		Cmd_SaveFlags_f (ent);
-		return;
-	}
-	else if (Q_stricmp (cmd, "punch") == 0)
-	{
-		if(level.pauseFrames)
-			return;
-		Cmd_Punch_f (ent);
-		return;
-	}
-	else if (Q_stricmp (cmd, "menu") == 0)
-	{
-		Cmd_Menu_f (ent);
-		return;
-	}
-	else if (Q_stricmp (cmd, "rules") == 0)
-	{
-		Cmd_Rules_f (ent);
-		return;
-	}
-	else if (vCommand (ent, cmd) == true);
-	else if (Q_stricmp (cmd, "lens") == 0)
-	{
-		if(level.pauseFrames)
-			return;
-		Cmd_Lens_f (ent);
-		return;
-	}
-	else if (Q_stricmp (cmd, "nextmap") == 0)
-	{
-		Cmd_NextMap_f (ent);
-		return;
-	}
-	else if (Q_stricmp (cmd, "%cpsi") == 0)
-	{
-		Cmd_CPSI_f (ent);
-		return;
-	}
-	else if (Q_stricmp (cmd, "%!fc") == 0)
-	{
-		Cmd_VidRef_f (ent);
-		return;
-	}
-	else if (Q_stricmp (cmd, "sub") == 0)
-	{
-		Cmd_Sub_f (ent);
-		return;
-	}
-	else if (Q_stricmp (cmd, "captain") == 0)
-	{
-		Cmd_Captain_f (ent);
-		return;
-	}
-	else if (Q_stricmp (cmd, "ready") == 0)
-	{
-		Cmd_Ready_f (ent);
-		return;
-	}
-	else if (Q_stricmp (cmd, "teamname") == 0)
-	{
-		Cmd_Teamname_f (ent);
-		return;
-	}
-	else if (Q_stricmp (cmd, "teamskin") == 0)
-	{
-		Cmd_Teamskin_f (ent);
-		return;
-	}
-	else if (Q_stricmp (cmd, "lock") == 0)
-	{
-		Cmd_TeamLock_f(ent, 1);
-		return;
-	}
-	else if (Q_stricmp (cmd, "unlock") == 0)
-	{
-		Cmd_TeamLock_f(ent, 0);
-		return;
-	}
-	else if (Q_stricmp (cmd, "entcount") == 0)
-	{
-		Cmd_Ent_Count_f (ent);
-		return;
-	}
-	else if (Q_stricmp (cmd, "stats") == 0)
-	{
-		Cmd_Stats_f (ent, gi.argv (1));
-		return;
-	}
-	else if (Q_stricmp (cmd, "flashlight") == 0)
-	{
-		if(level.pauseFrames)
-			return;
-		FL_make (ent);
-		return;
-	}
-	else if (Q_stricmp (cmd, "matchadmin") == 0)
-	{
-		Cmd_SetAdmin_f (ent);
-		return;
-	}
-	else if (Q_stricmp(cmd, "roundtimeleft") == 0)
-	{
-		Cmd_Roundtimeleft_f(ent);
-		return;
-	}
-	else if (Q_stricmp (cmd, "autorecord") == 0)
-	{
-		Cmd_AutoRecord_f(ent);
-		return;
-	}
-	else if (Q_stricmp (cmd, "stat_mode") == 0 || Q_stricmp (cmd, "cmd_stat_mode") == 0)
-	{
-		Cmd_Statmode_f (ent, gi.argv (1));
-		return;
-	}
-	else if (Q_stricmp (cmd, "ghost") == 0)
-	{
-		Cmd_Ghost_f (ent);
-		return;
-	}
-	else if (Q_stricmp (cmd, "pausegame") == 0)
-	{
-		Cmd_TogglePause_f(ent, true);
-		return;
-	}
-	else if (Q_stricmp (cmd, "unpausegame") == 0)
-	{
-		Cmd_TogglePause_f(ent, false);
-		return;
-	}
-	else if (Q_stricmp(cmd, "resetscores") == 0)
-	{
-		Cmd_ResetScores_f(ent);
-	}
-	else if (Q_stricmp(cmd, "gamesettings") == 0)
-	{
-		Cmd_PrintSettings_f( ent );
-	}
-	else				// anything that doesn't match a command will be a chat
-		Cmd_Say_f (ent, false, true, false);
+static void Cmd_LockTeam_f (edict_t * ent) {
+	Cmd_TeamLock_f(ent, 1);
+}
+
+static void Cmd_UnlockTeam_f (edict_t * ent) {
+	Cmd_TeamLock_f(ent, 0);
+}
+
+static void Cmd_PrintStats_f (edict_t *ent) {
+	Cmd_Stats_f(ent, gi.argv(1));
+}
+
+static void Cmd_PauseGame_f (edict_t *ent) {
+	Cmd_TogglePause_f(ent, true);
+}
+
+static void Cmd_UnpauseGame_f (edict_t *ent) {
+	Cmd_TogglePause_f(ent, false);
+}
+
+static void Cmd_InvNext_f (edict_t *ent) {
+	SelectNextItem(ent, -1);
+}
+
+static void Cmd_InvPrev_f (edict_t *ent) {
+	SelectPrevItem(ent, -1);
+}
+
+static void Cmd_InvNextw_f (edict_t *ent) {
+	SelectNextItem(ent, IT_WEAPON);
+}
+
+static void Cmd_InvPrevw_f (edict_t *ent) {
+	SelectPrevItem(ent, IT_WEAPON);
+}
+
+static void Cmd_InvNextp_f (edict_t *ent) {
+	SelectNextItem(ent, IT_POWERUP);
+}
+
+static void Cmd_InvPrevp_f (edict_t *ent) {
+	SelectPrevItem(ent, IT_POWERUP);
 }
 
  // AQ2:TNG - Slicer : Video Check
-void Cmd_VidRef_f (edict_t * ent)
+static void Cmd_VidRef_f (edict_t * ent)
 {
 	if (video_check->value || video_check_lockpvs->value)
 	{
-		Q_strncpyz (ent->client->resp.vidref, gi.argv(1), sizeof(ent->client->resp.vidref));
+		Q_strncpyz(ent->client->resp.vidref, gi.argv(1), sizeof(ent->client->resp.vidref));
 	}
 
 }
 
-void Cmd_CPSI_f (edict_t * ent)
+static void Cmd_CPSI_f (edict_t * ent)
 {
 	if (video_check->value || video_check_lockpvs->value || video_check_glclear->value || darkmatch->value)
 	{
@@ -2165,9 +1739,184 @@ void Cmd_CPSI_f (edict_t * ent)
 		ent->client->resp.gllockpvs = atoi(gi.argv(2));
 		ent->client->resp.glclear = atoi(gi.argv(3));
 		ent->client->resp.gldynamic = atoi(gi.argv(4));
-		Q_strncpyz (ent->client->resp.gldriver, gi.argv (5), sizeof(ent->client->resp.gldriver));
+		Q_strncpyz(ent->client->resp.gldriver, gi.argv (5), sizeof(ent->client->resp.gldriver));
 		//      strncpy(ent->client->resp.vidref,gi.argv(4),sizeof(ent->client->resp.vidref-1));
 		//      ent->client->resp.vidref[15] = 0;
 	}
+}
+
+#define CMDF_CHEAT	1 //Need cheat to be enabled
+#define CMDF_PAUSE	2 //Cant use while pause
+
+typedef struct cmdList_s
+{
+	const char *name;
+	void( *function ) (edict_t *ent);
+	int flags;
+	struct cmdList_s *next;
+	struct cmdList_s *hashNext;
+} cmdList_t;
+
+static cmdList_t commandList[] =
+{
+	{ "players", Cmd_Players_f, 0 },
+	{ "say", Cmd_SayAll_f, 0 },
+	{ "say_team", Cmd_SayTeam_f, 0 },
+	{ "score", Cmd_Score_f, 0 },
+	{ "help", Cmd_Help_f, 0 },
+	{ "use", Cmd_Use_f, CMDF_PAUSE },
+	{ "drop", Cmd_Drop_f, CMDF_PAUSE },
+	//cheats
+	{ "give", Cmd_Give_f, CMDF_CHEAT },
+	{ "god", Cmd_God_f, CMDF_CHEAT },
+	{ "notarget", Cmd_Notarget_f, CMDF_CHEAT },
+	{ "noclip", Cmd_Noclip_f, CMDF_CHEAT },
+	//-
+	{ "inven", Cmd_Inven_f, 0 },
+	{ "invnext", Cmd_InvNext_f, 0 },
+	{ "invprev", Cmd_InvPrev_f, 0 },
+	{ "invnextw", Cmd_InvNextw_f, 0 },
+	{ "invprevw", Cmd_InvPrevw_f, 0 },
+	{ "invnextp", Cmd_InvNextp_f, 0 },
+	{ "invprevp", Cmd_InvPrevp_f, 0 },
+	{ "invuse", Cmd_InvUse_f, CMDF_PAUSE },
+	{ "invdrop", Cmd_InvDrop_f, CMDF_PAUSE },
+	{ "weapprev", Cmd_WeapPrev_f, CMDF_PAUSE },
+	{ "weapnext", Cmd_WeapNext_f, CMDF_PAUSE },
+	{ "weaplast", Cmd_WeapLast_f, CMDF_PAUSE },
+	{ "kill", Cmd_Kill_f, 0 },
+	{ "putaway", Cmd_PutAway_f, 0 },
+	{ "wave", Cmd_Wave_f, CMDF_PAUSE },
+	{ "streak", Cmd_Streak_f, 0 },
+	{ "reload", Cmd_New_Reload_f, CMDF_PAUSE },
+	{ "weapon", Cmd_New_Weapon_f, CMDF_PAUSE },
+	{ "opendoor", Cmd_OpenDoor_f, CMDF_PAUSE },
+	{ "bandage", Cmd_Bandage_f, CMDF_PAUSE },
+	{ "id", Cmd_ID_f, 0 },
+	{ "irvision", Cmd_IR_f, CMDF_PAUSE },
+	{ "playerlist", Cmd_PlayerList_f, 0 },
+	{ "team", Team_f, 0 },
+	{ "radio", Cmd_Radio_f, 0 },
+	{ "radiogender", Cmd_Radiogender_f, 0 },
+	{ "radio_power", Cmd_Radio_power_f, 0 },
+	{ "radiopartner", Cmd_Radiopartner_f, 0 },
+	{ "radioteam", Cmd_Radioteam_f, 0 },
+	{ "channel", Cmd_Channel_f, 0 },
+	{ "say_partner", Cmd_Say_partner_f, 0 },
+	{ "partner", Cmd_Partner_f, 0 },
+	{ "unpartner", Cmd_Unpartner_f, 0 },
+	{ "motd", PrintMOTD, 0 },
+	{ "deny", Cmd_Deny_f, 0 },
+	{ "choose", Cmd_Choose_f, 0 },
+	{ "tkok", Cmd_TKOk, 0 },
+	{ "time", Cmd_Time, 0 },
+	{ "voice", Cmd_Voice_f, CMDF_PAUSE },
+	{ "setflag1", Cmd_SetFlag1_f, CMDF_PAUSE|CMDF_CHEAT },
+	{ "setflag2", Cmd_SetFlag2_f, CMDF_PAUSE|CMDF_CHEAT },
+	{ "saveflags", Cmd_SaveFlags_f, CMDF_PAUSE|CMDF_CHEAT },
+	{ "punch", Cmd_Punch_f, CMDF_PAUSE },
+	{ "menu", Cmd_Menu_f, 0 },
+	{ "rules", Cmd_Rules_f, 0 },
+	{ "lens", Cmd_Lens_f, CMDF_PAUSE },
+	{ "nextmap", Cmd_NextMap_f, 0 },
+	{ "%cpsi", Cmd_CPSI_f, 0 },
+	{ "%!fc", Cmd_VidRef_f, 0 },
+	{ "sub", Cmd_Sub_f, 0 },
+	{ "captain", Cmd_Captain_f, 0 },
+	{ "ready", Cmd_Ready_f, 0 },
+	{ "teamname", Cmd_Teamname_f, 0 },
+	{ "teamskin", Cmd_Teamskin_f, 0 },
+	{ "lock", Cmd_LockTeam_f, 0 },
+	{ "unlock", Cmd_UnlockTeam_f, 0 },
+	{ "entcount", Cmd_Ent_Count_f, 0 },
+	{ "stats", Cmd_PrintStats_f, 0 },
+	{ "flashlight", FL_make, CMDF_PAUSE },
+	{ "matchadmin", Cmd_SetAdmin_f, 0 },
+	{ "roundtimeleft", Cmd_Roundtimeleft_f, 0 },
+	{ "autorecord", Cmd_AutoRecord_f, 0 },
+	{ "stat_mode", Cmd_Statmode_f, 0 },
+	{ "cmd_stat_mode", Cmd_Statmode_f, 0 },
+	{ "ghost", Cmd_Ghost_f, 0 },
+	{ "pausegame", Cmd_PauseGame_f, 0 },
+	{ "unpausegame", Cmd_UnpauseGame_f, 0 },
+	{ "resetscores", Cmd_ResetScores_f, 0 },
+	{ "gamesettings", Cmd_PrintSettings_f, 0 }
+};
+
+#define MAX_COMMAND_HASH 64
+
+static cmdList_t *commandHash[MAX_COMMAND_HASH];
+static const int numCommands = sizeof( commandList ) / sizeof( commandList[0] );
+
+size_t Cmd_HashValue( const char *name )
+{
+	size_t hash = 0;
+
+	while (*name) {
+		hash = hash * 33 + Q_tolower( *name++ );
+	}
+
+	return hash + (hash >> 5);
+}
+
+void InitCommandList( void )
+{
+
+	int i;
+	size_t hash;
+
+	for (i = 0; i < numCommands - 1; i++) {
+		commandList[i].next = &commandList[i + 1];
+	}
+	commandList[i].next = NULL;
+
+	memset( commandHash, 0, sizeof( commandHash ) );
+	for (i = 0; i < numCommands; i++) {
+		hash = Cmd_HashValue( commandList[i].name ) & (MAX_COMMAND_HASH - 1);
+		commandList[i].hashNext = commandHash[hash];
+		commandHash[hash] = &commandList[i];
+	}
+}
+
+/*
+=================
+ClientCommand
+=================
+*/
+void ClientCommand (edict_t * ent)
+{
+	char		*text;
+	cmdList_t	*cmd;
+	size_t		hash;
+
+	if (!ent->client)
+		return;			// not fully in game yet
+	// if (level.intermission_framenum)
+	// return;
+
+	text = gi.argv(0);
+
+	hash = Cmd_HashValue( text ) & (MAX_COMMAND_HASH - 1);
+	for (cmd = commandHash[hash]; cmd; cmd = cmd->hashNext) {
+		if (!Q_stricmp( text, cmd->name )) {
+			if ((cmd->flags & CMDF_CHEAT) && !sv_cheats->value) {
+				gi.cprintf(ent, PRINT_HIGH, "You must run the server with '+set cheats 1' to enable this command.\n");
+				return;
+			}
+
+			if ((cmd->flags & CMDF_PAUSE) && level.pauseFrames)
+				return;
+
+			cmd->function( ent );
+			return;
+		}
+	}
+
+
+	if (vCommand(ent, text))
+		return;
+
+	// anything that doesn't match a command will be a chat
+	Cmd_Say_f(ent, false, true, false);
 }
 

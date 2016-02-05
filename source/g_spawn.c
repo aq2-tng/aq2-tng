@@ -250,7 +250,7 @@ void SP_misc_easterchick2 (edict_t * self);
 
 //zucc - item replacement function
 void CheckItem (edict_t * ent);
-int LoadFlagsFromFile (char *mapname);
+int LoadFlagsFromFile (const char *mapname);
 
 //AQ2:TNG - Slicer New location code
 int ml_count = 0;
@@ -992,7 +992,7 @@ void SpawnEntities (char *mapname, char *entities, char *spawnpoint)
 				 !G_Find(NULL, FOFS (classname), "item_flag_team2")))
 			{
 				gi.dprintf ("No native CTF map, loading flag positions from file\n");
-				if (LoadFlagsFromFile (level.mapname))
+				if (LoadFlagsFromFile(level.mapname))
 					ChangePlayerSpawns ();
 			}
 		}
@@ -1447,65 +1447,70 @@ void SP_worldspawn (edict_t * ent)
 	//FB 6/2/99
 }
 
-int LoadFlagsFromFile (char *mapname)
+int LoadFlagsFromFile (const char *mapname)
 {
 	FILE *fp;
 	char buf[1024], *s;
-//	int len;
-	int i;
+	int flagCount = 0;
 	edict_t *ent;
 	vec3_t position;
+	size_t length;
 
-	sprintf (buf, "%s/tng/%s.flg", GAMEVERSION, mapname);
-	fp = fopen (buf, "r");
-	if (!fp)
-	{
-		gi.dprintf ("Warning: No flag definition file for map %s.\n", mapname);
+	Com_sprintf(buf, sizeof(buf), "%s/tng/%s.flg", GAMEVERSION, mapname);
+	fp = fopen(buf, "r");
+	if (!fp)  {
+		gi.dprintf("Warning: No flag definition file for map %s.\n", mapname);
 		return 0;
 	}
 
 	// FIXME: remove this functionality completely in the future
-	gi.dprintf ("Warning: .flg files are deprecated, use .ctf ones for more control!\n");
+	gi.dprintf("Warning: .flg files are deprecated, use .ctf ones for more control!\n");
 
-	i = 0;
 	while (fgets(buf, 1000, fp) != NULL)
 	{
+		length = strlen(buf);
+		if (length < 7)
+			continue;
+
 		//first remove trailing spaces
-		s = buf+strlen(buf)-1;
+		s = buf + length - 1;
 		for (; *s && (*s == '\r' || *s == '\n' || *s == ' '); s--)
 			*s = '\0';
 
 		//check if it's a valid line
-		if (strlen(buf) >= 5 && strncmp(buf, "#", 1) && strncmp(buf, "//", 2) && i < 2)
-		{
-			//a little bit dirty... :)
-			if (sscanf(buf, "<%f %f %f>", &position[0], &position[1], &position[2]) != 3)
-				continue;
+		length = strlen(buf);
+		if (length < 7 || buf[0] == '#' || !strncmp(buf, "//", 2))
+			continue;
 
-			ent = G_Spawn ();
+		//a little bit dirty... :)
+		if (sscanf(buf, "<%f %f %f>", &position[0], &position[1], &position[2]) != 3)
+			continue;
 
-			ent->spawnflags &=
-				~(SPAWNFLAG_NOT_EASY | SPAWNFLAG_NOT_MEDIUM | SPAWNFLAG_NOT_HARD |
-				SPAWNFLAG_NOT_COOP | SPAWNFLAG_NOT_DEATHMATCH);
+		ent = G_Spawn ();
 
-			VectorCopy(position, ent->s.origin);
+		ent->spawnflags &=
+			~(SPAWNFLAG_NOT_EASY | SPAWNFLAG_NOT_MEDIUM | SPAWNFLAG_NOT_HARD |
+			SPAWNFLAG_NOT_COOP | SPAWNFLAG_NOT_DEATHMATCH);
 
-			if (!i)	// Red Flag
-				ent->classname = ED_NewString ("item_flag_team1");
-			else	// Blue Flag
-				ent->classname = ED_NewString ("item_flag_team2");
+		VectorCopy(position, ent->s.origin);
 
-			ED_CallSpawn (ent);
-			i++;
-		}
+		if (!flagCount)	// Red Flag
+			ent->classname = ED_NewString ("item_flag_team1");
+		else	// Blue Flag
+			ent->classname = ED_NewString ("item_flag_team2");
+
+		ED_CallSpawn (ent);
+		flagCount++;
+		if (flagCount == 2)
+			break;
 	}
 
-	fclose (fp);
+	fclose(fp);
 
-	if(i < 2)
-		return (0);
+	if (flagCount < 2)
+		return 0;
 
-	return (1);
+	return 1;
 }
 
 // This function changes the nearest two spawnpoint from each flag
