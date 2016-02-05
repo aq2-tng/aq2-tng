@@ -136,9 +136,23 @@ void SpecThink(edict_t * spec)
 
 static void MakeTouchSpecThink(edict_t * ent)
 {
+	int isDeathmatch;
+
 	ent->touch = Touch_Item;
 
-	if ((!teamplay->value || teamdm->value || ctf->value == 2) && !allitem->value && !dm_choose->value) {
+	if (allitem->value) {
+		ent->nextthink = level.framenum + 1 * HZ;
+		ent->think = G_FreeEdict;
+		return;
+	}
+	isDeathmatch = (!teamplay->value || teamdm->value) ? 1 : 0;
+	if (isDeathmatch && dm_choose->value) {
+		ent->nextthink = level.framenum + 6 * HZ;
+		ent->think = G_FreeEdict;
+		return;
+	}
+
+	if (isDeathmatch || ctf->value == 2) {
 		if(item_respawnmode->value) {
 			ent->nextthink = level.framenum + (item_respawn->value*0.5f) * HZ;
 			ent->think = G_FreeEdict;
@@ -147,20 +161,15 @@ static void MakeTouchSpecThink(edict_t * ent)
 			ent->nextthink = level.framenum + item_respawn->value * HZ;
 			ent->think = SpecThink;
 		}
-	} else if ((teamplay->value || dm_choose->value) && !allitem->value) {
+	} else  {
 		//AQ2:TNG - Slicer This works for Special Items 
-		if (ctf->value || dm_choose->value) {
+		if (ctf->value) {
 			ent->nextthink = level.framenum + 6 * HZ;
 			ent->think = G_FreeEdict;
 		} else {
 			ent->nextthink = level.framenum + 60 * HZ;
 			ent->think = G_FreeEdict;
 		}
-	} else			// allitem->value is set
-
-	{
-		ent->nextthink = level.framenum + 1 * HZ;
-		ent->think = G_FreeEdict;
 	}
 }
 
