@@ -817,7 +817,11 @@ void Touch_Item (edict_t * ent, edict_t * other, cplane_t * plane,
 		other->client->bonus_alpha = 0.25;
 
 		// show icon and name on status bar
-		other->client->ps.stats[STAT_PICKUP_ICON] = gi.imageindex(ent->item->icon);
+		if (ent->item->typeNum < AMMO_MAX)
+			other->client->ps.stats[STAT_PICKUP_ICON] = level.pic_items[ent->item->typeNum];
+		else
+			other->client->ps.stats[STAT_PICKUP_ICON] = gi.imageindex(ent->item->icon);
+
 		other->client->ps.stats[STAT_PICKUP_STRING] = CS_ITEMS + ITEM_INDEX (ent->item);
 		other->client->pickup_msg_time = level.realFramenum + 3 * HZ;
 

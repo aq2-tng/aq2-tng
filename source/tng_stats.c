@@ -326,7 +326,7 @@ void A_ScoreboardEndLevel (edict_t * ent, edict_t * killer)
 	int name_pos[TEAM_TOP];
 
 
-	ent->client->ps.stats[STAT_TEAM_HEADER] = gi.imageindex ("tag3");
+	ent->client->ps.stats[STAT_TEAM_HEADER] = level.pic_teamtag;
 
 	for (i = 0; i < game.maxclients; i++)
 	{

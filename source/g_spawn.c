@@ -1069,8 +1069,6 @@ xl < value > xr < value > yb < value > yt < value > xv < value > yv < value >
 	"endif " \
 /* clip(s) */ \
 	"if 16 " \
-		"xv 0 " \
-		"yv 0 " \
 		"yb -24 " \
 		"xr -60 " \
 		"num 2 17 " \
@@ -1079,24 +1077,18 @@ xl < value > xr < value > yb < value > yt < value > xv < value > yv < value >
 	"endif " \
 /* special item ( vest etc ) */ \
 	"if 19 " \
-		"xv 0 " \
-		"yv 0 " \
 		"yb -72 " \
 		"xr -24 " \
 		"pic 19 " \
 	"endif " \
 /* special weapon */ \
 	"if 20 " \
-		"xv 0 " \
-		"yv 0 " \
 		"yb -48 " \
 		"xr -24 " \
 		"pic 20 " \
 	"endif " \
 /* grenades */ \
 	"if 28 " \
-		"xv 0 " \
-		"yv 0 " \
 		"yb -96 " \
 		"xr -60 " \
 		"num 2 29 " \
@@ -1113,8 +1105,6 @@ xl < value > xr < value > yb < value > yt < value > xv < value > yv < value >
 	"endif " \
 /* sniper graphic/icon */ \
 	"if 18 " \
-		"xr 0 " \
-		"yb 0 " \
 		"xv 0 " \
 		"yv 0 " \
 		"pic 18 " \
@@ -1170,10 +1160,10 @@ void SP_worldspawn (edict_t * ent)
 	ent->s.modelindex = 1;	// world model is always index 1
 
 	// reserve some spots for dead player bodies for coop / deathmatch
-	InitBodyQue ();
+	InitBodyQue();
 
 	// set configstrings for items
-	SetItemNames ();
+	SetItemNames();
 
 	level.framenum = 0;
 	level.time = 0;
@@ -1182,23 +1172,23 @@ void SP_worldspawn (edict_t * ent)
 	level.matchTime = 0;
 
 	if (st.nextmap)
-		strcpy (level.nextmap, st.nextmap);
+		strcpy(level.nextmap, st.nextmap);
 
 	// make some data visible to the server
 
 	if (ent->message && ent->message[0])
 	{
 		Q_strncpyz(level.level_name, ent->message, sizeof(level.level_name));
-		gi.configstring (CS_NAME, level.level_name);
+		gi.configstring(CS_NAME, level.level_name);
 	}
 	else {
 		strcpy(level.level_name, level.mapname);
 	}
 
 	if (st.sky && st.sky[0])
-		gi.configstring (CS_SKY, st.sky);
+		gi.configstring(CS_SKY, st.sky);
 	else
-		gi.configstring (CS_SKY, "unit1_");
+		gi.configstring(CS_SKY, "unit1_");
 
 	gi.configstring(CS_SKYROTATE, va("%f", st.skyrotate));
 
@@ -1220,15 +1210,7 @@ void SP_worldspawn (edict_t * ent)
 		if (ctf->value)
 		{
 			gi.configstring (CS_STATUSBAR, ctf_statusbar);
-			//precaches
-			gi.imageindex ("sbfctf1");
-			gi.imageindex ("sbfctf2");
-			gi.imageindex ("i_ctf1");
-			gi.imageindex ("i_ctf2");
-			gi.imageindex ("i_ctf1d");
-			gi.imageindex ("i_ctf2d");
-			gi.imageindex ("i_ctf1t");
-			gi.imageindex ("i_ctf2t");
+
 		}
 		else if (noscore->value && teamplay->value)
 		{
@@ -1243,21 +1225,13 @@ void SP_worldspawn (edict_t * ent)
 	//---------------
 
 
-	// help icon for statusbar
-	gi.imageindex ("i_help");
-	level.pic_health = gi.imageindex ("i_health");
-	gi.imageindex ("help");
-	gi.imageindex ("field_3");
+	level.pic_health = gi.imageindex("i_health");
+	gi.imageindex("field_3");
 
 	// zucc - preload sniper stuff
 	level.pic_sniper_mode[1] = gi.imageindex("scope2x");
 	level.pic_sniper_mode[2] = gi.imageindex("scope4x");
 	level.pic_sniper_mode[3] = gi.imageindex("scope6x");
-
-	//FIREBLADE
-	gi.imageindex("tag1");
-	gi.imageindex("tag2");
-	gi.imageindex("tag3");
 
 	for (i = 1; i < AMMO_MAX; i++) {
 		picname = GET_ITEM(i)->icon;
@@ -1277,15 +1251,33 @@ void SP_worldspawn (edict_t * ent)
 	level.pic_weapon_ammo[KNIFE_NUM] = gi.imageindex("w_knife");
 	level.pic_weapon_ammo[GRENADE_NUM] = gi.imageindex("a_m61frag");
 
+	gi.imageindex("tag1");
+	gi.imageindex("tag2");
 	if (teamplay->value)
 	{
-		for(i = TEAM1; i < TEAM_TOP; i++)
-		{
-			if (teams[i].skin_index[0] == 0) {
-				gi.dprintf("No skin was specified for team %i in config file. Exiting.\n", i);
-				exit(1);
+		level.pic_teamtag = gi.imageindex("tag3");
+
+		if (ctf->value) {
+			level.pic_ctf_teamtag[TEAM1] = gi.imageindex("ctfsb1");
+			level.pic_ctf_flagbase[TEAM1] = gi.imageindex("i_ctf1");
+			level.pic_ctf_flagtaken[TEAM1] = gi.imageindex("i_ctf1t");
+			level.pic_ctf_flagdropped[TEAM1] = gi.imageindex("i_ctf1d");
+
+			level.pic_ctf_teamtag[TEAM2] = gi.imageindex("ctfsb2");
+			level.pic_ctf_flagbase[TEAM2] = gi.imageindex("i_ctf2");
+			level.pic_ctf_flagtaken[TEAM2] = gi.imageindex("i_ctf2t");
+			level.pic_ctf_flagdropped[TEAM2] = gi.imageindex("i_ctf2d");
+			gi.imageindex("sbfctf1");
+			gi.imageindex("sbfctf2");
+		} else {
+			for(i = TEAM1; i <= teamCount; i++)
+			{
+				if (teams[i].skin_index[0] == 0) {
+					gi.dprintf("No skin was specified for team %i in config file. Exiting.\n", i);
+					exit(1);
+				}
+				level.pic_teamskin[i] = gi.imageindex(teams[i].skin_index);
 			}
-			gi.imageindex(teams[i].skin_index);
 		}
 
 		level.snd_lights = gi.soundindex("atl/lights.wav");
