@@ -744,7 +744,13 @@ typedef struct
   int pic_items[ITEM_MAX_NUM];
   int pic_weapon_ammo[WEAPON_MAX];
   int pic_sniper_mode[SNIPER_MODE_MAX];
-
+  int pic_teamskin[TEAM_TOP];
+  int pic_teamtag;
+  
+  int pic_ctf_teamtag[TEAM_TOP];
+  int pic_ctf_flagbase[TEAM_TOP];
+  int pic_ctf_flagtaken[TEAM_TOP];
+  int pic_ctf_flagdropped[TEAM_TOP];
 
   int snd_fry;
   int snd_lights;

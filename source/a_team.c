@@ -2201,10 +2201,10 @@ void A_Scoreboard (edict_t * ent)
 		}
 		else
 		{
-			ent->client->ps.stats[STAT_TEAM1_PIC] = gi.imageindex(teams[TEAM1].skin_index);
-			ent->client->ps.stats[STAT_TEAM2_PIC] =	gi.imageindex(teams[TEAM2].skin_index);
+			ent->client->ps.stats[STAT_TEAM1_PIC] = level.pic_teamskin[TEAM1];
+			ent->client->ps.stats[STAT_TEAM2_PIC] = level.pic_teamskin[TEAM2];
 			if (use_3teams->value)
-				ent->client->ps.stats[STAT_TEAM3_PIC] = gi.imageindex (teams[TEAM3].skin_index);
+				ent->client->ps.stats[STAT_TEAM3_PIC] = level.pic_teamskin[TEAM3];
 		}
 
 		ent->client->ps.stats[STAT_TEAM1_SCORE] = teams[TEAM1].score;
@@ -2373,7 +2373,7 @@ void A_ScoreboardMessage (edict_t * ent, edict_t * killer)
 		if (limchasecam->value != 0)
 			deadview = 0;
 
-		ent->client->ps.stats[STAT_TEAM_HEADER] = gi.imageindex ("tag3");
+		ent->client->ps.stats[STAT_TEAM_HEADER] = level.pic_teamtag;
 
 		for (i = 0; i < game.maxclients; i++)
 		{

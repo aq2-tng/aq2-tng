@@ -366,6 +366,7 @@ void Cmd_Teamskin_f(edict_t * ent)
 	}
 
 	Com_sprintf(team->skin_index, sizeof(team->skin_index), "../players/%s_i", team->skin );
+	level.pic_teamskin[teamNum] = gi.imageindex(team->skin_index);
 /*	for (i = 1; i <= game.maxclients; i++) { //lets update players skin
 		e = g_edicts + i;
 		if (!e->inuse)
