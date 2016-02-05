@@ -374,28 +374,31 @@ void ED_CallSpawn (edict_t * ent)
 	gitem_t *item;
 	int i;
 
-	if (!ent->classname)
-	{
-		gi.dprintf ("ED_CallSpawn: NULL classname\n");
+	if (!ent->classname) {
+		gi.dprintf("ED_CallSpawn: NULL classname\n");
 		return;
 	}
 
 	// zucc - BD's item replacement idea
-	CheckItem (ent);
+	CheckItem(ent);
 
 	// check item spawn functions
 	for (i = 0, item = itemlist; i < game.num_items; i++, item++)
 	{
 		if (!item->classname)
 			continue;
-		if (!strcmp (item->classname, ent->classname))
+		if (!strcmp(item->classname, ent->classname))
 		{	// found it
 
 			//FIXME: We do same checks in SpawnItem, do we need these here? -M
 			if (!teamplay->value || teamdm->value)
 			{
-				if (item->flags & (IT_AMMO|IT_WEAPON) && !dm_choose->value)
+				if (dm_choose->value)
+					G_FreeEdict( ent );
+				else if (item->flags & (IT_AMMO|IT_WEAPON))
 					SpawnItem(ent, item);
+				else if ((item->flags & IT_ITEM) && item_respawnmode->value)
+					SpawnItem( ent, item );
 				else
 					G_FreeEdict(ent);
 			}
