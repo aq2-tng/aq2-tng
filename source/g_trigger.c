@@ -240,49 +240,8 @@ trigger_key_use (edict_t * self, edict_t * other, edict_t * activator)
 
   gi.sound (activator, CHAN_AUTO, gi.soundindex ("misc/keyuse.wav"), 1,
 	    ATTN_NORM, 0);
-  if (coop->value)
-    {
-      int player;
-      edict_t *ent;
 
-      if (strcmp (self->item->classname, "key_power_cube") == 0)
-	{
-	  int cube;
-
-	  for (cube = 0; cube < 8; cube++)
-	    if (activator->client->pers.power_cubes & (1 << cube))
-	      break;
-	  for (player = 1; player <= game.maxclients; player++)
-	    {
-	      ent = &g_edicts[player];
-	      if (!ent->inuse)
-		continue;
-	      if (!ent->client)
-		continue;
-	      if (ent->client->pers.power_cubes & (1 << cube))
-		{
-		  ent->client->pers.inventory[index]--;
-		  ent->client->pers.power_cubes &= ~(1 << cube);
-		}
-	    }
-	}
-      else
-	{
-	  for (player = 1; player <= game.maxclients; player++)
-	    {
-	      ent = &g_edicts[player];
-	      if (!ent->inuse)
-		continue;
-	      if (!ent->client)
-		continue;
-	      ent->client->pers.inventory[index] = 0;
-	    }
-	}
-    }
-  else
-    {
-      activator->client->pers.inventory[index]--;
-    }
+  activator->client->pers.inventory[index]--;
 
   G_UseTargets (self, activator);
 
@@ -488,57 +447,69 @@ hurt_use (edict_t * self, edict_t * other, edict_t * activator)
 }
 
 
-void
-hurt_touch (edict_t * self, edict_t * other, cplane_t * plane,
-	    csurface_t * surf)
+void hurt_touch (edict_t * self, edict_t * other, cplane_t * plane, csurface_t * surf)
 {
-  int dflags;
+	int dflags;
 
-  if (!other->takedamage)
-    return;
+	if (!other->takedamage) {
+		if (other->item) { //Place where you cant get flag,
+			int team = 0;				  //so lets return it
 
-  if (self->timestamp > level.time)
-    return;
+			if (other->item->typeNum == FLAG_T1_NUM)
+				team = 1;
+			else if (other->item->typeNum == FLAG_T2_NUM)
+				team = 2;
 
-  if (self->spawnflags & 16)
-    self->timestamp = level.time + 1;
-  else
-    self->timestamp = level.time + FRAMETIME;
+			if (team > 0) {
+				gi.bprintf( PRINT_HIGH, "The %s flag has returned!\n", CTFTeamName( team ) );
+				IRC_printf( IRC_T_GAME, "The %n flag has returned!.\n", CTFTeamName( team ) );
+				CTFResetFlag( team );
+			}
+		}
+		return;
+	}
 
-  if (!(self->spawnflags & 4))
-    {
-      if ((level.framenum % 10) == 0)
-	gi.sound (other, CHAN_AUTO, self->noise_index, 1, ATTN_NORM, 0);
-    }
+	if (self->timestamp > level.time)
+		return;
 
-  if (self->spawnflags & 8)
-    dflags = DAMAGE_NO_PROTECTION;
-  else
-    dflags = 0;
-  T_Damage (other, self, self, vec3_origin, other->s.origin, vec3_origin,
-	    self->dmg, self->dmg, dflags, MOD_TRIGGER_HURT);
+	if (self->spawnflags & 16)
+		self->timestamp = level.time + 1;
+	else
+		self->timestamp = level.time + FRAMETIME;
+
+	if (!(self->spawnflags & 4))
+	{
+		if ((level.framenum % 10) == 0)
+			gi.sound(other, CHAN_AUTO, self->noise_index, 1, ATTN_NORM, 0);
+	}
+
+	if (self->spawnflags & 8)
+		dflags = DAMAGE_NO_PROTECTION;
+	else
+		dflags = 0;
+	T_Damage(other, self, self, vec3_origin, other->s.origin, vec3_origin,
+		self->dmg, self->dmg, dflags, MOD_TRIGGER_HURT);
 }
 
-void
-SP_trigger_hurt (edict_t * self)
+void SP_trigger_hurt (edict_t * self)
 {
-  InitTrigger (self);
+	InitTrigger (self);
 
-  self->noise_index = gi.soundindex ("world/electro.wav");
-  self->touch = hurt_touch;
+	self->noise_index = gi.soundindex ("world/electro.wav");
+	self->touch = hurt_touch;
 
-  if (!self->dmg)
-    self->dmg = 5;
+	if (!self->dmg)
+		self->dmg = 5;
 
-  if (self->spawnflags & 1)
-    self->solid = SOLID_NOT;
-  else
-    self->solid = SOLID_TRIGGER;
+	if (self->spawnflags & 1)
+		self->solid = SOLID_NOT;
+	else
+		self->solid = SOLID_TRIGGER;
 
-  if (self->spawnflags & 2)
-    self->use = hurt_use;
+	if (self->spawnflags & 2)
+		self->use = hurt_use;
 
-  gi.linkentity (self);
+	gi.linkentity(self);
 }
 
 

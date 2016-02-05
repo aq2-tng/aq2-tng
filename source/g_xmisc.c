@@ -43,8 +43,9 @@ void punch_attack(edict_t * ent)
 	vec3_t start, forward, right, offset, end;
 	int damage = 7;
 	int kick = 100;
-	int randmodify;
+	int randmodify, friendlyFire = 0;
 	trace_t tr;
+	char *genderstr;
 
 	AngleVectors(ent->client->v_angle, forward, right, NULL);
 	VectorScale(forward, 0, ent->client->kick_origin);
@@ -62,23 +63,19 @@ void punch_attack(edict_t * ent)
 			if (tr.ent->health <= 0)
 				return;
 			
-			if (teamplay->value) {
-				// AQ2:TNG - JBravo adding UVtime
-				if (tr.ent->client && tr.ent->client->ctf_uvtime)
+			if (tr.ent->client)
+			{
+				if (tr.ent->client->uvTime)
 					return;
 
-				if ((tr.ent != ent) && tr.ent->client && ent->client &&
-					(tr.ent->client->resp.team == ent->client->resp.team) &&
-					((int)dmflags->value & DF_NO_FRIENDLY_FIRE))
-				{
-					if (team_round_going || !ff_afterround->value)
+				if (tr.ent != ent && ent->client && OnSameTeam(tr.ent, ent))
+					friendlyFire = 1;
+
+				if (friendlyFire && DMFLAGS(DF_NO_FRIENDLY_FIRE)){
+					if (!teamplay->value || team_round_going || !ff_afterround->value)
 						return;
 				}
 			}
-			else if (((tr.ent != ent) && ((deathmatch->value &&
-				((int) (dmflags->value) & (DF_MODELTEAMS | DF_SKINTEAMS)))
-				|| coop->value) && OnSameTeam(tr.ent, ent)))
-				return;
 
 			// add some random damage, damage range from 8 to 20.
 			randmodify = rand() % 13 + 1;
@@ -95,7 +92,7 @@ void punch_attack(edict_t * ent)
 
 			T_Damage(tr.ent, ent, ent, forward, tr.endpos, tr.plane.normal,
 				damage, kick, 0, MOD_PUNCH);
-			gi.sound(ent, CHAN_WEAPON, gi.soundindex("weapons/kick.wav"), 1, ATTN_NORM, 0);
+			gi.sound(ent, CHAN_WEAPON, level.snd_kick, 1, ATTN_NORM, 0);
 			PlayerNoise(ent, ent->s.origin, PNOISE_SELF);
 
 			//only hit weapon out of hand if damage >= 15
@@ -106,8 +103,10 @@ void punch_attack(edict_t * ent)
 				|| tr.ent->client->curr_weap == HC_NUM) && damage >= 15)
 			{
 				DropSpecialWeapon(tr.ent);
+
+				genderstr = GENDER_STR( tr.ent, "his", "her", "its" );
 				gi.cprintf (ent, PRINT_HIGH, "You hit %s's %s from %s hands!\n",
-					tr.ent->client->pers.netname,(tr.ent->client->pers.weapon)->pickup_name, IsFemale(tr.ent) ? "her" : "his");
+					tr.ent->client->pers.netname,(tr.ent->client->pers.weapon)->pickup_name, genderstr);
 
 				gi.cprintf(tr.ent, PRINT_HIGH, "%s hit your weapon from your hands!\n",
 					ent->client->pers.netname);

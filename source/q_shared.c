@@ -933,6 +933,51 @@ void Com_PageInMemory (byte * buffer, int size)
 ============================================================================
 */
 
+int Q_tolower( int c ) {
+	if (Q_isupper( c )) {
+		c += ('a' - 'A');
+	}
+
+	return c;
+}
+
+int Q_toupper( int c ) {
+	if (Q_islower( c )) {
+		c -= ('a' - 'A');
+	}
+
+	return c;
+}
+
+/*
+==============
+Q_strlwr
+==============
+*/
+char *Q_strlwr( char *s )
+{
+	char *p;
+
+	for (p = s; *s; s++) {
+		if (Q_isupper( *s ))
+			*s += 'a' - 'A';
+	}
+
+	return p;
+}
+
+char *Q_strupr( char *s )
+{
+	char *p;
+
+	for (p = s; *s; s++) {
+		if (Q_islower( *s ))
+			*s -= 'a' - 'A';
+	}
+
+	return p;
+}
+
 #ifndef Q_strnicmp
 int Q_strnicmp (const char *s1, const char *s2, size_t size)
 {
@@ -961,6 +1006,32 @@ int Q_strnicmp (const char *s1, const char *s2, size_t size)
 }
 #endif
 
+/*
+============
+Q_stristr
+============
+*/
+char *Q_stristr( const char *str1, const char *str2 )
+{
+	int len, i, j;
+
+	len = strlen( str1 ) - strlen( str2 );
+	for (i = 0; i <= len; i++, str1++) {
+		for (j = 0; str2[j]; j++) {
+			if (Q_tolower( str1[j] ) != Q_tolower( str2[j] ))
+				break;
+		}
+		if (!str2[j])
+			return (char *)str1;
+	}
+	return NULL;
+}
+
+/*
+============
+Q_strncpyz
+============
+*/
 void Q_strncpyz( char *dest, const char *src, size_t size )
 {
 	while( --size && (*dest++ = *src++) );

@@ -30,179 +30,248 @@
 
 #include "g_local.h"
 
-int
-ChaseTargetGone (edict_t * ent)
+void DisableChaseCam( edict_t *ent )
 {
-  // is our chase target gone?
-  if (!ent->client->chase_target->inuse
-      || (ent->client->chase_target->solid == SOLID_NOT &&
-	  ent->client->chase_target->deadflag != DEAD_DEAD))
-    {
-      edict_t *old = ent->client->chase_target;
-      ChaseNext (ent);
-      if (ent->client->chase_target == old)
-	{
-	  ent->client->chase_target = NULL;
-	  ent->client->desired_fov = 90;
-	  ent->client->ps.fov = 90;
-	  ent->client->chase_mode = 0;
-	  ent->client->ps.pmove.pm_flags &= ~PMF_NO_PREDICTION;
-          ent->client->clientNum = ent - g_edicts - 1;
-          ent->client->ps.gunframe = ent->client->ps.gunindex = 0;
-          VectorClear (ent->client->ps.gunoffset);
-          VectorClear (ent->client->ps.kick_angles);
-	  return 1;
-	}
-    }
-  return 0;
+	//remove a gun model if we were using one for in-eyes
+	ent->client->ps.gunframe = ent->client->ps.gunindex = 0;
+	VectorClear( ent->client->ps.gunoffset );
+	VectorClear( ent->client->ps.kick_angles );
+	ent->client->ps.viewangles[ROLL] = 0;
+
+	ent->client->chase_mode = 0;
+	ent->client->chase_target = NULL;
+	ent->client->ps.pmove.pm_flags &= ~PMF_NO_PREDICTION;
+
+	ent->client->desired_fov = 90;
+	ent->client->ps.fov = 90;
+
+	ent->client->clientNum = (ent - g_edicts) - 1;
 }
 
-void
-UpdateChaseCam (edict_t * ent)
+int ChaseTargetGone( edict_t * ent )
 {
-  vec3_t o, ownerv, goal;
-  edict_t *targ;
-  vec3_t forward, right;
-  trace_t trace;
-  int i;
-  vec3_t angles;
+	edict_t *targ = ent->client->chase_target;
 
-  if (ChaseTargetGone (ent))
-    return;
-
-  targ = ent->client->resp.last_chase_target = ent->client->chase_target;
-
-  if (ent->client->chase_mode == 1)
-    {
-      ent->client->clientNum = ent - g_edicts - 1;
-      ent->client->ps.gunindex = ent->client->ps.gunframe = 0;
-      ent->client->desired_fov = 90;
-      ent->client->ps.fov = 90;
-
-      if (ent->client->resp.cmd_angles[PITCH] > 89)
-	ent->client->resp.cmd_angles[PITCH] = 89;
-      if (ent->client->resp.cmd_angles[PITCH] < -89)
-	ent->client->resp.cmd_angles[PITCH] = -89;
-
-      VectorCopy (targ->s.origin, ownerv);
-
-      ownerv[2] += targ->viewheight;
-
-      VectorCopy (ent->client->ps.viewangles, angles);
-      AngleVectors (angles, forward, right, NULL);
-      VectorNormalize (forward);
-      VectorMA (ownerv, -150, forward, o);
-
-// not sure if this should be left in... -FB
-//              if (o[2] < targ->s.origin[2] + 20)  
-//                      o[2] = targ->s.origin[2] + 20;
-
-      // jump animation lifts
-      if (!targ->groundentity)
-	o[2] += 16;
-
-      PRETRACE ();
-      trace =
-	gi.trace (ownerv, vec3_origin, vec3_origin, o, targ, MASK_SOLID);
-      POSTTRACE ();
-
-      VectorCopy (trace.endpos, goal);
-
-      VectorMA (goal, 2, forward, goal);
-
-      // pad for floors and ceilings
-      VectorCopy (goal, o);
-      o[2] += 6;
-      PRETRACE ();
-      trace = gi.trace (goal, vec3_origin, vec3_origin, o, targ, MASK_SOLID);
-      POSTTRACE ();
-      if (trace.fraction < 1)
+	// is our chase target gone?
+	if (!targ || !targ->inuse
+		|| (targ->solid == SOLID_NOT && targ->deadflag != DEAD_DEAD))
 	{
-	  VectorCopy (trace.endpos, goal);
-	  goal[2] -= 6;
+		ChaseNext( ent );
+		if (ent->client->chase_target == targ) {
+			DisableChaseCam( ent );
+			return 1;
+		}
 	}
-
-      VectorCopy (goal, o);
-      o[2] -= 6;
-      PRETRACE ();
-      trace = gi.trace (goal, vec3_origin, vec3_origin, o, targ, MASK_SOLID);
-      POSTTRACE ();
-      if (trace.fraction < 1)
-	{
-	  VectorCopy (trace.endpos, goal);
-	  goal[2] += 6;
-	}
-
-      if (targ->deadflag)
-	ent->client->ps.pmove.pm_type = PM_DEAD;
-      else
-	ent->client->ps.pmove.pm_type = PM_FREEZE;
-
-      VectorCopy (goal, ent->s.origin);
-
-      for (i = 0; i < 3; i++)
-	ent->client->ps.pmove.delta_angles[i] =
-	  ANGLE2SHORT (ent->client->v_angle[i] -
-		       ent->client->resp.cmd_angles[i]);
-
-      VectorCopy (ent->client->resp.cmd_angles, ent->client->ps.viewangles);
-    }
-  else             // chase_mode == 2
-    {
-      ent->client->clientNum = targ - g_edicts - 1;
-      VectorCopy (targ->client->v_angle, angles);
-
-      if (!(game.serverfeatures & GMF_CLIENTNUM)) {
-	      VectorCopy (targ->s.origin, ownerv);
-
-	      AngleVectors (angles, forward, right, NULL);
-	      VectorNormalize (forward);
-	      // JBravo: fix for in eyes spectators seeing thru stuff. Thanks Hal9k! :)
-	      VectorMA (ownerv, 11, forward, o);
-	      //    	  VectorMA (ownerv, 16, forward, o);
-      } else {
-	      VectorCopy (targ->s.origin, o);
-      }
-
-      o[2] += targ->viewheight;
-
-      VectorCopy (o, ent->s.origin);
-
-      ent->client->ps.fov = targ->client->ps.fov;
-      ent->client->desired_fov = targ->client->ps.fov;
-
-      for (i = 0; i < 3; i++)
-	ent->client->ps.pmove.delta_angles[i] =
-	  ANGLE2SHORT (targ->client->v_angle[i] -
-		       ent->client->resp.cmd_angles[i]);
-
-      if (targ->deadflag)
-	{
-	  ent->client->ps.viewangles[ROLL] = 40;
-	  ent->client->ps.viewangles[PITCH] = -15;
-	  ent->client->ps.viewangles[YAW] = targ->client->killer_yaw;
-	}
-      else
-	{
-	  VectorCopy (angles, ent->client->ps.viewangles);
-	  VectorCopy (angles, ent->client->v_angle);
-	}
-    }
-
-  ent->viewheight = 0;
-  ent->client->ps.pmove.pm_flags |= PMF_NO_PREDICTION;
-  gi.linkentity (ent);
+	return 0;
 }
 
-void ChaseNext (edict_t * ent)
+void NextChaseMode( edict_t *ent )
 {
+	ent->client->chase_mode = (ent->client->chase_mode + 1) % 3;
+
+	if (ent->client->chase_mode == 1)
+	{
+		//going 3rd person, remove gun and invisible player
+		ent->client->clientNum = (ent - g_edicts) - 1;
+		ent->client->ps.gunindex = ent->client->ps.gunframe = 0;
+		if (!ent->client->chase_target) {
+			GetChaseTarget( ent );
+			if (!ent->client->chase_target) {
+				ent->client->chase_mode = 0;
+				return;
+			}
+		}
+
+		if (ent->client->resp.team && teamplay->value && limchasecam->value == 2) {
+			NextChaseMode( ent );
+			return;
+		}
+	}
+	else if (ent->client->chase_mode == 2)
+	{
+		if (!ent->client->chase_target) {
+			GetChaseTarget( ent );
+			if (!ent->client->chase_target) {
+				ent->client->chase_mode = 0;
+				return;
+			}
+		}
+		//set clientnum to hide chased person on supported server
+		ent->client->clientNum = (ent->client->chase_target - g_edicts) - 1;
+		ent->client->ps.gunindex = ent->client->ps.gunframe = 0;
+	}
+	else// if (ent->client->chase_mode == CHASE_FREE)
+	{
+		if (ent->client->resp.team && teamplay->value && limchasecam->value) {
+			if (limchasecam->value == 1)  {
+				NextChaseMode( ent );
+			}
+			else {
+				ent->client->chase_mode = 2;
+			}
+			return;
+		}
+
+		DisableChaseCam( ent );
+	}
+}
+
+void UpdateChaseCam( edict_t * ent )
+{
+	vec3_t o, ownerv, goal;
+	edict_t *targ;
+	vec3_t forward, right;
+	trace_t trace;
 	int i;
-	edict_t *e;
+	vec3_t angles;
 
-	if (!ent->client->chase_target)
+	if (ChaseTargetGone( ent ))
 		return;
 
-	i = ent->client->chase_target - g_edicts;
+	targ = ent->client->resp.last_chase_target = ent->client->chase_target;
+
+	if (ent->client->chase_mode == 1)
+	{
+		VectorCopy( targ->s.origin, ownerv );
+
+		ownerv[2] += targ->viewheight;
+
+		VectorCopy( ent->client->ps.viewangles, angles );
+		AngleVectors( angles, forward, right, NULL );
+		VectorNormalize( forward );
+		VectorMA( ownerv, -150, forward, o );
+
+		// not sure if this should be left in... -FB
+		//              if (o[2] < targ->s.origin[2] + 20)  
+		//                      o[2] = targ->s.origin[2] + 20;
+
+		// jump animation lifts
+		if (!targ->groundentity)
+			o[2] += 16;
+
+		PRETRACE();
+		trace = gi.trace( ownerv, vec3_origin, vec3_origin, o, targ, MASK_SOLID );
+
+		VectorCopy( trace.endpos, goal );
+
+		VectorMA( goal, 2, forward, goal );
+
+		// pad for floors and ceilings
+		VectorCopy( goal, o );
+		o[2] += 6;
+		trace = gi.trace( goal, vec3_origin, vec3_origin, o, targ, MASK_SOLID );
+		if (trace.fraction < 1) {
+			VectorCopy( trace.endpos, goal );
+			goal[2] -= 6;
+		}
+
+		VectorCopy( goal, o );
+		o[2] -= 6;
+		trace = gi.trace( goal, vec3_origin, vec3_origin, o, targ, MASK_SOLID );
+		POSTTRACE();
+		if (trace.fraction < 1) {
+			VectorCopy( trace.endpos, goal );
+			goal[2] += 6;
+		}
+
+		if (targ->deadflag)
+			ent->client->ps.pmove.pm_type = PM_DEAD;
+		else
+			ent->client->ps.pmove.pm_type = PM_FREEZE;
+
+		VectorCopy( goal, ent->s.origin );
+
+		ent->client->clientNum = ent - g_edicts - 1;
+		ent->client->ps.gunindex = ent->client->ps.gunframe = 0;
+		ent->client->desired_fov = 90;
+		ent->client->ps.fov = 90;
+
+		if (ent->client->resp.cmd_angles[PITCH] > 89)
+			ent->client->resp.cmd_angles[PITCH] = 89;
+		else if (ent->client->resp.cmd_angles[PITCH] < -89)
+			ent->client->resp.cmd_angles[PITCH] = -89;
+
+		for (i = 0; i < 3; i++) {
+			ent->client->ps.pmove.delta_angles[i] =
+				ANGLE2SHORT( ent->client->v_angle[i] - ent->client->resp.cmd_angles[i] );
+		}
+
+		VectorCopy( ent->client->resp.cmd_angles, ent->client->ps.viewangles );
+	}
+	else             // chase_mode == 2
+	{
+
+		VectorCopy( targ->client->v_angle, angles );
+
+		if (!(game.serverfeatures & GMF_CLIENTNUM)) {
+			VectorCopy( targ->s.origin, ownerv );
+
+			AngleVectors( angles, forward, right, NULL );
+			VectorNormalize( forward );
+			VectorMA( ownerv, 11, forward, o );
+		}
+		else {
+			VectorCopy( targ->s.origin, o );
+		}
+
+		o[2] += targ->viewheight;
+
+		VectorCopy( o, ent->s.origin );
+
+		ent->client->clientNum = targ - g_edicts - 1;
+		ent->client->ps.fov = targ->client->ps.fov;
+		ent->client->desired_fov = targ->client->ps.fov;
+
+		for (i = 0; i < 3; i++) {
+			ent->client->ps.pmove.delta_angles[i] =
+				ANGLE2SHORT( targ->client->v_angle[i] - ent->client->resp.cmd_angles[i] );
+		}
+
+		if (targ->deadflag)
+		{
+			ent->client->ps.viewangles[ROLL] = 40;
+			ent->client->ps.viewangles[PITCH] = -15;
+			ent->client->ps.viewangles[YAW] = targ->client->killer_yaw;
+			ent->client->ps.pmove.pm_type = PM_DEAD;
+		}
+		else
+		{
+			VectorCopy( angles, ent->client->ps.viewangles );
+			VectorCopy( angles, ent->client->v_angle );
+			ent->client->ps.pmove.pm_type = PM_FREEZE;
+		}
+	}
+
+	ent->viewheight = 0;
+	ent->client->ps.pmove.pm_flags |= PMF_NO_PREDICTION;
+	gi.linkentity( ent );
+}
+
+void SetChase( edict_t *ent, edict_t *target )
+{
+	if (!target) {
+		DisableChaseCam( ent );
+		return;
+	}
+
+	if (target != ent->client->chase_target && ent->client->chase_mode == 2) {
+		ent->client->clientNum = (target - g_edicts) - 1;
+	}
+	ent->client->chase_target = target;
+	ent->client->update_chase = true;
+}
+
+void ChaseNext( edict_t * ent )
+{
+	int i, limchase;
+	edict_t *e, *targ = ent->client->chase_target;
+
+	if (!targ)
+		return;
+
+	limchase = (teamplay->value && limchasecam->value && ent->client->resp.team != NOTEAM);
+
+	i = targ - g_edicts;
 	do
 	{
 		i++;
@@ -211,105 +280,84 @@ void ChaseNext (edict_t * ent)
 		e = g_edicts + i;
 		if (!e->inuse)
 			continue;
-		//Black Cross - Begin
-		if (teamplay->value && limchasecam->value &&
-			ent->client->resp.team != NOTEAM &&
-			ent->client->resp.team != e->client->resp.team)
-				continue;
-		//Black Cross - End
-		if (e->solid != SOLID_NOT || e->deadflag == DEAD_DEAD)
-			break;
-	}
-	while (e != ent->client->chase_target);
+		if (e->solid == SOLID_NOT && e->deadflag != DEAD_DEAD)
+			continue;
+		if (limchase && ent->client->resp.team != e->client->resp.team)
+			continue;
 
-	ent->client->chase_target = e;
+		break;
+	} while (e != targ);
+
+	if (e != targ)
+		SetChase( ent, e );
 }
 
-void
-ChasePrev (edict_t * ent)
+void ChasePrev( edict_t * ent )
 {
-  int i;
-  edict_t *e;
+	int i, limchase;
+	edict_t *e, *targ = ent->client->chase_target;
 
-  if (!ent->client->chase_target)
-    return;
+	if (!targ)
+		return;
 
-  i = ent->client->chase_target - g_edicts;
-  do
-    {
-      i--;
-      if (i < 1)
-		  i = game.maxclients;
-      e = g_edicts + i;
-      if (!e->inuse)
-	continue;
-      //Black Cross - Begin
-      if (teamplay->value && limchasecam->value &&
-	  ent->client->resp.team != NOTEAM &&
-	  ent->client->resp.team != e->client->resp.team)
-	continue;
-      //Black Cross - End
-      if (e->solid != SOLID_NOT || e->deadflag == DEAD_DEAD)
-	break;
-    }
-  while (e != ent->client->chase_target);
+	limchase = (teamplay->value && limchasecam->value && ent->client->resp.team != NOTEAM);
 
-  ent->client->chase_target = e;
+	i = targ - g_edicts;
+	do
+	{
+		i--;
+		if (i < 1)
+			i = game.maxclients;
+		e = g_edicts + i;
+		if (!e->inuse)
+			continue;
+		if (e->solid == SOLID_NOT && e->deadflag != DEAD_DEAD)
+			continue;
+		if (limchase && ent->client->resp.team != e->client->resp.team)
+			continue;
+
+		break;
+	} while (e != targ);
+
+	if (e != targ)
+		SetChase( ent, e );
 }
 
-void
-GetChaseTarget (edict_t * ent)
+void GetChaseTarget( edict_t * ent )
 {
-  int i, found, searched;
-  edict_t *e, *start_target;
+	int i, limchase;
+	edict_t *e, *targ;
 
-  start_target = ent->client->resp.last_chase_target;
-
-  if (start_target == NULL)
-    {
-      start_target = g_edicts + 1;
-    }
-  else
-    {
-      if (start_target < (g_edicts + 1) ||
-	  start_target > (g_edicts + game.maxclients))
-	{
-	  gi.dprintf ("Warning: start_target ended up out of range\n");
+	targ = ent->client->resp.last_chase_target;
+	if (!targ) {
+		targ = g_edicts + game.maxclients;
 	}
-    }
-
-  i = (start_target - g_edicts) + 1;
-  found = searched = 0;
-  do
-    {
-      searched++;
-      i--;
-      if (i < 1)
-	i = game.maxclients;
-      e = g_edicts + i;
-      if (!e->inuse)
-	continue;
-      //Black Cross - Begin
-      if (teamplay->value && limchasecam->value &&
-	  ent->client->resp.team != NOTEAM &&
-	  ent->client->resp.team != e->client->resp.team)
-	continue;
-      //Black Cross - End
-      if (e->solid != SOLID_NOT || e->deadflag == DEAD_DEAD)
-	{
-	  found = 1;
-	  break;
+	else {
+		targ = targ - 1;
+		if (targ < (g_edicts + 1)) {
+			targ = g_edicts + game.maxclients;
+		}
 	}
-    }
-  while ((e != (start_target + 1)) && searched < 100);
 
-  if (searched >= 100)
-    {
-      gi.dprintf ("Warning: prevented loop in GetChaseTarget\n");
-    }
+	limchase = (teamplay->value && limchasecam->value && ent->client->resp.team != NOTEAM);
 
-  if (found)
-    {
-      ent->client->chase_target = e;
-    }
+	i = targ - g_edicts;
+	do
+	{
+		i++;
+		if (i > game.maxclients)
+			i = 1;
+		e = g_edicts + i;
+		if (!e->inuse)
+			continue;
+		if (e->solid == SOLID_NOT && e->deadflag != DEAD_DEAD)
+			continue;
+		if (limchase && ent->client->resp.team != e->client->resp.team)
+			continue;
+
+		SetChase( ent, e );
+		return;
+	} while (e != targ);
+
+	//gi.cprintf(ent, PRINT_HIGH, "No players to chase.\n");
 }

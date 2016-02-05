@@ -173,6 +173,7 @@ void SP_LaserSight(edict_t * self, gitem_t * item)
 	AngleVectors(self->client->v_angle, forward, right, NULL);
 	VectorSet(end, 100, 0, 0);
 	G_ProjectSource(self->s.origin, end, forward, right, start);
+	VectorCopy(self->s.origin, self->old_origin);
 	self->lasersight = G_Spawn();
 	self->lasersight->owner = self;
 	self->lasersight->movetype = MOVETYPE_NOCLIP;
@@ -828,7 +829,7 @@ void SetIDView(edict_t * ent)
 
 //FIREBLADE
 	if (ent->solid != SOLID_NOT && !teamplay->value) {
-		if (!((int) (dmflags->value) & (DF_MODELTEAMS | DF_SKINTEAMS)))
+		if (!DMFLAGS( (DF_MODELTEAMS | DF_SKINTEAMS) ))
 			return;	// won't ever work in non-teams so don't run the code...
 
 	}
@@ -912,8 +913,9 @@ void Cmd_IR_f(edict_t * ent)
 
 void Cmd_Choose_f(edict_t * ent)
 {
-	char *s;
+	char *s, *wpnText, *itmText;
 	int itemNum = NO_NUM;
+	gitem_t *item;
 
 	// only works in teamplay
 	if ((!teamplay->value && !dm_choose->value) || teamdm->value || ctf->value == 2)
@@ -958,7 +960,7 @@ void Cmd_Choose_f(edict_t * ent)
 	case SNIPER_NUM:
 	case KNIFE_NUM:
 	case M4_NUM:
-		if (!((int)wp_flags->value & items[itemNum].flag)) {
+		if (!WPF_ALLOWED(itemNum)) {
 			gi.cprintf(ent, PRINT_HIGH, "Weapon disabled on this server.\n");
 			return;
 		}
@@ -970,7 +972,7 @@ void Cmd_Choose_f(edict_t * ent)
 	case SIL_NUM:
 	case HELM_NUM:
 	case BAND_NUM:
-		if (!((int)itm_flags->value & items[itemNum].flag)) {
+		if (!ITF_ALLOWED(itemNum)) {
 			gi.cprintf(ent, PRINT_HIGH, "Item disabled on this server.\n");
 			return;
 		}
@@ -981,8 +983,13 @@ void Cmd_Choose_f(edict_t * ent)
 		return;
 	}
 
-	gi.cprintf(ent, PRINT_HIGH, "Weapon selected: %s\nItem selected: %s\n",
-		   (ent->client->resp.weapon)->pickup_name, (ent->client->resp.item)->pickup_name);
+	item = ent->client->resp.weapon;
+	wpnText = (item && item->pickup_name) ? item->pickup_name : "NONE";
+
+	item = ent->client->resp.item;
+	itmText = (item && item->pickup_name) ? item->pickup_name : "NONE";
+
+	gi.cprintf(ent, PRINT_HIGH, "Weapon selected: %s\nItem selected: %s\n", wpnText, itmText );
 }
 
 // AQ:TNG - JBravo adding tkok
@@ -1131,17 +1138,13 @@ void Cmd_Ghost_f(edict_t * ent)
 				ent->client->resp.item = ghost_players[x].item;
 			}
 
-			ent->client->resp.stats_shots_t = ghost_players[x].stats_shots_t;
-			ent->client->resp.stats_shots_h = ghost_players[x].stats_shots_h;
+			ent->client->resp.shotsTotal = ghost_players[x].shotsTotal;
+			ent->client->resp.hitsTotal = ghost_players[x].hitsTotal;
 
-			memcpy(ent->client->resp.stats_locations, ghost_players[x].stats_locations,
-			       sizeof(ghost_players[x].stats_locations));
-			memcpy(ent->client->resp.stats_shots, ghost_players[x].stats_shots,
-			       sizeof(ghost_players[x].stats_shots));
-			memcpy(ent->client->resp.stats_hits, ghost_players[x].stats_hits,
-			       sizeof(ghost_players[x].stats_hits));
-			memcpy(ent->client->resp.stats_headshot, ghost_players[x].stats_headshot,
-			       sizeof(ghost_players[x].stats_headshot));
+			memcpy(ent->client->resp.hitsLocations, ghost_players[x].hitsLocations,
+			       sizeof(ghost_players[x].hitsLocations));
+			memcpy(ent->client->resp.gunstats, ghost_players[x].gunstats,
+			       sizeof(ghost_players[x].gunstats));
 		}
 	}
 	if (found == true) {

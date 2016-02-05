@@ -169,7 +169,6 @@ void SP_item_health_mega (edict_t * self);
 
 void SP_info_player_start (edict_t * ent);
 void SP_info_player_deathmatch (edict_t * ent);
-void SP_info_player_coop (edict_t * ent);
 void SP_info_player_intermission (edict_t * ent);
 
 void SP_func_plat (edict_t * ent);
@@ -251,11 +250,10 @@ void SP_misc_easterchick2 (edict_t * self);
 
 //zucc - item replacement function
 void CheckItem (edict_t * ent);
-int LoadFlagsFromFile (char *mapname);
+int LoadFlagsFromFile (const char *mapname);
 
 //AQ2:TNG - Slicer New location code
 int ml_count = 0;
-char ml_build[6];
 char ml_creator[101];
 //AQ2:TNG END
 placedata_t locationbase[MAX_LOCATIONS_IN_BASE];
@@ -269,7 +267,6 @@ static const spawn_t spawns[] = {
 
   {"info_player_start", SP_info_player_start},
   {"info_player_deathmatch", SP_info_player_deathmatch},
-  {"info_player_coop", SP_info_player_coop},
   {"info_player_intermission", SP_info_player_intermission},
 
   {"info_player_team1", SP_info_player_team1},
@@ -377,38 +374,46 @@ void ED_CallSpawn (edict_t * ent)
 	gitem_t *item;
 	int i;
 
-	if (!ent->classname)
-	{
-		gi.dprintf ("ED_CallSpawn: NULL classname\n");
+	if (!ent->classname) {
+		gi.dprintf("ED_CallSpawn: NULL classname\n");
 		return;
 	}
 
 	// zucc - BD's item replacement idea
-	CheckItem (ent);
+	CheckItem(ent);
 
 	// check item spawn functions
 	for (i = 0, item = itemlist; i < game.num_items; i++, item++)
 	{
 		if (!item->classname)
 			continue;
-		if (!strcmp (item->classname, ent->classname))
+		if (!strcmp(item->classname, ent->classname))
 		{	// found it
 
 			//FIXME: We do same checks in SpawnItem, do we need these here? -M
-			if ((!teamplay->value || teamdm->value || ctf->value == 2) && !dm_choose->value)
+			if (!teamplay->value || teamdm->value)
 			{
-				if (item->flags & (IT_AMMO|IT_WEAPON|IT_FLAG) /*|| item->flags & (IT_ITEM|IT_POWERUP)*/)
+				if (dm_choose->value)
+					G_FreeEdict( ent );
+				else if (item->flags & (IT_AMMO|IT_WEAPON))
+					SpawnItem(ent, item);
+				else if ((item->flags & IT_ITEM) && item_respawnmode->value)
 					SpawnItem( ent, item );
 				else
-					G_FreeEdict( ent );
+					G_FreeEdict(ent);
 			}
-			else if (ctf->value && item->flags & IT_FLAG)
+			else if (ctf->value)
 			{
-				SpawnItem(ent, item);
+				if(item->flags & IT_FLAG)
+					SpawnItem(ent, item);
+				else if(ctf->value == 2 && (item->flags & (IT_AMMO|IT_WEAPON|IT_ITEM|IT_POWERUP)))
+					SpawnItem(ent, item);
+				else
+					G_FreeEdict(ent);
 			}
 			else
 			{
-				G_FreeEdict( ent );
+				G_FreeEdict(ent);
 			}
 
 			return;
@@ -644,47 +649,154 @@ All but the first will have the FL_TEAMSLAVE flag set.
 All but the last will have the teamchain field set to the next one
 ================
 */
-void
-G_FindTeams (void)
+void G_FindTeams (void)
 {
-  edict_t *e, *e2, *chain;
-  int i, j;
-  int c, c2;
+	edict_t *e, *e2, *chain;
+	int i, j;
+	int c, c2;
 
-  c = 0;
-  c2 = 0;
-  for (i = 1, e = g_edicts + i; i < globals.num_edicts; i++, e++)
-    {
-      if (!e->inuse)
-	continue;
-      if (!e->team)
-	continue;
-      if (e->flags & FL_TEAMSLAVE)
-	continue;
-      chain = e;
-      e->teammaster = e;
-      c++;
-      c2++;
-      for (j = i + 1, e2 = e + 1; j < globals.num_edicts; j++, e2++)
+	c = 0;
+	c2 = 0;
+	for (i = 1, e = g_edicts + i; i < globals.num_edicts; i++, e++)
 	{
-	  if (!e2->inuse)
-	    continue;
-	  if (!e2->team)
-	    continue;
-	  if (e2->flags & FL_TEAMSLAVE)
-	    continue;
-	  if (!strcmp (e->team, e2->team))
-	    {
-	      c2++;
-	      chain->teamchain = e2;
-	      e2->teammaster = e;
-	      chain = e2;
-	      e2->flags |= FL_TEAMSLAVE;
-	    }
+		if (!e->inuse || !e->team)
+			continue;
+		if (e->flags & FL_TEAMSLAVE)
+			continue;
+		chain = e;
+		e->teammaster = e;
+		c++;
+		c2++;
+		for (j = i + 1, e2 = e + 1; j < globals.num_edicts; j++, e2++)
+		{
+			if (!e2->inuse || !e2->team)
+				continue;
+			if (e2->flags & FL_TEAMSLAVE)
+				continue;
+			if (!strcmp (e->team, e2->team))
+			{
+				c2++;
+				chain->teamchain = e2;
+				e2->teammaster = e;
+				chain = e2;
+				e2->flags |= FL_TEAMSLAVE;
+			}
+		}
 	}
-    }
 
-  gi.dprintf ("%i teams with %i entities\n", c, c2);
+	gi.dprintf ("%i teams with %i entities\n", c, c2);
+}
+
+void G_LoadLocations( void )
+{
+	//AQ2:TNG New Location Code
+	char	locfile[MAX_QPATH], buffer[256];
+	FILE	*f;
+	int		i, x, y, z, rx, ry, rz;
+	char	*locationstr, *param, *line;
+	cvar_t	*game_cvar;
+	placedata_t *loc;
+
+	memset( ml_creator, 0, sizeof( ml_creator ) );
+	ml_count = 0;
+
+	game_cvar = gi.cvar ("game", "", 0);
+
+	if (!*game_cvar->string)
+		Com_sprintf(locfile, sizeof(locfile), "%s/tng/%s.aqg", GAMEVERSION, level.mapname);
+	else
+		Com_sprintf(locfile, sizeof(locfile), "%s/tng/%s.aqg", game_cvar->string, level.mapname);
+
+	f = fopen( locfile, "r" );
+	if (!f) {
+		gi.dprintf( "No location file for %s\n", level.mapname );
+		return;
+	}
+
+	gi.dprintf( "Location file: %s\n", level.mapname );
+
+	do
+	{
+		line = fgets( buffer, sizeof( buffer ), f );
+		if (!line) {
+			break;
+		}
+
+		if (strlen( line ) < 12)
+			continue;
+
+		if (line[0] == '#')
+		{
+			param = line + 1;
+			while (*param == ' ') { param++; }
+			if (*param && !Q_strnicmp(param, "creator", 7))
+			{
+				param += 8;
+				while (*param == ' ') { param++; }
+				for (i = 0; *param >= ' ' && i < sizeof( ml_creator ) - 1; i++) {
+					ml_creator[i] = *param++;
+				}
+				ml_creator[i] = 0;
+				while (i > 0 && ml_creator[i - 1] == ' ') //Remove railing spaces
+					ml_creator[--i] = 0;
+			}
+			continue;
+		}
+
+		param = strtok( line, " :\r\n\0" );
+		// TODO: better support for file comments
+		if (!param || param[0] == '#')
+			continue;
+
+		x = atoi( param );
+
+		param = strtok( NULL, " :\r\n\0" );
+		if (!param)
+			continue;
+		y = atoi( param );
+
+		param = strtok( NULL, " :\r\n\0" );
+		if (!param)
+			continue;
+		z = atoi( param );
+
+		param = strtok( NULL, " :\r\n\0" );
+		if (!param)
+			continue;
+		rx = atoi( param );
+
+		param = strtok( NULL, " :\r\n\0" );
+		if (!param)
+			continue;
+		ry = atoi( param );
+
+		param = strtok( NULL, " :\r\n\0" );
+		if (!param)
+			continue;
+		rz = atoi( param );
+
+		param = strtok( NULL, "\r\n\0" );
+		if (!param)
+			continue;
+		locationstr = param;
+
+		loc = &locationbase[ml_count++];
+		loc->x = x;
+		loc->y = y;
+		loc->z = z;
+		loc->rx = rx;
+		loc->ry = ry;
+		loc->rz = rz;
+		Q_strncpyz( loc->desc, locationstr, sizeof( loc->desc ) );
+
+		if (ml_count >= MAX_LOCATIONS_IN_BASE) {
+			gi.dprintf( "Cannot read more than %d locations.\n", MAX_LOCATIONS_IN_BASE );
+			break;
+		}
+	} while (1);
+
+	fclose( f );
+	gi.dprintf( "Found %d locations.\n", ml_count );
 }
 
 /*
@@ -701,16 +813,6 @@ void SpawnEntities (char *mapname, char *entities, char *spawnpoint)
 	int inhibit = 0;
 	char *com_token;
 	int i;
-	float skill_level;
-	//AQ2:TNG New Location Code
-	char locfile[MAX_QPATH], line[256];
-	FILE *f;
-	int readmore, x, y, z, rx, ry, rz, count;
-	char *locationstr, *param;
-	cvar_t *game_cvar;
-	int u;
-	//    placedata_t temp;
-
 
 	// Reset teamplay stuff
 	for(i = TEAM1; i < TEAM_TOP; i++)
@@ -752,7 +854,7 @@ void SpawnEntities (char *mapname, char *entities, char *spawnpoint)
 			gi.dprintf ("CTF Enabled - Forcing Tourney off\n");
 			gi.cvar_forceset(use_tourney->name, "0");
 		}
-		if (!((int) (dmflags->value) & DF_NO_FRIENDLY_FIRE))
+		if (!DMFLAGS(DF_NO_FRIENDLY_FIRE))
 		{
 			gi.dprintf ("CTF Enabled - Forcing Friendly Fire off\n");
 			gi.cvar_forceset(dmflags->name, va("%i", (int)dmflags->value | DF_NO_FRIENDLY_FIRE));
@@ -825,14 +927,6 @@ void SpawnEntities (char *mapname, char *entities, char *spawnpoint)
 		}
 	}
 
-	skill_level = floor (skill->value);
-	if (skill_level < 0)
-		skill_level = 0;
-	if (skill_level > 3)
-		skill_level = 3;
-	if (skill->value != skill_level)
-		gi.cvar_forceset ("skill", va("%f", skill_level));
-
 	SaveClientData ();
 
 	gi.FreeTags (TAG_LEVEL);
@@ -873,30 +967,13 @@ void SpawnEntities (char *mapname, char *entities, char *spawnpoint)
 		// remove things (except the world) from different skill levels or deathmatch
 		if (ent != g_edicts)
 		{
-			if (deathmatch->value)
+			if (ent->spawnflags & SPAWNFLAG_NOT_DEATHMATCH)
 			{
-				if (ent->spawnflags & SPAWNFLAG_NOT_DEATHMATCH)
-				{
-					G_FreeEdict (ent);
-					inhibit++;
-					continue;
-				}
+				G_FreeEdict (ent);
+				inhibit++;
+				continue;
 			}
-			else
-			{
-				if (		/* ((coop->value) && (ent->spawnflags & SPAWNFLAG_NOT_COOP)) || */
-					((skill->value == 0)
-					&& (ent->spawnflags & SPAWNFLAG_NOT_EASY))
-					|| ((skill->value == 1)
-					&& (ent->spawnflags & SPAWNFLAG_NOT_MEDIUM))
-					|| (((skill->value == 2) || (skill->value == 3))
-					&& (ent->spawnflags & SPAWNFLAG_NOT_HARD)))
-					{
-					G_FreeEdict (ent);
-					inhibit++;
-					continue;
-				}
-			}
+
 			ent->spawnflags &=
 			~(SPAWNFLAG_NOT_EASY | SPAWNFLAG_NOT_MEDIUM | SPAWNFLAG_NOT_HARD |
 			SPAWNFLAG_NOT_COOP | SPAWNFLAG_NOT_DEATHMATCH);
@@ -918,7 +995,7 @@ void SpawnEntities (char *mapname, char *entities, char *spawnpoint)
 				 !G_Find(NULL, FOFS (classname), "item_flag_team2")))
 			{
 				gi.dprintf ("No native CTF map, loading flag positions from file\n");
-				if (LoadFlagsFromFile (level.mapname))
+				if (LoadFlagsFromFile(level.mapname))
 					ChangePlayerSpawns ();
 			}
 		}
@@ -946,117 +1023,7 @@ void SpawnEntities (char *mapname, char *entities, char *spawnpoint)
 			NS_GetSpawnPoints();
 	}
 
-	//AQ2:TNG Slicer - New location  code
-	memset (ml_build, 0, sizeof (ml_build));
-	memset (ml_creator, 0, sizeof (ml_creator));
-
-
-	game_cvar = gi.cvar ("game", "", 0);
-
-	if (!*game_cvar->string)
-		Com_sprintf(locfile, sizeof(locfile), "%s/tng/%s.aqg", GAMEVERSION, level.mapname);
-	else
-		Com_sprintf(locfile, sizeof(locfile), "%s/tng/%s.aqg", game_cvar->string, level.mapname);
-
-	f = fopen (locfile, "rt");
-	if (!f)
-	{
-		ml_count = 0;
-		gi.dprintf ("No location file for %s\n", level.mapname);
-		return;
-	}
-
-	gi.dprintf ("Location file: %s\n", level.mapname);
-
-	readmore = 1;
-	count = 0;
-
-	while (readmore)
-	{
-		readmore = (fgets (line, 256, f) != NULL);
-		param = strtok (line, " :\r\n\0");
-		if (line[0] == '#' && line[2] == 'C')
-		{
-			u = 0;
-			for (i = 10; line[i] != '\n'; i++)
-			{
-				if (line[i] == '\r') continue;
-					ml_creator[u] = line[i];
-				u++;
-			}
-		}
-		if (line[0] == '#' && line[2] == 'B')
-		{
-			u = 0;
-			for (i = 8; line[i] != '\n'; i++)
-			{
-				if (line[i] != ' ' && line[i] != '\r')
-				{
-					ml_build[u] = line[i];
-					u++;
-				}
-			}
-		}
-		ml_build[5] = 0;
-		ml_creator[100] = 0;
-
-		// TODO: better support for file comments
-		if (!param || param[0] == '#')
-			continue;
-
-		x = atoi (param);
-
-		param = strtok (NULL, " :\r\n\0");
-		if (!param)
-			continue;
-		y = atoi (param);
-
-		param = strtok (NULL, " :\r\n\0");
-		if (!param)
-			continue;
-		z = atoi (param);
-
-		param = strtok (NULL, " :\r\n\0");
-		if (!param)
-			continue;
-		rx = atoi (param);
-
-		param = strtok (NULL, " :\r\n\0");
-		if (!param)
-			continue;
-		ry = atoi (param);
-
-		param = strtok (NULL, " :\r\n\0");
-		if (!param)
-			continue;
-		rz = atoi (param);
-
-		param = strtok (NULL, "\r\n\0");
-		if (!param)
-			continue;
-		locationstr = param;
-
-		locationbase[count].x = x;
-		locationbase[count].y = y;
-		locationbase[count].z = z;
-		locationbase[count].rx = rx;
-		locationbase[count].ry = ry;
-		locationbase[count].rz = rz;
-		Q_strncpyz (locationbase[count].desc, locationstr, sizeof(locationbase[count].desc));
-
-		count++;
-
-		if (count >= MAX_LOCATIONS_IN_BASE)
-		{
-			gi.dprintf ("Cannot read more than %d locations.\n", MAX_LOCATIONS_IN_BASE);
-			break;
-		}
-	}
-
-	ml_count = count;
-	fclose (f);
-	gi.dprintf ("Found %d locations.\n", count);
-
+	G_LoadLocations();
 }
 
 
@@ -1071,310 +1038,107 @@ xl < value > xr < value > yb < value > yt < value > xv < value > yv < value >
   if <stat
   >ifeq < stat > <value > ifbit < stat > <value > endif
 #endif
-  char *single_statusbar = "yb     -24 "
-// health
-    "xv     0 " "hnum " "xv     50 " "pic 0 "
-// ammo
-    "if 2 "
-    "       xv      100 "
-    "       anum " "       xv      150 " "       pic 2 " "endif "
-/*
-// armor
-"if 4 "
-"       xv      200 "
-"       rnum "
-"       xv      250 "
-"       pic 4 "
-"endif "
-*/
-// selected item
-    "if 6 " "       xv      296 " "       pic 6 " "endif " "yb     -50 "
-// picked up item
-    "if 7 "
-    "       xv      0 "
-    "       pic 7 "
-    "       xv      26 "
-    "       yb      -42 "
-    "       stat_string 8 " "       yb      -50 " "endif "
-// timer
-    "if 9 "
-    "       xv      262 "
-    "       num     2       10 "
-    "       xv      296 " "       pic     9 " "endif "
-//  help / weapon icon 
-    "if 11 " "       xv      148 " "       pic     11 " "endif "
-// zucc
-// sniper zoom graphic/icon
-    "if 18 "
-    "       xr      0 "
-    "       yb      0 "
-    "       xv      0 " "       yv      0 " "       pic 18 " "endif "
-// clip(s)
-// puts them all the way on the right side of the screen
-    "if 16 "
-    "       xv      0 "
-    "       yv      0 "
-    "       yb      -24 "
-    "       xr      -60 "
-    "       num 2   17 " "       xr      -24 " "       pic 16 " "endif "
-// zucc special item ( vest etc )
-    "if 19 "
-    "       xv      0 "
-    "       yv      0 "
-    "       yb      -72 " "       xr      -24 " "       pic 19 " "endif "
-// zucc special weapon
-    "if 20 "
-    "       xv      0 "
-    "       yv      0 "
-    "       yb      -48 " "       xr      -24 " "       pic 20 " "endif "
-// zucc grenades
-    "if 28 "
-    "       xv      0 "
-    "               yv              0 "
-    "               yb              -96 "
-    "               xr              -60 "
-    "       num 2 29 "
-    "       xr      -24 "
-    "       pic 28 "
-    "endif "
-    "if 21 "
-    "xv 0 "
-    "yb -58 " "string \"Viewing\" " "xv 64 " "stat_string 21 " "endif ";
 
-
-char *dm_statusbar = "yb     -24 "
-// health
-  "xv     0 " "hnum " "xv     50 " "pic 0 "
-// ammo
-  "if 2 "
-  "       xv      100 "
-  "       anum " "       xv      150 " "       pic 2 " "endif "
-/*
-// armor
-"if 4 "
-"       xv      200 "
-"       rnum "
-"       xv      250 "
-"       pic 4 "
-"endif "
-*/
-// selected item
-  "if 6 " "       xv      296 " "       pic 6 " "endif " "yb     -50 "
-// picked up item
-  "if 7 "
-  "       xv      0 "
-  "       pic 7 "
-  "       xv      26 "
-  "       yb      -42 " "       stat_string 8 " "       yb      -50 " "endif "
-/*
-// timer
-"if 9 "
-"       xv      246 "
-"       num     2       10 "
-"       xv      296 "
-"       pic     9 "
-"endif "
-*/
-//  help / weapon icon 
-  "if 11 " "       xv      148 " "       pic     11 " "endif "
-// zucc
-// clip(s)
-  "if 16 "
-  "       xv      0 "
-  "       yv      0 "
-  "       yb      -24 "
-  "       xr      -60 "
-  "       num 2   17 " "       xr      -24 " "       pic 16 " "endif "
-// zucc special item ( vest etc )
-  "if 19 "
-  "       xv      0 "
-  "       yv      0 "
-  "       yb      -72 " "       xr      -24 " "       pic 19 " "endif "
-// zucc special weapon
-  "if 20 "
-  "       xv      0 "
-  "       yv      0 "
-  "       yb      -48 " "       xr      -24 " "       pic 20 " "endif "
-// zucc grenades
-  "if 28 "
-  "       xv      0 "
-  "               yv              0 "
-  "               yb              -96 "
-  "               xr              -60 "
-  "       num 2 29 "
-  "       xr      -24 "
-  "       pic 28 "
-  "endif "
-  "if 21 "
-  "xv 0 " "yb -58 " "string \"Viewing\" " "xv 64 " "stat_string 21 " "endif "
-// sniper graphic/icon
-  "if 18 "
-  "       xr      0 "
-  "       yb      0 "
-  "       xv      0 " "       yv      0 " "       pic 18 " "endif "
-//  frags
-  "xr     -50 " "yt 2 " "num 3 14";
-
-
+#define STATBAR_COMMON \
+	"yb -24 " \
+/* health */ \
+	"xv 0 " "hnum " "xv 50 " "pic 0 " \
+/* ammo */ \
+	"if 2 " \
+		"xv 100 " \
+		"anum " \
+		"xv 150 " \
+		"pic 2 " \
+	"endif " \
+/* selected item */ \
+	"if 6 " \
+		"xv 296 " \
+		"pic 6 " \
+	"endif " \
+	"yb -50 " \
+/* picked up item */ \
+	"if 7 " \
+		"xv 0 " \
+		"pic 7 " \
+		"xv 26 " \
+		"yb -42 " \
+		"stat_string 8 " \
+		"yb -50 " \
+	"endif " \
+/*  help / weapon icon */ \
+	"if 11 " \
+		"xv 148 " \
+		"pic 11 " \
+	"endif " \
+/* clip(s) */ \
+	"if 16 " \
+		"yb -24 " \
+		"xr -60 " \
+		"num 2 17 " \
+		"xr -24 " \
+		"pic 16 " \
+	"endif " \
+/* special item ( vest etc ) */ \
+	"if 19 " \
+		"yb -72 " \
+		"xr -24 " \
+		"pic 19 " \
+	"endif " \
+/* special weapon */ \
+	"if 20 " \
+		"yb -48 " \
+		"xr -24 " \
+		"pic 20 " \
+	"endif " \
+/* grenades */ \
+	"if 28 " \
+		"yb -96 " \
+		"xr -60 " \
+		"num 2 29 " \
+		"xr -24 " \
+		"pic 28 " \
+	"endif " \
+/* spec viewing */ \
+	"if 21 " \
+		"xv 0 " \
+		"yb -58 " \
+		"string \"Viewing\" " \
+		"xv 64 " \
+		"stat_string 21 " \
+	"endif " \
+/* sniper graphic/icon */ \
+	"if 18 " \
+		"xv 0 " \
+		"yv 0 " \
+		"pic 18 " \
+	"endif "
 
 /* DM status bar for teamplay without individual scores -FB: */
-char *dm_noscore_statusbar = "yb     -24 "
-// health
-  "xv     0 " "hnum " "xv     50 " "pic 0 "
-// ammo
-  "if 2 "
-  "       xv      100 "
-  "       anum " "       xv      150 " "       pic 2 " "endif "
-/*
-// armor
-"if 4 "
-"       xv      200 "
-"       rnum "
-"       xv      250 "
-"       pic 4 "
-"endif "
-*/
-// selected item
-  "if 6 " "       xv      296 " "       pic 6 " "endif " "yb     -50 "
-// picked up item
-  "if 7 "
-  "       xv      0 "
-  "       pic 7 "
-  "       xv      26 "
-  "       yb      -42 " "       stat_string 8 " "       yb      -50 " "endif "
-/*
-// timer
-"if 9 "
-"       xv      246 "
-"       num     2       10 "
-"       xv      296 "
-"       pic     9 "
-"endif "
-*/
-//  help / weapon icon 
-  "if 11 " "       xv      148 " "       pic     11 " "endif "
-// zucc
-// clip(s)
-  "if 16 "
-  "       xv      0 "
-  "       yv      0 "
-  "       yb      -24 "
-  "       xr      -60 "
-  "       num 2   17 " "       xr      -24 " "       pic 16 " "endif "
-// zucc special item ( vest etc )
-  "if 19 "
-  "       xv      0 "
-  "       yv      0 "
-  "       yb      -72 " "       xr      -24 " "       pic 19 " "endif "
-// zucc special weapon
-  "if 20 "
-  "       xv      0 "
-  "       yv      0 "
-  "       yb      -48 " "       xr      -24 " "       pic 20 " "endif "
-// zucc grenades
-  "if 28 "
-  "       xv      0 "
-  "               yv              0 "
-  "               yb              -96 "
-  "               xr              -60 "
-  "       num 2 29 "
-  "       xr      -24 "
-  "       pic 28 "
-  "endif "
-  "if 21 "
-  "xv 0 " "yb -58 " "string \"Viewing\" " "xv 64 " "stat_string 21 " "endif "
-// sniper graphic/icon
-  "if 18 "
-  "       xr      0 "
-  "       yb      0 "
-  "       xv      0 " "       yv      0 " "       pic 18 " "endif "
-/*
-//  frags
-"xr     -50 "
-"yt 2 "
-"num 3 14"
-*/
- ;
-// END FB
+char *dm_noscore_statusbar =
+	STATBAR_COMMON
+;
 
-char *ctf_statusbar = "yb     -24 "
-// health
-  "xv     0 " "hnum " "xv     50 " "pic 0 "
-// ammo
-  "if 2 "
-  "       xv      100 "
-  "       anum " "       xv      150 " "       pic 2 " "endif "
-/*
-// armor
-"if 4 "
-"       xv      200 "
-"       rnum "
-"       xv      250 "
-"       pic 4 "
-"endif "
-*/
-// selected item
-  "if 6 " "       xv      296 " "       pic 6 " "endif " "yb     -50 "
-// picked up item
-  "if 7 "
-  "       xv      0 "
-  "       pic 7 "
-  "       xv      26 "
-  "       yb      -42 " "       stat_string 8 " "       yb      -50 " "endif "
-/*
-// timer
-"if 9 "
-"       xv      246 "
-"       num     2       10 "
-"       xv      296 "
-"       pic     9 "
-"endif "
-*/
-//  help / weapon icon 
-  "if 11 " "       xv      148 " "       pic     11 " "endif "
-// zucc
-// clip(s)
-  "if 16 "
-  "       xv      0 "
-  "       yv      0 "
-  "       yb      -24 "
-  "       xr      -60 "
-  "       num 2   17 " "       xr      -24 " "       pic 16 " "endif "
-// zucc special item ( vest etc )
-  "if 19 "
-  "       xv      0 "
-  "       yv      0 "
-  "       yb      -72 " "       xr      -24 " "       pic 19 " "endif "
-// zucc special weapon
-  "if 20 "
-  "       xv      0 "
-  "       yv      0 "
-  "       yb      -48 " "       xr      -24 " "       pic 20 " "endif "
-// zucc grenades
-  "if 28 "
-  "       xv      0 "
-  "               yv              0 "
-  "               yb              -96 "
-  "               xr              -60 "
-  "       num 2 29 "
-  "       xr      -24 "
-  "       pic 28 "
-  "endif "
-  "if 21 "
-  "xv 0 " "yb -58 " "string \"Viewing\" " "xv 64 " "stat_string 21 " "endif "
-// sniper graphic/icon
-  "if 18 "
-  "       xr      0 "
-  "       yb      0 "
-  "       xv      0 " "       yv      0 " "       pic 18 " "endif "
+char *dm_statusbar =
+	STATBAR_COMMON
 //  frags
-  "xr     -50 " "yt 2 " "num 3 14 "
+	"xr -50 "
+	"yt 2 "
+	"num 3 14 "
+;
+
+char *ctf_statusbar =
+	STATBAR_COMMON
+//  frags
+	"xr -50 "
+	"yt 2 "
+	"num 3 14 "
 // Red Team
-  "yb -164 " "if 24 " "xr -24 " "pic 24 " "endif " "xr -60 " "num 2 26 "
+	"yb -164 " "if 24 " "xr -24 " "pic 24 " "endif " "xr -60 " "num 2 26 "
 // Blue Team
-  "yb -140 " "if 25 " "xr -24 " "pic 25 " "endif " "xr -60 " "num 2 27 "
+	"yb -140 " "if 25 " "xr -24 " "pic 25 " "endif " "xr -60 " "num 2 27 "
 // Flag carried
-  "if 23 " "yt 26 " "xr -24 " "pic 23 " "endif ";
+	"if 23 " "yt 26 " "xr -24 " "pic 23 " "endif "
+;
 
 
 /*QUAKED worldspawn (0 0 0) ?
@@ -1390,7 +1154,8 @@ Only used for the world.
 
 void SP_worldspawn (edict_t * ent)
 {
-	int i;
+	int i, bullets, shells;
+	char *picname;
 
 	ent->movetype = MOVETYPE_PUSH;
 	ent->solid = SOLID_BSP;
@@ -1398,10 +1163,10 @@ void SP_worldspawn (edict_t * ent)
 	ent->s.modelindex = 1;	// world model is always index 1
 
 	// reserve some spots for dead player bodies for coop / deathmatch
-	InitBodyQue ();
+	InitBodyQue();
 
 	// set configstrings for items
-	SetItemNames ();
+	SetItemNames();
 
 	level.framenum = 0;
 	level.time = 0;
@@ -1410,23 +1175,23 @@ void SP_worldspawn (edict_t * ent)
 	level.matchTime = 0;
 
 	if (st.nextmap)
-		strcpy (level.nextmap, st.nextmap);
+		strcpy(level.nextmap, st.nextmap);
 
 	// make some data visible to the server
 
 	if (ent->message && ent->message[0])
 	{
 		Q_strncpyz(level.level_name, ent->message, sizeof(level.level_name));
-		gi.configstring (CS_NAME, level.level_name);
+		gi.configstring(CS_NAME, level.level_name);
 	}
 	else {
 		strcpy(level.level_name, level.mapname);
 	}
 
 	if (st.sky && st.sky[0])
-		gi.configstring (CS_SKY, st.sky);
+		gi.configstring(CS_SKY, st.sky);
 	else
-		gi.configstring (CS_SKY, "unit1_");
+		gi.configstring(CS_SKY, "unit1_");
 
 	gi.configstring(CS_SKYROTATE, va("%f", st.skyrotate));
 
@@ -1445,22 +1210,10 @@ void SP_worldspawn (edict_t * ent)
 	//FIREBLADE
 	{
 		// status bar program
-		if (!deathmatch->value)
-		{
-			gi.configstring (CS_STATUSBAR, single_statusbar);
-		}
-		else if (ctf->value)
+		if (ctf->value)
 		{
 			gi.configstring (CS_STATUSBAR, ctf_statusbar);
-			//precaches
-			gi.imageindex ("sbfctf1");
-			gi.imageindex ("sbfctf2");
-			gi.imageindex ("i_ctf1");
-			gi.imageindex ("i_ctf2");
-			gi.imageindex ("i_ctf1d");
-			gi.imageindex ("i_ctf2d");
-			gi.imageindex ("i_ctf1t");
-			gi.imageindex ("i_ctf2t");
+
 		}
 		else if (noscore->value && teamplay->value)
 		{
@@ -1475,169 +1228,186 @@ void SP_worldspawn (edict_t * ent)
 	//---------------
 
 
-	// help icon for statusbar
-	gi.imageindex ("i_help");
-	level.pic_health = gi.imageindex ("i_health");
-	gi.imageindex ("help");
-	gi.imageindex ("field_3");
+	level.pic_health = gi.imageindex("i_health");
+	gi.imageindex("field_3");
 
 	// zucc - preload sniper stuff
-	gi.imageindex ("scope2x");
-	gi.imageindex ("scope4x");
-	gi.imageindex ("scope6x");
+	level.pic_sniper_mode[1] = gi.imageindex("scope2x");
+	level.pic_sniper_mode[2] = gi.imageindex("scope4x");
+	level.pic_sniper_mode[3] = gi.imageindex("scope6x");
 
-	//FIREBLADE
-	gi.soundindex ("atl/lights.wav");
-	gi.soundindex ("atl/camera.wav");
-	gi.soundindex ("atl/action.wav");
-	gi.imageindex ("tag1");
-	gi.imageindex ("tag2");
-	gi.imageindex ("tag3");
-
-	if (teamplay->value)
-	{
-		for(i = TEAM1; i < TEAM_TOP; i++)
-		{
-			if (teams[i].skin_index[0] == 0)
-			{
-				gi.dprintf ("No skin was specified for team %i in config file. Exiting.\n", i);
-				exit (1);
-			}
-			gi.imageindex (teams[i].skin_index);
-		}
+	for (i = 1; i < AMMO_MAX; i++) {
+		picname = GET_ITEM(i)->icon;
+		if (picname)
+			level.pic_items[i] = gi.imageindex( picname );
 	}
 
-	// AQ2:TNG - Igor adding precache for sounds
-	gi.soundindex ("tng/no_team_wins.wav");
-	gi.soundindex ("tng/team1_wins.wav");
-	gi.soundindex ("tng/team2_wins.wav");
-	gi.soundindex ("tng/team3_wins.wav");
-	gi.soundindex ("tng/1_minute.wav");
-	gi.soundindex ("tng/3_minutes.wav");
-	gi.soundindex ("tng/1_frag.wav");
-	gi.soundindex ("tng/2_frags.wav");
-	gi.soundindex ("tng/3_frags.wav");
-	gi.soundindex ("tng/impressive.wav");
-	gi.soundindex ("tng/excellent.wav");
-	gi.soundindex ("tng/accuracy.wav");
-	gi.soundindex ("tng/clanwar.wav");
-	gi.soundindex ("tng/disabled.wav");
-	gi.soundindex ("tng/enabled.wav");
-	gi.soundindex ("misc/flashlight.wav"); // Caching Flashlight
-	// AQ2:TNG - end of precache sounds
+	bullets = gi.imageindex("a_bullets");
+	shells = gi.imageindex("a_shells");
+	level.pic_weapon_ammo[MK23_NUM] = bullets;
+	level.pic_weapon_ammo[MP5_NUM] = bullets;
+	level.pic_weapon_ammo[M4_NUM] = bullets;
+	level.pic_weapon_ammo[M3_NUM] = shells;
+	level.pic_weapon_ammo[HC_NUM] = shells;
+	level.pic_weapon_ammo[SNIPER_NUM] = bullets;
+	level.pic_weapon_ammo[DUAL_NUM] = bullets;
+	level.pic_weapon_ammo[KNIFE_NUM] = gi.imageindex("w_knife");
+	level.pic_weapon_ammo[GRENADE_NUM] = gi.imageindex("a_m61frag");
 
-	// disabled these because they are seriously silly to precache -hifi
-	/*
-	gi.soundindex("boss3/bs3idle1.wav");
-	gi.soundindex("user/letsrock.wav");
-	gi.soundindex("makron/laf4.wav");
-	gi.soundindex("world/elv.wav");
-	*/
+	gi.imageindex("tag1");
+	gi.imageindex("tag2");
+	if (teamplay->value)
+	{
+		level.pic_teamtag = gi.imageindex("tag3");
+
+		if (ctf->value) {
+			level.pic_ctf_teamtag[TEAM1] = gi.imageindex("ctfsb1");
+			level.pic_ctf_flagbase[TEAM1] = gi.imageindex("i_ctf1");
+			level.pic_ctf_flagtaken[TEAM1] = gi.imageindex("i_ctf1t");
+			level.pic_ctf_flagdropped[TEAM1] = gi.imageindex("i_ctf1d");
+
+			level.pic_ctf_teamtag[TEAM2] = gi.imageindex("ctfsb2");
+			level.pic_ctf_flagbase[TEAM2] = gi.imageindex("i_ctf2");
+			level.pic_ctf_flagtaken[TEAM2] = gi.imageindex("i_ctf2t");
+			level.pic_ctf_flagdropped[TEAM2] = gi.imageindex("i_ctf2d");
+			gi.imageindex("sbfctf1");
+			gi.imageindex("sbfctf2");
+		} else {
+			for(i = TEAM1; i <= teamCount; i++)
+			{
+				if (teams[i].skin_index[0] == 0) {
+					gi.dprintf("No skin was specified for team %i in config file. Exiting.\n", i);
+					exit(1);
+				}
+				level.pic_teamskin[i] = gi.imageindex(teams[i].skin_index);
+			}
+		}
+
+		level.snd_lights = gi.soundindex("atl/lights.wav");
+		level.snd_camera = gi.soundindex("atl/camera.wav");
+		level.snd_action = gi.soundindex("atl/action.wav");
+		level.snd_teamwins[0] = gi.soundindex("tng/no_team_wins.wav");
+		level.snd_teamwins[1] = gi.soundindex("tng/team1_wins.wav");
+		level.snd_teamwins[2] = gi.soundindex("tng/team2_wins.wav");
+		level.snd_teamwins[3] = gi.soundindex("tng/team3_wins.wav");
+	}
+
+	level.snd_silencer = gi.soundindex("misc/silencer.wav");	// all silencer weapons
+	level.snd_headshot = gi.soundindex("misc/headshot.wav");	// headshot sound
+	level.snd_vesthit = gi.soundindex("misc/vest.wav");		// kevlar hit
+	level.snd_knifethrow = gi.soundindex("misc/flyloop.wav");	// throwing knife
+	level.snd_kick = gi.soundindex("weapons/kick.wav");	// not loaded by any item, kick sound
+	level.snd_noammo = gi.soundindex("weapons/noammo.wav");
+
+	gi.soundindex("tng/1_minute.wav");
+	gi.soundindex("tng/3_minutes.wav");
+	gi.soundindex("tng/1_frag.wav");
+	gi.soundindex("tng/2_frags.wav");
+	gi.soundindex("tng/3_frags.wav");
+	gi.soundindex("tng/impressive.wav");
+	gi.soundindex("tng/excellent.wav");
+	gi.soundindex("tng/accuracy.wav");
+	gi.soundindex("tng/clanwar.wav");
+	gi.soundindex("tng/disabled.wav");
+	gi.soundindex("tng/enabled.wav");
+	gi.soundindex("misc/flashlight.wav"); // Caching Flashlight
+
+
 	gi.soundindex("world/10_0.wav");	// countdown
 	gi.soundindex("world/xian1.wav");	// intermission music
 	gi.soundindex("misc/secret.wav");	// used for ctf swap sound
-	gi.soundindex("misc/silencer.wav");	// all silencer weapons
-	gi.soundindex("misc/headshot.wav");	// headshot sound
-	gi.soundindex("misc/vest.wav");		// kevlar hit
-	gi.soundindex("misc/flyloop.wav");	// throwing knife
-	gi.soundindex("weapons/kick.wav");	// not loaded by any item, kick sound
 	gi.soundindex("weapons/grenlf1a.wav");	// respawn sound
 
-	PrecacheItems ();
-	PrecacheRadioSounds ();
-	//PG BUND - Begin
-	PrecacheUserSounds ();
-	//AQ2:TNG - Slicer Old location support
-	//DescListInit(level.mapname);
-	//AQ2:TNG END
-	TourneyInit ();
-	vInitLevel ();
-	//PG BUND - End
+	PrecacheItems();
+	PrecacheRadioSounds();
+	PrecacheUserSounds();
 
+	TourneyInit();
+	vInitLevel();
 
 	if (!st.gravity)
-		gi.cvar_set ("sv_gravity", "800");
+		gi.cvar_set("sv_gravity", "800");
 	else
-		gi.cvar_set ("sv_gravity", st.gravity);
+		gi.cvar_set("sv_gravity", st.gravity);
 
-	snd_fry = gi.soundindex ("player/fry.wav");	// standing in lava / slime
+	level.snd_fry = gi.soundindex("player/fry.wav");	// standing in lava / slime
 
-	gi.soundindex ("player/lava1.wav");
-	gi.soundindex ("player/lava2.wav");
+	gi.soundindex("player/lava1.wav");
+	gi.soundindex("player/lava2.wav");
 
-	gi.soundindex ("misc/pc_up.wav");
-	gi.soundindex ("misc/talk1.wav");
+	gi.soundindex("misc/pc_up.wav");
+	gi.soundindex("misc/talk1.wav");
 
-	gi.soundindex ("misc/udeath.wav");
-	gi.soundindex ("misc/glurp.wav");
+	gi.soundindex("misc/udeath.wav");
+	gi.soundindex("misc/glurp.wav");
 
 	// gibs
-	gi.soundindex ("items/respawn1.wav");
+	gi.soundindex("items/respawn1.wav");
 
 	// sexed sounds
-	gi.soundindex ("*death1.wav");
-	gi.soundindex ("*death2.wav");
-	gi.soundindex ("*death3.wav");
-	gi.soundindex ("*death4.wav");
-	gi.soundindex ("*fall1.wav");
-	gi.soundindex ("*fall2.wav");
-	gi.soundindex ("*gurp1.wav");	// drowning damage
-	gi.soundindex ("*gurp2.wav");
-	gi.soundindex ("*jump1.wav");	// player jump
-	gi.soundindex ("*pain25_1.wav");
-	gi.soundindex ("*pain25_2.wav");
-	gi.soundindex ("*pain50_1.wav");
-	gi.soundindex ("*pain50_2.wav");
-	gi.soundindex ("*pain75_1.wav");
-	gi.soundindex ("*pain75_2.wav");
-	gi.soundindex ("*pain100_1.wav");
-	gi.soundindex ("*pain100_2.wav");
+	gi.soundindex("*death1.wav");
+	gi.soundindex("*death2.wav");
+	gi.soundindex("*death3.wav");
+	gi.soundindex("*death4.wav");
+	gi.soundindex("*fall1.wav");
+	gi.soundindex("*fall2.wav");
+	gi.soundindex("*gurp1.wav");	// drowning damage
+	gi.soundindex("*gurp2.wav");
+	gi.soundindex("*jump1.wav");	// player jump
+	gi.soundindex("*pain25_1.wav");
+	gi.soundindex("*pain25_2.wav");
+	gi.soundindex("*pain50_1.wav");
+	gi.soundindex("*pain50_2.wav");
+	gi.soundindex("*pain75_1.wav");
+	gi.soundindex("*pain75_2.wav");
+	gi.soundindex("*pain100_1.wav");
+	gi.soundindex("*pain100_2.wav");
 
 	//-------------------
 
 	// precache vwep models
-	gi.modelindex ("#w_mk23.md2");
-	gi.modelindex ("#w_mp5.md2");
-	gi.modelindex ("#w_m4.md2");
-	gi.modelindex ("#w_cannon.md2");
-	gi.modelindex ("#w_super90.md2");
-	gi.modelindex ("#w_sniper.md2");
-	gi.modelindex ("#w_akimbo.md2");
-	gi.modelindex ("#w_knife.md2");
-	gi.modelindex ("#a_m61frag.md2");
+	// THIS ORDER MUST MATCH THE DEFINES IN g_local.h
+	gi.modelindex("#w_mk23.md2");
+	gi.modelindex("#w_mp5.md2");
+	gi.modelindex("#w_m4.md2");
+	gi.modelindex("#w_super90.md2");
+	gi.modelindex("#w_cannon.md2");
+	gi.modelindex("#w_sniper.md2");
+	gi.modelindex("#w_akimbo.md2");
+	gi.modelindex("#w_knife.md2");
+	gi.modelindex("#a_m61frag.md2");
 
-	gi.modelindex ("sprites/null.sp2");	// null sprite
-	gi.modelindex ("sprites/lsight.sp2");	// laser sight dot sprite
+	gi.modelindex("sprites/null.sp2");	// null sprite
+	gi.modelindex("sprites/lsight.sp2");	// laser sight dot sprite
 
-	gi.soundindex ("player/gasp1.wav");	// gasping for air
-	gi.soundindex ("player/gasp2.wav");	// head breaking surface, not gasping
+	gi.soundindex("player/gasp1.wav");	// gasping for air
+	gi.soundindex("player/gasp2.wav");	// head breaking surface, not gasping
 
-	gi.soundindex ("player/watr_in.wav");	// feet hitting water
-	gi.soundindex ("player/watr_out.wav");	// feet leaving water
+	gi.soundindex("player/watr_in.wav");	// feet hitting water
+	gi.soundindex("player/watr_out.wav");	// feet leaving water
 
-	gi.soundindex ("player/watr_un.wav");	// head going underwater
+	gi.soundindex("player/watr_un.wav");	// head going underwater
 
-	gi.soundindex ("player/u_breath1.wav");
-	gi.soundindex ("player/u_breath2.wav");
+	gi.soundindex("player/u_breath1.wav");
+	gi.soundindex("player/u_breath2.wav");
 
-	gi.soundindex ("items/pkup.wav");	// bonus item pickup
-	gi.soundindex ("world/land.wav");	// landing thud
-	gi.soundindex ("misc/h2ohit1.wav");	// landing splash
+	gi.soundindex("items/pkup.wav");	// bonus item pickup
+	gi.soundindex("world/land.wav");	// landing thud
+	gi.soundindex("misc/h2ohit1.wav");	// landing splash
 
-	gi.soundindex ("items/damage.wav");
-	gi.soundindex ("items/protect.wav");
-	gi.soundindex ("items/protect4.wav");
-	gi.soundindex ("weapons/noammo.wav");
+	gi.soundindex("items/damage.wav");
+	gi.soundindex("items/protect.wav");
+	gi.soundindex("items/protect4.wav");
 
-	gi.soundindex ("infantry/inflies1.wav");
+	gi.soundindex("infantry/inflies1.wav");
 
-	sm_meat_index = gi.modelindex ("models/objects/gibs/sm_meat/tris.md2");
-	gi.modelindex ("models/objects/gibs/arm/tris.md2");
-	gi.modelindex ("models/objects/gibs/bone/tris.md2");
-	gi.modelindex ("models/objects/gibs/bone2/tris.md2");
-	gi.modelindex ("models/objects/gibs/chest/tris.md2");
-	gi.modelindex ("models/objects/gibs/skull/tris.md2");
-	gi.modelindex ("models/objects/gibs/head2/tris.md2");
+	sm_meat_index = gi.modelindex("models/objects/gibs/sm_meat/tris.md2");
+	gi.modelindex("models/objects/gibs/arm/tris.md2");
+	gi.modelindex("models/objects/gibs/bone/tris.md2");
+	gi.modelindex("models/objects/gibs/bone2/tris.md2");
+	gi.modelindex("models/objects/gibs/chest/tris.md2");
+	gi.modelindex("models/objects/gibs/skull/tris.md2");
+	gi.modelindex("models/objects/gibs/head2/tris.md2");
 
 
 //
@@ -1659,20 +1429,19 @@ void SP_worldspawn (edict_t * ent)
 	else
 		gi.configstring (CS_LIGHTS + 0, "m");	// 0 normal
 
-	gi.configstring (CS_LIGHTS + 1, "mmnmmommommnonmmonqnmmo");	// 1 FLICKER (first variety)
-	gi.configstring (CS_LIGHTS + 2,
-			"abcdefghijklmnopqrstuvwxyzyxwvutsrqponmlkjihgfedcba");	// 2 SLOW STRONG PULSE
-	gi.configstring (CS_LIGHTS + 3, "mmmmmaaaaammmmmaaaaaabcdefgabcdefg");	// 3 CANDLE (first variety)
-	gi.configstring (CS_LIGHTS + 4, "mamamamamama");	// 4 FAST STROBE
-	gi.configstring (CS_LIGHTS + 5, "jklmnopqrstuvwxyzyxwvutsrqponmlkj");	// 5 GENTLE PULSE 1
-	gi.configstring (CS_LIGHTS + 6, "nmonqnmomnmomomno");	// 6 FLICKER (second variety)
-	gi.configstring (CS_LIGHTS + 7, "mmmaaaabcdefgmmmmaaaammmaamm");	// 7 CANDLE (second variety)
-	gi.configstring (CS_LIGHTS + 8, "mmmaaammmaaammmabcdefaaaammmmabcdefmmmaaaa");	// 8 CANDLE (third variety)
-	gi.configstring (CS_LIGHTS + 9, "aaaaaaaazzzzzzzz");	// 9 SLOW STROBE (fourth variety)
-	gi.configstring (CS_LIGHTS + 10, "mmamammmmammamamaaamammma");	// 10 FLUORESCENT FLICKER
-	gi.configstring (CS_LIGHTS + 11, "abcdefghijklmnopqrrqponmlkjihgfedcba");	// 11 SLOW PULSE NOT FADE TO BLACK
+	gi.configstring(CS_LIGHTS + 1, "mmnmmommommnonmmonqnmmo");	// 1 FLICKER (first variety)
+	gi.configstring(CS_LIGHTS + 2, "abcdefghijklmnopqrstuvwxyzyxwvutsrqponmlkjihgfedcba");	// 2 SLOW STRONG PULSE
+	gi.configstring(CS_LIGHTS + 3, "mmmmmaaaaammmmmaaaaaabcdefgabcdefg");	// 3 CANDLE (first variety)
+	gi.configstring(CS_LIGHTS + 4, "mamamamamama");	// 4 FAST STROBE
+	gi.configstring(CS_LIGHTS + 5, "jklmnopqrstuvwxyzyxwvutsrqponmlkj");	// 5 GENTLE PULSE 1
+	gi.configstring(CS_LIGHTS + 6, "nmonqnmomnmomomno");	// 6 FLICKER (second variety)
+	gi.configstring(CS_LIGHTS + 7, "mmmaaaabcdefgmmmmaaaammmaamm");	// 7 CANDLE (second variety)
+	gi.configstring(CS_LIGHTS + 8, "mmmaaammmaaammmabcdefaaaammmmabcdefmmmaaaa");	// 8 CANDLE (third variety)
+	gi.configstring(CS_LIGHTS + 9, "aaaaaaaazzzzzzzz");	// 9 SLOW STROBE (fourth variety)
+	gi.configstring(CS_LIGHTS + 10, "mmamammmmammamamaaamammma");	// 10 FLUORESCENT FLICKER
+	gi.configstring(CS_LIGHTS + 11, "abcdefghijklmnopqrrqponmlkjihgfedcba");	// 11 SLOW PULSE NOT FADE TO BLACK
 	// styles 32-62 are assigned by the light program for switchable lights
-	gi.configstring (CS_LIGHTS + 63, "a");	// 63 testing
+	gi.configstring(CS_LIGHTS + 63, "a");	// 63 testing
 
 	//FB 6/2/99
 	if (took_damage != NULL)
@@ -1681,65 +1450,70 @@ void SP_worldspawn (edict_t * ent)
 	//FB 6/2/99
 }
 
-int LoadFlagsFromFile (char *mapname)
+int LoadFlagsFromFile (const char *mapname)
 {
 	FILE *fp;
 	char buf[1024], *s;
-//	int len;
-	int i;
+	int flagCount = 0;
 	edict_t *ent;
 	vec3_t position;
+	size_t length;
 
-	sprintf (buf, "%s/tng/%s.flg", GAMEVERSION, mapname);
-	fp = fopen (buf, "r");
-	if (!fp)
-	{
-		gi.dprintf ("Warning: No flag definition file for map %s.\n", mapname);
+	Com_sprintf(buf, sizeof(buf), "%s/tng/%s.flg", GAMEVERSION, mapname);
+	fp = fopen(buf, "r");
+	if (!fp)  {
+		gi.dprintf("Warning: No flag definition file for map %s.\n", mapname);
 		return 0;
 	}
 
 	// FIXME: remove this functionality completely in the future
-	gi.dprintf ("Warning: .flg files are deprecated, use .ctf ones for more control!\n");
+	gi.dprintf("Warning: .flg files are deprecated, use .ctf ones for more control!\n");
 
-	i = 0;
 	while (fgets(buf, 1000, fp) != NULL)
 	{
+		length = strlen(buf);
+		if (length < 7)
+			continue;
+
 		//first remove trailing spaces
-		s = buf+strlen(buf)-1;
+		s = buf + length - 1;
 		for (; *s && (*s == '\r' || *s == '\n' || *s == ' '); s--)
 			*s = '\0';
 
 		//check if it's a valid line
-		if (strlen(buf) >= 5 && strncmp(buf, "#", 1) && strncmp(buf, "//", 2) && i < 2)
-		{
-			//a little bit dirty... :)
-			if (sscanf(buf, "<%f %f %f>", &position[0], &position[1], &position[2]) != 3)
-				continue;
+		length = strlen(buf);
+		if (length < 7 || buf[0] == '#' || !strncmp(buf, "//", 2))
+			continue;
 
-			ent = G_Spawn ();
+		//a little bit dirty... :)
+		if (sscanf(buf, "<%f %f %f>", &position[0], &position[1], &position[2]) != 3)
+			continue;
 
-			ent->spawnflags &=
-				~(SPAWNFLAG_NOT_EASY | SPAWNFLAG_NOT_MEDIUM | SPAWNFLAG_NOT_HARD |
-				SPAWNFLAG_NOT_COOP | SPAWNFLAG_NOT_DEATHMATCH);
+		ent = G_Spawn ();
 
-			VectorCopy(position, ent->s.origin);
+		ent->spawnflags &=
+			~(SPAWNFLAG_NOT_EASY | SPAWNFLAG_NOT_MEDIUM | SPAWNFLAG_NOT_HARD |
+			SPAWNFLAG_NOT_COOP | SPAWNFLAG_NOT_DEATHMATCH);
 
-			if (!i)	// Red Flag
-				ent->classname = ED_NewString ("item_flag_team1");
-			else	// Blue Flag
-				ent->classname = ED_NewString ("item_flag_team2");
+		VectorCopy(position, ent->s.origin);
 
-			ED_CallSpawn (ent);
-			i++;
-		}
+		if (!flagCount)	// Red Flag
+			ent->classname = ED_NewString ("item_flag_team1");
+		else	// Blue Flag
+			ent->classname = ED_NewString ("item_flag_team2");
+
+		ED_CallSpawn (ent);
+		flagCount++;
+		if (flagCount == 2)
+			break;
 	}
 
-	fclose (fp);
+	fclose(fp);
 
-	if(i < 2)
-		return (0);
+	if (flagCount < 2)
+		return 0;
 
-	return (1);
+	return 1;
 }
 
 // This function changes the nearest two spawnpoint from each flag

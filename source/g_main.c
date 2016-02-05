@@ -278,7 +278,6 @@ game_export_t globals;
 spawn_temp_t st;
 
 int sm_meat_index;
-int snd_fry;
 int meansOfDeath;
 int locOfDeath;
 int stopAP;
@@ -328,9 +327,7 @@ cvar_t *use_warnings;
 cvar_t *use_mapvote;
 cvar_t *use_scramblevote;
 cvar_t *deathmatch;
-cvar_t *coop;
 cvar_t *dmflags;
-cvar_t *skill;
 cvar_t *fraglimit;
 cvar_t *timelimit;
 cvar_t *capturelimit;
@@ -452,6 +449,7 @@ void ReadLevel (char *filename);
 void InitGame (void);
 void G_RunFrame (void);
 
+qboolean CheckTimelimit(void);
 int dosoft;
 int softquit = 0;
 
@@ -556,6 +554,16 @@ void ClientEndServerFrames (void)
 	int i;
 	edict_t *ent;
 
+	for (i = 0; i < game.maxclients; i++)
+	{
+		ent = g_edicts + 1 + i;
+		if (!ent->inuse || !ent->client)
+			continue;
+
+		if (ent->client->chase_mode && ent->client->chase_target)
+			UpdateChaseCam( ent );
+	}
+
 	// calc the player views now that all pushing
 	// and damage has been added
 	for (i = 0; i < game.maxclients; i++)
@@ -608,7 +616,7 @@ void EndDMLevel (void)
 	IRC_printf (IRC_T_GAME, "Game ending at: %s", ltm);
 
 	// stay on same level flag
-	if ((int) dmflags->value & DF_SAME_LEVEL)
+	if (DMFLAGS(DF_SAME_LEVEL))
 	{
 		ent = G_Spawn ();
 		ent->classname = "target_changelevel";
@@ -776,9 +784,6 @@ void CheckDMRules (void)
 	if (level.intermission_framenum)
 		return;
 
-	if (!deathmatch->value)
-		return;
-
 	//FIREBLADE
 	if (teamplay->value)
 	{
@@ -788,66 +793,24 @@ void CheckDMRules (void)
 		if (!FRAMESYNC)
 			return;
 
-		CheckTeamRules ();
-
-		if (ctf->value)
-		{
-			if (CTFCheckRules ())
-			{
-				ResetPlayers ();
-				EndDMLevel ();
-			}
-		}
+		if (CheckTeamRules())
+			return;
 	}
 	else				/* not teamplay */
 	{
 		if (!FRAMESYNC)
 			return;
 
-		if (timelimit->value)
-		{
-			if (level.time >= timelimit->value * 60)
-			{
-				gi.bprintf (PRINT_HIGH, "Timelimit hit.\n");
-				IRC_printf (IRC_T_GAME, "Timelimit hit.");
-				EndDMLevel ();
-				return;
-			}
-		}
+		if (CheckTimelimit())
+			return;
 
-		if (dm_shield->value)
-		{
-			for (i = 0; i < game.maxclients; i++)
-			{
-				if (!g_edicts[i + 1].inuse)
-					continue;
-				if (game.clients[i].ctf_uvtime > 0)
-				{
-					game.clients[i].ctf_uvtime--;                                                               
-					if (!game.clients[i].ctf_uvtime)                                        
-					{                                                                                           
-						gi.centerprintf (&g_edicts[i + 1], "ACTION!");                                      
-					}                                                                                           
-					else if (game.clients[i].ctf_uvtime % 10 == 0)
-					{                                                                                           
-						gi.centerprintf (&g_edicts[i + 1], "Shield %d",                                     
-							game.clients[i].ctf_uvtime / 10);
-					} 
-				}
-			}
-		}
-
-		//FIREBLADE
-		//PG BUND - BEGIN
-		if (vCheckVote () == true)
-		{
-			EndDMLevel ();
+		if (vCheckVote()) {
+			EndDMLevel();
 			return;
 		}
-		//PG BUND - END
 	}
 
-	if (fraglimit->value)
+	if (fraglimit->value > 0)
 	{
 		for (i = 0; i < game.maxclients; i++)
 		{
@@ -859,7 +822,7 @@ void CheckDMRules (void)
 				gi.bprintf (PRINT_HIGH, "Fraglimit hit.\n");
 				IRC_printf (IRC_T_GAME, "Fraglimit hit.");
 				if (ctf->value)
-				ResetPlayers ();
+					ResetPlayers ();
 				EndDMLevel ();
 				return;
 			}
@@ -977,13 +940,6 @@ void G_RunFrame (void)
 	int i;
 	edict_t *ent;
 
-	level.realFramenum++;
-	if (!level.pauseFrames)
-	{
-		level.framenum++;
-		level.time = level.framenum * FRAMETIME;
-	}
-
 	// IRC poll
 	IRC_poll ();
 
@@ -1014,7 +970,7 @@ void G_RunFrame (void)
 
 			level.current_entity = ent;
 
-			VectorCopy (ent->s.origin, ent->s.old_origin);
+			VectorCopy( ent->old_origin, ent->s.old_origin );
 
 			// if the ground entity moved, make sure we are still on it
 			if (ent->groundentity && ent->groundentity->linkcount != ent->groundentity_linkcount)
@@ -1057,6 +1013,20 @@ void G_RunFrame (void)
 			gi.bprintf( PRINT_HIGH, "Game is paused for %i:%02i.\n", (level.pauseFrames / HZ) / 60, (level.pauseFrames / HZ) % 60 );
 		}
 		level.pauseFrames--;
+	}
+
+	level.realFramenum++;
+	if (!level.pauseFrames)
+	{
+		// save old_origins for next frame
+		ent = &g_edicts[0];
+		for(i = 0; i < globals.num_edicts; i++, ent++)
+		{
+			if (ent->inuse)
+				VectorCopy( ent->s.origin, ent->old_origin );
+		}
+		level.framenum++;
+		level.time = level.framenum * FRAMETIME;
 	}
 }
 

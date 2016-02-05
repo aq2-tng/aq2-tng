@@ -576,7 +576,7 @@ void P_FallingDamage (edict_t * ent)
 	int damage;
 	vec3_t dir;
 
-	if (lights_camera_action || ent->client->ctf_uvtime > 0)
+	if (lights_camera_action || ent->client->uvTime > 0)
 		return;
 	
 	if (ent->s.modelindex != 255)
@@ -644,7 +644,7 @@ void P_FallingDamage (edict_t * ent)
 	}
 
 	/* when fall damage is disabled, play the normal fall sound */
-	if((int) dmflags->value & DF_NO_FALLING)
+	if(DMFLAGS(DF_NO_FALLING))
 	{
 		ent->s.event = EV_FALLSHORT;
 		return;
@@ -661,7 +661,7 @@ void P_FallingDamage (edict_t * ent)
 	ent->pain_debounce_framenum = KEYFRAME(FRAMEDIV);	// no normal pain sound
 	gi.dprintf("falling damage set debounce framenum to %d\n", level.framenum);
 
-	if (!deathmatch->value || !((int) dmflags->value & DF_NO_FALLING))
+	if (!DMFLAGS(DF_NO_FALLING))
 	{
 		damage = (int) (((delta - 30) / 2));
 		if (damage < 1)
@@ -871,7 +871,6 @@ G_SetClientEffects
 */
 void G_SetClientEffects (edict_t * ent)
 {
-	int pa_type;
 	int remaining;
 
 	ent->s.effects = 0;
@@ -884,20 +883,6 @@ void G_SetClientEffects (edict_t * ent)
 
 	if (ent->health <= 0 || level.intermission_framenum)
 		return;
-
-	if (ent->powerarmor_framenum > level.framenum)
-	{
-		pa_type = PowerArmorType (ent);
-		if (pa_type == POWER_ARMOR_SCREEN)
-		{
-			ent->s.effects |= EF_POWERSCREEN;
-		}
-		else if (pa_type == POWER_ARMOR_SHIELD)
-		{
-			ent->s.effects |= EF_COLOR_SHELL;
-			ent->s.renderfx |= RF_SHELL_GREEN;
-		}
-	}
 
 	if (ctf->value)
 		CTFEffects (ent);
@@ -923,7 +908,7 @@ void G_SetClientEffects (edict_t * ent)
 		ent->s.renderfx |= (RF_SHELL_RED | RF_SHELL_GREEN | RF_SHELL_BLUE);
 	}
 	// AQ2:TNG - JBravo adding UVtime
-	if ((ctf->value || dm_shield->value) && ((ent->client->ctf_uvtime & 4) || (lights_camera_action & 4)))
+	if ((ent->client->uvTime & 4) || (ctf->value && (lights_camera_action & 4)))
 	{
 		ent->s.effects |= EF_COLOR_SHELL;
 		if (ent->client->resp.team == TEAM1)
@@ -970,35 +955,8 @@ G_SetClientSound
 */
 void G_SetClientSound (edict_t * ent)
 {
-	char *weap;
-
-	if (ent->client->resp.game_helpchanged != game.helpchanged)
-	{
-		ent->client->resp.game_helpchanged = game.helpchanged;
-		ent->client->resp.helpchanged = 1;
-	}
-
-	// help beep (no more than three times)
-	if (ent->client->resp.helpchanged && ent->client->resp.helpchanged <= 3
-		&& !((level.realFramenum / FRAMEDIV) & 63))
-		{
-			ent->client->resp.helpchanged++;
-			gi.sound (ent, CHAN_VOICE, gi.soundindex ("misc/pc_up.wav"), 1,
-			ATTN_STATIC, 0);
-		}
-
-
-	if (ent->client->pers.weapon)
-		weap = ent->client->pers.weapon->classname;
-	else
-		weap = "";
-
 	if (ent->waterlevel && (ent->watertype & (CONTENTS_LAVA | CONTENTS_SLIME)))
-		ent->s.sound = snd_fry;
-	else if (strcmp (weap, "weapon_railgun") == 0)
-		ent->s.sound = gi.soundindex ("weapons/rg_hum.wav");
-	else if (strcmp (weap, "weapon_bfg") == 0)
-		ent->s.sound = gi.soundindex ("weapons/bfg_hum.wav");
+		ent->s.sound = level.snd_fry;
 	else if (ent->client->weapon_sound)
 		ent->s.sound = ent->client->weapon_sound;
 	else
@@ -1145,8 +1103,7 @@ void Do_Bleeding (edict_t * ent)
 		{
 			meansOfDeath = ent->client->attacker_mod;
 			locOfDeath = ent->client->attacker_loc;
-			Killed (ent, ent->client->attacker, ent->client->attacker, damage,
-			ent->s.origin);
+			Killed(ent, ent->client->attacker, ent->client->attacker, damage, ent->s.origin);
 		}
 		else
 		{
@@ -1397,35 +1354,6 @@ void ClientEndServerFrame (edict_t * ent)
 	SV_CalcBlend (ent);
 
 	G_SetStats (ent);
-
-	//FIREBLADE
-	for (i = 1; i <= game.maxclients; i++)
-	{
-		int stats_copy;
-		edict_t *e = g_edicts + i;
-
-		if (!ent->inuse || e->client->chase_mode == 0 || e->client->chase_target != ent)
-			continue;
-
-		for (stats_copy = 0; stats_copy < MAX_STATS; stats_copy++)
-		{
-			if (stats_copy >= STAT_TEAM_HEADER && stats_copy <= STAT_TEAM2_SCORE)
-				continue;		// protect these
-			if (stats_copy >= STAT_TEAM3_PIC && stats_copy <= STAT_TEAM3_SCORE)
-				continue;		// protect these
-			if (stats_copy == STAT_LAYOUTS || stats_copy == STAT_ID_VIEW)
-				continue;		// protect these
-			if (stats_copy == STAT_SNIPER_ICON && e->client->chase_mode != 2)
-				continue;		// only show sniper lens when in chase mode 2
-			if (stats_copy == STAT_FRAGS)
-				continue;
-			e->client->ps.stats[stats_copy] = ent->client->ps.stats[stats_copy];
-		}
-
-	//FB                e->client->ps.stats[STAT_LAYOUTS] = 1;
-	//FB                break;
-	}
-	//FIREBLADE
 
 	G_SetClientEvent (ent);
 
