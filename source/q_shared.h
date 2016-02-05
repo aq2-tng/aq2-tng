@@ -368,6 +368,17 @@ char *COM_Parse (char **data_p);
 void Com_PageInMemory (byte * buffer, int size);
 
 //=============================================
+#define Q_isupper( c )	( (c) >= 'A' && (c) <= 'Z' )
+#define Q_islower( c )	( (c) >= 'a' && (c) <= 'z' )
+#define Q_isdigit( c )	( (c) >= '0' && (c) <= '9' )
+#define Q_isalpha( c )	( Q_isupper( c ) || Q_islower( c ) )
+#define Q_isalnum( c )	( Q_isalpha( c ) || Q_isdigit( c ) )
+
+int Q_tolower( int c );
+int Q_toupper( int c );
+
+char *Q_strlwr( char *s );
+char *Q_strupr( char *s );
 
 #ifndef Q_strnicmp
  int Q_strnicmp (const char *s1, const char *s2, size_t size);
@@ -375,6 +386,7 @@ void Com_PageInMemory (byte * buffer, int size);
 #ifndef Q_stricmp
 #  define Q_stricmp(s1, s2) Q_strnicmp((s1), (s2), 99999)
 #endif
+ char *Q_stristr( const char *str1, const char *str2 );
 
 // buffer safe operations
 void Q_strncpyz (char *dest, const char *src, size_t size );

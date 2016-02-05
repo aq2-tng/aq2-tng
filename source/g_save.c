@@ -255,6 +255,8 @@
 #include "g_local.h"
 #include "cgf_sfx_glass.h"
 
+void InitCommandList( void );
+
 field_t fields[] = {
   {"classname", FOFS (classname), F_LSTRING},
   {"origin", FOFS (s.origin), F_VECTOR},
@@ -319,6 +321,8 @@ field_t fields[] = {
 void InitGame( void )
 {
 	cvar_t *cv;
+
+	InitCommandList();
 
 	IRC_init();
 	gi.dprintf( "==== InitGame ====\n" );

@@ -844,11 +844,12 @@ void Team_f (edict_t * ent)
 	int desired_team = NOTEAM;
 	char team[24];
 
+	if (!teamplay->value)
+		return;
+
 	//PG BUND - BEGIN (Tourney extension)
-	if (use_tourney->value)
-	{
-		gi.cprintf (ent, PRINT_MEDIUM,
-		"Currently running tourney mod, team selection is disabled.");
+	if (use_tourney->value) {
+		gi.cprintf(ent, PRINT_MEDIUM, "Currently running tourney mod, team selection is disabled.");
 		return;
 	}
 	//PG BUND - END (Tourney extension)        

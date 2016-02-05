@@ -502,14 +502,15 @@ void A_ScoreboardEndLevel (edict_t * ent, edict_t * killer)
 	gi.WriteString (string);
 }
 
-void Cmd_Statmode_f(edict_t* ent, char *arg)
+void Cmd_Statmode_f(edict_t* ent)
 {
 	int i;
-	char stuff[32];
+	char stuff[32], *arg;
 
 
 	// Ignore if there is no argument.
-	if (!arg[0])
+	arg = gi.argv(1);
+	if (!arg || !arg[0])
 		return;
 
 	// Numerical
