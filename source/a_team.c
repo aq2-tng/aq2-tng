@@ -2608,8 +2608,8 @@ void A_NewScoreboardMessage(edict_t * ent)
 void A_ScoreboardMessage (edict_t * ent, edict_t * killer)
 {
 	char string[1400] = "";
-	// char damage[50] = "";
-	//gclient_t *cl;
+	//char damage[50] = "";  // FIXME: This was only used in commented-out parts of the code.
+	//gclient_t *cl;  // FIXME: This was set but never used.
 	edict_t *cl_ent = NULL;
 	int maxsize = 1000, i = 0, j = 0, k = 0;
 
@@ -2790,7 +2790,7 @@ void A_ScoreboardMessage (edict_t * ent, edict_t * killer)
 			{
 				if (i < total[j] && stoppedat[j] == -1)	// print next team member...
 				{
-					//cl = &game.clients[sorted[j][i]];
+					//cl = &game.clients[sorted[j][i]];  // FIXME: This was never used.
 					cl_ent = g_edicts + 1 + sorted[j][i];
 					if (cl_ent->solid != SOLID_NOT && cl_ent->deadflag != DEAD_DEAD)
 						totalaliveprinted[j]++;

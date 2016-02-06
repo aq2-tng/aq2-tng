@@ -296,8 +296,7 @@ void DeathmatchScoreboardMessage (edict_t * ent, edict_t * killer)
 		cl = &game.clients[sorted[i]];
 		cl_ent = g_edicts + 1 + sorted[i];
 
-		//picnum = gi.imageindex ("i_fixme");
-		gi.imageindex ("i_fixme");  // FIXME: What is this for?  The return value was never used.
+		//picnum = gi.imageindex ("i_fixme");  // FIXME: What is this for?
 		x = (i >= 6) ? 160 : 0;
 		y = 32 + 32 * (i % 6);
 

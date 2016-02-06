@@ -1287,7 +1287,8 @@ Cmd_Say_f
 */
 void Cmd_Say_f (edict_t * ent, qboolean team, qboolean arg0, qboolean partner_msg)
 {
-	int j, /*i,*/ offset_of_text;
+	//int i;  // FIXME: This was never used.
+	int j, offset_of_text;
 	edict_t *other;
 	char *args, text[256], *s;
 	//gclient_t *cl;  // FIXME: This was never used.

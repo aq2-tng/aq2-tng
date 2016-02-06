@@ -82,10 +82,13 @@ UpdateChaseCam (edict_t * ent)
       VectorCopy (ent->client->resp.cmd_angles, angles);
       for ( i = 0; i < 3; i ++ )
         angles[i] += SHORT2ANGLE(ent->client->ps.pmove.delta_angles[i]);
+
+      // Raptor007: Disabled because this would cause the camera to get stuck looking up or down.
       //if (angles[PITCH] > 89)
       //  angles[PITCH] = 89;
       //else if (angles[PITCH] < -89)
       //  angles[PITCH] = -89;
+
       VectorCopy (angles, ent->client->ps.viewangles);
       VectorCopy (angles, ent->client->v_angle);
 
@@ -96,9 +99,10 @@ UpdateChaseCam (edict_t * ent)
       VectorNormalize (forward);
       VectorMA (ownerv, -150, forward, o);
 
-// not sure if this should be left in... -FB
-//              if (o[2] < targ->s.origin[2] + 20)  
-//                      o[2] = targ->s.origin[2] + 20;
+      // not sure if this should be left in... -FB
+      // Raptor007: No, I think this was used for rear-view chasecam (following target's view) to see over the model's head.
+      //if (o[2] < targ->s.origin[2] + 20)
+      //  o[2] = targ->s.origin[2] + 20;
 
       // jump animation lifts
       if (!targ->groundentity)
