@@ -1976,7 +1976,7 @@ void Cmd_AutoRecord_f(edict_t * ent);
 
 typedef struct team_s
 {
-	char name[32];
+	char name[20];
 	char skin[MAX_SKINLEN];
 	char skin_index[MAX_QPATH];
 	int score, total;
