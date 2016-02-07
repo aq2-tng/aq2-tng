@@ -2347,9 +2347,8 @@ void A_NewScoreboardMessage(edict_t * ent)
 	}
 
 	string[sizeof( string ) - 1] = '\0';
-
-	if (1) {
-		gi.dprintf( "Scoreboard length: %d\n", strlen( string ) );
+	if (strlen( string ) > 1023) {
+		string[1023] = '\0';
 	}
 
 	gi.WriteByte( svc_layout );
