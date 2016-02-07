@@ -2269,6 +2269,19 @@ int G_NotSortedClients( gclient_t **sortedList )
 	return total;
 }
 
+#define MAX_SCOREBOARD_SIZE 1024
+#define TEAM_HEADER_WIDTH	160 //skin icon and team tag
+#define TEAM_ROW_CHARS		32 //"yv 42 string2 \"name\" "
+#define TEAM_ROW_WIDTH		160 //20 chars, name and possible captain tag
+
+#define TEAM_ROW_CHARS2		44 //yv %d string%c \"%-15s %3d %3d %3d\" "
+#define TEAM_ROW_WIDTH2		216 //27 chars, name Frg Tim Png 
+
+#define TEAM_ROW_GAP		30
+
+// Maximum number of lines of scores to put under each team's header.
+#define MAX_SCORES_PER_TEAM 9
+
 
 #define MAX_PLAYERS_PER_TEAM 8
 
@@ -2347,19 +2360,13 @@ void A_NewScoreboardMessage(edict_t * ent)
 	}
 
 	string[sizeof( string ) - 1] = '\0';
-	if (strlen( string ) > 1023) {
-		string[1023] = '\0';
+	if (strlen( string ) > MAX_SCOREBOARD_SIZE - 1) {
+		string[MAX_SCOREBOARD_SIZE - 1] = '\0';
 	}
 
 	gi.WriteByte( svc_layout );
 	gi.WriteString( string );
 }
-
-
-#define TEAM_ROW_WIDTH 160
-// Maximum number of lines of scores to put under each team's header.
-#define MAX_SCORES_PER_TEAM 9
-
 
 //AQ2:TNG - Slicer Modified Scores for Match Mode
 void A_ScoreboardMessage (edict_t * ent, edict_t * killer)
@@ -2374,39 +2381,47 @@ void A_ScoreboardMessage (edict_t * ent, edict_t * killer)
 
 	if (ent->client->scoreboardnum == 1)
 	{
-		int team, len, deadview;
+		char footer[256];
+		int team, len, footerLen = 0, remaining, deadview;
 		int total[TEAM_TOP] = {0,0,0,0};
 		int totalsubs[TEAM_TOP] = {0,0,0,0}, subs[TEAM_TOP] = {0,0,0,0};
 		int totalscore[TEAM_TOP] = {0,0,0,0};
 		int totalalive[TEAM_TOP] = {0,0,0,0};
 		int totalaliveprinted;
-		int name_pos[TEAM_TOP];
+		int name_pos;
 		int tpic[TEAM_TOP][2] = {{0,0},{24,26},{25,27},{30,31}};
 		char temp[16];
-		int maxPlayersPerTeam, scoreWidth = 3;
-		int maxPlayers, printCount, base_x;
+		int maxPlayersPerTeam, scoreWidth = 3, rowWidth, rowChars, rowGap, headerOffset = 0;
+		int maxPlayers, printCount, base_x, showExtra = 0, subLines = 0;
 
 		// new scoreboard for regular teamplay up to 16 players
-		if (use_newscore->value && teamplay->value && !use_3teams->value && !matchmode->value && !ctf->value) {
+		if (use_newscore->value == 1 && teamplay->value && !use_3teams->value && !matchmode->value && !ctf->value) {
 			A_NewScoreboardMessage(ent);
 			return;
 		}
 
-		//line_x = TEAM_ROW_WIDTH * teamCount;
-		if(use_3teams->value) {
-			base_x = -80;
+		if (use_newscore->value > 1 && teamCount < 3) {
+			showExtra = 1;
+			rowWidth = max(TEAM_HEADER_WIDTH, TEAM_ROW_WIDTH2);
+			rowChars = TEAM_ROW_CHARS2;
+			rowGap = TEAM_ROW_GAP;
 		} else {
-			base_x = 0;
-			if(ctf->value)
-			{
-				base_x += 8;
-				tpic[TEAM1][0] = 30;
-				tpic[TEAM2][0] = 31;
-			}
-			else if(teamdm->value)
-			{
-				scoreWidth = 3;
-			}
+			rowWidth = max(TEAM_HEADER_WIDTH, TEAM_ROW_WIDTH);
+			rowChars = TEAM_ROW_CHARS;
+			rowGap = 0;
+		}
+		
+		base_x = 160 - ((rowWidth + rowGap) * teamCount) / 2 + rowGap / 2;
+
+		if(ctf->value)
+		{
+			base_x += 8;
+			tpic[TEAM1][0] = 30;
+			tpic[TEAM2][0] = 31;
+		}
+		else if(teamdm->value)
+		{
+			scoreWidth = 3;
 		}
 
 		deadview = (ent->solid == SOLID_NOT || ent->deadflag == DEAD_DEAD || !team_round_going);
@@ -2438,65 +2453,135 @@ void A_ScoreboardMessage (edict_t * ent, edict_t * killer)
 			total[team]++;
 		}
 
-		// I've shifted the scoreboard position 8 pixels to the left in Axshun so it works
-		// correctly in 320x240 (Action's does not)--any problems with this?  -FB
-		// Also going to center the team names.
-		for(i=TEAM1; i<= teamCount; i++)
-		{
-			name_pos[i] = ((20 - strlen (teams[i].name)) / 2) * 8;
-			if (name_pos[i] < 0)
-				name_pos[i] = 0;
-		}
-
-		if (matchmode->value)
-			maxPlayersPerTeam = MAX_SCORES_PER_TEAM - 3; //for subs
-		else
-			maxPlayersPerTeam = MAX_SCORES_PER_TEAM;
 
 		len = 0;
-		//152 157+31+   + 32*clients
-		for(i = TEAM1, line_x = base_x; i <= teamCount; i++, line_x += TEAM_ROW_WIDTH)
+		//Build team headers
+		if (use_newscore->value > 2 && rowWidth > TEAM_HEADER_WIDTH)
+			headerOffset = (rowWidth - TEAM_HEADER_WIDTH) / 2;
+
+		rowWidth += rowGap;
+
+		sprintf(string + len, "yv 8 ");
+		len = strlen(string);
+		//Add skin img
+		for (i = TEAM1, line_x = base_x + headerOffset; i <= teamCount; i++, line_x += rowWidth)
 		{
-			if(matchmode->value)
+			sprintf(string + len,
+				"if %i xv %i pic %i endif ",
+				tpic[i][0], line_x, tpic[i][0]);
+			len = strlen(string);
+		}
+
+		//Add team tag img
+		if (!ctf->value) {
+			Q_strncatz(string, "if 22 ", sizeof(string));
+			len = strlen(string);
+			for (i = TEAM1, line_x = base_x + headerOffset; i <= teamCount; i++, line_x += rowWidth)
+			{
+				sprintf(string + len, "xv %i pic 22 ", line_x + 32);
+				len = strlen(string);
+			}
+			Q_strncatz(string, "endif ", sizeof(string));
+			len = strlen(string);
+		}
+
+		//Add player info
+		sprintf( string + len, "yv 28 " );
+		len = strlen( string );
+		for (i = TEAM1, line_x = base_x + headerOffset; i <= teamCount; i++, line_x += rowWidth)
+		{
+			if (matchmode->value)
 				Com_sprintf(temp, sizeof(temp), "%4i/%2i/%-2d", totalscore[i], total[i], totalsubs[i]);
 			else
 				Com_sprintf(temp, sizeof(temp), "%4i/%2i", totalscore[i], total[i]);
 
-			if(ctf->value)
+			sprintf( string + len,
+				"xv %i string \"%s\" ",
+				line_x + 32, temp );
+			len = strlen( string );
+		}
+
+		//Add score
+		sprintf( string + len, "yv 12 " );
+		len = strlen( string );
+		for (i = TEAM1, line_x = base_x + headerOffset; i <= teamCount; i++, line_x += rowWidth)
+		{
+			sprintf( string + len,
+				"xv %i num %i %i ",
+				line_x + (ctf->value ? 90 : 96), scoreWidth, tpic[i][1] );
+			len = strlen( string );
+		}
+
+		//Add team name
+		sprintf( string + len, "yv 0 " );
+		len = strlen( string );
+		for (i = TEAM1, line_x = base_x + headerOffset; i <= teamCount; i++, line_x += rowWidth)
+		{
+			name_pos = ((20 - strlen( teams[i].name )) / 2) * 8;
+			if (name_pos < 0)
+				name_pos = 0;
+
+			sprintf( string + len,
+				"xv %d string \"%s\" ",
+				line_x + name_pos, teams[i].name );
+			len = strlen( string );
+		}
+
+		//Build footer
+		footer[0] = 0;
+		if (matchmode->value)
+		{
+			int secs, mins;
+
+			i = level.matchTime;
+			mins = i / 60;
+			secs = i % 60;
+
+			sprintf( footer, "yv 128 " );
+			footerLen = strlen( footer );
+			for (i = TEAM1, line_x = base_x + 39; i <= teamCount; i++, line_x += rowWidth)
 			{
-				sprintf(string + len,
-					"if %i xv %i yv 8 pic %i endif "
-					"xv %i yv 28 string \"%s\" "
-					"xv %i yv 12 num 2 %i ",
-					tpic[i][0], line_x, tpic[i][0],
-					line_x+32, temp,
-					line_x+90, tpic[i][1] );
-			}
-			else
-			{
-				sprintf (string + len,
-					"if %i xv %i yv 8 pic %i endif "
-					"if 22 xv %i yv 8 pic 22 endif "
-					"xv %i yv 28 string \"%s\" "
-					"xv %i yv 12 num %i %i "
-					"xv %d yv 0 string \"%s\" ",
-					tpic[i][0], line_x, tpic[i][0],
-					line_x + 32,
-					line_x + 32, temp,
-					line_x + 96, scoreWidth, tpic[i][1],
-					line_x + name_pos[i], teams[i].name );
+				sprintf( footer + footerLen, "xv %i string2 \"%s\" ",
+					line_x, teams[i].ready ? "Ready" : "Not Ready" );
+				footerLen = strlen( footer );
 			}
 
-			len = strlen(string);
+			sprintf( footer + footerLen, "xv 112 yv 144 string \"Time: %d:%02d\" ", mins, secs );
+			footerLen = strlen( footer );
+		}
+
+		remaining = MAX_SCOREBOARD_SIZE - 1 - len - footerLen;
+
+		maxPlayersPerTeam = MAX_SCORES_PER_TEAM;
+		if (maxPlayersPerTeam > (remaining / rowChars) / teamCount)
+			maxPlayersPerTeam = (remaining / rowChars) / teamCount;
+
+		for (i = TEAM1, line_x = base_x; i <= teamCount; i++, line_x += rowWidth)
+		{
+			line_y = 42;
 			sprintf( string + len, "xv %i ", line_x );
 			len = strlen(string);
-
-			line_y = 42;
+			
+			if (showExtra) {
+				sprintf( string + len, "yv %d string2 \"Name            Frg Tim Png\" ", line_y );
+				len = strlen( string );
+				line_y += 8;
+			}
 
 			printCount = 0;
 			totalaliveprinted = 0;
-			if (total[i] > maxPlayersPerTeam)
-				maxPlayers = maxPlayersPerTeam - 1;
+
+			maxPlayers = maxPlayersPerTeam;
+			if (matchmode->value) {
+				subLines = 1 + min(totalsubs[i], 2); //for subs
+				if (maxPlayers - subLines < 4)
+					subLines = 1;
+
+				maxPlayers -= subLines;
+			}
+
+			if (total[i] > maxPlayers)
+				maxPlayers = maxPlayers - 1;
 			else
 				maxPlayers = total[i];
 
@@ -2515,12 +2600,24 @@ void A_ScoreboardMessage (edict_t * ent, edict_t * killer)
 					if (cl_ent->solid != SOLID_NOT && cl_ent->deadflag != DEAD_DEAD)
 						totalaliveprinted++;
 
-					sprintf( string + len,
-						"yv %i string%s \"%s%s\" ",
-						line_y,
-						(deadview && cl_ent->solid != SOLID_NOT) ? "2" : "",
-						IS_CAPTAIN( cl_ent ) ? "@" : "",
-						cl->pers.netname );
+					if (showExtra) {
+						sprintf( string + len,
+							"yv %d string%s \"%s%-15s %3d %3d %3d\" ",
+							line_y,
+							(deadview && cl_ent->solid != SOLID_NOT) ? "2" : "",
+							IS_CAPTAIN( cl_ent ) ? "@" : "",
+							cl->pers.netname,
+							cl->resp.score,
+							(level.framenum - cl->resp.enterframe) / (60 * HZ),
+							min(cl->ping, 999) );
+					} else {
+						sprintf( string + len,
+							"yv %i string%s \"%s%s\" ",
+							line_y,
+							(deadview && cl_ent->solid != SOLID_NOT) ? "2" : "",
+							IS_CAPTAIN( cl_ent ) ? "@" : "",
+							cl->pers.netname );
+					}
 
 					len = strlen( string );
 					if (ctf->value){
@@ -2561,7 +2658,15 @@ void A_ScoreboardMessage (edict_t * ent, edict_t * killer)
 				}
 			}
 
-			if (matchmode->value) //Subs
+			if (subLines == 1 && totalsubs[i]) //Subs
+			{
+				line_y = 96;
+				sprintf( string + len, "yv %i string2 \"%d Subs\" ", line_y, totalsubs[i] );
+				len = strlen( string );
+				line_y += 8;
+
+			}
+			else if (subLines > 0)
 			{
 				line_y = 96;
 				sprintf( string + len, "yv %i string2 \"Subs\" ", line_y );
@@ -2570,8 +2675,8 @@ void A_ScoreboardMessage (edict_t * ent, edict_t * killer)
 				line_y += 8;
 
 				printCount = 0;
-				if (totalsubs[i] > 2)
-					maxPlayers = 1;
+				if (totalsubs[i] > subLines - 1)
+					maxPlayers = subLines - 2;
 				else
 					maxPlayers = totalsubs[i];
 
@@ -2586,6 +2691,7 @@ void A_ScoreboardMessage (edict_t * ent, edict_t * killer)
 						if (!cl->resp.subteam)
 							continue;
 
+						cl_ent = g_edicts + 1 + (cl - game.clients);
 						sprintf( string + len,
 							"yv %d string \"%s%s\" ",
 							line_y, IS_CAPTAIN(cl_ent) ? "@" : "", cl->pers.netname );
@@ -2611,25 +2717,9 @@ void A_ScoreboardMessage (edict_t * ent, edict_t * killer)
 			}
 		}
 
-		if(matchmode->value)
-		{
-			int secs, mins;
-
-			i = level.matchTime;
-			mins = i / 60;
-			secs = i % 60;
-
-			sprintf( string + len, "yv 128 " );
-			len = strlen( string );
-			for (i = TEAM1, line_x = base_x + 39; i <= teamCount; i++, line_x += TEAM_ROW_WIDTH)
-			{
-				sprintf(string + len, "xv %i string2 \"%s\" ",
-					line_x, teams[i].ready ? "Ready" : "Not Ready" );
-				len = strlen( string );
-			}
-
-			sprintf( string + len, "xv 112 yv 144 string \"Time: %d:%02d\" ", mins, secs );
-			len = strlen( string );
+		if (footerLen) {
+			string[MAX_SCOREBOARD_SIZE - 1 - footerLen] = 0;
+			Q_strncatz(string, footer, sizeof(string));
 		}
 	}
 	else if (ent->client->scoreboardnum == 2)
@@ -2726,10 +2816,9 @@ void A_ScoreboardMessage (edict_t * ent, edict_t * killer)
 		}
 	}
 
-
-	if (strlen(string) > 1023) { // for debugging...
+	if (strlen(string) > MAX_SCOREBOARD_SIZE - 1) { // for debugging...
 		gi.dprintf("Warning: scoreboard string neared or exceeded max length\nDump:\n%s\n---\n", string);
-		string[1023] = '\0';
+		string[MAX_SCOREBOARD_SIZE - 1] = '\0';
 	}
 
 	gi.WriteByte(svc_layout);
