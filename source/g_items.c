@@ -263,22 +263,31 @@ void AddItem(edict_t *ent, gitem_t *item)
 
 qboolean Pickup_ItemPack (edict_t * ent, edict_t * other)
 {
+	/* this gives 2 random items
 	gitem_t *spec;
-	int count = 0;
-	int	item;
+	int count, added, item;
 
-	while(count < 2)
+	for(count = 0, added = 0; added < 2 && count < 20; count++)
 	{
-		item = ITEM_FIRST + newrand( ITEM_COUNT );
-		if (INV_AMMO(ent, item) > 0 || !ITF_ALLOWED(item))
+		item = ITEM_FIRST + newrand(ITEM_COUNT);
+		if (INV_AMMO(other, item) > 0 || !ITF_ALLOWED(item))
 			continue;
 
 		spec = GET_ITEM(item);
 		AddItem(other, spec);
-		count++;
-	}
+		added++;
+	}*/
 
-	SetRespawn (ent, item_respawn->value);
+	if (INV_AMMO(other, KEV_NUM) < 1 && ITF_ALLOWED(KEV_NUM))
+		AddItem(other, GET_ITEM(KEV_NUM));
+
+	if (INV_AMMO(other, LASER_NUM) < 1 && ITF_ALLOWED(LASER_NUM))
+		AddItem(other, GET_ITEM(LASER_NUM));
+
+	if (INV_AMMO(other, HELM_NUM) < 1 && ITF_ALLOWED(HELM_NUM))
+		AddItem(other, GET_ITEM(HELM_NUM));
+
+	SetRespawn(ent, 120);
 
 	return true;
 }

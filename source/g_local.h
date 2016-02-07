@@ -1921,6 +1921,10 @@ void ThinkSpecWeap (edict_t * ent);
 void DropExtraSpecial (edict_t * ent);
 void TransparentListSet (solid_t solid_type);
 
+int G_SortedClients( gclient_t **sortedList );
+int G_NotSortedClients( gclient_t **sortedList );
+void A_ScoreboardMessage( edict_t * ent, edict_t * killer );
+
 //local to g_combat but needed in p_view
 void SpawnDamage (int type, vec3_t origin, vec3_t normal, int damage);
 void Killed (edict_t * targ, edict_t * inflictor, edict_t * attacker,

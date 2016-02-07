@@ -125,13 +125,12 @@ void SpecThink(edict_t * spec)
 {
 	edict_t *spot;
 
-	if ((spot = FindSpecSpawn()) != NULL) {
+	spot = FindSpecSpawn();
+	if (spot) {
 		SpawnSpec(spec->item, spot);
-		G_FreeEdict(spec);
-	} else {
-		spec->nextthink = level.framenum + SPEC_RESPAWN_TIME * HZ;
-		spec->think = SpecThink;
 	}
+
+	G_FreeEdict(spec);
 }
 
 static void MakeTouchSpecThink(edict_t * ent)

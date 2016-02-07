@@ -176,8 +176,6 @@ void BeginIntermission (edict_t * targ)
 	}
 }
 
-void A_ScoreboardMessage (edict_t * ent, edict_t * killer);
-
 /*
   ==================
   DeathmatchScoreboardMessage
@@ -189,16 +187,13 @@ void DeathmatchScoreboardMessage (edict_t * ent, edict_t * killer)
 	char entry[128];
 	char string[1024];
 	int stringlength;
-	int i, j, k;
-	int sorted[MAX_CLIENTS];
-	int sortedscores[MAX_CLIENTS];
-	int score, total;
+	int i, j, totalClients;
+	gclient_t *sortedClients[MAX_CLIENTS];
 	int x, y;
 	gclient_t *cl;
 	edict_t *cl_ent;
 	char *tag;
 
-	//FIREBLADE
 	if (teamplay->value && !use_tourney->value)
 	{
 		// DW: If the map ends
@@ -213,43 +208,21 @@ void DeathmatchScoreboardMessage (edict_t * ent, edict_t * killer)
 
 		return;
 	}
-	//FIREBLADE
 
-	// sort the clients by score
-	total = 0;
-	for (i = 0; i < game.maxclients; i++)
-	{
-		cl_ent = g_edicts + 1 + i;
-		if (!cl_ent->inuse)
-			continue;
-		score = game.clients[i].resp.score;
-		for (j = 0; j < total; j++)
-		{
-			if (score > sortedscores[j])
-				break;
-		}
-		for (k = total; k > j; k--)
-		{
-			sorted[k] = sorted[k - 1];
-			sortedscores[k] = sortedscores[k - 1];
-		}
-		sorted[j] = i;
-		sortedscores[j] = score;
-		total++;
-	}
+	totalClients = G_SortedClients(sortedClients);
 
 	// print level name and exit rules
 	string[0] = 0;
 	stringlength = 0;
 
 	// add the clients in sorted order
-	if (total > 12)
-		total = 12;
+	if (totalClients > 12)
+		totalClients = 12;
 
-	for (i = 0; i < total; i++)
+	for (i = 0; i < totalClients; i++)
 	{
-		cl = &game.clients[sorted[i]];
-		cl_ent = g_edicts + 1 + sorted[i];
+		cl = sortedClients[i];
+		cl_ent = g_edicts + 1 + (cl - game.clients);
 
 		x = (i >= 6) ? 160 : 0;
 		y = 32 + 32 * (i % 6);
@@ -275,7 +248,7 @@ void DeathmatchScoreboardMessage (edict_t * ent, edict_t * killer)
 		// send the layout
 		Com_sprintf (entry, sizeof (entry),
 			"client %i %i %i %i %i %i ",
-			x, y, sorted[i], cl->resp.score, cl->ping,
+			x, y, cl - game.clients, cl->resp.score, cl->ping,
 			(level.framenum - cl->resp.enterframe) / 600 / FRAMEDIV);
 		j = strlen (entry);
 		if (stringlength + j > 1023)
