@@ -21,18 +21,18 @@ void FL_make (edict_t * self)
 		return;
 	}
 
-	gi.sound (self, CHAN_VOICE, gi.soundindex ("misc/flashlight.wav"), 1,
-	ATTN_NORM, 0);
-
 	if (self->flashlight)
 	{
 		G_FreeEdict (self->flashlight);
 		self->flashlight = NULL;
+		gi.sound (self, CHAN_VOICE, gi.soundindex ("misc/flashlight.wav"), 1, ATTN_NORM, 0);
 		return;
 	}
 
 	if (!(darkmatch->value || use_flashlight->value))
 		return;
+
+	gi.sound (self, CHAN_VOICE, gi.soundindex ("misc/flashlight.wav"), 1, ATTN_NORM, 0);
 
 	AngleVectors (self->client->v_angle, forward, right, NULL);
 
