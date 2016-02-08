@@ -11,21 +11,16 @@ void FL_make (edict_t * self)
 {
 	vec3_t start, forward, right, end;
 
-	if (!darkmatch->value)
-		return;
-
-	if ((self->deadflag == DEAD_DEAD) || (self->solid == SOLID_NOT))
+	if (!darkmatch->value || self->deadflag == DEAD_DEAD || self->solid == SOLID_NOT)
 	{
-		if (self->flashlight)
-		{
+		if (self->flashlight) {
 			G_FreeEdict (self->flashlight);
 			self->flashlight = NULL;
 		}
 		return;
 	}
 
-	gi.sound (self, CHAN_VOICE, gi.soundindex ("misc/flashlight.wav"), 1,
-	ATTN_NORM, 0);
+	gi.sound(self, CHAN_VOICE, gi.soundindex("misc/flashlight.wav"), 1, ATTN_NORM, 0);
 
 	if (self->flashlight)
 	{

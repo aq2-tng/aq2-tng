@@ -218,6 +218,7 @@ void CTFSetFlag(int team, char *str)
 		SPAWNFLAG_NOT_COOP | SPAWNFLAG_NOT_DEATHMATCH);
 
 	VectorCopy(position, ent->s.origin);
+	VectorCopy(position, ent->old_origin);
 
 	ED_CallSpawn (ent);
 }
@@ -361,7 +362,7 @@ void CTFAssignTeam(gclient_t * who)
 
 	who->resp.ctf_state = CTF_STATE_START;
 
-	if (!((int) dmflags->value & DF_CTF_FORCEJOIN)) {
+	if (!DMFLAGS(DF_CTF_FORCEJOIN)) {
 		who->resp.team = NOTEAM;
 		return;
 	}
@@ -403,15 +404,6 @@ edict_t *SelectCTFSpawnPoint(edict_t * ent)
 	int selection;
 	float range, range1, range2;
 	char *cname;
-
-	/*if (ent->client->resp.ctf_state != CTF_STATE_START) {
-		if (rand() & 1) {
-			if ((int) (dmflags->value) & DF_SPAWN_FARTHEST)
-				return SelectFarthestDeathmatchSpawnPoint();
-			else
-				return SelectRandomDeathmatchSpawnPoint();
-		}
-	}*/ //Why the fuck this was here? -Mani
 
 	ent->client->resp.ctf_state = CTF_STATE_PLAYING;
 
@@ -789,8 +781,8 @@ qboolean CTFPickup_Flag(edict_t * ent, edict_t * other)
 		return false;
 	}
 // AQ2:TNG - JBravo adding UVtime
-	if (other->client->ctf_uvtime) {
-		other->client->ctf_uvtime = 0;
+	if (other->client->uvTime) {
+		other->client->uvTime = 0;
 		gi.centerprintf(other, "Flag taken! Shields are DOWN! Run for it!");
 	} else {
 		gi.centerprintf(other, "You've got the ENEMY FLAG! Run for it!");
@@ -930,6 +922,7 @@ void CTFFlagSetup(edict_t * ent)
 	}
 
 	VectorCopy(tr.endpos, ent->s.origin);
+	VectorCopy(tr.endpos, ent->old_origin);
 
 	gi.linkentity(ent);
 
@@ -989,8 +982,8 @@ void SetCTFStats(edict_t * ent)
 	edict_t *e;
 
 	// logo headers for the frag display
-	ent->client->ps.stats[STAT_TEAM1_HEADER] = gi.imageindex("ctfsb1");
-	ent->client->ps.stats[STAT_TEAM2_HEADER] = gi.imageindex("ctfsb2");
+	ent->client->ps.stats[STAT_TEAM1_HEADER] = level.pic_ctf_teamtag[TEAM1];
+	ent->client->ps.stats[STAT_TEAM2_HEADER] = level.pic_ctf_teamtag[TEAM2];
 
 	// if during intermission, we must blink the team header of the winning team
 	if (level.intermission_framenum && ((level.realFramenum / FRAMEDIV) & 8)) {	// blink 1/8th second
@@ -1013,7 +1006,7 @@ void SetCTFStats(edict_t * ent)
 	//   flag at base
 	//   flag taken
 	//   flag dropped
-	p1 = gi.imageindex("i_ctf1");
+	p1 = level.pic_ctf_flagbase[TEAM1];
 	e = G_Find(NULL, FOFS(classname), "item_flag_team1");
 	if (e != NULL) {
 		if (e->solid == SOLID_NOT) {
@@ -1021,17 +1014,17 @@ void SetCTFStats(edict_t * ent)
 
 			// not at base
 			// check if on player
-			p1 = gi.imageindex("i_ctf1d");	// default to dropped
+			p1 = level.pic_ctf_flagdropped[TEAM1];	// default to dropped
 			for (i = 1; i <= game.maxclients; i++)
 				if (g_edicts[i].inuse && g_edicts[i].client->pers.inventory[ITEM_INDEX(flag1_item)]) {
 					// enemy has it
-					p1 = gi.imageindex("i_ctf1t");
+					p1 = level.pic_ctf_flagtaken[TEAM1];
 					break;
 				}
 		} else if (e->spawnflags & DROPPED_ITEM)
-			p1 = gi.imageindex("i_ctf1d");	// must be dropped
+			p1 = level.pic_ctf_flagdropped[TEAM1];	// must be dropped
 	}
-	p2 = gi.imageindex("i_ctf2");
+	p2 = level.pic_ctf_flagbase[TEAM2];
 	e = G_Find(NULL, FOFS(classname), "item_flag_team2");
 	if (e != NULL) {
 		if (e->solid == SOLID_NOT) {
@@ -1039,15 +1032,15 @@ void SetCTFStats(edict_t * ent)
 
 			// not at base
 			// check if on player
-			p2 = gi.imageindex("i_ctf2d");	// default to dropped
+			p2 = level.pic_ctf_flagdropped[TEAM2];	// default to dropped
 			for (i = 1; i <= game.maxclients; i++)
 				if (g_edicts[i].inuse && g_edicts[i].client->pers.inventory[ITEM_INDEX(flag2_item)]) {
 					// enemy has it
-					p2 = gi.imageindex("i_ctf2t");
+					p2 = level.pic_ctf_flagtaken[TEAM2];
 					break;
 				}
 		} else if (e->spawnflags & DROPPED_ITEM)
-			p2 = gi.imageindex("i_ctf2d");	// must be dropped
+			p2 = level.pic_ctf_flagdropped[TEAM2];	// must be dropped
 	}
 
 	ent->client->ps.stats[STAT_TEAM1_PIC] = p1;
@@ -1073,11 +1066,11 @@ void SetCTFStats(edict_t * ent)
 	{
 		if (ent->client->resp.team == TEAM1 &&
 			ent->client->pers.inventory[ITEM_INDEX(flag2_item)])
-			ent->client->ps.stats[STAT_FLAG_PIC] = gi.imageindex("i_ctf2");
+			ent->client->ps.stats[STAT_FLAG_PIC] = level.pic_ctf_flagbase[TEAM2];
 
 		else if (ent->client->resp.team == TEAM2 &&
-			 ent->client->pers.inventory[ITEM_INDEX(flag1_item)])
-			ent->client->ps.stats[STAT_FLAG_PIC] = gi.imageindex("i_ctf1");
+			ent->client->pers.inventory[ITEM_INDEX(flag1_item)])
+			ent->client->ps.stats[STAT_FLAG_PIC] = level.pic_ctf_flagbase[TEAM1];
 	}
 
 	ent->client->ps.stats[STAT_ID_VIEW] = 0;
@@ -1448,6 +1441,7 @@ static void old_teleporter_touch(edict_t * self, edict_t * other, cplane_t * pla
 
 	VectorCopy(dest->s.origin, other->s.origin);
 	VectorCopy(dest->s.origin, other->s.old_origin);
+	VectorCopy(dest->s.origin, other->old_origin);
 
 	// clear the velocity and hold them in place briefly
 	VectorClear(other->velocity);
@@ -1560,8 +1554,7 @@ void CTFCapReward(edict_t * ent)
 	client = ent->client;
 
 	// give initial knife if none
-	if ((int)wp_flags->value & WPF_KNIFE &&
-			ent->client->pers.inventory[ITEM_INDEX(GET_ITEM(KNIFE_NUM))] == 0)
+	if (WPF_ALLOWED(KNIFE_NUM) && ent->client->pers.inventory[ITEM_INDEX(GET_ITEM(KNIFE_NUM))] == 0)
 		ent->client->pers.inventory[ITEM_INDEX(GET_ITEM(KNIFE_NUM))] += 1;
 
 	if (client->resp.item->typeNum == BAND_NUM) {
@@ -1575,7 +1568,7 @@ void CTFCapReward(edict_t * ent)
 	}
 
 	// give pistol clips
-	if ((int)wp_flags->value & WPF_MK23) {
+	if (WPF_ALLOWED(MK23_ANUM)) {
 		item = GET_ITEM(MK23_ANUM);
 		client->mk23_rds = client->mk23_max;
 		client->pers.inventory[ITEM_INDEX(item)] = 1*band;

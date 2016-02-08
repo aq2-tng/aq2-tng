@@ -532,6 +532,127 @@ gitem_armor_t;
 #define IT_ITEM                 64
 #define IT_FLAG                 128
 
+
+// weapon names
+/*
+bind 2 "use M3 Super 90 Assault Shotgun;"
+bind 3 "use MP5/10 Submachinegun"
+bind 4 "use Handcannon"
+bind 5 "use M4 Assault Rifle"
+bind 6 "use Sniper Rifle"
+*/
+#define MK23_NAME    "MK23 Pistol"
+#define MP5_NAME     "MP5/10 Submachinegun"
+#define M4_NAME      "M4 Assault Rifle"
+#define M3_NAME      "M3 Super 90 Assault Shotgun"
+#define HC_NAME      "Handcannon"
+#define SNIPER_NAME  "Sniper Rifle"
+#define DUAL_NAME    "Dual MK23 Pistols"
+#define KNIFE_NAME   "Combat Knife"
+#define GRENADE_NAME "M26 Fragmentation Grenade"
+
+#define SIL_NAME     "Silencer"
+#define SLIP_NAME    "Stealth Slippers"
+#define BAND_NAME    "Bandolier"
+#define KEV_NAME     "Kevlar Vest"
+#define HELM_NAME    "Kevlar Helmet"
+#define LASER_NAME   "Lasersight"
+
+#define NO_NUM					0
+
+#define MK23_NUM				1
+#define MP5_NUM					2
+#define M4_NUM					3
+#define M3_NUM					4
+#define HC_NUM					5
+#define SNIPER_NUM				6
+#define DUAL_NUM				7
+#define KNIFE_NUM				8
+#define GRENADE_NUM				9
+
+#define SIL_NUM					10
+#define SLIP_NUM				11
+#define BAND_NUM				12
+#define KEV_NUM					13
+#define LASER_NUM				14
+#define HELM_NUM				15
+
+#define MK23_ANUM				16
+#define MP5_ANUM				17
+#define M4_ANUM					18
+#define SHELL_ANUM				19
+#define SNIPER_ANUM				20
+
+#define FLAG_T1_NUM				21
+#define FLAG_T2_NUM				22
+
+#define GRAPPLE_NUM				23
+
+#define ITEM_MAX_NUM			24
+
+#define WEAPON_COUNT			9
+#define ITEM_COUNT				6
+#define AMMO_COUNT				5
+#define WEAPON_FIRST			1
+#define WEAPON_MAX				WEAPON_FIRST+WEAPON_COUNT
+#define ITEM_FIRST				WEAPON_MAX
+#define ITEM_MAX				ITEM_FIRST+ITEM_COUNT
+#define AMMO_FIRST				ITEM_MAX
+#define AMMO_MAX				AMMO_FIRST+AMMO_COUNT
+
+//AQ2:TNG - Igor adding wp_flags/itm_flags
+#define STRINGIFY(x) #x
+#define TOSTRING(x) STRINGIFY(x)
+
+#define WPF_MASK				((1 << WEAPON_COUNT) - 1)
+#define WPF_DEFAULT				511 //WPF_MASK
+#define WPF_DEFAULT_STR			TOSTRING(WPF_DEFAULT)
+#define WPF_ALLOWED(typeNum)	((int)wp_flags->value & items[typeNum].flag)
+
+#define ITF_MASK				((1 << ITEM_COUNT) - 1)
+#define ITF_DEFAULT				63 //ITF_MASK
+#define ITF_DEFAULT_STR			TOSTRING(ITF_DEFAULT)
+#define ITF_ALLOWED(typeNum)	((int)itm_flags->value & items[typeNum].flag)
+//AQ2:TNG End adding flags
+
+typedef struct itemList_s
+{
+	int		index;
+	int		flag;
+} itemList_t;
+
+extern itemList_t items[ITEM_MAX_NUM];
+
+// sniper modes
+#define SNIPER_1X		0
+#define SNIPER_2X		1
+#define SNIPER_4X		2
+#define SNIPER_6X		3
+#define SNIPER_MODE_MAX	4
+
+//TempFile sniper zoom moved to constants
+#define SNIPER_FOV1		90
+#define SNIPER_FOV2		45
+#define SNIPER_FOV4		20
+#define SNIPER_FOV6		10
+
+#define GRENADE_IDLE_FIRST  40
+#define GRENADE_IDLE_LAST   69
+#define GRENADE_THROW_FIRST 4
+#define GRENADE_THROW_LAST  9	// throw it on frame 8?
+
+
+// these should be server variables, when I get around to it
+//#define UNIQUE_WEAPONS_ALLOWED 2
+//#define UNIQUE_ITEMS_ALLOWED   1
+#define SPEC_WEAPON_RESPAWN 1
+#define BANDAGE_TIME    27	// 10 = 1 second
+#define BLEED_TIME      10	// 10 = 1 second is time for losing 1 health at slowest bleed rate
+// Igor's back in Time to hard grenades :-)
+//#define GRENADE_DAMRAD  170
+#define GRENADE_DAMRAD  250
+
+
 typedef struct gitem_s
 {
   char *classname;		// spawning name
@@ -567,10 +688,6 @@ gitem_t;
 //
 typedef struct
 {
-  char helpmessage1[512];
-  char helpmessage2[512];
-  int helpchanged;		// flash F1 icon if non 0, play sound and increment only if 1, 2, or 3
-
   gclient_t *clients;		// [maxclients]
 
   // can't store spawnpoint in level, because
@@ -623,31 +740,34 @@ typedef struct
 
   char *changemap;
 
-  edict_t *sight_client;	// changed once each frame for coop games
-
-  edict_t *sight_entity;
-  int sight_entity_framenum;
-  edict_t *sound_entity;
-  int sound_entity_framenum;
-  edict_t *sound2_entity;
-  int sound2_entity_framenum;
-
   int pic_health;
+  int pic_items[ITEM_MAX_NUM];
+  int pic_weapon_ammo[WEAPON_MAX];
+  int pic_sniper_mode[SNIPER_MODE_MAX];
+  int pic_teamskin[TEAM_TOP];
+  int pic_teamtag;
+  
+  int pic_ctf_teamtag[TEAM_TOP];
+  int pic_ctf_flagbase[TEAM_TOP];
+  int pic_ctf_flagtaken[TEAM_TOP];
+  int pic_ctf_flagdropped[TEAM_TOP];
 
-  int total_secrets;
-  int found_secrets;
+  int snd_fry;
+  int snd_lights;
+  int snd_camera;
+  int snd_action;
+  int snd_teamwins[TEAM_TOP];
+  int snd_silencer;
+  int snd_headshot;
+  int snd_vesthit;
+  int snd_knifethrow;
+  int snd_kick;
+  int snd_noammo;
 
-  int total_goals;
-  int found_goals;
-
-  int total_monsters;
-  int killed_monsters;
 
   edict_t *current_entity;	// entity running from G_RunFrame
 
   int body_que;			// dead bodies
-
-  int power_cubes;		// ugly necessity for coop
 
   int specspawn;		// determines if initial spawning has occured
 
@@ -717,24 +837,6 @@ typedef struct
 moveinfo_t;
 
 
-typedef struct
-{
-  void (*aifunc) (edict_t * self, float dist);
-  float dist;
-  void (*thinkfunc) (edict_t * self);
-}
-mframe_t;
-
-typedef struct
-{
-  int firstframe;
-  int lastframe;
-  mframe_t *frame;
-  void (*endfunc) (edict_t * self);
-}
-mmove_t;
-
-
 extern game_locals_t game;
 extern level_locals_t level;
 extern game_import_t gi;
@@ -742,26 +844,26 @@ extern game_export_t globals;
 extern spawn_temp_t st;
 
 extern int sm_meat_index;
-extern int snd_fry;
 
 // means of death
 #define MOD_UNKNOWN                     0
-#define MOD_BLASTER                     1
-#define MOD_SHOTGUN                     2
-#define MOD_SSHOTGUN                    3
-#define MOD_MACHINEGUN                  4
-#define MOD_CHAINGUN                    5
-#define MOD_GRENADE                     6
-#define MOD_G_SPLASH                    7
-#define MOD_ROCKET                      8
-#define MOD_R_SPLASH                    9
-#define MOD_HYPERBLASTER                10
-#define MOD_RAILGUN                     11
-#define MOD_BFG_LASER                   12
-#define MOD_BFG_BLAST                   13
-#define MOD_BFG_EFFECT                  14
-#define MOD_HANDGRENADE                 15
-#define MOD_HG_SPLASH                   16
+
+#define MOD_MK23                        1
+#define MOD_MP5                         2
+#define MOD_M4                          3
+#define MOD_M3                          4
+#define MOD_HC                          5
+#define MOD_SNIPER                      6
+#define MOD_DUAL                        7
+#define MOD_KNIFE                       8
+#define MOD_KNIFE_THROWN                9
+#define MOD_GRENADE                     10
+#define MOD_G_SPLASH                    11
+#define MOD_HANDGRENADE                 12
+#define MOD_HG_SPLASH                   13
+#define MOD_PUNCH                       14
+#define MOD_BLASTER                     15
+#define MOD_HYPERBLASTER                16
 #define MOD_WATER                       17
 #define MOD_SLIME                       18
 #define MOD_LAVA                        19
@@ -780,23 +882,21 @@ extern int snd_fry;
 #define MOD_HIT                         32
 #define MOD_TARGET_BLASTER              33
 //zucc
-#define MOD_MK23                        34
-#define MOD_MP5                         35
-#define MOD_M4                          36
-#define MOD_M3                          37
-#define MOD_HC                          38
-#define MOD_SNIPER                      39
-#define MOD_DUAL                        40
-#define MOD_KNIFE                       41
-#define MOD_KNIFE_THROWN                42
-#define MOD_BLEEDING                    43
-#define MOD_GAS                         44
-#define MOD_KICK                        45
-//PG BUND
-#define MOD_PUNCH                       50
-#define MOD_GRAPPLE			51
+#define MOD_BLEEDING                    34
+#define MOD_KICK                        35
+#define MOD_GRAPPLE						36
+#define MOD_TOTAL						37
 #define MOD_FRIENDLY_FIRE               0x8000000
 
+// types of locations that can be hit
+#define LOC_HDAM		1	// head
+#define LOC_CDAM		2	// chest
+#define LOC_SDAM		3	// stomach
+#define LOC_LDAM		4	// legs
+#define LOC_KVLR_HELMET 5	// kevlar helmet	Freud, for %D
+#define LOC_KVLR_VEST	6	// kevlar vest 		Freud, for %D
+#define LOC_NO			7	// Shot by shotgun or handcannon
+#define LOC_MAX			8
 
 extern int meansOfDeath;
 // zucc for hitlocation of death
@@ -806,10 +906,8 @@ extern int stopAP;
 
 extern edict_t *g_edicts;
 
-#define FOFS(x)  (int)&(((edict_t *)0)->x)
-#define STOFS(x) (int)&(((spawn_temp_t *)0)->x)
-#define LLOFS(x) (int)&(((level_locals_t *)0)->x)
-#define CLOFS(x) (int)&(((gclient_t *)0)->x)
+#define FOFS(x)  q_offsetof(edict_t, x)
+#define STOFS(x) q_offsetof(spawn_temp_t, x)
 
 #define random()        ((rand () & 0x7fff) / ((float)0x7fff))
 #define crandom()       (2.0 * (random() - 0.5))
@@ -818,7 +916,6 @@ extern edict_t *g_edicts;
 
 extern cvar_t *maxentities;
 extern cvar_t *deathmatch;
-extern cvar_t *coop;
 extern cvar_t *dmflags;
 extern cvar_t *needpass;
 extern cvar_t *hostname;
@@ -914,7 +1011,6 @@ extern cvar_t *itm_flags;
 extern cvar_t *use_classic;	// Use_classic resets weapon balance to 1.52
 extern cvar_t *warmup;
 
-extern cvar_t *skill;
 extern cvar_t *fraglimit;
 extern cvar_t *timelimit;
 extern cvar_t *capturelimit;
@@ -1024,8 +1120,6 @@ extern gitem_t itemlist[];
 qboolean FloodCheck (edict_t * ent);
 void Cmd_Help_f (edict_t * ent);
 void Cmd_Score_f (edict_t * ent);
-void Cmd_CPSI_f (edict_t * ent);
-void Cmd_VidRef_f (edict_t * ent);
 void Cmd_Inven_f( edict_t * ent );
 
 //
@@ -1039,16 +1133,13 @@ gitem_t *FindItemByClassname (char *classname);
 gitem_t *FindItemByNum (int num);
 #define ITEM_INDEX(x) ((x)-itemlist)
 #define INV_AMMO(ent, num) ((ent)->client->pers.inventory[items[(num)].index])
-#define GET_ITEM(num) (GetItemByIndex(items[(num)].index))
+#define GET_ITEM(num) (&itemlist[items[(num)].index])
 edict_t *Drop_Item (edict_t * ent, gitem_t * item);
 void SetRespawn (edict_t * ent, float delay);
 void ChangeWeapon (edict_t * ent);
 void PrecacheItems( void );
 void SpawnItem (edict_t * ent, gitem_t * item);
 void Think_Weapon (edict_t * ent);
-int ArmorIndex (edict_t * ent);
-int PowerArmorType (edict_t * ent);
-gitem_t *GetItemByIndex (int index);
 qboolean Add_Ammo (edict_t * ent, gitem_t * item, int count);
 void Touch_Item (edict_t * ent, edict_t * other, cplane_t * plane,
 		 csurface_t * surf);
@@ -1059,7 +1150,7 @@ void Touch_Item (edict_t * ent, edict_t * other, cplane_t * plane,
 qboolean KillBox (edict_t * ent);
 void G_ProjectSource (vec3_t point, vec3_t distance, vec3_t forward,
 		      vec3_t right, vec3_t result);
-edict_t *G_Find (edict_t * from, int fieldofs, char *match);
+edict_t *G_Find( edict_t * from, size_t fieldofs, char *match );
 edict_t *findradius (edict_t * from, vec3_t org, float rad);
 edict_t *G_PickTarget (char *targetname);
 void G_UseTargets (edict_t * ent, edict_t * activator);
@@ -1135,12 +1226,6 @@ void fire_grenade (edict_t * self, vec3_t start, vec3_t aimdir, int damage,
 void fire_grenade2 (edict_t * self, vec3_t start, vec3_t aimdir, int damage,
 	int speed, int timer, float damage_radius,
 		    qboolean held);
-void fire_rocket (edict_t * self, vec3_t start, vec3_t dir, int damage,
-		  int speed, float damage_radius, int radius_damage);
-void fire_rail (edict_t * self, vec3_t start, vec3_t aimdir, int damage,
-		int kick);
-void fire_bfg (edict_t * self, vec3_t start, vec3_t dir, int damage,
-	       int speed, float damage_radius);
 
 // zucc
 int knife_attack (edict_t * self, vec3_t start, vec3_t aimdir, int damage,
@@ -1216,6 +1301,7 @@ void FetchClientEntData (edict_t * ent);
 //
 void UpdateChaseCam (edict_t * ent);
 int ChaseTargetGone (edict_t * ent);
+void NextChaseMode( edict_t *ent );
 void ChaseNext (edict_t * ent);
 void ChasePrev (edict_t * ent);
 void GetChaseTarget (edict_t * ent);
@@ -1248,6 +1334,27 @@ void Weapon_Generic( edict_t * ent, int FRAME_ACTIVATE_LAST, int FRAME_FIRE_LAST
 #define ANIM_REVERSE            -1
 
 #define MAX_SKINLEN				32
+
+#define MAX_GUNSTAT MOD_GRENADE //Max MOD to track
+
+typedef enum {
+	GENDER_MALE,
+	GENDER_FEMALE,
+	GENDER_NEUTRAL
+} gender_t;
+
+#define GENDER_STR( ent, he, she, it ) (((ent)->client->pers.gender == GENDER_MALE) ? he : (((ent)->client->pers.gender == GENDER_FEMALE) ? she : it))
+
+typedef struct gunStats_s
+{
+	int shots;		//Number of shots
+	int hits;		//Number of hits
+	int headshots;	//Number of headshots
+	int kills;		//Number of kills
+	int damage;		//Damage dealt
+} gunStats_t;
+
+
 // client data that stays across multiple level loads
 typedef struct
 {
@@ -1277,11 +1384,8 @@ typedef struct
   gitem_t *weapon;
   gitem_t *lastweapon;
 
-  int power_cubes;		// used for tracking the cubes in coop games
-
-  int score;			// for calculating total unit score in coop games
-
   //FIREBLADE
+  gender_t	gender;
   qboolean spectator;
   int firing_style;
   //FIREBLADE
@@ -1293,16 +1397,12 @@ client_persistant_t;
 // client data that stays across deathmatch respawns
 typedef struct
 {
-  client_persistant_t coop_respawn;	// what to set client->pers to on a respawn
-
   int enterframe;		// level.framenum the client entered the game
 
   int score;			// frags, etc
 
   vec3_t cmd_angles;		// angles sent over in the last command
 
-  int game_helpchanged;
-  int helpchanged;
   int sniper_mode;		//level of zoom
 
   int kills;			// real kills
@@ -1310,8 +1410,6 @@ typedef struct
   int deaths;			// deaths
 
   int damage_dealt;		// keep track of damage dealt by player to other players
-
-  int streak;			// kills in a row
 
   gitem_t *item;		// item for teamplay
 
@@ -1362,20 +1460,17 @@ typedef struct
 
   qboolean weapon_after_bandage_warned;	// to fix message bug when calling weapon while bandaging
   qboolean punch_desired;	//controlled in ClientThink
-
-  int hs_streak;		// Headshots in a Row
 	
   int stat_mode;    		// Automatical Send of statistics to client
   int stat_mode_intermission;
 
-  int stats_locations[10];	// All locational damage
+  int shotsTotal;					//Total number of shots
+  int hitsTotal;					//Total number of hits
+  int streakKills;					//Kills in a row
+  int streakHS;						//Headshots in a Row
 
-  int stats_shots_t;		// Total nr of shots for TNG Stats
-  int stats_shots_h;		// Total nr of hits for TNG Stats
-
-  int stats_shots[100];       // Shots fired
-  int stats_hits[100];                // Shots hit
-  int stats_headshot[100];    // Shots in head
+  int hitsLocations[LOC_MAX];		//Number of hits for different locations
+  gunStats_t gunstats[MAX_GUNSTAT]; //Number of shots/hits for different guns
 
   //AQ2:TNG - Slicer: Video Checking and further Cheat cheking vars
   char vidref[16];
@@ -1582,7 +1677,7 @@ struct gclient_s
 
   int desired_zoom;		//either 0, 1, 2, 4 or 6. This is set to 0 if no zooming shall be done, and is set to 0 after zooming is done.
 
-  int ctf_uvtime;		// AQ2:TNG - JBravo adding UVtime
+  int uvTime;
   
   void *ctf_grapple;		// entity of grapple
   int ctf_grapplestate;		// true if pulling
@@ -1760,6 +1855,9 @@ struct edict_s
   int typeNum;
   // PG BUND
   xmenu_t *x_menu;
+
+  // hack for proper s.old_origin updates
+  vec3_t		old_origin;
 };
 
 typedef struct
@@ -1771,13 +1869,11 @@ typedef struct
 	int score;
 	int kills;
 	int damage_dealt;
-	int stats_shots_t;
-	int stats_shots_h;
+	int shotsTotal;
+	int hitsTotal;
 
-	int stats_locations[10];
-	int stats_shots[100];
-	int stats_hits[100];
-	int stats_headshot[100];
+	int hitsLocations[LOC_MAX];
+	gunStats_t gunstats[MAX_GUNSTAT];
 	int team;
 	gitem_t *weapon;
 	gitem_t *item;
@@ -1825,12 +1921,16 @@ void ThinkSpecWeap (edict_t * ent);
 void DropExtraSpecial (edict_t * ent);
 void TransparentListSet (solid_t solid_type);
 
+int G_SortedClients( gclient_t **sortedList );
+int G_NotSortedClients( gclient_t **sortedList );
+void A_ScoreboardMessage( edict_t * ent, edict_t * killer );
+
 //local to g_combat but needed in p_view
 void SpawnDamage (int type, vec3_t origin, vec3_t normal, int damage);
 void Killed (edict_t * targ, edict_t * inflictor, edict_t * attacker,
 	     int damage, vec3_t point);
 
-void Add_Frag (edict_t * ent);
+void Add_Frag(edict_t * ent, int mod);
 void Subtract_Frag (edict_t * ent);
 
 void PrintDeathMessage(char *msg, edict_t * gibee);
@@ -1849,130 +1949,6 @@ void EjectBlooder (edict_t * self, vec3_t start, vec3_t veloc);
 void EjectShell (edict_t * self, vec3_t start, int toggle);
 void AddDecal (edict_t * self, trace_t * tr);
 void AddSplat (edict_t * self, vec3_t point, trace_t * tr);
-// weapon names
-/*
-   bind 2 "use M3 Super 90 Assault Shotgun;"
-   bind 3 "use MP5/10 Submachinegun"
-   bind 4 "use Handcannon"
-   bind 5 "use M4 Assault Rifle"
-   bind 6 "use Sniper Rifle"
- */
-#define MK23_NAME    "MK23 Pistol"
-#define MP5_NAME     "MP5/10 Submachinegun"
-#define M4_NAME      "M4 Assault Rifle"
-#define M3_NAME      "M3 Super 90 Assault Shotgun"
-#define HC_NAME      "Handcannon"
-#define SNIPER_NAME  "Sniper Rifle"
-#define DUAL_NAME    "Dual MK23 Pistols"
-#define KNIFE_NAME   "Combat Knife"
-#define GRENADE_NAME "M26 Fragmentation Grenade"
-
-#define SIL_NAME     "Silencer"
-#define SLIP_NAME    "Stealth Slippers"
-#define BAND_NAME    "Bandolier"
-#define KEV_NAME     "Kevlar Vest"
-#define HELM_NAME    "Kevlar Helmet"
-#define LASER_NAME   "Lasersight"
-
-//AQ2:TNG - Igor adding wp_flags/itm_flags
-#define WPF_MK23      0x00000001
-#define WPF_MP5       0x00000002
-#define WPF_M4        0x00000004
-#define WPF_M3        0x00000008
-#define WPF_HC        0x00000010
-#define WPF_SNIPER    0x00000020
-#define WPF_DUAL      0x00000040
-#define WPF_KNIFE     0x00000080
-#define WPF_GRENADE   0x00000100
-
-#define ITF_SIL       0x00000001
-#define ITF_SLIP      0x00000002
-#define ITF_BAND      0x00000004
-#define ITF_KEV       0x00000008
-#define ITF_LASER     0x00000010
-#define ITF_HELM      0x00000020
-//AQ2:TNG End adding flags
-
-#define NO_NUM					-1
-
-#define MK23_NUM				0
-#define MP5_NUM					1
-#define M4_NUM					2
-#define M3_NUM					3
-#define HC_NUM					4
-#define SNIPER_NUM				5
-#define DUAL_NUM				6
-#define KNIFE_NUM				7
-#define GRENADE_NUM				8
-
-#define SIL_NUM					9
-#define SLIP_NUM				10
-#define BAND_NUM				11
-#define KEV_NUM					12
-#define LASER_NUM				13
-#define HELM_NUM				14
-
-#define MK23_ANUM				15
-#define MP5_ANUM				16
-#define M4_ANUM					17
-#define SHELL_ANUM				18
-#define SNIPER_ANUM				19
-
-#define FLAG_T1_NUM				20
-#define FLAG_T2_NUM				21
-
-#define GRAPPLE_NUM				22
-
-#define WEAPON_COUNT			9
-#define ITEM_COUNT				6
-#define AMMO_COUNT				5
-#define ILIST_COUNT				WEAPON_COUNT+ITEM_COUNT+AMMO_COUNT
-
-typedef struct itemList_s
-{
-	int		index;
-	int		flag;
-} itemList_t;
-
-extern itemList_t items[ILIST_COUNT];
-extern int tnums[ITEM_COUNT];
-
-// types of locations that can be hit
-#define LOC_HDAM 1		// head
-#define LOC_CDAM 2		// chest
-#define LOC_SDAM 3		// stomach
-#define LOC_LDAM 4		// legs
-#define LOC_KVLR_HELMET 5	// kevlar helmet	Freud, for %D
-#define LOC_KVLR_VEST 6		// kevlar vest 		Freud, for %D
-#define LOC_NO 7		// Shot by shotgun or handcannon
-
-// sniper modes
-#define SNIPER_1X 0
-#define SNIPER_2X 1
-#define SNIPER_4X 2
-#define SNIPER_6X 3
-
-//TempFile sniper zoom moved to constants
-#define SNIPER_FOV1	90
-#define SNIPER_FOV2	45
-#define SNIPER_FOV4	20
-#define SNIPER_FOV6	10
-
-#define GRENADE_IDLE_FIRST  40
-#define GRENADE_IDLE_LAST   69
-#define GRENADE_THROW_FIRST 4
-#define GRENADE_THROW_LAST  9	// throw it on frame 8?
-
-
-// these should be server variables, when I get around to it
-//#define UNIQUE_WEAPONS_ALLOWED 2
-//#define UNIQUE_ITEMS_ALLOWED   1
-#define SPEC_WEAPON_RESPAWN 1
-#define BANDAGE_TIME    27	// 10 = 1 second
-#define BLEED_TIME      10	// 10 = 1 second is time for losing 1 health at slowest bleed rate
-// Igor's back in Time to hard grenades :-)
-//#define GRENADE_DAMRAD  170
-#define GRENADE_DAMRAD  250
 
 //AQ2:TNG - Slicer New location support
 #define MAX_LOCATIONS_IN_BASE		256	// Max amount of locations
@@ -1992,7 +1968,6 @@ placedata_t;
 // Externals for accessing location structures
 extern int ml_count;
 extern placedata_t locationbase[];
-extern char ml_build[6];
 extern char ml_creator[101];
 //AQ2:TNG END
 
@@ -2001,7 +1976,7 @@ void Cmd_AutoRecord_f(edict_t * ent);
 
 typedef struct team_s
 {
-	char name[32];
+	char name[20];
 	char skin[MAX_SKINLEN];
 	char skin_index[MAX_QPATH];
 	int score, total;

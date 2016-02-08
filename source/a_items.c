@@ -40,13 +40,6 @@
 // time before they will get respawned
 #define SPEC_TECH_TIMEOUT       60
 
-int tnums[ITEM_COUNT] = {
-	SIL_NUM, SLIP_NUM, BAND_NUM, KEV_NUM, LASER_NUM,
-	HELM_NUM
-};
-
-//int tnumspawned[ITEM_COUNT] = { 0 };
-
 void SpecThink(edict_t * spec);
 
 static edict_t *FindSpecSpawn(void)
@@ -94,6 +87,7 @@ static void SpawnSpec(gitem_t * item, edict_t * spot)
 	AngleVectors(angles, forward, right, NULL);
 	VectorCopy(spot->s.origin, ent->s.origin);
 	ent->s.origin[2] += 16;
+	VectorCopy(ent->s.origin, ent->old_origin);
 	VectorScale(forward, 100, ent->velocity);
 	ent->velocity[2] = 300;
 
@@ -107,21 +101,22 @@ void SpawnSpecs(edict_t * ent)
 {
 	gitem_t *spec;
 	edict_t *spot;
-	int i;
+	int i, itemNum;
+
+	G_FreeEdict(ent);
 
 	if(item_respawnmode->value)
 		return;
 
 	for(i = 0; i<ITEM_COUNT; i++)
 	{
-		if ((spec = GET_ITEM(tnums[i])) != NULL && (spot = FindSpecSpawn()) != NULL) {
-			//AQ2:TNG - Igor adding itm_flags
-			if ((int)itm_flags->value & items[tnums[i]].flag)
-			{
-				//gi.dprintf("Spawning special item '%s'.\n", tnames[i]);
-				SpawnSpec(spec, spot);
-			}
-			//AQ2:TNG End adding itm_flags
+		itemNum = ITEM_FIRST + i;
+		if (!ITF_ALLOWED(itemNum))
+			continue;
+
+		if ((spec = GET_ITEM(itemNum)) != NULL && (spot = FindSpecSpawn()) != NULL) {
+			//gi.dprintf("Spawning special item '%s'.\n", tnames[i]);
+			SpawnSpec(spec, spot);
 		}
 	}
 }
@@ -130,20 +125,33 @@ void SpecThink(edict_t * spec)
 {
 	edict_t *spot;
 
-	if ((spot = FindSpecSpawn()) != NULL) {
+	spot = FindSpecSpawn();
+	if (spot) {
 		SpawnSpec(spec->item, spot);
-		G_FreeEdict(spec);
-	} else {
-		spec->nextthink = level.framenum + SPEC_RESPAWN_TIME * HZ;
-		spec->think = SpecThink;
 	}
+
+	G_FreeEdict(spec);
 }
 
 static void MakeTouchSpecThink(edict_t * ent)
 {
+	int isDeathmatch;
+
 	ent->touch = Touch_Item;
 
-	if (deathmatch->value && (!teamplay->value || teamdm->value || ctf->value == 2) && !allitem->value && !dm_choose->value) {
+	if (allitem->value) {
+		ent->nextthink = level.framenum + 1 * HZ;
+		ent->think = G_FreeEdict;
+		return;
+	}
+	isDeathmatch = (!teamplay->value || teamdm->value) ? 1 : 0;
+	if (isDeathmatch && dm_choose->value) {
+		ent->nextthink = level.framenum + 6 * HZ;
+		ent->think = G_FreeEdict;
+		return;
+	}
+
+	if (isDeathmatch || ctf->value == 2) {
 		if(item_respawnmode->value) {
 			ent->nextthink = level.framenum + (item_respawn->value*0.5f) * HZ;
 			ent->think = G_FreeEdict;
@@ -152,20 +160,15 @@ static void MakeTouchSpecThink(edict_t * ent)
 			ent->nextthink = level.framenum + item_respawn->value * HZ;
 			ent->think = SpecThink;
 		}
-	} else if ((teamplay->value || dm_choose->value) && !allitem->value) {
+	} else  {
 		//AQ2:TNG - Slicer This works for Special Items 
-		if (ctf->value || dm_choose->value) {
+		if (ctf->value) {
 			ent->nextthink = level.framenum + 6 * HZ;
 			ent->think = G_FreeEdict;
 		} else {
 			ent->nextthink = level.framenum + 60 * HZ;
 			ent->think = G_FreeEdict;
 		}
-	} else			// allitem->value is set
-
-	{
-		ent->nextthink = level.framenum + 1 * HZ;
-		ent->think = G_FreeEdict;
 	}
 }
 
@@ -186,12 +189,13 @@ void DeadDropSpec(edict_t * ent)
 {
 	gitem_t *spec;
 	edict_t *dropped;
-	int i;
+	int i, itemNum;
 
 	for(i = 0; i<ITEM_COUNT; i++)
 	{
-		if (INV_AMMO(ent, tnums[i]) > 0) {
-			spec = GET_ITEM(tnums[i]);
+		itemNum = ITEM_FIRST + i;
+		if (INV_AMMO(ent, itemNum) > 0) {
+			spec = GET_ITEM(itemNum);
 			dropped = Drop_Item(ent, spec);
 			// hack the velocity to make it bounce random
 			dropped->velocity[0] = (rand() % 600) - 300;

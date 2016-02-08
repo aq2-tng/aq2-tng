@@ -63,11 +63,9 @@
 
 void MoveClientToIntermission (edict_t * ent)
 {
-	if (deathmatch->value || coop->value)
-	{
-		ent->client->showscores = true;
-		ent->client->scoreboardnum = 1;
-	}
+	ent->client->showscores = true;
+	ent->client->scoreboardnum = 1;
+
 	VectorCopy (level.intermission_origin, ent->s.origin);
 	ent->client->ps.pmove.origin[0] = level.intermission_origin[0] * 8;
 	ent->client->ps.pmove.origin[1] = level.intermission_origin[1] * 8;
@@ -103,18 +101,13 @@ void MoveClientToIntermission (edict_t * ent)
 	//FIREBLADE
 
 	// add the layout
-
-	if (deathmatch->value || coop->value)
-	{
-		DeathmatchScoreboardMessage (ent, NULL);
-		gi.unicast (ent, true);
-	}
-
+	DeathmatchScoreboardMessage (ent, NULL);
+	gi.unicast (ent, true);
 }
 
 void BeginIntermission (edict_t * targ)
 {
-	int i, n;
+	int i;
 	edict_t *ent, *client;
 
 	if (level.intermission_framenum)
@@ -141,33 +134,6 @@ void BeginIntermission (edict_t * targ)
 
 	level.intermission_framenum = level.realFramenum;
 	level.changemap = targ->map;
-
-	if (strchr(level.changemap, '*'))
-	{
-		if (coop->value)
-		{
-			for (i = 0; i < game.maxclients; i++)
-			{
-				client = g_edicts + 1 + i;
-				if (!client->inuse)
-					continue;
-				// strip players of all keys between units
-				for (n = 0; n < MAX_ITEMS; n++)
-				{
-					if (itemlist[n].flags & IT_KEY)
-						client->client->pers.inventory[n] = 0;
-				}
-			}
-		}
-	}
-	else
-	{
-		if (!deathmatch->value)
-		{
-			level.intermission_exit = 1;	// go immediately to the next level
-			return;
-		}
-	}
 
 	level.intermission_exit = 0;
 
@@ -210,8 +176,6 @@ void BeginIntermission (edict_t * targ)
 	}
 }
 
-void A_ScoreboardMessage (edict_t * ent, edict_t * killer);
-
 /*
   ==================
   DeathmatchScoreboardMessage
@@ -223,17 +187,13 @@ void DeathmatchScoreboardMessage (edict_t * ent, edict_t * killer)
 	char entry[128];
 	char string[1024];
 	int stringlength;
-	int i, j, k;
-	int sorted[MAX_CLIENTS];
-	int sortedscores[MAX_CLIENTS];
-	int score, total;
-	int picnum;
+	int i, j, totalClients;
+	gclient_t *sortedClients[MAX_CLIENTS];
 	int x, y;
 	gclient_t *cl;
 	edict_t *cl_ent;
 	char *tag;
 
-	//FIREBLADE
 	if (teamplay->value && !use_tourney->value)
 	{
 		// DW: If the map ends
@@ -248,45 +208,22 @@ void DeathmatchScoreboardMessage (edict_t * ent, edict_t * killer)
 
 		return;
 	}
-	//FIREBLADE
 
-	// sort the clients by score
-	total = 0;
-	for (i = 0; i < game.maxclients; i++)
-	{
-		cl_ent = g_edicts + 1 + i;
-		if (!cl_ent->inuse)
-			continue;
-		score = game.clients[i].resp.score;
-		for (j = 0; j < total; j++)
-		{
-			if (score > sortedscores[j])
-				break;
-		}
-		for (k = total; k > j; k--)
-		{
-			sorted[k] = sorted[k - 1];
-			sortedscores[k] = sortedscores[k - 1];
-		}
-		sorted[j] = i;
-		sortedscores[j] = score;
-		total++;
-	}
+	totalClients = G_SortedClients(sortedClients);
 
 	// print level name and exit rules
 	string[0] = 0;
 	stringlength = 0;
 
 	// add the clients in sorted order
-	if (total > 12)
-		total = 12;
+	if (totalClients > 12)
+		totalClients = 12;
 
-	for (i = 0; i < total; i++)
+	for (i = 0; i < totalClients; i++)
 	{
-		cl = &game.clients[sorted[i]];
-		cl_ent = g_edicts + 1 + sorted[i];
+		cl = sortedClients[i];
+		cl_ent = g_edicts + 1 + (cl - game.clients);
 
-		picnum = gi.imageindex ("i_fixme");
 		x = (i >= 6) ? 160 : 0;
 		y = 32 + 32 * (i % 6);
 
@@ -311,7 +248,7 @@ void DeathmatchScoreboardMessage (edict_t * ent, edict_t * killer)
 		// send the layout
 		Com_sprintf (entry, sizeof (entry),
 			"client %i %i %i %i %i %i ",
-			x, y, sorted[i], cl->resp.score, cl->ping,
+			x, y, cl - game.clients, cl->resp.score, cl->ping,
 			(level.framenum - cl->resp.enterframe) / 600 / FRAMEDIV);
 		j = strlen (entry);
 		if (stringlength + j > 1023)
@@ -349,20 +286,16 @@ void DeathmatchScoreboard (edict_t * ent)
 */
 void Cmd_Score_f (edict_t * ent)
 {
-  ent->client->showinventory = false;
+	ent->client->showinventory = false;
 	
-  //FIREBLADE
-  if (ent->client->menu)
-    PMenu_Close (ent);
-  //FIREBLADE
+	//FIREBLADE
+	if (ent->client->menu)
+		PMenu_Close (ent);
 	
-  if (!deathmatch->value && !coop->value)
-    return;
-	
-  if (ent->client->showscores)
-  {
-    //FIREBLADE
-    if (teamplay->value && ent->client->scoreboardnum < 2)	// toggle scoreboards...
+	if (ent->client->showscores)
+	{
+		//FIREBLADE
+		if (teamplay->value && ent->client->scoreboardnum < 2)	// toggle scoreboards...
 		{
 			ent->client->scoreboardnum++;
 			DeathmatchScoreboard (ent);
@@ -374,11 +307,11 @@ void Cmd_Score_f (edict_t * ent)
 		return;
 	}
 	
-  ent->client->showscores = true;
-  //FIREBLADE
-  ent->client->scoreboardnum = 1;
-  //FIREBLADE
-  DeathmatchScoreboard (ent);
+	ent->client->showscores = true;
+	//FIREBLADE
+	ent->client->scoreboardnum = 1;
+	//FIREBLADE
+	DeathmatchScoreboard (ent);
 }
 
 
@@ -408,12 +341,6 @@ void Cmd_Help_f (edict_t * ent)
 void G_SetStats (edict_t * ent)
 {
 	gitem_t *item;
-	// AQ:TNG - JBravo fixing compilerwarnings.
-	// Another one Im not 100% sure about...
-	int cells = 0;
-	int index;
-	// JBravo.
-	int power_armor_type;
 
 	if (!ent->client->chase_mode)
 	{
@@ -436,37 +363,39 @@ void G_SetStats (edict_t * ent)
 		else
 		{
 			item = &itemlist[ent->client->ammo_index];
-			ent->client->ps.stats[STAT_CLIP_ICON] = gi.imageindex (item->icon);
-			ent->client->ps.stats[STAT_CLIP] =
-			ent->client->pers.inventory[ent->client->ammo_index];
+			if (item->typeNum < AMMO_MAX)
+				ent->client->ps.stats[STAT_CLIP_ICON] = level.pic_items[item->typeNum];
+			else
+				ent->client->ps.stats[STAT_CLIP_ICON] = gi.imageindex(item->icon);
+			ent->client->ps.stats[STAT_CLIP] = ent->client->pers.inventory[ent->client->ammo_index];
 		}
 
 		// zucc display special item and special weapon
 		if (INV_AMMO(ent, SNIPER_NUM))
-			ent->client->ps.stats[STAT_WEAPONS_ICON] = gi.imageindex(GET_ITEM(SNIPER_NUM)->icon);
+			ent->client->ps.stats[STAT_WEAPONS_ICON] = level.pic_items[SNIPER_NUM];
 		else if (INV_AMMO(ent, M4_NUM))
-			ent->client->ps.stats[STAT_WEAPONS_ICON] = gi.imageindex(GET_ITEM(M4_NUM)->icon);
+			ent->client->ps.stats[STAT_WEAPONS_ICON] = level.pic_items[M4_NUM];
 		else if (INV_AMMO(ent, MP5_NUM))
-			ent->client->ps.stats[STAT_WEAPONS_ICON] = gi.imageindex(GET_ITEM(MP5_NUM)->icon);
+			ent->client->ps.stats[STAT_WEAPONS_ICON] = level.pic_items[MP5_NUM];
 		else if (INV_AMMO(ent, M3_NUM))
-			ent->client->ps.stats[STAT_WEAPONS_ICON] = gi.imageindex(GET_ITEM(M3_NUM)->icon);
+			ent->client->ps.stats[STAT_WEAPONS_ICON] = level.pic_items[M3_NUM];
 		else if (INV_AMMO(ent, HC_NUM))
-			ent->client->ps.stats[STAT_WEAPONS_ICON] = gi.imageindex(GET_ITEM(HC_NUM)->icon);
+			ent->client->ps.stats[STAT_WEAPONS_ICON] = level.pic_items[HC_NUM];
 		else
 			ent->client->ps.stats[STAT_WEAPONS_ICON] = 0;
 
 		if (INV_AMMO(ent, KEV_NUM))
-			ent->client->ps.stats[STAT_ITEMS_ICON] = gi.imageindex (GET_ITEM(KEV_NUM)->icon);
+			ent->client->ps.stats[STAT_ITEMS_ICON] = level.pic_items[KEV_NUM];
 		else if (INV_AMMO(ent, LASER_NUM))
-			ent->client->ps.stats[STAT_ITEMS_ICON] = gi.imageindex (GET_ITEM(LASER_NUM)->icon);
+			ent->client->ps.stats[STAT_ITEMS_ICON] = level.pic_items[LASER_NUM];
 		else if (INV_AMMO(ent, SLIP_NUM))
-			ent->client->ps.stats[STAT_ITEMS_ICON] = gi.imageindex (GET_ITEM(SLIP_NUM)->icon);
+			ent->client->ps.stats[STAT_ITEMS_ICON] = level.pic_items[SLIP_NUM];
 		else if (INV_AMMO(ent, SIL_NUM))
-			ent->client->ps.stats[STAT_ITEMS_ICON] = gi.imageindex (GET_ITEM(SIL_NUM)->icon);
+			ent->client->ps.stats[STAT_ITEMS_ICON] = level.pic_items[SIL_NUM];
 		else if (INV_AMMO(ent, HELM_NUM))
-			ent->client->ps.stats[STAT_ITEMS_ICON] = gi.imageindex (GET_ITEM(HELM_NUM)->icon);
+			ent->client->ps.stats[STAT_ITEMS_ICON] = level.pic_items[HELM_NUM];
 		else if (INV_AMMO(ent, BAND_NUM))
-			ent->client->ps.stats[STAT_ITEMS_ICON] = gi.imageindex (GET_ITEM(BAND_NUM)->icon);
+			ent->client->ps.stats[STAT_ITEMS_ICON] = level.pic_items[BAND_NUM];
 		else
 			ent->client->ps.stats[STAT_ITEMS_ICON] = 0;
 
@@ -474,7 +403,7 @@ void G_SetStats (edict_t * ent)
 		// grenades remaining
 		if (INV_AMMO(ent, GRENADE_NUM))
 		{
-			ent->client->ps.stats[STAT_GRENADE_ICON] = gi.imageindex ("a_m61frag");
+			ent->client->ps.stats[STAT_GRENADE_ICON] = level.pic_weapon_ammo[GRENADE_NUM];
 			ent->client->ps.stats[STAT_GRENADES] = INV_AMMO(ent, GRENADE_NUM);
 		}
 		else
@@ -487,43 +416,43 @@ void G_SetStats (edict_t * ent)
 		// ammo by weapon
 		// 
 		//
-		if (ent->client->pers.weapon)
+		if (ent->client->pers.weapon && ent->client->curr_weap)
 		{
 			switch (ent->client->curr_weap) {
 			case MK23_NUM:
-				ent->client->ps.stats[STAT_AMMO_ICON] = gi.imageindex("a_bullets");
+				ent->client->ps.stats[STAT_AMMO_ICON] = level.pic_weapon_ammo[ent->client->curr_weap];
 				ent->client->ps.stats[STAT_AMMO] = ent->client->mk23_rds;
 				break;
 			case MP5_NUM:
-				ent->client->ps.stats[STAT_AMMO_ICON] = gi.imageindex("a_bullets");
+				ent->client->ps.stats[STAT_AMMO_ICON] = level.pic_weapon_ammo[ent->client->curr_weap];
 				ent->client->ps.stats[STAT_AMMO] = ent->client->mp5_rds;
 				break;
 			case M4_NUM:
-				ent->client->ps.stats[STAT_AMMO_ICON] = gi.imageindex("a_bullets");
+				ent->client->ps.stats[STAT_AMMO_ICON] = level.pic_weapon_ammo[ent->client->curr_weap];
 				ent->client->ps.stats[STAT_AMMO] = ent->client->m4_rds;
 				break;
 			case M3_NUM:
-				ent->client->ps.stats[STAT_AMMO_ICON] = gi.imageindex("a_shells");
+				ent->client->ps.stats[STAT_AMMO_ICON] = level.pic_weapon_ammo[ent->client->curr_weap];
 				ent->client->ps.stats[STAT_AMMO] = ent->client->shot_rds;
 				break;
 			case HC_NUM:
-				ent->client->ps.stats[STAT_AMMO_ICON] = gi.imageindex("a_shells");
+				ent->client->ps.stats[STAT_AMMO_ICON] = level.pic_weapon_ammo[ent->client->curr_weap];
 				ent->client->ps.stats[STAT_AMMO] = ent->client->cannon_rds;
 				break;
 			case SNIPER_NUM:
-				ent->client->ps.stats[STAT_AMMO_ICON] = gi.imageindex("a_bullets");
+				ent->client->ps.stats[STAT_AMMO_ICON] = level.pic_weapon_ammo[ent->client->curr_weap];
 				ent->client->ps.stats[STAT_AMMO] = ent->client->sniper_rds;
 				break;
 			case DUAL_NUM:
-				ent->client->ps.stats[STAT_AMMO_ICON] = gi.imageindex("a_bullets");
+				ent->client->ps.stats[STAT_AMMO_ICON] = level.pic_weapon_ammo[ent->client->curr_weap];
 				ent->client->ps.stats[STAT_AMMO] = ent->client->dual_rds;
 				break;
 			case KNIFE_NUM:
-				ent->client->ps.stats[STAT_AMMO_ICON] = gi.imageindex("w_knife");
+				ent->client->ps.stats[STAT_AMMO_ICON] = level.pic_weapon_ammo[ent->client->curr_weap];
 				ent->client->ps.stats[STAT_AMMO] = INV_AMMO(ent, KNIFE_NUM);
 				break;
 			case GRENADE_NUM:
-				ent->client->ps.stats[STAT_AMMO_ICON] = gi.imageindex("a_m61frag");
+				ent->client->ps.stats[STAT_AMMO_ICON] = level.pic_weapon_ammo[ent->client->curr_weap];
 				ent->client->ps.stats[STAT_AMMO] = INV_AMMO(ent, GRENADE_NUM);
 				break;
 			case GRAPPLE_NUM:
@@ -531,9 +460,12 @@ void G_SetStats (edict_t * ent)
 				ent->client->ps.stats[STAT_AMMO] = 0;
 				break;
 			default:
-				gi.dprintf ("Failed to find weapon/icon for hud.\n");
+				gi.dprintf ("Failed to find hud weapon/icon for num %d.\n", ent->client->curr_weap);
 				break;
 			}
+		} else {
+			ent->client->ps.stats[STAT_AMMO_ICON] = 0;
+			ent->client->ps.stats[STAT_AMMO] = 0;
 		}
 
 		//
@@ -548,55 +480,14 @@ void G_SetStats (edict_t * ent)
 			|| ent->client->weaponstate == WEAPON_BUSY
 			|| ent->client->no_sniper_display)
 			ent->client->ps.stats[STAT_SNIPER_ICON] = 0;
-		else if (ent->client->resp.sniper_mode == SNIPER_2X)
-			ent->client->ps.stats[STAT_SNIPER_ICON] = gi.imageindex ("scope2x");
-		else if (ent->client->resp.sniper_mode == SNIPER_4X)
-			ent->client->ps.stats[STAT_SNIPER_ICON] = gi.imageindex ("scope4x");
-		else if (ent->client->resp.sniper_mode == SNIPER_6X)
-			ent->client->ps.stats[STAT_SNIPER_ICON] = gi.imageindex ("scope6x");
+		else
+			ent->client->ps.stats[STAT_SNIPER_ICON] = level.pic_sniper_mode[ent->client->resp.sniper_mode];
 
 		//
 		// armor
 		//
-		power_armor_type = PowerArmorType (ent);
-		if (power_armor_type)
-		{
-			cells =	ent->client->pers.inventory[ITEM_INDEX (FindItem ("cells"))];
-			if (cells == 0)
-			{			// ran out of cells for power armor
-				ent->flags &= ~FL_POWER_ARMOR;
-				gi.sound (ent, CHAN_ITEM, gi.soundindex ("misc/power2.wav"), 1, ATTN_NORM, 0);
-				power_armor_type = 0;;
-			}
-		}
-
-		index = ArmorIndex (ent);
-		if (power_armor_type && (!index || ((level.framenum / FRAMEDIV) & 8)))
-		{			// flash between power armor and other armor icon
-			ent->client->ps.stats[STAT_ARMOR_ICON] = gi.imageindex ("i_powershield");
-			ent->client->ps.stats[STAT_ARMOR] = cells;
-		}
-		else if (index)
-		{
-			item = GetItemByIndex (index);
-			ent->client->ps.stats[STAT_ARMOR_ICON] = gi.imageindex (item->icon);
-			ent->client->ps.stats[STAT_ARMOR] =
-			ent->client->pers.inventory[index];
-		}
-		else
-		{
-			ent->client->ps.stats[STAT_ARMOR_ICON] = 0;
-			ent->client->ps.stats[STAT_ARMOR] = 0;
-		}
-
-		//
-		// pickup message
-		//
-		if (level.framenum > ent->client->pickup_msg_time)
-		{
-			ent->client->ps.stats[STAT_PICKUP_ICON] = 0;
-			ent->client->ps.stats[STAT_PICKUP_STRING] = 0;
-		}
+		ent->client->ps.stats[STAT_ARMOR_ICON] = 0;
+		ent->client->ps.stats[STAT_ARMOR] = 0;
 
 		//
 		// timers
@@ -630,34 +521,43 @@ void G_SetStats (edict_t * ent)
 		//
 		// selected item
 		//
-		if (ent->client->pers.selected_item == -1)
+		if (ent->client->pers.selected_item < 1) {
 			ent->client->ps.stats[STAT_SELECTED_ICON] = 0;
-		else
-			ent->client->ps.stats[STAT_SELECTED_ICON] =	gi.imageindex (itemlist[ent->client->pers.selected_item].icon);
+		} else {
+			item = &itemlist[ent->client->pers.selected_item];
+			if (item->typeNum < AMMO_MAX)
+				ent->client->ps.stats[STAT_SELECTED_ICON] = level.pic_items[item->typeNum];
+			else
+				ent->client->ps.stats[STAT_SELECTED_ICON] = gi.imageindex(item->icon);
+		}
 
 		ent->client->ps.stats[STAT_SELECTED_ITEM] = ent->client->pers.selected_item;
 
 		//
-		// frags
-		//
-		ent->client->ps.stats[STAT_FRAGS] = ent->client->resp.score;
-
-		//
 		// help icon / current weapon if not shown
 		//
-		if (ent->client->resp.helpchanged && ((level.framenum / FRAMEDIV) & 8))
-			ent->client->ps.stats[STAT_HELPICON] = gi.imageindex ("i_help");
-		else if ((ent->client->pers.hand == CENTER_HANDED || ent->client->ps.fov > 91)
-			&& ent->client->pers.weapon)
-			ent->client->ps.stats[STAT_HELPICON] = gi.imageindex (ent->client->pers.weapon->icon);
+		// TNG: Show health icon when bandaging (thanks to Dome for this code)
+		if (ent->client->weaponstate == WEAPON_BANDAGING || ent->client->bandaging || ent->client->bandage_stopped)
+			ent->client->ps.stats[STAT_HELPICON] = level.pic_health;
+		else if ((ent->client->pers.hand == CENTER_HANDED || ent->client->ps.fov > 91) && ent->client->pers.weapon)
+			ent->client->ps.stats[STAT_HELPICON] = level.pic_items[ent->client->pers.weapon->typeNum];
 		else
 			ent->client->ps.stats[STAT_HELPICON] = 0;
 	}
-	// TNG: Show health icon when bandaging (thanks to Dome for this code)
-	if (ent->client->weaponstate == WEAPON_BANDAGING || ent->client->bandaging || ent->client->bandage_stopped)
+
+	//
+	// pickup message
+	//
+	if (level.realFramenum > ent->client->pickup_msg_time)
 	{
-		ent->client->ps.stats[STAT_HELPICON] = gi.imageindex ("i_health");
+		ent->client->ps.stats[STAT_PICKUP_ICON] = 0;
+		ent->client->ps.stats[STAT_PICKUP_STRING] = 0;
 	}
+
+	//
+	// frags
+	//
+	ent->client->ps.stats[STAT_FRAGS] = ent->client->resp.score;
 
 	//
 	// layouts
@@ -681,17 +581,37 @@ void G_SetStats (edict_t * ent)
 
 void G_SetSpectatorStats (edict_t *ent)
 {
-        gclient_t *cl = ent->client;
+	gclient_t *cl = ent->client, *targClient;
+	int stats_copy;
+
+	if (!cl->chase_mode)
+		return;
+
+	targClient = cl->chase_target->client;
+	for (stats_copy = 0; stats_copy < MAX_STATS; stats_copy++)
+	{
+		if (stats_copy >= STAT_TEAM_HEADER && stats_copy <= STAT_TEAM2_SCORE)
+			continue;		// protect these
+		if (stats_copy >= STAT_TEAM3_PIC && stats_copy <= STAT_TEAM3_SCORE)
+			continue;		// protect these
+		if (stats_copy == STAT_LAYOUTS || stats_copy == STAT_ID_VIEW)
+			continue;		// protect these
+		if (stats_copy == STAT_SNIPER_ICON && cl->chase_mode != 2)
+			continue;		// only show sniper lens when in chase mode 2
+		if (stats_copy == STAT_FRAGS)
+			continue;
+		cl->ps.stats[stats_copy] = targClient->ps.stats[stats_copy];
+	}
 
 	//copy gun if in-eyes mode
 	if (cl->chase_mode == 2)
 	{   
-		cl->ps.gunindex = cl->chase_target->client->ps.gunindex;
-		cl->ps.gunframe = cl->chase_target->client->ps.gunframe;
-		VectorCopy (cl->chase_target->client->ps.gunangles, cl->ps.gunangles);
+		cl->ps.gunindex = targClient->ps.gunindex;
+		cl->ps.gunframe = targClient->ps.gunframe;
+		VectorCopy(targClient->ps.gunangles, cl->ps.gunangles);
 
 		//copy kickangles so hits/etc look realistic
-		VectorCopy (cl->chase_target->client->ps.kick_angles, cl->ps.kick_angles);
+		VectorCopy(targClient->ps.kick_angles, cl->ps.kick_angles);
 	}   
 }
 

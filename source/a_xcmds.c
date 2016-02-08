@@ -184,6 +184,9 @@ void Cmd_Voice_f (edict_t * self)
 	char *s;
 	char fullpath[MAX_QPATH];
 
+	if (!use_voice->value)
+		return;
+
 	s = gi.args ();
 	//check if no sound is given
 	if (!*s)

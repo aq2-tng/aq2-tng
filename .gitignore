@@ -6,7 +6,17 @@
 *.obj
 *.sbr
 *.log
+*.tlog
 *.map
 *.pdb
 *.ilk
 *.opensdf
+*.exp
+*.suo
+*.sdf
+*.vcxproj*
+*.bsc
+*.sln
+*.idb
+*.htm
+*.html

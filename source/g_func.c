@@ -1250,8 +1250,8 @@ void SP_func_door(edict_t *ent)
 
 	if (!ent->speed)
 		ent->speed = 100;
-	if (deathmatch->value)
-		ent->speed *= 2;
+
+	ent->speed *= 2;
 
 	if (!ent->accel)
 		ent->accel = ent->speed;
@@ -1645,6 +1645,7 @@ static void train_next(edict_t *self)
 		first = false;
 		VectorSubtract(ent->s.origin, self->mins, self->s.origin);
 		VectorCopy(self->s.origin, self->s.old_origin);
+		VectorCopy(self->s.origin, self->old_origin);
 		self->s.event = EV_OTHER_TELEPORT;
 		gi.linkentity(self);
 		goto again;

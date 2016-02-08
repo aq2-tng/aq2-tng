@@ -112,8 +112,6 @@ int KickDoor (trace_t * tr_old, edict_t * ent, vec3_t forward);
 
 // Prototypes of base Q2 functions that weren't included in any Q2 header
 qboolean loc_CanSee (edict_t *, edict_t *);
-qboolean IsNeutral (edict_t *);
-qboolean IsFemale (edict_t *);
 void ParseSayText (edict_t *, char *, size_t size);
 
 //PG BUND - BEGIN

@@ -167,6 +167,7 @@ ThrowGib (edict_t * self, char *gibname, int damage, int type)
   gib->s.origin[0] = origin[0] + crandom () * size[0];
   gib->s.origin[1] = origin[1] + crandom () * size[1];
   gib->s.origin[2] = origin[2] + crandom () * size[2];
+  VectorCopy( gib->s.origin, gib->old_origin );
 
   gi.setmodel (gib, gibname);
   gib->solid = SOLID_NOT;
@@ -309,7 +310,8 @@ ThrowDebris (edict_t * self, char *modelname, float speed, vec3_t origin)
   vec3_t v;
 
   chunk = G_Spawn ();
-  VectorCopy (origin, chunk->s.origin);
+  VectorCopy(origin, chunk->s.origin);
+  VectorCopy(origin, chunk->old_origin);
   gi.setmodel (chunk, modelname);
   v[0] = 100 * crandom ();
   v[1] = 100 * crandom ();
@@ -538,24 +540,23 @@ light_use (edict_t * self, edict_t * other, edict_t * activator)
     }
 }
 
-void
-SP_light (edict_t * self)
+void SP_light (edict_t * self)
 {
-  // no targeted lights in deathmatch, because they cause global messages
-  if (!self->targetname || deathmatch->value)
-    {
-      G_FreeEdict (self);
-      return;
-    }
+	// no targeted lights in deathmatch, because they cause global messages
+	//if (!self->targetname || deathmatch->value)
+	//{
+		G_FreeEdict (self);
+		return;
+	/*}
 
-  if (self->style >= 32)
-    {
-      self->use = light_use;
-      if (self->spawnflags & START_OFF)
-	gi.configstring (CS_LIGHTS + self->style, "a");
-      else
-	gi.configstring (CS_LIGHTS + self->style, "m");
-    }
+	if (self->style >= 32)
+	{
+		self->use = light_use;
+		if (self->spawnflags & START_OFF)
+			gi.configstring (CS_LIGHTS + self->style, "a");
+		else
+			gi.configstring (CS_LIGHTS + self->style, "m");
+	}*/
 }
 
 
@@ -817,8 +818,7 @@ func_explosive_spawn (edict_t * self, edict_t * other, edict_t * activator)
   gi.linkentity (self);
 }
 
-void
-SP_func_explosive (edict_t * self)
+void SP_func_explosive (edict_t * self)
 {
   /* removed for glass fx
      if (deathmatch->value)
@@ -1608,8 +1608,9 @@ teleporter_touch (edict_t * self, edict_t * other, cplane_t * plane,
   // unlink to make sure it can't possibly interfere with KillBox
   gi.unlinkentity (other);
 
-  VectorCopy (dest->s.origin, other->s.origin);
-  VectorCopy (dest->s.origin, other->s.old_origin);
+  VectorCopy(dest->s.origin, other->s.origin);
+  VectorCopy(dest->s.origin, other->s.old_origin);
+  VectorCopy(dest->s.origin, other->old_origin);
   other->s.origin[2] += 10;
 
   // clear the velocity and hold them in place briefly

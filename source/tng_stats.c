@@ -78,19 +78,51 @@ void ResetStats(edict_t *ent)
 	if(!ent->client)
 		return;
 
-	ent->client->resp.stats_shots_t = 0;
-	ent->client->resp.stats_shots_h = 0;
+	ent->client->resp.shotsTotal = 0;
+	ent->client->resp.hitsTotal = 0;
 
-	for(i=0; i<10; i++)
-		ent->client->resp.stats_locations[i] = 0;
+	for (i = 0; i<LOC_MAX; i++)
+		ent->client->resp.hitsLocations[i] = 0;
 
-	for(i=0; i<100; i++)
-	{
-		ent->client->resp.stats_shots[i] = 0;
-		ent->client->resp.stats_hits[i] = 0;
-		ent->client->resp.stats_headshot[i] = 0;
+	memset( &ent->client->resp.gunstats, 0, sizeof( gunStats_t ) );
+}
+
+void Stats_AddShot( edict_t *ent, int gun )
+{
+	if ((unsigned)gun >= MAX_GUNSTAT) {
+		gi.dprintf( "Stats_AddShot: Bad gun number!\n" );
+		return;
+	}
+
+	if (!teamplay->value || team_round_going || stats_afterround->value) {
+		ent->client->resp.shotsTotal += 1;	// TNG Stats, +1 hit
+		ent->client->resp.gunstats[gun].shots += 1;	// TNG Stats, +1 hit
 	}
 }
+
+void Stats_AddHit( edict_t *ent, int gun, int hitPart )
+{
+	int headShot = (hitPart == LOC_HDAM || hitPart == LOC_KVLR_HELMET) ? 1 : 0;
+
+	if ((unsigned)gun >= MAX_GUNSTAT) {
+		gi.dprintf( "Stats_AddHit: Bad gun number!\n" );
+		return;
+	}
+
+	ent->client->resp.last_damaged_part = hitPart;
+	if (!teamplay->value || team_round_going || stats_afterround->value) {
+		ent->client->resp.hitsTotal++;
+		ent->client->resp.gunstats[gun].hits++;
+		ent->client->resp.hitsLocations[hitPart]++;
+
+		if (headShot)
+			ent->client->resp.gunstats[gun].headshots++;
+	}
+	if (!headShot) {
+		ent->client->resp.streakHS = 0;
+	}
+}
+
 
 void Cmd_Stats_f (edict_t *targetent, char *arg)
 {
@@ -101,10 +133,10 @@ void Cmd_Stats_f (edict_t *targetent, char *arg)
 *                                               */
 	
 	double	perc_hit;
-	int		total, hits, i, y, len;
-	char		location[64];
-	char		stathead[64], current_weapon[64];
-	edict_t	*ent, *cl_ent;
+	int		total, hits, i, y, len, locHits;
+	char		*string, stathead[64];
+	edict_t		*ent, *cl_ent;
+	gunStats_t	*gun;
 
 	if (!targetent->inuse)
 		return;
@@ -123,13 +155,14 @@ void Cmd_Stats_f (edict_t *targetent, char *arg)
 					continue;
 
 				hits = total = 0;
-				for (y = 0; y < 100 ; y++) {
-					hits += cl_ent->client->resp.stats_hits[y];
-					total += cl_ent->client->resp.stats_shots[y];
+				gun = cl_ent->client->resp.gunstats;
+				for (y = 0; y < MAX_GUNSTAT; y++, gun++) {
+					hits += gun->hits;
+					total += gun->shots;
 				}
 
-				if (hits > 0)
-					perc_hit = (((double) hits / (double) total) * 100.0);
+				if (total > 0)
+					perc_hit = (double)hits * 100.0 / (double)total;
 				else
 					perc_hit = 0.0;
 
@@ -155,14 +188,15 @@ void Cmd_Stats_f (edict_t *targetent, char *arg)
 
 	// Global Stats:
 	hits = total = 0;
-	for (y = 0; y < 100 ; y++) {
-		hits += ent->client->resp.stats_hits[y];
-		total += ent->client->resp.stats_shots[y];
+	gun = ent->client->resp.gunstats;
+	for (y = 0; y < MAX_GUNSTAT; y++, gun++) {
+		hits += gun->hits;
+		total += gun->shots;
 	}
 
-	sprintf(stathead, "\nŸ Statistics for %s ", ent->client->pers.netname);
+	sprintf(stathead, "\nŸ Statistics for %s ", ent->client->pers.netname);
 	len = strlen(stathead);
-	for (i = len; i < 50; i++) {
+	for (i = len; i < 55; i++) {
 		stathead[i] = '';
 	}
 	stathead[i] = 0;
@@ -172,210 +206,194 @@ void Cmd_Stats_f (edict_t *targetent, char *arg)
 
 	if (!total) {
 		gi.cprintf (targetent, PRINT_HIGH, "\n  Player has not fired a shot.\n");
-		gi.cprintf (targetent, PRINT_HIGH, "\nŸ\n\n");
+		gi.cprintf (targetent, PRINT_HIGH, "\nŸ\n\n");
 		return;
 	}
 
-	gi.cprintf (targetent, PRINT_HIGH, "Weapon             Accuracy Hits/Shots  Headshots\n");		
+	gi.cprintf (targetent, PRINT_HIGH, "Weapon             Accuracy Hits/Shots Kills Headshots\n");		
 
-	for (y = 0; y < 100 ; y++) {
+	gun = ent->client->resp.gunstats;
+	for (y = 0; y < MAX_GUNSTAT; y++, gun++) {
 
-		if (ent->client->resp.stats_shots[y] <= 0)
+		if (gun->shots <= 0)
 			continue;
 
-		if (y == MOD_MK23)
-			strcpy(current_weapon, "Pistol            ");
-		else if (y == MOD_DUAL)
-			strcpy(current_weapon, "Dual Pistols      ");
-		else if (y == MOD_KNIFE)
-			strcpy(current_weapon, "Slashing Knife    ");
-		else if (y == MOD_KNIFE_THROWN)
-			strcpy(current_weapon, "Throwing Knife    ");
-		else if (y == MOD_M4)
-			strcpy(current_weapon, "M4 Assault Rifle  ");
-		else if (y == MOD_MP5)
-			strcpy(current_weapon, "MP5 Submachinegun ");
-		else if (y == MOD_SNIPER)
-			strcpy(current_weapon, "Sniper Rifle      ");
-		else if (y == MOD_HC)
-			strcpy(current_weapon, "Handcannon        ");
-		else if (y == MOD_M3)
-			strcpy(current_weapon, "M3 Shotgun        ");
-		else
-			strcpy(current_weapon, "Unknown Weapon    ");
+		switch (y) {
+		case MOD_MK23:
+			string = "Pistol            ";
+			break;
+		case MOD_DUAL:
+			string = "Dual Pistols      ";
+			break;
+		case MOD_KNIFE:
+			string = "Slashing Knife    ";
+			break;
+		case MOD_KNIFE_THROWN:
+			string = "Throwing Knife    ";
+			break;
+		case MOD_M4:
+			string = "M4 Assault Rifle  ";
+			break;
+		case MOD_MP5:
+			string = "MP5 Submachinegun ";
+			break;
+		case MOD_SNIPER:
+			string = "Sniper Rifle      ";
+			break;
+		case MOD_HC:
+			string = "Handcannon        ";
+			break;
+		case MOD_M3:
+			string = "M3 Shotgun        ";
+			break;
+		default:
+			string = "Unknown Weapon    ";
+			break;
+		}
 
-		perc_hit = (((double) ent->client->resp.stats_hits[y] /
-			(double) ent->client->resp.stats_shots[y]) * 100.0);	// Percentage of shots that hit
-
-		gi.cprintf(targetent, PRINT_HIGH, "%s %6.2f  %5i/%-5i    %i\n", current_weapon, perc_hit, ent->client->resp.stats_hits[y], ent->client->resp.stats_shots[y], ent->client->resp.stats_headshot[y]); 
+		perc_hit = (double)gun->hits * 100.0 / (double)gun->shots; // Percentage of shots that hit
+		gi.cprintf( targetent, PRINT_HIGH, "%s %6.2f  %5i/%-5i  %3i   %i\n",
+			string, perc_hit, gun->hits, gun->shots, gun->kills, gun->headshots );
 	}
 
-	gi.cprintf (targetent, PRINT_HIGH, "\nŸ\n");
+	gi.cprintf (targetent, PRINT_HIGH, "\nŸ\n");
 
 
 	// Final Part
 	gi.cprintf (targetent, PRINT_HIGH, "Location                         Hits     (%%)\n");		
 
-	for (y = 0;y < 10;y++) {
-		if (ent->client->resp.stats_locations[y] <= 0)
+	for (y = 0; y < LOC_MAX; y++) {
+		locHits = ent->client->resp.hitsLocations[y];
+
+		if (locHits <= 0)
 			continue;
 
-		perc_hit = (((double) ent->client->resp.stats_locations[y] / (double) hits) * 100.0);
+		switch (y) {
+		case LOC_HDAM:
+			string = "Head";
+			break;
+		case LOC_CDAM:
+			string = "Chest";
+			break;
+		case LOC_SDAM:
+			string = "Stomach";
+			break;
+		case LOC_LDAM:
+			string = "Legs";
+			break;
+		case LOC_KVLR_HELMET:
+			string = "Kevlar Helmet";
+			break;
+		case LOC_KVLR_VEST:
+			string = "Kevlar Vest";
+			break;
+		case LOC_NO:
+			string = "Spread (Shotgun/Handcannon)";
+			break;
+		default:
+			string = "Unknown";
+			break;
+		}
 
-		if (y == LOC_HDAM)
-			strcpy(location, "Head");
-		else if (y == LOC_CDAM)
-			strcpy(location, "Chest");
-		else if (y == LOC_SDAM)
-			strcpy(location, "Stomach");
-		else if (y == LOC_LDAM)
-			strcpy(location, "Legs");
-		else if (y == LOC_KVLR_HELMET)
-			strcpy(location, "Kevlar Helmet");
-		else if (y == LOC_KVLR_VEST)
-			strcpy(location, "Kevlar Vest");
-		else if (y == LOC_NO)
-			strcpy(location, "Spread (Shotgun/Handcannon)");
-		else
-			strcpy(location, "Unknown");
-
-		gi.cprintf(targetent, PRINT_HIGH, "%-26s %10i  (%6.2f)\n", location, ent->client->resp.stats_locations[y], perc_hit);
-
+		perc_hit = (double)locHits * 100.0 / (double)hits;
+		gi.cprintf( targetent, PRINT_HIGH, "%-26s %10i  (%6.2f)\n", string, locHits, perc_hit );
 	}
 	gi.cprintf (targetent, PRINT_HIGH, "\n");
 
-	if(hits > 0)
-		perc_hit = (((double) hits / (double) total) * 100.0);
+	if (total > 0)
+		perc_hit = (double)hits * 100.0 / (double)total;
 	else
 		perc_hit = 0.0;
 
 	gi.cprintf (targetent, PRINT_HIGH, "Average Accuracy:                        %.2f\n", perc_hit); // Average
-	gi.cprintf (targetent, PRINT_HIGH, "\nŸ\n\n");
+	gi.cprintf (targetent, PRINT_HIGH, "\nŸ\n\n");
 
 }
 
 void A_ScoreboardEndLevel (edict_t * ent, edict_t * killer)
 {
-	char string[1400], damage[50];
-	edict_t *cl_ent;
-	int maxsize = 1000, i, j, k;
-
-	int total, score, ping, shots;
-	double accuracy;
-	double fpm;
-	int sortedscores[MAX_CLIENTS], sorted[MAX_CLIENTS];
+	char string[2048];
+	gclient_t *sortedClients[MAX_CLIENTS], *cl;
+	int maxsize = 1000, i, line_x, line_y;
+	int totalClients, secs, shots;
+	double accuracy, fpm;
 	int totalplayers[TEAM_TOP] = {0};
 	int totalscore[TEAM_TOP] = {0};
-	int name_pos[TEAM_TOP];
+	int name_pos[TEAM_TOP] = {0};
 
 
-	ent->client->ps.stats[STAT_TEAM_HEADER] = gi.imageindex ("tag3");
+	totalClients = G_SortedClients(sortedClients);
 
-	for (i = 0; i < game.maxclients; i++)
-	{
-		cl_ent = g_edicts + 1 + i;
-		if (!cl_ent->inuse || game.clients[i].resp.team == NOTEAM)
-			continue;
+	ent->client->ps.stats[STAT_TEAM_HEADER] = level.pic_teamtag;
 
-		totalscore[game.clients[i].resp.team] += game.clients[i].resp.score;
-		totalplayers[game.clients[i].resp.team]++;
+	for (i = 0; i < totalClients; i++) {
+		cl = sortedClients[i];
+
+		totalscore[cl->resp.team] += cl->resp.score;
+		totalplayers[cl->resp.team]++;
 	}
 
-	name_pos[TEAM1] = ((20 - strlen (teams[TEAM1].name)) / 2) * 8;
-	if (name_pos[TEAM1] < 0)
-		name_pos[TEAM1] = 0;
-
-	name_pos[TEAM2] = ((20 - strlen (teams[TEAM2].name)) / 2) * 8;
-	if (name_pos[TEAM2] < 0)
-		name_pos[TEAM2] = 0;
-
-	name_pos[TEAM3] = ((20 - strlen (teams[TEAM3].name)) / 2) * 8;
-	if (name_pos[TEAM3] < 0)
-		name_pos[TEAM3] = 0;
-
-  if (use_3teams->value)
-    {
-      sprintf (string,
-	       // TEAM1
-	       "if 24 xv -80 yv 8 pic 24 endif "
-	       "if 22 xv -48 yv 8 pic 22 endif "
-	       "xv -48 yv 28 string \"%4d/%-3d\" "
-	       "xv 10 yv 12 num 2 26 "
-	       "xv %d yv 0 string \"%s\" ",
-	       totalscore[TEAM1], totalplayers[TEAM1], name_pos[TEAM1] - 80,
-	       teams[TEAM1].name);
-      sprintf (string + strlen (string),
-	       // TEAM2
-	       "if 25 xv 80 yv 8 pic 25 endif "
-	       "if 22 xv 112 yv 8 pic 22 endif "
-	       "xv 112 yv 28 string \"%4d/%-3d\" "
-	       "xv 168 yv 12 num 2 27 "
-	       "xv %d yv 0 string \"%s\" ",
-	       totalscore[TEAM2], totalplayers[TEAM2], name_pos[TEAM2] + 80,
-	       teams[TEAM2].name);
-      sprintf (string + strlen (string),
-	       // TEAM3
-	       "if 30 xv 240 yv 8 pic 30 endif "
-	       "if 22 xv 272 yv 8 pic 22 endif "
-	       "xv 272 yv 28 string \"%4d/%-3d\" "
-	       "xv 328 yv 12 num 2 31 "
-	       "xv %d yv 0 string \"%s\" ",
-	       totalscore[TEAM3], totalplayers[TEAM3], name_pos[TEAM3] + 240,
-	       teams[TEAM3].name);
-    }
-  else
-    {
-      sprintf (string,
-	       // TEAM1
-	       "if 24 xv 0 yv 8 pic 24 endif "
-	       "if 22 xv 32 yv 8 pic 22 endif "
-	       "xv 32 yv 28 string \"%4d/%-3d\" "
-	       "xv 90 yv 12 num 2 26 " "xv %d yv 0 string \"%s\" "
-	       // TEAM2
-	       "if 25 xv 160 yv 8 pic 25 endif "
-	       "if 22 xv 192 yv 8 pic 22 endif "
-	       "xv 192 yv 28 string \"%4d/%-3d\" "
-	       "xv 248 yv 12 num 2 27 "
-	       "xv %d yv 0 string \"%s\" ",
-	       totalscore[TEAM1], totalplayers[TEAM1], name_pos[TEAM1],
-	       teams[TEAM1].name, totalscore[TEAM2], totalplayers[TEAM2],
-	       name_pos[TEAM2] + 160, teams[TEAM2].name);
-    }
-
-
-  total = score = 0;
-
-  for (i = 0; i < game.maxclients; i++)
-    {
-      cl_ent = g_edicts + 1 + i;
-      if (!cl_ent->inuse)
-	continue;
-
-      score = game.clients[i].resp.score;
-      if (noscore->value)
-	{
-	  j = total;
+	for (i = TEAM1; i <= teamCount; i++) {
+		name_pos[i] = ((20 - strlen(teams[i].name)) / 2) * 8;
+		if (name_pos[TEAM1] < 0)
+			name_pos[TEAM1] = 0;
 	}
-      else
+
+
+	if (use_3teams->value)
 	{
-	  for (j = 0; j < total; j++)
-	    {
-	      if (score > sortedscores[j])
-		break;
-	    }
-	  for (k = total; k > j; k--)
-	    {
-	      sorted[k] = sorted[k - 1];
-	      sortedscores[k] = sortedscores[k - 1];
-	    }
+		sprintf(string,
+			// TEAM1
+			"if 24 xv -80 yv 8 pic 24 endif "
+			"if 22 xv -48 yv 8 pic 22 endif "
+			"xv -48 yv 28 string \"%4d/%-3d\" "
+			"xv 10 yv 12 num 2 26 "
+			"xv %d yv 0 string \"%s\" ",
+			totalscore[TEAM1], totalplayers[TEAM1], name_pos[TEAM1] - 80,
+			teams[TEAM1].name);
+		sprintf(string + strlen (string),
+			// TEAM2
+			"if 25 xv 80 yv 8 pic 25 endif "
+			"if 22 xv 112 yv 8 pic 22 endif "
+			"xv 112 yv 28 string \"%4d/%-3d\" "
+			"xv 168 yv 12 num 2 27 "
+			"xv %d yv 0 string \"%s\" ",
+			totalscore[TEAM2], totalplayers[TEAM2], name_pos[TEAM2] + 80,
+			teams[TEAM2].name);
+		sprintf(string + strlen (string),
+			// TEAM3
+			"if 30 xv 240 yv 8 pic 30 endif "
+			"if 22 xv 272 yv 8 pic 22 endif "
+			"xv 272 yv 28 string \"%4d/%-3d\" "
+			"xv 328 yv 12 num 2 31 "
+			"xv %d yv 0 string \"%s\" ",
+			totalscore[TEAM3], totalplayers[TEAM3], name_pos[TEAM3] + 240,
+			teams[TEAM3].name);
 	}
-      sorted[j] = i;
-      sortedscores[j] = score;
-      total++;
-    }
-  sprintf (string + strlen (string),
-	   "xv 0 yv 40 string2 \"Frags Player          Shots   Acc   FPM \" "
-	   "xv 0 yv 48 string2 \"Ÿ Ÿ Ÿ Ÿ Ÿ\" ");
+	else
+	{
+		sprintf (string,
+			// TEAM1
+			"if 24 xv 0 yv 8 pic 24 endif "
+			"if 22 xv 32 yv 8 pic 22 endif "
+			"xv 32 yv 28 string \"%4d/%-3d\" "
+			"xv 90 yv 12 num 2 26 " "xv %d yv 0 string \"%s\" "
+			// TEAM2
+			"if 25 xv 160 yv 8 pic 25 endif "
+			"if 22 xv 192 yv 8 pic 22 endif "
+			"xv 192 yv 28 string \"%4d/%-3d\" "
+			"xv 248 yv 12 num 2 27 "
+			"xv %d yv 0 string \"%s\" ",
+			totalscore[TEAM1], totalplayers[TEAM1], name_pos[TEAM1],
+			teams[TEAM1].name, totalscore[TEAM2], totalplayers[TEAM2],
+			name_pos[TEAM2] + 160, teams[TEAM2].name);
+	}
+
+	line_x = 0;
+	line_y = 56;
+	sprintf(string + strlen (string),
+		"xv 0 yv 40 string2 \"Frags Player          Shots   Acc   FPM \" "
+		"xv 0 yv 48 string2 \"Ÿ Ÿ Ÿ Ÿ Ÿ\" ");
 
 //        strcpy (string, "xv 0 yv 32 string2 \"Frags Player          Time Ping Damage Kills\" "
 //                "xv 0 yv 40 string2 \"Ÿ Ÿ Ÿ Ÿ Ÿ Ÿ\" ");
@@ -392,67 +410,64 @@ void A_ScoreboardEndLevel (edict_t * ent, edict_t * killer)
    */
   // AQ2:TNG END
 
-  for (i = 0; i < total; i++)
-    {
-      ping = game.clients[sorted[i]].ping;
-      if (ping > 999)
-	ping = 999;
-      shots = game.clients[sorted[i]].resp.stats_shots_t;
-      if (shots > 9999)
-	shots = 9999;
-      if (shots != 0)
-	accuracy =
-	  (((double)
-	    game.clients[sorted[i]].resp.stats_shots_h / (double) shots) *
-	   100.0);
-      else
-	accuracy = 0;
-
-      if ((int) ((level.framenum - game.clients[sorted[i]].resp.enterframe) / HZ))
-      	fpm = (((double) sortedscores[i] / (double) ((level.framenum - game.clients[sorted[i]].resp.enterframe) / HZ)) * 100.0);
-      else
-        fpm = 0.0;
-
-      if (game.clients[sorted[i]].resp.damage_dealt < 1000000)
-	sprintf (damage, "%d", game.clients[sorted[i]].resp.damage_dealt);
-      else
-	strcpy (damage, "******");
-      sprintf (string + strlen (string),
-	       "xv 0 yv %d string \"%5d %-15s  %4d %5.1f  %4.1f\" ",
-	       56 + i * 8,
-	       sortedscores[i],
-	       game.clients[sorted[i]].pers.netname, shots, accuracy, fpm);
-
-      if (strlen (string) > (maxsize - 100) && i < (total - 2))
+	for (i = 0; i < totalClients; i++)
 	{
-	  sprintf (string + strlen (string),
-		   "xv 0 yv %d string \"..and %d more\" ",
-		   56 + (i + 1) * 8, (total - i - 1));
-	  break;
+		cl = sortedClients[i];
+
+		if (!cl->resp.team)
+			continue;
+
+		shots = min( cl->resp.shotsTotal, 9999 );
+
+		if (shots)
+			accuracy = (double)cl->resp.hitsTotal * 100.0 / (double)cl->resp.shotsTotal;
+		else
+			accuracy = 0;
+
+		secs = (level.framenum - cl->resp.enterframe) / HZ;
+		if (secs > 0)
+			fpm = (double)cl->resp.score * 60.0 / (double)secs;
+		else
+			fpm = 0.0;
+
+		sprintf(string + strlen(string),
+			"yv %d string \"%5d %-15s  %4d %5.1f  %4.1f\" ",
+			line_y,
+			cl->resp.score,
+			cl->pers.netname, shots, accuracy, fpm );
+
+		line_y += 8;
+
+		if (strlen (string) > (maxsize - 100) && i < (totalClients - 2))
+		{
+			sprintf(string + strlen (string),
+				"yv %d string \"..and %d more\" ",
+				line_y, (totalClients - i - 1) );
+			line_y += 8;
+			break;
+		}
 	}
-    }
 
 
-	if (strlen (string) > 1023)	// for debugging...
+	if (strlen(string) > 1023)	// for debugging...
 	{
-		gi.dprintf
-		("Warning: scoreboard string neared or exceeded max length\nDump:\n%s\n---\n",
-		string);
+		gi.dprintf("Warning: scoreboard string neared or exceeded max length\nDump:\n%s\n---\n", string);
 		string[1023] = '\0';
 	}
 
-	gi.WriteByte (svc_layout);
-	gi.WriteString (string);
+	gi.WriteByte(svc_layout);
+	gi.WriteString(string);
 }
 
-void Cmd_Statmode_f(edict_t* ent, char *arg)
+void Cmd_Statmode_f(edict_t* ent)
 {
 	int i;
-	char stuff[32];
+	char stuff[32], *arg;
 
 
 	// Ignore if there is no argument.
-	if (!arg[0])
+	arg = gi.argv(1);
+	if (!arg || !arg[0])
 		return;
 
 	// Numerical

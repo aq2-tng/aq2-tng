@@ -245,8 +245,6 @@ void PrintMOTD(edict_t * ent)
 		{
 			if (ctf->value) // Is it CTF?
 				server_type = "Capture the Flag";
-			else if (matchmode->value) // Is it Matchmode?
-				server_type = "Matchmode";
 			else if (use_3teams->value) // Is it 3 Teams?
 				server_type = "3 Team Teamplay";
 			else if (teamdm->value) // Is it TeamDM?
@@ -255,18 +253,24 @@ void PrintMOTD(edict_t * ent)
 				server_type = "Tourney";
 			else // No? Then it must be Teamplay
 				server_type = "Teamplay";
+
+			if (matchmode->value)
+				sprintf(msg_buf + strlen(msg_buf), "Matchmode: %s\n", server_type);
+			else
+				sprintf(msg_buf + strlen(msg_buf), "Game Type: %s\n", server_type);
 		}
 		else  // So it's not Teamplay?
 		{
 			// Set the appropiate Deathmatch mode
-			if ((int)dmflags->value & DF_MODELTEAMS)
+			if (DMFLAGS(DF_MODELTEAMS))
 				server_type = "Deathmatch (Teams by Model)";
-			else if ((int)dmflags->value & DF_SKINTEAMS)
+			else if (DMFLAGS(DF_SKINTEAMS))
 				server_type = "Deathmatch (Teams by Skin)";
 			else
 				server_type = "Deathmatch (No Teams)";
+
+			sprintf(msg_buf + strlen(msg_buf), "Game Type: %s\n", server_type);
 		}
-		sprintf(msg_buf + strlen(msg_buf), "Game Type: %s\n", server_type);
 		lines++;
 
 		/* new CTF settings added here for better readability */
@@ -425,7 +429,7 @@ void PrintMOTD(edict_t * ent)
 		/*
 		 *  Are the dmflags set to disallow Friendly Fire?
 		 */
-		if (teamplay->value && !((int) dmflags->value & DF_NO_FRIENDLY_FIRE)) {
+		if (teamplay->value && !DMFLAGS(DF_NO_FRIENDLY_FIRE)) {
 			sprintf(msg_buf + strlen(msg_buf), "Friendly Fire Enabled\n");
 			lines++;
 		}
@@ -587,6 +591,7 @@ void EjectBlooder(edict_t * self, vec3_t start, vec3_t veloc)
 	blooder = G_Spawn();
 	VectorCopy(veloc, forward);
 	VectorCopy(start, blooder->s.origin);
+	VectorCopy(start, blooder->old_origin);
 	spd = 0;
 	VectorScale(forward, spd, blooder->velocity);
 	blooder->solid = SOLID_NOT;
@@ -783,6 +788,7 @@ void EjectShell(edict_t * self, vec3_t start, int toggle)
 	}
 
 	VectorCopy(start, shell->s.origin);
+	VectorCopy(start, shell->old_origin);
 	if (fix == 0)		// we want some velocity on those center handed ones
 		fix = 1;
 	if (self->client->curr_weap == SNIPER_NUM)
@@ -898,6 +904,7 @@ void AddDecal(edict_t * self, trace_t * tr)
 	decal->movetype = MOVETYPE_NONE;
 	decal->s.modelindex = gi.modelindex("models/objects/holes/hole1/hole.md2");
 	VectorCopy(tr->endpos, decal->s.origin);
+	VectorCopy(tr->endpos, decal->old_origin);
 	vectoangles(tr->plane.normal, decal->s.angles);
 	decal->owner = self;
 	decal->classnum = decals;
@@ -949,6 +956,7 @@ void AddSplat(edict_t * self, vec3_t point, trace_t * tr)
 		splat->s.modelindex = gi.modelindex("models/objects/splats/splat3/splat.md2");
 
 	VectorCopy(point, splat->s.origin);
+	VectorCopy(point, splat->old_origin);
 
 	vectoangles(tr->plane.normal, splat->s.angles);
 
@@ -980,12 +988,13 @@ void GetWeaponName(edict_t * ent, char *buf)
 
 void GetItemName(edict_t * ent, char *buf)
 {
-	int i;
+	int i, itemNum;
 
-	for(i = 0; i<ITEM_COUNT; i++)
+	for (i = 0; i<ITEM_COUNT; i++)
 	{
-		if (INV_AMMO(ent, tnums[i])) {
-			strcpy(buf, GET_ITEM(tnums[i])->pickup_name);
+		itemNum = ITEM_FIRST + i;
+		if (INV_AMMO(ent,itemNum)) {
+			strcpy(buf, GET_ITEM(itemNum)->pickup_name);
 			return;
 		}
 	}
