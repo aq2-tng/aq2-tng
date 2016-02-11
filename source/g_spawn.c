@@ -1206,7 +1206,7 @@ void G_UpdateSpectarorStatusbar( void )
 		if (count >= 5)
 			break;
 	}
-	gi.dprintf( "STATUSBAR len = %d\n", strlen( buffer ) );
+
 	if (strlen( buffer ) > 1023) {
 		buffer[1023] = 0;
 	}
