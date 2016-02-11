@@ -124,8 +124,6 @@ qboolean HasFlag (edict_t * ent);
 void SP_misc_ctf_banner (edict_t * ent);
 void SP_misc_ctf_small_banner (edict_t * ent);
 
-extern char *ctf_statusbar;
-
 void SP_trigger_teleport (edict_t * ent);
 void SP_info_teleport_destination (edict_t * ent);
 

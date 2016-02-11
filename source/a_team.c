@@ -930,11 +930,13 @@ void Team_f (edict_t * ent)
 void JoinTeam (edict_t * ent, int desired_team, int skip_menuclose)
 {
 	char *s, *a;
+	int oldTeam;
 
 	if (!skip_menuclose)
 		PMenu_Close (ent);
 
-	if (ent->client->resp.team == desired_team)
+	oldTeam = ent->client->resp.team;
+	if (oldTeam == desired_team)
 		return;
 
 	if (matchmode->value)
@@ -960,7 +962,7 @@ void JoinTeam (edict_t * ent, int desired_team, int skip_menuclose)
 
 	MM_LeftTeam( ent );
 
-	a = (ent->client->resp.team == NOTEAM) ? "joined" : "changed to";
+	a = (oldTeam == NOTEAM) ? "joined" : "changed to";
 
 	ent->client->resp.team = desired_team;
 	s = Info_ValueForKey (ent->client->pers.userinfo, "skin");
@@ -1009,6 +1011,10 @@ void JoinTeam (edict_t * ent, int desired_team, int skip_menuclose)
 		AddToTransparentList (ent);
 	}
 
+	if (oldTeam == NOTEAM || desired_team == NOTEAM) {
+		G_UpdatePlayerStatusbar(ent, 1);
+	}
+
 	//AQ2:TNG END
 	if (!skip_menuclose && (!teamdm->value || dm_choose->value) && ctf->value != 2)
 		OpenWeaponMenu (ent);
@@ -1039,6 +1045,7 @@ void LeaveTeam (edict_t * ent)
 
 	ent->client->resp.joined_team = 0;
 	ent->client->resp.team = NOTEAM;
+	G_UpdatePlayerStatusbar(ent, 1);
 }
 
 void ReturnToMain (edict_t * ent, pmenu_t * p)

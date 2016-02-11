@@ -432,6 +432,7 @@ cvar_t *radio_repeat_time;
 
 cvar_t *use_classic;		// Used to reset spread/gren strength to 1.52
 cvar_t *warmup;
+cvar_t *spectator_hud;
 
 void SpawnEntities (char *mapname, char *entities, char *spawnpoint);
 void ClientThink (edict_t * ent, usercmd_t * cmd);
@@ -551,32 +552,59 @@ void Com_Printf (const char *msg, ...)
 */
 void ClientEndServerFrames (void)
 {
-	int i;
+	int i, updateLayout = 0, spectators = 0;
 	edict_t *ent;
 
-	for (i = 0; i < game.maxclients; i++)
+	if (!(level.realFramenum % (3 * HZ)) && !level.intermission_framenum)
+		updateLayout = 1;
+
+	for (i = 0, ent = g_edicts + 1; i < game.maxclients; i++, ent++)
 	{
-		ent = g_edicts + 1 + i;
 		if (!ent->inuse || !ent->client)
 			continue;
 
 		if (ent->client->chase_mode && ent->client->chase_target)
 			UpdateChaseCam( ent );
+
+		if (!ent->client->resp.team && teamplay->value)
+			spectators++;
 	}
 
 	// calc the player views now that all pushing
 	// and damage has been added
-	for (i = 0; i < game.maxclients; i++)
+	for (i = 0, ent = g_edicts + 1; i < game.maxclients; i++, ent++)
 	{
-		ent = g_edicts + 1 + i;
 		if (!ent->inuse || !ent->client)
 			continue;
-		ClientEndServerFrame (ent);
+		ClientEndServerFrame(ent);
+
+		if (updateLayout && ent->client->showscores) {
+			if (ent->client->menu)
+				PMenu_Update(ent);
+			else
+				DeathmatchScoreboardMessage(ent, ent->enemy);
+
+			gi.unicast(ent, false);
+		}
 	}
 
-	for (i = 0; i < game.maxclients; i++)
+	if (updateLayout && spectators && spectator_hud->value) {
+		G_UpdateSpectarorStatusbar();
+		if (level.spec_statusbar_lastupdate >= level.realFramenum - 3 * HZ)
+		{
+			for (i = 0, ent = g_edicts + 1; i < game.maxclients; i++, ent++)
+			{
+				if (!ent->inuse || !ent->client)
+					continue;
+
+				if (!ent->client->resp.team)
+					G_UpdatePlayerStatusbar(ent, 0);
+			}
+		}
+	}
+
+	for (i = 0, ent = g_edicts + 1; i < game.maxclients; i++, ent++)
 	{
-		ent = g_edicts + 1 + i;
 		if (!ent->inuse || !ent->client || !ent->client->chase_target)
 			continue;
 		G_SetSpectatorStats (ent);

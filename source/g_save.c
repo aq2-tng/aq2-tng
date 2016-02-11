@@ -520,6 +520,7 @@ void InitGame( void )
 	flood_threshold = gi.cvar( "flood_threshold", "4", 0 );
 
 	warmup = gi.cvar( "warmup", "0", CVAR_LATCH );
+	spectator_hud = gi.cvar( "spectator_hud", "0", CVAR_LATCH );
 
 	// items
 	InitItems();
