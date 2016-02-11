@@ -2686,6 +2686,8 @@ void ClientBeginDeathmatch(edict_t * ent)
 	ent->client->resp.checkframe[1] = checkFrame + 2 * HZ;
 	ent->client->resp.checkframe[2] = checkFrame + 3 * HZ;
 
+	G_UpdatePlayerStatusbar(ent, 1);
+
 	// make sure all view stuff is valid
 	ClientEndServerFrame(ent);
 }

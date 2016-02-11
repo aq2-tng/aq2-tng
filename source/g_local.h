@@ -313,6 +313,7 @@
 #define svc_inventory           5
 #define svc_sound				9
 #define svc_stufftext           11
+#define	svc_configstring		13
 
 //==================================================================
 
@@ -740,6 +741,10 @@ typedef struct
 
   char *changemap;
 
+  char statusbar[1024];  //MAX is 1536 = (MAX_QPATH * (CS_AIRACCEL - CS_STATUSBAR))
+  char spec_statusbar[1024];
+  int spec_statusbar_lastupdate;
+
   int pic_health;
   int pic_items[ITEM_MAX_NUM];
   int pic_weapon_ammo[WEAPON_MAX];
@@ -1010,6 +1015,7 @@ extern cvar_t *wp_flags;
 extern cvar_t *itm_flags;
 extern cvar_t *use_classic;	// Use_classic resets weapon balance to 1.52
 extern cvar_t *warmup;
+extern cvar_t *spectator_hud;
 
 extern cvar_t *fraglimit;
 extern cvar_t *timelimit;
@@ -1311,7 +1317,9 @@ void GetChaseTarget (edict_t * ent);
 // g_spawn.c
 //
 void ChangePlayerSpawns();
-void ED_CallSpawn( edict_t * ent );
+void ED_CallSpawn( edict_t *ent );
+void G_UpdateSpectarorStatusbar( void );
+void G_UpdatePlayerStatusbar( edict_t *ent, int force );
 
 //p_weapon.c
 void Weapon_Generic( edict_t * ent, int FRAME_ACTIVATE_LAST, int FRAME_FIRE_LAST,

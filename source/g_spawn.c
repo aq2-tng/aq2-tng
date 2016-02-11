@@ -1113,33 +1113,141 @@ xl < value > xr < value > yb < value > yt < value > xv < value > yv < value >
 		"pic 18 " \
 	"endif "
 
-/* DM status bar for teamplay without individual scores -FB: */
-char *dm_noscore_statusbar =
-	STATBAR_COMMON
-;
+void G_SetupStatusbar( void )
+{
+	level.statusbar[0] = 0;
 
-char *dm_statusbar =
-	STATBAR_COMMON
-//  frags
-	"xr -50 "
-	"yt 2 "
-	"num 3 14 "
-;
+	if (!nohud->value)
+	{
+		Q_strncpyz(level.statusbar, STATBAR_COMMON, sizeof(level.statusbar));
 
-char *ctf_statusbar =
-	STATBAR_COMMON
-//  frags
-	"xr -50 "
-	"yt 2 "
-	"num 3 14 "
-// Red Team
-	"yb -164 " "if 24 " "xr -24 " "pic 24 " "endif " "xr -60 " "num 2 26 "
-// Blue Team
-	"yb -140 " "if 25 " "xr -24 " "pic 25 " "endif " "xr -60 " "num 2 27 "
-// Flag carried
-	"if 23 " "yt 26 " "xr -24 " "pic 23 " "endif "
-;
+		if(!(noscore->value && teamplay->value)) //  frags
+			Q_strncatz(level.statusbar, "xr -50 yt 2 num 3 14 ", sizeof(level.statusbar));
 
+		if (ctf->value)
+		{
+			Q_strncatz(level.statusbar, 
+				// Red Team
+				"yb -164 " "if 24 " "xr -24 " "pic 24 " "endif " "xr -60 " "num 2 26 "
+				// Blue Team
+				"yb -140 " "if 25 " "xr -24 " "pic 25 " "endif " "xr -60 " "num 2 27 "
+				// Flag carried
+				"if 23 " "yt 26 " "xr -24 " "pic 23 " "endif ",
+				sizeof(level.statusbar) );
+		}
+	}
+
+	Q_strncpyz(level.spec_statusbar, level.statusbar, sizeof(level.spec_statusbar));
+	level.spec_statusbar_lastupdate = 0;
+}
+
+void G_UpdateSpectarorStatusbar( void )
+{
+	char buffer[2048];
+	int i, count, isAlive;
+	char *rowText;
+	gclient_t *cl;
+	edict_t *cl_ent;
+
+	Q_strncpyz(buffer, level.statusbar, sizeof(buffer));
+
+	//Team 1
+	count = 0;
+	//rowText = "Name            Frg Tim Png";
+	rowText = "Name            Health   Score";
+	sprintf( buffer + strlen( buffer ), "xl 0 yt %d string2 \"%s\" ", 40, rowText );
+	for (i = 0, cl = game.clients; i < game.maxclients; i++, cl++) {
+		if (!cl->pers.connected || cl->resp.team != TEAM1)
+			continue;
+
+		if (cl->resp.subteam)
+			continue;
+
+		cl_ent = g_edicts + 1 + i;
+
+		isAlive = (cl_ent->solid != SOLID_NOT && cl_ent->deadflag != DEAD_DEAD);
+
+		sprintf( buffer + strlen( buffer ),
+			"yt %d string%s \"%-15s %6d   %5d\" ",
+			48 + count * 8,
+			isAlive ? "2" : "",
+			cl->pers.netname,
+			isAlive ? cl_ent->health : 0,
+			cl->resp.score );
+
+		count++;
+		if (count >= 5)
+			break;
+	}
+
+	//Team 2
+	count = 0;
+	sprintf( buffer + strlen( buffer ), "xr -%d yt %d string2 \"%s\" ", strlen( rowText ) * 8, 40, rowText );
+	for (i = 0, cl = game.clients; i < game.maxclients; i++, cl++) {
+		if (!cl->pers.connected || cl->resp.team != TEAM2)
+			continue;
+
+		if (cl->resp.subteam)
+			continue;
+
+		cl_ent = g_edicts + 1 + i;
+
+		isAlive = (cl_ent->solid != SOLID_NOT && cl_ent->deadflag != DEAD_DEAD);
+
+		sprintf( buffer + strlen( buffer ),
+			"yt %d string%s \"%-15s %6d   %5d\" ",
+			48 + count * 8,
+			isAlive ? "2" : "",
+			cl->pers.netname,
+			isAlive ? cl_ent->health : 0,
+			cl->resp.score );
+
+		count++;
+		if (count >= 5)
+			break;
+	}
+	gi.dprintf( "STATUSBAR len = %d\n", strlen( buffer ) );
+	if (strlen( buffer ) > 1023) {
+		buffer[1023] = 0;
+	}
+
+	if (strcmp(level.spec_statusbar, buffer)) {
+		Q_strncpyz(level.spec_statusbar, buffer, sizeof(level.spec_statusbar));
+		level.spec_statusbar_lastupdate = level.realFramenum;
+	}
+}
+
+/*
+==============
+G_UpdatePlayerStatusbar
+==============
+*/
+void G_UpdatePlayerStatusbar( edict_t * ent, int force )
+{
+	char *playerStatusbar;
+
+	if (!teamplay->value || teamCount != 2 || !spectator_hud->value) {
+		return;
+	}
+
+	playerStatusbar = level.statusbar;
+
+	if (!ent->client->resp.team)
+	{
+		if (level.spec_statusbar_lastupdate < level.realFramenum - 3 * HZ) {
+			G_UpdateSpectarorStatusbar();
+			if (level.spec_statusbar_lastupdate < level.realFramenum - 3 * HZ && !force)
+				return;
+		}
+
+		playerStatusbar = level.spec_statusbar;
+	}
+
+	gi.WriteByte( svc_configstring );
+	gi.WriteShort( CS_STATUSBAR );
+	gi.WriteString( playerStatusbar );
+	gi.unicast( ent, force ? true : false );
+}
 
 /*QUAKED worldspawn (0 0 0) ?
 
@@ -1201,31 +1309,10 @@ void SP_worldspawn (edict_t * ent)
 
 	gi.configstring(CS_MAXCLIENTS, va("%i", game.maxclients));
 
-//FIREBLADE
-	if (nohud->value)
-	{
-		gi.configstring (CS_STATUSBAR, "");
-	}
-	else
-	//FIREBLADE
-	{
-		// status bar program
-		if (ctf->value)
-		{
-			gi.configstring (CS_STATUSBAR, ctf_statusbar);
 
-		}
-		else if (noscore->value && teamplay->value)
-		{
-			gi.configstring (CS_STATUSBAR, dm_noscore_statusbar);
-		}
-		else
-		{
-			gi.configstring (CS_STATUSBAR, dm_statusbar);
-		}
-	}
+	G_SetupStatusbar();
 
-	//---------------
+	gi.configstring(CS_STATUSBAR, level.statusbar);
 
 
 	level.pic_health = gi.imageindex("i_health");

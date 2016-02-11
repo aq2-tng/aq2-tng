@@ -658,8 +658,8 @@ void P_FallingDamage (edict_t * ent)
 		else			// all falls are far
 			ent->s.event = EV_FALLFAR;
 	}
+
 	ent->pain_debounce_framenum = KEYFRAME(FRAMEDIV);	// no normal pain sound
-	gi.dprintf("falling damage set debounce framenum to %d\n", level.framenum);
 
 	if (!DMFLAGS(DF_NO_FALLING))
 	{
@@ -1400,22 +1400,5 @@ void ClientEndServerFrame (edict_t * ent)
 	if (ent->client->weapon_attempts > 0)
 		Cmd_Weapon_f (ent);
 
-	// if the scoreboard is up, update it
-	if (ent->client->showscores && !((level.realFramenum / FRAMEDIV) & 31))
-	{
-		//FIREBLADE
-		if (ent->client->menu)
-		{
-			PMenu_Update (ent);
-		}
-		else
-		//FIREBLADE
-			DeathmatchScoreboardMessage (ent, ent->enemy);
-		gi.unicast (ent, false);
-	}
-
-	//FIREBLADE
-	if (!level.pauseFrames)
-		RadioThink (ent);
-	//FIREBLADE
+	RadioThink(ent);
 }
