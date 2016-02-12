@@ -267,7 +267,7 @@ void Cmd_Reload_f(edict_t * ent)
 		if (ent->client->shot_rds >= ent->client->shot_max)
 			return;
 
-		if(ent->client->pers.inventory[ent->client->ammo_index] <= 0) {
+		if(ent->client->inventory[ent->client->ammo_index] <= 0) {
 			gi.cprintf(ent, PRINT_HIGH, "Out of ammo\n");
 			return;
 		}
@@ -275,12 +275,12 @@ void Cmd_Reload_f(edict_t * ent)
 		if (ent->client->weaponstate == WEAPON_RELOADING &&
 		    (ent->client->shot_rds < (ent->client->shot_max - 1)) &&
 		    !(ent->client->fast_reload) &&
-		    ((ent->client->pers.inventory[ent->client->ammo_index] - 1) > 0)) {
+		    ((ent->client->inventory[ent->client->ammo_index] - 1) > 0)) {
 			// don't let them start fast reloading until far enough into the firing sequence
 			// this gives them a chance to break off from reloading to fire the weapon - zucc
 			if (ent->client->ps.gunframe >= 48) {
 				ent->client->fast_reload = 1;
-				(ent->client->pers.inventory[ent->client->ammo_index])--;
+				(ent->client->inventory[ent->client->ammo_index])--;
 			} else {
 				ent->client->reload_attempts++;
 			}
@@ -290,27 +290,27 @@ void Cmd_Reload_f(edict_t * ent)
 		if (ent->client->cannon_rds >= ent->client->cannon_max)
 			return;
 
-		if(ent->client->pers.inventory[ent->client->ammo_index] <= 0) {
+		if(ent->client->inventory[ent->client->ammo_index] <= 0) {
 			gi.cprintf(ent, PRINT_HIGH, "Out of ammo\n");
 			return;
 		}
 		if(hc_single->value)
 		{
 			if(ent->client->pers.hc_mode || ent->client->cannon_rds == 1)
-			{	if(ent->client->pers.inventory[ent->client->ammo_index] < 1)
+			{	if(ent->client->inventory[ent->client->ammo_index] < 1)
 					return;
 			}
-			else if(ent->client->pers.inventory[ent->client->ammo_index] < 2)
+			else if(ent->client->inventory[ent->client->ammo_index] < 2)
 				return;
 		}
-		else if (ent->client->pers.inventory[ent->client->ammo_index] < 2)
+		else if (ent->client->inventory[ent->client->ammo_index] < 2)
 			return;
 		break;
 	case SNIPER_NUM:
 		if (ent->client->sniper_rds >= ent->client->sniper_max)
 			return;
 
-		if(ent->client->pers.inventory[ent->client->ammo_index] <= 0) {
+		if(ent->client->inventory[ent->client->ammo_index] <= 0) {
 			gi.cprintf(ent, PRINT_HIGH, "Out of ammo\n");
 			return;
 		}
@@ -318,12 +318,12 @@ void Cmd_Reload_f(edict_t * ent)
 		if (ent->client->weaponstate == WEAPON_RELOADING
 		    && (ent->client->sniper_rds < (ent->client->sniper_max - 1))
 		    && !(ent->client->fast_reload)
-		    && ((ent->client->pers.inventory[ent->client->ammo_index] - 1) > 0)) {
+		    && ((ent->client->inventory[ent->client->ammo_index] - 1) > 0)) {
 			// don't let them start fast reloading until far enough into the firing sequence
 			// this gives them a chance to break off from reloading to fire the weapon - zucc
 			if (ent->client->ps.gunframe >= 72) {
 				ent->client->fast_reload = 1;
-				(ent->client->pers.inventory[ent->client->ammo_index])--;
+				(ent->client->inventory[ent->client->ammo_index])--;
 			} else {
 				ent->client->reload_attempts++;
 			}
@@ -336,12 +336,12 @@ void Cmd_Reload_f(edict_t * ent)
 		if (ent->client->dual_rds == ent->client->dual_max)
 			return;
 
-		if(ent->client->pers.inventory[ent->client->ammo_index] <= 0) {
+		if(ent->client->inventory[ent->client->ammo_index] <= 0) {
 			gi.cprintf(ent, PRINT_HIGH, "Out of ammo\n");
 			return;
 		}
 		//TempFile change to pistol, then reload
-		if (ent->client->pers.inventory[ent->client->ammo_index] == 1) {
+		if (ent->client->inventory[ent->client->ammo_index] == 1) {
 			gitem_t *it;
 
 			it = GET_ITEM(MK23_NUM);
@@ -354,7 +354,7 @@ void Cmd_Reload_f(edict_t * ent)
 	case MP5_NUM:
 		if (ent->client->mp5_rds == ent->client->mp5_max)
 			return;
-		if(ent->client->pers.inventory[ent->client->ammo_index] <= 0) {
+		if(ent->client->inventory[ent->client->ammo_index] <= 0) {
 			gi.cprintf(ent, PRINT_HIGH, "Out of ammo\n");
 			return;
 		}
@@ -362,7 +362,7 @@ void Cmd_Reload_f(edict_t * ent)
 	case M4_NUM:
 		if (ent->client->m4_rds == ent->client->m4_max)
 			return;
-		if(ent->client->pers.inventory[ent->client->ammo_index] <= 0) {
+		if(ent->client->inventory[ent->client->ammo_index] <= 0) {
 			gi.cprintf(ent, PRINT_HIGH, "Out of ammo\n");
 			return;
 		}
@@ -370,7 +370,7 @@ void Cmd_Reload_f(edict_t * ent)
 	case MK23_NUM:
 		if (ent->client->mk23_rds == ent->client->mk23_max)
 			return;
-		if(ent->client->pers.inventory[ent->client->ammo_index] <= 0) {
+		if(ent->client->inventory[ent->client->ammo_index] <= 0) {
 			gi.cprintf(ent, PRINT_HIGH, "Out of ammo\n");
 			return;
 		}

@@ -927,12 +927,10 @@ void SpawnEntities (char *mapname, char *entities, char *spawnpoint)
 		}
 	}
 
-	SaveClientData ();
+	gi.FreeTags(TAG_LEVEL);
 
-	gi.FreeTags (TAG_LEVEL);
-
-	memset (&level, 0, sizeof (level));
-	memset (g_edicts, 0, game.maxentities * sizeof (g_edicts[0]));
+	memset(&level, 0, sizeof (level));
+	memset(g_edicts, 0, game.maxentities * sizeof (g_edicts[0]));
 
 	Q_strncpyz(level.mapname, mapname, sizeof(level.mapname));
 	Q_strncpyz(game.spawnpoint, spawnpoint, sizeof(game.spawnpoint));

@@ -227,7 +227,7 @@ trigger_key_use (edict_t * self, edict_t * other, edict_t * activator)
     return;
 
   index = ITEM_INDEX (self->item);
-  if (!activator->client->pers.inventory[index])
+  if (!activator->client->inventory[index])
     {
       if (level.framenum < self->touch_debounce_framenum)
 	return;
@@ -241,7 +241,7 @@ trigger_key_use (edict_t * self, edict_t * other, edict_t * activator)
   gi.sound (activator, CHAN_AUTO, gi.soundindex ("misc/keyuse.wav"), 1,
 	    ATTN_NORM, 0);
 
-  activator->client->pers.inventory[index]--;
+  activator->client->inventory[index]--;
 
   G_UseTargets (self, activator);
 

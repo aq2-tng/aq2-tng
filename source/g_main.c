@@ -900,16 +900,6 @@ void ExitLevel (void)
 	ClientEndServerFrames ();
 
 	// clear some things before going to next level
-	for (i = 0; i < game.maxclients; i++)
-	{
-		ent = g_edicts + 1 + i;
-		if (!ent->inuse)
-			continue;
-		if (ent->health > ent->client->pers.max_health)
-			ent->health = ent->client->pers.max_health;
-	}
-
-	//FIREBLADE
 	if (teamplay->value)
 	{
 		for(i=TEAM1; i<TEAM_TOP; i++)
@@ -919,7 +909,7 @@ void ExitLevel (void)
 			gi.cvar_forceset(teams[i].teamscore->name, "0");
 		}
 	}
-	//FIREBLADE
+
 	if (ctf->value)
 	{
 		CTFInit ();
@@ -930,7 +920,7 @@ void ExitLevel (void)
 int day_cycle_at = 0;		// variable that keeps track where we are in the cycle (0 = normal, 1 = darker, 2 = dark, 3 = pitch black, 4 = dark, 5 = darker)
 float day_next_cycle = 10.0;
 
-void CycleLights ()
+void CycleLights (void)
 {
 	static const char brightness[] = "mmmlkjihgfedcbaaabcdefghijkl";
 	char temp[2];

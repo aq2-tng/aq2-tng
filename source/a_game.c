@@ -1015,31 +1015,31 @@ void GetAmmo(edict_t * ent, char *buf)
 		switch (ent->client->curr_weap) {
 		case MK23_NUM:
 			sprintf(buf, "%d rounds (%d extra clips)",
-				ent->client->mk23_rds, ent->client->pers.inventory[ent->client->ammo_index]);
+				ent->client->mk23_rds, ent->client->inventory[ent->client->ammo_index]);
 			return;
 		case MP5_NUM:
 			sprintf(buf, "%d rounds (%d extra clips)",
-				ent->client->mp5_rds, ent->client->pers.inventory[ent->client->ammo_index]);
+				ent->client->mp5_rds, ent->client->inventory[ent->client->ammo_index]);
 			return;
 		case M4_NUM:
 			sprintf(buf, "%d rounds (%d extra clips)",
-				ent->client->m4_rds, ent->client->pers.inventory[ent->client->ammo_index]);
+				ent->client->m4_rds, ent->client->inventory[ent->client->ammo_index]);
 			return;
 		case M3_NUM:
 			sprintf(buf, "%d shells (%d extra shells)",
-				ent->client->shot_rds, ent->client->pers.inventory[ent->client->ammo_index]);
+				ent->client->shot_rds, ent->client->inventory[ent->client->ammo_index]);
 			return;
 		case HC_NUM:
 			sprintf(buf, "%d shells (%d extra shells)",
-				ent->client->cannon_rds, ent->client->pers.inventory[ent->client->ammo_index]);
+				ent->client->cannon_rds, ent->client->inventory[ent->client->ammo_index]);
 			return;
 		case SNIPER_NUM:
 			sprintf(buf, "%d rounds (%d extra rounds)",
-				ent->client->sniper_rds, ent->client->pers.inventory[ent->client->ammo_index]);
+				ent->client->sniper_rds, ent->client->inventory[ent->client->ammo_index]);
 			return;
 		case DUAL_NUM:
 			sprintf(buf, "%d rounds (%d extra clips)",
-				ent->client->dual_rds, ent->client->pers.inventory[ent->client->ammo_index]);
+				ent->client->dual_rds, ent->client->inventory[ent->client->ammo_index]);
 			return;
 		case KNIFE_NUM:
 			ammo = INV_AMMO(ent, KNIFE_NUM);

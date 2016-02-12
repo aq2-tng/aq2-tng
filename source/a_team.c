@@ -2612,8 +2612,8 @@ void A_ScoreboardMessage (edict_t * ent, edict_t * killer)
 
 					len = strlen( string );
 					if (ctf->value){
-						if ((i == TEAM1 && cl->pers.inventory[ITEM_INDEX( flag2_item )])
-							|| (i == TEAM2 && cl->pers.inventory[ITEM_INDEX( flag1_item )])) {
+						if ((i == TEAM1 && cl->inventory[ITEM_INDEX( flag2_item )])
+							|| (i == TEAM2 && cl->inventory[ITEM_INDEX( flag1_item )])) {
 							sprintf( string + len, "xv %i picn sbfctf%s xv %i ", line_x - 8, i == TEAM1 ? "2" : "1", line_x );
 							len = strlen( string );
 						}

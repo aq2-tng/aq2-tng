@@ -302,8 +302,8 @@ static void SelectNextItem (edict_t * ent, int itflags)
 	// scan  for the next valid one
 	for (i = 1; i <= MAX_ITEMS; i++)
 	{
-		index = (cl->pers.selected_item + i) % MAX_ITEMS;
-		if (!cl->pers.inventory[index])
+		index = (cl->selected_item + i) % MAX_ITEMS;
+		if (!cl->inventory[index])
 			continue;
 		it = &itemlist[index];
 		if (!it->use)
@@ -311,11 +311,11 @@ static void SelectNextItem (edict_t * ent, int itflags)
 		if (!(it->flags & itflags))
 			continue;
 
-		cl->pers.selected_item = index;
+		cl->selected_item = index;
 		return;
 	}
 
-	cl->pers.selected_item = -1;
+	cl->selected_item = -1;
 }
 
 static void SelectPrevItem (edict_t * ent, int itflags)
@@ -339,8 +339,8 @@ static void SelectPrevItem (edict_t * ent, int itflags)
 	// scan  for the next valid one
 	for (i = 1; i <= MAX_ITEMS; i++)
 	{
-		index = (cl->pers.selected_item + MAX_ITEMS - i) % MAX_ITEMS;
-		if (!cl->pers.inventory[index])
+		index = (cl->selected_item + MAX_ITEMS - i) % MAX_ITEMS;
+		if (!cl->inventory[index])
 			continue;
 		it = &itemlist[index];
 		if (!it->use)
@@ -348,11 +348,11 @@ static void SelectPrevItem (edict_t * ent, int itflags)
 		if (!(it->flags & itflags))
 			continue;
 
-		cl->pers.selected_item = index;
+		cl->selected_item = index;
 		return;
 	}
 
-	cl->pers.selected_item = -1;
+	cl->selected_item = -1;
 }
 
 void ValidateSelectedItem (edict_t * ent)
@@ -361,7 +361,7 @@ void ValidateSelectedItem (edict_t * ent)
 
 	cl = ent->client;
 
-	if (cl->pers.inventory[cl->pers.selected_item])
+	if (cl->inventory[cl->selected_item])
 		return;			// valid
 
 	SelectNextItem (ent, -1);
@@ -421,7 +421,7 @@ static void Cmd_Give_f (edict_t * ent)
 				continue;
 			if (!(it->flags & IT_WEAPON))
 				continue;
-			ent->client->pers.inventory[i] += 1;
+			ent->client->inventory[i] += 1;
 		}
 		if (!give_all)
 			return;
@@ -477,14 +477,14 @@ static void Cmd_Give_f (edict_t * ent)
 		gitem_armor_t   *info;
 
 		it = FindItem("Jacket Armor");
-		ent->client->pers.inventory[ITEM_INDEX(it)] = 0;
+		ent->client->inventory[ITEM_INDEX(it)] = 0;
 
 		it = FindItem("Combat Armor");
-		ent->client->pers.inventory[ITEM_INDEX(it)] = 0;
+		ent->client->inventory[ITEM_INDEX(it)] = 0;
 
 		it = FindItem("Body Armor");
 		info = (gitem_armor_t *)it->info;
-		ent->client->pers.inventory[ITEM_INDEX(it)] = info->max_count;
+		ent->client->inventory[ITEM_INDEX(it)] = info->max_count;
 
 		if (!give_all)
 		*/
@@ -515,7 +515,7 @@ static void Cmd_Give_f (edict_t * ent)
 				continue;
 			if (it->flags & (IT_ARMOR|IT_WEAPON|IT_AMMO))
 				continue;
-			ent->client->pers.inventory[i] = 1;
+			ent->client->inventory[i] = 1;
 		}
 		return;
 	} */
@@ -553,11 +553,11 @@ static void Cmd_Give_f (edict_t * ent)
 	if (it->flags & IT_AMMO)
 	{
 		/*  if (gi.argc() == 5)
-			ent->client->pers.inventory[index] = atoi(gi.argv(4));
+			ent->client->inventory[index] = atoi(gi.argv(4));
 		else if ( (gi.argc() == 4)  && !(Q_stricmp(it->pickup_name, "12 Gauge Shells")) )
-			ent->client->pers.inventory[index] = atoi(gi.argv(3));
+			ent->client->inventory[index] = atoi(gi.argv(3));
 		else */
-			ent->client->pers.inventory[index] += it->quantity;
+			ent->client->inventory[index] += it->quantity;
 	}
 	else if (it->flags & IT_ITEM)
 	{
@@ -736,7 +736,7 @@ static void Cmd_Use_f (edict_t * ent)
 		return;
 	}
 
-	if (!ent->client->pers.inventory[ITEM_INDEX (it)])
+	if (!ent->client->inventory[ITEM_INDEX (it)])
 	{
 		gi.cprintf (ent, PRINT_HIGH, "Out of item: %s\n", s);
 		return;
@@ -804,7 +804,7 @@ static void Cmd_Drop_f (edict_t * ent)
 		return;
 	}
 	index = ITEM_INDEX (it);
-	if (!ent->client->pers.inventory[index])
+	if (!ent->client->inventory[index])
 	{
 		gi.cprintf (ent, PRINT_HIGH, "Out of item: %s\n", s);
 		return;
@@ -874,7 +874,7 @@ void Cmd_Inven_f (edict_t * ent)
 	gi.WriteByte (svc_inventory);
 	for (i = 0; i < MAX_ITEMS; i++)
 	{
-		gi.WriteShort (cl->pers.inventory[i]);
+		gi.WriteShort (cl->inventory[i]);
 	}
 	gi.unicast (ent, true);
 }
@@ -901,15 +901,13 @@ void Cmd_InvUse_f (edict_t * ent)
 
 	ValidateSelectedItem (ent);
 
-	if (ent->client->pers.selected_item == -1)
-	{
-		gi.cprintf (ent, PRINT_HIGH, "No item to use.\n");
+	if (ent->client->selected_item < 1) {
+		gi.cprintf(ent, PRINT_HIGH, "No item to use.\n");
 		return;
 	}
 
-	it = &itemlist[ent->client->pers.selected_item];
-	if (!it->use)
-	{
+	it = &itemlist[ent->client->selected_item];
+	if (!it->use) {
 		gi.cprintf (ent, PRINT_HIGH, "Item is not usable.\n");
 		return;
 	}
@@ -942,7 +940,7 @@ static void Cmd_WeapPrev_f (edict_t * ent)
 	for (i = 1; i <= MAX_ITEMS; i++)
 	{
 		index = (selected_weapon + i) % MAX_ITEMS;
-		if (!cl->pers.inventory[index])
+		if (!cl->inventory[index])
 			continue;
 		it = &itemlist[index];
 		if (!it->use)
@@ -981,7 +979,7 @@ static void Cmd_WeapNext_f (edict_t * ent)
 	for (i = 1; i <= MAX_ITEMS; i++)
 	{
 		index = (selected_weapon + MAX_ITEMS - i) % MAX_ITEMS;
-		if (!cl->pers.inventory[index])
+		if (!cl->inventory[index])
 			continue;
 		it = &itemlist[index];
 		if (!it->use)
@@ -1014,7 +1012,7 @@ static void Cmd_WeapLast_f (edict_t * ent)
 		return;
 
 	index = ITEM_INDEX (cl->pers.lastweapon);
-	if (!cl->pers.inventory[index])
+	if (!cl->inventory[index])
 		return;
 	it = &itemlist[index];
 	if (!it->use)
@@ -1041,22 +1039,19 @@ static void Cmd_InvDrop_f (edict_t * ent)
 	if (ent->solid == SOLID_NOT && ent->deadflag != DEAD_DEAD)
 		return;
 
-	ValidateSelectedItem (ent);
+	ValidateSelectedItem(ent);
 
-	if (ent->client->pers.selected_item == -1)
-	{
-		gi.cprintf (ent, PRINT_HIGH, "No item to drop.\n");
+	if (ent->client->selected_item < 1) {
+		gi.cprintf(ent, PRINT_HIGH, "No item to drop.\n");
 		return;
 	}
 
-	it = &itemlist[ent->client->pers.selected_item];
-	if (!it->drop)
-	{
+	it = &itemlist[ent->client->selected_item];
+	if (!it->drop) {
 		gi.cprintf (ent, PRINT_HIGH, "Item is not dropable.\n");
 		return;
 	}
-	it->drop (ent, it);
-
+	it->drop(ent, it);
 }
 
 /*
@@ -1298,7 +1293,7 @@ void Cmd_Say_f (edict_t * ent, qboolean team, qboolean arg0, qboolean partner_ms
 	}
 	else if (matchmode->value)
 	{	
-		if (ent->client->resp.admin)
+		if (ent->client->pers.admin)
 			isadmin = 1;
 
 		if (mm_forceteamtalk->value == 1)
@@ -1450,7 +1445,7 @@ void Cmd_Say_f (edict_t * ent, qboolean team, qboolean arg0, qboolean partner_ms
 		if (team)
 		{
 			// if we are the adminent... we might want to hear (if hearall is set)
-			if (!matchmode->value || !hearall->value || !other->client->resp.admin)	// hearall isn't set and we aren't adminent
+			if (!matchmode->value || !hearall->value || !other->client->pers.admin)	// hearall isn't set and we aren't adminent
 				if (!OnSameTeam (ent, other))
 					continue;
 		}

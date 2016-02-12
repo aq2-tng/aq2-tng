@@ -1137,7 +1137,7 @@ gitem_t *FindItem (char *pickup_name);
 gitem_t *FindItemByClassname (char *classname);
 gitem_t *FindItemByNum (int num);
 #define ITEM_INDEX(x) ((x)-itemlist)
-#define INV_AMMO(ent, num) ((ent)->client->pers.inventory[items[(num)].index])
+#define INV_AMMO(ent, num) ((ent)->client->inventory[items[(num)].index])
 #define GET_ITEM(num) (&itemlist[items[(num)].index])
 edict_t *Drop_Item (edict_t * ent, gitem_t * item);
 void SetRespawn (edict_t * ent, float delay);
@@ -1298,8 +1298,8 @@ void G_RunEntity (edict_t * ent);
 //
 // g_main.c
 //
-void SaveClientData (void);
-void FetchClientEntData (edict_t * ent);
+void EndDMLevel (void);
+void ExitLevel (void);
 
 //
 // g_chase.c
@@ -1373,21 +1373,14 @@ typedef struct
   qboolean connected;		// a loadgame will leave valid entities that
   // just don't have a connection yet
 
-  // values saved and restored from edicts when changing levels
-  int health;
-  int max_health;
-  qboolean powerArmorActive;
+  int admin;
 
-  int selected_item;
-  int inventory[MAX_ITEMS];
-
-  gitem_t *weapon;
-  gitem_t *lastweapon;
-
-  //FIREBLADE
   gender_t	gender;
   qboolean spectator;
   int firing_style;
+
+  gitem_t *weapon;
+  gitem_t *lastweapon;
 
   int mk23_mode;		// firing mode, semi or auto
   int mp5_mode;
@@ -1481,7 +1474,6 @@ typedef struct
   int checkframe[3];
 
   int subteam;
-  int admin;
 
   //char skin[MAX_SKINLEN];
 }
@@ -1583,6 +1575,8 @@ struct gclient_s
   int respawn_time;		// can respawn when time > this
   // zucc
   
+  int selected_item;
+  int inventory[MAX_ITEMS];
 
   // ammo capacities
   int max_pistolmags;
@@ -1938,7 +1932,6 @@ void kick_attack (edict_t * ent);
 
 void SetIDView (edict_t * ent);
 
-void EndDMLevel (void);
 qboolean Pickup_Special (edict_t * ent, edict_t * other);
 
 // action function
