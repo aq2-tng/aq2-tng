@@ -998,12 +998,12 @@ void Cmd_TKOk(edict_t * ent)
 	if (!ent->enemy || !ent->enemy->inuse || !ent->enemy->client || (ent == ent->enemy)) {
 		gi.cprintf(ent, PRINT_HIGH, "Nothing to forgive\n");
 	} else if (ent->client->resp.team == ent->enemy->client->resp.team) {
-		if (ent->enemy->client->team_kills) {
+		if (ent->enemy->client->resp.team_kills) {
 			gi.cprintf(ent, PRINT_HIGH, "You forgave %s\n", ent->enemy->client->pers.netname);
 			gi.cprintf(ent->enemy, PRINT_HIGH, "%s forgave you\n", ent->client->pers.netname);
-			ent->enemy->client->team_kills--;
-			if (ent->enemy->client->team_wounds)
-				ent->enemy->client->team_wounds /= 2;
+			ent->enemy->client->resp.team_kills--;
+			if (ent->enemy->client->resp.team_wounds)
+				ent->enemy->client->resp.team_wounds /= 2;
 		}
 	} else {
 		gi.cprintf(ent, PRINT_HIGH, "That's very noble of you...\n");
@@ -1122,7 +1122,7 @@ void Cmd_Ghost_f(edict_t * ent)
 	for (x = 0; x < num_ghost_players; x++) {
 		if (found == true) {
 			ghost_players[x - 1] = ghost_players[x];
-		} else if (strcmp(ghost_players[x].ipaddr, ent->client->ipaddr) == 0 &&
+		} else if (strcmp(ghost_players[x].ip, ent->client->pers.ip) == 0 &&
 			   strcmp(ghost_players[x].netname, ent->client->pers.netname) == 0) {
 			found = true;
 			gi.cprintf(ent, PRINT_HIGH, "Welcome back %s\n", ent->client->pers.netname);

@@ -120,8 +120,6 @@ void BeginIntermission (edict_t * targ)
 		TallyEndOfLevelTeamScores ();
 	//FIREBLADE
 
-	game.autosaved = false;
-
 	// respawn any dead clients
 	for (i = 0; i < game.maxclients; i++)
 	{
@@ -168,11 +166,6 @@ void BeginIntermission (edict_t * targ)
 		if (!client->inuse)
 			continue;
 		MoveClientToIntermission (client);
-
-		if (client->client) { // AZEROV: Clear the team kills for everyone
-			client->client->team_wounds = 0;
-			client->client->team_kills = 0;
-		}
 	}
 }
 

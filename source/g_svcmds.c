@@ -587,10 +587,9 @@ qboolean Ban_TeamKiller (edict_t * ent, int rounds)
 {
 	int i = 0;
 
-	if (!ent || !ent->client || !ent->client->ipaddr)
+	if (!ent || !ent->client || !ent->client->pers.ip[0])
 	{
-		gi.cprintf (NULL, PRINT_HIGH,
-			"Unable to determine client->ipaddr for edict\n");
+		gi.cprintf(NULL, PRINT_HIGH, "Unable to determine client ip address for edict\n");
 		return false;
 	}
 
@@ -604,12 +603,12 @@ qboolean Ban_TeamKiller (edict_t * ent, int rounds)
 	{
 		if (numipfilters == MAX_IPFILTERS)
 		{
-			gi.cprintf (NULL, PRINT_HIGH, "IP filter list is full\n");
+			gi.cprintf(NULL, PRINT_HIGH, "IP filter list is full\n");
 			return false;
 		}
 		numipfilters++;
 	}
-	if (!StringToFilter (ent->client->ipaddr, &ipfilters[i], rounds))
+	if (!StringToFilter(ent->client->pers.ip, &ipfilters[i], rounds))
 	{
 		ipfilters[i].compare = 0xffffffff;
 		return false;

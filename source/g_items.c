@@ -236,18 +236,16 @@ void AddItem(edict_t *ent, gitem_t *item)
 	else if (item->typeNum == BAND_NUM)
 	{
 
-		if (ent->client->pers.max_bullets < 4)
-			ent->client->pers.max_bullets = 4;
-		if (ent->client->pers.max_shells < 28)
-			ent->client->pers.max_shells = 28;
-		if (ent->client->pers.max_cells < 2)
-			ent->client->pers.max_cells = 2;
-		if (ent->client->pers.max_slugs < 40)
-			ent->client->pers.max_slugs = 40;
-		if (ent->client->pers.max_grenades < 6)
-			ent->client->pers.max_grenades = 6;
-		if (ent->client->pers.max_rockets < 4)
-			ent->client->pers.max_rockets = 4;
+		if (ent->client->max_pistolmags < 4)
+			ent->client->max_pistolmags = 4;
+		if (ent->client->max_shells < 28)
+			ent->client->max_shells = 28;
+		if (ent->client->max_m4mags < 2)
+			ent->client->max_m4mags = 2;
+		if (ent->client->max_sniper_rnds < 40)
+			ent->client->max_sniper_rnds = 40;
+		if (ent->client->max_mp5mags < 4)
+			ent->client->max_mp5mags = 4;
 		if (ent->client->knife_max < 20)
 			ent->client->knife_max = 20;
 		if (ent->client->grenade_max < 4)
@@ -326,7 +324,7 @@ void Drop_Special (edict_t * ent, gitem_t * item)
 			count = 1;
 		else
 			count = 2;
-		ent->client->pers.max_bullets = count;
+		ent->client->max_pistolmags = count;
 		if (INV_AMMO(ent, MK23_ANUM) > count)
 			INV_AMMO(ent, MK23_ANUM) = count;
 
@@ -338,11 +336,11 @@ void Drop_Special (edict_t * ent, gitem_t * item)
 		} else {
 			count = 14;
 		}
-		ent->client->pers.max_shells = count;
+		ent->client->max_shells = count;
 		if (INV_AMMO(ent, SHELL_ANUM) > count)
 			INV_AMMO(ent, SHELL_ANUM) = count;
 
-		ent->client->pers.max_cells = 1;
+		ent->client->max_m4mags = 1;
 		if (INV_AMMO(ent, M4_ANUM) > 1)
 			INV_AMMO(ent, M4_ANUM) = 1;
 
@@ -364,7 +362,7 @@ void Drop_Special (edict_t * ent, gitem_t * item)
 			count = 1;
 		else
 			count = 2;
-		ent->client->pers.max_rockets = count;
+		ent->client->max_mp5mags = count;
 		if (INV_AMMO(ent, MP5_ANUM) > count)
 			INV_AMMO(ent, MP5_ANUM) = count;
 
@@ -376,7 +374,7 @@ void Drop_Special (edict_t * ent, gitem_t * item)
 			count = 10;
 		else
 			count = 20;
-		ent->client->pers.max_slugs = count;
+		ent->client->max_sniper_rnds = count;
 		if (INV_AMMO(ent, SNIPER_ANUM) > count)
 			INV_AMMO(ent, SNIPER_ANUM) = count;
 
@@ -444,25 +442,26 @@ qboolean Pickup_AncientHead (edict_t * ent, edict_t * other)
 
 qboolean Pickup_Bandolier (edict_t * ent, edict_t * other)
 {
+#if 0
 	gitem_t *item;
 	int index;
 
-	if (other->client->pers.max_bullets < 250)
-		other->client->pers.max_bullets = 250;
-	if (other->client->pers.max_shells < 150)
-		other->client->pers.max_shells = 150;
-	if (other->client->pers.max_cells < 250)
-		other->client->pers.max_cells = 250;
-	if (other->client->pers.max_slugs < 75)
-		other->client->pers.max_slugs = 75;
+	if (other->client->max_bullets < 250)
+		other->client->max_bullets = 250;
+	if (other->client->max_shells < 150)
+		other->client->max_shells = 150;
+	if (other->client->max_cells < 250)
+		other->client->max_cells = 250;
+	if (other->client->max_slugs < 75)
+		other->client->max_slugs = 75;
 
 	item = FindItem ("Bullets");
 	if (item)
 	{
 		index = ITEM_INDEX (item);
 		other->client->pers.inventory[index] += item->quantity;
-		if (other->client->pers.inventory[index] > other->client->pers.max_bullets)
-			other->client->pers.inventory[index] = other->client->pers.max_bullets;
+		if (other->client->pers.inventory[index] > other->client->max_bullets)
+			other->client->pers.inventory[index] = other->client->max_bullets;
 	}
 
 	item = FindItem ("Shells");
@@ -470,41 +469,42 @@ qboolean Pickup_Bandolier (edict_t * ent, edict_t * other)
 	{
 		index = ITEM_INDEX (item);
 		other->client->pers.inventory[index] += item->quantity;
-		if (other->client->pers.inventory[index] > other->client->pers.max_shells)
-			other->client->pers.inventory[index] = other->client->pers.max_shells;
+		if (other->client->pers.inventory[index] > other->client->max_shells)
+			other->client->pers.inventory[index] = other->client->max_shells;
 	}
 
 	if (!(ent->spawnflags & DROPPED_ITEM))
 		SetRespawn (ent, ent->item->quantity);
-
+#endif
 	return true;
 }
 
 qboolean Pickup_Pack (edict_t * ent, edict_t * other)
 {
+#if 0
 	gitem_t *item;
 	int index;
 
-	if (other->client->pers.max_bullets < 300)
-		other->client->pers.max_bullets = 300;
-	if (other->client->pers.max_shells < 200)
-		other->client->pers.max_shells = 200;
-	if (other->client->pers.max_rockets < 100)
-		other->client->pers.max_rockets = 100;
-	if (other->client->pers.max_grenades < 100)
-		other->client->pers.max_grenades = 100;
-	if (other->client->pers.max_cells < 300)
-		other->client->pers.max_cells = 300;
-	if (other->client->pers.max_slugs < 100)
-		other->client->pers.max_slugs = 100;
+	if (other->client->max_bullets < 300)
+		other->client->max_bullets = 300;
+	if (other->client->max_shells < 200)
+		other->client->max_shells = 200;
+	if (other->client->max_rockets < 100)
+		other->client->max_rockets = 100;
+	if (other->client->max_grenades < 100)
+		other->client->max_grenades = 100;
+	if (other->client->max_cells < 300)
+		other->client->max_cells = 300;
+	if (other->client->max_slugs < 100)
+		other->client->max_slugs = 100;
 
 	item = FindItem ("Bullets");
 	if (item)
 	{
 		index = ITEM_INDEX (item);
 		other->client->pers.inventory[index] += item->quantity;
-		if (other->client->pers.inventory[index] > other->client->pers.max_bullets)
-			other->client->pers.inventory[index] = other->client->pers.max_bullets;
+		if (other->client->pers.inventory[index] > other->client->max_bullets)
+			other->client->pers.inventory[index] = other->client->max_bullets;
 	}
 
 	item = FindItem ("Shells");
@@ -512,8 +512,8 @@ qboolean Pickup_Pack (edict_t * ent, edict_t * other)
 	{
 		index = ITEM_INDEX (item);
 		other->client->pers.inventory[index] += item->quantity;
-		if (other->client->pers.inventory[index] > other->client->pers.max_shells)
-			other->client->pers.inventory[index] = other->client->pers.max_shells;
+		if (other->client->pers.inventory[index] > other->client->max_shells)
+			other->client->pers.inventory[index] = other->client->max_shells;
 	}
 
 	item = FindItem ("Cells");
@@ -521,8 +521,8 @@ qboolean Pickup_Pack (edict_t * ent, edict_t * other)
 	{
 		index = ITEM_INDEX (item);
 		other->client->pers.inventory[index] += item->quantity;
-		if (other->client->pers.inventory[index] > other->client->pers.max_cells)
-		other->client->pers.inventory[index] = other->client->pers.max_cells;
+		if (other->client->pers.inventory[index] > other->client->max_cells)
+		other->client->pers.inventory[index] = other->client->max_cells;
 	}
 
 	item = FindItem ("Grenades");
@@ -530,8 +530,8 @@ qboolean Pickup_Pack (edict_t * ent, edict_t * other)
 	{
 		index = ITEM_INDEX (item);
 		other->client->pers.inventory[index] += item->quantity;
-		if (other->client->pers.inventory[index] > other->client->pers.max_grenades)
-			other->client->pers.inventory[index] = other->client->pers.max_grenades;
+		if (other->client->pers.inventory[index] > other->client->max_grenades)
+			other->client->pers.inventory[index] = other->client->max_grenades;
 	}
 
 	item = FindItem ("Rockets");
@@ -539,8 +539,8 @@ qboolean Pickup_Pack (edict_t * ent, edict_t * other)
 	{
 		index = ITEM_INDEX (item);
 		other->client->pers.inventory[index] += item->quantity;
-		if (other->client->pers.inventory[index] > other->client->pers.max_rockets)
-			other->client->pers.inventory[index] = other->client->pers.max_rockets;
+		if (other->client->pers.inventory[index] > other->client->max_rockets)
+			other->client->pers.inventory[index] = other->client->max_rockets;
 	}
 
 	item = FindItem ("Slugs");
@@ -548,13 +548,13 @@ qboolean Pickup_Pack (edict_t * ent, edict_t * other)
 	{
 		index = ITEM_INDEX (item);
 		other->client->pers.inventory[index] += item->quantity;
-		if (other->client->pers.inventory[index] > other->client->pers.max_slugs)
-		other->client->pers.inventory[index] = other->client->pers.max_slugs;
+		if (other->client->pers.inventory[index] > other->client->max_slugs)
+		other->client->pers.inventory[index] = other->client->max_slugs;
 	}
 
 	if (!(ent->spawnflags & DROPPED_ITEM))
 		SetRespawn (ent, ent->item->quantity);
-
+#endif
 	return true;
 }
 
@@ -654,23 +654,23 @@ qboolean Add_Ammo (edict_t * ent, gitem_t * item, int count)
 	switch(item->typeNum) {
 	case MK23_ANUM:
 		if (WPF_ALLOWED(item->typeNum))
-			max = ent->client->pers.max_bullets;
+			max = ent->client->max_pistolmags;
 		break;
 	case SHELL_ANUM:
 		if (WPF_ALLOWED(item->typeNum))
-			max = ent->client->pers.max_shells;
+			max = ent->client->max_shells;
 		break;
 	case MP5_ANUM:
 		if (WPF_ALLOWED(item->typeNum))
-			max = ent->client->pers.max_rockets;
+			max = ent->client->max_mp5mags;
 		break;
 	case M4_ANUM:
 		if (WPF_ALLOWED(item->typeNum))
-			max = ent->client->pers.max_cells;
+			max = ent->client->max_m4mags;
 		break;
 	case SNIPER_ANUM:
 		if (WPF_ALLOWED(item->typeNum))
-			max = ent->client->pers.max_slugs;
+			max = ent->client->max_sniper_rnds;
 		break;
 	default:
 		return false;
