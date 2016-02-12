@@ -138,12 +138,9 @@ void Cmd_Punch_f (edict_t * self)
 	// animation moved to punch_attack() in a_xgame.c
 	// punch_attack is now called in ClientThink after evaluation punch_desired
 	// for "no punch when firing" stuff - TempFile
-
-	if (level.framenum > (self->client->resp.fire_time + PUNCH_DELAY))
-	{
-		self->client->resp.fire_time = level.framenum;	// you aren't Bruce Lee! :)
-
-		self->client->resp.punch_desired = true;
+	if (level.framenum > self->client->punch_framenum + PUNCH_DELAY) {
+		self->client->punch_framenum = level.framenum;	// you aren't Bruce Lee! :)
+		self->client->punch_desired = true;
 	}
 }
 

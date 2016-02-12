@@ -251,7 +251,7 @@ void AddItem(edict_t *ent, gitem_t *item)
 		if (ent->client->grenade_max < 4)
 			ent->client->grenade_max = 4;
 		// zucc for ir
-		/*if ( ir->value && other->client->resp.ir == 0 )
+		/*if ( ir->value && other->client->pers.irvision )
 		{
 			other->client->ps.rdflags |= RDF_IRGOGGLES;
 		}

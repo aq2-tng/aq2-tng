@@ -121,9 +121,7 @@ void GetItemName (edict_t * ent, char *buf);
 void GetHealth (edict_t * ent, char *buf);
 void GetAmmo (edict_t * ent, char *buf);
 void GetNearbyTeammates (edict_t * self, char *buf);
-//PG BUND - END
-//AQ2:TNG SLICER  New Last killed enemy support
-void ResetKills (edict_t * ent);
+
 void ResetScores (qboolean playerScores);
 int ReadKilledPlayers (edict_t * ent);
 void AddKilledPlayer (edict_t * self, edict_t * ent);

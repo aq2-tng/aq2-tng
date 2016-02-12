@@ -945,7 +945,7 @@ void Drop_Weapon (edict_t * ent, gitem_t * item)
 		{
 			replacement = GET_ITEM(MK23_NUM);	// back to the pistol then
 			ent->client->newweapon = replacement;
-			if (ent->client->resp.knife_mode)	// hack to avoid an error
+			if (ent->client->pers.knife_mode)	// hack to avoid an error
 			{
 				ent->client->weaponstate = WEAPON_DROPPING;
 				ent->client->ps.gunframe = 111;
@@ -1766,13 +1766,13 @@ Weapon_Generic (edict_t * ent, int FRAME_ACTIVATE_LAST, int FRAME_FIRE_LAST,
 		if (ent->client->mk23_rds > 0)
 		  {
 		    //              gi.cprintf(ent, PRINT_HIGH, "Entered fire selection\n");
-		    if (ent->client->resp.mk23_mode != 0
+		    if (ent->client->pers.mk23_mode != 0
 			&& ent->client->fired == 0)
 		      {
 			ent->client->fired = 1;
 			bFire = 1;
 		      }
-		    else if (ent->client->resp.mk23_mode == 0)
+			else if (ent->client->pers.mk23_mode == 0)
 		      {
 			bFire = 1;
 		      }
@@ -1786,7 +1786,7 @@ Weapon_Generic (edict_t * ent, int FRAME_ACTIVATE_LAST, int FRAME_FIRE_LAST,
 	      {
 		if (ent->client->mp5_rds > 0)
 		  {
-		    if (ent->client->resp.mp5_mode != 0
+		    if (ent->client->pers.mp5_mode != 0
 			&& ent->client->fired == 0 && ent->client->burst == 0)
 		      {
 			ent->client->fired = 1;
@@ -1807,7 +1807,7 @@ Weapon_Generic (edict_t * ent, int FRAME_ACTIVATE_LAST, int FRAME_FIRE_LAST,
 			    ent->client->anim_end = FRAME_attack8;
 			  }
 		      }
-		    else if (ent->client->resp.mp5_mode == 0
+			else if (ent->client->pers.mp5_mode == 0
 			     && ent->client->fired == 0)
 		      {
 			bFire = 1;
@@ -1821,7 +1821,7 @@ Weapon_Generic (edict_t * ent, int FRAME_ACTIVATE_LAST, int FRAME_FIRE_LAST,
 	      {
 		if (ent->client->m4_rds > 0)
 		  {
-		    if (ent->client->resp.m4_mode != 0
+		    if (ent->client->pers.m4_mode != 0
 			&& ent->client->fired == 0 && ent->client->burst == 0)
 		      {
 			ent->client->fired = 1;
@@ -1842,7 +1842,7 @@ Weapon_Generic (edict_t * ent, int FRAME_ACTIVATE_LAST, int FRAME_FIRE_LAST,
 			    ent->client->anim_end = FRAME_attack8;
 			  }
 		      }
-		    else if (ent->client->resp.m4_mode == 0
+		    else if (ent->client->pers.m4_mode == 0
 			     && ent->client->fired == 0)
 		      {
 			bFire = 1;
@@ -1869,7 +1869,7 @@ Weapon_Generic (edict_t * ent, int FRAME_ACTIVATE_LAST, int FRAME_FIRE_LAST,
 	      //if client is set to single shot mode, then allow
 	      //fire if only have 1 round left
 	      {
-		if (ent->client->resp.hc_mode)
+		if (ent->client->pers.hc_mode)
 		  {
 		    if (ent->client->cannon_rds > 0)
 		      {
@@ -2264,7 +2264,7 @@ void Pistol_Fire (edict_t * ent)
 
 	spread = AdjustSpread (ent, spread);
 
-	if (ent->client->resp.mk23_mode)
+	if (ent->client->pers.mk23_mode)
 		spread *= .7;
 
 	//      gi.cprintf(ent, PRINT_HIGH, "Spread is %d\n", spread);
@@ -2353,7 +2353,7 @@ void MP5_Fire (edict_t * ent)
 		return;
 	}
 
-	if (ent->client->burst == 0 && !(ent->client->resp.mp5_mode))
+	if (ent->client->burst == 0 && !(ent->client->pers.mp5_mode))
 	{
 		if (ent->client->ps.gunframe == 12)
 			ent->client->ps.gunframe = 11;
@@ -2361,7 +2361,7 @@ void MP5_Fire (edict_t * ent)
 			ent->client->ps.gunframe = 12;
 	}
 	//burst mode
-	else if (ent->client->burst == 0 && ent->client->resp.mp5_mode)
+	else if (ent->client->burst == 0 && ent->client->pers.mp5_mode)
 	{
 		ent->client->ps.gunframe = 72;
 		ent->client->weaponstate = WEAPON_BURSTING;
@@ -2494,7 +2494,7 @@ void M4_Fire (edict_t * ent)
 		return;
 	}
 
-	if (ent->client->burst == 0 && !(ent->client->resp.m4_mode))
+	if (ent->client->burst == 0 && !(ent->client->pers.m4_mode))
 	{
 		if (ent->client->ps.gunframe == 12)
 			ent->client->ps.gunframe = 11;
@@ -2502,7 +2502,7 @@ void M4_Fire (edict_t * ent)
 			ent->client->ps.gunframe = 12;
 	}
 	//burst mode
-	else if (ent->client->burst == 0 && ent->client->resp.m4_mode)
+	else if (ent->client->burst == 0 && ent->client->pers.m4_mode)
 	{
 		ent->client->ps.gunframe = 66;
 		ent->client->weaponstate = WEAPON_BURSTING;
@@ -2759,7 +2759,7 @@ void HC_Fire (edict_t * ent)
 	v[PITCH] = ent->client->v_angle[PITCH];
 
 	// DW: Single Barreled HC
-	if (ent->client->resp.hc_mode)
+	if (ent->client->pers.hc_mode)
 	{
 		if (ent->client->cannon_rds == 2)
 			v[YAW] = ent->client->v_angle[YAW] - ((0.5) / 2);
@@ -2776,7 +2776,7 @@ void HC_Fire (edict_t * ent)
 	setFFState (ent);
 	InitShotgunDamageReport ();	//FB 6/3/99
 
-	if (ent->client->resp.hc_mode)
+	if (ent->client->pers.hc_mode)
 	{
 		//half the spread, half the pellets?
 		fire_shotgun (ent, start, forward, sngl_damage, sngl_kick, DEFAULT_SHOTGUN_HSPREAD * 2.5, DEFAULT_SHOTGUN_VSPREAD * 2.5, 34 / 2, MOD_HC);
@@ -2832,7 +2832,7 @@ void HC_Fire (edict_t * ent)
 	//      if (!DMFLAGS(DF_INFINITE_AMMO))
 	//              ent->client->pers.inventory[ent->client->ammo_index] -= 2;
 
-	if (ent->client->resp.hc_mode)
+	if (ent->client->pers.hc_mode)
 		ent->client->cannon_rds -= 1;
 	else
 		ent->client->cannon_rds -= 2;
@@ -3261,7 +3261,7 @@ Weapon_Generic_Knife (edict_t * ent, int FRAME_ACTIVATE_LAST,
 
 	if (ent->client->weaponstate == WEAPON_DROPPING)
 	{
-		if (ent->client->resp.knife_mode == 1)
+		if (ent->client->pers.knife_mode == 1)
 		{
 			if (ent->client->ps.gunframe == FRAME_NEWKNIFE_FIRST)
 			{
@@ -3323,7 +3323,7 @@ Weapon_Generic_Knife (edict_t * ent, int FRAME_ACTIVATE_LAST,
 	if (ent->client->weaponstate == WEAPON_ACTIVATING)
 	{
 
-		if (ent->client->resp.knife_mode == 1 && ent->client->ps.gunframe == 0)
+		if (ent->client->pers.knife_mode == 1 && ent->client->ps.gunframe == 0)
 		{
 			//                      gi.cprintf(ent, PRINT_HIGH, "NewKnifeFirst\n");
 			ent->client->ps.gunframe = FRAME_PREPARETHROW_FIRST;
@@ -3425,7 +3425,7 @@ Weapon_Generic_Knife (edict_t * ent, int FRAME_ACTIVATE_LAST,
 	&& (ent->client->weaponstate != WEAPON_BUSY))
 	{
 
-		if (ent->client->resp.knife_mode == 1)	// throwing mode
+		if (ent->client->pers.knife_mode == 1)	// throwing mode
 		{
 			ent->client->ps.gunframe = FRAME_NEWKNIFE_LAST;
 			// zucc more vwep stuff
@@ -3478,7 +3478,7 @@ Weapon_Generic_Knife (edict_t * ent, int FRAME_ACTIVATE_LAST,
 			ent->client->latched_buttons &= ~BUTTON_ATTACK;
 
 
-			if (ent->client->resp.knife_mode == 1)
+			if (ent->client->pers.knife_mode == 1)
 			{
 				ent->client->ps.gunframe = FRAME_THROW_FIRST;
 			}
@@ -3614,7 +3614,7 @@ int Knife_Fire (edict_t * ent)
 	}
 
 
-	if (ent->client->resp.knife_mode == 0)
+	if (ent->client->pers.knife_mode == 0)
 	{
 		if (is_quad)
 			damage *= 1.5f;
@@ -3751,9 +3751,9 @@ void gas_fire (edict_t * ent)
 	AngleVectors (ent->client->v_angle, forward, right, NULL);
 	P_ProjectSource (ent->client, ent->s.origin, offset, forward, right, start);
 
-	if (ent->client->resp.grenade_mode == 0)
+	if (ent->client->pers.grenade_mode == 0)
 		speed = 400;
-	else if (ent->client->resp.grenade_mode == 1)
+	else if (ent->client->pers.grenade_mode == 1)
 		speed = 720;
 	else
 		speed = 920;
@@ -3866,8 +3866,8 @@ void Weapon_Gas (edict_t * ent)
 			ent->client->ps.gunframe = GRENADE_IDLE_FIRST;
 			ent->client->weaponstate = WEAPON_READY;
 			gi.cprintf (ent, PRINT_HIGH, "Pin pulled, ready for %s range throw\n",
-				ent->client->resp.grenade_mode == 0 ? "short" :
-				(ent->client->resp.grenade_mode == 1 ? "medium" : "long"));
+				ent->client->pers.grenade_mode == 0 ? "short" :
+				(ent->client->pers.grenade_mode == 1 ? "medium" : "long"));
 			return;
 		}
 

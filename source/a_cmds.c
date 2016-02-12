@@ -296,7 +296,7 @@ void Cmd_Reload_f(edict_t * ent)
 		}
 		if(hc_single->value)
 		{
-			if(ent->client->resp.hc_mode || ent->client->cannon_rds == 1)
+			if(ent->client->pers.hc_mode || ent->client->cannon_rds == 1)
 			{	if(ent->client->pers.inventory[ent->client->ammo_index] < 1)
 					return;
 			}
@@ -595,8 +595,8 @@ void Cmd_Weapon_f(edict_t * ent)
 	case MK23_NUM:
 		if (!dead)
 			gi.sound(ent, CHAN_ITEM, gi.soundindex("misc/click.wav"), 1, ATTN_NORM, 0);
-		ent->client->resp.mk23_mode = !(ent->client->resp.mk23_mode);
-		if (ent->client->resp.mk23_mode)
+		ent->client->pers.mk23_mode = !(ent->client->pers.mk23_mode);
+		if (ent->client->pers.mk23_mode)
 			gi.cprintf(ent, PRINT_HIGH, "MK23 Pistol set for semi-automatic action\n");
 		else
 			gi.cprintf(ent, PRINT_HIGH, "MK23 Pistol set for automatic action\n");
@@ -604,8 +604,8 @@ void Cmd_Weapon_f(edict_t * ent)
 	case MP5_NUM:
 		if (!dead)
 			gi.sound(ent, CHAN_ITEM, gi.soundindex("misc/click.wav"), 1, ATTN_NORM, 0);
-		ent->client->resp.mp5_mode = !(ent->client->resp.mp5_mode);
-		if (ent->client->resp.mp5_mode)
+		ent->client->pers.mp5_mode = !(ent->client->pers.mp5_mode);
+		if (ent->client->pers.mp5_mode)
 			gi.cprintf(ent, PRINT_HIGH, "MP5 set to 3 Round Burst mode\n");
 		else
 			gi.cprintf(ent, PRINT_HIGH, "MP5 set to Full Automatic mode\n");
@@ -613,8 +613,8 @@ void Cmd_Weapon_f(edict_t * ent)
 	case M4_NUM:
 		if (!dead)
 			gi.sound(ent, CHAN_ITEM, gi.soundindex("misc/click.wav"), 1, ATTN_NORM, 0);
-		ent->client->resp.m4_mode = !(ent->client->resp.m4_mode);
-		if (ent->client->resp.m4_mode)
+		ent->client->pers.m4_mode = !(ent->client->pers.m4_mode);
+		if (ent->client->pers.m4_mode)
 			gi.cprintf(ent, PRINT_HIGH, "M4 set to 3 Round Burst mode\n");
 		else
 			gi.cprintf(ent, PRINT_HIGH, "M4 set to Full Automatic mode\n");
@@ -637,8 +637,8 @@ void Cmd_Weapon_f(edict_t * ent)
 		if (!dead)
 			gi.sound(ent, CHAN_ITEM, gi.soundindex("misc/click.wav"), 1, ATTN_NORM, 0);
 
-		ent->client->resp.hc_mode = !(ent->client->resp.hc_mode);
-		if (ent->client->resp.hc_mode)
+		ent->client->pers.hc_mode = !(ent->client->pers.hc_mode);
+		if (ent->client->pers.hc_mode)
 			gi.cprintf(ent, PRINT_HIGH, "Single Barreled Handcannon\n");
 		else
 			gi.cprintf(ent, PRINT_HIGH, "Double Barreled Handcannon\n");
@@ -648,9 +648,9 @@ void Cmd_Weapon_f(edict_t * ent)
 		if (dead)
 			return;
 		if (ent->client->weaponstate == WEAPON_READY) {
-			ent->client->resp.knife_mode = !(ent->client->resp.knife_mode);
+			ent->client->pers.knife_mode = !(ent->client->pers.knife_mode);
 			ent->client->weaponstate = WEAPON_ACTIVATING;
-			if (ent->client->resp.knife_mode) {
+			if (ent->client->pers.knife_mode) {
 				gi.cprintf(ent, PRINT_HIGH, "Switching to throwing\n");
 				ent->client->ps.gunframe = 0;
 			} else {
@@ -660,15 +660,15 @@ void Cmd_Weapon_f(edict_t * ent)
 		}
 		break;
 	case GRENADE_NUM:
-		if (ent->client->resp.grenade_mode == 0) {
+		if (ent->client->pers.grenade_mode == 0) {
 			gi.cprintf(ent, PRINT_HIGH, "Prepared to make a medium range throw\n");
-			ent->client->resp.grenade_mode = 1;
-		} else if (ent->client->resp.grenade_mode == 1) {
+			ent->client->pers.grenade_mode = 1;
+		} else if (ent->client->pers.grenade_mode == 1) {
 			gi.cprintf(ent, PRINT_HIGH, "Prepared to make a long range throw\n");
-			ent->client->resp.grenade_mode = 2;
+			ent->client->pers.grenade_mode = 2;
 		} else {
 			gi.cprintf(ent, PRINT_HIGH, "Prepared to make a short range throw\n");
-			ent->client->resp.grenade_mode = 0;
+			ent->client->pers.grenade_mode = 0;
 		}
 		break;
 	}
@@ -757,12 +757,12 @@ void Bandage(edict_t * ent)
 
 void Cmd_ID_f(edict_t * ent)
 {
-	if (!ent->client->resp.id) {
+	if (!ent->client->pers.id) {
 		gi.cprintf(ent, PRINT_HIGH, "Disabling player identification display.\n");
-		ent->client->resp.id = 1;
+		ent->client->pers.id = 1;
 	} else {
 		gi.cprintf(ent, PRINT_HIGH, "Activating player identification display.\n");
-		ent->client->resp.id = 0;
+		ent->client->pers.id = 0;
 	}
 	return;
 }
@@ -843,7 +843,7 @@ void SetIDView(edict_t * ent)
 	}
 //FIREBLADE
 
-	if (ent->client->resp.id == 1)
+	if (ent->client->pers.id == 1)
 		return;
 
 	AngleVectors(ent->client->v_angle, forward, NULL, NULL);
@@ -891,9 +891,9 @@ void Cmd_IR_f(edict_t * ent)
 	if (INV_AMMO(ent, BAND_NUM))
 		band = 1;
 
-	if (ent->client->resp.ir == 0)
+	ent->client->pers.irvision = !ent->client->pers.irvision;
+	if (ent->client->pers.irvision == 0)
 	{
-		ent->client->resp.ir = 1;
 		if (band)
 			gi.cprintf(ent, PRINT_HIGH, "IR vision disabled.\n");
 		else
@@ -901,7 +901,6 @@ void Cmd_IR_f(edict_t * ent)
 	}
 	else
 	{
-		ent->client->resp.ir = 0;
 		if (band)
 			gi.cprintf(ent, PRINT_HIGH, "IR vision enabled.\n");
 		else
