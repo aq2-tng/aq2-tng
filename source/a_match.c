@@ -109,11 +109,6 @@ void Cmd_Sub_f(edict_t * ent)
 	ent->client->resp.subteam = 0;
 	if(team_round_going && (teamdm->value || ctf->value))
 	{
-		ResetKills (ent);
-		//AQ2:TNG Slicer Last Damage Location
-		ent->client->resp.last_damaged_part = 0;
-		ent->client->resp.last_damaged_players[0] = '\0';
-		//AQ2:TNG END
 		PutClientInServer (ent);
 		AddToTransparentList (ent);
 	}

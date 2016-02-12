@@ -1074,7 +1074,7 @@ void SetCTFStats(edict_t * ent)
 	}
 
 	ent->client->ps.stats[STAT_ID_VIEW] = 0;
-	if (!ent->client->resp.id)
+	if (!ent->client->pers.id)
 		SetIDView(ent);
 }
 

@@ -47,7 +47,7 @@
 #define RP_WEST  8
 
 //TempFile punch delay
-#define PUNCH_DELAY	5	// 5 frames, that's .5 seconds
+#define PUNCH_DELAY	HZ/2	// 5 frames, that's .5 seconds
 
 //maximum size for location description
 #define LOC_STR_LEN 128

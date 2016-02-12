@@ -1598,7 +1598,7 @@ void ReadConfiglistFile (void)
 //==========================================================================
 
 
-#define IGNORELIST client->resp.ignorelist
+#define IGNORELIST client->pers.ignorelist
 
 
 //Returns the next free slot in ignore list

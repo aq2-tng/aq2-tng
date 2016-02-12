@@ -728,7 +728,7 @@ void ClientObituary(edict_t * self, edict_t * inflictor, edict_t * attacker)
 			PrintDeathMessage(death_msg, self);
 			IRC_printf(IRC_T_KILL, death_msg);
 			AddKilledPlayer(self->client->attacker, self);
-			self->client->attacker->client->resp.num_kills++;
+			self->client->attacker->client->radio_num_kills++;
 
 			//MODIFIED FOR FF -FB
 			if (OnSameTeam(self, self->client->attacker))
@@ -873,7 +873,7 @@ void ClientObituary(edict_t * self, edict_t * inflictor, edict_t * attacker)
 		case MOD_HC:
 			n = rand() % 2 + 1;
 			if (n == 1) {
-				if (attacker->client->resp.hc_mode)	// AQ2:TNG Deathwatch - Single Barreled HC Death Messages
+				if (attacker->client->pers.hc_mode)	// AQ2:TNG Deathwatch - Single Barreled HC Death Messages
 				{
 					message = " underestimated";
 					message2 = "'s single barreled handcannon shot";
@@ -882,7 +882,7 @@ void ClientObituary(edict_t * self, edict_t * inflictor, edict_t * attacker)
 					message2 = "'s sawed-off 12 gauge";
 				}
 			} else {
-				if (attacker->client->resp.hc_mode)	// AQ2:TNG Deathwatch - Single Barreled HC Death Messages
+				if (attacker->client->pers.hc_mode)	// AQ2:TNG Deathwatch - Single Barreled HC Death Messages
 				{
 					message = " won't be able to pass a metal detector anymore thanks to";
 					message2 = "'s single barreled handcannon shot";
@@ -1104,7 +1104,7 @@ void ClientObituary(edict_t * self, edict_t * inflictor, edict_t * attacker)
 			} else {
 				if (!teamplay->value || mod != MOD_TELEFRAG) {
 					Add_Frag(attacker, mod);
-					attacker->client->resp.num_kills++;
+					attacker->client->radio_num_kills++;
 					self->client->resp.streakKills = 0;
 					self->client->resp.deaths++;
 				}
@@ -1487,21 +1487,12 @@ void player_die(edict_t * self, edict_t * inflictor, edict_t * attacker, int dam
 					 gi.soundindex(va("*death%i.wav", (rand() % 4) + 1)), 1, ATTN_NORM, 0);
 		}
 	}
+
 	// zucc this will fix a jump kick death generating a weapon
 	self->client->curr_weap = MK23_NUM;
-	//PG BUND - BEGIN
-	self->client->resp.idletime = 0;
-	//    self->client->resp.last_killed_target = NULL;
-	ResetKills(self);
-	//PG BUND - END        
-	//AQ2:TNG Slicer Last Damage Location
-	self->client->resp.last_damaged_part = 0;
-	self->client->resp.last_damaged_players[0] = '\0';
-	//AQ2:TNG END
 
-	//TempFile
-	self->client->resp.num_kills = 0;
-	//TempFile
+	self->client->resp.idletime = 0;
+
 	self->deadflag = DEAD_DEAD;
 	gi.linkentity(self);
 
@@ -1556,7 +1547,6 @@ void InitClientResp(gclient_t * client)
 		if (wp_flags->value < 2)
 			client->resp.weapon = GET_ITEM(MK23_NUM);
 	}
-	client->resp.ir = 1;
 
 	if (auto_equip->value) {
 		if(!teamplay->value)
@@ -2487,10 +2477,8 @@ void ClientBeginDeathmatch(edict_t * ent)
 
 	InitClientResp(ent->client);
 
-	ResetKills(ent);
 	TourneyNewPlayer(ent);
 	vInitClient(ent);
-//PG BUND - END
 
 	// locate ent at a spawn point
 	PutClientInServer(ent);
@@ -2684,8 +2672,6 @@ qboolean ClientConnect(edict_t * ent, char *userinfo)
 
 	// they can connect
 	ent->client = game.clients + (ent - g_edicts - 1);
-
-	ResetKills(ent);
 
 	// We're not going to attempt to support reconnection...
 	if (ent->client->pers.connected) {
@@ -3057,10 +3043,8 @@ void ClientThink(edict_t * ent, usercmd_t * ucmd)
 	if (client->latched_buttons & BUTTON_ATTACK) {
 		//TempFile
 		//We're gonna fire in this frame? Then abort any punching.
-		client->resp.fire_time = level.framenum;
-		client->resp.punch_desired = false;
-		//TempFile
-		//
+		client->punch_framenum = level.framenum;
+		client->punch_desired = false;
 
 		if (ent->solid == SOLID_NOT && ent->deadflag != DEAD_DEAD && !in_warmup) {
 			client->latched_buttons = 0;
@@ -3261,10 +3245,10 @@ void ClientBeginServerFrame(edict_t * ent)
 		if (!lights_camera_action && !client->uvTime) {
 			if (client->jumping)
 				kick_attack( ent );
-			else if (client->resp.punch_desired)
+			else if (client->punch_desired)
 				punch_attack( ent );
 		}
-		client->resp.punch_desired = false;
+		client->punch_desired = false;
 
 		if (ppl_idletime->value > 0 && client->resp.idletime && ent->deadflag != DEAD_DEAD) {
 			if (level.framenum >= client->resp.idletime + (int)(ppl_idletime->value * HZ)) {

@@ -468,11 +468,11 @@ void SV_CalcBlend (edict_t * ent)
 	// enable ir vision if appropriate
 	if (ir->value)
 	{
-		if ((INV_AMMO(ent, BAND_NUM) &&	ent->client->resp.ir == 0) ||
+		if ((INV_AMMO(ent, BAND_NUM) &&	ent->client->pers.irvision) ||
 			(ent->client->chase_target != NULL &&
 			 ent->client->chase_target->client != NULL &&
 			 ent->client->chase_mode == 2 &&
-			ent->client->chase_target->client->resp.ir == 0 &&
+			ent->client->chase_target->client->pers.irvision &&
 			INV_AMMO(ent->client->chase_target, BAND_NUM)))
 		{
 			ent->client->ps.rdflags |= RDF_IRGOGGLES;
@@ -502,8 +502,7 @@ void SV_CalcBlend (edict_t * ent)
 		SV_AddBlend (0.5f, 0.3f, 0.2f, 0.4f, ent->client->ps.blend);
 
 	// AQ2:TNG - Igor[Rock] adding new irvision mode
-	if (new_irvision->value && (ent->client->resp.ir == 0)
-	&& INV_AMMO(ent, BAND_NUM))
+	if (new_irvision->value && ent->client->pers.irvision && INV_AMMO(ent, BAND_NUM))
 	{
 		SV_AddBlend (0.1f, 0.0f, 0.0f, 0.4f, ent->client->ps.blend);
 	}

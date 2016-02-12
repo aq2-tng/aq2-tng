@@ -1001,12 +1001,6 @@ void JoinTeam (edict_t * ent, int desired_team, int skip_menuclose)
 	//AQ2:TNG - Slicer added the ctf->value coz teamplay people were spawning....
 	if ((ctf->value || teamdm->value) && team_round_going && (ent->inuse && ent->client->resp.team != NOTEAM))
 	{
-		//    ent->client->resp.last_killed_target = NULL;
-		ResetKills (ent);
-		//AQ2:TNG Slicer Last Damage Location
-		ent->client->resp.last_damaged_part = 0;
-		ent->client->resp.last_damaged_players[0] = '\0';
-		//AQ2:TNG END
 		PutClientInServer (ent);
 		AddToTransparentList (ent);
 	}
@@ -1355,11 +1349,10 @@ void ResetScores (qboolean playerScores)
 		ent->client->resp.streakHS = 0;
 		ent->client->resp.streakKills = 0;
 		ent->client->resp.ctf_capstreak = 0;
-		ent->client->resp.last_damaged_part = 0;
-		ent->client->resp.last_damaged_players[0] = '\0';
 		ent->client->resp.deaths = 0;
+		ent->client->resp.team_kills = 0;
+		ent->client->resp.team_wounds = 0;
 		ent->enemy = NULL;
-		ResetKills(ent);
 		ResetStats(ent);
 	}
 }
@@ -1574,12 +1567,6 @@ void SpawnPlayers ()
 				ent->client->resp.item = GET_ITEM(KEV_NUM);
 			}
 
-			// ent->client->resp.last_killed_target = NULL;
-			ResetKills (ent);
-			//AQ2:TNG Slicer Last Damage Location
-			ent->client->resp.last_damaged_part = 0;
-			ent->client->resp.last_damaged_players[0] = '\0';
-			//AQ2:TNG END
 			PutClientInServer (ent);
 			AddToTransparentList (ent);
 		}
@@ -1619,11 +1606,9 @@ void RunWarmup ()
 		int dead = (ent->solid == SOLID_NOT && ent->deadflag == DEAD_NO && ent->movetype == MOVETYPE_NOCLIP);
 		if (ent->inuse && ent->client->resp.team != NOTEAM && ent->client->resp.subteam == 0 && dead && ent->client->resp.weapon && ent->client->resp.item && ent->client->latched_buttons & BUTTON_ATTACK)
 		{
-			ent->client->resp.last_damaged_part = 0;
-			ent->client->resp.last_damaged_players[0] = '\0';
 			ent->client->latched_buttons = 0;
-			PutClientInServer (ent);
-			AddToTransparentList (ent);
+			PutClientInServer(ent);
+			AddToTransparentList(ent);
 			gi.centerprintf(ent, "WARMUP");
 		}
 	}

@@ -1388,6 +1388,17 @@ typedef struct
   gender_t	gender;
   qboolean spectator;
   int firing_style;
+
+  int mk23_mode;		// firing mode, semi or auto
+  int mp5_mode;
+  int m4_mode;
+  int knife_mode;
+  int grenade_mode;
+  int hc_mode;
+  int id;			// id command on or off
+  int irvision;			// ir on or off (only matters if player has ir device, currently bandolier)
+
+  ignorelist_t ignorelist;
 }
 client_persistant_t;
 
@@ -1426,15 +1437,11 @@ typedef struct
   int menu_shown;		// has the main menu been shown
   qboolean dm_selected;		// if dm weapon selection has been done once
 
-
   radio_t radio;
-  int num_kills;
-
+ 
   int motd_refreshes;
   int last_motd_refresh;
   edict_t *last_chase_target;	// last person they chased, to resume at the same place later...
-
-  edict_t *last_killed_target[MAX_LAST_KILLED];
 
   // Number of team kills this game
   int team_kills;
@@ -1443,25 +1450,14 @@ typedef struct
   int idletime;
   int tourneynumber;
   edict_t *kickvote;
-  ignorelist_t ignorelist;
 
   char *mapvote;		// pointer to map voted on (if any)
   char *cvote;			// pointer to config voted on (if any)
   qboolean scramblevote;	// want scramble
 
-  int mk23_mode;		// firing mode, semi or auto
-  int mp5_mode;
-  int m4_mode;
-  int knife_mode;
-  int grenade_mode;
-  int id;			// id command on or off
-  int ir;			// ir on or off (only matters if player has ir device, currently bandolier)
-
-  int fire_time;
   int ignore_time;		// framenum when the player called ignore - to prevent spamming
 
   qboolean weapon_after_bandage_warned;	// to fix message bug when calling weapon while bandaging
-  qboolean punch_desired;	//controlled in ClientThink
 	
   int stat_mode;    		// Automatical Send of statistics to client
   int stat_mode_intermission;
@@ -1483,13 +1479,9 @@ typedef struct
   float gldynamic;
   qboolean checked;
   int checkframe[3];
-  int last_damaged_part;
-  char last_damaged_players[256];
-  //AQ2:TNG - Slicer Matchmode code
+
   int subteam;
   int admin;
-
-  int hc_mode;
 
   //char skin[MAX_SKINLEN];
 }
@@ -1657,6 +1649,9 @@ struct gclient_s
 
   int jumping;
 
+  int punch_framenum;
+  qboolean punch_desired;	//controlled in ClientThink
+
   int reload_attempts;
   int weapon_attempts;
 
@@ -1672,6 +1667,12 @@ struct gclient_s
   // Number of teammate woundings this game and a "before attack" tracker
   int team_wounds_before;
   int ff_warning;
+
+  int radio_num_kills;
+
+  int last_damaged_part;
+  char last_damaged_players[256];
+  edict_t *last_killed_target[MAX_LAST_KILLED];
 
   int desired_zoom;		//either 0, 1, 2, 4 or 6. This is set to 0 if no zooming shall be done, and is set to 0 after zooming is done.
 

@@ -658,7 +658,7 @@ void ProduceShotgunDamageReport (edict_t * self)
 		total_to_print = total;
 
 	//256 is enough, its limited to 10 nicks
-	textbuf = self->client->resp.last_damaged_players;
+	textbuf = self->client->last_damaged_players;
 	*textbuf = '\0';
 
 	for (l = 1; l <= game.maxclients; l++)

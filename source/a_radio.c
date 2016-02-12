@@ -375,15 +375,15 @@ static void RadioBroadcast (edict_t * ent, int partner, char *msg)
 	//TempFile BEGIN
 	if (Q_stricmp (filteredmsg, "enemyd") == 0)
 	{
-		if (ent->client->resp.num_kills > 1 && ent->client->resp.num_kills <= 10)
+		if (ent->client->radio_num_kills > 1 && ent->client->radio_num_kills <= 10)
 		{
 			// If we are reporting enemy down, add the number of kills.
-			sprintf( msgname_num, "%i", ent->client->resp.num_kills );
-			ent->client->resp.num_kills = 0;	// prevent from getting into an endless loop
+			sprintf( msgname_num, "%i", ent->client->radio_num_kills );
+			ent->client->radio_num_kills = 0;	// prevent from getting into an endless loop
 
 			RadioBroadcast(ent, partner, msgname_num);	// Now THAT'S recursion! =)
 		}
-		ent->client->resp.num_kills = 0;
+		ent->client->radio_num_kills = 0;
 	}
 //TempFile END
 	//AQ2:TNG Slicer

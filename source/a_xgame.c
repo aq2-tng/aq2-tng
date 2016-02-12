@@ -570,26 +570,6 @@ void GetViewedEnemyWeapon (edict_t * self, char *buf)
 		strcpy (buf, "no weapon");
 }
 
-//AQ2:TNG SLICER Old support
-/*
-void
-GetLastKilledTarget (edict_t * self, char *buf)
-{
-  if (self->client->resp.last_killed_target)
-    {
-      strcpy (buf, self->client->resp.last_killed_target->client->pers.netname);
-      //We want to report...ONCE! :)
-      self->client->resp.last_killed_target = NULL;
-
-    }
-  else
-    {
-      strcpy (buf, "nobody");
-    }
-}
-*/
-//AQ2:TNG END
-
 char *SeekBufEnd (char *buf)
 {
   while (*buf != 0)
@@ -842,7 +822,7 @@ VideoCheckClient (edict_t * ent)
 //AQ2:TNG - Slicer : Last Damage Location
 void GetLastDamagedPart (edict_t * self, char *buf)
 {
-	switch(self->client->resp.last_damaged_part) {
+	switch(self->client->last_damaged_part) {
 	case LOC_HDAM:
 		strcpy (buf, "head");
 		break;
@@ -868,7 +848,7 @@ void GetLastDamagedPart (edict_t * self, char *buf)
 		strcpy (buf, "nothing");
 		break;
 	}
-	self->client->resp.last_damaged_part = 0;
+	self->client->last_damaged_part = 0;
 }
 
 //AQ2:TNG END
@@ -876,12 +856,12 @@ void GetLastDamagedPart (edict_t * self, char *buf)
 //AQ2:TNG add last damaged players - Freud
 void GetLastDamagedPlayers (edict_t * self, char *buf)
 {
-	if (self->client->resp.last_damaged_players[0] == '\0')
+	if (self->client->last_damaged_players[0] == '\0')
 		strcpy(buf, "nobody");
 	else
-		Q_strncpyz(buf, self->client->resp.last_damaged_players, PARSE_BUFSIZE);
+		Q_strncpyz(buf, self->client->last_damaged_players, PARSE_BUFSIZE);
 
-	self->client->resp.last_damaged_players[0] = '\0';
+	self->client->last_damaged_players[0] = '\0';
 }
   
 
@@ -1027,25 +1007,26 @@ void GetEnemyPosition (edict_t * self, char *buf)
 //AQ2:TNG END
 
 //AQ2:TNG Slicer - New last killed target functions
-
-//SLIC2 Optimizations
-void ResetKills (edict_t * ent)
-{
-	int i;
-
-	for (i = 0; i < MAX_LAST_KILLED; i++)
-		ent->client->resp.last_killed_target[i] = NULL;
-}
-
 int ReadKilledPlayers (edict_t * ent)
 {
-	int results = 0;
-	int i;
+	int i, results = 0, j = 0;
+	edict_t *targ;
 
 	for (i = 0; i < MAX_LAST_KILLED; i++)
 	{
-		if (!ent->client->resp.last_killed_target[i])
+		targ = ent->client->last_killed_target[i];
+		if (!targ)
 			break;
+
+		if (!targ->inuse || !targ->client) //Remove disconnected players from list
+		{
+			for (j = i + 1; j < MAX_LAST_KILLED; j++)
+				ent->client->last_killed_target[j - 1] = ent->client->last_killed_target[j];
+
+			ent->client->last_killed_target[MAX_LAST_KILLED - 1] = NULL;
+			i--;
+			continue;
+		}
 
 		results++;
 	}
@@ -1057,22 +1038,21 @@ void AddKilledPlayer (edict_t * self, edict_t * ent)
 {
 	int kills;
 
-	kills = ReadKilledPlayers (self);
-	self->client->resp.last_killed_target[kills % MAX_LAST_KILLED] = ent;
+	kills = ReadKilledPlayers(self);
+	self->client->last_killed_target[kills % MAX_LAST_KILLED] = ent;
 }
 
 void GetLastKilledTarget (edict_t * self, char *buf)
 {
 	int kills, i;
 
-	kills = ReadKilledPlayers (self);
-
+	kills = ReadKilledPlayers(self);
 	if (!kills) {
-		strcpy (buf, "nobody");
+		strcpy(buf, "nobody");
 		return;
 	}
 
-	strcpy (buf, self->client->resp.last_killed_target[0]->client->pers.netname);
+	strcpy(buf, self->client->last_killed_target[0]->client->pers.netname);
 
 	for (i = 1; i < kills; i++)
 	{
@@ -1081,9 +1061,9 @@ void GetLastKilledTarget (edict_t * self, char *buf)
 		else
 			Q_strncatz(buf, ", ", PARSE_BUFSIZE);
 
-		Q_strncatz(buf, self->client->resp.last_killed_target[i]->client->
+		Q_strncatz(buf, self->client->last_killed_target[i]->client->
 			pers.netname, PARSE_BUFSIZE);
 	}
 
-	ResetKills (self);
+	self->client->last_killed_target[0] = NULL;
 }
