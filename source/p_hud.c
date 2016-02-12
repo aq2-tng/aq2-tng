@@ -348,7 +348,7 @@ void G_SetStats (edict_t * ent)
 		//
 		// zucc modified this to do clips instead
 		if (!ent->client-> ammo_index
-			/* || !ent->client->pers.inventory[ent->client->ammo_index] */ )
+			/* || !ent->client->inventory[ent->client->ammo_index] */ )
 		{
 			ent->client->ps.stats[STAT_CLIP_ICON] = 0;
 			ent->client->ps.stats[STAT_CLIP] = 0;
@@ -360,7 +360,7 @@ void G_SetStats (edict_t * ent)
 				ent->client->ps.stats[STAT_CLIP_ICON] = level.pic_items[item->typeNum];
 			else
 				ent->client->ps.stats[STAT_CLIP_ICON] = gi.imageindex(item->icon);
-			ent->client->ps.stats[STAT_CLIP] = ent->client->pers.inventory[ent->client->ammo_index];
+			ent->client->ps.stats[STAT_CLIP] = ent->client->inventory[ent->client->ammo_index];
 		}
 
 		// zucc display special item and special weapon
@@ -514,17 +514,17 @@ void G_SetStats (edict_t * ent)
 		//
 		// selected item
 		//
-		if (ent->client->pers.selected_item < 1) {
+		if (ent->client->selected_item < 1) {
 			ent->client->ps.stats[STAT_SELECTED_ICON] = 0;
 		} else {
-			item = &itemlist[ent->client->pers.selected_item];
+			item = &itemlist[ent->client->selected_item];
 			if (item->typeNum < AMMO_MAX)
 				ent->client->ps.stats[STAT_SELECTED_ICON] = level.pic_items[item->typeNum];
 			else
 				ent->client->ps.stats[STAT_SELECTED_ICON] = gi.imageindex(item->icon);
 		}
 
-		ent->client->ps.stats[STAT_SELECTED_ITEM] = ent->client->pers.selected_item;
+		ent->client->ps.stats[STAT_SELECTED_ITEM] = ent->client->selected_item;
 
 		//
 		// help icon / current weapon if not shown
@@ -557,9 +557,9 @@ void G_SetStats (edict_t * ent)
 	//
 	ent->client->ps.stats[STAT_LAYOUTS] = 0;
 
-	if (ent->client->pers.health <= 0 || level.intermission_framenum || ent->client->showscores)
+	if (ent->health <= 0 || level.intermission_framenum || ent->client->showscores)
 		ent->client->ps.stats[STAT_LAYOUTS] |= 1;
-	if (ent->client->showinventory && ent->client->pers.health > 0)
+	if (ent->client->showinventory && ent->health > 0)
 		ent->client->ps.stats[STAT_LAYOUTS] |= 2;
 
 	SetIDView (ent);

@@ -413,10 +413,10 @@ void Cmd_TeamLock_f(edict_t * ent, int a_switch)
 
 void Cmd_SetAdmin_f (edict_t * ent)
 {
-	if (ent->client->resp.admin) {
+	if (ent->client->pers.admin) {
 		gi.cprintf( ent, PRINT_HIGH, "You are no longer a match admin.\n" );
 		gi.dprintf( "%s is no longer a match admin\n", ent->client->pers.netname );
-		ent->client->resp.admin = 0;
+		ent->client->pers.admin = 0;
 	}
 
 	if(!matchmode->value) {
@@ -442,7 +442,7 @@ void Cmd_SetAdmin_f (edict_t * ent)
 	gi.cprintf (ent, PRINT_HIGH, "You are now a match admin.\n");
 	gi.dprintf ("%s is now a match admin\n", ent->client->pers.netname);
 	IRC_printf (IRC_T_GAME, "%n is now a match admin", ent->client->pers.netname);
-	ent->client->resp.admin = 1;
+	ent->client->pers.admin = 1;
 }
 
 void Cmd_ResetScores_f(edict_t * ent)
@@ -454,7 +454,7 @@ void Cmd_ResetScores_f(edict_t * ent)
 		return;
 	}
 
-	if(ent->client->resp.admin) //Admins can resetscores
+	if (ent->client->pers.admin) //Admins can resetscores
 	{
 		ResetScores(true);
 		gi.bprintf(PRINT_HIGH, "Scores and time were reset by match admin %s\n", ent->client->pers.netname);

@@ -209,7 +209,7 @@ void SetRespawn (edict_t * ent, float delay)
 
 qboolean Pickup_Powerup (edict_t * ent, edict_t * other)
 {
-	other->client->pers.inventory[ITEM_INDEX (ent->item)]++;
+	other->client->inventory[ITEM_INDEX (ent->item)]++;
 
 	if (!(ent->spawnflags & DROPPED_ITEM))
 		SetRespawn (ent, ent->item->quantity);
@@ -226,7 +226,7 @@ qboolean Pickup_Powerup (edict_t * ent, edict_t * other)
 
 void AddItem(edict_t *ent, gitem_t *item)
 {
-	ent->client->pers.inventory[ITEM_INDEX (item)]++;
+	ent->client->inventory[ITEM_INDEX (item)]++;
 	ent->client->unique_item_total++;
 	if (item->typeNum == LASER_NUM)
 	{
@@ -312,7 +312,7 @@ void Drop_Special (edict_t * ent, gitem_t * item)
 
 	ent->client->unique_item_total--;
 	/*  if ( Q_stricmp( item->pickup_name, LASER_NAME ) == 0 
-		&& ent->client->pers.inventory[ITEM_INDEX(item)] <= 1 )
+		&& ent->client->inventory[ITEM_INDEX(item)] <= 1 )
 		{
 			ent->client->have_laser = 0;
 			item->use(ent, item);
@@ -412,7 +412,7 @@ void DropSpecialItem (edict_t * ent)
 void Drop_General (edict_t * ent, gitem_t * item)
 {
 	Drop_Item (ent, item);
-	ent->client->pers.inventory[ITEM_INDEX (item)]--;
+	ent->client->inventory[ITEM_INDEX (item)]--;
 	ValidateSelectedItem (ent);
 }
 
@@ -459,18 +459,18 @@ qboolean Pickup_Bandolier (edict_t * ent, edict_t * other)
 	if (item)
 	{
 		index = ITEM_INDEX (item);
-		other->client->pers.inventory[index] += item->quantity;
-		if (other->client->pers.inventory[index] > other->client->max_bullets)
-			other->client->pers.inventory[index] = other->client->max_bullets;
+		other->client->inventory[index] += item->quantity;
+		if (other->client->inventory[index] > other->client->max_bullets)
+			other->client->inventory[index] = other->client->max_bullets;
 	}
 
 	item = FindItem ("Shells");
 	if (item)
 	{
 		index = ITEM_INDEX (item);
-		other->client->pers.inventory[index] += item->quantity;
-		if (other->client->pers.inventory[index] > other->client->max_shells)
-			other->client->pers.inventory[index] = other->client->max_shells;
+		other->client->inventory[index] += item->quantity;
+		if (other->client->inventory[index] > other->client->max_shells)
+			other->client->inventory[index] = other->client->max_shells;
 	}
 
 	if (!(ent->spawnflags & DROPPED_ITEM))
@@ -502,54 +502,54 @@ qboolean Pickup_Pack (edict_t * ent, edict_t * other)
 	if (item)
 	{
 		index = ITEM_INDEX (item);
-		other->client->pers.inventory[index] += item->quantity;
-		if (other->client->pers.inventory[index] > other->client->max_bullets)
-			other->client->pers.inventory[index] = other->client->max_bullets;
+		other->client->inventory[index] += item->quantity;
+		if (other->client->inventory[index] > other->client->max_bullets)
+			other->client->inventory[index] = other->client->max_bullets;
 	}
 
 	item = FindItem ("Shells");
 	if (item)
 	{
 		index = ITEM_INDEX (item);
-		other->client->pers.inventory[index] += item->quantity;
-		if (other->client->pers.inventory[index] > other->client->max_shells)
-			other->client->pers.inventory[index] = other->client->max_shells;
+		other->client->inventory[index] += item->quantity;
+		if (other->client->inventory[index] > other->client->max_shells)
+			other->client->inventory[index] = other->client->max_shells;
 	}
 
 	item = FindItem ("Cells");
 	if (item)
 	{
 		index = ITEM_INDEX (item);
-		other->client->pers.inventory[index] += item->quantity;
-		if (other->client->pers.inventory[index] > other->client->max_cells)
-		other->client->pers.inventory[index] = other->client->max_cells;
+		other->client->inventory[index] += item->quantity;
+		if (other->client->inventory[index] > other->client->max_cells)
+		other->client->inventory[index] = other->client->max_cells;
 	}
 
 	item = FindItem ("Grenades");
 	if (item)
 	{
 		index = ITEM_INDEX (item);
-		other->client->pers.inventory[index] += item->quantity;
-		if (other->client->pers.inventory[index] > other->client->max_grenades)
-			other->client->pers.inventory[index] = other->client->max_grenades;
+		other->client->inventory[index] += item->quantity;
+		if (other->client->inventory[index] > other->client->max_grenades)
+			other->client->inventory[index] = other->client->max_grenades;
 	}
 
 	item = FindItem ("Rockets");
 	if (item)
 	{
 		index = ITEM_INDEX (item);
-		other->client->pers.inventory[index] += item->quantity;
-		if (other->client->pers.inventory[index] > other->client->max_rockets)
-			other->client->pers.inventory[index] = other->client->max_rockets;
+		other->client->inventory[index] += item->quantity;
+		if (other->client->inventory[index] > other->client->max_rockets)
+			other->client->inventory[index] = other->client->max_rockets;
 	}
 
 	item = FindItem ("Slugs");
 	if (item)
 	{
 		index = ITEM_INDEX (item);
-		other->client->pers.inventory[index] += item->quantity;
-		if (other->client->pers.inventory[index] > other->client->max_slugs)
-		other->client->pers.inventory[index] = other->client->max_slugs;
+		other->client->inventory[index] += item->quantity;
+		if (other->client->inventory[index] > other->client->max_slugs)
+		other->client->inventory[index] = other->client->max_slugs;
 	}
 
 	if (!(ent->spawnflags & DROPPED_ITEM))
@@ -564,7 +564,7 @@ void Use_Quad (edict_t * ent, gitem_t * item)
 {
 	int timeout;
 
-	ent->client->pers.inventory[ITEM_INDEX (item)]--;
+	ent->client->inventory[ITEM_INDEX (item)]--;
 	ValidateSelectedItem (ent);
 
 	if (quad_drop_timeout_hack)
@@ -589,7 +589,7 @@ void Use_Quad (edict_t * ent, gitem_t * item)
 
 void Use_Breather (edict_t * ent, gitem_t * item)
 {
-	ent->client->pers.inventory[ITEM_INDEX (item)]--;
+	ent->client->inventory[ITEM_INDEX (item)]--;
 	ValidateSelectedItem (ent);
 
 	if (ent->client->breather_framenum > level.framenum)
@@ -604,7 +604,7 @@ void Use_Breather (edict_t * ent, gitem_t * item)
 
 void Use_Envirosuit (edict_t * ent, gitem_t * item)
 {
-	ent->client->pers.inventory[ITEM_INDEX (item)]--;
+	ent->client->inventory[ITEM_INDEX (item)]--;
 	ValidateSelectedItem (ent);
 
 	if (ent->client->enviro_framenum > level.framenum)
@@ -619,7 +619,7 @@ void Use_Envirosuit (edict_t * ent, gitem_t * item)
 
 void Use_Invulnerability (edict_t * ent, gitem_t * item)
 {
-	ent->client->pers.inventory[ITEM_INDEX (item)]--;
+	ent->client->inventory[ITEM_INDEX (item)]--;
 	ValidateSelectedItem (ent);
 
 	if (ent->client->invincible_framenum > level.framenum)
@@ -634,7 +634,7 @@ void Use_Invulnerability (edict_t * ent, gitem_t * item)
 
 void Use_Silencer (edict_t * ent, gitem_t * item)
 {
-	ent->client->pers.inventory[ITEM_INDEX (item)]--;
+	ent->client->inventory[ITEM_INDEX (item)]--;
 	ValidateSelectedItem (ent);
 	ent->client->silencer_shots += 30;
 
@@ -678,13 +678,13 @@ qboolean Add_Ammo (edict_t * ent, gitem_t * item, int count)
 
 	index = ITEM_INDEX (item);
 
-	if (ent->client->pers.inventory[index] == max)
+	if (ent->client->inventory[index] == max)
 		return false;
 
-	ent->client->pers.inventory[index] += count;
+	ent->client->inventory[index] += count;
 
-	if (ent->client->pers.inventory[index] > max)
-		ent->client->pers.inventory[index] = max;
+	if (ent->client->inventory[index] > max)
+		ent->client->inventory[index] = max;
 
 	return true;
 }
@@ -703,7 +703,7 @@ qboolean Pickup_Ammo (edict_t * ent, edict_t * other)
 	else
 		count = ent->item->quantity;
 
-	oldcount = other->client->pers.inventory[ITEM_INDEX (ent->item)];
+	oldcount = other->client->inventory[ITEM_INDEX (ent->item)];
 
 	if (!Add_Ammo (other, ent->item, count))
 		return false;
@@ -733,11 +733,11 @@ void Drop_Ammo (edict_t * ent, gitem_t * item)
 
 	index = ITEM_INDEX (item);
 	dropped = Drop_Item (ent, item);
-	if (ent->client->pers.inventory[index] >= item->quantity)
+	if (ent->client->inventory[index] >= item->quantity)
 		dropped->count = item->quantity;
 	else
-		dropped->count = ent->client->pers.inventory[index];
-	ent->client->pers.inventory[index] -= dropped->count;
+		dropped->count = ent->client->inventory[index];
+	ent->client->inventory[index] -= dropped->count;
 	ValidateSelectedItem (ent);
 }
 
@@ -836,7 +836,7 @@ void Touch_Item (edict_t * ent, edict_t * other, cplane_t * plane,
 
 		// change selected item
 		if (ent->item->use)
-			other->client->pers.selected_item = other->client->ps.stats[STAT_SELECTED_ITEM] = ITEM_INDEX(ent->item);
+			other->client->selected_item = other->client->ps.stats[STAT_SELECTED_ITEM] = ITEM_INDEX(ent->item);
 		else
 			gi.sound(other, CHAN_ITEM, gi.soundindex(ent->item->pickup_sound), 1, ATTN_NORM, 0);
 	}

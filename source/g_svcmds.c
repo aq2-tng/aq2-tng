@@ -334,10 +334,6 @@ void SVCmd_WriteIP_f (void)
 	fclose (f);
 }
 
-// zucc so it works under vc++
-void ExitLevel (void);
-
-//Black Cross - Begin
 /*
 =================
 SV_Nextmap_f

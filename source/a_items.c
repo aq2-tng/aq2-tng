@@ -182,7 +182,7 @@ void Drop_Spec(edict_t * ent, gitem_t * item)
 	spec->think = MakeTouchSpecThink;
 	//zucc this and the one below should probably be -- not = 0, if
 	// a server turns on multiple item pickup.
-	ent->client->pers.inventory[ITEM_INDEX(item)]--;
+	ent->client->inventory[ITEM_INDEX(item)]--;
 }
 
 void DeadDropSpec(edict_t * ent)
@@ -204,7 +204,7 @@ void DeadDropSpec(edict_t * ent)
 			dropped->think = MakeTouchSpecThink;
 			dropped->owner = NULL;
 			dropped->spawnflags = DROPPED_PLAYER_ITEM;
-			ent->client->pers.inventory[ITEM_INDEX(spec)] = 0;
+			ent->client->inventory[ITEM_INDEX(spec)] = 0;
 		}
 	}
 }
