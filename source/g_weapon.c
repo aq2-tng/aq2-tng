@@ -1353,7 +1353,7 @@ void setFFState (edict_t * ent)
 {
 	if (ent && ent->client)
 	{
-		ent->client->team_wounds_before = ent->client->team_wounds;
+		ent->client->team_wounds_before = ent->client->resp.team_wounds;
 		ent->client->ff_warning = 0;
 	}
 }

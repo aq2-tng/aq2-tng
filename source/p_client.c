@@ -442,7 +442,7 @@ void Add_TeamWound(edict_t * attacker, edict_t * victim, int mod)
 		return;
 	}
 
-	attacker->client->team_wounds++;
+	attacker->client->resp.team_wounds++;
 
 	// Warn both parties that they are teammates. Since shotguns are pellet based,
 	// make sure we don't overflow the client when using MOD_HC or MOD_SHOTGUN. The
@@ -455,16 +455,16 @@ void Add_TeamWound(edict_t * attacker, edict_t * victim, int mod)
 	// We want team_wounds to increment by one for each ATTACK, not after each 
 	// bullet or pellet does damage. With the HAND CANNON this means 2 attacks
 	// since it is double barreled and we don't want to go into p_weapon.c...
-	attacker->client->team_wounds = (attacker->client->team_wounds_before + 1);
+	attacker->client->resp.team_wounds = (attacker->client->team_wounds_before + 1);
 
 	// If count is less than MAX_TEAMKILLS*3, return. If count is greater than
 	// MAX_TEAMKILLS*3 but less than MAX_TEAMKILLS*4, print off a ban warning. If
 	// count equal (or greater than) MAX_TEAMKILLS*4, ban and kick the client.
 	if ((int) maxteamkills->value < 1)	//FB
 		return;
-	if (attacker->client->team_wounds < ((int) maxteamkills->value * 3)) {
+	if (attacker->client->resp.team_wounds < ((int)maxteamkills->value * 3)) {
 		return;
-	} else if (attacker->client->team_wounds < ((int) maxteamkills->value * 4)) {
+	} else if (attacker->client->resp.team_wounds < ((int) maxteamkills->value * 4)) {
 		// Print a note to console, and issue a warning to the player.
 		gi.cprintf(NULL, PRINT_MEDIUM,
 			   "%s is in danger of being banned for wounding teammates\n", attacker->client->pers.netname);
@@ -472,11 +472,11 @@ void Add_TeamWound(edict_t * attacker, edict_t * victim, int mod)
 			   "WARNING: You'll be temporarily banned if you continue wounding teammates!\n");
 		return;
 	} else {
-		if (attacker->client->ipaddr) {
+		if (attacker->client->pers.ip[0]) {
 			if (Ban_TeamKiller(attacker, (int) twbanrounds->value)) {
 				gi.cprintf(NULL, PRINT_MEDIUM,
 					   "Banning %s@%s for team wounding\n",
-					   attacker->client->pers.netname, attacker->client->ipaddr);
+					   attacker->client->pers.netname, attacker->client->pers.ip);
 
 				gi.cprintf(attacker, PRINT_HIGH,
 					   "You've wounded teammates too many times, and are banned for %d %s.\n",
@@ -484,7 +484,7 @@ void Add_TeamWound(edict_t * attacker, edict_t * victim, int mod)
 					   (((int) twbanrounds->value > 1) ? "games" : "game"));
 			} else {
 				gi.cprintf(NULL, PRINT_MEDIUM,
-					   "Error banning %s: unable to get ipaddr\n", attacker->client->pers.netname);
+					   "Error banning %s: unable to get ip address\n", attacker->client->pers.netname);
 			}
 			Kick_Client(attacker);
 		}
@@ -499,21 +499,21 @@ void Add_TeamKill(edict_t * attacker)
 		return;
 	}
 
-	attacker->client->team_kills++;
+	attacker->client->resp.team_kills++;
 	// Because the stricter team kill was incremented, lower team_wounds
 	// by amount inflicted in last attack (i.e., no double penalty).
-	if (attacker->client->team_wounds > attacker->client->team_wounds_before) {
-		attacker->client->team_wounds = attacker->client->team_wounds_before;
+	if (attacker->client->resp.team_wounds > attacker->client->team_wounds_before) {
+		attacker->client->resp.team_wounds = attacker->client->team_wounds_before;
 	}
 	// If count is less than 1/2 MAX_TEAMKILLS, print off simple warning. If
 	// count is greater than 1/2 MAX_TEAMKILLS but less than MAX_TEAMKILLS,
 	// print off a ban warning. If count equal or greater than MAX_TEAMKILLS,
 	// ban and kick the client.
 	if (((int) maxteamkills->value < 1) ||
-	    (attacker->client->team_kills < (((int) maxteamkills->value % 2) + (int) maxteamkills->value / 2))) {
+		(attacker->client->resp.team_kills < (((int)maxteamkills->value % 2) + (int)maxteamkills->value / 2))) {
 		gi.cprintf(attacker, PRINT_HIGH, "You killed your TEAMMATE!\n");
 		return;
-	} else if (attacker->client->team_kills < (int) maxteamkills->value) {
+	} else if (attacker->client->resp.team_kills < (int) maxteamkills->value) {
 		// Show this on the console
 		gi.cprintf(NULL, PRINT_MEDIUM,
 			   "%s is in danger of being banned for killing teammates\n", attacker->client->pers.netname);
@@ -522,18 +522,18 @@ void Add_TeamKill(edict_t * attacker)
 		return;
 	} else {
 		// They've killed too many teammates this game - kick 'em for a while
-		if (attacker->client->ipaddr) {
+		if (attacker->client->pers.ip[0]) {
 			if (Ban_TeamKiller(attacker, (int) tkbanrounds->value)) {
 				gi.cprintf(NULL, PRINT_MEDIUM,
 					   "Banning %s@%s for team killing\n",
-					   attacker->client->pers.netname, attacker->client->ipaddr);
+					   attacker->client->pers.netname, attacker->client->pers.ip);
 				gi.cprintf(attacker, PRINT_HIGH,
 					   "You've killed too many teammates, and are banned for %d %s.\n",
 					   (int) tkbanrounds->value,
 					   (((int) tkbanrounds->value > 1) ? "games" : "game"));
 			} else {
 				gi.cprintf(NULL, PRINT_MEDIUM,
-					   "Error banning %s: unable to get ipaddr\n", attacker->client->pers.netname);
+					   "Error banning %s: unable to get ip address\n", attacker->client->pers.netname);
 			}
 		}
 		Kick_Client(attacker);
@@ -728,7 +728,7 @@ void ClientObituary(edict_t * self, edict_t * inflictor, edict_t * attacker)
 			PrintDeathMessage(death_msg, self);
 			IRC_printf(IRC_T_KILL, death_msg);
 			AddKilledPlayer(self->client->attacker, self);
-			self->client->attacker->client->pers.num_kills++;
+			self->client->attacker->client->resp.num_kills++;
 
 			//MODIFIED FOR FF -FB
 			if (OnSameTeam(self, self->client->attacker))
@@ -1104,7 +1104,7 @@ void ClientObituary(edict_t * self, edict_t * inflictor, edict_t * attacker)
 			} else {
 				if (!teamplay->value || mod != MOD_TELEFRAG) {
 					Add_Frag(attacker, mod);
-					attacker->client->pers.num_kills++;
+					attacker->client->resp.num_kills++;
 					self->client->resp.streakKills = 0;
 					self->client->resp.deaths++;
 				}
@@ -1500,7 +1500,7 @@ void player_die(edict_t * self, edict_t * inflictor, edict_t * attacker, int dam
 	//AQ2:TNG END
 
 	//TempFile
-	self->client->pers.num_kills = 0;
+	self->client->resp.num_kills = 0;
 	//TempFile
 	self->deadflag = DEAD_DEAD;
 	gi.linkentity(self);
@@ -1523,66 +1523,9 @@ but is called after each death and level change in deathmatch
 // SLIC2 If pers structure gets memset to 0 lets cleannup unecessary initiations ( to 0 ) here
 void InitClientPersistant(gclient_t * client)
 {
-	gitem_t *item;
-
-/*		client_persistant_t	oldpers;
-
-  //FB 6/3/99
-		memcpy(oldpers, pers, sizeof(client->pers));
-  //FB 6/3/99
-
-*/
 	memset(&client->pers, 0, sizeof(client->pers));
-	// changed to mk23
-	item = GET_ITEM(MK23_NUM);
-	client->pers.selected_item = ITEM_INDEX(item);
-	client->pers.inventory[client->pers.selected_item] = 1;
-
-	client->pers.weapon = item;
-	client->pers.lastweapon = item;
-
-	if (WPF_ALLOWED(KNIFE_NUM)) {
-		item = GET_ITEM(KNIFE_NUM);
-		client->pers.inventory[ITEM_INDEX(item)] = 1;
-		if (!WPF_ALLOWED(MK23_NUM)) {
-			client->pers.selected_item = ITEM_INDEX(item);
-			client->pers.weapon = item;
-			client->pers.lastweapon = item;
-		}
-	}
-
-	client->pers.health = 100;
-	client->pers.max_health = 100;
-	//zucc changed maximum ammo amounts
-	client->pers.max_bullets = 2;
-	client->pers.max_shells = 14;
-	client->pers.max_rockets = 2;
-	client->pers.max_grenades = 50;
-	client->pers.max_cells = 1;
-	client->pers.max_slugs = 20;
-	client->knife_max = 10;
-	client->grenade_max = 2;
-
-	client->pers.connected = true;
-	//zucc
-	client->fired = 0;
-	client->burst = 0;
-	client->fast_reload = 0;
-	client->machinegun_shots = 0;
-	client->unique_weapon_total = 0;
-	client->unique_item_total = 0;
-	if (WPF_ALLOWED(MK23_NUM)) {
-		client->curr_weap = MK23_NUM;
-	} else if (WPF_ALLOWED(KNIFE_NUM)) {
-		client->curr_weap = KNIFE_NUM;
-	} else {
-		client->curr_weap = MK23_NUM;
-	}
-	//AQ2:TNG - Slicer Moved This To Here
-	//client->pers.num_kills = 0;
-	//AQ2:TNG END
-	client->uvTime = 0;
 }
+
 // SLIC2 If resp structure gets memset to 0 lets cleannup unecessary initiations ( to 0 ) here
 void InitClientResp(gclient_t * client)
 {
@@ -1593,8 +1536,10 @@ void InitClientResp(gclient_t * client)
 	qboolean dm_selected = client->resp.dm_selected;
 
 	memset(&client->resp, 0, sizeof(client->resp));
-	client->resp.team = team;
+
 	client->resp.enterframe = level.framenum;
+	if (auto_join->value && teamplay->value)
+		client->resp.saved_team = team;
 
 	if (!dm_choose->value && !warmup->value) {
 		if (WPF_ALLOWED(MP5_NUM)) {
@@ -1613,11 +1558,13 @@ void InitClientResp(gclient_t * client)
 	}
 	client->resp.ir = 1;
 
-	if (!teamplay->value && auto_equip->value) {
-		client->resp.menu_shown = menu_shown;
+	if (auto_equip->value) {
+		if(!teamplay->value)
+			client->resp.menu_shown = menu_shown;
+
+		client->resp.dm_selected = dm_selected;
 	}
 
-	client->resp.dm_selected = dm_selected;
 
 	// TNG:Freud, restore weapons and items from last map.
 	if (auto_equip->value && ((teamplay->value && !teamdm->value) || dm_choose->value) && ctf->value != 2) {
@@ -1627,58 +1574,7 @@ void InitClientResp(gclient_t * client)
 			client->resp.weapon = weapon;
 	}
 
-	client->resp.team = NOTEAM;
-
-	// TNG:Freud, restore team from previous map
-	if (auto_join->value && team)
-		client->resp.saved_team = team;
-
-	//TempFile - BEGIN
-	client->resp.punch_desired = false;
-	//client->resp.fire_time = 0;
-	//client->resp.ignore_time = 0;
-
-	//client->pers.num_kills = 0; AQ2:TNG Moved This to InitClientPersistant
-	//TempFile - END
-
-	//PG BUND - BEGIN
-//  client->resp.last_killed_target = NULL;
-//  ResetKills(ent);
-	//client->resp.idletime = 0;
-	//PG BUND - END
-	//AQ2:TNG - Slicer : Reset Video Cheking vars
-	//memset(client->resp.vidref, 0, sizeof(client->resp.vidref));
-	//memset(client->resp.gldriver, 0, sizeof(client->resp.gldriver));
-	//client->resp.gllockpvs = 0;
-	//client->resp.glclear = 0;
 	client->resp.gldynamic = 1;
-	//client->resp.glmodulate = 0;
-	client->resp.checked = false;
-	//memset(&client->resp.checktime, 0, sizeof(client->resp.checktime));
-	//memset(&client->resp.rd_when, 0, sizeof(client->resp.rd_when));
-	//memset(client->resp.rd_rep, 0, sizeof(client->resp.rd_rep));
-	//client->resp.rd_mute = 0;
-	//client->resp.rd_repcount = 0;
-	//client->resp.rd_reptime = 0;
-	//AQ2:TNG END
-	//AQ2:TNG Slicer Last Damage Location
-	//client->resp.last_damaged_part = 0;
-	//client->resp.last_damaged_players[0] = '\0';
-	//AQ2:TNG END
-	//AQ2:TNG Slicer Moved this to here
-	//client->resp.killed_teammates = 0;
-	//client->resp.idletime = 0;
-	//AQ2:TNG END
-	//AQ2:TNG Slicer - Matchmode
-	//client->resp.subteam = 0;
-	//client->resp.captain = 0;
-	//client->resp.admin = 0;
-	//client->resp.stat_mode_intermission = 0;
-	//AQ2:TNG END
-
-	// No automatic team join
-	//  if (ctf->value && client->resp.team < TEAM1)
-	//  CTFAssignTeam(client);
 }
 
 /*
@@ -2362,19 +2258,12 @@ void PutClientInServer(edict_t * ent)
 {
 	vec3_t mins = { -16, -16, -24 };
 	vec3_t maxs = { 16, 16, 32 };
-	int index;
+	int index, going_observer, i;
 	vec3_t spawn_origin, spawn_angles;
 	gclient_t *client;
-	int going_observer;
-	int i;
 	client_persistant_t saved;
 	client_respawn_t resp;
-	int save_team_wounds;
-	int save_team_kills;
-	char save_ipaddr[100];
-	char userinfo[MAX_INFO_STRING];
-
-//FF
+	gitem_t *item;
 
 	// find a spawn point
 	// do it before setting health back up, so farthest
@@ -2386,33 +2275,67 @@ void PutClientInServer(edict_t * ent)
 
 	// deathmatch wipes most client data every spawn
 	resp = client->resp;
-	memcpy(userinfo, client->pers.userinfo, sizeof(userinfo));
-	InitClientPersistant(client);
-	ClientUserinfoChanged(ent, userinfo);
 
 	// clear everything but the persistant data
 	saved = client->pers;
-//FF 
-	save_team_wounds = client->team_wounds;
-	save_team_kills = client->team_kills;
 
-	if (client->ipaddr)
-		strcpy(save_ipaddr, client->ipaddr);
-//FF
 	memset(client, 0, sizeof(*client));
 
 	client->pers = saved;
-	client->clientNum = ent - g_edicts - 1;
-//FF
-	client->team_wounds = save_team_wounds;
-	client->team_kills = save_team_kills;
-
-	if (save_ipaddr && client->ipaddr)
-		strcpy(client->ipaddr, save_ipaddr);
-//FF
-	if (client->pers.health <= 0)
-		InitClientPersistant(client);
 	client->resp = resp;
+
+	client->clientNum = index;
+
+
+	memset(client->pers.inventory, 0, sizeof(client->pers.inventory));
+	//zucc give some ammo
+	// changed to mk23
+	item = GET_ITEM( MK23_NUM );
+	client->pers.selected_item = ITEM_INDEX( item );
+	client->pers.inventory[client->pers.selected_item] = 1;
+
+	client->pers.weapon = item;
+	client->pers.lastweapon = item;
+
+	if (WPF_ALLOWED( KNIFE_NUM )) {
+		item = GET_ITEM( KNIFE_NUM );
+		client->pers.inventory[ITEM_INDEX( item )] = 1;
+		if (!WPF_ALLOWED( MK23_NUM )) {
+			client->pers.selected_item = ITEM_INDEX( item );
+			client->pers.weapon = item;
+			client->pers.lastweapon = item;
+		}
+	}
+	client->curr_weap = client->pers.weapon->typeNum;
+
+
+	client->pers.health = 100;
+	client->pers.max_health = 100;
+	
+	client->max_pistolmags = 2;
+	client->max_shells = 14;
+	client->max_mp5mags = 2;
+	client->max_m4mags = 1;
+	client->max_sniper_rnds = 20;
+
+	client->knife_max = 10;
+	client->grenade_max = 2;
+
+	client->mk23_max = 12;
+	client->mp5_max = 30;
+	client->m4_max = 24;
+	client->shot_max = 7;
+	client->sniper_max = 6;
+	client->cannon_max = 2;
+	client->dual_max = 24;
+	if (WPF_ALLOWED( MK23_NUM )) {
+		client->mk23_rds = client->mk23_max;
+		client->dual_rds = client->mk23_max;
+	}
+
+	client->knife_max = 10;
+	client->grenade_max = 2;
+	client->desired_fov = 90;
 
 	// copy some data from the client to the entity
 	FetchClientEntData(ent);
@@ -2450,27 +2373,7 @@ void PutClientInServer(edict_t * ent)
 	VectorClear(ent->velocity);
 
 	// clear playerstate values
-	memset(&client->ps, 0, sizeof(client->ps));
-
-	client->ps.pmove.origin[0] = spawn_origin[0] * 8;
-	client->ps.pmove.origin[1] = spawn_origin[1] * 8;
-	client->ps.pmove.origin[2] = spawn_origin[2] * 8;
-
-	if (ctf->value) {
-		//AQ2:TNG Igor not quite sure about this (FIXME)
-		client->ps.pmove.pm_flags &= ~PMF_NO_PREDICTION;
-		//AQ2:TNG End
-	}
-	if (DMFLAGS(DF_FIXED_FOV)) {
-		client->ps.fov = 90;
-	} else {
-		client->ps.fov = atoi(Info_ValueForKey(client->pers.userinfo, "fov"));
-		if (client->ps.fov < 1)
-			client->ps.fov = 90;
-		else if (client->ps.fov > 160)
-			client->ps.fov = 160;
-	}
-
+	client->ps.fov = 90;
 	client->ps.gunindex = gi.modelindex(client->pers.weapon->view_model);
 
 	// clear entity state values
@@ -2488,6 +2391,10 @@ void PutClientInServer(edict_t * ent)
 	VectorCopy(ent->s.origin, ent->s.old_origin);
 	VectorCopy(ent->s.origin, ent->old_origin);
 
+	client->ps.pmove.origin[0] = ent->s.origin[0] * 8;
+	client->ps.pmove.origin[1] = ent->s.origin[1] * 8;
+	client->ps.pmove.origin[2] = ent->s.origin[2] * 8;
+
 	// set the delta angle
 	for (i = 0; i < 3; i++)
 		client->ps.pmove.delta_angles[i] = ANGLE2SHORT(spawn_angles[i] - client->resp.cmd_angles[i]);
@@ -2498,7 +2405,6 @@ void PutClientInServer(edict_t * ent)
 	VectorCopy(ent->s.angles, client->ps.viewangles);
 	VectorCopy(ent->s.angles, client->v_angle);
 
-	//FIREBLADE
 	if (teamplay->value) {
 		going_observer = StartClient(ent);
 	} else {
@@ -2523,50 +2429,6 @@ void PutClientInServer(edict_t * ent)
 
 	gi.linkentity( ent );
 
-	//zucc give some ammo
-	//item = FindItem("Pistol Clip");     
-	// Add_Ammo(ent,item,1);
-	client->mk23_max = 12;
-	client->mp5_max = 30;
-	client->m4_max = 24;
-	client->shot_max = 7;
-	client->sniper_max = 6;
-	client->cannon_max = 2;
-	client->dual_max = 24;
-	if (WPF_ALLOWED(MK23_NUM)) {
-		client->mk23_rds = client->mk23_max;
-		client->dual_rds = client->mk23_max;
-	} else {
-		client->mk23_rds = 0;
-		client->dual_rds = 0;
-	}
-	client->knife_max = 10;
-	client->grenade_max = 2;
-
-	ent->lasersight = NULL;
-
-	//other
-	client->resp.sniper_mode = SNIPER_1X;
-	client->bandaging = 0;
-	client->leg_damage = 0;
-	client->leg_noise = 0;
-	client->leg_dam_count = 0;
-	client->desired_fov = 90;
-	client->ps.fov = 90;
-	client->idle_weapon = 0;
-	client->drop_knife = 0;
-	client->no_sniper_display = 0;
-	client->knife_sound = 0;
-	client->doortoggle = 0;
-	client->have_laser = 0;
-	client->reload_attempts = 0;
-	client->weapon_attempts = 0;
-//TempFile
-	client->desired_zoom = 0;
-	client->autoreloading = false;
-//TempFile
-
-//FIREBLADE
 	if (!going_observer)
 	{
 		if ((int)uvtime->value > 0) {
@@ -2593,20 +2455,19 @@ void PutClientInServer(edict_t * ent)
 			PMenu_Close(ent);
 			return;
 		}
-//FIREBLADE
+
 		if (allweapon->value) {
 			AllWeapons(ent);
 		}
+
 		// force the current weapon up
 		client->newweapon = client->pers.weapon;
 		ChangeWeapon(ent);
 
-//FIREBLADE
 		if (teamplay->value) {
 			ent->solid = SOLID_TRIGGER;
 			gi.linkentity(ent);
 		}
-//FIREBLADE
 	}
 }
 
@@ -2626,17 +2487,6 @@ void ClientBeginDeathmatch(edict_t * ent)
 
 	InitClientResp(ent->client);
 
-//PG BUND - BEGIN
-	ent->client->resp.team = NOTEAM;
-
-	// if no auto equip, prompt for new weapon on level change
-	if (!auto_equip->value)
-		ent->client->resp.dm_selected = 0;
-
-	/*client->resp.last_killed_target = NULL;
-	   client->resp.killed_teammates = 0;
-
-	   client->resp.idletime = 0; - AQ2:TNG Slicer Moved this to InitClientResp */
 	ResetKills(ent);
 	TourneyNewPlayer(ent);
 	vInitClient(ent);
@@ -2744,14 +2594,12 @@ void ClientUserinfoChanged(edict_t * ent, char *userinfo)
 		}
 		strcpy(client->pers.netname, tnick);
 	}
-
-	//FIREBLADE     
+  
 	s = Info_ValueForKey(userinfo, "spectator");
 	client->pers.spectator = (strcmp(s, "0") != 0);
 
 	r = Info_ValueForKey(userinfo, "rate");
 	client->rate = atoi(r);
-	//FIREBLADE
 
 	// set skin
 	s = Info_ValueForKey(userinfo, "skin");
@@ -2761,11 +2609,12 @@ void ClientUserinfoChanged(edict_t * ent, char *userinfo)
 		Info_SetValueForKey(userinfo, "skin", "male/grunt");
 		s = Info_ValueForKey(userinfo, "skin");
 	}
-	// End $$ Skin server crash bug
-
 
 	// combine name and skin into a configstring
 	AssignSkin(ent, s, nickChanged);
+
+
+	client->ps.fov = 90;
 
 	client->pers.firing_style = ACTION_FIRING_CENTER;
 	// handedness
@@ -2788,10 +2637,6 @@ void ClientUserinfoChanged(edict_t * ent, char *userinfo)
 	} else {
 		client->pers.gender = GENDER_NEUTRAL;
 	}
-
-	// zucc vwep
-	ShowGun(ent);
-
 }
 
 /*
@@ -2808,18 +2653,17 @@ loadgames will.
 */
 qboolean ClientConnect(edict_t * ent, char *userinfo)
 {
-	char *value, *ipaddr;
-	char ipaddr_buf[100];
+	char *value, ipaddr_buf[64];
 	int tempBan = 0;
 
 	// check to see if they are on the banned IP list
-	ipaddr = Info_ValueForKey(userinfo, "ip");
+	value = Info_ValueForKey( userinfo, "ip" );
 
-	if (strlen(ipaddr) > sizeof(ipaddr_buf) - 1)
+	if (strlen(value) > sizeof(ipaddr_buf) - 1)
 		gi.dprintf("ipaddr_buf length exceeded\n");
-	Q_strncpyz(ipaddr_buf, ipaddr, sizeof(ipaddr_buf));
+	Q_strncpyz(ipaddr_buf, value, sizeof(ipaddr_buf));
 
-	if (SV_FilterPacket(ipaddr, &tempBan)) {
+	if (SV_FilterPacket(ipaddr_buf, &tempBan)) {
 		userinfo[0] = '\0';
 		if(tempBan)
 			Info_SetValueForKey(userinfo, "rejmsg", va("Temporary banned for %i games.", tempBan));
@@ -2841,25 +2685,16 @@ qboolean ClientConnect(edict_t * ent, char *userinfo)
 	// they can connect
 	ent->client = game.clients + (ent - g_edicts - 1);
 
-	ent->client->resp.stat_mode = 0;
-	ent->client->team_kills = 0;
-	ent->client->team_wounds = 0;
-	ent->client->team_wounds_before = 0;
-
 	ResetKills(ent);
 
 	// We're not going to attempt to support reconnection...
-	if (ent->inuse == true) {
+	if (ent->client->pers.connected) {
 		ClientDisconnect(ent);
-		ent->inuse = false;
 	}
 
-	if (ent->inuse == false) {
-		// clear the respawning variables
-		InitClientResp(ent->client);
-		if (!game.autosaved || !ent->client->pers.weapon)
-			InitClientPersistant(ent->client);
-	}
+	// clear the respawning variables
+	memset( &ent->client->resp, 0, sizeof( ent->client->resp ) );
+	InitClientPersistant(ent->client);
 
 	ClientUserinfoChanged(ent, userinfo);
 
@@ -2868,7 +2703,7 @@ qboolean ClientConnect(edict_t * ent, char *userinfo)
 		IRC_printf(IRC_T_SERVER, "%n@%s connected", ent->client->pers.netname, ipaddr_buf);
 	}
 
-	Q_strncpyz(ent->client->ipaddr, ipaddr_buf, sizeof(ent->client->ipaddr));
+	Q_strncpyz(ent->client->pers.ip, ipaddr_buf, sizeof(ent->client->pers.ip));
 
 	ent->svflags = 0;
 
@@ -2886,13 +2721,14 @@ Will not be called between levels.
 */
 void ClientDisconnect(edict_t * ent)
 {
-	int playernum, i;
+	int i;
 	edict_t *etemp;
 
 	if (!ent->client)
 		return;
 
 	MM_LeftTeam( ent );
+	ent->client->resp.team = 0;
 
 	// reset item and weapon on disconnect
 	ent->client->resp.item = NULL;
@@ -2914,16 +2750,27 @@ void ClientDisconnect(edict_t * ent)
 	if (ent->flashlight)
 		FL_make(ent);
 
-	if (teamplay->value && ent->solid == SOLID_TRIGGER)
+	if (ent->solid == SOLID_TRIGGER)
 		RemoveFromTransparentList(ent);
 
 	gi.bprintf(PRINT_HIGH, "%s disconnected\n", ent->client->pers.netname);
 	IRC_printf(IRC_T_SERVER, "%n disconnected", ent->client->pers.netname);
 
+	if (!teamplay->value && !ent->client->pers.spectator) {
+		// send effect
+		gi.WriteByte( svc_muzzleflash );
+		gi.WriteShort( ent - g_edicts );
+		gi.WriteByte( MZ_LOGOUT );
+		gi.multicast( ent->s.origin, MULTICAST_PVS );
+	}
+
+	if (use_ghosts->value)
+		CreateGhost( ent );
+
 	// go clear any clients that have this guy as their attacker
-	for (i = 1; i <= game.maxclients; i++) {
-		if ((etemp = &g_edicts[i]) && etemp->inuse) {
-			if (etemp->client->attacker == ent)
+	for (i = 1, etemp = g_edicts + 1; i <= game.maxclients; i++, etemp++) {
+		if (etemp->inuse) {
+			if (etemp->client && etemp->client->attacker == ent)
 				etemp->client->attacker = NULL;
 			if (etemp->enemy == ent)	// AQ:TNG - JBravo adding tkok
 				etemp->enemy = NULL;
@@ -2933,29 +2780,22 @@ void ClientDisconnect(edict_t * ent)
 	TourneyRemovePlayer(ent);
 	vClientDisconnect(ent);	// client voting disconnect
 
-	if (use_ghosts->value)
-		CreateGhost(ent);
-
 	if (ctf->value)
 		CTFDeadDropFlag(ent);
 
-	if (!teamplay->value) {
-		// send effect
-		gi.WriteByte(svc_muzzleflash);
-		gi.WriteShort(ent - g_edicts);
-		gi.WriteByte(MZ_LOGOUT);
-		gi.multicast(ent->s.origin, MULTICAST_PVS);
-	}
-
 	gi.unlinkentity(ent);
+
 	ent->s.modelindex = 0;
+	ent->s.modelindex2 = 0;
+	ent->s.sound = 0;
+	ent->s.event = 0;
+	ent->s.effects = 0;
+	ent->s.renderfx = 0;
+	ent->s.solid = 0;
 	ent->solid = SOLID_NOT;
 	ent->inuse = false;
 	ent->classname = "disconnected";
 	ent->client->pers.connected = false;
-
-	playernum = ent - g_edicts - 1;
-	gi.configstring(CS_PLAYERSKINS + playernum, "");
 }
 
 void CreateGhost(edict_t * ent)
@@ -2970,7 +2810,7 @@ void CreateGhost(edict_t * ent)
 	for (x = 0; x < num_ghost_players; x++) {
 		if (duplicate == true) {
 			ghost_players[x - 1] = ghost_players[x];
-		} else if (strcmp(ghost_players[x].ipaddr, ent->client->ipaddr) == 0 &&
+		} else if (strcmp(ghost_players[x].ip, ent->client->pers.ip) == 0 &&
 			   strcmp(ghost_players[x].netname, ent->client->pers.netname) == 0) {
 			duplicate = true;
 		}
@@ -2981,7 +2821,7 @@ void CreateGhost(edict_t * ent)
 
 	if (num_ghost_players < MAX_GHOSTS) {
 
-		strcpy(ghost_players[num_ghost_players].ipaddr, ent->client->ipaddr);
+		strcpy(ghost_players[num_ghost_players].ip, ent->client->pers.ip);
 		strcpy(ghost_players[num_ghost_players].netname, ent->client->pers.netname);
 
 		ghost_players[num_ghost_players].enterframe = ent->client->resp.enterframe;

@@ -710,7 +710,6 @@ typedef struct
   // items
   int num_items;
 
-  qboolean autosaved;
 }
 game_locals_t;
 
@@ -1368,6 +1367,7 @@ typedef struct
 {
   char userinfo[MAX_INFO_STRING];
   char netname[16];
+  char ip[64];
   int hand;
 
   qboolean connected;		// a loadgame will leave valid entities that
@@ -1381,14 +1381,6 @@ typedef struct
   int selected_item;
   int inventory[MAX_ITEMS];
 
-  // ammo capacities
-  int max_bullets;
-  int max_shells;
-  int max_rockets;
-  int max_grenades;
-  int max_cells;
-  int max_slugs;
-
   gitem_t *weapon;
   gitem_t *lastweapon;
 
@@ -1396,9 +1388,6 @@ typedef struct
   gender_t	gender;
   qboolean spectator;
   int firing_style;
-  //FIREBLADE
-
-  int num_kills;		//TempFile
 }
 client_persistant_t;
 
@@ -1439,13 +1428,18 @@ typedef struct
 
 
   radio_t radio;
+  int num_kills;
 
   int motd_refreshes;
   int last_motd_refresh;
   edict_t *last_chase_target;	// last person they chased, to resume at the same place later...
 
   edict_t *last_killed_target[MAX_LAST_KILLED];
-  int killed_teammates;
+
+  // Number of team kills this game
+  int team_kills;
+  int team_wounds;
+  
   int idletime;
   int tourneynumber;
   edict_t *kickvote;
@@ -1596,7 +1590,14 @@ struct gclient_s
 
   int respawn_time;		// can respawn when time > this
   // zucc
-  // weapon ammo information
+  
+
+  // ammo capacities
+  int max_pistolmags;
+  int max_shells;
+  int max_mp5mags;
+  int max_m4mags;
+  int max_sniper_rnds;
 
   int mk23_max;
   int mk23_rds;
@@ -1607,18 +1608,16 @@ struct gclient_s
   int shot_rds;
   int sniper_max;
   int sniper_rds;
-
   int mp5_max;
   int mp5_rds;
-
   int m4_max;
   int m4_rds;
-
   int cannon_max;
   int cannon_rds;
   int knife_max;
-
   int grenade_max;
+
+
   int curr_weap;		// uses NAME_NUM values
 
   int fired;			// keep track of semi auto
@@ -1670,18 +1669,9 @@ struct gclient_s
 
   qboolean autoreloading;	//used for dual -> mk23 change with reloading
 
-  // Number of team kills this game
-  int team_kills;
-
-  //EEK
   // Number of teammate woundings this game and a "before attack" tracker
-  int team_wounds;
   int team_wounds_before;
   int ff_warning;
-
-  // IP address of this host to be collected at Connection time.
-  // (getting at it later seems to be unreliable)
-  char ipaddr[100];		// changed to 100  -FB
 
   int desired_zoom;		//either 0, 1, 2, 4 or 6. This is set to 0 if no zooming shall be done, and is set to 0 after zooming is done.
 
@@ -1870,8 +1860,8 @@ struct edict_s
 
 typedef struct
 {
-	char ipaddr[100];
 	char netname[16];
+	char ip[64];
 	int enterframe;
         int disconnect_frame;
 	int score;

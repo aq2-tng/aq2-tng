@@ -316,8 +316,8 @@ qboolean Pickup_Weapon (edict_t * ent, edict_t * other)
 		{
 			other->client->cannon_rds = other->client->cannon_max;
 			index2 = ITEM_INDEX (FindItem (ent->item->ammo));
-			if (other->client->pers.inventory[index2] + 5 > other->client->pers.max_shells)
-				other->client->pers.inventory[index2] = other->client->pers.max_shells;
+			if (other->client->pers.inventory[index2] + 5 > other->client->max_shells)
+				other->client->pers.inventory[index2] = other->client->max_shells;
 			else
 				other->client->pers.inventory[index2] += 5;
 		}
