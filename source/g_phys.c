@@ -864,7 +864,8 @@ SV_Physics_Toss (edict_t * ent)
     {
       if (!ent->splatted)
 	{
-	  AddSplat (ent->owner, ent->s.origin, &trace);
+          if ( trace.surface && (!( trace.ent && trace.ent->takedamage )) && ! (trace.surface->flags & SURF_SKY) )
+	    AddSplat (ent->owner, ent->s.origin, &trace);
 	  ent->splatted = true;
 	}
 
@@ -1105,11 +1106,11 @@ G_RunEntity (edict_t * ent)
 
   switch ((int) ent->movetype)
     {
-// ACEBOT_ADD
+#ifndef NO_BOTS
     case MOVETYPE_WALK:
       SV_RunThink (ent);
       break;
-// ACEBOT_END
+#endif
     case MOVETYPE_PUSH:
     case MOVETYPE_STOP:
       SV_Physics_Pusher (ent);

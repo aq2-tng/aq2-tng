@@ -47,10 +47,10 @@ void BOTAI_SetGoal(edict_t *self, int goal_node)
 
 void BOTAI_PickShortRangeGoal(edict_t *bot)
 {
-	edict_t *pTarget;
-	float fWeight,fBestWeight=0.0;
-	edict_t *pBest;
-	int index;
+	edict_t *pTarget = NULL;
+	float fWeight = 0.f, fBestWeight = 0.0;
+	edict_t *pBest = NULL;
+	int index = 0;
 	
 	// look for a target (should make more efficient later)
 	pTarget = findradius(NULL, bot->s.origin, 200);
@@ -119,12 +119,12 @@ void BOTAI_PickShortRangeGoal(edict_t *bot)
 void BOTAI_PickLongRangeGoal(edict_t *bot, int	iType)
 {
 
-	int i;
-	int node;
-	float fWeight,fBestWeight=0.0;
-	int current_node,goal_node;
-	edict_t *goal_ent;
-	float fCost;
+	int i = 0;
+	int node = 0;
+	float fWeight = 0.f,fBestWeight = 0.0;
+	int current_node = 0, goal_node = 0;
+	edict_t *goal_ent = NULL;
+	float fCost = 0.f;
 	
 	// look for a target 
 	current_node = ACEND_FindClosestReachableNode(bot,NODE_DENSITY,NODE_ALL);

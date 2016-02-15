@@ -71,6 +71,28 @@ From 2.81
 + Disable leg damage sound when falling and fall damage disabled
 + New cvar "motdname" which tells which file to read the MOTD from
 + Better auto joining which calculates the correct team when you select "Auto-join team" from menu rather select the correct menu item for you
+- Fixed all compiler warnings for gcc 4.8 with -Wall on Linux x86_64.
++ Added automatic detection of MinGW environment to Makefile.
+- Chase camera no longer gets stuck up or down after in-eyes spectating someone who looks wildly up or down (usually bots).
+- Center-handed weapon icon for in-eyes spectator now reflects your 'hand' setting rather than the person you're watching.
++ Added 'hud_team_icon', 'hud_item_cycle', and 'hud_noscore' to let server admins tweak the hud elements a bit.  Default teamplay HUD no longer has your frags.
+- HUD elements like health and ammo no longer show up when free spectating.
++ Added 'allow_hoarding' to control whether players are allowed to carry multiple of the same unique weapon or special item (by default they can't anymore).
++ Added 'use_flashlight' option so server admin can decide to allow the flashlight in non-darkmatch.
+- No more lasersight or splats on the sky.
+- Splats and bulletholes now stick to moving objects.
++ Added 'bholelife', 'splatlife', 'shelllife', and 'shelllimit' to give server operators greater control over these effects.  Default values retain old behavior.
++ Teamplay scoreboard page 2 now shows team, kills, and deaths in all submodes.  Disabled 'use_newscore' by default because it's fairly redundant now.
+- If you enable 'use_newscore', it can also show 3-team scores.
+- Changed items names for "clips" to "magazines" and "machinegun" to "MP5".
++ Added 'sv slap' command.  Admins can use it to unstick players, or just for fun.  With great power comes great responsibility.
+- Chat replacements (like %k) now work when dead too, and invalid options no longer attempt to resolve as printf replacements.
+- Fixed some issues with "%" in voting printf statements.
+- Clients no longer get additional map votes to spend when the map changes by other means.
+* Bots branch no longer messes up multiplayer view models (player_state_t was not the expected size).
+- Tweaked bot aiming so they're not such ridiculous crack shots in certain circumstances.
+- Bots are no longer counted in voting, and you can kickvote bots with any number of players (minimum is ignored).
++ Added optional gender to 'botdata.cfg' parsing.
 
 From 2.8
 - Radio kill count was missing for falling death

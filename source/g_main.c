@@ -299,7 +299,10 @@ cvar_t *limchasecam;
 cvar_t *roundlimit;
 cvar_t *skipmotd;
 cvar_t *nohud;
+cvar_t *hud_team_icon;
+cvar_t *hud_items_cycle;
 cvar_t *noscore;
+cvar_t *hud_noscore;
 cvar_t *use_newscore;
 cvar_t *actionversion;
 cvar_t *needpass;
@@ -353,9 +356,7 @@ cvar_t *bob_up;
 cvar_t *bob_pitch;
 cvar_t *bob_roll;
 cvar_t *sv_cheats;
-cvar_t *flood_msgs;
-cvar_t *flood_persecond;
-cvar_t *flood_waitdelay;
+cvar_t *flood_threshold;
 cvar_t *unique_weapons;
 cvar_t *unique_items;
 cvar_t *ir;
@@ -368,9 +369,14 @@ cvar_t *flashtime;*/
 //SLIC2
 cvar_t *allweapon;
 cvar_t *allitem;
+cvar_t *allow_hoarding;
 cvar_t *sv_shelloff;
+cvar_t *shelllimit;
+cvar_t *shelllife;
 cvar_t *bholelimit;
 cvar_t *splatlimit;
+cvar_t *bholelife;
+cvar_t *splatlife;
 cvar_t *check_time;		// Time to wait before checks start ?
 cvar_t *video_check;
 cvar_t *video_checktime;
@@ -386,7 +392,9 @@ cvar_t *itm_flags;		// Item Banning
 cvar_t *matchmode;
 cvar_t *darkmatch;		// Darkmatch
 cvar_t *day_cycle;		// If darkmatch is on, this value is the nr of seconds between each interval (day, dusk, night, dawn)
+cvar_t *use_flashlight;         // Allow flashlight when not darkmatch?
 cvar_t *hearall;		// used for matchmode
+cvar_t *deadtalk;
 
 cvar_t *mm_forceteamtalk;
 cvar_t *mm_adminpwd;
@@ -435,13 +443,15 @@ cvar_t *radio_repeat;		// same as radio_max, only for repeats
 cvar_t *radio_repeat_time;
 
 cvar_t *use_classic;		// Used to reset spread/gren strength to 1.52
+cvar_t *warmup;
 
-// BOTS
+#ifndef NO_BOTS
 cvar_t *ltk_jumpy;
 cvar_t *ltk_skill;
 cvar_t *ltk_showpath;
 cvar_t *ltk_chat;
 cvar_t *ltk_routing;
+#endif
 
 int pause_time = 0;
 
@@ -477,9 +487,9 @@ void ShutdownGame (void)
 	gi.dprintf ("==== ShutdownGame ====\n");
 	IRC_printf (IRC_T_SERVER, "==== ShutdownGame ====");
 	IRC_exit ();
-// ACEBOT ADD
+#ifndef NO_BOTS
 	ACECM_Store();
-// ACEBOT END
+#endif
 	//PG BUND
 	vExitGame ();
 	gi.FreeTags (TAG_LEVEL);
@@ -500,7 +510,7 @@ void ShutdownGame (void)
 game_export_t *GetGameAPI (game_import_t * import)
 {
 	gi = *import;
-
+#ifndef NO_BOTS
 	/* proxy all calls trough the bot safe functions */
 	real_cprintf = gi.cprintf;
 	real_bprintf = gi.bprintf;
@@ -508,7 +518,7 @@ game_export_t *GetGameAPI (game_import_t * import)
 	gi.cprintf = safe_cprintf;
 	gi.bprintf = safe_bprintf;
 	gi.centerprintf = safe_centerprintf;
-
+#endif
 	globals.apiversion = GAME_API_VERSION;
 	globals.Init = InitGame;
 	globals.Shutdown = ShutdownGame;
@@ -620,9 +630,9 @@ void EndDMLevel (void)
 	struct tm *now;
 	time_t tnow;
 
-// ACEBOT ADD
+#ifndef NO_BOTS
 	ACECM_Store();
-// ACEBOT END
+#endif
 
 	tnow = time ((time_t *) 0);
 	now = localtime (&tnow);
@@ -1062,8 +1072,11 @@ void G_RunFrame (void)
 				// TNG Stats End
 
 				ClientBeginServerFrame (ent);
+
+#ifndef NO_BOTS
 				// allow bots to think
 				if(!ent->is_bot)
+#endif
 					continue;
 			}
 

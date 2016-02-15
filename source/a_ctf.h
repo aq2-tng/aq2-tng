@@ -101,6 +101,9 @@ char *CTFTeamName (int team);
 char *CTFOtherTeamName (int team);
 void CTFAssignTeam (gclient_t * who);
 edict_t *SelectCTFSpawnPoint (edict_t * ent);
+
+void CTFResetFlags(void);
+
 qboolean CTFPickup_Flag (edict_t * ent, edict_t * other);
 void CTFDrop_Flag (edict_t * ent, gitem_t * item);
 void CTFEffects (edict_t * player);

@@ -54,10 +54,9 @@ qboolean ACECM_Commands(edict_t *ent)
 		ACEND_UpdateNodeEdge(ent, atoi(gi.argv(1)), atoi(gi.argv(2)));
 	
 	else if(Q_stricmp (cmd, "showpath") == 0 && debug_mode)
-    	ACEND_ShowPath(ent,atoi(gi.argv(1)));
+		ACEND_ShowPath(ent,atoi(gi.argv(1)));
 
-	// Added check for shownodes_mode, pointless doing this if it's on.
-	else if(Q_stricmp (cmd, "shownode") == 0 && debug_mode && !shownodes_mode)
+	else if(Q_stricmp (cmd, "shownode") == 0 && debug_mode)
 		ACEND_ShowNode(atoi(gi.argv(1)));
 
 	else if(Q_stricmp (cmd, "findnode") == 0 && debug_mode)
@@ -69,11 +68,32 @@ qboolean ACECM_Commands(edict_t *ent)
 	else if(Q_stricmp (cmd, "movenode") == 0 && debug_mode)
 	{
 		node = atoi(gi.argv(1));
-		nodes[node].origin[0] = atof(gi.argv(2));
-		nodes[node].origin[1] = atof(gi.argv(3));
-		nodes[node].origin[2] = atof(gi.argv(4));
+
+		if( gi.argc() >= 5 )
+		{
+			nodes[node].origin[0] = atof(gi.argv(2));
+			nodes[node].origin[1] = atof(gi.argv(3));
+			nodes[node].origin[2] = atof(gi.argv(4));
+		}
+		else
+		{
+			VectorCopy( ent->s.origin, nodes[node].origin );
+			nodes[node].origin[2] += 8;
+		}
+
 		safe_bprintf(PRINT_MEDIUM,"node: %d moved to x: %f y: %f z %f\n",node, nodes[node].origin[0],nodes[node].origin[1],nodes[node].origin[2]);
 	}
+
+	else if(Q_stricmp (cmd, "nodetype") == 0 && debug_mode)
+	{
+		node = atoi(gi.argv(1));
+
+		if( gi.argc() >= 3 )
+			nodes[node].type = atoi(gi.argv(2));
+
+		safe_bprintf(PRINT_MEDIUM,"node %d type %d\n", node, nodes[node].type);
+	}
+
 	else
 		return false;
 
@@ -86,6 +106,10 @@ qboolean ACECM_Commands(edict_t *ent)
 ///////////////////////////////////////////////////////////////////////
 void ACECM_Store()
 {
+	// Stop overwriting good node tables with bad!
+	if( numnodes < 100 )
+		return;
+
 	ACEND_SaveNodes();
 }
 
@@ -109,12 +133,13 @@ void debug_printf(char *fmt, ...)
 {
 	int     i;
 	char	bigbuffer[0x10000];
-	int		len;
+	//int	len;
 	va_list	argptr;
 	edict_t	*cl_ent;
 	
 	va_start (argptr,fmt);
-	len = vsprintf (bigbuffer,fmt,argptr);
+	//len = vsprintf (bigbuffer,fmt,argptr);
+	vsprintf (bigbuffer,fmt,argptr);
 	va_end (argptr);
 
 	if (dedicated->value)
@@ -138,13 +163,14 @@ void safe_cprintf (edict_t *ent, int printlevel, char *fmt, ...)
 {
 	char	bigbuffer[0x10000];
 	va_list		argptr;
-	int len;
+	//int len;
 
 	if (ent && (!ent->inuse || ent->is_bot))
 		return;
 
 	va_start (argptr,fmt);
-	len = vsprintf (bigbuffer,fmt,argptr);
+	//len = vsprintf (bigbuffer,fmt,argptr);
+	vsprintf (bigbuffer,fmt,argptr);
 	va_end (argptr);
 
 	real_cprintf(ent, printlevel, bigbuffer);
@@ -158,13 +184,14 @@ void safe_centerprintf (edict_t *ent, char *fmt, ...)
 {
 	char	bigbuffer[0x10000];
 	va_list		argptr;
-	int len;
+	//int len;
 
 	if (!ent->inuse || ent->is_bot)
 		return;
 	
 	va_start (argptr,fmt);
-	len = vsprintf (bigbuffer,fmt,argptr);
+	//len = vsprintf (bigbuffer,fmt,argptr);
+	vsprintf (bigbuffer,fmt,argptr);
 	va_end (argptr);
 	
 	real_centerprintf(ent, bigbuffer);
@@ -178,12 +205,13 @@ void safe_bprintf (int printlevel, char *fmt, ...)
 {
 	int i;
 	char	bigbuffer[0x10000];
-	int		len;
-	va_list		argptr;
+	//int	len;
+	va_list	argptr;
 	edict_t	*cl_ent;
 
 	va_start (argptr,fmt);
-	len = vsprintf (bigbuffer,fmt,argptr);
+	//len = vsprintf (bigbuffer,fmt,argptr);
+	vsprintf (bigbuffer,fmt,argptr);
 	va_end (argptr);
 
 	if (dedicated->value)

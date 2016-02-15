@@ -224,6 +224,9 @@ void LaserSightThink(edict_t * self)
 
 	vectoangles(tr.plane.normal, self->s.angles);
 	VectorCopy(tr.endpos, self->s.origin);
+
+	self->s.modelindex = (tr.surface && (tr.surface->flags & SURF_SKY)) ? gi.modelindex("sprites/null.sp2") : gi.modelindex("sprites/lsight.sp2");
+
 	gi.linkentity(self);
 	self->nextthink = level.time + 0.1;
 }
@@ -1158,6 +1161,7 @@ void Cmd_Ghost_f(edict_t * ent)
 	}
 }
 
+#ifndef NO_BOTS
 void Cmd_Placenode_f (edict_t *ent)
 {
 	if(ent->waterlevel)
@@ -1165,3 +1169,4 @@ void Cmd_Placenode_f (edict_t *ent)
 	else
 		ACEND_AddNode(ent,NODE_MOVE);
 }
+#endif

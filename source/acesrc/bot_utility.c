@@ -126,10 +126,10 @@ void BOTUT_ShowNodes (edict_t *ent)
 
 void BOTUT_Cmd_Say_f (edict_t *ent, char *pMsg)
 {
-    int     j, i, offset_of_text;
+    int     j, /*i,*/ offset_of_text;
     edict_t *other;
     char    text[2048];
-    gclient_t *cl;
+    //gclient_t *cl;
 
 
     if (!teamplay->value)
@@ -163,6 +163,7 @@ void BOTUT_Cmd_Say_f (edict_t *ent, char *pMsg)
 
     strcat(text, "\n");
 
+/*
     if (flood_msgs->value)
     {
         cl = ent->client;
@@ -184,6 +185,7 @@ void BOTUT_Cmd_Say_f (edict_t *ent, char *pMsg)
                         (sizeof(cl->flood_when)/sizeof(cl->flood_when[0]));
         cl->flood_when[cl->flood_whenhead] = level.time;
     }
+*/
 
     if (dedicated->value)
             safe_cprintf(NULL, PRINT_CHAT, "%s", text);

@@ -320,6 +320,8 @@
 #include "m_player.h"
 #include "cgf_sfx_glass.h"
 
+void Cmd_Inven_f( edict_t *ent );
+
 void ClientUserinfoChanged(edict_t * ent, char *userinfo);
 void ClientDisconnect(edict_t * ent);
 void SP_misc_teleporter_dest(edict_t * ent);
@@ -329,6 +331,9 @@ void Add_Frag(edict_t * ent)
 {
 	char buf[256];
 	int frags = 0;
+
+	if (in_warmup)
+		return;
 
 	ent->client->resp.kills++;
 
@@ -735,7 +740,11 @@ void PrintDeathMessage(char *msg, edict_t * gibee)
 
 	for (j = 1; j <= game.maxclients; j++) {
 		other = &g_edicts[j];
+#ifndef NO_BOTS
 		if (!other->inuse || !other->client || other->is_bot)
+#else
+		if (!other->inuse || !other->client)
+#endif
 			continue;
 
 		// only print if he's NOT gibee, NOT attacker, and NOT alive! -TempFile
@@ -1377,7 +1386,8 @@ void EjectWeapon(edict_t * ent, gitem_t * item)
 		drop = Drop_Item(ent, item);
 		ent->client->v_angle[YAW] += spread;
 		drop->spawnflags = DROPPED_PLAYER_ITEM;
-		drop->think = temp_think_specweap;
+		if (!in_warmup)
+			drop->think = temp_think_specweap;
 	}
 
 }
@@ -1858,13 +1868,15 @@ void InitClientResp(gclient_t * client)
 	gitem_t *weapon = client->resp.weapon;
 	qboolean menu_shown = client->resp.menu_shown;
 	qboolean dm_selected = client->resp.dm_selected;
+	char *mapvote = client->resp.mapvote;
 
 	memset(&client->resp, 0, sizeof(client->resp));
 	client->resp.team = team;
 	client->resp.enterframe = level.framenum;
 	client->resp.coop_respawn = client->pers;
+	client->resp.mapvote = mapvote;
 
-	if (!dm_choose->value) {
+	if (!dm_choose->value && !warmup->value) {
 		if ((int) wp_flags->value & WPF_MP5) {
 			client->resp.weapon = GET_ITEM(MP5_NUM);
 		} else if ((int) wp_flags->value & WPF_MK23) {
@@ -2170,7 +2182,7 @@ void SelectSpawnPoint(edict_t * ent, vec3_t origin, vec3_t angles)
 	//FIREBLADE
 	if (ctf->value)
 		spot = SelectCTFSpawnPoint(ent);
-	else if (teamplay->value && !teamdm->value && ent->client->resp.team != NOTEAM) {
+	else if (teamplay->value && !teamdm->value && ent->client->resp.team != NOTEAM && !in_warmup) {
 		spot = SelectTeamplaySpawnPoint(ent);
 	} else {
 		//FIREBLADE
@@ -2311,13 +2323,13 @@ void CleanBodies()
 void respawn(edict_t * self)
 {
 	if (deathmatch->value || coop->value) {
-// ACEBOT_ADD special respawning code
+#ifndef NO_BOTS
 		if (self->is_bot)
 		{
 			ACESP_Respawn (self);
 			return;
 		}
-// ACEBOT_END
+#endif
 //FIREBLADE
 		if (self->solid != SOLID_NOT || self->deadflag == DEAD_DEAD)
 //FIREBLADE
@@ -2768,7 +2780,7 @@ void PutClientInServer(edict_t * ent)
 	client->team_wounds = save_team_wounds;
 	client->team_kills = save_team_kills;
 
-	if (save_ipaddr && client->ipaddr)
+	if (client->ipaddr)
 		strcpy(client->ipaddr, save_ipaddr);
 //FF
 	if (client->pers.health <= 0)
@@ -2799,12 +2811,13 @@ void PutClientInServer(edict_t * ent)
 	ent->flags &= ~FL_NO_KNOCKBACK;
 	ent->svflags &= ~SVF_DEADMONSTER;
 
-// ACEBOT_ADD
+#ifndef NO_BOTS
 	ent->is_bot = false;
 	ent->last_node = -1;
 	ent->is_jumping = false;
 	ent->is_triggering = false;
-// ACEBOT_END
+	ent->grenadewait = 0;
+#endif
 
 //FIREBLADE
 	if (!teamplay->value || ent->client->resp.team != NOTEAM) {
@@ -2900,7 +2913,7 @@ void PutClientInServer(edict_t * ent)
 	gi.linkentity(ent);
 
 	//zucc give some ammo
-	//item = FindItem("Pistol Clip");     
+	//item = FindItem(MK23_AMMO_NAME);
 	// Add_Ammo(ent,item,1);
 	client->mk23_max = 12;
 	client->mp5_max = 30;
@@ -2976,9 +2989,9 @@ void PutClientInServer(edict_t * ent)
 	}
 }
 
-// ACEBOT_ADD
-char current_map[55];
-// ACEBOT_END
+#ifndef NO_BOTS
+char current_map[55] = "";
+#endif
 
 /*
 =====================
@@ -3010,9 +3023,9 @@ void ClientBeginDeathmatch(edict_t * ent)
 	vInitClient(ent);
 //PG BUND - END
 
-// ACEBOT_ADD
+#ifndef NO_BOTS
 	ACEIT_PlayerAdded(ent);
-// ACEBOT_END
+#endif
 
 	// locate ent at a spawn point
 	PutClientInServer(ent);
@@ -3052,7 +3065,7 @@ void ClientBeginDeathmatch(edict_t * ent)
 	ent->client->resp.motd_refreshes = 1;
 //FIREBLADE
 
-// ACEBOT_ADD
+#ifndef NO_BOTS
 	// If the map changes on us, init and reload the nodes
 	if(strcmp(level.mapname,current_map))
 	{
@@ -3068,8 +3081,7 @@ void ClientBeginDeathmatch(edict_t * ent)
 		}
 */		strcpy(current_map,level.mapname);
 	}
-
-// ACEBOT_END
+#endif
 
 	//AQ2:TNG - Slicer: Set time to check clients
 	ent->client->resp.checktime[0] = level.time + check_time->value;
@@ -3305,7 +3317,11 @@ qboolean ClientConnect(edict_t * ent, char *userinfo)
 
 	// We're not going to attempt to support reconnection...
 	// FIXME: why is this here and what does it do? doesn't work with bots! -hifi
+#ifndef NO_BOTS
 	if (ent->inuse == true && ent->is_bot == false) {
+#else
+	if (ent->inuse == true) {
+#endif
 		ClientDisconnect(ent);
 		ent->inuse = false;
 	}
@@ -3388,9 +3404,9 @@ void ClientDisconnect(edict_t * ent)
 	gi.bprintf(PRINT_HIGH, "%s disconnected\n", ent->client->pers.netname);
 	IRC_printf(IRC_T_SERVER, "%n disconnected", ent->client->pers.netname);
 
-// ACEBOT_ADD
+#ifndef NO_BOTS
 	ACEIT_PlayerRemoved(ent);
-// ACEBOT_END
+#endif
 
 	// go clear any clients that have this guy as their attacker
 	for (i = 1; i <= maxclients->value; i++) {
@@ -3731,8 +3747,9 @@ void ClientThink(edict_t * ent, usercmd_t * ucmd)
 		client->resp.fire_time = level.framenum;
 		client->resp.punch_desired = false;
 		//TempFile
+		//
 
-		if (ent->solid == SOLID_NOT && ent->deadflag != DEAD_DEAD) {
+		if (ent->solid == SOLID_NOT && ent->deadflag != DEAD_DEAD && !in_warmup) {
 			client->latched_buttons = 0;
 			if (client->chase_mode) {
 				// AQ:TNG - JBravo fixing Limchasecam
@@ -3845,6 +3862,9 @@ void ClientBeginServerFrame(edict_t * ent)
 
 	client = ent->client;
 
+	if (client->penalty > 0 && level.framenum % 10 == 0)
+		client->penalty--;
+
 	// force spawn when weapon and item selected in dm
 	if (deathmatch->value && dm_choose->value && !teamplay->value && !client->resp.dm_selected) {
 		if (client->resp.weapon && (client->resp.item || itm_flags->value == 0)) {
@@ -3894,8 +3914,10 @@ void ClientBeginServerFrame(edict_t * ent)
 			{
 				if (ent->movetype != MOVETYPE_NOCLIP)	// have we already done this?  see above...
 				{
+#ifndef NO_BOTS
 					if(!ent->is_bot)
 					{
+#endif
 						CopyToBodyQue(ent);
 						ent->solid = SOLID_NOT;
 						ent->svflags |= SVF_NOCLIENT;
@@ -3906,6 +3928,7 @@ void ClientBeginServerFrame(edict_t * ent)
 						gi.linkentity(ent);
 						gi.bprintf(PRINT_HIGH, "%s became a spectator\n", ent->client->pers.netname);
 						IRC_printf(IRC_T_SERVER, "%n became a spectator", ent->client->pers.netname);
+#ifndef NO_BOTS
 					}
 					else
 					{
@@ -3919,6 +3942,7 @@ void ClientBeginServerFrame(edict_t * ent)
 						//safe_bprintf(PRINT_HIGH, "%s rejoined the game\n", ent->client->pers.netname);
 						respawn(ent);
 					}
+#endif
 				}
 			}
 		} else {
@@ -3966,7 +3990,7 @@ void ClientBeginServerFrame(edict_t * ent)
 				VectorCopy(ent->s.angles, client->v_angle);
 				gi.linkentity(ent);
 
-				if (teamplay->value) {
+				if (teamplay->value && !in_warmup) {
 					if(ent->client->resp.last_chase_target && ent->client->resp.last_chase_target->solid != SOLID_NOT
 							&& ent->client->resp.last_chase_target->deadflag != DEAD_DEAD)
 						ent->client->chase_target = ent->client->resp.last_chase_target;
@@ -4010,5 +4034,6 @@ void ClientBeginServerFrame(edict_t * ent)
 		client->resp.punch_desired = false;
 	}
 
-	client->latched_buttons = 0;
+	if (!in_warmup || ent->movetype != MOVETYPE_NOCLIP)
+		client->latched_buttons = 0;
 }

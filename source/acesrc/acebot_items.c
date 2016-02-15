@@ -72,8 +72,8 @@ void ACEIT_PlayerAdded(edict_t *ent)
 ///////////////////////////////////////////////////////////////////////
 void ACEIT_PlayerRemoved(edict_t *ent)
 {
-	int i;
-	int pos;
+	int i = 0;
+	int pos = 0;
 
 	// watch for 0 players
 	if(num_players == 0)
@@ -502,7 +502,7 @@ qboolean ACEIT_ChangeM4SpecialWeapon (edict_t *ent, gitem_t *item)
 	if (item == ent->client->pers.weapon)
 	{
 /*		//Do we have one in the chamber?
-        if( ent->client->weaponstate == WEAPON_END_MAG)
+		if( ent->client->weaponstate == WEAPON_END_MAG)
 		{
 			loaded = false;
 		}*/
@@ -553,19 +553,19 @@ qboolean ACEIT_ChangeMP5SpecialWeapon (edict_t *ent, gitem_t *item)
 	}
 
 	// Do we have ammo for it?
-//	if (item->ammo)
-//	{
-//		ammo_item = FindItem(item->ammo);
-		ammo_item = FindItem("Machinegun Magazine");
+	if (item->ammo)
+	{
+		ammo_item = FindItem(item->ammo);
+//		ammo_item = FindItem(MP5_AMMO_NAME);
 		ammo_index = ITEM_INDEX(ammo_item);
 		if (ent->client->pers.inventory[ammo_index] < 1)
 		{
-//			safe_bprintf(PRINT_HIGH,"Out of MP5 Clips\n");
+//			safe_bprintf(PRINT_HIGH,"Out of MP5 Mags\n");
 			clips = false;
 		}
 		else
 			clips = true;
-//	}
+	}
 	// check ammo
 	if( (ent->client->mp5_rds < 1) )
 	{

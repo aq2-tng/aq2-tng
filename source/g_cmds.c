@@ -214,6 +214,27 @@
 #include "g_local.h"
 #include "m_player.h"
 
+void Cmd_NextMap_f( edict_t *ent );
+#ifndef NO_BOTS
+void Cmd_Placenode_f( edict_t *ent );
+#endif
+
+qboolean FloodCheck (edict_t *ent)
+{
+	if (flood_threshold->value)
+	{
+		ent->client->penalty++;
+
+		if (ent->client->penalty > flood_threshold->value)
+		{
+			gi.cprintf (ent, PRINT_HIGH, "You can't talk for %d seconds.\n", ent->client->penalty - (int) flood_threshold->value);
+			return 1;
+		}
+	}
+
+	return 0;
+}
+
 
 char *ClientTeam (edict_t * ent)
 {
@@ -1269,10 +1290,11 @@ Cmd_Say_f
 */
 void Cmd_Say_f (edict_t * ent, qboolean team, qboolean arg0, qboolean partner_msg)
 {
-	int j, i, offset_of_text;
+	//int i;  // FIXME: This was never used.
+	int j, offset_of_text;
 	edict_t *other;
 	char *args, text[256], *s;
-	gclient_t *cl;
+	//gclient_t *cl;  // FIXME: This was never used.
 	int meing = 0, isadmin = 0;
 
 	if (gi.argc() < 2 && !arg0)
@@ -1449,7 +1471,7 @@ void Cmd_Say_f (edict_t * ent, qboolean team, qboolean arg0, qboolean partner_ms
 	if (strlen(text) >= 254)
 		text[254] = 0;
 	
-	if (ent->solid != SOLID_NOT && ent->deadflag != DEAD_DEAD)
+	//if (ent->solid != SOLID_NOT && ent->deadflag != DEAD_DEAD)  // Disabled so we parse dead chat too.
 	{
 		s = strchr(text + offset_of_text, '%');
 		if(s) {
@@ -1460,31 +1482,8 @@ void Cmd_Say_f (edict_t * ent, qboolean team, qboolean arg0, qboolean partner_ms
 
 	Q_strncatz(text, "\n", sizeof(text));
 
-	if (flood_msgs->value)
-	{
-		cl = ent->client;
-
-		if (realLtime < cl->flood_locktill)
-		{
-			gi.cprintf (ent, PRINT_HIGH, "You can't talk for %d more seconds.\n",
-					(int) (cl->flood_locktill - realLtime));
-			return;
-		}
-		i = cl->flood_whenhead - flood_msgs->value + 1;
-		if (i < 0)
-			i = (sizeof (cl->flood_when) / sizeof (cl->flood_when[0])) + i;
-		if (cl->flood_when[i] &&
-			realLtime - cl->flood_when[i] < flood_persecond->value)
-		{
-			cl->flood_locktill = realLtime + flood_waitdelay->value;
-			gi.cprintf (ent, PRINT_HIGH, "You can't talk for %d seconds.\n",
-				(int) flood_waitdelay->value);
-			return;
-		}
-		cl->flood_whenhead = (cl->flood_whenhead + 1) %
-			(sizeof (cl->flood_when) / sizeof (cl->flood_when[0]));
-		cl->flood_when[cl->flood_whenhead] = realLtime;
-	}
+	if (FloodCheck(ent))
+		return;
 	
 	if (dedicated->value) {
 		gi.cprintf (NULL, PRINT_CHAT, "%s", text);
@@ -1517,7 +1516,7 @@ void Cmd_Say_f (edict_t * ent, qboolean team, qboolean arg0, qboolean partner_ms
 		{
 			if ((ent->solid == SOLID_NOT || ent->deadflag == DEAD_DEAD) &&
 				(other->solid != SOLID_NOT && other->deadflag != DEAD_DEAD)
-				&& !ctf->value && !teamdm->value)	//AQ2:TNG Slicer
+				&& !ctf->value && !teamdm->value && !deadtalk->value)	//AQ2:TNG Slicer
 				continue;
 		}
 		//FIREBLADE
@@ -1593,10 +1592,10 @@ void ClientCommand (edict_t * ent)
 	// if (level.intermissiontime)
 	// return;
 
-// ACEBOT_ADD
+#ifndef NO_BOTS
 	if(ACECM_Commands(ent))
 		return;
-// ACEBOT_END
+#endif
 
 	cmd = gi.argv (0);
 
@@ -2036,6 +2035,7 @@ void ClientCommand (edict_t * ent)
 	{
 		Cmd_ResetScores_f(ent);
 	}
+#ifndef NO_BOTS
         else if (Q_stricmp (cmd, "placenode") == 0)
 	{
                 Cmd_Placenode_f (ent);
@@ -2045,6 +2045,7 @@ void ClientCommand (edict_t * ent)
 	{
 		ent->is_triggering = 1;
 	}
+#endif
 	else				// anything that doesn't match a command will be a chat
 		Cmd_Say_f (ent, false, true, false);
 }

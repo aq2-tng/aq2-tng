@@ -521,6 +521,8 @@ void InitGame (void)
 		gi.cvar_forceset("actionmaps", "0");
 	}
 	nohud = gi.cvar ("nohud", "0", CVAR_LATCH);
+	hud_team_icon = gi.cvar ("hud_team_icon", "1", 0);
+	hud_items_cycle = gi.cvar ("hud_items_cycle", "20", 0);
 	roundlimit = gi.cvar ("roundlimit", "0", CVAR_SERVERINFO);
 	limchasecam = gi.cvar ("limchasecam", "0", CVAR_LATCH);
 	skipmotd = gi.cvar ("skipmotd", "0", 0);
@@ -529,7 +531,8 @@ void InitGame (void)
 	twbanrounds = gi.cvar ("twbanrounds", "2", 0);
 	tkbanrounds = gi.cvar ("tkbanrounds", "2", 0);
 	noscore = gi.cvar ("noscore", "0", CVAR_LATCH);	// Was serverinfo
-	use_newscore = gi.cvar ("use_newscore", "1", 0);
+	hud_noscore = gi.cvar ("hud_noscore", "1", CVAR_LATCH); // Hide score from HUD in teamplay.
+	use_newscore = gi.cvar ("use_newscore", "0", 0);
 	actionversion =
 	gi.cvar ("actionversion", "none set", CVAR_SERVERINFO | CVAR_LATCH);
 	gi.cvar_set ("actionversion", ACTION_VERSION);
@@ -577,6 +580,7 @@ void InitGame (void)
 	itm_flags = gi.cvar ("itm_flags", "63", 0);	// 63 = ITF_SIL | ITF_SLIP | ITF_BAND | ITF_KEV | ITF_LASER | ITF_HELM 
 	matchmode = gi.cvar ("matchmode", "0", CVAR_SERVERINFO | CVAR_LATCH);
 	hearall = gi.cvar ("hearall", "0", 0);	// used in matchmode
+	deadtalk = gi.cvar ("deadtalk", "0", 0);
 
 	teamdm = gi.cvar ("teamdm", "0", CVAR_LATCH);
 	teamdm_respawn = gi.cvar ("teamdm_respawn", "2", 0);
@@ -630,6 +634,7 @@ void InitGame (void)
 	knifelimit = gi.cvar ("knifelimit", "40", 0);
 	allweapon = gi.cvar ("allweapon", "0", CVAR_SERVERINFO);
 	allitem = gi.cvar ("allitem", "0", CVAR_SERVERINFO);
+	allow_hoarding = gi.cvar ("allow_hoarding", "0", CVAR_LATCH);
 	tgren = gi.cvar ("tgren", "0", CVAR_SERVERINFO);
 	//SLIC2
 	/*flashgren = gi.cvar ("flashgren", "1", 0);
@@ -637,10 +642,15 @@ void InitGame (void)
 	flashtime = gi.cvar ("flashtime", "100", 0);*/
 	//SLIC2
 	sv_shelloff = gi.cvar ("shelloff", "1", 0);
+	shelllimit = gi.cvar ("shelllimit", "24", 0);
+	shelllife = gi.cvar ("shelllife", "1.2", 0);
 	bholelimit = gi.cvar ("bholelimit", "0", 0);
 	splatlimit = gi.cvar ("splatlimit", "0", 0);
+	bholelife = gi.cvar ("bholelife", "20", 0);
+	splatlife = gi.cvar ("splatlife", "25", 0);
 	darkmatch = gi.cvar ("darkmatch", "0", CVAR_LATCH);	// Darkmatch
 	day_cycle = gi.cvar ("day_cycle", "10", 0);	// Darkmatch cycle time.
+	use_flashlight = gi.cvar ("use_flashlight", "0", CVAR_SERVERINFO);
 	use_classic = gi.cvar ("use_classic", "0", CVAR_SERVERINFO);	// Reset Spread and Grenade Strength to 1.52
 
 	CGF_SFX_InstallGlassSupport ();	// william for CGF (glass fx)
@@ -654,16 +664,18 @@ void InitGame (void)
 	bob_roll = gi.cvar ("bob_roll", "0.002", 0);
 
 	// flood control
-	flood_msgs = gi.cvar ("flood_msgs", "4", 0);
-	flood_persecond = gi.cvar ("flood_persecond", "4", 0);
-	flood_waitdelay = gi.cvar ("flood_waitdelay", "10", 0);
+	flood_threshold = gi.cvar ("flood_threshold", "4", 0);
 
+#ifndef NO_BOTS
 	// bots
 	ltk_jumpy = gi.cvar("ltk_jumpy", "1", CVAR_SERVERINFO);
 	ltk_skill = gi.cvar( "ltk_skill", "5", 0);
 	ltk_showpath = gi.cvar( "ltk_showpath", "0", 0);
 	ltk_chat = gi.cvar( "ltk_chat", "1", 0);
 	ltk_routing = gi.cvar( "ltk_routing", "0", 0);
+#endif
+
+	warmup = gi.cvar ("warmup", "0", CVAR_LATCH);
 
 	// items
 	InitItems ();

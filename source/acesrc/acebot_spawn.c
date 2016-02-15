@@ -72,7 +72,7 @@ void	ACEAI_Cmd_Choose( edict_t *ent, char *s);
 //==============================
 int GetNextTeamNumber()
 {
-        int i, onteam1 = 0, onteam2 = 0;
+        int i, onteam1 = 0, onteam2 = 0, onteam3 = 0;
         edict_t *e;
 
         // only use this function during [2]team games...
@@ -88,16 +88,19 @@ int GetNextTeamNumber()
                     if (e->client->resp.team == TEAM1)
                         onteam1++;
                     else if (e->client->resp.team == TEAM2)
-						onteam2++;
-			    }  
+                        onteam2++;
+                    else if (e->client->resp.team == TEAM3)
+                        onteam3++;
+                }
         }
-		// Return the team number that needs the next bot
-        if (onteam1 > onteam2)
-			return (2);
-        else if (onteam2 >= onteam1)
-			return (1);
-		//default
-		return (1);
+
+	// Return the team number that needs the next bot
+        if (use_3teams->value && (onteam3 < onteam1) && (onteam3 < onteam2))
+                return (3);
+        else if (onteam2 < onteam1)
+                return (2);
+        //default
+        return (1);
 }
 
 //==========================
@@ -141,7 +144,9 @@ void ACESP_LoadBotConfig()
 {
     FILE	*pIn;
 	cvar_t	*game_dir;
+#ifdef _WIN32
 	int		i;
+#endif
 	char	filename[60];
 	// Scanner stuff
 	int		fileVersion = 0;
@@ -241,6 +246,7 @@ void	ACESP_SpawnBotFromConfig( char *inString )
 	char	name[32];
 	char	modelskin[80];
 	int		team=0, weaponchoice=0, equipchoice=0;
+	char	gender[2] = "m";
 
 	// Scanner stuff
 	char	tokenString[81];
@@ -304,6 +310,12 @@ void	ACESP_SpawnBotFromConfig( char *inString )
 			continue;
 		}
 
+		if(count == 6 && ttype == SYMBOL )
+		{
+			gender[0] = tokenString[0];
+			continue;
+		}
+
 	}// End while
 	
 	bot = ACESP_FindFreeClient ();
@@ -327,13 +339,14 @@ void	ACESP_SpawnBotFromConfig( char *inString )
 	Info_SetValueForKey (userinfo, "skin", modelskin);
 	Info_SetValueForKey (userinfo, "hand", "2"); // bot is center handed for now!
 	Info_SetValueForKey (userinfo, "spectator", "0"); // NOT a spectator
+	Info_SetValueForKey (userinfo, "gender", gender);
 
 	ClientConnect (bot, userinfo);
 	
 	G_InitEdict (bot);
 
 	// locate ent at a spawn point
-    if(teamplay->value)
+	if(teamplay->value)
 	{
 		// Make sure we have a team
 		if(!team)
@@ -876,9 +889,9 @@ void ACESP_Respawn (edict_t *self)
 ///////////////////////////////////////////////////////////////////////
 edict_t *ACESP_FindFreeClient (void)
 {
-	edict_t *bot;
-	int	i;
-	int max_count=0;
+	edict_t *bot = NULL;
+	int i = 0;
+	int max_count = 0;
 	
 	// This is for the naming of the bots
 	for (i = maxclients->value; i > 0; i--)
@@ -994,7 +1007,7 @@ void ACESP_SetName(edict_t *bot, char *name, char *skin, char *team)
 extern char current_map[55];
 //
 
-char	*LocalTeamNames[3] = {"spectator", "1", "2" };
+char *LocalTeamNames[4] = { "spectator", "1", "2", "3" };
 
 ///////////////////////////////////////////////////////////////////////
 // Spawn the bot
@@ -1026,18 +1039,11 @@ void ACESP_SpawnBot (char *team, char *name, char *skin, char *userinfo)
 	// Balance the teams!
 	if(teamplay->value)
 	{
-		if( (team == NULL) || (strlen(team) < 1) ) 
+		if( (team == NULL) || (strlen(team) < 1) )
 		{
-			if( GetNextTeamNumber() == 1 )
-			{
-				gi.bprintf(PRINT_HIGH, "Assigned to team 1\n");
-				team = LocalTeamNames[1];
-			}
-			else
-			{
-				team = LocalTeamNames[2];
-				gi.bprintf(PRINT_HIGH, "Assigned to team 2\n");
-			}
+			int team_num = GetNextTeamNumber();
+			team = LocalTeamNames[team_num];
+			gi.bprintf(PRINT_HIGH, "Assigned to team %i\n", team_num);
 		}
 	}
 
@@ -1050,10 +1056,12 @@ void ACESP_SpawnBot (char *team, char *name, char *skin, char *userinfo)
 	bot->equipchoice = 0;
 // 		ACESP_PutClientInServer (bot,false,0);
 	// locate ent at a spawn point
-    if(teamplay->value)
+	if(teamplay->value)
 	{
 		if ((team != NULL) && (strcmp(team,"1")==0) )
 			ACESP_PutClientInServer (bot,true, TEAM1);
+		else if ((team != NULL) && (strcmp(team,"3")==0) && use_3teams->value)
+			ACESP_PutClientInServer (bot,true, TEAM3);
 		else
 			ACESP_PutClientInServer (bot,true, TEAM2);
 	}
@@ -1106,6 +1114,8 @@ void ACESP_RemoveBot(char *name)
 	int i;
 	qboolean freed=false;
 	edict_t *bot;
+	qboolean remove_all = (strcasecmp(name,"all")==0) ? true : false;
+	int find_team = (strlen(name)==1) ? atoi(name) : 0;
 
 //	if (name!=NULL)
 	for(i=0;i<maxclients->value;i++)
@@ -1113,7 +1123,7 @@ void ACESP_RemoveBot(char *name)
 		bot = g_edicts + i + 1;
 		if(bot->inuse)
 		{
-			if(bot->is_bot && (strcmp(bot->client->pers.netname,name)==0 || strcmp(name,"all")==0))
+			if( bot->is_bot && (remove_all || !strlen(name) || strcasecmp(bot->client->pers.netname,name)==0 || (find_team && bot->client->resp.team==find_team)) )
 			{
 				bot->health = 0;
 				player_die (bot, bot, bot, 100000, vec3_origin);
@@ -1124,6 +1134,8 @@ void ACESP_RemoveBot(char *name)
 				ClientDisconnect( bot );
 //				ACEIT_PlayerRemoved (bot);
 //				safe_bprintf (PRINT_MEDIUM, "%s removed\n", bot->client->pers.netname);
+				if( ! remove_all )
+					break;
 			}
 		}
 	}

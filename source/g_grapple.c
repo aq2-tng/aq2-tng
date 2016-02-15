@@ -1,9 +1,12 @@
 #include "g_local.h"
 /*------------------------------------------------------------------------*/
-/* GRAPPLE																  */
+/* GRAPPLE                                                                */
 /*------------------------------------------------------------------------*/
 
-cvar_t *use_grapple;
+qboolean CheckTeamDamage( edict_t *targ, edict_t *attacker );
+void Weapon_Generic( edict_t *ent, int FRAME_ACTIVATE_LAST, int FRAME_FIRE_LAST, int FRAME_IDLE_LAST, int FRAME_DEACTIVATE_LAST, int FRAME_RELOAD_LAST, int FRAME_LASTRD_LAST, int *pause_frames, int *fire_frames, void (*fire)( edict_t * ent ) );
+
+cvar_t *use_grapple = NULL;
 
 // ent is player
 void CTFPlayerResetGrapple(edict_t *ent)

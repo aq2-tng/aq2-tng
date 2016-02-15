@@ -68,10 +68,11 @@ void RadioBroadcast(edict_t *ent, int partner, char *msg);
 ///////////////////////////////////////////////////////////////////////
 void ACEAI_Think (edict_t *self)
 {
-	usercmd_t	ucmd;
-	int curplayer, numenemies;
-	trace_t tr;
-	qboolean see_enemies;
+	usercmd_t ucmd;
+	//int curplayer = 0;
+	int numenemies = 0;
+	//trace_t tr;
+	qboolean see_enemies = false;
 
 	// Set up client movement
 	VectorCopy(self->client->ps.viewangles,self->s.angles);
@@ -306,12 +307,12 @@ void ACEAI_Think (edict_t *self)
 void ACEAI_PickLongRangeGoal(edict_t *self)
 {
 
-	int i;
-	int node;
-	float weight,best_weight=0.0;
-	int current_node,goal_node;
-	edict_t *goal_ent;
-	float cost;
+	int i = 0;
+	int node = 0;
+	float weight = 0.f, best_weight = 0.0;
+	int current_node = 0, goal_node = 0;
+	edict_t *goal_ent = NULL;
+	float cost = 0.f;
 	
 	// look for a target 
 	current_node = ACEND_FindClosestReachableNode(self,NODE_DENSITY,NODE_ALL);
@@ -502,10 +503,10 @@ void ACEAI_PickLongRangeGoal(edict_t *self)
 ///////////////////////////////////////////////////////////////////////
 void ACEAI_PickShortRangeGoal(edict_t *self)
 {
-	edict_t *target;
-	float weight,best_weight=0.0;
-	edict_t *best;
-	int index;
+	edict_t *target = NULL;
+	float weight = 0.f, best_weight = 0.0;
+	edict_t *best = NULL;
+	int index = 0;
 	
 	// look for a target (should make more efficient later)
 	target = findradius(NULL, self->s.origin, 200);

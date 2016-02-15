@@ -70,7 +70,7 @@ qboolean	CanMoveSafely(edict_t	*self, vec3_t angles)
 {
 	vec3_t	dir, angle, dest1, dest2;
 	trace_t	trace;
-	float	this_dist;
+	//float	this_dist;
 
 //	self->bot_ai.next_safety_time = level.time + EYES_FREQ;
 
@@ -96,7 +96,7 @@ qboolean	CanMoveSafely(edict_t	*self, vec3_t angles)
 		dest1[0] = trace.endpos[0];
 		dest1[1] = trace.endpos[1];
 		dest1[2] = trace.endpos[2] - 28;
-		this_dist = trace.fraction * TRACE_DIST_SHORT;
+		//this_dist = trace.fraction * TRACE_DIST_SHORT;
 
 		if (gi.pointcontents(dest1) & MASK_PLAYERSOLID)
 			return (true);
@@ -1009,7 +1009,7 @@ void ACEMV_Wander(edict_t *self, usercmd_t *ucmd)
 
 		self->s.angles[YAW] += random() * 180 - 90; 
 
-		if(!M_CheckBottom && !self->groundentity) // if there is ground continue otherwise wait for next move
+		if(!M_CheckBottom(self) && !self->groundentity) // if there is ground continue otherwise wait for next move
 			ucmd->forwardmove = 0;
 		else if( ACEMV_CanMove( self, MOVE_FORWARD))
 			ucmd->forwardmove = 200;
@@ -1127,8 +1127,10 @@ void ACEMV_Attack (edict_t *self, usercmd_t *ucmd)
 		c = random();
 
 		if(c < 0.10) //Werewolf: was 0.15
+		{
 			if (ACEMV_CanJump(self))
-			ucmd->upmove += 400;
+				ucmd->upmove += 400;
+		}
 		else if( c> 0.85 )	// Only crouch sometimes
 			ucmd->upmove -= 200;
 	}
@@ -1163,7 +1165,7 @@ void ACEMV_Attack (edict_t *self, usercmd_t *ucmd)
 			ucmd->buttons = BUTTON_ATTACK;
 			if(self->client->pers.weapon == FindItem(GRENADE_NAME))
 			{
-				self->client->ps.grenadewait = level.time + 2;
+				self->grenadewait = level.time + 2;
 				ucmd->forwardmove=-400; //Stalk back, behold of the holy Grenade!
 			}
 		}
@@ -1175,8 +1177,10 @@ void ACEMV_Attack (edict_t *self, usercmd_t *ucmd)
 			{
 				c = random();
 				if(c < 0.50)	//Only jump at 50% probability
+				{
 					if (ACEMV_CanJump(self))
 					ucmd->upmove = 400;
+				}
 				else if (c < 0.75 && ACEMV_CanMove(self,MOVE_LEFT))
 					ucmd->sidemove -= 200;
 				else if (ACEMV_CanMove(self,MOVE_RIGHT))
@@ -1202,16 +1206,28 @@ void ACEMV_Attack (edict_t *self, usercmd_t *ucmd)
 		&& (!(self->client->pers.weapon == FindItem(KNIFE_NAME))) // Knives accurate
 		)
 	{
-		short int	up, right, iFactor=7;
-		up = (random() < 0.5)? -1 :1;
-		right = (random() < 0.5)? -1 : 1;
+		short int sign[3], iFactor = 7;
+		sign[0] = (random() < 0.5) ? -1 : 1;
+		sign[1] = (random() < 0.5) ? -1 : 1;
+		sign[2] = (random() < 0.5) ? -1 : 1;
 
 		// Not that complex. We miss by 0 to 80 units based on skill value and random factor
 		// Unless we have a sniper rifle!
 		if(self->client->pers.weapon == FindItem(SNIPER_NAME))
 			iFactor = 5;
-		target[0] += ( right * (10 - ltk_skill->value +((iFactor*(10 - ltk_skill->value)) *random())) );
-		target[2] += ( up * (10 - ltk_skill->value +((iFactor*(10 - ltk_skill->value)) *random())) );
+
+		// Shoot less accurately if we just turned around and are far away.
+		vectoangles( attackvector, angles );
+		float yaw_diff = angles[YAW] - self->s.angles[YAW];
+		if( yaw_diff > 180.f )
+			yaw_diff -= 360.f;
+		else if( yaw_diff < -180.f )
+			yaw_diff += 360.f;
+		iFactor += abs( yaw_diff / 80.f ) * abs( dist / 700.f );
+
+		target[0] += sign[0] * (10 - ltk_skill->value + ( (  iFactor*(10 - ltk_skill->value)  ) * random() )) * 0.7f;
+		target[1] += sign[1] * (10 - ltk_skill->value + ( (  iFactor*(10 - ltk_skill->value)  ) * random() )) * 0.7f;
+		target[2] += sign[2] * (10 - ltk_skill->value + ( (  iFactor*(10 - ltk_skill->value)  ) * random() ));
 	}
 	//Werewolf: Snipers of skill 10 are complete lethal, so I don't use that code down there
 /*	else if (ltk_skill->value == 11)
@@ -1227,19 +1243,21 @@ void ACEMV_Attack (edict_t *self, usercmd_t *ucmd)
 //AQ2 END
 
 	// Werewolf: release trigger after 1 second for grenades
-	if ((self->client->ps.grenadewait == level.time + 1) && (self->solid != SOLID_NOT))
+	if ((self->grenadewait == level.time + 1) && (self->solid != SOLID_NOT))
 	{
 		ucmd->buttons = 0;
 	}
 
 	//Werewolf: Wait 3 seconds for grenade to launch before facing elsewhere
-	if (level.time >= self->client->ps.grenadewait)
+	if (level.time >= self->grenadewait)
 	{
-		self->client->ps.grenadewait = 0;
+		self->grenadewait = 0;
 		// Set direction
 		VectorSubtract (target, self->s.origin, self->move_vector);
-		vectoangles (self->move_vector, angles);
-		VectorCopy(angles,self->s.angles);
+		// Raptor007: Limit bot rotation speed in combat too.
+		//vectoangles (self->move_vector, angles);
+		//VectorCopy(angles,self->s.angles);
+		ACEMV_ChangeBotAngle( self );
 	}
 
 	// Store time we last saw an enemy
@@ -1256,7 +1274,7 @@ void ACEMV_Attack (edict_t *self, usercmd_t *ucmd)
 //
 qboolean	AntPathMove( edict_t *self )
 {
-	node_t *temp = &nodes[self->current_node];	// For checking our position
+	//node_t *temp = &nodes[self->current_node];	// For checking our position
 
 	if( level.time == (float)((int)level.time) )
 	{

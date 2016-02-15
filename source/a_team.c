@@ -316,6 +316,7 @@ int fragwarning = 0;		// countdown variable for "x Frags left"
 int holding_on_tie_check = 0;	// when a team "wins", countdown for a bit and wait...
 int current_round_length = 0;	// frames that the current team round has lasted
 int round_delay_time = 0;	// time gap between round end and new round
+int in_warmup = 0;		// if warmup is currently on
 
 team_t teams[TEAM_TOP];
 int	teamCount = 2;
@@ -323,7 +324,7 @@ int	teamCount = 2;
 #define MAX_SPAWNS 512		// max DM spawn points supported
 
 edict_t *potential_spawns[MAX_SPAWNS];
-int num_potential_spawns;
+int num_potential_spawns = 0;
 edict_t *teamplay_spawns[MAX_TEAMS];
 trace_t trace_t_temp;		// used by our trace replace macro in ax_team.h
 
@@ -1293,7 +1294,7 @@ int UpdateJoinMenu (edict_t * ent)
 	static char team1players[28];
 	static char team2players[28];
 	static char team3players[28];
-	int num1 = 0, num2 = 0, num3 = 0, i;
+	int num1 = 0, num2 = 0, num3 = 0, i = 0;
 
 	if (ctf->value)
 	{
@@ -1372,6 +1373,8 @@ int UpdateJoinMenu (edict_t * ent)
 		joinmenu[9].text = team3players;
 	else
 		joinmenu[9].text = NULL;
+
+	return 0;  // FIXME: Should this ever return anything else?  Why does it have a return value?
 }
 
 // AQ2:TNG END
@@ -1732,18 +1735,37 @@ void SpawnPlayers ()
 		ent = &g_edicts[1 + i];
 		if (ent->inuse && ent->client->resp.team != NOTEAM && ent->client->resp.subteam == 0)
 		{
+			// make sure teamplay spawners always have some weapon, warmup starts only after weapon selected
+			if (!ent->client->resp.weapon) {
+				if ((int) wp_flags->value & WPF_MP5) {
+					ent->client->resp.weapon = GET_ITEM(MP5_NUM);
+				} else if ((int) wp_flags->value & WPF_MK23) {
+					ent->client->resp.weapon = GET_ITEM(MK23_NUM);
+				} else if ((int) wp_flags->value & WPF_KNIFE) {
+					ent->client->resp.weapon = GET_ITEM(KNIFE_NUM);
+				} else {
+					ent->client->resp.weapon = GET_ITEM(MK23_NUM);
+				}
+			}
+
+			if (!ent->client->resp.item) {
+				ent->client->resp.item = GET_ITEM(KEV_NUM);
+			}
+
 			// ent->client->resp.last_killed_target = NULL;
 			ResetKills (ent);
 			//AQ2:TNG Slicer Last Damage Location
 			ent->client->resp.last_damaged_part = 0;
 			ent->client->resp.last_damaged_players[0] = '\0';
 			//AQ2:TNG END
-// ACEBOT CHANGE
+
+#ifndef NO_BOTS
 			if( !Q_stricmp(ent->classname, "bot") )
 				ACESP_PutClientInServer( ent, true,ent->client->resp.team);
 			else
-				PutClientInServer(ent);
-// ACEBOT END
+#endif
+				PutClientInServer (ent);
+
 			AddToTransparentList (ent);
 		}
 	}
@@ -1772,6 +1794,36 @@ void SpawnPlayers ()
 					UpdateChaseCam (ent);
 				}
 			}
+		}
+	}
+}
+
+void RunWarmup ()
+{
+	int i;
+	edict_t *ent;
+
+	if (!warmup->value || matchtime > 0 || team_round_going || lights_camera_action || (team_round_countdown > 0 && team_round_countdown <= 101))
+		return;
+
+	if (!in_warmup)
+	{
+		in_warmup = 1;
+		InitTransparentList ();
+	}
+
+	for (i = 0; i < game.maxclients; i++)
+	{
+		ent = &g_edicts[1 + i];
+		int dead = (ent->solid == SOLID_NOT && ent->deadflag == DEAD_NO && ent->movetype == MOVETYPE_NOCLIP);
+		if (ent->inuse && ent->client->resp.team != NOTEAM && ent->client->resp.subteam == 0 && dead && ent->client->resp.weapon && ent->client->resp.item && ent->client->latched_buttons & BUTTON_ATTACK)
+		{
+			ent->client->resp.last_damaged_part = 0;
+			ent->client->resp.last_damaged_players[0] = '\0';
+			ent->client->latched_buttons = 0;
+			PutClientInServer (ent);
+			AddToTransparentList (ent);
+			gi.centerprintf(ent, "WARMUP");
 		}
 	}
 }
@@ -1879,10 +1931,18 @@ void MakeAllLivePlayersObservers ()
 			ent->client->resp.team == NOTEAM ||	ent->client->resp.subteam))
 			continue;
 
+#ifndef NO_BOTS
+		qboolean is_bot = ent->is_bot;
+		char *classname = ent->classname;
+#endif
 		saveteam = ent->client->resp.team;
 		ent->client->resp.team = NOTEAM;
 		PutClientInServer (ent);
 		ent->client->resp.team = saveteam;
+#ifndef NO_BOTS
+		ent->is_bot = is_bot;
+		ent->classname = classname;
+#endif
 	}
 }
 
@@ -2155,6 +2215,7 @@ void CheckTeamRules (void)
 		{
 			if (BothTeamsHavePlayers ())
 			{
+				in_warmup = 0;
 				team_game_going = 1;
 				StartLCA ();
 			}
@@ -2193,6 +2254,8 @@ void CheckTeamRules (void)
 
 	if (!team_round_going)
 	{
+		RunWarmup();
+
 		if (timelimit->value)
 		{
 			// AQ2:TNG - Slicer : Matchmode
@@ -2241,8 +2304,16 @@ void CheckTeamRules (void)
 				}
 				else
 				{
-					CenterPrintAll ("The round will begin in 20 seconds!");
-					team_round_countdown = 201;
+					if (warmup->value) {
+						char buf[64];
+						int warmup_length = max(warmup->value, 20);
+						sprintf (buf, "The round will begin in %d seconds!", warmup_length);
+						CenterPrintAll (buf);
+						team_round_countdown = warmup_length * 10 + 1;
+					} else {
+						CenterPrintAll ("The round will begin in 20 seconds!");
+						team_round_countdown = 201;
+					}
 				}
 			}
 		}
@@ -2490,14 +2561,17 @@ void A_NewScoreboardMessage(edict_t * ent)
 	}
 
 	// print teams
-	for (i = TEAM1; i <= TEAM2; i++)
+	for (i = TEAM1; i <= (use_3teams->value ? TEAM3 : TEAM2); i++)
 	{
-		sprintf(buf, "xv 44 yv %d string2 \"  %-15s %3d Tim Png\"", line++ * lineh, teams[i].name, teams[i].score);
+		sprintf(buf, "xv 44 yv %d string2 \"%s\"", line++ * lineh, teams[i].name);
+		strcat(string, buf);
+
+		sprintf(buf, "xv 44 yv %d string2 \"Wins:%2d %-7s Frg Tim Png\"", line++ * lineh, teams[i].score, "");
 		strcat(string, buf);
 
 		sprintf(buf, "xv 44 yv %d string2 \"%s\" ",
 			line++ * lineh,
-			"\x9D\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9F"
+			"\x9D\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9F \x9D\x9E\x9F \x9D\x9E\x9F \x9D\x9E\x9F"
 		);
 		strcat(string, buf);
 
@@ -2513,28 +2587,34 @@ void A_NewScoreboardMessage(edict_t * ent)
 
 			if (j >= total[i])
 			{
-				line++;
 				continue;
 			}
 
 			gclient_t *cl = &game.clients[sorted[i][j]];
 			edict_t *cl_ent = g_edicts + 1 + sorted[i][j];
 			int alive = (cl_ent->solid != SOLID_NOT && cl_ent->deadflag != DEAD_DEAD);
+			int leveltime = (level.framenum - cl->resp.enterframe) / 600;
 
-			sprintf(buf, "xv 44 yv %d string \"%c %-15s %3d %3d %3d\"",
+			char ping_buf[ 4 ] = "BOT";
+#ifndef NO_BOTS
+			if( ! cl_ent->is_bot )
+#endif
+				snprintf( ping_buf, 4, "%3d", (cl->ping > 999 ? 999 : cl->ping) );
+
+			sprintf(buf, "xv 44 yv %d string%c \"%-15s %3d %3d %s\"",
 					line++ * lineh,
-					(alive && dead ? '*' : ' '),
+					(alive && dead ? '2' : ' '),
 					cl->pers.netname,
 					cl->resp.score,
-					(level.framenum - cl->resp.enterframe) / 600,
-					(cl->ping > 999 ? 999 : cl->ping));
+					(leveltime > 9999 ? 9999 : leveltime),
+					ping_buf);
 			strcat(string, buf);
 		}
 
 		line++;
 	}
 
-	string[1024] = '\0';
+	string[1023] = '\0';
 
 	gi.WriteByte (svc_layout);
 	gi.WriteString (string);
@@ -2546,10 +2626,11 @@ void A_NewScoreboardMessage(edict_t * ent)
 //AQ2:TNG - Slicer Modified Scores for Match Mode
 void A_ScoreboardMessage (edict_t * ent, edict_t * killer)
 {
-	char string[1400], damage[50];
-	gclient_t *cl;
-	edict_t *cl_ent;
-	int maxsize = 1000, i, j, k;
+	char string[1400] = "";
+	//char damage[50] = "";  // FIXME: This was only used in commented-out parts of the code.
+	//gclient_t *cl;  // FIXME: This was set but never used.
+	edict_t *cl_ent = NULL;
+	int maxsize = 1000, i = 0, j = 0, k = 0;
 
 
 	if (ent->client->scoreboardnum == 1)
@@ -2570,7 +2651,7 @@ void A_ScoreboardMessage (edict_t * ent, edict_t * killer)
 		int otherLines, scoreWidth = 3;
 
 		// new scoreboard for regular teamplay up to 16 players
-		if (use_newscore->value && teamplay->value && !use_3teams->value && !matchmode->value && !ctf->value) {
+		if (use_newscore->value && teamplay->value /* && !use_3teams->value */ && !matchmode->value && !ctf->value) {
 			return A_NewScoreboardMessage(ent);
 		}
 
@@ -2728,7 +2809,7 @@ void A_ScoreboardMessage (edict_t * ent, edict_t * killer)
 			{
 				if (i < total[j] && stoppedat[j] == -1)	// print next team member...
 				{
-					cl = &game.clients[sorted[j][i]];
+					//cl = &game.clients[sorted[j][i]];  // FIXME: This was never used.
 					cl_ent = g_edicts + 1 + sorted[j][i];
 					if (cl_ent->solid != SOLID_NOT && cl_ent->deadflag != DEAD_DEAD)
 						totalaliveprinted[j]++;
@@ -2859,6 +2940,10 @@ void A_ScoreboardMessage (edict_t * ent, edict_t * killer)
 					if (score > game.clients[sorted[j]].resp.score)
 						break;
 					if (score == game.clients[sorted[j]].resp.score &&
+						game.clients[i].resp.deaths < game.clients[sorted[j]].resp.deaths)
+							break;
+					if (score == game.clients[sorted[j]].resp.score &&
+						game.clients[i].resp.deaths == game.clients[sorted[j]].resp.deaths &&
 						game.clients[i].resp.damage_dealt > game.clients[sorted[j]].resp.damage_dealt)
 							break;
 				}
@@ -2877,6 +2962,14 @@ void A_ScoreboardMessage (edict_t * ent, edict_t * killer)
 			"xv 0 yv 32 string2 \"Player          Time Ping\" "
 			"xv 0 yv 40 string2 \"žžžžžžžžžžžžžŸ žžŸ žžŸ\" ");
 		}
+		else
+		// Raptor007: I think this works well for any teamplay mode.
+		{
+			strcpy (string,
+			"xv 0 yv 32 string2 \"Team Player          Time Ping Kills Deaths\" "
+			"xv 0 yv 40 string2 \"žžŸ žžžžžžžžžžžžžŸ žžŸ žžŸ žžžŸ žžžžŸ\" ");
+		}
+/*
 		else if (teamdm->value)
 		{
 			if(matchmode->value) {
@@ -2902,6 +2995,7 @@ void A_ScoreboardMessage (edict_t * ent, edict_t * killer)
 			"xv 0 yv 32 string2 \"Frags Player          Time Ping Damage Kills\" "
 			"xv 0 yv 40 string2 \"žžžŸ žžžžžžžžžžžžžŸ žžŸ žžŸ žžžžŸ žžžŸ\" ");
 		}
+*/
       /*
          {
          strcpy (string, "xv 0 yv 32 string2 \"Player          Time Ping\" "
@@ -2921,13 +3015,34 @@ void A_ScoreboardMessage (edict_t * ent, edict_t * killer)
 			if (ping > 999)
 				ping = 999;
 
+			char ping_buf[ 4 ] = "BOT";
+#ifndef NO_BOTS
+			cl_ent = g_edicts + 1 + sorted[i];
+			if( ! cl_ent->is_bot )
+#endif
+				snprintf( ping_buf, 4, "%3d", ping );
+
 			if (noscore->value)
 			{
-				sprintf(string + strlen(string), "xv 0 yv %d string \"%-15s %4d %4d\" ",
+				sprintf(string + strlen(string), "xv 0 yv %d string \"%-15s %4d %4s\" ",
 					48 + i * 8,	game.clients[sorted[i]].pers.netname,
 					(level.framenum - game.clients[sorted[i]].resp.enterframe) / 600,
-					ping);
+					ping_buf);
 			}
+			else
+			{
+				sprintf(string + strlen(string), "xv 0 yv %d string \" %c%c%c %-15s %4d %4s %5i %6i\"",
+					48 + i * 8,
+					game.clients[sorted[i]].resp.team ? game.clients[sorted[i]].resp.team + '0' : ' ',
+					game.clients[sorted[i]].resp.captain ? 'C' : ' ',
+					game.clients[sorted[i]].resp.subteam ? 'S' : ' ',
+					game.clients[sorted[i]].pers.netname,
+					(level.framenum - game.clients[sorted[i]].resp.enterframe) / 600,
+					ping_buf,
+					game.clients[sorted[i]].resp.score,
+					game.clients[sorted[i]].resp.deaths);
+			}
+/*
 			else
 			{
 				if(teamdm->value) {
@@ -2943,11 +3058,11 @@ void A_ScoreboardMessage (edict_t * ent, edict_t * killer)
 				}
 
 
-				sprintf(string + strlen(string), "xv 0 yv %d string \"%5d %-15s %4d %4d %6s",
+				sprintf(string + strlen(string), "xv 0 yv %d string \"%5d %-15s %4d %4s %6s",
 					48 + i * 8,	game.clients[sorted[i]].resp.score,
 					game.clients[sorted[i]].pers.netname,
 					(level.framenum - game.clients[sorted[i]].resp.enterframe) / 600,
-					ping, damage);
+					ping_buf, damage);
 
 				if(matchmode->value)
 				{
@@ -2962,7 +3077,7 @@ void A_ScoreboardMessage (edict_t * ent, edict_t * killer)
 						game.clients[sorted[i]].resp.kills);
 				}
 			}
-
+*/
 			if (strlen(string) > (maxsize - 100) && i < (total - 2))
 			{
 				sprintf (string + strlen (string), "xv 0 yv %d string \"..and %d more\" ",

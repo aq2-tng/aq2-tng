@@ -288,7 +288,9 @@
 #include	"tng_ini.h"
 #include	"tng_balancer.h"
 #include	"g_grapple.h"
+#ifndef NO_BOTS
 #include	"acesrc/botnav.h"
+#endif
 #define		getEnt(entnum)	(edict_t *)((char *)globals.edicts + (globals.edict_size * entnum))	//AQ:TNG Slicer - This was missing
 #define		GAMEVERSION			"action"	// the "gameversion" client command will print this plus compile date
 
@@ -807,10 +809,10 @@ extern int stopAP;
 
 extern edict_t *g_edicts;
 
-#define FOFS(x)  (int)&(((edict_t *)0)->x)
-#define STOFS(x) (int)&(((spawn_temp_t *)0)->x)
-#define LLOFS(x) (int)&(((level_locals_t *)0)->x)
-#define CLOFS(x) (int)&(((gclient_t *)0)->x)
+#define FOFS(x)  (ptrdiff_t)&(((edict_t *)0)->x)
+#define STOFS(x) (ptrdiff_t)&(((spawn_temp_t *)0)->x)
+#define LLOFS(x) (ptrdiff_t)&(((level_locals_t *)0)->x)
+#define CLOFS(x) (ptrdiff_t)&(((gclient_t *)0)->x)
 
 #define random()        ((rand () & 0x7fff) / ((float)0x7fff))
 #define crandom()       (2.0 * (random() - 0.5))
@@ -833,10 +835,15 @@ extern cvar_t *limchasecam;
 extern cvar_t *roundlimit;
 extern cvar_t *skipmotd;
 extern cvar_t *nohud;
+extern cvar_t *hud_team_icon;
+extern cvar_t *hud_items_cycle;
 extern cvar_t *noscore;
+extern cvar_t *hud_noscore;
 extern cvar_t *use_newscore;
 extern cvar_t *actionversion;
+#ifndef NO_BOTS
 extern cvar_t *ltk_jumpy;
+#endif
 extern cvar_t *use_voice;
 extern cvar_t *ppl_idletime;
 extern cvar_t *use_tourney;
@@ -873,8 +880,10 @@ extern cvar_t *check_time;
 extern cvar_t *matchmode;
 extern cvar_t *darkmatch;
 extern cvar_t *day_cycle;	// If darkmatch is on, this value is the nr of seconds between each interval (day, dusk, night, dawn)
+extern cvar_t *use_flashlight;  // Allow flashlight when not darkmatch?
 
 extern cvar_t *hearall;		// used in match mode
+extern cvar_t *deadtalk;
 extern cvar_t *mm_forceteamtalk;
 extern cvar_t *mm_adminpwd;
 extern cvar_t *mm_allowlock;
@@ -911,6 +920,7 @@ extern cvar_t *hc_single;
 extern cvar_t *wp_flags;
 extern cvar_t *itm_flags;
 extern cvar_t *use_classic;	// Use_classic resets weapon balance to 1.52
+extern cvar_t *warmup;
 
 extern cvar_t *skill;
 extern cvar_t *fraglimit;
@@ -921,9 +931,7 @@ extern cvar_t *g_select_empty;
 extern cvar_t *dedicated;
 
 extern cvar_t *filterban;
-extern cvar_t *flood_msgs;
-extern cvar_t *flood_persecond;
-extern cvar_t *flood_waitdelay;
+extern cvar_t *flood_threshold;
 
 extern cvar_t *sv_gravity;
 extern cvar_t *sv_maxvelocity;
@@ -949,6 +957,7 @@ extern cvar_t *knifelimit;
 extern cvar_t *tgren;
 extern cvar_t *allweapon;
 extern cvar_t *allitem;
+extern cvar_t *allow_hoarding; // Allow carrying multiple of the same special item or unique weapon.
 
 extern cvar_t *stats_endmap; // If on (1), show the accuracy/etc stats at the end of a map
 extern cvar_t *stats_afterround; // TNG Stats, collect stats between rounds
@@ -967,8 +976,12 @@ extern cvar_t *use_ghosts;
 
 // zucc from action
 extern cvar_t *sv_shelloff;
+extern cvar_t *shelllimit;
+extern cvar_t *shelllife;
 extern cvar_t *splatlimit;
 extern cvar_t *bholelimit;
+extern cvar_t *splatlife;
+extern cvar_t *bholelife;
 
 #define world   (&g_edicts[0])
 
@@ -1021,6 +1034,7 @@ extern gitem_t itemlist[];
 //
 // g_cmds.c
 //
+qboolean FloodCheck (edict_t * ent);
 void Cmd_Help_f (edict_t * ent);
 void Cmd_Score_f (edict_t * ent);
 void Cmd_CPSI_f (edict_t * ent);
@@ -1055,7 +1069,7 @@ void Touch_Item (edict_t * ent, edict_t * other, cplane_t * plane,
 qboolean KillBox (edict_t * ent);
 void G_ProjectSource (vec3_t point, vec3_t distance, vec3_t forward,
 		      vec3_t right, vec3_t result);
-edict_t *G_Find (edict_t * from, int fieldofs, char *match);
+edict_t *G_Find (edict_t * from, ptrdiff_t fieldofs, char *match);
 edict_t *findradius (edict_t * from, vec3_t org, float rad);
 edict_t *G_PickTarget (char *targetname);
 void G_UseTargets (edict_t * ent, edict_t * activator);
@@ -1570,11 +1584,7 @@ struct gclient_s
 
   float pickup_msg_time;
 
-  float flood_locktill;		// locked from talking
-
-  float flood_when[10];		// when messages were said
-
-  int flood_whenhead;		// head pointer for when said
+  int penalty;
 
   float respawn_time;		// can respawn when time > this
   // zucc
@@ -1774,16 +1784,10 @@ struct edict_s
   float last_move_time;
 
   int health;
-  int old_health;
   int max_health;
   int gib_health;
   int deadflag;
   qboolean show_hostile;
-
-  // BOTS
-  int recheck_timeout;
-  int jumphack_timeout;
-  //
 
   float powerarmor_time;
 
@@ -1853,7 +1857,12 @@ struct edict_s
   // PG BUND
   xmenu_t *x_menu;
 
-// ACEBOT_ADD 
+#ifndef NO_BOTS
+	int old_health;
+
+	int recheck_timeout;
+	int jumphack_timeout;
+
 	qboolean is_bot; 
 	qboolean is_jumping; 
 	qboolean is_triggering; 
@@ -1875,6 +1884,7 @@ struct edict_s
 	float	antLastCallTime;	// Check for calling complex pathsearcher 
 	// Who killed me? 
 	edict_t	*lastkilledby;	// Set in ClientObituary... 
+	int grenadewait; // Raptor007: Moved here from player_state_t.
 //AQ2 END 
  
 	// For node code 
@@ -1907,7 +1917,7 @@ struct edict_s
 	qboolean	bCrawl; 
 	qboolean	bLastJump; 
 	vec3_t	lastPosition; 
-// ACEBOT_END 
+#endif 
 };
 
 typedef struct
@@ -2015,6 +2025,12 @@ void AddSplat (edict_t * self, vec3_t point, trace_t * tr);
 #define KNIFE_NAME   "Combat Knife"
 #define GRENADE_NAME "M26 Fragmentation Grenade"
 
+#define MK23_AMMO_NAME    "Pistol Magazine"
+#define MP5_AMMO_NAME     "MP5 Magazine"
+#define M4_AMMO_NAME      "M4 Magazine"
+#define SHOTGUN_AMMO_NAME "12 Gauge Shells"
+#define SNIPER_AMMO_NAME  "AP Sniper Ammo"
+
 #define SIL_NAME     "Silencer"
 #define SLIP_NAME    "Stealth Slippers"
 #define BAND_NAME    "Bandolier"
@@ -2119,7 +2135,7 @@ extern int tnums[ITEM_COUNT];
 #define BANDAGE_TIME    27	// 10 = 1 second
 #define BLEED_TIME      10	// 10 = 1 second is time for losing 1 health at slowest bleed rate
 // Igor's back in Time to hard grenades :-)
-//#define GRENADE_DAMRAD  170
+#define GRENADE_DAMRAD_CLASSIC  170
 #define GRENADE_DAMRAD  250
 
 //AQ2:TNG - Slicer New location support
@@ -2163,4 +2179,6 @@ extern int pause_time;
 #define PARSE_BUFSIZE 256
 
 #include "a_ctf.h"
+#ifndef NO_BOTS
 #include "acesrc/acebot.h"
+#endif
