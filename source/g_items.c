@@ -230,8 +230,7 @@ void AddItem(edict_t *ent, gitem_t *item)
 	ent->client->unique_item_total++;
 	if (item->typeNum == LASER_NUM)
 	{
-		ent->client->have_laser = 1;
-		SP_LaserSight (ent, item);	//ent->item->use(other, ent->item);
+		SP_LaserSight(ent, item);	//ent->item->use(other, ent->item);
 	}
 	else if (item->typeNum == BAND_NUM)
 	{
@@ -311,13 +310,6 @@ void Drop_Special (edict_t * ent, gitem_t * item)
 	int count;
 
 	ent->client->unique_item_total--;
-	/*  if ( Q_stricmp( item->pickup_name, LASER_NAME ) == 0 
-		&& ent->client->inventory[ITEM_INDEX(item)] <= 1 )
-		{
-			ent->client->have_laser = 0;
-			item->use(ent, item);
-		}
-	*/
 	if (item->typeNum == BAND_NUM && INV_AMMO(ent, BAND_NUM) <= 1)
 	{
 		if(teamplay->value && !teamdm->value)
@@ -384,10 +376,9 @@ void Drop_Special (edict_t * ent, gitem_t * item)
 			gi.cprintf (ent, PRINT_HIGH, "One of your guns is dropped with the bandolier.\n");
 		}
 	}
-	Drop_Spec (ent, item);
-	ValidateSelectedItem (ent);
-	SP_LaserSight (ent, item);
-
+	Drop_Spec(ent, item);
+	ValidateSelectedItem(ent);
+	SP_LaserSight(ent, item);
 }
 
 // called by the "drop item" command

@@ -151,7 +151,7 @@ void Cmd_Stats_f (edict_t *targetent, char *arg)
 			{
 				cl_ent = &g_edicts[1 + i];
 
-				if (!cl_ent->inuse || Info_ValueForKey(cl_ent->client->pers.userinfo, "mvdspec")[0] != '\0')
+				if (!cl_ent->inuse || cl_ent->client->pers.mvdspec)
 					continue;
 
 				hits = total = 0;
@@ -173,14 +173,13 @@ void Cmd_Stats_f (edict_t *targetent, char *arg)
 		}
 
 		i = atoi (arg);
-		//SLIC2
 		if(i < 0 || i >= game.maxclients)
 			ent = targetent;
 		else
 			ent = &g_edicts[1 + i];
-		if (!ent->inuse || Info_ValueForKey(ent->client->pers.userinfo, "mvdspec")[0] != '\0')
+
+		if (!ent->inuse || ent->client->pers.mvdspec)
 			ent = targetent;
-		//SLIC2 END
 
 	} else {
 		ent = targetent;

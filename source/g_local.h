@@ -292,10 +292,11 @@
 #define		GAMEVERSION			"action"	// the "gameversion" client command will print this plus compile date
 
 
-#define GMF_CLIENTNUM		0x00000001
-#define GMF_MVDSPEC		0x00000004
-#define GMF_VARIABLE_FPS	0x00000800
-#define GMF_EXTRA_USERINFO	0x00001000
+#define GMF_CLIENTNUM				0x00000001
+#define GMF_MVDSPEC					0x00000004
+#define GMF_WANT_ALL_DISCONNECTS    0x00000008
+#define GMF_VARIABLE_FPS			0x00000800
+#define GMF_EXTRA_USERINFO			0x00001000
 
 #if USE_FPS
 #define G_GMF_VARIABLE_FPS GMF_VARIABLE_FPS
@@ -303,7 +304,7 @@
 #define G_GMF_VARIABLE_FPS 0
 #endif
 
-#define G_FEATURES (/*GMF_EXTRA_USERINFO | GMF_MVDSPEC |*/ GMF_CLIENTNUM | G_GMF_VARIABLE_FPS)
+#define G_FEATURES (/*GMF_EXTRA_USERINFO |*/ GMF_MVDSPEC | GMF_CLIENTNUM | GMF_WANT_ALL_DISCONNECTS | G_GMF_VARIABLE_FPS)
 
 // protocol bytes that can be directly added to messages
 #define svc_muzzleflash         1
@@ -1379,6 +1380,8 @@ typedef struct
   qboolean spectator;
   int firing_style;
 
+  qboolean mvdspec;
+
   gitem_t *weapon;
   gitem_t *lastweapon;
 
@@ -1417,7 +1420,8 @@ typedef struct
   gitem_t *weapon;		// weapon for teamplay
 
   int team;			// team the player is on
-  int saved_team;
+  int subteam;
+
   int ctf_state;
   int ctf_capstreak;
   int ctf_lasthurtcarrier;
@@ -1472,8 +1476,6 @@ typedef struct
   float gldynamic;
   qboolean checked;
   int checkframe[3];
-
-  int subteam;
 
   //char skin[MAX_SKINLEN];
 }
@@ -1623,15 +1625,13 @@ struct gclient_s
   int leg_dam_count;
   int leg_noise;
   int leghits;
+
   int bleeding;			//remaining points to bleed away
   int bleed_remain;
-  int bleedloc;
   vec3_t bleedloc_offset;	// location of bleeding (from origin)
-  vec3_t bleednorm;
   int bleeddelay;		// how long until we bleed again
 
   int bandage_stopped;
-  int have_laser;
 
   int doortoggle;		// set by player with opendoor command
 
@@ -1649,7 +1649,6 @@ struct gclient_s
   int reload_attempts;
   int weapon_attempts;
 
-  qboolean inmenu;		// in menu
   pmenuhnd_t *menu;		// current menu
 
   edict_t *chase_target;
@@ -1672,7 +1671,7 @@ struct gclient_s
 
   int uvTime;
   
-  void *ctf_grapple;		// entity of grapple
+  edict_t *ctf_grapple;		// entity of grapple
   int ctf_grapplestate;		// true if pulling
   int ctf_grapplereleaseframe;	// frame of grapple release
 

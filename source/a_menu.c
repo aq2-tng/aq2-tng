@@ -49,7 +49,6 @@ void PMenu_Open (edict_t * ent, pmenu_t * entries, int cur, int num)
 		hnd->cur = i;
 
 	ent->client->showscores = true;
-	ent->client->inmenu = true;
 	ent->client->menu = hnd;
 
 	PMenu_Update (ent);

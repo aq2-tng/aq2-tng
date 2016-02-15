@@ -1105,8 +1105,8 @@ Person gets frags/kills/damage/weapon/item/team/stats back if he disconnected
 */
 void Cmd_Ghost_f(edict_t * ent)
 {
-	int x, frames_since;
-	qboolean found = false;
+	int i, frames_since, found = 0;
+	gghost_t *ghost;
 
 	if (!use_ghosts->value) {
 		gi.cprintf(ent, PRINT_HIGH, "Ghosting is not enabled on this server\n");
@@ -1118,37 +1118,39 @@ void Cmd_Ghost_f(edict_t * ent)
 		return;
 	}
 
-	for (x = 0; x < num_ghost_players; x++) {
-		if (found == true) {
-			ghost_players[x - 1] = ghost_players[x];
-		} else if (strcmp(ghost_players[x].ip, ent->client->pers.ip) == 0 &&
-			   strcmp(ghost_players[x].netname, ent->client->pers.netname) == 0) {
-			found = true;
-			gi.cprintf(ent, PRINT_HIGH, "Welcome back %s\n", ent->client->pers.netname);
-			frames_since = level.framenum - ghost_players[x].disconnect_frame;
-			ent->client->resp.enterframe = ghost_players[x].enterframe + frames_since;
-			ent->client->resp.score = ghost_players[x].score;
-			ent->client->resp.kills = ghost_players[x].kills;
-			ent->client->resp.damage_dealt = ghost_players[x].damage_dealt;
-			if (teamplay->value) {
-				if (ghost_players[x].team && ghost_players[x].team != NOTEAM)
-					JoinTeam(ent, ghost_players[x].team, 1);
-				ent->client->resp.weapon = ghost_players[x].weapon;
-				ent->client->resp.item = ghost_players[x].item;
-			}
-
-			ent->client->resp.shotsTotal = ghost_players[x].shotsTotal;
-			ent->client->resp.hitsTotal = ghost_players[x].hitsTotal;
-
-			memcpy(ent->client->resp.hitsLocations, ghost_players[x].hitsLocations,
-			       sizeof(ghost_players[x].hitsLocations));
-			memcpy(ent->client->resp.gunstats, ghost_players[x].gunstats,
-			       sizeof(ghost_players[x].gunstats));
+	for (i = 0, ghost = ghost_players; i < num_ghost_players; i++, ghost++) {
+		if (!strcmp(ghost->ip, ent->client->pers.ip) && !strcmp(ghost->netname, ent->client->pers.netname)) {
+			break;
 		}
 	}
-	if (found == true) {
-		num_ghost_players--;
-	} else {
-		gi.cprintf(ent, PRINT_HIGH, "No ghost match found\n");
+
+	if (i >= num_ghost_players) {
+		gi.cprintf( ent, PRINT_HIGH, "No ghost match found\n" );
+		return;
 	}
+
+	gi.cprintf( ent, PRINT_HIGH, "Welcome back %s\n", ent->client->pers.netname );
+	frames_since = level.framenum - ghost->disconnect_frame;
+	ent->client->resp.enterframe = ghost->enterframe + frames_since;
+	ent->client->resp.score = ghost->score;
+	ent->client->resp.kills = ghost->kills;
+	ent->client->resp.damage_dealt = ghost->damage_dealt;
+	if (teamplay->value) {
+		if (ghost->team != NOTEAM)
+			JoinTeam( ent, ghost->team, 1 );
+		ent->client->resp.weapon = ghost->weapon;
+		ent->client->resp.item = ghost->item;
+	}
+
+	ent->client->resp.shotsTotal = ghost->shotsTotal;
+	ent->client->resp.hitsTotal = ghost->hitsTotal;
+
+	memcpy(ent->client->resp.hitsLocations, ghost->hitsLocations, sizeof(ent->client->resp.hitsLocations));
+	memcpy(ent->client->resp.gunstats, ghost->gunstats, sizeof(ent->client->resp.gunstats));
+
+	//Remove it from the list
+	for (i += 1; i < num_ghost_players; i++) {
+		ghost_players[i - 1] = ghost_players[i];
+	}
+	num_ghost_players--;
 }

@@ -107,7 +107,6 @@ void CTFEffects (edict_t * player);
 void CTFCalcScores (void);
 void SetCTFStats (edict_t * ent);
 void CTFDeadDropFlag (edict_t * self);
-void CTFScoreboardMessage (edict_t * ent, edict_t * killer);
 void CTFFlagSetup (edict_t * ent);
 void CTFResetFlag (int team);
 void CTFFragBonuses (edict_t * targ, edict_t * inflictor, edict_t * attacker);

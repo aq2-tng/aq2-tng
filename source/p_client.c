@@ -1395,8 +1395,10 @@ void player_die(edict_t * self, edict_t * inflictor, edict_t * attacker, int dam
 	}
 
 	// TNG Turn Flashlight off
-	if (self->flashlight)
-		FL_make(self);
+	if (self->flashlight) { 
+		G_FreeEdict(self->flashlight);
+		self->flashlight = NULL;
+	}
 
 	//FIREBLADE
 	// clean up sniper rifle stuff
@@ -1520,7 +1522,6 @@ void InitClientPersistant(gclient_t * client)
 // SLIC2 If resp structure gets memset to 0 lets cleannup unecessary initiations ( to 0 ) here
 void InitClientResp(gclient_t * client)
 {
-	int team = client->resp.team;
 	gitem_t *item = client->resp.item;
 	gitem_t *weapon = client->resp.weapon;
 	qboolean menu_shown = client->resp.menu_shown;
@@ -1529,8 +1530,6 @@ void InitClientResp(gclient_t * client)
 	memset(&client->resp, 0, sizeof(client->resp));
 
 	client->resp.enterframe = level.framenum;
-	if (auto_join->value && teamplay->value)
-		client->resp.saved_team = team;
 
 	if (!dm_choose->value && !warmup->value) {
 		if (WPF_ALLOWED(MP5_NUM)) {
@@ -2219,7 +2218,7 @@ void PutClientInServer(edict_t * ent)
 	int index, going_observer, i;
 	vec3_t spawn_origin, spawn_angles;
 	gclient_t *client;
-	client_persistant_t saved;
+	client_persistant_t pers;
 	client_respawn_t resp;
 	gitem_t *item;
 
@@ -2233,13 +2232,11 @@ void PutClientInServer(edict_t * ent)
 
 	// deathmatch wipes most client data every spawn
 	resp = client->resp;
-
-	// clear everything but the persistant data
-	saved = client->pers;
+	pers = client->pers;
 
 	memset(client, 0, sizeof(*client));
 
-	client->pers = saved;
+	client->pers = pers;
 	client->resp = resp;
 
 	client->clientNum = index;
@@ -2435,9 +2432,12 @@ deathmatch mode, so clear everything out before starting them.
 */
 void ClientBeginDeathmatch(edict_t * ent)
 {
-	int checkFrame;
+	int checkFrame, saved_team = 0;
 
 	G_InitEdict(ent);
+
+	if (auto_join->value && teamplay->value)
+		saved_team = ent->client->resp.team;
 
 	InitClientResp(ent->client);
 
@@ -2465,8 +2465,8 @@ void ClientBeginDeathmatch(edict_t * ent)
 	IRC_printf(IRC_T_SERVER, "%n entered the game", ent->client->pers.netname);
 
 	// TNG:Freud Automaticly join saved teams.
-	if (teamplay->value && ent->client->resp.saved_team)
-		JoinTeam(ent, ent->client->resp.saved_team, 1);
+	if (saved_team)
+		JoinTeam(ent, saved_team, 1);
 
 //FIREBLADE
 	if (!teamplay->value && ent->solid == SOLID_NOT)
@@ -2535,7 +2535,7 @@ void ClientUserinfoChanged(edict_t * ent, char *userinfo)
 	if(!tnick[0])
 		strcpy(tnick, "unnamed");
 
-	if(strcmp(client->pers.netname, tnick))
+	if (!client->pers.mvdspec && strcmp(client->pers.netname, tnick))
 	{
 		// on the initial update, we won't broadcast the message.
 		if (client->pers.netname[0])
@@ -2655,6 +2655,13 @@ qboolean ClientConnect(edict_t * ent, char *userinfo)
 
 	Q_strncpyz(ent->client->pers.ip, ipaddr_buf, sizeof(ent->client->pers.ip));
 
+	if (game.serverfeatures & GMF_MVDSPEC) {
+		value = Info_ValueForKey(userinfo, "mvdspec");
+		if (*value) {
+			ent->client->pers.mvdspec = true;
+		}
+	}
+
 	ent->svflags = 0;
 
 	ent->client->pers.connected = true;
@@ -2696,9 +2703,11 @@ void ClientDisconnect(edict_t * ent)
 		ent->lasersight = NULL;
 	}
 
-	// TNG Free Flashlight
-	if (ent->flashlight)
-		FL_make(ent);
+	// TNG Turn Flashlight off
+	if (ent->flashlight) {
+		G_FreeEdict(ent->flashlight);
+		ent->flashlight = NULL;
+	}
 
 	if (ent->solid == SOLID_TRIGGER)
 		RemoveFromTransparentList(ent);
@@ -2750,59 +2759,53 @@ void ClientDisconnect(edict_t * ent)
 
 void CreateGhost(edict_t * ent)
 {
-	int x;
+	int i;
 	qboolean duplicate = false;
+	gghost_t *ghost;
 
 	if (ent->client->resp.score == 0 && ent->client->resp.damage_dealt == 0) {
 		return;
 	}
 
-	for (x = 0; x < num_ghost_players; x++) {
-		if (duplicate == true) {
-			ghost_players[x - 1] = ghost_players[x];
-		} else if (strcmp(ghost_players[x].ip, ent->client->pers.ip) == 0 &&
-			   strcmp(ghost_players[x].netname, ent->client->pers.netname) == 0) {
-			duplicate = true;
+	//check if its already there
+	for (i = 0, ghost = ghost_players; i < num_ghost_players; i++, ghost++) {
+		if (!strcmp(ghost->ip, ent->client->pers.ip) && !strcmp(ghost->netname, ent->client->pers.netname)) {
+			break;
 		}
 	}
 
-	if (duplicate == true)
-		num_ghost_players--;
-
-	if (num_ghost_players < MAX_GHOSTS) {
-
-		strcpy(ghost_players[num_ghost_players].ip, ent->client->pers.ip);
-		strcpy(ghost_players[num_ghost_players].netname, ent->client->pers.netname);
-
-		ghost_players[num_ghost_players].enterframe = ent->client->resp.enterframe;
-		ghost_players[num_ghost_players].disconnect_frame = level.framenum;
-
-		// Score
-		ghost_players[num_ghost_players].score = ent->client->resp.score;
-		ghost_players[num_ghost_players].damage_dealt = ent->client->resp.damage_dealt;
-		ghost_players[num_ghost_players].kills = ent->client->resp.kills;
-
-		// Teamplay variables
-		if (teamplay->value) {
-			ghost_players[num_ghost_players].weapon = ent->client->resp.weapon;
-			ghost_players[num_ghost_players].item = ent->client->resp.item;
-			ghost_players[num_ghost_players].team = ent->client->resp.team;
+	if (i >= num_ghost_players) {
+		if (num_ghost_players >= MAX_GHOSTS) {
+			gi.dprintf( "Maximum number of ghosts reached.\n" );
+			return;
 		}
-		// Statistics
-
-		ghost_players[num_ghost_players].shotsTotal = ent->client->resp.shotsTotal;
-		ghost_players[num_ghost_players].hitsTotal = ent->client->resp.hitsTotal;
-
-		memcpy(ghost_players[num_ghost_players].hitsLocations, ent->client->resp.hitsLocations,
-		       sizeof(ent->client->resp.hitsLocations));
-		memcpy(ghost_players[num_ghost_players].gunstats, ent->client->resp.gunstats,
-		       sizeof(ent->client->resp.gunstats));
-
-		num_ghost_players++;
-	} else {
-		gi.dprintf("Maximum number of ghosts reached.\n");
+		ghost = &ghost_players[num_ghost_players++];
 	}
 
+	strcpy(ghost->ip, ent->client->pers.ip);
+	strcpy(ghost->netname, ent->client->pers.netname);
+
+	ghost->enterframe = ent->client->resp.enterframe;
+	ghost->disconnect_frame = level.framenum;
+
+	// Score
+	ghost->score = ent->client->resp.score;
+	ghost->damage_dealt = ent->client->resp.damage_dealt;
+	ghost->kills = ent->client->resp.kills;
+
+	// Teamplay variables
+	if (teamplay->value) {
+		ghost->weapon = ent->client->resp.weapon;
+		ghost->item = ent->client->resp.item;
+		ghost->team = ent->client->resp.team;
+	}
+
+	// Statistics
+	ghost->shotsTotal = ent->client->resp.shotsTotal;
+	ghost->hitsTotal = ent->client->resp.hitsTotal;
+
+	memcpy(ghost->hitsLocations, ent->client->resp.hitsLocations, sizeof(ghost->hitsLocations));
+	memcpy(ghost->gunstats, ent->client->resp.gunstats, sizeof(ghost->gunstats));
 }
 
 //==============================================================

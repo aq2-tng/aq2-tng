@@ -80,20 +80,22 @@ void _printplayerlist (edict_t * self, char *buf,
 
 	Q_strncatz (buf, " #  Name\n", MAX_STRING_CHARS);
 	Q_strncatz (buf, "------------------------------------\n", MAX_STRING_CHARS);
-	for (i = 1; i <= game.maxclients; i++)
+	for (i = 1, other = g_edicts + 1; i <= game.maxclients; i++, other++)
 	{
-		other = &g_edicts[i];
-		if (other->client && other != self && other->inuse)
-		{
-			if (markthis (self, other) == true)
-				dummy = '*';
-			else
-				dummy = ' ';
-			sprintf (tmpbuf, "%2i %c%s\n", i, dummy, other->client->pers.netname);
-			count++;
+		if (!other->inuse || !other->client || other->client->pers.mvdspec)
+			continue;
 
-			Q_strncatz (buf, tmpbuf, MAX_STRING_CHARS);
-		}
+		if (other == self)
+			continue;
+
+		if (markthis (self, other) == true)
+			dummy = '*';
+		else
+			dummy = ' ';
+		sprintf (tmpbuf, "%2i %c%s\n", i, dummy, other->client->pers.netname);
+		count++;
+
+		Q_strncatz (buf, tmpbuf, MAX_STRING_CHARS);
 	}
 	if (!count)
 		Q_strncatz (buf, "None\n", MAX_STRING_CHARS);
@@ -107,11 +109,12 @@ int _numclients (void)
 	edict_t *other;
 
 	count = 0;
-	for (i = 1; i <= game.maxclients; i++)
+	for (i = 1, other = g_edicts + 1; i <= game.maxclients; i++, other++)
 	{
-		other = &g_edicts[i];
-		if (other->inuse && Info_ValueForKey(other->client->pers.userinfo, "mvdspec")[0] == '\0')
-			count++;
+		if (!other->inuse || !other->client || other->client->pers.mvdspec)
+			continue;
+
+		count++;
 	}
 	return count;
 }
@@ -969,17 +972,22 @@ void _AddKickuserToMenu (edict_t * ent, int fromix)
 	char buf[256];
 
 	j = 0;
-	for(i = 1; i <= game.maxclients && j < fromix; i++)
+	for(i = 1, other = g_edicts + 1; i <= game.maxclients && j < fromix; i++, other++)
 	{
-		other = &g_edicts[i];
-		if (other->inuse && other != ent)
+		if (!other->inuse || !other->client || other->client->pers.mvdspec)
+			continue;
+
+		if (other != ent)
 			j++;
 	}
 	erg = true;
-	while (i <= game.maxclients && erg)
+
+	for (; i <= game.maxclients && erg; i++, other++)
 	{
-		other = &g_edicts[i];
-		if (other->inuse && other != ent)
+		if (!other->inuse || !other->client || other->client->pers.mvdspec)
+			continue;
+
+		if (other != ent)
 		{
 			//+ Marker: Hier gewählten markieren - erledigt -
 			sprintf (buf, "%s%2i: %s%s",
@@ -988,7 +996,6 @@ void _AddKickuserToMenu (edict_t * ent, int fromix)
 			other == Mostkickvotes ? MostKickMarker : "");
 			erg = xMenu_Add (ent, buf, _KickSelected);
 		}
-		i++;
 	}
 }
 
@@ -1036,7 +1043,7 @@ void Cmd_Votekicknum_f (edict_t * ent, char *argument)
 	}
 
 	target = &g_edicts[i];
-	if (target && target->client && target != ent && target->inuse)
+	if (target && target->inuse && target->client && target != ent && !target->client->pers.mvdspec)
 		_SetKickVote (ent, target);
 	else
 		gi.cprintf (ent, PRINT_HIGH, "\nUse kicklist to see who can be kicked.\n");
