@@ -2649,6 +2649,13 @@ qboolean ClientConnect(edict_t * ent, char *userinfo)
 	memset( &ent->client->resp, 0, sizeof( ent->client->resp ) );
 	InitClientPersistant(ent->client);
 
+	if (game.serverfeatures & GMF_MVDSPEC) {
+		value = Info_ValueForKey(userinfo, "mvdspec");
+		if (*value) {
+			ent->client->pers.mvdspec = true;
+		}
+	}
+
 	ClientUserinfoChanged(ent, userinfo);
 
 	if (game.maxclients > 1) {
@@ -2657,13 +2664,6 @@ qboolean ClientConnect(edict_t * ent, char *userinfo)
 	}
 
 	Q_strncpyz(ent->client->pers.ip, ipaddr_buf, sizeof(ent->client->pers.ip));
-
-	if (game.serverfeatures & GMF_MVDSPEC) {
-		value = Info_ValueForKey(userinfo, "mvdspec");
-		if (*value) {
-			ent->client->pers.mvdspec = true;
-		}
-	}
 
 	ent->svflags = 0;
 
