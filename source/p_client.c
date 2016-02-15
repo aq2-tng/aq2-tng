@@ -320,6 +320,8 @@
 #include "m_player.h"
 #include "cgf_sfx_glass.h"
 
+void Cmd_Inven_f( edict_t *ent );
+
 void ClientUserinfoChanged(edict_t * ent, char *userinfo);
 void ClientDisconnect(edict_t * ent);
 void SP_misc_teleporter_dest(edict_t * ent);
@@ -1862,11 +1864,13 @@ void InitClientResp(gclient_t * client)
 	gitem_t *weapon = client->resp.weapon;
 	qboolean menu_shown = client->resp.menu_shown;
 	qboolean dm_selected = client->resp.dm_selected;
+	char *mapvote = client->resp.mapvote;
 
 	memset(&client->resp, 0, sizeof(client->resp));
 	client->resp.team = team;
 	client->resp.enterframe = level.framenum;
 	client->resp.coop_respawn = client->pers;
+	client->resp.mapvote = mapvote;
 
 	if (!dm_choose->value && !warmup->value) {
 		if ((int) wp_flags->value & WPF_MP5) {
@@ -2765,7 +2769,7 @@ void PutClientInServer(edict_t * ent)
 	client->team_wounds = save_team_wounds;
 	client->team_kills = save_team_kills;
 
-	if (save_ipaddr && client->ipaddr)
+	if (client->ipaddr)
 		strcpy(client->ipaddr, save_ipaddr);
 //FF
 	if (client->pers.health <= 0)
@@ -2890,7 +2894,7 @@ void PutClientInServer(edict_t * ent)
 	gi.linkentity(ent);
 
 	//zucc give some ammo
-	//item = FindItem("Pistol Clip");     
+	//item = FindItem(MK23_AMMO_NAME);
 	// Add_Ammo(ent,item,1);
 	client->mk23_max = 12;
 	client->mp5_max = 30;
@@ -3267,6 +3271,7 @@ qboolean ClientConnect(edict_t * ent, char *userinfo)
 	ResetKills(ent);
 
 	// We're not going to attempt to support reconnection...
+	// FIXME: why is this here and what does it do? doesn't work with bots! -hifi
 	if (ent->inuse == true) {
 		ClientDisconnect(ent);
 		ent->inuse = false;

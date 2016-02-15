@@ -533,7 +533,7 @@ void stuffcmd(edict_t * ent, char *c)
 void unicastSound(edict_t *ent, int soundIndex, float volume)
 {
     int mask = MASK_ENTITY_CHANNEL;
- 
+
     if (volume != 1.0)
         mask |= MASK_VOLUME;
  
@@ -834,7 +834,8 @@ void EjectShell(edict_t * self, vec3_t start, int toggle)
 
 	shell->owner = self;
 	shell->touch = ShellTouch;
-	shell->nextthink = level.time + 1.2 - (shells * .05);
+	float shell_subtract = shelllimit->value ? (1. / shelllimit->value) : 0.;
+	shell->nextthink = level.time + shelllife->value * (1.0 - (shells * shell_subtract));
 	shell->think = ShellDie;
 	shell->classname = "shell";
 
@@ -851,17 +852,11 @@ edict_t *FindEdictByClassnum(char *classname, int classnum)
 	int i;
 	edict_t *it;
 
-	for (i = 0; i < globals.num_edicts; i++) {
+	for (i = 0; i < globals.num_edicts; i++)
+	{
 		it = &g_edicts[i];
-		if (!it->classname)
-			continue;
-		if (!it->classnum)
-			continue;
-		if (Q_stricmp(it->classname, classname) == 0) {
-			if (it->classnum == classnum)
-				return it;
-		}
-
+		if (it->classname && (it->classnum == classnum) && (strcasecmp(it->classname, classname) == 0))
+			return it;
 	}
 
 	return NULL;
@@ -869,6 +864,42 @@ edict_t *FindEdictByClassnum(char *classname, int classnum)
 }
 
 /********* Bulletholes/wall stuff ***********/
+
+// Decal/splat attached to some moving entity.
+void DecalOrSplatThink( edict_t *self )
+{
+	if( level.time >= self->wait )
+	{
+		G_FreeEdict(self);
+		return;
+	}
+
+	self->nextthink = level.time + FRAMETIME;
+
+	if( self < self->movetarget )
+	{
+		// If the object we're attached to hasn't been updated yet this frame,
+		// we need to move ahead one frame's worth so we stay aligned with it.
+		VectorScale( self->movetarget->velocity, FRAMETIME, self->s.origin );
+		VectorAdd( self->movetarget->s.origin, self->s.origin, self->s.origin );
+		VectorScale( self->movetarget->avelocity, FRAMETIME, self->s.angles );
+		VectorAdd( self->movetarget->s.angles, self->s.angles, self->s.angles );
+	}
+	else
+	{
+		VectorCopy( self->movetarget->s.origin, self->s.origin );
+		VectorCopy( self->movetarget->s.angles, self->s.angles );
+	}
+
+	vec3_t fwd, right, up;
+	AngleVectors( self->s.angles, fwd, right, up ); // At this point, this is the angles of the entity we attached to.
+	self->s.origin[0] += fwd[0] * self->move_origin[0] + right[0] * self->move_origin[1] + up[0] * self->move_origin[2];
+	self->s.origin[1] += fwd[1] * self->move_origin[0] + right[1] * self->move_origin[1] + up[1] * self->move_origin[2];
+	self->s.origin[2] += fwd[2] * self->move_origin[0] + right[2] * self->move_origin[1] + up[2] * self->move_origin[2];
+	VectorAdd( self->s.angles, self->move_angles, self->s.angles );
+	VectorCopy( self->movetarget->velocity, self->velocity );
+	VectorCopy( self->movetarget->avelocity, self->avelocity );
+}
 
 void DecalDie(edict_t * self)
 {
@@ -882,6 +913,17 @@ void AddDecal(edict_t * self, trace_t * tr)
 	if (bholelimit->value < 1)
 		return;
 
+	qboolean attached = false;
+
+	if (tr->ent && ( (strncasecmp( tr->ent->classname, "func_door", 9 ) == 0)
+	               || (strcasecmp( tr->ent->classname, "func_plat" ) == 0)
+	               || (strcasecmp( tr->ent->classname, "func_rotating" ) == 0)
+	               || (strcasecmp( tr->ent->classname, "func_train" ) == 0)
+	               || (strcasecmp( tr->ent->classname, "func_button" ) == 0) ))
+	{
+		attached = true;
+	}
+
 	decal = G_Spawn();
 	++decals;
 
@@ -891,6 +933,7 @@ void AddDecal(edict_t * self, trace_t * tr)
 	dec = FindEdictByClassnum("decal", decals);
 
 	if (dec) {
+		dec->think = DecalDie;
 		dec->nextthink = level.time + .1;
 	}
 
@@ -899,16 +942,32 @@ void AddDecal(edict_t * self, trace_t * tr)
 	decal->s.modelindex = gi.modelindex("models/objects/holes/hole1/hole.md2");
 	VectorCopy(tr->endpos, decal->s.origin);
 	vectoangles(tr->plane.normal, decal->s.angles);
+	decal->s.angles[ROLL] = crandom() * 180.f;
+
 	decal->owner = self;
-	decal->classnum = decals;
 	decal->touch = NULL;
-	decal->nextthink = level.time + 20;
-	decal->think = DecalDie;
+	decal->nextthink = level.time + bholelife->value;
+	decal->think = bholelife->value ? DecalDie : NULL;
 	decal->classname = "decal";
+	decal->classnum = decals;
 
 	gi.linkentity(decal);
 	if ((tr->ent) && (0 == Q_stricmp("func_explosive", tr->ent->classname))) {
 		CGF_SFX_AttachDecalToGlass(tr->ent, decal);
+	}
+	else if( attached )
+	{
+		decal->think = DecalOrSplatThink;
+		decal->wait = decal->nextthink;
+		decal->movetarget = tr->ent;
+		vec3_t fwd, right, up, offset;
+		AngleVectors( tr->ent->s.angles, fwd, right, up );
+		VectorSubtract( decal->s.origin, tr->ent->s.origin, offset );
+		decal->move_origin[0] = DotProduct( offset, fwd );
+		decal->move_origin[1] = DotProduct( offset, right );
+		decal->move_origin[2] = DotProduct( offset, up );
+		VectorSubtract( decal->s.angles, tr->ent->s.angles, decal->move_angles );
+		DecalOrSplatThink( decal );
 	}
 }
 
@@ -925,6 +984,17 @@ void AddSplat(edict_t * self, vec3_t point, trace_t * tr)
 	if (splatlimit->value < 1)
 		return;
 
+	qboolean attached = false;
+
+	if (tr->ent && ( (strncasecmp( tr->ent->classname, "func_door", 9 ) == 0)
+	               || (strcasecmp( tr->ent->classname, "func_plat" ) == 0)
+	               || (strcasecmp( tr->ent->classname, "func_rotating" ) == 0)
+	               || (strcasecmp( tr->ent->classname, "func_train" ) == 0)
+	               || (strcasecmp( tr->ent->classname, "func_button" ) == 0) ))
+	{
+		attached = true;
+	}
+
 	splat = G_Spawn();
 	++splats;
 
@@ -934,6 +1004,7 @@ void AddSplat(edict_t * self, vec3_t point, trace_t * tr)
 	spt = FindEdictByClassnum("splat", splats);
 
 	if (spt) {
+		spt->think = SplatDie;
 		spt->nextthink = level.time + .1;
 	}
 
@@ -951,12 +1022,12 @@ void AddSplat(edict_t * self, vec3_t point, trace_t * tr)
 	VectorCopy(point, splat->s.origin);
 
 	vectoangles(tr->plane.normal, splat->s.angles);
+	splat->s.angles[ROLL] = crandom() * 180.f;
 
 	splat->owner = self;
 	splat->touch = NULL;
-	splat->nextthink = level.time + 25;	// - (splats * .05);
-
-	splat->think = SplatDie;
+	splat->nextthink = level.time + splatlife->value; // - (splats * .05);
+	splat->think = splatlife->value ? SplatDie : NULL;
 	splat->classname = "splat";
 	splat->classnum = splats;
 
@@ -964,73 +1035,110 @@ void AddSplat(edict_t * self, vec3_t point, trace_t * tr)
 	if ((tr->ent) && (0 == Q_stricmp("func_explosive", tr->ent->classname))) {
 		CGF_SFX_AttachDecalToGlass(tr->ent, splat);
 	}
+	else if( attached )
+	{
+		splat->think = DecalOrSplatThink;
+		splat->wait = splat->nextthink;
+		splat->movetarget = tr->ent;
+		vec3_t fwd, right, up, offset;
+		AngleVectors( tr->ent->s.angles, fwd, right, up );
+		VectorSubtract( splat->s.origin, tr->ent->s.origin, offset );
+		splat->move_origin[0] = DotProduct( offset, fwd );
+		splat->move_origin[1] = DotProduct( offset, right );
+		splat->move_origin[2] = DotProduct( offset, up );
+		VectorSubtract( splat->s.angles, tr->ent->s.angles, splat->move_angles );
+		DecalOrSplatThink( splat );
+	}
 }
 
 /* %-variables for chat msgs */
 
 void GetWeaponName(edict_t * ent, char *buf)
 {
-	if (ent->client->pers.weapon) {
+	if (ent->solid != SOLID_NOT && ent->deadflag != DEAD_DEAD && ent->client->pers.weapon)
+	{
 		strcpy(buf, ent->client->pers.weapon->pickup_name);
 		return;
 	}
 
-	strcpy(buf, "No Weapon");
+	strcpy(buf, "no weapon");
 }
 
 void GetItemName(edict_t * ent, char *buf)
 {
 	int i;
 
-	for(i = 0; i<ITEM_COUNT; i++)
+	if (ent->solid != SOLID_NOT && ent->deadflag != DEAD_DEAD)
 	{
-		if (INV_AMMO(ent, tnums[i])) {
-			strcpy(buf, GET_ITEM(tnums[i])->pickup_name);
-			return;
+		for(i = 0; i<ITEM_COUNT; i++)
+		{
+			if (INV_AMMO(ent, tnums[i]))
+			{
+				strcpy(buf, GET_ITEM(tnums[i])->pickup_name);
+				return;
+			}
 		}
 	}
 
-	strcpy(buf, "No Item");
+	strcpy(buf, "no item");
 }
 
 void GetHealth(edict_t * ent, char *buf)
 {
-	sprintf(buf, "%d", ent->health);
+	if (ent->solid != SOLID_NOT && ent->deadflag != DEAD_DEAD)
+		sprintf(buf, "%d", ent->health);
+	else
+		sprintf(buf, "0");
 }
 
 void GetAmmo(edict_t * ent, char *buf)
 {
 	int ammo;
 
-	if (ent->client->pers.weapon) {
+	if (ent->solid != SOLID_NOT && ent->deadflag != DEAD_DEAD && ent->client->pers.weapon)
+	{
 		switch (ent->client->curr_weap) {
 		case MK23_NUM:
-			sprintf(buf, "%d rounds (%d extra clips)",
-				ent->client->mk23_rds, ent->client->pers.inventory[ent->client->ammo_index]);
+			sprintf(buf, "%d round%s (%d extra mag%s)",
+				ent->client->mk23_rds, ent->client->mk23_rds == 1 ? "" : "s",
+				ent->client->pers.inventory[ent->client->ammo_index],
+				ent->client->pers.inventory[ent->client->ammo_index] == 1 ? "" : "s");
 			return;
 		case MP5_NUM:
-			sprintf(buf, "%d rounds (%d extra clips)",
-				ent->client->mp5_rds, ent->client->pers.inventory[ent->client->ammo_index]);
+			sprintf(buf, "%d round%s (%d extra mag%s)",
+				ent->client->mp5_rds, ent->client->mp5_rds == 1 ? "" : "s",
+				ent->client->pers.inventory[ent->client->ammo_index],
+				ent->client->pers.inventory[ent->client->ammo_index] == 1 ? "" : "s");
 			return;
 		case M4_NUM:
-			sprintf(buf, "%d rounds (%d extra clips)",
-				ent->client->m4_rds, ent->client->pers.inventory[ent->client->ammo_index]);
+			sprintf(buf, "%d round%s (%d extra mag%s)",
+				ent->client->m4_rds, ent->client->m4_rds == 1 ? "" : "s",
+				ent->client->pers.inventory[ent->client->ammo_index],
+				ent->client->pers.inventory[ent->client->ammo_index] == 1 ? "" : "s");
 			return;
 		case M3_NUM:
-			sprintf(buf, "%d shells (%d extra shells)",
-				ent->client->shot_rds, ent->client->pers.inventory[ent->client->ammo_index]);
+			sprintf(buf, "%d shell%s (%d extra shell%s)",
+				ent->client->shot_rds, ent->client->shot_rds == 1 ? "" : "s",
+				ent->client->pers.inventory[ent->client->ammo_index],
+				ent->client->pers.inventory[ent->client->ammo_index] == 1 ? "" : "s");
 			return;
 		case HC_NUM:
-			sprintf(buf, "%d shells (%d extra shells)",
-				ent->client->cannon_rds, ent->client->pers.inventory[ent->client->ammo_index]);
+			sprintf(buf, "%d shell%s (%d extra shell%s)",
+				ent->client->cannon_rds, ent->client->cannon_rds == 1 ? "" : "s",
+				ent->client->pers.inventory[ent->client->ammo_index],
+				ent->client->pers.inventory[ent->client->ammo_index] == 1 ? "" : "s");
 			return;
 		case SNIPER_NUM:
-			sprintf(buf, "%d rounds (%d extra rounds)",
-				ent->client->sniper_rds, ent->client->pers.inventory[ent->client->ammo_index]);
+			sprintf(buf, "%d round%s (%d extra round%s)",
+				ent->client->sniper_rds, ent->client->sniper_rds == 1 ? "" : "s",
+				ent->client->pers.inventory[ent->client->ammo_index],
+				ent->client->pers.inventory[ent->client->ammo_index] == 1 ? "" : "s");
 			return;
 		case DUAL_NUM:
-			sprintf(buf, "%d rounds (%d extra clips)",
-				ent->client->dual_rds, ent->client->pers.inventory[ent->client->ammo_index]);
+			sprintf(buf, "%d round%s (%d extra mag%s)",
+				ent->client->dual_rds, ent->client->dual_rds == 1 ? "" : "s",
+				ent->client->pers.inventory[ent->client->ammo_index],
+				ent->client->pers.inventory[ent->client->ammo_index] == 1 ? "" : "s");
 			return;
 		case KNIFE_NUM:
 			ammo = INV_AMMO(ent, KNIFE_NUM);
@@ -1048,7 +1156,7 @@ void GetAmmo(edict_t * ent, char *buf)
 
 void GetNearbyTeammates(edict_t * self, char *buf)
 {
-	unsigned char nearby_teammates[8][16];
+	char nearby_teammates[8][16];
 	int nearby_teammates_num = 0, l;
 	edict_t *ent = NULL;
 

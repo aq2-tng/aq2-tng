@@ -69,14 +69,15 @@
 
 //==============================================
 #ifdef _WIN32
+#ifdef _MSC_VER
 // unknown pragmas are SUPPOSED to be ignored, but....
 #pragma warning(disable : 4244)	// MIPS
 #pragma warning(disable : 4136)	// X86
 #pragma warning(disable : 4051)	// ALPHA
 #pragma warning(disable : 4018)	// signed/unsigned mismatch
 #pragma warning(disable : 4305)	// truncation from const double to float
-
-#pragma warning(disable : 4996)		// deprecated functions
+#pragma warning(disable : 4996)	// deprecated functions
+#endif
 
 # define HAVE___INLINE
 # define HAVE__SNPRINTF
@@ -1403,9 +1404,7 @@ typedef struct
   int rdflags;			// refdef flags
 
   short stats[MAX_STATS];	// fast status bar updates
-
 }
 player_state_t;
 
 #endif
-

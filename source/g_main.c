@@ -299,7 +299,10 @@ cvar_t *limchasecam;
 cvar_t *roundlimit;
 cvar_t *skipmotd;
 cvar_t *nohud;
+cvar_t *hud_team_icon;
+cvar_t *hud_items_cycle;
 cvar_t *noscore;
+cvar_t *hud_noscore;
 cvar_t *use_newscore;
 cvar_t *actionversion;
 cvar_t *needpass;
@@ -366,9 +369,14 @@ cvar_t *flashtime;*/
 //SLIC2
 cvar_t *allweapon;
 cvar_t *allitem;
+cvar_t *allow_hoarding;
 cvar_t *sv_shelloff;
+cvar_t *shelllimit;
+cvar_t *shelllife;
 cvar_t *bholelimit;
 cvar_t *splatlimit;
+cvar_t *bholelife;
+cvar_t *splatlife;
 cvar_t *check_time;		// Time to wait before checks start ?
 cvar_t *video_check;
 cvar_t *video_checktime;
@@ -384,6 +392,7 @@ cvar_t *itm_flags;		// Item Banning
 cvar_t *matchmode;
 cvar_t *darkmatch;		// Darkmatch
 cvar_t *day_cycle;		// If darkmatch is on, this value is the nr of seconds between each interval (day, dusk, night, dawn)
+cvar_t *use_flashlight;         // Allow flashlight when not darkmatch?
 cvar_t *hearall;		// used for matchmode
 cvar_t *deadtalk;
 
@@ -601,7 +610,6 @@ void EndDMLevel (void)
 	char ltm[64] = "\0";
 	struct tm *now;
 	time_t tnow;
-
 
 	tnow = time ((time_t *) 0);
 	now = localtime (&tnow);

@@ -154,6 +154,8 @@
 
 #include "g_local.h"
 
+void PrecacheItems();
+
 typedef struct
 {
   char *name;
@@ -1200,9 +1202,13 @@ xl < value > xr < value > yb < value > yt < value > xv < value > yv < value >
     "yb -58 " "string \"Viewing\" " "xv 64 " "stat_string 21 " "endif ";
 
 
-char *dm_statusbar = "yb     -24 "
+char *dm_statusbar = ""
+// team icon
+  "if 23 xl 0 yb -32 pic 23 endif "
+// standard bottom icons
+  "yb     -24 "
 // health
-  "xv     0 " "hnum " "xv     50 " "pic 0 "
+  "if 0 " "xv     0 " "hnum " "xv     50 " "pic 0 " "endif "
 // ammo
   "if 2 "
   "       xv      100 "
@@ -1271,14 +1277,17 @@ char *dm_statusbar = "yb     -24 "
   "       yb      0 "
   "       xv      0 " "       yv      0 " "       pic 18 " "endif "
 //  frags
-  "xr     -50 " "yt 2 " "num 3 14";
-
-
+  "xr     -50 " "yt 2 " "num 3 14"
+;
 
 /* DM status bar for teamplay without individual scores -FB: */
-char *dm_noscore_statusbar = "yb     -24 "
+char *dm_noscore_statusbar = ""
+// team icon
+  "if 23 xl 0 yb -32 pic 23 endif "
+// standard bottom icons
+  "yb     -24 "
 // health
-  "xv     0 " "hnum " "xv     50 " "pic 0 "
+  "if 0 " "xv     0 " "hnum " "xv     50 " "pic 0 " "endif "
 // ammo
   "if 2 "
   "       xv      100 "
@@ -1352,7 +1361,7 @@ char *dm_noscore_statusbar = "yb     -24 "
 "yt 2 "
 "num 3 14"
 */
- ;
+;
 // END FB
 
 char *ctf_statusbar = "yb     -24 "
@@ -1514,7 +1523,7 @@ void SP_worldspawn (edict_t * ent)
 			gi.imageindex ("i_ctf1t");
 			gi.imageindex ("i_ctf2t");
 		}
-		else if (noscore->value && teamplay->value)
+		else if ((noscore->value || hud_noscore->value) && teamplay->value)
 		{
 			gi.configstring (CS_STATUSBAR, dm_noscore_statusbar);
 		}

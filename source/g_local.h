@@ -806,10 +806,10 @@ extern int stopAP;
 
 extern edict_t *g_edicts;
 
-#define FOFS(x)  (int)&(((edict_t *)0)->x)
-#define STOFS(x) (int)&(((spawn_temp_t *)0)->x)
-#define LLOFS(x) (int)&(((level_locals_t *)0)->x)
-#define CLOFS(x) (int)&(((gclient_t *)0)->x)
+#define FOFS(x)  (ptrdiff_t)&(((edict_t *)0)->x)
+#define STOFS(x) (ptrdiff_t)&(((spawn_temp_t *)0)->x)
+#define LLOFS(x) (ptrdiff_t)&(((level_locals_t *)0)->x)
+#define CLOFS(x) (ptrdiff_t)&(((gclient_t *)0)->x)
 
 #define random()        ((rand () & 0x7fff) / ((float)0x7fff))
 #define crandom()       (2.0 * (random() - 0.5))
@@ -832,7 +832,10 @@ extern cvar_t *limchasecam;
 extern cvar_t *roundlimit;
 extern cvar_t *skipmotd;
 extern cvar_t *nohud;
+extern cvar_t *hud_team_icon;
+extern cvar_t *hud_items_cycle;
 extern cvar_t *noscore;
+extern cvar_t *hud_noscore;
 extern cvar_t *use_newscore;
 extern cvar_t *actionversion;
 extern cvar_t *use_voice;
@@ -871,6 +874,7 @@ extern cvar_t *check_time;
 extern cvar_t *matchmode;
 extern cvar_t *darkmatch;
 extern cvar_t *day_cycle;	// If darkmatch is on, this value is the nr of seconds between each interval (day, dusk, night, dawn)
+extern cvar_t *use_flashlight;  // Allow flashlight when not darkmatch?
 
 extern cvar_t *hearall;		// used in match mode
 extern cvar_t *deadtalk;
@@ -947,6 +951,7 @@ extern cvar_t *knifelimit;
 extern cvar_t *tgren;
 extern cvar_t *allweapon;
 extern cvar_t *allitem;
+extern cvar_t *allow_hoarding; // Allow carrying multiple of the same special item or unique weapon.
 
 extern cvar_t *stats_endmap; // If on (1), show the accuracy/etc stats at the end of a map
 extern cvar_t *stats_afterround; // TNG Stats, collect stats between rounds
@@ -965,8 +970,12 @@ extern cvar_t *use_ghosts;
 
 // zucc from action
 extern cvar_t *sv_shelloff;
+extern cvar_t *shelllimit;
+extern cvar_t *shelllife;
 extern cvar_t *splatlimit;
 extern cvar_t *bholelimit;
+extern cvar_t *splatlife;
+extern cvar_t *bholelife;
 
 #define world   (&g_edicts[0])
 
@@ -1054,7 +1063,7 @@ void Touch_Item (edict_t * ent, edict_t * other, cplane_t * plane,
 qboolean KillBox (edict_t * ent);
 void G_ProjectSource (vec3_t point, vec3_t distance, vec3_t forward,
 		      vec3_t right, vec3_t result);
-edict_t *G_Find (edict_t * from, int fieldofs, char *match);
+edict_t *G_Find (edict_t * from, ptrdiff_t fieldofs, char *match);
 edict_t *findradius (edict_t * from, vec3_t org, float rad);
 edict_t *G_PickTarget (char *targetname);
 void G_UseTargets (edict_t * ent, edict_t * activator);
@@ -1069,7 +1078,8 @@ void G_TouchSolids (edict_t * ent);
 
 char *G_CopyString (char *in);
 
-//float *tv (float x, float y, float z);
+// FIXME: re-enabled for bots
+float *tv (float x, float y, float z);
 char *vtos (vec3_t v);
 
 float vectoyaw (vec3_t vec);
@@ -1947,6 +1957,12 @@ void AddSplat (edict_t * self, vec3_t point, trace_t * tr);
 #define KNIFE_NAME   "Combat Knife"
 #define GRENADE_NAME "M26 Fragmentation Grenade"
 
+#define MK23_AMMO_NAME    "Pistol Magazine"
+#define MP5_AMMO_NAME     "MP5 Magazine"
+#define M4_AMMO_NAME      "M4 Magazine"
+#define SHOTGUN_AMMO_NAME "12 Gauge Shells"
+#define SNIPER_AMMO_NAME  "AP Sniper Ammo"
+
 #define SIL_NAME     "Silencer"
 #define SLIP_NAME    "Stealth Slippers"
 #define BAND_NAME    "Bandolier"
@@ -2051,7 +2067,7 @@ extern int tnums[ITEM_COUNT];
 #define BANDAGE_TIME    27	// 10 = 1 second
 #define BLEED_TIME      10	// 10 = 1 second is time for losing 1 health at slowest bleed rate
 // Igor's back in Time to hard grenades :-)
-//#define GRENADE_DAMRAD  170
+#define GRENADE_DAMRAD_CLASSIC  170
 #define GRENADE_DAMRAD  250
 
 //AQ2:TNG - Slicer New location support

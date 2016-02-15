@@ -36,7 +36,7 @@ vote_t xvotelist[] = {
    NULL,			// cvar
    _InitMapVotelist,		// InitGame 
    NULL,			// ExitGame 
-   NULL,			// InitLevel
+   _ClearMapVotes,		// InitLevel
    _MapExitLevel,		// ExitLevel
    _MapInitClient,		// InitClient
    NULL,			// ClientConnect

@@ -1135,8 +1135,8 @@ T_Damage (edict_t * targ, edict_t * inflictor, edict_t * attacker, vec3_t dir,
 			&& (targ->movetype != MOVETYPE_PUSH)
 			&& (targ->movetype != MOVETYPE_STOP))
 		{
-			vec3_t kvel, flydir;
-			float mass;
+			vec3_t kvel = {0.f,0.f,0.f}, flydir = {0.f,0.f,0.f};
+			float mass = 0.f;
 
 			if (mod != MOD_FALLING)
 			{

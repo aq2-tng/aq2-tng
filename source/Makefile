@@ -1,6 +1,6 @@
 # GNU Make required
 #
-# Tested platforms: Linux x86
+# Tested platforms: Linux x86, Linux x86_64, MinGW x86
 #
 
 GIT_REV=$(shell git rev-parse --short HEAD)
@@ -37,13 +37,18 @@ VERSION=$(REL_VERSION)
 endif
 
 CC?=gcc
-BASE_CFLAGS=-DC_ONLY -DVERSION=\"$(VERSION)\"
+BASE_CFLAGS=-DC_ONLY -DVERSION=\"$(VERSION)\" -Wall -fno-strict-aliasing
 
 #use these cflags to optimize it
 ifdef DEBUG
-	CFLAGS=$(BASE_CFLAGS) -g -Wall
+	CFLAGS=$(BASE_CFLAGS) -g
 else
 	CFLAGS=$(BASE_CFLAGS) -O2
+
+	# If it's not for release, allow machine-specific optimizations.
+	ifneq ($(RELEASE),yes)
+		CFLAGS+=-march=native -mtune=native
+	endif
 endif
 
 ifdef X86
@@ -57,8 +62,12 @@ DO_LINK=$(CC) $(CFLAGS) $(SHLIBLDFLAGS) -o $@ $(GAME_OBJS) $(SHLIBLIBS)
 SHLIBEXT?=so
 SHLIBLDFLAGS?=-shared
 
+ifneq (,$(findstring MINGW,$(SYSTEM))$(findstring CYGWIN,$(SYSTEM)))
+WIN32=yes
+endif
+
 ifdef WIN32
-CC=i686-w64-mingw32-gcc
+#CC=i686-w64-mingw32-gcc
 CFLAGS+=-DWIN32
 ARCH=x86
 SHLIBEXT=dll

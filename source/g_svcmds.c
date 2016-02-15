@@ -501,6 +501,50 @@ void SVCmd_SoftQuit_f (void)
 	softquit = 1;
 }
 
+void SVCmd_Slap_f (void)
+{
+	if( gi.argc() < 3 )
+	{
+		gi.cprintf( NULL, PRINT_HIGH, "Usage: sv slap <name> [<damage>] [<power>]\n" );
+		return;
+	}
+	if( lights_camera_action )
+	{
+		gi.cprintf( NULL, PRINT_HIGH, "Can't slap yet!\n" );
+		return;
+	}
+
+	const char *name = gi.argv(2);
+	size_t name_len = strlen(name);
+	int damage = atoi(gi.argv(3));
+	float power = (gi.argc() >= 5) ? atof(gi.argv(4)) : 100.f;
+	vec3_t slap_dir = {0.f,0.f,1.f}, slap_normal = {0.f,0.f,-1.f};
+	qboolean found_victim = false;
+
+	size_t i;
+	for( i = 0; i < maxclients->value ; i ++ )
+	{
+		edict_t *ent = g_edicts + i + 1;
+		if( ent->inuse && (strncasecmp( ent->client->pers.netname, name, name_len ) == 0) )
+		{
+			found_victim = true;
+			if( (ent->deadflag != DEAD_DEAD) && (ent->solid != SOLID_NOT) )
+			{
+				slap_dir[ 0 ] = crandom() * 0.5f;
+				slap_dir[ 1 ] = crandom() * 0.5f;
+				T_Damage( ent, world, world, slap_dir, ent->s.origin, slap_normal, damage, power, 0, MOD_KICK );
+				gi.sound( ent, CHAN_WEAPON, gi.soundindex("weapons/kick.wav"), 1, ATTN_NORM, 0 );
+				gi.bprintf( PRINT_HIGH, "Admin slapped %s for %i damage.\n", ent->client->pers.netname, damage );
+			}
+			else
+				gi.cprintf( NULL, PRINT_HIGH, "%s is already dead.\n", ent->client->pers.netname );
+		}
+	}
+
+	if( ! found_victim )
+		gi.cprintf( NULL, PRINT_HIGH, "Couldn't find %s to slap.\n", name );
+}
+
 /*
 =================
 ServerCommand
@@ -541,6 +585,23 @@ void ServerCommand (void)
 		SVCmd_ResetScores_f ();
 	else if (Q_stricmp (cmd, "softquit") == 0)
 		SVCmd_SoftQuit_f ();
+	else if (Q_stricmp (cmd, "slap") == 0)
+		SVCmd_Slap_f ();
+	else if (Q_stricmp (cmd, "showangles") == 0)
+	{
+		size_t i;
+		for( i = 0; i < maxclients->value ; i ++ )
+		{
+			edict_t *ent = g_edicts + i + 1;
+			if( ent->inuse )
+			{
+				gi.cprintf( NULL, PRINT_HIGH, "\n%-12.12s: resp.cmd_angles:       %5.1f, %6.1f, %5.1f\n", ent->client->pers.netname, ent->client->resp.cmd_angles[0], ent->client->resp.cmd_angles[1], ent->client->resp.cmd_angles[2] );
+				gi.cprintf( NULL, PRINT_HIGH,   "%-12.12s: v_angle:               %5.1f, %6.1f, %5.1f\n", ent->client->pers.netname, ent->client->v_angle[0], ent->client->v_angle[1], ent->client->v_angle[2] );
+				gi.cprintf( NULL, PRINT_HIGH,   "%-12.12s: ps.viewangles:         %5.1f, %6.1f, %5.1f\n", ent->client->pers.netname, ent->client->ps.viewangles[0], ent->client->ps.viewangles[1], ent->client->ps.viewangles[2] );
+				gi.cprintf( NULL, PRINT_HIGH,   "%-12.12s: ps.pmove.delta_angles: %5.1f, %6.1f, %5.1f\n", ent->client->pers.netname, SHORT2ANGLE(ent->client->ps.pmove.delta_angles[0]), SHORT2ANGLE(ent->client->ps.pmove.delta_angles[1]), SHORT2ANGLE(ent->client->ps.pmove.delta_angles[2]) );
+			}
+		}
+	}
 	else
 		gi.cprintf (NULL, PRINT_HIGH, "Unknown server command \"%s\"\n", cmd);
 }
