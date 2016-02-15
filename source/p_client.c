@@ -2535,10 +2535,10 @@ void ClientUserinfoChanged(edict_t * ent, char *userinfo)
 	if(!tnick[0])
 		strcpy(tnick, "unnamed");
 
-	if (!client->pers.mvdspec && strcmp(client->pers.netname, tnick))
+	if (strcmp(client->pers.netname, tnick))
 	{
 		// on the initial update, we won't broadcast the message.
-		if (client->pers.netname[0])
+		if (!client->pers.mvdspec && client->pers.netname[0])
 		{
 			gi.bprintf(PRINT_MEDIUM, "%s is now known as %s.\n", client->pers.netname, tnick);	//TempFile
 			IRC_printf(IRC_T_SERVER, "%n is now known as %n.", client->pers.netname, tnick);
@@ -2547,24 +2547,27 @@ void ClientUserinfoChanged(edict_t * ent, char *userinfo)
 		strcpy(client->pers.netname, tnick);
 	}
   
-	s = Info_ValueForKey(userinfo, "spectator");
-	client->pers.spectator = (strcmp(s, "0") != 0);
+	if (client->pers.mvdspec) {
+		client->pers.spectator = true;
+	} else {
+		s = Info_ValueForKey(userinfo, "spectator");
+		client->pers.spectator = (strcmp(s, "0") != 0);
 
-	r = Info_ValueForKey(userinfo, "rate");
-	client->rate = atoi(r);
+		r = Info_ValueForKey(userinfo, "rate");
+		client->rate = atoi(r);
 
-	// set skin
-	s = Info_ValueForKey(userinfo, "skin");
-
-	// AQ:TNG - JBravo fixing $$ Skin server crash bug
-	if (strstr(s, "$$")) {
-		Info_SetValueForKey(userinfo, "skin", "male/grunt");
+		// set skin
 		s = Info_ValueForKey(userinfo, "skin");
+
+		// AQ:TNG - JBravo fixing $$ Skin server crash bug
+		if (strstr(s, "$$")) {
+			Info_SetValueForKey(userinfo, "skin", "male/grunt");
+			s = Info_ValueForKey(userinfo, "skin");
+		}
+
+		// combine name and skin into a configstring
+		AssignSkin(ent, s, nickChanged);
 	}
-
-	// combine name and skin into a configstring
-	AssignSkin(ent, s, nickChanged);
-
 
 	client->ps.fov = 90;
 

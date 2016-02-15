@@ -936,7 +936,7 @@ void JoinTeam (edict_t * ent, int desired_team, int skip_menuclose)
 		PMenu_Close (ent);
 
 	oldTeam = ent->client->resp.team;
-	if (oldTeam == desired_team)
+	if (oldTeam == desired_team || ent->client->pers.mvdspec)
 		return;
 
 	if (matchmode->value)
