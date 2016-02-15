@@ -566,7 +566,7 @@ void ClientEndServerFrames (void)
 		if (ent->client->chase_mode && ent->client->chase_target)
 			UpdateChaseCam( ent );
 
-		if (!ent->client->resp.team && teamplay->value)
+		if (teamplay->value && !ent->client->resp.team)
 			spectators++;
 	}
 

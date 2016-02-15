@@ -1100,24 +1100,6 @@ void Cmd_PutAway_f (edict_t * ent)
 //FIREBLADE
 }
 
-
-int PlayerSort (void const *a, void const *b)
-{
-	int anum, bnum;
-
-	anum = *(int *) a;
-	bnum = *(int *) b;
-
-	anum = game.clients[anum].ps.stats[STAT_FRAGS];
-	bnum = game.clients[bnum].ps.stats[STAT_FRAGS];
-
-	if (anum < bnum)
-		return -1;
-	if (anum > bnum)
-		return 1;
-	return 0;
-}
-
 /*
 =================
 Cmd_Players_f
@@ -1129,33 +1111,27 @@ static void Cmd_Players_f (edict_t * ent)
 	int count = 0;
 	char small[64];
 	char large[1024];
-	int index[256];
+	gclient_t *sortedClients[MAX_CLIENTS], *cl;
 
-
-	for (i = 0; i < game.maxclients; i++)
-	{
-		if (game.clients[i].pers.connected)
-			index[count++] = i;
-	}
 
 	if (!teamplay->value || !noscore->value)
-	{
-		// sort by frags
-		qsort (index, count, sizeof (index[0]), PlayerSort);
-	}
+		count = G_SortedClients( sortedClients );
+	else
+		count = G_NotSortedClients( sortedClients );
 
 	// print information
 	large[0] = 0;
 
 	for (i = 0; i < count; i++)
 	{
+		cl = sortedClients[i];
 		if (!teamplay->value || !noscore->value)
 			Com_sprintf (small, sizeof (small), "%3i %s\n",
-				game.clients[index[i]].ps.stats[STAT_FRAGS],
-				game.clients[index[i]].pers.netname);
+				cl->ps.stats[STAT_FRAGS],
+				cl->pers.netname );
 		else
 			Com_sprintf (small, sizeof (small), "%s\n",
-				game.clients[index[i]].pers.netname);
+				cl->pers.netname);
 
 		if (strlen(small) + strlen(large) > sizeof (large) - 20)
 		{			// can't print all of them in one packet
@@ -1165,7 +1141,7 @@ static void Cmd_Players_f (edict_t * ent)
 		strcat (large, small);
 	}
 
-	gi.cprintf (ent, PRINT_HIGH, "%s\n%i players\n", large, count);
+	gi.cprintf(ent, PRINT_HIGH, "%s\n%i players\n", large, count);
 }
 
 /*
@@ -1487,7 +1463,7 @@ static void Cmd_PlayerList_f (edict_t * ent)
 		int seconds = ((level.framenum - e2->client->resp.enterframe) / HZ) % 60;
 		int minutes = ((level.framenum - e2->client->resp.enterframe) / HZ) / 60;
 
-		if (!e2->inuse)
+		if (!e2->inuse || !e2->client || e2->client->pers.mvdspec)
 			continue;
 
 		if(limchasecam->value)
@@ -1504,7 +1480,7 @@ static void Cmd_PlayerList_f (edict_t * ent)
 		}
 		strcat (text, st);
 	}
-	gi.cprintf (ent, PRINT_HIGH, "%s", text);
+	gi.cprintf(ent, PRINT_HIGH, "%s", text);
 }
 
 //SLICER
@@ -1519,7 +1495,7 @@ static void Cmd_Ent_Count_f (edict_t * ent)
 			x++;
 	}
 
-	gi.cprintf (ent, PRINT_HIGH, "%d entities counted\n", x);
+	gi.cprintf(ent, PRINT_HIGH, "%d entities counted\n", x);
 }
 
 //SLICER END

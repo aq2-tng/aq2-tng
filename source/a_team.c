@@ -2233,12 +2233,13 @@ static int G_PlayerCmp( const void *p1, const void *p2 )
 int G_SortedClients( gclient_t **sortedList )
 {
 	int i, total = 0;
+	gclient_t *client;
 
-	for (i = 0; i < game.maxclients; i++) {
-		if (!game.clients[i].pers.connected)
+	for (i = 0, client = game.clients; i < game.maxclients; i++, client++) {
+		if (!client->pers.connected || client->pers.mvdspec)
 			continue;
 
-		sortedList[total++] = &game.clients[i];
+		sortedList[total++] = client;
 	}
 
 	qsort( sortedList, total, sizeof( gclient_t * ), G_PlayerCmp );
@@ -2249,12 +2250,13 @@ int G_SortedClients( gclient_t **sortedList )
 int G_NotSortedClients( gclient_t **sortedList )
 {
 	int i, total = 0;
+	gclient_t *client;
 
-	for (i = 0; i < game.maxclients; i++) {
-		if (!game.clients[i].pers.connected)
+	for (i = 0, client = game.clients; i < game.maxclients; i++, client++) {
+		if (!client->pers.connected || client->pers.mvdspec)
 			continue;
 
-		sortedList[total++] = &game.clients[i];
+		sortedList[total++] = client;
 	}
 
 	return total;
