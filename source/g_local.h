@@ -710,7 +710,6 @@ typedef struct
 
   // items
   int num_items;
-
 }
 game_locals_t;
 
@@ -995,11 +994,6 @@ extern cvar_t *weapon_respawn;
 extern cvar_t *ammo_respawn;
 
 extern cvar_t *wave_time;
-
-//moved these to team struct -Mani
-/*extern cvar_t *team1score;
-extern cvar_t *team2score;
-extern cvar_t *team3score;*/
 
 extern cvar_t *use_punch;
 
@@ -1618,6 +1612,8 @@ struct gclient_s
   int unique_item_total;
   int drop_knife;
   int knife_sound;		// we attack several times when slashing but only want 1 sound
+
+  int took_damage;		//Took damage from multihit weapons
 
   int no_sniper_display;
   int bandaging;

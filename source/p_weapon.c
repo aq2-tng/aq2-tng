@@ -2630,7 +2630,7 @@ void Weapon_M4 (edict_t * ent)
 }
 
 
-void InitShotgunDamageReport ();
+void InitTookDamage(void);
 void ProduceShotgunDamageReport (edict_t *);
 
 void M3_Fire (edict_t * ent)
@@ -2686,7 +2686,7 @@ void M3_Fire (edict_t * ent)
 	}
 
 	setFFState (ent);
-	InitShotgunDamageReport ();	//FB 6/3/99
+	InitTookDamage();	//FB 6/3/99
 
 	fire_shotgun (ent, start, forward, damage, kick, 800, 800,
 		12 /*DEFAULT_DEATHMATCH_SHOTGUN_COUNT */ , MOD_M3);
@@ -2772,8 +2772,8 @@ void HC_Fire (edict_t * ent)
 	AngleVectors (v, forward, NULL, NULL);
 
 	// default hspread is 1k and default vspread is 500
-	setFFState (ent);
-	InitShotgunDamageReport ();	//FB 6/3/99
+	setFFState(ent);
+	InitTookDamage();	//FB 6/3/99
 
 	if (ent->client->pers.hc_mode)
 	{
@@ -2843,7 +2843,7 @@ void HC_Fire (edict_t * ent)
         AngleVectors (v, forward, NULL, NULL);
         // default hspread is 1k and default vspread is 500
 	setFFState(ent);
-        InitShotgunDamageReport();  //FB 6/3/99
+        InitTookDamage();  //FB 6/3/99
         fire_shotgun (ent, start, forward, damage, kick, DEFAULT_SHOTGUN_HSPREAD*4, DEFAULT_SHOTGUN_VSPREAD*4, 34/2, MOD_HC);
         v[YAW]   = ent->client->v_angle[YAW] + 5;
         AngleVectors (v, forward, NULL, NULL);

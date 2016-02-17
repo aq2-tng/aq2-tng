@@ -730,17 +730,12 @@ T_Damage (edict_t * targ, edict_t * inflictor, edict_t * attacker, vec3_t dir,
 		case MOD_HG_SPLASH:
 		case MOD_G_SPLASH:
 		case MOD_BREAKINGGLASS:
-			{
-				//FB 6/3/99 - shotgun damage report stuff
-				int playernum = targ - g_edicts;
-				playernum--;
-				if (playernum >= 0 && playernum <= game.maxclients - 1)
-					*(took_damage + playernum) = 1;
-				//FB 6/3/99
+			//shotgun damage report stuff
+			if (client)
+				client->took_damage++;
 
-				bleeding = 1;
-				instant_dam = 0;
-			}
+			bleeding = 1;
+			instant_dam = 0;
 			break;
 		default:
 			break;

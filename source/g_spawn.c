@@ -1527,12 +1527,6 @@ void SP_worldspawn (edict_t * ent)
 	gi.configstring(CS_LIGHTS + 11, "abcdefghijklmnopqrrqponmlkjihgfedcba");	// 11 SLOW PULSE NOT FADE TO BLACK
 	// styles 32-62 are assigned by the light program for switchable lights
 	gi.configstring(CS_LIGHTS + 63, "a");	// 63 testing
-
-	//FB 6/2/99
-	if (took_damage != NULL)
-		gi.TagFree (took_damage);
-	took_damage = (int *)gi.TagMalloc (sizeof (int) * game.maxclients, TAG_GAME);
-	//FB 6/2/99
 }
 
 int LoadFlagsFromFile (const char *mapname)
