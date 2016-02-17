@@ -100,8 +100,6 @@
 extern char *map_rotation[];
 extern int num_maps, cur_map, num_allvotes;	// num_allvotes added by Igor[Rock]
 
-extern int *took_damage;
-
 void ReadConfigFile ();
 void ReadMOTDFile ();
 void PrintMOTD (edict_t *ent);
