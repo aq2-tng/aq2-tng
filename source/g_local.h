@@ -1213,7 +1213,6 @@ void BecomeExplosion1 (edict_t * self);
 //
 void ThrowDebris (edict_t * self, char *modelname, float speed,
 		  vec3_t origin);
-qboolean fire_hit (edict_t * self, vec3_t aim, int damage, int kick);
 void fire_bullet (edict_t * self, vec3_t start, vec3_t aimdir, int damage,
 		  int kick, int hspread, int vspread, int mod);
 void fire_shotgun (edict_t * self, vec3_t start, vec3_t aimdir, int damage,
@@ -1221,8 +1220,6 @@ void fire_shotgun (edict_t * self, vec3_t start, vec3_t aimdir, int damage,
 //SLIC2 changed argument name hyper to hyperb
 void fire_blaster (edict_t * self, vec3_t start, vec3_t aimdir, int damage,
 		   int speed, int effect, qboolean hyperb);
-void fire_grenade (edict_t * self, vec3_t start, vec3_t aimdir, int damage,
-		   int speed, int timer, float damage_radius);
 void fire_grenade2 (edict_t * self, vec3_t start, vec3_t aimdir, int damage,
 	int speed, int timer, float damage_radius,
 		    qboolean held);

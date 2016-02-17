@@ -552,53 +552,6 @@ void ChangeWeapon (edict_t * ent)
 
 /*
 =================
-NoAmmoWeaponChange
-=================
-*/
-void
-NoAmmoWeaponChange (edict_t * ent)
-{
-  if (ent->client->inventory[ITEM_INDEX (FindItem ("slugs"))]
-      && ent->client->inventory[ITEM_INDEX (FindItem ("railgun"))])
-    {
-      ent->client->newweapon = FindItem ("railgun");
-      return;
-    }
-  if (ent->client->inventory[ITEM_INDEX (FindItem ("cells"))]
-      && ent->client->inventory[ITEM_INDEX (FindItem ("hyperblaster"))])
-    {
-      ent->client->newweapon = FindItem ("hyperblaster");
-      return;
-    }
-  if (ent->client->inventory[ITEM_INDEX (FindItem ("bullets"))]
-      && ent->client->inventory[ITEM_INDEX (FindItem ("chaingun"))])
-    {
-      ent->client->newweapon = FindItem ("chaingun");
-      return;
-    }
-  if (ent->client->inventory[ITEM_INDEX (FindItem ("bullets"))]
-      && ent->client->inventory[ITEM_INDEX (FindItem ("machinegun"))])
-    {
-      ent->client->newweapon = FindItem ("machinegun");
-      return;
-    }
-  if (ent->client->inventory[ITEM_INDEX (FindItem ("shells"))] > 1
-      && ent->client->inventory[ITEM_INDEX (FindItem ("super shotgun"))])
-    {
-      ent->client->newweapon = FindItem ("super shotgun");
-      return;
-    }
-  if (ent->client->inventory[ITEM_INDEX (FindItem ("shells"))]
-      && ent->client->inventory[ITEM_INDEX (FindItem ("shotgun"))])
-    {
-      ent->client->newweapon = FindItem ("shotgun");
-      return;
-    }
-  ent->client->newweapon = FindItem ("blaster");
-}
-
-/*
-=================
 Think_Weapon
 
 Called by ClientBeginServerFrame and ClientThink
@@ -1980,8 +1933,6 @@ Weapon_Generic (edict_t * ent, int FRAME_ACTIVATE_LAST, int FRAME_FIRE_LAST,
 		  gi.sound(ent, CHAN_VOICE, level.snd_noammo, 1, ATTN_NORM, 0);
 		  ent->pain_debounce_framenum = level.framenum + 1 * HZ;
 		}
-	      //+BD - Disabled for manual weapon change
-	      //NoAmmoWeaponChange (ent);
 	    }
 	}
       else
@@ -2235,7 +2186,6 @@ void Pistol_Fire (edict_t * ent)
 			gi.sound(ent, CHAN_VOICE, level.snd_noammo, 1, ATTN_NORM, 0);
 			ent->pain_debounce_framenum = level.framenum + 1 * HZ;
 		}
-		//NoAmmoWeaponChange (ent);
 		return;
 	}
 
@@ -2382,7 +2332,6 @@ void MP5_Fire (edict_t * ent)
 			gi.sound(ent, CHAN_VOICE, level.snd_noammo, 1, ATTN_NORM, 0);
 			ent->pain_debounce_framenum = level.framenum + 1 * HZ;
 		}
-		//NoAmmoWeaponChange (ent);
 		return;
 	}
 
@@ -2523,7 +2472,6 @@ void M4_Fire (edict_t * ent)
 			gi.sound(ent, CHAN_VOICE, level.snd_noammo, 1, ATTN_NORM, 0);
 			ent->pain_debounce_framenum = level.framenum + 1 * HZ;
 		}
-		//NoAmmoWeaponChange (ent);
 		return;
 	}
 
@@ -2938,7 +2886,6 @@ void Sniper_Fire (edict_t * ent)
 			gi.sound(ent, CHAN_VOICE, level.snd_noammo, 1, ATTN_NORM, 0);
 			ent->pain_debounce_framenum = level.framenum + 1 * HZ;
 		}
-		//NoAmmoWeaponChange (ent);
 		return;
 	}
 
@@ -3056,7 +3003,6 @@ void Dual_Fire (edict_t * ent)
 			gi.sound(ent, CHAN_VOICE, level.snd_noammo, 1, ATTN_NORM, 0);
 			ent->pain_debounce_framenum = level.framenum + 1 * HZ;
 		}
-		//NoAmmoWeaponChange (ent);
 		return;
 	}
 
@@ -3148,7 +3094,6 @@ void Dual_Fire (edict_t * ent)
 			gi.sound(ent, CHAN_VOICE, level.snd_noammo, 1, ATTN_NORM, 0);
 			ent->pain_debounce_framenum = level.framenum + 1 * HZ;
 		}
-		//NoAmmoWeaponChange (ent);
 		return;
 	}
 
