@@ -762,7 +762,7 @@ static void Cmd_Drop_f (edict_t * ent)
 	gitem_t *it;
 	char *s;
 
-	if (ent->solid == SOLID_NOT || ent->deadflag == DEAD_DEAD)
+	if (!IS_ALIVE(ent))
 		return;
 
 	s = gi.args ();
@@ -896,7 +896,7 @@ void Cmd_InvUse_f (edict_t * ent)
 	}
 	//FIREBLADE
 
-	if (ent->solid == SOLID_NOT && ent->deadflag != DEAD_DEAD)
+	if (!IS_ALIVE(ent))
 		return;
 
 	ValidateSelectedItem (ent);
@@ -1036,7 +1036,7 @@ static void Cmd_InvDrop_f (edict_t * ent)
 		return;
 	// TNG: End
 
-	if (ent->solid == SOLID_NOT && ent->deadflag != DEAD_DEAD)
+	if (!IS_ALIVE(ent))
 		return;
 
 	ValidateSelectedItem(ent);
@@ -1064,7 +1064,7 @@ void SuicidePunish( edict_t *ent );
 void Cmd_Kill_f (edict_t * ent)
 {
 	//FIREBLADE
-	if (ent->solid == SOLID_NOT || ent->deadflag == DEAD_DEAD)
+	if (!IS_ALIVE(ent))
 		return;
 	
 	if ((level.framenum - ent->client->respawn_time) < 5 * HZ)
@@ -1294,14 +1294,12 @@ void Cmd_Say_f (edict_t * ent, qboolean team, qboolean arg0, qboolean partner_ms
 		}
 		if (!meing)		// TempFile
 			Com_sprintf (text, sizeof (text), "%s(%s): ",
-			(teamplay->value && (ent->solid == SOLID_NOT
-			|| ent->deadflag == DEAD_DEAD)) ? "[DEAD] " : "",
+			(teamplay->value && !IS_ALIVE(ent)) ? "[DEAD] " : "",
 			ent->client->pers.netname);
 		//TempFile - BEGIN
 		else
 			Com_sprintf (text, sizeof (text), "(%s%s ",
-			(teamplay->value && (ent->solid == SOLID_NOT
-			|| ent->deadflag == DEAD_DEAD)) ? "[DEAD] " : "",
+			(teamplay->value && !IS_ALIVE(ent)) ? "[DEAD] " : "",
 			ent->client->pers.netname);
 		//TempFile - END
 	}
@@ -1314,14 +1312,12 @@ void Cmd_Say_f (edict_t * ent, qboolean team, qboolean arg0, qboolean partner_ms
 		}
 		if (!meing)		//TempFile
 			Com_sprintf (text, sizeof (text), "[%sPARTNER] %s: ",
-			(teamplay->value && (ent->solid == SOLID_NOT
-			|| ent->deadflag == DEAD_DEAD)) ? "DEAD " : "",
+			(teamplay->value && !IS_ALIVE(ent)) ? "DEAD " : "",
 			ent->client->pers.netname);
 		//TempFile - BEGIN
 		else
 			Com_sprintf (text, sizeof (text), "%s partner %s ",
-			(teamplay->value && (ent->solid == SOLID_NOT
-			|| ent->deadflag == DEAD_DEAD)) ? "[DEAD] " : "",
+			(teamplay->value && !IS_ALIVE(ent)) ? "[DEAD] " : "",
 			ent->client->pers.netname);
 		//TempFile - END
 	}
@@ -1334,14 +1330,12 @@ void Cmd_Say_f (edict_t * ent, qboolean team, qboolean arg0, qboolean partner_ms
 				ent->client->pers.netname);
 			else
 				Com_sprintf (text, sizeof (text), "%s%s: ",
-				(teamplay->value && (ent->solid == SOLID_NOT
-				|| ent->deadflag == DEAD_DEAD)) ? "[DEAD] " : "",
+				(teamplay->value && !IS_ALIVE(ent)) ? "[DEAD] " : "",
 				ent->client->pers.netname);
 		}
 		else
 			Com_sprintf (text, sizeof (text), "%s%s ",
-			(teamplay->value && (ent->solid == SOLID_NOT
-			|| ent->deadflag == DEAD_DEAD)) ? "[DEAD] " : "",
+			(teamplay->value && !IS_ALIVE(ent)) ? "[DEAD] " : "",
 			ent->client->pers.netname);
 	}
 	//TempFile - END
@@ -1390,7 +1384,7 @@ void Cmd_Say_f (edict_t * ent, qboolean team, qboolean arg0, qboolean partner_ms
 	if (strlen(text) >= 254)
 		text[254] = 0;
 	
-	if (ent->solid != SOLID_NOT && ent->deadflag != DEAD_DEAD)
+	if (IS_ALIVE(ent))
 	{
 		s = strchr(text + offset_of_text, '%');
 		if(s) {
@@ -1433,9 +1427,7 @@ void Cmd_Say_f (edict_t * ent, qboolean team, qboolean arg0, qboolean partner_ms
 		//FIREBLADE
 		if (teamplay->value && team_round_going)
 		{
-			if ((ent->solid == SOLID_NOT || ent->deadflag == DEAD_DEAD) &&
-				(other->solid != SOLID_NOT && other->deadflag != DEAD_DEAD)
-				&& !ctf->value && !teamdm->value && !deadtalk->value)	//AQ2:TNG Slicer
+			if (!IS_ALIVE(ent) && IS_ALIVE(other) && !ctf->value && !teamdm->value && !deadtalk->value)	//AQ2:TNG Slicer
 				continue;
 		}
 		//FIREBLADE

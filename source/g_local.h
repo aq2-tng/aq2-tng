@@ -1972,5 +1972,6 @@ typedef struct team_s
 
 extern team_t teams[TEAM_TOP];
 #define PARSE_BUFSIZE 256
+#define IS_ALIVE(ent) ((ent)->solid != SOLID_NOT && (ent)->deadflag != DEAD_DEAD)
 
 #include "a_ctf.h"

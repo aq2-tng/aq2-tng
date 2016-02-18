@@ -210,9 +210,7 @@ void RadioThink (edict_t * ent)
 
 		from = radio->queue[0].from_player;
 
-		if (!radio->queue[0].click &&
-			(!from->inuse || from->solid == SOLID_NOT
-			|| from->deadflag == DEAD_DEAD))
+		if (!radio->queue[0].click && (!from->inuse || !IS_ALIVE(from)))
 		{
 			if (radio->queue[0].from_gender)
 			{
@@ -311,7 +309,7 @@ static void RadioBroadcast (edict_t * ent, int partner, char *msg)
 	qboolean found = false;
 	radio_t *radio;
 
-	if (ent->deadflag == DEAD_DEAD || ent->solid == SOLID_NOT)
+	if (!IS_ALIVE(ent))
 		return;
 
 	if (!teamplay->value)
@@ -537,13 +535,12 @@ edict_t *DetermineViewedTeammate (edict_t * ent)
 	for (i = 1; i <= game.maxclients; i++)
 	{
 		who = g_edicts + i;
-		if (!who->inuse)
+		if (!who->inuse || !IS_ALIVE(who))
 			continue;
 		VectorSubtract (who->s.origin, ent->s.origin, dir);
 		VectorNormalize (dir);
 		d = DotProduct (forward, dir);
-		if (d > bd && loc_CanSee (ent, who) && who->solid != SOLID_NOT &&
-			who->deadflag != DEAD_DEAD && OnSameTeam (who, ent))
+		if (d > bd && OnSameTeam(who, ent) && loc_CanSee(ent, who))
 		{
 			bd = d;
 			best = who;
@@ -570,7 +567,7 @@ void Cmd_Partner_f (edict_t * ent)
 			return;			// don't allow in a non-team setup...
 	}
 
-	if (ent->deadflag == DEAD_DEAD || ent->solid == SOLID_NOT)
+	if (!IS_ALIVE(ent))
 		return;
 
 	radio = &ent->client->resp.radio;
@@ -677,7 +674,7 @@ void Cmd_Deny_f (edict_t * ent)
 			return;			// don't allow in a non-team setup...
 	}
 
-	if (ent->deadflag == DEAD_DEAD || ent->solid == SOLID_NOT)
+	if (!IS_ALIVE(ent))
 		return;
 
 	radio = &ent->client->resp.radio;

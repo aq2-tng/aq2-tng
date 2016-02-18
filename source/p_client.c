@@ -342,7 +342,7 @@ void Add_Frag(edict_t * ent, int mod)
 	{
 		ent->client->resp.score++;	// just 1 normal kill
 
-		if (ent->solid != SOLID_NOT && ent->deadflag != DEAD_DEAD)
+		if (IS_ALIVE(ent))
 		{
 			ent->client->resp.streakKills++;
 			if (ent->client->resp.streakKills % 5 == 0 && use_rewards->value)
@@ -366,7 +366,7 @@ void Add_Frag(edict_t * ent, int mod)
 		// end changing sound dir
 	} else { //Deathmatch
 
-		if (ent->solid != SOLID_NOT && ent->deadflag != DEAD_DEAD)
+		if (IS_ALIVE(ent))
 			ent->client->resp.streakKills++;
 
 		if (ent->client->resp.streakKills < 4)

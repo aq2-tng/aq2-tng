@@ -100,7 +100,7 @@ static edict_t *DetermineViewedEnemy(edict_t *ent)
 		if (!who->inuse || who == ent)
 			continue;
 
-		if (who->solid == SOLID_NOT || who->deadflag == DEAD_DEAD)
+		if (!IS_ALIVE(who))
 			continue;
 
 		if (OnSameTeam(who, ent))
@@ -109,7 +109,7 @@ static edict_t *DetermineViewedEnemy(edict_t *ent)
 		VectorSubtract(who->s.origin, ent->s.origin, dir);
 		VectorNormalize(dir);
 		d = DotProduct(forward, dir);
-		if (d > bd) {
+		if (d > bd && loc_CanSee(ent, who)) {
 			bd = d;
 			best = who;
 		}

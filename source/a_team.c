@@ -1642,28 +1642,26 @@ void StartLCA ()
 // FindOverlap: Find the first (or next) overlapping player for ent.
 edict_t *FindOverlap (edict_t * ent, edict_t * last_overlap)
 {
-  int i;
-  edict_t *other;
-  vec3_t diff;
+	int i;
+	edict_t *other;
+	vec3_t diff;
 
-  for (i = last_overlap ? last_overlap - g_edicts : 0; i < game.maxclients;
-       i++)
-    {
-      other = &g_edicts[i + 1];
+	for (i = last_overlap ? last_overlap - g_edicts : 0; i < game.maxclients; i++)
+	{
+		other = &g_edicts[i + 1];
 
-      if (!other->inuse || other->client->resp.team == NOTEAM
-	  || other == ent
-	  || other->solid == SOLID_NOT || other->deadflag == DEAD_DEAD)
-	continue;
+		if (!other->inuse || other->client->resp.team == NOTEAM
+			|| other == ent || !IS_ALIVE(other))
+			continue;
 
-      VectorSubtract (ent->s.origin, other->s.origin, diff);
+		VectorSubtract(ent->s.origin, other->s.origin, diff);
 
-      if (diff[0] >= -33 && diff[0] <= 33 &&
-	  diff[1] >= -33 && diff[1] <= 33 && diff[2] >= -65 && diff[2] <= 65)
-	return other;
-    }
+		if (diff[0] >= -33 && diff[0] <= 33 &&
+			diff[1] >= -33 && diff[1] <= 33 && diff[2] >= -65 && diff[2] <= 65)
+			return other;
+	}
 
-  return NULL;
+	return NULL;
 }
 
 void ContinueLCA ()
@@ -2290,7 +2288,7 @@ void A_NewScoreboardMessage(edict_t * ent)
 	edict_t *cl_ent;
 
 	// show alive players when dead
-	dead = (ent->solid == SOLID_NOT || ent->deadflag == DEAD_DEAD || !team_round_going);
+	dead = (!IS_ALIVE(ent) || !team_round_going);
 	if (limchasecam->value != 0)
 		dead = 0;
 
@@ -2328,7 +2326,7 @@ void A_NewScoreboardMessage(edict_t * ent)
 				continue;
 
 			cl_ent = g_edicts + 1 + (cl - game.clients);
-			alive = (cl_ent->solid != SOLID_NOT && cl_ent->deadflag != DEAD_DEAD);
+			alive = IS_ALIVE(cl_ent);
 
 			Com_sprintf( buf, sizeof( buf ), "xv 44 yv %d string%c \"%-15s %3d %3d %3d\"",
 				line++ * lineh,
@@ -2417,7 +2415,7 @@ void A_ScoreboardMessage (edict_t * ent, edict_t * killer)
 			scoreWidth = 3;
 		}
 
-		deadview = (ent->solid == SOLID_NOT || ent->deadflag == DEAD_DEAD || !team_round_going);
+		deadview = (!IS_ALIVE(ent) || !team_round_going);
 		// AQ:TNG - Hack to keep scoreboard from revealing whos alive during matches - JBravo
 		if (limchasecam->value != 0)
 			deadview = 0;
@@ -2439,7 +2437,7 @@ void A_ScoreboardMessage (edict_t * ent, edict_t * killer)
 				continue;
 			}
 			cl_ent = g_edicts + 1 + (cl - game.clients);
-			if (cl_ent->solid != SOLID_NOT && cl_ent->deadflag != DEAD_DEAD)
+			if (IS_ALIVE(cl_ent))
 				totalalive[team]++;
 
 			totalscore[team] += cl->resp.score;
@@ -2590,7 +2588,7 @@ void A_ScoreboardMessage (edict_t * ent, edict_t * killer)
 						continue;
 
 					cl_ent = g_edicts + 1 + (cl - game.clients);
-					if (cl_ent->solid != SOLID_NOT && cl_ent->deadflag != DEAD_DEAD)
+					if (IS_ALIVE(cl_ent))
 						totalaliveprinted++;
 
 					if (showExtra) {
