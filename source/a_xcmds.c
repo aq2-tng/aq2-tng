@@ -128,12 +128,11 @@ void Cmd_Menu_f (edict_t * self)
 //
 void Cmd_Punch_f (edict_t * self)
 {
-	if ((!use_punch->value)
-	|| (self->deadflag == DEAD_DEAD)
-	|| (self->solid == SOLID_NOT)
-	|| (self->client->resp.sniper_mode != SNIPER_1X)
-	|| ((self->client->weaponstate != WEAPON_READY) && (self->client->weaponstate != WEAPON_END_MAG)) )
-	return;
+	if (!use_punch->value || !IS_ALIVE(self) || self->client->resp.sniper_mode != SNIPER_1X)
+		return;
+
+	if (self->client->weaponstate != WEAPON_READY && self->client->weaponstate != WEAPON_END_MAG)
+		return;
 
 	// animation moved to punch_attack() in a_xgame.c
 	// punch_attack is now called in ClientThink after evaluation punch_desired
@@ -207,10 +206,11 @@ void Cmd_Voice_f (edict_t * self)
 	}
 	
 	//check if player is dead
-	if (self->deadflag == DEAD_DEAD || self->solid == SOLID_NOT)
+	if (!IS_ALIVE(self))
 		return;
-	strcpy (fullpath, PG_SNDPATH);
-	strcat (fullpath, s);
+
+	strcpy(fullpath, PG_SNDPATH);
+	strcat(fullpath, s);
 	// SLIC2 Taking this out.
 	/*if (radio_repeat->value)
 	{

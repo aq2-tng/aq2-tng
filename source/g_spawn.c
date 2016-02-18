@@ -1163,7 +1163,7 @@ void G_UpdateSpectarorStatusbar( void )
 
 		cl_ent = g_edicts + 1 + i;
 
-		isAlive = (cl_ent->solid != SOLID_NOT && cl_ent->deadflag != DEAD_DEAD);
+		isAlive = IS_ALIVE(cl_ent);
 
 		sprintf( buffer + strlen( buffer ),
 			"yt %d string%s \"%-15s %6d   %5d\" ",
@@ -1190,7 +1190,7 @@ void G_UpdateSpectarorStatusbar( void )
 
 		cl_ent = g_edicts + 1 + i;
 
-		isAlive = (cl_ent->solid != SOLID_NOT && cl_ent->deadflag != DEAD_DEAD);
+		isAlive = IS_ALIVE(cl_ent);
 
 		sprintf( buffer + strlen( buffer ),
 			"yt %d string%s \"%-15s %6d   %5d\" ",

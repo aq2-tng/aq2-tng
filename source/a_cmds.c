@@ -241,10 +241,8 @@ void Cmd_New_Reload_f(edict_t * ent)
 void Cmd_Reload_f(edict_t * ent)
 {
 	//+BD - If the player is dead, don't bother
-	if (ent->deadflag == DEAD_DEAD) {
-		//gi.centerprintf(ent, "I know you're a hard ass,\nBUT YOU'RE FUCKING DEAD!!\n");
+	if (!IS_ALIVE(ent))
 		return;
-	}
 
 	if (ent->client->weaponstate == WEAPON_BANDAGING ||
 	    ent->client->bandaging == 1 ||
@@ -567,7 +565,7 @@ void Cmd_Weapon_f(edict_t * ent)
 {
 	int dead;
 
-	dead = (ent->solid == SOLID_NOT || ent->deadflag == DEAD_DEAD);
+	dead = !IS_ALIVE(ent);
 
 	ent->client->weapon_attempts--;
 	if (ent->client->weapon_attempts < 0)
