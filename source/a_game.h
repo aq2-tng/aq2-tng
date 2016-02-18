@@ -121,9 +121,7 @@ void GetAmmo (edict_t * ent, char *buf);
 void GetNearbyTeammates (edict_t * self, char *buf);
 
 void ResetScores (qboolean playerScores);
-int ReadKilledPlayers (edict_t * ent);
 void AddKilledPlayer (edict_t * self, edict_t * ent);
-void GetLastKilledTarget (edict_t * self, char *buf);
 void VideoCheckClient (edict_t * ent);
 //AQ2:TNG END
 //TempFile
