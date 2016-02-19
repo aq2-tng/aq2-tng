@@ -859,6 +859,8 @@ void kick_attack (edict_t *ent)
 
 	if (tr.ent->takedamage || KickDoor(&tr, ent, forward))
 	{
+		ent->client->jumping = 0;	// only 1 jumpkick per jump
+
 		if (tr.ent->health <= 0)
 			return;
 
@@ -885,7 +887,6 @@ void kick_attack (edict_t *ent)
 
 		gi.sound(ent, CHAN_WEAPON, level.snd_kick, 1, ATTN_NORM, 0);
 		PlayerNoise (ent, ent->s.origin, PNOISE_SELF);
-		ent->client->jumping = 0;	// only 1 jumpkick per jump
 		if (tr.ent->client && (tr.ent->client->curr_weap == M4_NUM
 			|| tr.ent->client->curr_weap == MP5_NUM
 			|| tr.ent->client->curr_weap == M3_NUM
