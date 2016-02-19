@@ -71,6 +71,7 @@
 #include "g_local.h"
 #include "cgf_sfx_glass.h"
 #include "a_game.h"		//zucc for KickDoor
+#include "m_player.h"
 
 
 void knife_touch (edict_t *ent, edict_t *other, cplane_t *plane, csurface_t *surf);
@@ -907,6 +908,96 @@ void kick_attack (edict_t *ent)
 			CTFPlayerResetGrapple(tr.ent);
 		}
 	}
+}
+
+
+void punch_attack(edict_t * ent)
+{
+	vec3_t start, forward, right, offset, end;
+	int damage = 7, kick = 100, friendlyFire = 0;
+	int randmodify;
+	trace_t tr;
+	char *genderstr;
+
+	AngleVectors(ent->client->v_angle, forward, right, NULL);
+	VectorScale(forward, 0, ent->client->kick_origin);
+	VectorSet(offset, 0, 0, ent->viewheight - 20);
+	P_ProjectSource(ent->client, ent->s.origin, offset, forward, right, start);
+	VectorMA(start, 50, forward, end);
+	PRETRACE();
+	tr = gi.trace(ent->s.origin, NULL, NULL, end, ent, MASK_SHOT);
+	POSTTRACE();
+
+	if (!((tr.surface) && (tr.surface->flags & SURF_SKY)))
+	{
+		if (tr.fraction < 1.0 && tr.ent->takedamage)
+		{
+			if (tr.ent->health <= 0)
+				return;
+
+			if (tr.ent->client)
+			{
+				if (tr.ent->client->uvTime)
+					return;
+
+				if (tr.ent != ent && ent->client && OnSameTeam(tr.ent, ent))
+					friendlyFire = 1;
+
+				if (friendlyFire && DMFLAGS(DF_NO_FRIENDLY_FIRE)){
+					if (!teamplay->value || team_round_going || !ff_afterround->value)
+						return;
+				}
+			}
+
+			// add some random damage, damage range from 8 to 20.
+			randmodify = rand() % 13 + 1;
+			damage += randmodify;
+			// modify kick by damage
+			kick += (randmodify * 10);
+
+			// reduce damage, if he tries to punch within or out of water
+			if (ent->waterlevel)
+				damage -= rand() % 10 + 1;
+			// reduce kick, if victim is in water
+			if (tr.ent->waterlevel)
+				kick /= 2;
+
+			T_Damage(tr.ent, ent, ent, forward, tr.endpos, tr.plane.normal,
+				damage, kick, 0, MOD_PUNCH);
+			gi.sound(ent, CHAN_WEAPON, level.snd_kick, 1, ATTN_NORM, 0);
+			PlayerNoise(ent, ent->s.origin, PNOISE_SELF);
+
+			//only hit weapon out of hand if damage >= 15
+			if (tr.ent->client && (tr.ent->client->curr_weap == M4_NUM
+				|| tr.ent->client->curr_weap == MP5_NUM
+				|| tr.ent->client->curr_weap == M3_NUM
+				|| tr.ent->client->curr_weap == SNIPER_NUM
+				|| tr.ent->client->curr_weap == HC_NUM) && damage >= 15)
+			{
+				DropSpecialWeapon(tr.ent);
+
+				genderstr = GENDER_STR(tr.ent, "his", "her", "its");
+				gi.cprintf(ent, PRINT_HIGH, "You hit %s's %s from %s hands!\n",
+					tr.ent->client->pers.netname, (tr.ent->client->pers.weapon)->pickup_name, genderstr);
+
+				gi.cprintf(tr.ent, PRINT_HIGH, "%s hit your weapon from your hands!\n",
+					ent->client->pers.netname);
+			}
+			return;
+		}
+	}
+	gi.sound(ent, CHAN_WEAPON, gi.soundindex("weapons/swish.wav"), 1, ATTN_NORM, 0);
+
+	// animate the punch
+	// can't animate a punch when ducked
+	if (ent->client->ps.pmove.pm_flags & PMF_DUCKED)
+		return;
+	if (ent->client->anim_priority >= ANIM_WAVE)
+		return;
+
+	ent->client->anim_priority = ANIM_WAVE;
+	ent->s.frame = FRAME_flip01 - 1;
+	ent->client->anim_end = FRAME_flip03;
 }
 
 // zucc

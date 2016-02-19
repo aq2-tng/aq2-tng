@@ -532,6 +532,21 @@ void G_TouchSolids (edict_t * ent)
 }
 
 
+size_t G_HighlightStr(char *dst, const char *src, size_t size)
+{
+	size_t ret = strlen(src);
+
+	if (size) {
+		size_t i, len = ret >= size ? size - 1 : ret;
+
+		for (i = 0; i < len; i++)
+			dst[i] = src[i] | 0x80;
+		dst[i] = 0;
+	}
+
+	return ret;
+}
+
 /*
 ==============================================================================
 

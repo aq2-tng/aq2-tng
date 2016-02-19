@@ -3220,7 +3220,8 @@ void ClientBeginServerFrame(edict_t * ent)
 
 		if (ppl_idletime->value > 0 && client->resp.idletime && ent->deadflag != DEAD_DEAD) {
 			if (level.framenum >= client->resp.idletime + (int)(ppl_idletime->value * HZ)) {
-				PlayRandomInsaneSound( ent );
+				//plays a random sound/insane sound, insane1-9.wav
+				gi.sound(ent, CHAN_VOICE, gi.soundindex(va("insane/insane%i.wav", rand() % 9 + 1)), 1, ATTN_NORM, 0);
 				client->resp.idletime = 0;
 			}
 		}

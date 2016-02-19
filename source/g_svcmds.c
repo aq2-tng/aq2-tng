@@ -550,28 +550,13 @@ Kick a client entity
 */
 void Kick_Client (edict_t * ent)
 {
-	int i = 0;
-	char ban_string[32];
-	edict_t *entL;
-
-	if (!ent->client)
+	if (!ent || !ent->client || !ent->client->pers.connected)
 		return;
 
 	// We used to kick on names, but people got crafty and figured
 	// out that putting in a space after their name let them get
 	// around the stupid 'kick' function. So now we kick by number.
-	for (i = 0; i < game.maxclients; i++)
-	{
-		entL = &g_edicts[1 + i];
-		if (!entL || !entL->inuse)
-			continue;
-		if (entL->client && ent == entL)
-		{
-			Com_sprintf(ban_string, sizeof(ban_string), "kick %d\n", i);
-			gi.AddCommandString (ban_string);
-			break;
-		}
-	}
+	gi.AddCommandString(va("kick %d\n", ent->client - game.clients));
 }
 
 /*
