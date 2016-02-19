@@ -1165,6 +1165,7 @@ void	G_TouchSolids(edict_t *ent);
 size_t  G_HighlightStr(char *dst, const char *src, size_t size);
 
 char	*G_CopyString(char *in);
+qboolean visible(edict_t *self, edict_t *other, int mask);
 
 //float *tv (float x, float y, float z);
 char	*vtos(vec3_t v);

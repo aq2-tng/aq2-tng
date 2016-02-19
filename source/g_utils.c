@@ -584,3 +584,48 @@ qboolean KillBox (edict_t * ent)
 
 	return true;			// all clear
 }
+
+/*
+=============
+visible
+
+returns 1 if the entity is visible to self, even if not infront ()
+=============
+*/
+qboolean visible(edict_t *self, edict_t *other, int mask)
+{
+	vec3_t	spot1, spot2, add;
+	trace_t	trace;
+	int		i;
+
+	VectorCopy(self->s.origin, spot1);
+	spot1[2] += self->viewheight;
+
+	VectorCopy(other->s.origin, spot2);
+	spot2[2] += other->viewheight;
+
+	PRETRACE();
+	for (i = 0; i < 10; i++)
+	{
+		trace = gi.trace(spot1, vec3_origin, vec3_origin, spot2, self, mask);
+
+		if (trace.fraction == 1.0) {
+			POSTTRACE();
+			return true;
+		}
+
+		if (trace.ent == world && trace.surface && (trace.surface->flags & (SURF_TRANS33 | SURF_TRANS66)))
+		{
+			mask &= ~MASK_WATER;
+			VectorSubtract(trace.endpos, spot1, add);
+			VectorNormalize(add);
+			VectorMA(trace.endpos, 10, add, spot1);
+			continue;
+		}
+
+		break;
+	}
+	POSTTRACE();
+
+	return false;
+}

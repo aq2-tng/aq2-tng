@@ -70,11 +70,8 @@
 
 #include "g_local.h"
 
-extern edict_t *DetermineViewedTeammate(edict_t * ent); /* Defined in a_radio.c */
-
-// DetermineViewedEnemy: determine the current player you're viewing (only looks for live Enemy)
-// Modified from DetermineViewedTeammate (which is used in a_radio.c)
-static edict_t *DetermineViewedEnemy(edict_t *ent)
+// DetermineViewedPlayer: determine the current player you're viewing (only looks for live Enemy/Teammate)
+edict_t *DetermineViewedPlayer(edict_t *ent, qboolean teammate)
 {
 	vec3_t forward, dir;
 	trace_t tr;
@@ -86,12 +83,11 @@ static edict_t *DetermineViewedEnemy(edict_t *ent)
 	VectorScale(forward, 8192, forward);
 	VectorAdd(ent->s.origin, forward, forward);
 	PRETRACE();
-	tr = gi.trace (ent->s.origin, NULL, NULL, forward, ent, MASK_SOLID);
+	tr = gi.trace(ent->s.origin, NULL, NULL, forward, ent, MASK_SOLID|MASK_WATER);
 	POSTTRACE();
 	if (tr.fraction < 1 && tr.ent && tr.ent->client) {
 		return NULL;
 	}
-
 	AngleVectors(ent->client->v_angle, forward, NULL, NULL);
 	best = NULL;
 	for (i = 1; i <= game.maxclients; i++)
@@ -100,16 +96,13 @@ static edict_t *DetermineViewedEnemy(edict_t *ent)
 		if (!who->inuse || who == ent)
 			continue;
 
-		if (!IS_ALIVE(who))
-			continue;
-
-		if (OnSameTeam(who, ent))
+		if (!IS_ALIVE(who) || teammate != OnSameTeam(who, ent))
 			continue;
 
 		VectorSubtract(who->s.origin, ent->s.origin, dir);
 		VectorNormalize(dir);
 		d = DotProduct(forward, dir);
-		if (d > bd && loc_CanSee(ent, who)) {
+		if (d > bd && visible(ent, who, MASK_SOLID|MASK_WATER)) {
 			bd = d;
 			best = who;
 		}
@@ -125,7 +118,7 @@ static void GetViewedEnemyName(edict_t *self, char *buf)
 {
 	edict_t *the_enemy;
 
-	the_enemy = DetermineViewedEnemy(self);
+	the_enemy = DetermineViewedPlayer(self, false);
 	if (the_enemy && the_enemy->client)
 		strcpy(buf, the_enemy->client->pers.netname);
 	else
@@ -136,7 +129,7 @@ static void GetViewedTeammateName(edict_t *self, char *buf)
 {
 	edict_t *the_teammate;
 
-	the_teammate = DetermineViewedTeammate(self);
+	the_teammate = DetermineViewedPlayer(self, true);
 	if (the_teammate && the_teammate->client)
 		strcpy(buf, the_teammate->client->pers.netname);
 	else
@@ -147,7 +140,7 @@ static void GetViewedEnemyWeapon(edict_t *self, char *buf)
 {
 	edict_t *the_enemy;
 
-	the_enemy = DetermineViewedEnemy(self);
+	the_enemy = DetermineViewedPlayer(self, false);
 	if (the_enemy && the_enemy->client)
 		strcpy(buf, the_enemy->client->pers.weapon->pickup_name);
 	else
@@ -279,7 +272,7 @@ static void GetEnemyPosition(edict_t *self, char *buf)
 	vec3_t rel_pos;
 	int rel_xy_pos;
 
-	the_enemy = DetermineViewedEnemy(self);
+	the_enemy = DetermineViewedPlayer(self, false);
 	if (the_enemy && the_enemy->client)
 	{
 		if (GetPlayerLocation(the_enemy, buf))

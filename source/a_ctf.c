@@ -563,8 +563,8 @@ void CTFFragBonuses(edict_t * targ, edict_t * inflictor, edict_t * attacker)
 	VectorSubtract(targ->s.origin, flag->s.origin, v1);
 	VectorSubtract(attacker->s.origin, flag->s.origin, v2);
 
-	if (VectorLength(v1) < CTF_TARGET_PROTECT_RADIUS ||
-	    VectorLength(v2) < CTF_TARGET_PROTECT_RADIUS || loc_CanSee(flag, targ) || loc_CanSee(flag, attacker)) {
+	if (VectorLength(v1) < CTF_TARGET_PROTECT_RADIUS || VectorLength(v2) < CTF_TARGET_PROTECT_RADIUS
+		|| visible(flag, targ, MASK_SOLID) || visible(flag, attacker, MASK_SOLID)) {
 		// we defended the base flag
 		attacker->client->resp.score += CTF_FLAG_DEFENSE_BONUS;
 		if (flag->solid == SOLID_NOT) {
@@ -589,7 +589,7 @@ void CTFFragBonuses(edict_t * targ, edict_t * inflictor, edict_t * attacker)
 
 		if (VectorLength(v1) < CTF_ATTACKER_PROTECT_RADIUS ||
 		    VectorLength(v2) < CTF_ATTACKER_PROTECT_RADIUS ||
-		    loc_CanSee(carrier, targ) || loc_CanSee(carrier, attacker)) {
+			visible(carrier, targ, MASK_SOLID) || visible(carrier, attacker, MASK_SOLID)) {
 			attacker->client->resp.score += CTF_CARRIER_PROTECT_BONUS;
 			gi.bprintf(PRINT_MEDIUM, "%s defends the %s's flag carrier.\n",
 				   attacker->client->pers.netname, CTFTeamName(attacker->client->resp.team));

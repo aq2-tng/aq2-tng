@@ -506,54 +506,7 @@ void Cmd_Channel_f (edict_t * ent)
 	}
 }
 
-// DetermineViewedTeammate: determine the current player you're viewing (only looks for live teammates)
-// Modified from SetIDView (which was used from Zoid's CTF)
-edict_t *DetermineViewedTeammate (edict_t * ent)
-{
-	vec3_t forward, dir;
-	trace_t tr;
-	edict_t *who, *best;
-	//FIREBLADE, suggested by hal[9k]  3/11/1999
-	float bd = 0.9f;
-	//FIREBLADE
-	float d;
-	int i;
-
-	AngleVectors (ent->client->v_angle, forward, NULL, NULL);
-	VectorScale (forward, 8192, forward);
-	VectorAdd (ent->s.origin, forward, forward);
-	PRETRACE ();
-	tr = gi.trace (ent->s.origin, NULL, NULL, forward, ent, MASK_SOLID);
-	POSTTRACE ();
-	if (tr.fraction < 1 && tr.ent && tr.ent->client)
-	{
-		return NULL;
-	}
-
-	AngleVectors (ent->client->v_angle, forward, NULL, NULL);
-	best = NULL;
-	for (i = 1; i <= game.maxclients; i++)
-	{
-		who = g_edicts + i;
-		if (!who->inuse || !IS_ALIVE(who))
-			continue;
-		VectorSubtract (who->s.origin, ent->s.origin, dir);
-		VectorNormalize (dir);
-		d = DotProduct (forward, dir);
-		if (d > bd && OnSameTeam(who, ent) && loc_CanSee(ent, who))
-		{
-			bd = d;
-			best = who;
-		}
-	}
-
-	if (bd > 0.90)
-	{
-		return best;
-	}
-
-	return NULL;
-}
+edict_t *DetermineViewedPlayer(edict_t *ent, qboolean teammate);
 
 void Cmd_Partner_f (edict_t * ent)
 {
@@ -580,7 +533,7 @@ void Cmd_Partner_f (edict_t * ent)
 		radio->partner = NULL;
 	}
 
-	target = DetermineViewedTeammate(ent);
+	target = DetermineViewedPlayer(ent, true);
 	if (target == NULL) {
 		gi.centerprintf (ent, "No potential partner selected");
 		return;
