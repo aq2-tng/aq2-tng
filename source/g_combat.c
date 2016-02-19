@@ -271,53 +271,12 @@ void SpawnDamage (int type, vec3_t origin, vec3_t normal, int damage)
   ============
 */
 
-
-qboolean CheckTeamDamage (edict_t * targ, edict_t * attacker)
+void BloodSprayThink(edict_t *self)
 {
-	//AQ2:TNG Igor isn't quite sure if the next statement really belongs here... (FIXME) commented it out (friendly fire already does it, hm?)
-	//  if (ctf->value && targ->client && attacker->client)
-	//  if (targ->client->resp.team == attacker->client->resp.team &&
-	//    targ != attacker)
-	//      return true;
-	//AQ2:TNG End
-	//FIXME make the next line real and uncomment this block
-	// if ((ability to damage a teammate == OFF) && (targ's team == attacker's team))
-	return false;
-}
-
-
-
-void BloodSprayThink (edict_t * self)
-{
-
-
-  /*  if ( self->dmg > 0 )
-     {
-     self->dmg -= 10;
-     //              SpawnDamage (TE_BLOOD, self->s.origin, self->movedir, self->dmg);
-     gi.WriteByte (svc_temp_entity);
-     gi.WriteByte (TE_SPLASH);
-     gi.WriteByte (6);
-     gi.WritePosition (self->s.origin);
-     gi.WriteDir (self->movedir);
-     gi.WriteByte (6);       //blood
-     gi.multicast (self->s.origin, MULTICAST_PVS);
-
-     }
-     else
-     {
-     self->think = G_FreeEdict;
-     }
-
-     self->nextthink = level.framenum + FRAMEDIV;
-     gi.linkentity (self);
-   */
-
   G_FreeEdict (self);
 }
 
-void blood_spray_touch (edict_t * ent, edict_t * other, cplane_t * plane,
-		   csurface_t * surf)
+void blood_spray_touch(edict_t *ent, edict_t *other, cplane_t *plane, csurface_t *surf)
 {
 	if (other == ent->owner)
 		return;
@@ -325,9 +284,7 @@ void blood_spray_touch (edict_t * ent, edict_t * other, cplane_t * plane,
 	ent->nextthink = level.framenum + 1;
 }
 
-
-
-void spray_blood (edict_t * self, vec3_t start, vec3_t dir, int damage, int mod)
+void spray_blood(edict_t *self, vec3_t start, vec3_t dir, int damage, int mod)
 {
 	edict_t *blood;
 	vec3_t	temp;
@@ -358,25 +315,23 @@ void spray_blood (edict_t * self, vec3_t start, vec3_t dir, int damage, int mod)
 		break;
 	default:
 		speed = 1800;
+		break;
 	}
 
-
-
-
-	blood = G_Spawn ();
+	blood = G_Spawn();
 	VectorNormalize2(dir, temp);
-	VectorCopy (start, blood->s.origin);
-	VectorCopy (start, blood->old_origin);
-	VectorCopy (temp, blood->movedir);
-	vectoangles (temp, blood->s.angles);
-	VectorScale (temp, speed, blood->velocity);
+	VectorCopy(start, blood->s.origin);
+	VectorCopy(start, blood->old_origin);
+	VectorCopy(temp, blood->movedir);
+	vectoangles(temp, blood->s.angles);
+	VectorScale(temp, speed, blood->velocity);
 	blood->movetype = MOVETYPE_BLOOD;
 	blood->clipmask = MASK_SHOT;
 	blood->solid = SOLID_BBOX;
 	blood->s.effects |= EF_GIB;
-	VectorClear (blood->mins);
-	VectorClear (blood->maxs);
-	blood->s.modelindex = gi.modelindex ("sprites/null.sp2");
+	VectorClear(blood->mins);
+	VectorClear(blood->maxs);
+	blood->s.modelindex = gi.modelindex("sprites/null.sp2");
 	blood->owner = self;
 	blood->nextthink = level.framenum + speed * HZ / 1000;	//3.2;
 	blood->touch = blood_spray_touch;
@@ -384,12 +339,11 @@ void spray_blood (edict_t * self, vec3_t start, vec3_t dir, int damage, int mod)
 	blood->dmg = damage;
 	blood->classname = "blood_spray";
 
-	gi.linkentity (blood);
+	gi.linkentity(blood);
 }
 
-
 // zucc based on some code in Action Quake
-void spray_sniper_blood (edict_t * self, vec3_t start, vec3_t dir)
+void spray_sniper_blood(edict_t *self, vec3_t start, vec3_t dir)
 {
 	vec3_t forward;
 	int mod = MOD_SNIPER;
@@ -443,23 +397,16 @@ void spray_sniper_blood (edict_t * self, vec3_t start, vec3_t dir)
 	spray_blood( self, start, dir, 0, mod );
 }
 
-
-void VerifyHeadShot (vec3_t point, vec3_t dir, float height, vec3_t newpoint)
+void VerifyHeadShot(vec3_t point, vec3_t dir, float height, vec3_t newpoint)
 {
 	vec3_t normdir;
-	vec3_t normdir2;
 
-
-	VectorNormalize2 (dir, normdir);
-	VectorScale (normdir, height, normdir2);
-	VectorAdd (point, normdir2, newpoint);
+	VectorNormalize2(dir, normdir);
+	VectorMA(point, height, normdir, newpoint);
 }
-
-
 
 // zucc adding location hit code
 // location hit code based off ideas by pyromage and shockman
-
 #define LEG_DAMAGE (height/2.2) - abs(targ->mins[2]) - 3
 #define STOMACH_DAMAGE (height/1.8) - abs(targ->mins[2])
 #define CHEST_DAMAGE (height/1.4) - abs(targ->mins[2])
@@ -836,8 +783,6 @@ T_Damage (edict_t * targ, edict_t * inflictor, edict_t * attacker, vec3_t dir,
 	// zucc don't need this stuff, but to remove it need to change how damagefeedback works with colors
 	if (!(dflags & DAMAGE_NO_PROTECTION))
 	{
-//		if (CheckTeamDamage (targ, attacker)) // team damage avoidance
-//			return;
 		// check for godmode
 		if ((targ->flags & FL_GODMODE))
 		{
