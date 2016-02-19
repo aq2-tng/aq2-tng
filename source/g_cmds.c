@@ -231,6 +231,22 @@ qboolean FloodCheck (edict_t *ent)
 }
 
 
+//Returns the edict for the given name, not case sensitive, and
+//only if the edict is a client.
+edict_t *FindClientByPersName(char *name)
+{
+	int i;
+	edict_t *other;
+
+	for (i = 1; i <= game.maxclients; i++) {
+		other = &g_edicts[i];
+		if (other && other->client && (Q_stricmp(other->client->pers.netname, name) == 0)) {
+			return other;
+		}
+	}
+	return NULL;
+}
+
 char *ClientTeam (edict_t * ent)
 {
 	char *p;

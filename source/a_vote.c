@@ -119,6 +119,18 @@ int _numclients (void)
 	return count;
 }
 
+/*
+Kicks the given (client) edict out of the server, reason will be printed before
+*/
+static void KickClient(edict_t * target, char *reason)
+{
+	if (target && target->client && target->inuse) {
+		gi.bprintf(PRINT_HIGH, "%s has to be KICKED from the server.\n", target->client->pers.netname);
+		gi.bprintf(PRINT_MEDIUM, "Reason: %s\n", reason);
+		Kick_Client(target);
+	}
+}
+
 //=== map voting ===========================================================
 //
 // Original programed by Black Cross[NL], adapted, major changes.
@@ -428,10 +440,11 @@ void _MapWithMostVotes (void)
 {
 	char buf[1024], sbuf[512];
 
-	if (_MostVotesStr (sbuf))
+	if (_MostVotesStr(sbuf))
 	{
-		sprintf (buf, "Most wanted map: %s\n", sbuf);
-		gi.bprintf (PRINT_HIGH, strtostr2 (buf));
+		Com_sprintf(buf, sizeof(buf), "Most wanted map: %s\n", sbuf);
+		G_HighlightStr(buf, buf, sizeof(buf));
+		gi.bprintf(PRINT_HIGH, buf);
 	}
 }
 
@@ -1332,10 +1345,11 @@ void _ConfigWithMostVotes (void)
 {
 	char buf[1024], sbuf[512];
 
-	if (_ConfigMostVotesStr (sbuf))
+	if (_ConfigMostVotesStr(sbuf))
 	{
-		sprintf (buf, "Most wanted config: %s\n", sbuf);
-		gi.bprintf (PRINT_HIGH, strtostr2 (buf));
+		Com_sprintf(buf, sizeof(buf), "Most wanted config: %s\n", sbuf);
+		G_HighlightStr(buf, buf, sizeof(buf));
+		gi.bprintf(PRINT_HIGH, buf);
 	}
 }
 
@@ -1955,8 +1969,9 @@ void _CheckScrambleVote (void)
 
 	if (numvotes > 0)
 	{
-		sprintf (buf, "Scramble: %d votes (%.1f%%), need %.1f%%\n", numvotes, votes, scramblevote_pass->value);
-		gi.bprintf (PRINT_HIGH, strtostr2 (buf));
+		Com_sprintf(buf, sizeof(buf), "Scramble: %d votes (%.1f%%), need %.1f%%\n", numvotes, votes, scramblevote_pass->value);
+		G_HighlightStr(buf, buf, sizeof(buf));
+		gi.bprintf(PRINT_HIGH, buf);
 	}
 
 	if (playernum < scramblevote_min->value)

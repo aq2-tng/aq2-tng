@@ -1117,10 +1117,11 @@ extern gitem_t itemlist[];
 //
 // g_cmds.c
 //
-qboolean FloodCheck (edict_t * ent);
-void Cmd_Help_f (edict_t * ent);
-void Cmd_Score_f (edict_t * ent);
-void Cmd_Inven_f( edict_t * ent );
+qboolean FloodCheck(edict_t *ent);
+void	Cmd_Help_f(edict_t *ent);
+void	Cmd_Score_f(edict_t *ent);
+void	Cmd_Inven_f(edict_t *ent);
+edict_t	*FindClientByPersName(char *name);
 
 //
 // g_items.c
@@ -1147,26 +1148,27 @@ void Touch_Item (edict_t * ent, edict_t * other, cplane_t * plane,
 //
 // g_utils.c
 //
-qboolean KillBox (edict_t * ent);
-void G_ProjectSource (vec3_t point, vec3_t distance, vec3_t forward,
-		      vec3_t right, vec3_t result);
-edict_t *G_Find( edict_t * from, size_t fieldofs, char *match );
-edict_t *findradius (edict_t * from, vec3_t org, float rad);
-edict_t *G_PickTarget (char *targetname);
-void G_UseTargets (edict_t * ent, edict_t * activator);
-void G_SetMovedir (vec3_t angles, vec3_t movedir);
+qboolean KillBox (edict_t *ent);
+void	G_ProjectSource(vec3_t point, vec3_t distance, vec3_t forward, vec3_t right, vec3_t result);
+edict_t *G_Find(edict_t *from, size_t fieldofs, char *match);
+edict_t *findradius(edict_t *from, vec3_t org, float rad);
+edict_t *G_PickTarget(char *targetname);
+void	G_UseTargets(edict_t *ent, edict_t * activator);
+void	G_SetMovedir(vec3_t angles, vec3_t movedir);
 
-void G_InitEdict (edict_t * e);
-edict_t *G_Spawn (void);
-void G_FreeEdict (edict_t * e);
+void	G_InitEdict(edict_t *e);
+edict_t *G_Spawn(void);
+void	G_FreeEdict(edict_t *e);
 
-void G_TouchTriggers (edict_t * ent);
-void G_TouchSolids (edict_t * ent);
+void	G_TouchTriggers(edict_t *ent);
+void	G_TouchSolids(edict_t *ent);
 
-char *G_CopyString (char *in);
+size_t  G_HighlightStr(char *dst, const char *src, size_t size);
+
+char	*G_CopyString(char *in);
 
 //float *tv (float x, float y, float z);
-char *vtos (vec3_t v);
+char	*vtos(vec3_t v);
 
 float vectoyaw (vec3_t vec);
 void vectoangles (vec3_t vec, vec3_t angles);
@@ -1224,17 +1226,12 @@ void fire_grenade2 (edict_t * self, vec3_t start, vec3_t aimdir, int damage,
 	int speed, int timer, float damage_radius,
 		    qboolean held);
 
-// zucc
-int knife_attack (edict_t * self, vec3_t start, vec3_t aimdir, int damage,
-		  int kick);
-void knife_throw (edict_t * self, vec3_t start, vec3_t dir, int damage,
-		  int speed);
-void fire_bullet_sparks (edict_t * self, vec3_t start, vec3_t aimdir,
-			 int damage, int kick, int hspread, int vspread,
-			 int mod);
-void fire_bullet_sniper (edict_t * self, vec3_t start, vec3_t aimdir,
-			 int damage, int kick, int hspread, int vspread,
-			 int mod);
+void kick_attack(edict_t *ent);
+void punch_attack(edict_t *ent);
+int knife_attack(edict_t *self, vec3_t start, vec3_t aimdir, int damage, int kick);
+void knife_throw(edict_t *self, vec3_t start, vec3_t dir, int damage, int speed);
+void fire_bullet_sparks(edict_t *self, vec3_t start, vec3_t aimdir, int damage, int kick, int hspread, int vspread, int mod);
+void fire_bullet_sniper(edict_t *self, vec3_t start, vec3_t aimdir, int damage, int kick, int hspread, int vspread, int mod);
 
 //
 // g_client.c
@@ -1919,8 +1916,6 @@ void Add_Frag(edict_t * ent, int mod);
 void Subtract_Frag (edict_t * ent);
 
 void PrintDeathMessage(char *msg, edict_t * gibee);
-
-void kick_attack (edict_t * ent);
 
 void SetIDView (edict_t * ent);
 

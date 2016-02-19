@@ -28,14 +28,6 @@ typedef struct
 parse_t;
 
 
-// misc functions
-char *strtostr2 (char *s);
-void PlayRandomInsaneSound (edict_t * ent);
-edict_t *findblock (edict_t * from, vec3_t p1, vec3_t p2);
-void KickClient (edict_t * target, char *reason);
-int GetClientInternalNumber (edict_t * ent);
-edict_t *FindClientByPersName (char *name);
-
 // ini functions
 #define ini_t parse_t
 #define OpenIniFile(a,b) ParseStartFile(a,b)
@@ -58,7 +50,6 @@ char *ParseNextToken (parse_t * parse, char *seperator);
 
 // functions that do not really belong here
 void PrecacheUserSounds (void);
-void punch_attack (edict_t * ent);
 
 
 // needed prototypes from other sources 
