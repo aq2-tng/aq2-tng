@@ -838,6 +838,53 @@ void AssignSkin (edict_t * ent, const char *s, qboolean nickChanged)
 }
 
 
+/*
+==============
+TP_GetTeamFromArgs
+==============
+*/
+int TP_GetTeamFromArg(const char *name)
+{
+	int i;
+
+	if (!name || !*name)
+		return -1;
+
+	if (!name[1])
+	{
+		i = Q_tolower(name[0]);
+		if (i == '1' || i == 'a')
+			return TEAM1;
+
+		if (i == '2' || i == 'b')
+			return TEAM2;
+
+		if (teamCount > 2 && (i == '3' || i == 'c'))
+			return TEAM3;
+
+		if (i == '0' || i == 's')
+			return NOTEAM;
+	}
+
+	for (i = TEAM1; i <= teamCount; i++) {
+		if (!Q_stricmp(name, teams[i].name))
+			return i;
+	}
+
+	if (!Q_stricmp(name, "none") || !Q_stricmp(name, "spec"))
+		return NOTEAM;
+
+	if (ctf->value)
+	{
+		if (!Q_stricmp(name, "red"))
+			return TEAM1;
+		if (!Q_stricmp(name, "blue"))
+			return TEAM2;
+	}
+
+	return -1;
+}
+
 void Team_f (edict_t * ent)
 {
 	char *t;
@@ -859,72 +906,40 @@ void Team_f (edict_t * ent)
 	if (!*t)
 	{
 		if (ctf->value)
-		{
-			gi.cprintf (ent, PRINT_HIGH, "You are on %s.\n",
-			CTFTeamName (ent->client->resp.team));
-			return;
-		}
+			gi.cprintf(ent, PRINT_HIGH, "You are on %s.\n", CTFTeamName(ent->client->resp.team));
 		else
-		{
-			gi.cprintf (ent, PRINT_HIGH, "You are on %s.\n",
-			TeamName (ent->client->resp.team));
-			return;
-		}
-	}
+			gi.cprintf(ent, PRINT_HIGH, "You are on %s.\n", TeamName(ent->client->resp.team));
 
-	if (level.realFramenum - ent->client->resp.joined_team < 5 * HZ)
-	{
-		gi.cprintf (ent, PRINT_HIGH, "You must wait 5 seconds before changing teams again.\n");
 		return;
 	}
 
-	if (Q_stricmp (t, "none") == 0)
+	if (level.realFramenum - ent->client->resp.joined_team < 5 * HZ) {
+		gi.cprintf(ent, PRINT_HIGH, "You must wait 5 seconds before changing teams again.\n");
+		return;
+	}
+
+	desired_team = TP_GetTeamFromArg(t);
+	if (desired_team == -1) {
+		gi.cprintf(ent, PRINT_HIGH, "Unknown team '%s'.\n", t);
+		return;
+	}
+
+	if (desired_team == NOTEAM)
 	{
 		if (ent->client->resp.team == NOTEAM)
-			gi.cprintf (ent, PRINT_HIGH, "You're not on a team.\n");
+			gi.cprintf(ent, PRINT_HIGH, "You're not on a team.\n");
 		else
-			LeaveTeam (ent);
+			LeaveTeam(ent);
 
 		return;
 	}
 
-	if (Q_stricmp (t, "1") == 0)
-		desired_team = TEAM1;
-	else if (Q_stricmp (t, "2") == 0)
-		desired_team = TEAM2;
-	else if (Q_stricmp (t, teams[TEAM1].name) == 0)
-		desired_team = TEAM1;
-	else if (Q_stricmp (t, teams[TEAM2].name) == 0)
-		desired_team = TEAM2;
-	else if (use_3teams->value)
-	{
-		if (Q_stricmp (t, "3") == 0)
-			desired_team = TEAM3;
-		else if (Q_stricmp (t, teams[TEAM3].name) == 0)
-			desired_team = TEAM3;
-	}
-	else if (ctf->value)
-	{
-		if (Q_stricmp (t, "red") == 0)
-			desired_team = TEAM1;
-		else if (Q_stricmp (t, "blue") == 0)
-			desired_team = TEAM2;
-	}
-
-	if(desired_team == NOTEAM)
-	{
-		gi.cprintf (ent, PRINT_HIGH, "Unknown team %s.\n", t);
+	if (ent->client->resp.team == desired_team) {
+		gi.cprintf(ent, PRINT_HIGH, "You are already on %s.\n", TeamName(ent->client->resp.team));
 		return;
 	}
 
-	if (ent->client->resp.team == desired_team)
-	{
-		gi.cprintf (ent, PRINT_HIGH, "You are already on %s.\n",
-		TeamName (ent->client->resp.team));
-		return;
-	}
-
-	JoinTeam (ent, desired_team, 1);
+	JoinTeam(ent, desired_team, 1);
 }
 
 void JoinTeam (edict_t * ent, int desired_team, int skip_menuclose)
