@@ -2104,17 +2104,21 @@ void EquipClientDM(edict_t * ent)
 {
 	gclient_t *client;
 	gitem_t *item;
+	int itemNum = 0;
 
 	client = ent->client;
 
 	if(use_grapple->value)
 		client->inventory[ITEM_INDEX(FindItem("Grapple"))] = 1;
 
-	if (!Q_stricmp(strtwpn->string, MK23_NAME))
-		return;
+	if (*strtwpn->string)
+		itemNum = GetWeaponNumFromArg(strtwpn->string);
 
 	// Give some ammo for the weapon
-	if (Q_stricmp(strtwpn->string, MP5_NAME) == 0) {
+	switch (itemNum) {
+	case MK23_NUM:
+		return;
+	case MP5_NUM:
 		item = GET_ITEM(MP5_NUM);
 		client->selected_item = ITEM_INDEX(item);
 		client->inventory[client->selected_item] = 1;
@@ -2126,7 +2130,8 @@ void EquipClientDM(edict_t * ent)
 		}
 		item = GET_ITEM(MP5_ANUM);
 		client->inventory[ITEM_INDEX(item)] = 1;
-	} else if (Q_stricmp(strtwpn->string, M4_NAME) == 0) {
+		break;
+	case M4_NUM:
 		item = GET_ITEM(M4_NUM);
 		client->selected_item = ITEM_INDEX(item);
 		client->inventory[client->selected_item] = 1;
@@ -2138,7 +2143,8 @@ void EquipClientDM(edict_t * ent)
 		}
 		item = GET_ITEM(M4_ANUM);
 		client->inventory[ITEM_INDEX(item)] = 1;
-	} else if (Q_stricmp(strtwpn->string, M3_NAME) == 0) {
+		break;
+	case M3_NUM:
 		item = GET_ITEM(M3_NUM);
 		client->selected_item = ITEM_INDEX(item);
 		client->inventory[client->selected_item] = 1;
@@ -2150,7 +2156,8 @@ void EquipClientDM(edict_t * ent)
 		}
 		item = GET_ITEM(SHELL_ANUM);
 		client->inventory[ITEM_INDEX(item)] = 7;
-	} else if (Q_stricmp(strtwpn->string, HC_NAME) == 0) {
+		break;
+	case HC_NUM:
 		item = GET_ITEM(HC_NUM);
 		client->selected_item = ITEM_INDEX(item);
 		client->inventory[client->selected_item] = 1;
@@ -2163,7 +2170,8 @@ void EquipClientDM(edict_t * ent)
 		}
 		item = GET_ITEM(SHELL_ANUM);
 		client->inventory[ITEM_INDEX(item)] = 12;
-	} else if (Q_stricmp(strtwpn->string, SNIPER_NAME) == 0) {
+		break;
+	case SNIPER_NUM:
 		item = GET_ITEM(SNIPER_NUM);
 		client->selected_item = ITEM_INDEX(item);
 		client->inventory[client->selected_item] = 1;
@@ -2175,7 +2183,8 @@ void EquipClientDM(edict_t * ent)
 		}
 		item = GET_ITEM(SNIPER_ANUM);;
 		client->inventory[ITEM_INDEX(item)] = 10;
-	} else if (Q_stricmp(strtwpn->string, DUAL_NAME) == 0) {
+		break;
+	case DUAL_NUM:
 		item = GET_ITEM(DUAL_NUM);
 		client->selected_item = ITEM_INDEX(item);
 		client->inventory[client->selected_item] = 1;
@@ -2185,18 +2194,21 @@ void EquipClientDM(edict_t * ent)
 		client->curr_weap = DUAL_NUM;
 		item = GET_ITEM(MK23_ANUM);
 		client->inventory[ITEM_INDEX(item)] = 2;
-	} else if (Q_stricmp(strtwpn->string, GRENADE_NAME) == 0) {
+		break;
+	case GRENADE_NUM:
 		item = GET_ITEM(GRENADE_NUM);
 		client->selected_item = ITEM_INDEX(item);
 		client->inventory[client->selected_item] = tgren->value;
 		client->pers.weapon = item;
 		client->curr_weap = GRENADE_NUM;
-	} else if (Q_stricmp(strtwpn->string, KNIFE_NAME) == 0) {
+		break;
+	case KNIFE_NUM:
 		item = GET_ITEM(KNIFE_NUM);
 		client->selected_item = ITEM_INDEX(item);
 		client->inventory[client->selected_item] = 10;
 		client->pers.weapon = item;
 		client->curr_weap = KNIFE_NUM;
+		break;
 	}
 }
 

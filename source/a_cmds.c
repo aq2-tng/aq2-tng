@@ -857,11 +857,70 @@ void Cmd_IR_f(edict_t * ent)
 }
 
 // zucc choose command, avoids using the menus in teamplay
+int GetWeaponNumFromArg(const char *s)
+{
+	int i, itemNum;
+	gitem_t *item;
+
+	if (!s || !*s)
+		return 0;
+
+	for (i = 0; i<WEAPON_COUNT; i++) {
+		itemNum = WEAPON_FIRST + i;
+		item = GET_ITEM(itemNum);
+		if (item->pickup_name && !Q_stricmp(s, item->pickup_name))
+			return itemNum;
+	}
+
+	itemNum = 0;
+	// convert names a player might try (DW added a few)
+	if (!Q_stricmp(s, "A 2nd pistol") || !Q_stricmp(s, "akimbo"))
+		itemNum = DUAL_NUM;
+	else if (!Q_stricmp(s, "shotgun"))
+		itemNum = M3_NUM;
+	else if (!Q_stricmp(s, "mp5"))
+		itemNum = MP5_NUM;
+	else if (!Q_stricmp(s, "sniper"))
+		itemNum = SNIPER_NUM;
+	else if (!Q_stricmp(s, "m4"))
+		itemNum = M4_NUM;
+
+	return itemNum;
+}
+
+int GetItemNumFromArg(const char *s)
+{
+	int i, itemNum;
+	gitem_t *item;
+
+	if (!s || !*s)
+		return 0;
+
+	for (i = 0; i<ITEM_COUNT; i++) {
+		itemNum = ITEM_FIRST + i;
+		item = GET_ITEM(itemNum);
+		if (item->pickup_name && !Q_stricmp(s, item->pickup_name))
+			return itemNum;
+	}
+
+	itemNum = 0;
+	if (!Q_stricmp(s, "laser"))
+		itemNum = LASER_NUM;
+	else if (!Q_stricmp(s, "vest"))
+		itemNum = KEV_NUM;
+	else if (!Q_stricmp(s, "slippers"))
+		itemNum = SLIP_NUM;
+	else if (!Q_stricmp(s, "helmet"))
+		itemNum = HELM_NUM;
+
+	return 0;
+}
+
 
 void Cmd_Choose_f(edict_t * ent)
 {
 	char *s, *wpnText, *itmText;
-	int itemNum = NO_NUM;
+	int itemNum = 0;
 	gitem_t *item;
 
 	// only works in teamplay
@@ -869,35 +928,11 @@ void Cmd_Choose_f(edict_t * ent)
 		return;
 
 	s = gi.args();
-
-	// convert names a player might try (DW added a few)
-	if (!Q_stricmp(s, "A 2nd pistol") || !Q_stricmp(s, "railgun") || !Q_stricmp(s, "akimbo") || !Q_stricmp(s, DUAL_NAME))
-		itemNum = DUAL_NUM;
-	else if (!Q_stricmp(s, "shotgun") || !Q_stricmp(s, M3_NAME))
-		itemNum = M3_NUM;
-	else if (!Q_stricmp(s, "machinegun") || !Q_stricmp(s, HC_NAME))
-		itemNum = HC_NUM;
-	else if (!Q_stricmp(s, "super shotgun") || !Q_stricmp(s, "mp5") || !Q_stricmp(s, MP5_NAME))
-		itemNum = MP5_NUM;
-	else if (!Q_stricmp(s, "chaingun") || !Q_stricmp(s, "sniper") || !Q_stricmp(s, SNIPER_NAME))
-		itemNum = SNIPER_NUM;
-	else if (!Q_stricmp(s, "bfg10k") || !Q_stricmp(s, KNIFE_NAME))
-		itemNum = KNIFE_NUM;
-	else if (!Q_stricmp(s, "grenade launcher") || !Q_stricmp(s, "m4") || !Q_stricmp(s, M4_NAME))
-		itemNum = M4_NUM;
-	else if (!Q_stricmp(s, "laser") || !Q_stricmp(s, LASER_NAME))
-		itemNum = LASER_NUM;
-	else if (!Q_stricmp(s, "vest") || !Q_stricmp(s, KEV_NAME))
-		itemNum = KEV_NUM;
-	else if (!Q_stricmp(s, "slippers") || !Q_stricmp(s, SLIP_NAME))
-		itemNum = SLIP_NUM;
-	else if (!Q_stricmp(s, SIL_NAME))
-		itemNum = SIL_NUM;
-	else if (!Q_stricmp(s, "helmet") || !Q_stricmp(s, HELM_NAME))
-		itemNum = HELM_NUM;
-	else if (!Q_stricmp(s, BAND_NAME))
-		itemNum = BAND_NUM;
-
+	if (*s) {
+		itemNum = GetItemNumFromArg(s);
+		if (!itemNum)
+			GetWeaponNumFromArg(s);
+	}
 
 	switch(itemNum) {
 	case DUAL_NUM:
