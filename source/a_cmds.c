@@ -913,7 +913,7 @@ int GetItemNumFromArg(const char *s)
 	else if (!Q_stricmp(s, "helmet"))
 		itemNum = HELM_NUM;
 
-	return 0;
+	return itemNum;
 }
 
 
