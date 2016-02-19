@@ -277,15 +277,14 @@
 #include	"a_radio.h"
 #include	"a_xcmds.h"
 #include	"a_xgame.h"
-#include	"g_xmisc.h"
+#include	"tng_ini.h"
 #include	"a_tourney.h"
 #include	"a_xvote.h"
 #include	"a_xmenu.h"
 #include	"a_vote.h"
 #include	"a_match.h"
-#include "tng_stats.h"		// Adding TNG Stats File
+#include	"tng_stats.h"		// Adding TNG Stats File
 #include	"tng_irc.h"
-#include	"tng_ini.h"
 #include	"tng_balancer.h"
 #include	"g_grapple.h"
 #define		getEnt(entnum)	(edict_t *)((char *)globals.edicts + (globals.edict_size * entnum))	//AQ:TNG Slicer - This was missing
@@ -1315,6 +1314,8 @@ void Weapon_Generic( edict_t * ent, int FRAME_ACTIVATE_LAST, int FRAME_FIRE_LAST
 	int FRAME_RELOAD_LAST, int FRAME_LASTRD_LAST,
 	int *pause_frames, int *fire_frames,
 	void( *fire ) (edict_t * ent) );
+
+void P_ProjectSource(gclient_t *client, vec3_t point, vec3_t distance, vec3_t forward, vec3_t right, vec3_t result);
 
 //============================================================================
 

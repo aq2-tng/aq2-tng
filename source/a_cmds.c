@@ -133,10 +133,6 @@
 
 #include "g_local.h"
 
-
-extern void P_ProjectSource(gclient_t * client, vec3_t point,
-			    vec3_t distance, vec3_t forward, vec3_t right, vec3_t result);
-
 /*----------------------------------------
  * SP_LaserSight
  *

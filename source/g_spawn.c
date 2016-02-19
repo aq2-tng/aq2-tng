@@ -687,6 +687,48 @@ void G_FindTeams (void)
 	gi.dprintf ("%i teams with %i entities\n", c, c2);
 }
 
+//Precaches and enables download options for user sounds. All sounds
+//have to be listed within "sndlist.ini". called from g_spawn.c -> SP_worldspawn
+static void PrecacheUserSounds(void)
+{
+	int count = 0;
+	size_t lenght;
+	FILE *soundlist;
+	char buf[1024], fullpath[MAX_QPATH];
+
+	soundlist = fopen(GAMEVERSION "/sndlist.ini", "r");
+	if (!soundlist) { // no "sndlist.ini" file...
+		gi.dprintf("Cannot load %s, sound download is disabled.\n", GAMEVERSION "/sndlist.ini");
+		return;
+	}
+
+	// read the sndlist.ini file
+	while (fgets(buf, sizeof(buf), soundlist) != NULL)
+	{
+		lenght = strlen(buf);
+		//first remove trailing spaces
+		while (lenght > 0 && buf[lenght - 1] <= ' ')
+			buf[--lenght] = '\0';
+
+		//Comments are marked with # or // at line start
+		if (lenght < 5 || buf[0] == '#' || !strncmp(buf, "//", 2))
+			continue;
+
+		Q_strncpyz(fullpath, PG_SNDPATH, sizeof(fullpath));
+		Q_strncatz(fullpath, buf, sizeof(fullpath));
+		gi.soundindex(fullpath);
+		//gi.dprintf("Sound %s: precache %i",fullpath, gi.soundindex(fullpath)); 
+		count++;
+		if (count == 100)
+			break;
+	}
+	fclose(soundlist);
+	if (!count)
+		gi.dprintf("%s is empty, no sounds to precache.\n", GAMEVERSION "/sndlist.ini");
+	else
+		gi.dprintf("%i user sounds precached.\n", count);
+}
+
 void G_LoadLocations( void )
 {
 	//AQ2:TNG New Location Code
