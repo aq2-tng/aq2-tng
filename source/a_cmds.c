@@ -761,53 +761,6 @@ void Cmd_ID_f(edict_t * ent)
 	return;
 }
 
-static void loc_buildboxpoints(vec3_t p[8], vec3_t org, vec3_t mins, vec3_t maxs)
-{
-	VectorAdd(org, mins, p[0]);
-	VectorCopy(p[0], p[1]);
-	p[1][0] -= mins[0];
-	VectorCopy(p[0], p[2]);
-	p[2][1] -= mins[1];
-	VectorCopy(p[0], p[3]);
-	p[3][0] -= mins[0];
-	p[3][1] -= mins[1];
-	VectorAdd(org, maxs, p[4]);
-	VectorCopy(p[4], p[5]);
-	p[5][0] -= maxs[0];
-	VectorCopy(p[0], p[6]);
-	p[6][1] -= maxs[1];
-	VectorCopy(p[0], p[7]);
-	p[7][0] -= maxs[0];
-	p[7][1] -= maxs[1];
-}
-
-qboolean loc_CanSee(edict_t * targ, edict_t * inflictor)
-{
-	trace_t trace;
-	vec3_t targpoints[8];
-	int i;
-	vec3_t viewpoint;
-
-// bmodels need special checking because their origin is 0,0,0
-	if (targ->movetype == MOVETYPE_PUSH)
-		return false;	// bmodels not supported
-
-	loc_buildboxpoints(targpoints, targ->s.origin, targ->mins, targ->maxs);
-
-	VectorCopy(inflictor->s.origin, viewpoint);
-	viewpoint[2] += inflictor->viewheight;
-
-	for (i = 0; i < 8; i++) {
-		PRETRACE();
-		trace = gi.trace(viewpoint, vec3_origin, vec3_origin, targpoints[i], inflictor, MASK_SOLID);
-		POSTTRACE();
-		if (trace.fraction == 1.0)
-			return true;
-	}
-
-	return false;
-}
-
 // originally from Zoid's CTF
 void SetIDView(edict_t * ent)
 {
@@ -857,14 +810,15 @@ void SetIDView(edict_t * ent)
 		who = g_edicts + i;
 		if (!who->inuse)
 			continue;
+
+		if ((who->solid == SOLID_NOT && who->deadflag != DEAD_DEAD) ||
+			(ent->solid != SOLID_NOT && !OnSameTeam(ent, who)))
+			continue;
+
 		VectorSubtract(who->s.origin, ent->s.origin, dir);
 		VectorNormalize(dir);
 		d = DotProduct(forward, dir);
-		if (d > bd && loc_CanSee(ent, who) &&
-//FIREBLADE
-		    (who->solid != SOLID_NOT || who->deadflag == DEAD_DEAD) &&
-		    (ent->solid == SOLID_NOT || OnSameTeam(ent, who))) {
-//FIREBLADE
+		if (d > bd && visible(ent, who, MASK_SOLID)) {
 			bd = d;
 			best = who;
 		}
