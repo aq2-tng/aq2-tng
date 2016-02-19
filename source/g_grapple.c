@@ -169,8 +169,7 @@ void CTFGrapplePull(edict_t *self)
 			gi.linkentity (self);
 		} else
 			VectorCopy(self->enemy->velocity, self->velocity);
-		if (self->enemy->takedamage &&
-			!CheckTeamDamage (self->enemy, self->owner)) {
+		if (self->enemy->takedamage) {
 			float volume = 1.0;
 
 			if (self->owner->client->silencer_shots)

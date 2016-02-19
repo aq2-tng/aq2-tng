@@ -1184,8 +1184,6 @@ void T_Damage (edict_t * targ, edict_t * inflictor, edict_t * attacker,
 void T_RadiusDamage (edict_t * inflictor, edict_t * attacker, float damage,
 		     edict_t * ignore, float radius, int mod);
 
-qboolean CheckTeamDamage( edict_t * targ, edict_t * attacker );
-
 // damage flags
 #define DAMAGE_RADIUS                   0x00000001	// damage was indirect
 #define DAMAGE_NO_ARMOR                 0x00000002	// armour does not protect from this damage
