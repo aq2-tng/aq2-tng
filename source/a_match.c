@@ -373,10 +373,10 @@ void Cmd_Teamskin_f(edict_t * ent)
 	gi.cprintf(ent, PRINT_HIGH, "New team skin: %s\n", team->skin);
 }
 
-void Cmd_TeamLock_f(edict_t * ent, int a_switch)
+void Cmd_TeamLock_f(edict_t *ent, int a_switch)
 {
-	char msg[128];
-	int teamNum;
+	char msg[128], *s;
+	int teamNum, i;
 	team_t *team;
 
 	if (!matchmode->value) {
@@ -389,21 +389,51 @@ void Cmd_TeamLock_f(edict_t * ent, int a_switch)
 		return;
 	}
 
-	teamNum = ent->client->resp.team;
-	if (teamNum == NOTEAM) {
-		gi.cprintf(ent, PRINT_HIGH, "You are not on a team\n");
-		return;
-	}
+	//Admin can lock teams
+	if (ent->client->pers.admin && gi.argc() > 1)
+	{
+		s = gi.argv(1);
+		teamNum = TP_GetTeamFromArg(s);
+		if (teamNum < 1) {
+			gi.cprintf(ent, PRINT_HIGH, "Unknown team '%s'.\n", s);
+			return;
+		}
+		team = &teams[teamNum];
+		if (a_switch == team->locked) {
+			gi.cprintf(ent, PRINT_HIGH, "Team %s locked\n", (a_switch) ? "is already" : "isn't");
+			return;
+		}
+		if (a_switch) {
+			gclient_t *client;
 
-	team = &teams[teamNum];
-	if (team->captain != ent) {
-		gi.cprintf(ent, PRINT_HIGH, "You are not the captain of your team\n");
-		return;
+			for (i = 0, client = game.clients; i < game.maxclients; i++, client++) {
+				if (client->pers.connected && client->resp.team == teamNum)
+					break;
+			}
+			if (i == game.maxclients) {
+				gi.cprintf(ent, PRINT_HIGH, "You can't lock teams without players\n");
+				return;
+			}
+		}
 	}
+	else
+	{
+		teamNum = ent->client->resp.team;
+		if (teamNum == NOTEAM) {
+			gi.cprintf(ent, PRINT_HIGH, "You are not on a team\n");
+			return;
+		}
 
-	if (a_switch == team->locked) {
-		gi.cprintf( ent, PRINT_HIGH, "Your team %s locked\n", (a_switch) ? "is already" : "isn't" );
-		return;
+		team = &teams[teamNum];
+		if (team->captain != ent) {
+			gi.cprintf(ent, PRINT_HIGH, "You are not the captain of your team\n");
+			return;
+		}
+
+		if (a_switch == team->locked) {
+			gi.cprintf(ent, PRINT_HIGH, "Your team %s locked\n", (a_switch) ? "is already" : "isn't");
+			return;
+		}
 	}
 
 	team->locked = a_switch;

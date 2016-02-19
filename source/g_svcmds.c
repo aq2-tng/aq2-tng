@@ -360,13 +360,12 @@ This will stuff a certain command to the client.
 */
 void SVCmd_stuffcmd_f ()
 {
-	int i, u, team = 0;
+	int i, u, team = -1, stuffAll = 0;
 	char text[256];
 	char user[64], tmp[64];
 	edict_t *ent;
 
-	if (gi.argc () < 4)
-	{
+	if (gi.argc() < 4) {
 		gi.cprintf (NULL, PRINT_HIGH, "Usage: stuffcmd <user id> <text>\n");
 		return;
 	}
@@ -388,20 +387,18 @@ void SVCmd_stuffcmd_f ()
 	}
 	Q_strncatz (text, "\n", sizeof(text));
 
-	if(!Q_stricmp (user, "team1"))
-		team = TEAM1;
-	else if(!Q_stricmp (user, "team2"))
-		team = TEAM2;
-	else if(use_3teams->value && !Q_stricmp (user, "team3"))
-		team = TEAM3;
+	if (!Q_stricmp(user, "all")) {
+		stuffAll = 1;
+	} else if (!Q_strnicmp(user, "team", 4)) {
+		team = TP_GetTeamFromArg(user+4);
+	}
 
-	if(team && !teamplay->value)
-	{
-		gi.cprintf (NULL, PRINT_HIGH, "Not in Teamplay mode\n");
+	if(team > -1 && !teamplay->value) {
+		gi.cprintf(NULL, PRINT_HIGH, "Not in Teamplay mode\n");
 		return;
 	}
 
-	if (team || !Q_stricmp(user, "all"))
+	if (stuffAll || team > -1)
 	{
 		for (i = 1; i <= game.maxclients; i++)
 		{
@@ -409,10 +406,9 @@ void SVCmd_stuffcmd_f ()
 			if(!ent->inuse)
 				continue;
 
-			if (!team || ent->client->resp.team == team)
-			{
+			if (stuffAll || ent->client->resp.team == team) {
 				gi.cprintf(ent, PRINT_HIGH, "Console stuffed: %s", text);
-				stuffcmd (ent, text);
+				stuffcmd(ent, text);
 			}
 		}
 		return;
