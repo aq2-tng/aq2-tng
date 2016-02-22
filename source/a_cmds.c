@@ -142,11 +142,12 @@
 void SP_LaserSight(edict_t * self, gitem_t * item)
 {
 	vec3_t start, forward, right, end;
+	edict_t *lasersight = self->client->lasersight;
 
 	if (!INV_AMMO(self, LASER_NUM)) {
-		if (self->lasersight) {  // laser is on
-			G_FreeEdict(self->lasersight);
-			self->lasersight = NULL;
+		if (lasersight) {  // laser is on
+			G_FreeEdict(lasersight);
+			self->client->lasersight = NULL;
 		}
 		return;
 	}
@@ -159,10 +160,14 @@ void SP_LaserSight(edict_t * self, gitem_t * item)
 		break;
 	default:
 		// laser is on but we want it off
-		if (self->lasersight) {
-			G_FreeEdict(self->lasersight);
-			self->lasersight = NULL;
+		if (lasersight) {
+			G_FreeEdict(lasersight);
+			self->client->lasersight = NULL;
 		}
+		return;
+	}
+
+	if (lasersight) { //Lasersight is already on
 		return;
 	}
 
@@ -170,15 +175,17 @@ void SP_LaserSight(edict_t * self, gitem_t * item)
 	VectorSet(end, 100, 0, 0);
 	G_ProjectSource(self->s.origin, end, forward, right, start);
 	VectorCopy(self->s.origin, self->old_origin);
-	self->lasersight = G_Spawn();
-	self->lasersight->owner = self;
-	self->lasersight->movetype = MOVETYPE_NOCLIP;
-	self->lasersight->solid = SOLID_NOT;
-	self->lasersight->classname = "lasersight";
-	self->lasersight->s.modelindex = gi.modelindex("sprites/lsight.sp2");
-	self->lasersight->s.renderfx = RF_TRANSLUCENT;
-	self->lasersight->think = LaserSightThink;
-	self->lasersight->nextthink = level.framenum + 1;
+	lasersight = G_Spawn();
+	lasersight->owner = self;
+	lasersight->movetype = MOVETYPE_NOCLIP;
+	lasersight->solid = SOLID_NOT;
+	lasersight->classname = "lasersight";
+	lasersight->s.modelindex = gi.modelindex("sprites/lsight.sp2");
+	lasersight->s.renderfx = RF_TRANSLUCENT;
+	lasersight->think = LaserSightThink;
+	lasersight->nextthink = level.framenum + 1;
+
+	self->client->lasersight = lasersight;
 }
 
 /*---------------------------------------------
@@ -199,7 +206,7 @@ void LaserSightThink(edict_t * self)
 	VectorAdd(self->owner->client->v_angle, self->owner->client->kick_angles, angles);
 	AngleVectors(angles, forward, right, up);
 
-	if (self->owner->lasersight != self) {
+	if (self->owner->client->lasersight != self) {
 		self->think = G_FreeEdict;
 	}
 

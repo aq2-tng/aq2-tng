@@ -1666,6 +1666,9 @@ struct gclient_s
   int ctf_grapplereleaseframe;	// frame of grapple release
 
   qboolean team_force;		// are we forcing a team change
+
+  edict_t *lasersight; // laser
+  edict_t *flashlight; // Flashlight
 };
 
 
@@ -1809,8 +1812,6 @@ struct edict_s
 
   float random;
 
-  float teleport_time;
-
   int watertype;
   int waterlevel;
 
@@ -1827,10 +1828,6 @@ struct edict_s
   // common data blocks
   moveinfo_t moveinfo;
 
-  // laser
-  edict_t *lasersight;
-  // TNG Flashlight
-  edict_t *flashlight;
   // action
   qboolean splatted;
   int classnum;

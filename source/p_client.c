@@ -325,6 +325,21 @@ void ClientDisconnect(edict_t * ent);
 void SP_misc_teleporter_dest(edict_t * ent);
 void CopyToBodyQue(edict_t * ent);
 
+static void FreeClientEdicts(gclient_t *client)
+{
+	//remove lasersight
+	if (client->lasersight) {
+		G_FreeEdict(client->lasersight);
+		client->lasersight = NULL;
+	}
+
+	//Turn Flashlight off
+	if (client->flashlight) {
+		G_FreeEdict(client->flashlight);
+		client->flashlight = NULL;
+	}
+}
+
 void Add_Frag(edict_t * ent, int mod)
 {
 	char buf[256];
@@ -1170,15 +1185,12 @@ void TossItemsOnDeath(edict_t * ent)
 		// remove the lasersight because then the observer might have it
 		item = GET_ITEM(LASER_NUM);
 		ent->client->inventory[ITEM_INDEX(item)] = 0;
-		if(allweapon->value)
-			return;
-
-		SP_LaserSight(ent, item);
 	} else {
 		DeadDropSpec(ent);
-		if (allweapon->value)// don't drop weapons if allweapons is on
-			return;
 	}
+
+	if (allweapon->value)// don't drop weapons if allweapons is on
+		return;
 
 	if (WPF_ALLOWED(MK23_NUM) && WPF_ALLOWED(DUAL_NUM)) {
 		// give the player a dual pistol so they can be sure to drop one
@@ -1303,7 +1315,7 @@ void LookAtKiller(edict_t * self, edict_t * inflictor, edict_t * attacker)
 player_die
 ==================
 */
-void player_die(edict_t * self, edict_t * inflictor, edict_t * attacker, int damage, vec3_t point)
+void player_die(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, vec3_t point)
 {
 	int n, mod;
 
@@ -1388,17 +1400,7 @@ void player_die(edict_t * self, edict_t * inflictor, edict_t * attacker, int dam
 	self->client->breather_framenum = 0;
 	self->client->enviro_framenum = 0;
 
-	//zucc remove lasersight
-	if (self->lasersight) {
-		G_FreeEdict(self->lasersight);
-		self->lasersight = NULL;
-	}
-
-	// TNG Turn Flashlight off
-	if (self->flashlight) { 
-		G_FreeEdict(self->flashlight);
-		self->flashlight = NULL;
-	}
+	FreeClientEdicts(self->client);
 
 	//FIREBLADE
 	// clean up sniper rifle stuff
@@ -1520,7 +1522,7 @@ void InitClientPersistant(gclient_t * client)
 }
 
 // SLIC2 If resp structure gets memset to 0 lets cleannup unecessary initiations ( to 0 ) here
-void InitClientResp(gclient_t * client)
+void InitClientResp(gclient_t *client)
 {
 	gitem_t *item = client->resp.item;
 	gitem_t *weapon = client->resp.weapon;
@@ -2242,6 +2244,8 @@ void PutClientInServer(edict_t * ent)
 	index = ent - g_edicts - 1;
 	client = ent->client;
 
+	FreeClientEdicts(client);
+
 	// deathmatch wipes most client data every spawn
 	resp = client->resp;
 	pers = client->pers;
@@ -2712,17 +2716,7 @@ void ClientDisconnect(edict_t * ent)
 	if (ent->solid != SOLID_NOT)
 		TossItemsOnDeath(ent);
 
-	// zucc free the lasersight if applicable
-	if (ent->lasersight) {
-		G_FreeEdict(ent->lasersight);
-		ent->lasersight = NULL;
-	}
-
-	// TNG Turn Flashlight off
-	if (ent->flashlight) {
-		G_FreeEdict(ent->flashlight);
-		ent->flashlight = NULL;
-	}
+	FreeClientEdicts(ent->client);
 
 	if (ent->solid == SOLID_TRIGGER)
 		RemoveFromTransparentList(ent);
