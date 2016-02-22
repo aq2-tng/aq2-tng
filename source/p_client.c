@@ -338,6 +338,12 @@ static void FreeClientEdicts(gclient_t *client)
 		G_FreeEdict(client->flashlight);
 		client->flashlight = NULL;
 	}
+
+	//Remove grapple
+	if (client->ctf_grapple) {
+		G_FreeEdict(client->ctf_grapple);
+		client->ctf_grapple = NULL;
+	}
 }
 
 void Add_Frag(edict_t * ent, int mod)
