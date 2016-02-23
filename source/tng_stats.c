@@ -172,14 +172,9 @@ void Cmd_Stats_f (edict_t *targetent, char *arg)
 			return;
 		}
 
-		i = atoi (arg);
-		if(i < 0 || i >= game.maxclients)
-			ent = targetent;
-		else
-			ent = &g_edicts[1 + i];
-
-		if (!ent->inuse || ent->client->pers.mvdspec)
-			ent = targetent;
+		ent = LookupPlayer(targetent, gi.args(), true, true);
+		if (!ent)
+			return;
 
 	} else {
 		ent = targetent;
