@@ -3136,8 +3136,8 @@ void ClientBeginServerFrame(edict_t * ent)
 				ent->solid = SOLID_NOT;
 				// Also set this so we can have a way to know we've already done this...
 				ent->movetype = MOVETYPE_NOCLIP;
-
 				gi.linkentity(ent);
+				ent->client->uvTime = 0;
 				gi.bprintf(PRINT_HIGH, "%s became a spectator\n", ent->client->pers.netname);
 				IRC_printf(IRC_T_SERVER, "%n became a spectator", ent->client->pers.netname);
 			} else	// immediately become observer...
@@ -3151,6 +3151,7 @@ void ClientBeginServerFrame(edict_t * ent)
 					ent->health = 100;
 					ent->deadflag = DEAD_NO;
 					gi.linkentity(ent);
+					ent->client->uvTime = 0;
 					gi.bprintf(PRINT_HIGH, "%s became a spectator\n", ent->client->pers.netname);
 					IRC_printf(IRC_T_SERVER, "%n became a spectator", ent->client->pers.netname);
 				}
@@ -3201,6 +3202,7 @@ void ClientBeginServerFrame(edict_t * ent)
 				VectorCopy(ent->s.angles, client->v_angle);
 				gi.linkentity(ent);
 
+				ent->client->uvTime = 0;
 				if (teamplay->value && !in_warmup && limchasecam->value) {
 					ent->client->chase_mode = 0;
 					NextChaseMode( ent );
@@ -3243,40 +3245,42 @@ void ClientBeginServerFrame(edict_t * ent)
 			client->autoreloading = false;
 			Cmd_New_Reload_f( ent );
 		}
-	}
 
-	if (client->uvTime && FRAMESYNC) {
-		client->uvTime--;
-		if (!client->uvTime)
-		{
-			if (team_round_going)
+		if (client->uvTime && FRAMESYNC) {
+			client->uvTime--;
+			if (!client->uvTime)
 			{
-				if (ctf->value && ctfgame.type == 2) {
-					gi.centerprintf( ent,
-						"ACTION!\n"
-						"\n"
-						"You are %s the %s base!",
-						(client->resp.team == ctfgame.offence ?
-						"ATTACKING" : "DEFENDING"),
-						CTFOtherTeamName( ctfgame.offence ) );
-				} else {
-					gi.centerprintf( ent, "ACTION!" );
+				if (team_round_going)
+				{
+					if (ctf->value && ctfgame.type == 2) {
+						gi.centerprintf(ent,
+							"ACTION!\n"
+							"\n"
+							"You are %s the %s base!",
+							(client->resp.team == ctfgame.offence ?
+							"ATTACKING" : "DEFENDING"),
+							CTFOtherTeamName(ctfgame.offence));
+					}
+					else {
+						gi.centerprintf(ent, "ACTION!");
+					}
 				}
 			}
-		}
-		else if (client->uvTime % 10 == 0)
-		{
-			if (ctf->value && ctfgame.type == 2) {
-				gi.centerprintf( ent,
-					"Shield %d\n"
-					"\n"
-					"You are %s the %s base!",
-					client->uvTime / 10,
-					(client->resp.team == ctfgame.offence ?
-					"ATTACKING" : "DEFENDING"),
-					CTFOtherTeamName( ctfgame.offence ) );
-			} else {
-				gi.centerprintf( ent, "Shield %d", client->uvTime / 10 );
+			else if (client->uvTime % 10 == 0)
+			{
+				if (ctf->value && ctfgame.type == 2) {
+					gi.centerprintf(ent,
+						"Shield %d\n"
+						"\n"
+						"You are %s the %s base!",
+						client->uvTime / 10,
+						(client->resp.team == ctfgame.offence ?
+						"ATTACKING" : "DEFENDING"),
+						CTFOtherTeamName(ctfgame.offence));
+				}
+				else {
+					gi.centerprintf(ent, "Shield %d", client->uvTime / 10);
+				}
 			}
 		}
 	}
