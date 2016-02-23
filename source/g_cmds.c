@@ -230,20 +230,104 @@ qboolean FloodCheck (edict_t *ent)
 	return 0;
 }
 
-
-//Returns the edict for the given name, not case sensitive, and
-//only if the edict is a client.
-edict_t *FindClientByPersName(char *name)
+/*
+==============
+LookupPlayer
+==============
+Look up a player by partial subname, full name or client id. If multiple
+matches, show a list. Return NULL on failure. Case insensitive.
+*/
+edict_t *LookupPlayer(edict_t *ent, const char *text, qboolean checkNUM, qboolean checkNick)
 {
-	int i;
-	edict_t *other;
+	edict_t		*p, *entMatch;
+	int			i, matchCount, numericMatch;
+	char		match[32];
+	const char	*m, *name;
 
-	for (i = 1; i <= game.maxclients; i++) {
-		other = &g_edicts[i];
-		if (other && other->client && (Q_stricmp(other->client->pers.netname, name) == 0)) {
-			return other;
+	if (!text[0])
+		return NULL;
+
+	Q_strncpyz(match, text, sizeof(match));
+	matchCount = numericMatch = 0;
+
+	m = match;
+
+	while (*m) {
+		if (!Q_isdigit(*m)) {
+			break;
+		}
+		m++;
+	}
+
+	if (!*m && checkNUM)
+	{
+		numericMatch = atoi(match);
+		if (numericMatch < 0 || numericMatch >= game.maxclients)
+		{
+			if (ent)
+				gi.cprintf(ent, PRINT_HIGH, "Invalid client id %d.\n", numericMatch);
+			return 0;
+		}
+
+		p = g_edicts + 1 + numericMatch;
+		if (!p->inuse || !p->client || p->client->pers.mvdspec) {
+			if (ent)
+				gi.cprintf(ent, PRINT_HIGH, "Client %d is not active.\n", numericMatch);
+			return NULL;
+		}
+
+		return p;
+	}
+
+	if (!checkNick) {
+		if (ent)
+			gi.cprintf(ent, PRINT_HIGH, "Invalid client id '%s'\n", match);
+
+		return NULL;
+	}
+
+	for (i = 0, p = g_edicts + 1; i < game.maxclients; i++, p++)
+	{
+		if (!p->inuse || !p->client || p->client->pers.mvdspec)
+			continue;
+
+		name = p->client->pers.netname;
+		if (!Q_stricmp(name, match)) { //Exact match
+			return p;
+		}
+
+		if (Q_stristr(name, match)) {
+			matchCount++;
+			entMatch = p;
+			continue;
 		}
 	}
+
+	if (matchCount == 1) {
+		return entMatch;
+	}
+
+	if (matchCount > 1)
+	{
+		if (ent)
+		{
+			gi.cprintf(ent, PRINT_HIGH, "'%s' matches multiple players:\n", match);
+			for (i = 0, p = g_edicts + 1; i < game.maxclients; i++, p++) {
+				if (!p->inuse || !p->client || p->client->pers.mvdspec)
+					continue;
+
+				name = p->client->pers.netname;
+				if (Q_stristr(name, match)) {
+					gi.cprintf(ent, PRINT_HIGH, "%3d. %s\n", i, name);
+				}
+			}
+		}
+		return NULL;
+	}
+
+	if (ent)
+		gi.cprintf(ent, PRINT_HIGH, "No player match found for '%s'\n", match);
+
 	return NULL;
 }
 

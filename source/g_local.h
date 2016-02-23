@@ -1120,7 +1120,7 @@ qboolean FloodCheck(edict_t *ent);
 void	Cmd_Help_f(edict_t *ent);
 void	Cmd_Score_f(edict_t *ent);
 void	Cmd_Inven_f(edict_t *ent);
-edict_t	*FindClientByPersName(char *name);
+edict_t *LookupPlayer(edict_t *ent, const char *text, qboolean checkNUM, qboolean checkNick);
 
 //
 // g_items.c

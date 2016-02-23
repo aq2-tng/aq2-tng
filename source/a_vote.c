@@ -80,7 +80,7 @@ void _printplayerlist (edict_t * self, char *buf,
 
 	Q_strncatz (buf, " #  Name\n", MAX_STRING_CHARS);
 	Q_strncatz (buf, "------------------------------------\n", MAX_STRING_CHARS);
-	for (i = 1, other = g_edicts + 1; i <= game.maxclients; i++, other++)
+	for (i = 0, other = g_edicts + 1; i < game.maxclients; i++, other++)
 	{
 		if (!other->inuse || !other->client || other->client->pers.mvdspec)
 			continue;
@@ -109,7 +109,7 @@ int _numclients (void)
 	edict_t *other;
 
 	count = 0;
-	for (i = 1, other = g_edicts + 1; i <= game.maxclients; i++, other++)
+	for (i = 0, other = g_edicts + 1; i < game.maxclients; i++, other++)
 	{
 		if (!other->inuse || !other->client || other->client->pers.mvdspec)
 			continue;
@@ -168,14 +168,13 @@ void Cmd_Votemap_f (edict_t * ent, char *t)
 
 	if (!*t)
 	{
-		gi.cprintf (ent, PRINT_HIGH,
-		"You need an argument to the vote command (name of map).\n");
+		gi.cprintf(ent, PRINT_HIGH, "You need an argument to the vote command (name of map).\n");
 			return;
 	}
 
 	if (level.intermission_framenum)
 	{
-		gi.cprintf (ent, PRINT_HIGH, "Mapvote disabled during intermission\n");
+		gi.cprintf(ent, PRINT_HIGH, "Mapvote disabled during intermission\n");
 		return;
 	}
 
@@ -830,26 +829,23 @@ void _SetKickVote (edict_t * ent, edict_t * target)
 void _ClrKickVotesOn (edict_t * target)
 {
 	edict_t *other;
-	int i, j;
+	int i, count = 0;
 
-	j = 0;
-	for (i = 1; i <= game.maxclients; i++)
+	for (i = 0, other = g_edicts + 1; i < game.maxclients; i++, other++)
 	{
-		other = &g_edicts[i];
-		if (other->client && other->inuse)
-		{
-			if (other->client->resp.kickvote == target)
-			{
-				other->client->resp.kickvote = NULL;
-				j++;
-			}
+		if (!other->client || !other->inuse)
+			continue;
+
+		if (other->client->resp.kickvote == target) {
+			other->client->resp.kickvote = NULL;
+			count++;
 		}
 	}
 
-	if (j > 0 || target->client->resp.kickvote)
+	if (count > 0 || target->client->resp.kickvote)
 	{
 		kickvotechanged = true;
-		_CheckKickVote ();
+		_CheckKickVote();
 	}
 }
 
@@ -903,7 +899,7 @@ void _ClientKickDisconnect (edict_t * ent)
 void _CheckKickVote (void)
 {
 	int i, j, votes, maxvotes, playernum, playervoted;
-	edict_t *other, *target, *mtarget;
+	edict_t *ent, *other, *target, *mtarget;
 
 	if (kickvotechanged == false)
 		return;
@@ -917,25 +913,26 @@ void _CheckKickVote (void)
 	maxvotes = 0;
 	mtarget = NULL;
 	playervoted = 0;
-	for (i = 1; i <= game.maxclients; i++)
+	for (i = 0, other = g_edicts + 1; i < game.maxclients; i++, other++)
 	{
-		other = &g_edicts[i];
-		if (other->client && other->inuse && other->client->resp.kickvote)
+		if (!other->client || !other->inuse)
+			continue;
+
+		target = other->client->resp.kickvote;
+		if (!target || target == mtarget)
+			continue;
+
+		votes = 0;
+		playervoted++;
+		for (j = 0, ent = g_edicts + 1; j < game.maxclients; j++, ent++)
 		{
-			votes = 0;
-			target = other->client->resp.kickvote;
-			playervoted++;
-			for (j = 1; j <= game.maxclients; j++)
-			{
-				other = &g_edicts[j];
-				if (other->client && other->inuse && other->client->resp.kickvote == target)
-					votes++;
-			}
-			if (votes > maxvotes)
-			{
-				maxvotes = votes;
-				mtarget = target;
-			}
+			if (ent->client && ent->inuse && ent->client->resp.kickvote == target)
+				votes++;
+		}
+		if (votes > maxvotes)
+		{
+			maxvotes = votes;
+			mtarget = target;
 		}
 	}
 
@@ -957,7 +954,7 @@ void _CheckKickVote (void)
 	_DoKick (mtarget);
 }
 
-void _KickSelected (edict_t * ent, pmenu_t * p)
+void _KickSelected(edict_t *ent, pmenu_t *p)
 {
 	char *ch;
 
@@ -969,10 +966,14 @@ void _KickSelected (edict_t * ent, pmenu_t * p)
 		*ch = '\0';
 	}
 	ch = p->text;
-	if (ch && *ch == '*')
-		ch++;
-	PMenu_Close (ent);
-	Cmd_Votekicknum_f (ent, ch);
+	if (ch) {
+		if (*ch == '*')
+			ch++;
+		while (*ch == ' ')
+			ch++;
+	}
+	PMenu_Close(ent);
+	Cmd_Votekicknum_f(ent, ch);
 }
 
 #define MostKickMarker " "
@@ -985,7 +986,7 @@ void _AddKickuserToMenu (edict_t * ent, int fromix)
 	char buf[256];
 
 	j = 0;
-	for(i = 1, other = g_edicts + 1; i <= game.maxclients && j < fromix; i++, other++)
+	for(i = 0, other = g_edicts + 1; i < game.maxclients && j < fromix; i++, other++)
 	{
 		if (!other->inuse || !other->client || other->client->pers.mvdspec)
 			continue;
@@ -995,7 +996,7 @@ void _AddKickuserToMenu (edict_t * ent, int fromix)
 	}
 	erg = true;
 
-	for (; i <= game.maxclients && erg; i++, other++)
+	for (; i < game.maxclients && erg; i++, other++)
 	{
 		if (!other->inuse || !other->client || other->client->pers.mvdspec)
 			continue;
@@ -1020,46 +1021,36 @@ void _KickVoteSelected (edict_t * ent, pmenu_t * p)
 		gi.cprintf (ent, PRINT_MEDIUM, "No player to kick.\n");
 }
 
-void Cmd_Votekick_f (edict_t * ent, char *argument)
+void Cmd_Votekick_f(edict_t *ent, char *argument)
 {
 	edict_t *target;
 
-	if (!*argument)
-	{
-		gi.cprintf (ent, PRINT_HIGH, "\nUse votekick <playername>.\n");
+	if (!*argument) {
+		gi.cprintf(ent, PRINT_HIGH, "\nUse votekick <playername>.\n");
 		return;
 	}
-	target = FindClientByPersName (argument);
+
+	target = LookupPlayer(ent, argument, false, true);
 	if (target && target != ent)
-		_SetKickVote (ent, target);
+		_SetKickVote(ent, target);
 	else
-		gi.cprintf (ent, PRINT_HIGH, "\nUse kicklist to see who can be kicked.\n");
+		gi.cprintf(ent, PRINT_HIGH, "\nUse kicklist to see who can be kicked.\n");
 }
 
-void Cmd_Votekicknum_f (edict_t * ent, char *argument)
+void Cmd_Votekicknum_f(edict_t *ent, char *argument)
 {
-	int i;
 	edict_t *target;
 
-	if (!*argument)
-	{
+	if (!*argument) {
 		gi.cprintf (ent, PRINT_HIGH, "\nUse votekicknum <playernumber>.\n");
 		return;
 	}
 
-	i = atoi (argument);
-
-	if(i < 1 || i > game.maxclients)
-	{
-		gi.cprintf (ent, PRINT_MEDIUM, "\nUsed votekicknum with illegal number.\n");
-		return;
-	}
-
-	target = &g_edicts[i];
-	if (target && target->inuse && target->client && target != ent && !target->client->pers.mvdspec)
-		_SetKickVote (ent, target);
+	target = LookupPlayer(ent, argument, true, false);
+	if (target && target != ent)
+		_SetKickVote(ent, target);
 	else
-		gi.cprintf (ent, PRINT_HIGH, "\nUse kicklist to see who can be kicked.\n");
+		gi.cprintf(ent, PRINT_HIGH, "\nUse kicklist to see who can be kicked.\n");
 
 }
 
@@ -1408,23 +1399,15 @@ qboolean _iCheckConfigVotes (void)
 
 configlist_t *ConfigWithMostVotes (float *p)
 {
-  int i;
   float p_most;
   configlist_t *search, *most;
-  edict_t *e;
 
   p_most = 0.0;
   if (config_votes == NULL)
     return (NULL);
 
   //find config_num_clients
-  config_num_clients = 0;
-  for (i = 1; i <= game.maxclients; i++)
-    {
-      e = g_edicts + i;
-      if (e->inuse)
-	config_num_clients++;
-    }
+  config_num_clients = _numclients();
 
   if (config_num_clients == 0)
     return (NULL);
@@ -1718,14 +1701,13 @@ void _ClrIgnoresOn (edict_t * target)
 	edict_t *other;
 	int i;
 
-	for (i = 1; i <= game.maxclients; i++)
+	for (i = 0, other = g_edicts + 1; i < game.maxclients; i++, other++)
 	{
-		other = &g_edicts[i];
-		if (other->client && other->inuse)
-		{
-			if (IsInIgnoreList (other, target))
-				_AddOrDelIgnoreSubject (other, target, true);
-		}
+		if (!other->client || !other->inuse)
+			continue;
+
+		if (IsInIgnoreList(other, target))
+			_AddOrDelIgnoreSubject(other, target, true);
 	}
 }
 
@@ -1733,8 +1715,7 @@ void _ClrIgnoresOn (edict_t * target)
 //Ignores players by part of the name
 void Cmd_IgnorePart_f (edict_t * self, char *s)
 {
-	int      i;
-	int      j;
+	int      i, count = 0;
 	edict_t *target;
 
 	if (!*s) {
@@ -1746,76 +1727,65 @@ void Cmd_IgnorePart_f (edict_t * self, char *s)
 		return;
 	}
 
-	j = 0;
-	for (i = 1; i <= game.maxclients; i++) {
-		target = &g_edicts[i];
-		if (target && target->client && target != self && (strstr(target->client->pers.netname, s) != 0)) {
+	for (i = 0, target = g_edicts + 1; i < game.maxclients; i++, target++)
+	{
+		if (!target->client || target == self)
+			continue;
+
+		if (strstr(target->client->pers.netname, s) != 0) {
 			_AddOrDelIgnoreSubject (self, target, false);
-			j++;
+			count++;
 		}
 	}
 
-	if (j == 0) {
+	if (count == 0) {
 		gi.cprintf (self, PRINT_MEDIUM, "\nUse ignorelist to see who can be ignored.\n");
 	}
 }
 
 
 //Ignores a player by name
-void Cmd_Ignore_f (edict_t * self, char *s)
+void Cmd_Ignore_f(edict_t *self, char *s)
 {
 	edict_t *target;
 
-	if (!*s)
-	{
+	if (!*s) {
 		gi.cprintf (self, PRINT_MEDIUM, "\nUse ignore <playername>.\n");
 		return;
 	}
 	
-	if (level.realFramenum < (self->client->resp.ignore_time + 5 * HZ))
-	{
+	if (level.realFramenum < (self->client->resp.ignore_time + 5 * HZ)) {
 		gi.cprintf (self, PRINT_MEDIUM, "Wait 5 seconds before ignoring again.\n");
 		return;
 	}
 
-	target = FindClientByPersName (s);
+	target = LookupPlayer(self, s, false, true);
 	if (target && target != self)
-		_AddOrDelIgnoreSubject (self, target, false);
+		_AddOrDelIgnoreSubject(self, target, false);
 	else
-		gi.cprintf (self, PRINT_MEDIUM, "\nUse ignorelist to see who can be ignored.\n");
+		gi.cprintf(self, PRINT_MEDIUM, "\nUse ignorelist to see who can be ignored.\n");
 }
 
 //Ignores a player by number
-void Cmd_Ignorenum_f (edict_t * self, char *s)
+void Cmd_Ignorenum_f(edict_t *self, char *s)
 {
-	int i;
 	edict_t *target;
 
-	if (!*s)
-	{
+	if (!*s) {
 		gi.cprintf (self, PRINT_MEDIUM, "\nUse ignorenum <playernumber>.\n");
 		return;
 	}
 
-	if (level.realFramenum < (self->client->resp.ignore_time + 5 * HZ))
-	{
+	if (level.realFramenum < (self->client->resp.ignore_time + 5 * HZ)) {
 		gi.cprintf (self, PRINT_MEDIUM, "Wait 5 seconds before ignoring again.\n");
 		return;
 	}
 
-	i = atoi (s);
-
-	if(i < 1 || i > game.maxclients)
-	{
-		gi.cprintf (self, PRINT_MEDIUM, "\nUsed ignorenum with illegal number.\n");
-		return;
-	}
-
-	target = &g_edicts[i];
-	if (target && target->client && target != self && target->inuse)
-		_AddOrDelIgnoreSubject (self, target, false);
+	target = LookupPlayer(self, s, true, false);
+	if (target && target != self)
+		_AddOrDelIgnoreSubject(self, target, false);
 	else
-		gi.cprintf (self, PRINT_MEDIUM, "\nUse ignorelist to see who can be ignored.\n");
+		gi.cprintf(self, PRINT_MEDIUM, "\nUse ignorelist to see who can be ignored.\n");
 }
 
 qboolean _ilMarkThis (edict_t * self, edict_t * other)
@@ -1828,9 +1798,9 @@ qboolean _ilMarkThis (edict_t * self, edict_t * other)
 void Cmd_Ignorelist_f (edict_t * self, char *s)
 {
 	char buf[MAX_STRING_CHARS];
-	strcpy (buf, "\nAvailable players to ignore:\n\n");
-	_printplayerlist (self, buf, _ilMarkThis);
-	gi.cprintf (self, PRINT_MEDIUM, "%s", buf);
+	strcpy(buf, "\nAvailable players to ignore:\n\n");
+	_printplayerlist(self, buf, _ilMarkThis);
+	gi.cprintf(self, PRINT_MEDIUM, "%s", buf);
 }
 
 //Clears ignore list - user interface :)
@@ -1852,10 +1822,14 @@ void _IgnoreSelected (edict_t * ent, pmenu_t * p)
 		*ch = '\0';
 	}
 	ch = p->text;
-	if (ch && *ch == '*')
-		ch++;
-	PMenu_Close (ent);
-	Cmd_Ignorenum_f (ent, ch);
+	if (ch) {
+		if (*ch == '*')
+			ch++;
+		while (*ch == ' ')
+			ch++;
+	}
+	PMenu_Close(ent);
+	Cmd_Ignorenum_f(ent, ch);
 }
 
 void _AddIgnoreuserToMenu (edict_t * ent, int fromix)
@@ -1866,16 +1840,14 @@ void _AddIgnoreuserToMenu (edict_t * ent, int fromix)
 	char buf[256];
 
 	j = 0;
-	for (i = 1; i <= game.maxclients && j < fromix; i++)
+	for (i = 0, other = g_edicts + 1; i < game.maxclients && j < fromix; i++, other++)
 	{
-		other = &g_edicts[i];
 		if (other->inuse && other != ent)
 			j++;
 	}
 	erg = true;
-	while (i <= game.maxclients && erg)
+	for (; i < game.maxclients && erg; i++, other++)
 	{
-		other = &g_edicts[i];
 		if (other->inuse && other != ent)
 		{
 			//+ Marker: Hier gewählten markieren - erledigt -
@@ -1883,7 +1855,6 @@ void _AddIgnoreuserToMenu (edict_t * ent, int fromix)
 			i, other->client->pers.netname);
 			erg = xMenu_Add (ent, buf, _IgnoreSelected);
 		}
-		i++;
 	}
 }
 
