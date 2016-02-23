@@ -557,7 +557,7 @@ void G_SetStats (edict_t * ent)
 	//
 	ent->client->ps.stats[STAT_LAYOUTS] = 0;
 
-	if (ent->health <= 0 || level.intermission_framenum || ent->client->showscores)
+	if (level.intermission_framenum || ent->client->showscores)
 		ent->client->ps.stats[STAT_LAYOUTS] |= 1;
 	if (ent->client->showinventory && ent->health > 0)
 		ent->client->ps.stats[STAT_LAYOUTS] |= 2;
