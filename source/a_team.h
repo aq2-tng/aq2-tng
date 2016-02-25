@@ -73,7 +73,6 @@ edict_t *FindOverlap (edict_t * ent, edict_t * last_overlap);
 int CheckTeamRules (void);
 void A_Scoreboard (edict_t * ent);
 void Team_f (edict_t * ent);
-qboolean StartClient (edict_t * ent);
 void AssignSkin (edict_t * ent, const char *s, qboolean nickChanged);
 void TallyEndOfLevelTeamScores (void);
 void SetupTeamSpawnPoints ();

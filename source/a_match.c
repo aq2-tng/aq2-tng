@@ -86,7 +86,6 @@ void SendScores(void)
 	gi.bprintf(PRINT_HIGH, "Match is over, waiting for next map, please vote a new one..\n");
 }
 
-void Cmd_Kill_f(edict_t * ent);	// Used for killing people when they sub off
 void Cmd_Sub_f(edict_t * ent)
 {
 	if (!matchmode->value) {
@@ -99,7 +98,7 @@ void Cmd_Sub_f(edict_t * ent)
 		return;
 	}
 	if (!ent->client->resp.subteam) {
-		Cmd_Kill_f(ent); // lets kill em.
+		killPlayer(ent, true); // lets kill em.
 		gi.bprintf(PRINT_HIGH, "%s is now a substitute for %s\n", ent->client->pers.netname, teams[ent->client->resp.team].name);
 		ent->client->resp.subteam = ent->client->resp.team;
 		return;

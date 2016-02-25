@@ -1162,9 +1162,7 @@ static void Cmd_InvDrop_f (edict_t * ent)
 Cmd_Kill_f
 =================
 */
-void SuicidePunish( edict_t *ent );
-
-void Cmd_Kill_f (edict_t * ent)
+static void Cmd_Kill_f (edict_t * ent)
 {
 	//FIREBLADE
 	if (!IS_ALIVE(ent))
@@ -1173,19 +1171,7 @@ void Cmd_Kill_f (edict_t * ent)
 	if ((level.framenum - ent->client->respawn_time) < 5 * HZ)
 		return;
 
-	SuicidePunish( ent );
-
-	ent->flags &= ~FL_GODMODE;
-	ent->health = 0;
-	meansOfDeath = MOD_SUICIDE;
-	player_die (ent, ent, ent, 100000, vec3_origin);
-// Forget all this... -FB
-//        // don't even bother waiting for death frames
-//        ent->deadflag = DEAD_DEAD;
-////FIREBLADE
-//        if (!teamplay->value)
-////FIREBLADE
-//                respawn (ent);
+	killPlayer(ent, true);
 }
 
 /*
