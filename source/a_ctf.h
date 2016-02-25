@@ -115,7 +115,6 @@ void CTFDestroyFlag (edict_t * self);
 void CTFResetFlags( void );
 
 void CTFOpenJoinMenu (edict_t * ent);
-qboolean CTFStartClient (edict_t * ent);
 
 qboolean CTFCheckRules (void);
 qboolean HasFlag (edict_t * ent);

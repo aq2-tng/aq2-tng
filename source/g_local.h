@@ -1902,6 +1902,7 @@ void ThinkSpecWeap (edict_t * ent);
 void DropExtraSpecial (edict_t * ent);
 void TransparentListSet (solid_t solid_type);
 
+void killPlayer(edict_t *ent, qboolean suicidePunish);
 int TP_GetTeamFromArg(const char *name);
 int G_SortedClients( gclient_t **sortedList );
 int G_NotSortedClients( gclient_t **sortedList );

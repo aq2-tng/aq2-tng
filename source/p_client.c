@@ -1405,6 +1405,7 @@ void player_die(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage
 	self->client->invincible_framenum = 0;
 	self->client->breather_framenum = 0;
 	self->client->enviro_framenum = 0;
+	self->client->uvTime = 0;
 
 	FreeClientEdicts(self->client);
 
@@ -1861,32 +1862,31 @@ void CleanBodies()
 	level.body_que = 0;
 }
 
-void respawn(edict_t * self)
+void respawn(edict_t *self)
 {
 	if (self->solid != SOLID_NOT || self->deadflag == DEAD_DEAD)
 		CopyToBodyQue(self);
 
 	PutClientInServer(self);
-	if (ctf->value || teamdm->value)
-		AddToTransparentList(self);
 
-//FIREBLADE
-	self->svflags &= ~SVF_NOCLIENT;
-//FIREBLADE
+	if (!(self->svflags & SVF_NOCLIENT))
+	{
+		if (ctf->value || teamdm->value)
+			AddToTransparentList(self);
 
-// Disable all this... -FB
-//                // add a teleportation effect
-//                self->s.event = EV_PLAYER_TELEPORT;
-//
-//                // hold in place briefly
-//                self->client->ps.pmove.pm_flags = PMF_TIME_TELEPORT;
-//                self->client->ps.pmove.pm_time = 14;
+		if (respawn_effect->value) {
+			gi.WriteByte(svc_muzzleflash);
+			gi.WriteShort(self - g_edicts);
+			gi.WriteByte(MZ_RESPAWN);
+			gi.multicast(self->s.origin, MULTICAST_PVS);
 
-	if(respawn_effect->value) {
-		gi.WriteByte(svc_muzzleflash);
-		gi.WriteShort(self - g_edicts);
-		gi.WriteByte(MZ_RESPAWN);
-		gi.multicast(self->s.origin, MULTICAST_PVS);
+			/*// add a teleportation effect
+			self->s.event = EV_PLAYER_TELEPORT;
+
+			// hold in place briefly
+			self->client->ps.pmove.pm_flags = PMF_TIME_TELEPORT;
+			self->client->ps.pmove.pm_time = 14;*/
+		}
 	}
 
 	self->client->respawn_time = level.framenum + 2 * HZ;
@@ -2331,15 +2331,8 @@ void PutClientInServer(edict_t * ent)
 	ent->die = player_die;
 	ent->waterlevel = 0;
 	ent->watertype = 0;
-	ent->flags &= ~FL_NO_KNOCKBACK;
-	ent->svflags &= ~SVF_DEADMONSTER;
-
-//FIREBLADE
-	if (!teamplay->value || ent->client->resp.team != NOTEAM) {
-		ent->flags &= ~FL_GODMODE;
-		ent->svflags &= ~SVF_NOCLIENT;
-	}
-//FIREBLADE
+	ent->flags &= ~(FL_NO_KNOCKBACK | FL_GODMODE);
+	ent->svflags &= ~(SVF_DEADMONSTER | SVF_NOCLIENT);
 
 	VectorCopy(mins, ent->mins);
 	VectorCopy(maxs, ent->maxs);
@@ -2379,69 +2372,62 @@ void PutClientInServer(edict_t * ent)
 	VectorCopy(ent->s.angles, client->v_angle);
 
 	if (teamplay->value) {
-		going_observer = StartClient(ent);
-	} else {
+		going_observer = (!ent->client->resp.team || ent->client->resp.subteam);
+	}
+	else {
 		going_observer = ent->client->pers.spectator;
-
 		if (dm_choose->value && !ent->client->resp.dm_selected)
 			going_observer = 1;
-
-		if (going_observer) {
-			ent->movetype = MOVETYPE_NOCLIP;
-			ent->solid = SOLID_NOT;
-			ent->svflags |= SVF_NOCLIENT;
-			ent->client->resp.team = NOTEAM;
-			ent->client->ps.gunindex = 0;
-		}
 	}
 
+	if (going_observer) {
+		ent->movetype = MOVETYPE_NOCLIP;
+		ent->solid = SOLID_NOT;
+		ent->svflags |= SVF_NOCLIENT;
+		ent->client->ps.gunindex = 0;
+		gi.linkentity(ent);
+		return;
+	}
 
-	if (!going_observer && !teamplay->value) {	// this handles telefrags...
+	if (!teamplay->value) {	// this handles telefrags...
 		KillBox(ent);
+	} else {
+		ent->solid = SOLID_TRIGGER;
 	}
 
 	gi.linkentity( ent );
 
-	if (!going_observer)
-	{
-		if ((int)uvtime->value > 0) {
-			if (teamplay->value) {
-				if ((ctf->value || teamdm->value) && team_round_going && !lights_camera_action && client->resp.team != NOTEAM) {
-					client->uvTime = uvtime->value;
-				}
-			} else if (dm_shield->value) {
+	if ((int)uvtime->value > 0) {
+		if (teamplay->value) {
+			if ((ctf->value || teamdm->value) && team_round_going && !lights_camera_action) {
 				client->uvTime = uvtime->value;
 			}
-		}
-
-		// items up here so that the bandolier will change equipclient below
-		if (allitem->value) {
-			AllItems(ent);
-		}
-
-		if ((teamplay->value && !teamdm->value && ctf->value != 2) || (!ctf->value && dm_choose->value))
-			EquipClient(ent);
-		else
-			EquipClientDM(ent);
-
-		if (ent->client->menu) {
-			PMenu_Close(ent);
-			return;
-		}
-
-		if (allweapon->value) {
-			AllWeapons(ent);
-		}
-
-		// force the current weapon up
-		client->newweapon = client->pers.weapon;
-		ChangeWeapon(ent);
-
-		if (teamplay->value) {
-			ent->solid = SOLID_TRIGGER;
-			gi.linkentity(ent);
+		} else if (dm_shield->value) {
+			client->uvTime = uvtime->value;
 		}
 	}
+
+	// items up here so that the bandolier will change equipclient below
+	if (allitem->value) {
+		AllItems(ent);
+	}
+
+	if ((teamplay->value && !teamdm->value && ctf->value != 2) || (!ctf->value && dm_choose->value))
+		EquipClient(ent);
+	else
+		EquipClientDM(ent);
+
+	if (ent->client->menu) {
+		PMenu_Close(ent);
+	}
+
+	if (allweapon->value) {
+		AllWeapons(ent);
+	}
+
+	// force the current weapon up
+	client->newweapon = client->pers.weapon;
+	ChangeWeapon(ent);
 }
 
 /*
@@ -2572,8 +2558,10 @@ void ClientUserinfoChanged(edict_t * ent, char *userinfo)
 	if (client->pers.mvdspec) {
 		client->pers.spectator = true;
 	} else {
-		s = Info_ValueForKey(userinfo, "spectator");
-		client->pers.spectator = (strcmp(s, "0") != 0);
+		if (!teamplay->value) {
+			s = Info_ValueForKey(userinfo, "spectator");
+			client->pers.spectator = (strcmp(s, "0") != 0);
+		}
 
 		r = Info_ValueForKey(userinfo, "rate");
 		client->rate = atoi(r);
@@ -2719,7 +2707,7 @@ void ClientDisconnect(edict_t * ent)
 	ent->client->resp.menu_shown = 0;
 
 	// drop items if they are alive/not observer
-	if (ent->solid != SOLID_NOT)
+	if (ent->solid != SOLID_NOT && !ent->deadflag)
 		TossItemsOnDeath(ent);
 
 	FreeClientEdicts(ent->client);
@@ -2769,6 +2757,7 @@ void ClientDisconnect(edict_t * ent)
 	ent->solid = SOLID_NOT;
 	ent->inuse = false;
 	ent->classname = "disconnected";
+	ent->svflags = SVF_NOCLIENT;
 	ent->client->pers.connected = false;
 }
 
@@ -3070,7 +3059,7 @@ any other entities in the world.
 void ClientBeginServerFrame(edict_t * ent)
 {
 	gclient_t *client;
-	int buttonMask;
+	int buttonMask, going_observer = 0;
 
 	client = ent->client;
 
@@ -3094,82 +3083,39 @@ void ClientBeginServerFrame(edict_t * ent)
 		Cmd_Inven_f( ent );
 	}
 
+	if (!teamplay->value)
+	{
+		// force spawn when weapon and item selected in dm
+		if (!ent->client->pers.spectator && dm_choose->value && !client->resp.dm_selected) {
+			if (client->resp.weapon && (client->resp.item || itm_flags->value == 0)) {
+				client->resp.dm_selected = 1;
 
-	// force spawn when weapon and item selected in dm
-	if (dm_choose->value && !teamplay->value && !client->resp.dm_selected) {
-		if (client->resp.weapon && (client->resp.item || itm_flags->value == 0)) {
-			client->resp.dm_selected = 1;
-			client->chase_mode = 0;
-			client->chase_target = NULL;
-			client->desired_fov = 90;
-			client->ps.fov = 90;
-			client->ps.pmove.pm_flags &= ~PMF_NO_PREDICTION;
-			ent->solid = SOLID_BBOX;
-			gi.linkentity(ent);
-			gi.bprintf(PRINT_HIGH, "%s joined the game\n", client->pers.netname);
-			IRC_printf(IRC_T_SERVER, "%n joined the game", client->pers.netname);
+				gi.bprintf(PRINT_HIGH, "%s joined the game\n", client->pers.netname);
+				IRC_printf(IRC_T_SERVER, "%n joined the game", client->pers.netname);
 
-			// send effect
-			gi.WriteByte(svc_muzzleflash);
-			gi.WriteShort(ent - g_edicts);
-			gi.WriteByte(MZ_LOGIN);
-			gi.multicast(ent->s.origin, MULTICAST_PVS);
+				respawn(ent);
 
-			respawn(ent);
-		}
-		return;
-	}
-
-//FIREBLADE
-	if (!teamplay->value &&
-	    ((ent->solid == SOLID_NOT && ent->deadflag != DEAD_DEAD) != ent->client->pers.spectator)) {
-		if (ent->solid != SOLID_NOT || ent->deadflag == DEAD_DEAD) {
-			if (ent->deadflag != DEAD_DEAD) {
-				ent->flags &= ~FL_GODMODE;
-				ent->health = 0;
-				meansOfDeath = MOD_SUICIDE;
-				player_die(ent, ent, ent, 100000, vec3_origin);
-				// don't even bother waiting for death frames
-				ent->deadflag = DEAD_DEAD;
-				// This will make ClientBeginServerFrame crank us into observer mode
-				// as soon as our death frames are done... -FB
-				ent->solid = SOLID_NOT;
-				// Also set this so we can have a way to know we've already done this...
-				ent->movetype = MOVETYPE_NOCLIP;
-				gi.linkentity(ent);
-				ent->client->uvTime = 0;
-				gi.bprintf(PRINT_HIGH, "%s became a spectator\n", ent->client->pers.netname);
-				IRC_printf(IRC_T_SERVER, "%n became a spectator", ent->client->pers.netname);
-			} else	// immediately become observer...
-			{
-				if (ent->movetype != MOVETYPE_NOCLIP)	// have we already done this?  see above...
-				{
-					CopyToBodyQue(ent);
-					ent->solid = SOLID_NOT;
-					ent->svflags |= SVF_NOCLIENT;
-					ent->movetype = MOVETYPE_NOCLIP;
-					ent->health = 100;
-					ent->deadflag = DEAD_NO;
-					gi.linkentity(ent);
-					ent->client->uvTime = 0;
-					gi.bprintf(PRINT_HIGH, "%s became a spectator\n", ent->client->pers.netname);
-					IRC_printf(IRC_T_SERVER, "%n became a spectator", ent->client->pers.netname);
+				if (!(ent->svflags & SVF_NOCLIENT)) { // send effect
+					gi.WriteByte(svc_muzzleflash);
+					gi.WriteShort(ent - g_edicts);
+					gi.WriteByte(MZ_LOGIN);
+					gi.multicast(ent->s.origin, MULTICAST_PVS);
 				}
 			}
-		} else {
-			client->chase_mode = 0;
-			client->chase_target = NULL;
-			client->desired_fov = 90;
-			client->ps.fov = 90;	//FB 5/31/99 added
-			client->ps.pmove.pm_flags &= ~PMF_NO_PREDICTION;
-			ent->solid = SOLID_BBOX;
-			gi.linkentity(ent);
-			gi.bprintf(PRINT_HIGH, "%s rejoined the game\n", ent->client->pers.netname);
-			IRC_printf(IRC_T_SERVER, "%n rejoined the game", ent->client->pers.netname);
-			respawn(ent);
+			return;
+		}
+
+		if (level.framenum > client->respawn_time && (ent->solid == SOLID_NOT && ent->deadflag != DEAD_DEAD) != ent->client->pers.spectator)
+		{
+			if (ent->client->pers.spectator){
+				killPlayer(ent, false);
+			} else {
+				gi.bprintf(PRINT_HIGH, "%s rejoined the game\n", ent->client->pers.netname);
+				IRC_printf(IRC_T_SERVER, "%n rejoined the game", ent->client->pers.netname);
+				respawn(ent);
+			}
 		}
 	}
-//FIREBLADE
 
 	// run weapon animations if it hasn't been done by a ucmd_t
 	if (FRAMESYNC) {
@@ -3181,17 +3127,29 @@ void ClientBeginServerFrame(edict_t * ent)
 
 	if (ent->deadflag) {
 		// wait for any button just going down
-		if (level.framenum > client->respawn_time) {
-//FIREBLADE
-			if (((!ctf->value && !teamdm->value) || (client->resp.team == NOTEAM || client->resp.subteam))
-			    && (teamplay->value || (ent->client->pers.spectator
-					&& ent->solid == SOLID_NOT && ent->deadflag == DEAD_DEAD))) {
+		if (level.framenum > client->respawn_time)
+		{
+
+			if (teamplay->value) {
+				going_observer = (!ctf->value && !teamdm->value) || client->resp.team == NOTEAM || client->resp.subteam;
+			}
+			else
+			{
+				going_observer = ent->client->pers.spectator;
+				if (going_observer) {
+					gi.bprintf(PRINT_HIGH, "%s became a spectator\n", ent->client->pers.netname);
+					IRC_printf(IRC_T_SERVER, "%n became a spectator", ent->client->pers.netname);
+				}
+			}
+
+			if (going_observer) {
 				CopyToBodyQue(ent);
 				ent->solid = SOLID_NOT;
 				ent->svflags |= SVF_NOCLIENT;
 				ent->movetype = MOVETYPE_NOCLIP;
 				ent->health = 100;
 				ent->deadflag = DEAD_NO;
+				ent->client->ps.gunindex = 0;
 				client->ps.pmove.delta_angles[PITCH] = ANGLE2SHORT(0 - client->resp.cmd_angles[PITCH]);
 				client->ps.pmove.delta_angles[YAW] = ANGLE2SHORT(client->killer_yaw - client->resp.cmd_angles[YAW]);
 				client->ps.pmove.delta_angles[ROLL] = ANGLE2SHORT(0 - client->resp.cmd_angles[ROLL]);
@@ -3202,18 +3160,16 @@ void ClientBeginServerFrame(edict_t * ent)
 				VectorCopy(ent->s.angles, client->v_angle);
 				gi.linkentity(ent);
 
-				ent->client->uvTime = 0;
 				if (teamplay->value && !in_warmup && limchasecam->value) {
 					ent->client->chase_mode = 0;
 					NextChaseMode( ent );
 				}
 			}
-//FIREBLADE
-			else {
+			else
+			{
 				// in deathmatch, only wait for attack button
 				buttonMask = BUTTON_ATTACK;
-
-				if ((client->latched_buttons & buttonMask) ||DMFLAGS(DF_FORCE_RESPAWN)) {
+				if ((client->latched_buttons & buttonMask) || DMFLAGS(DF_FORCE_RESPAWN)) {
 					respawn(ent);
 					client->latched_buttons = 0;
 				}

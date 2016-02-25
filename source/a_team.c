@@ -754,17 +754,21 @@ void CreditsMenu (edict_t * ent, pmenu_t * p)
 }
 
 
-void SuicidePunish( edict_t *ent )
+void killPlayer( edict_t *ent, qboolean suicidePunish )
 {
-	if (punishkills->value)
+
+	if (!IS_ALIVE(ent))
+		return;
+
+	if (suicidePunish && punishkills->value)
 	{
-		if (ent->client->attacker && ent->client->attacker->client &&
-			(ent->client->attacker->client != ent->client))
+		edict_t *attacker = ent->client->attacker;
+		if (attacker && attacker != ent && attacker->client)
 		{
-			char deathmsg[64];
+			char deathmsg[128];
 			Com_sprintf( deathmsg, sizeof( deathmsg ), "%s ph34rs %s so much %s committed suicide! :)\n",
-				ent->client->pers.netname, ent->client->attacker->client->pers.netname,
-				ent->client->resp.radio.gender ? "she" : "he" );
+				ent->client->pers.netname, attacker->client->pers.netname,
+				ent->client->pers.gender ? "she" : "he");
 			PrintDeathMessage( deathmsg, ent );
 			if (team_round_going || !OnSameTeam( ent, ent->client->attacker )) {
 				Add_Frag( ent->client->attacker, MOD_SUICIDE );
@@ -773,6 +777,12 @@ void SuicidePunish( edict_t *ent )
 			}
 		}
 	}
+
+	ent->flags &= ~FL_GODMODE;
+	ent->health = 0;
+	meansOfDeath = MOD_SUICIDE;
+	player_die(ent, ent, ent, 100000, vec3_origin);
+	ent->deadflag = DEAD_DEAD;
 }
 
 
@@ -982,15 +992,8 @@ void JoinTeam (edict_t * ent, int desired_team, int skip_menuclose)
 	ent->client->resp.team = desired_team;
 	s = Info_ValueForKey (ent->client->pers.userinfo, "skin");
 	AssignSkin (ent, s, false);
-
-	if (ent->solid != SOLID_NOT)	// alive, in game
-	{
-		SuicidePunish( ent );
-
-		ent->health = 0;
-		player_die (ent, ent, ent, 100000, vec3_origin);
-		ent->deadflag = DEAD_DEAD;
-	}
+	
+	killPlayer(ent, true);
 
 	if (ctf->value)
 	{
@@ -1036,14 +1039,7 @@ void LeaveTeam (edict_t * ent)
 	if (ent->client->resp.team == NOTEAM)
 		return;
 
-	if (ent->solid != SOLID_NOT)	// alive, in game
-	{
-		SuicidePunish( ent );
-
-		ent->health = 0;
-		player_die (ent, ent, ent, 100000, vec3_origin);
-		ent->deadflag = DEAD_DEAD;
-	}
+	killPlayer(ent, true);
 	
 	genderstr = GENDER_STR(ent, "his", "her", "its");
 
@@ -1370,24 +1366,6 @@ void ResetScores (qboolean playerScores)
 		ent->enemy = NULL;
 		ResetStats(ent);
 	}
-}
-
-qboolean StartClient (edict_t * ent)
-{
-	if (ent->client->resp.team != NOTEAM)
-		return false;
-
-	// start as 'observer'
-	ent->movetype = MOVETYPE_NOCLIP;
-	ent->solid = SOLID_NOT;
-	ent->svflags |= SVF_NOCLIENT;
-	ent->client->resp.team = NOTEAM;
-	ent->client->ps.gunindex = 0;
-	gi.linkentity (ent);
-
-	// Disabled so people can read the motd
-	// OpenJoinMenu(ent);
-	return true;
 }
 
 void CenterPrintAll (const char *msg)
