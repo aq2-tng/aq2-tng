@@ -356,7 +356,7 @@ void PrintMOTD(edict_t * ent)
 		lines++;
 
 		// If we're in Teamplay, and not CTF, we want to see what the roundlimit and roundtimelimit is
-		if (teamplay->value && !ctf->value && !teamdm->value)
+		if (gameSettings & GS_ROUNDBASED)
 		{
 			if ((int)roundlimit->value) // What is the roundlimit?
 				sprintf(msg_buf + strlen(msg_buf), "Roundlimit: %d", (int)roundlimit->value);

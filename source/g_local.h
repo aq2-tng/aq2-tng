@@ -1970,4 +1970,13 @@ extern team_t teams[TEAM_TOP];
 #define PARSE_BUFSIZE 256
 #define IS_ALIVE(ent) ((ent)->solid != SOLID_NOT && (ent)->deadflag != DEAD_DEAD)
 
+#define GS_DEATHMATCH	1
+#define GS_TEAMPLAY		2
+#define GS_MATCHMODE	4
+#define GS_ROUNDBASED	8
+#define GS_WEAPONCHOOSE 16
+
+extern int gameSettings;
+
+
 #include "a_ctf.h"

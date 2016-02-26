@@ -191,13 +191,13 @@ void DeathmatchScoreboardMessage (edict_t * ent, edict_t * killer)
 	{
 		// DW: If the map ends
 		if (level.intermission_framenum) {
-			if(stats_endmap->value && !teamdm->value && !ctf->value)								// And we are to show the stats screen
-				A_ScoreboardEndLevel (ent, killer); // do it
+			if (stats_endmap->value && (gameSettings & GS_ROUNDBASED)) // And we are to show the stats screen
+				A_ScoreboardEndLevel(ent, killer); // do it
 			else																	// otherwise
-				A_ScoreboardMessage (ent, killer);	// show the original
+				A_ScoreboardMessage(ent, killer);	// show the original
 		}
 		else
-			A_ScoreboardMessage (ent, killer);
+			A_ScoreboardMessage(ent, killer);
 
 		return;
 	}

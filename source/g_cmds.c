@@ -931,55 +931,38 @@ void Cmd_Inven_f (edict_t * ent)
 
 	cl->showscores = false;
 
-	//FIREBLADE
-	if (ent->client->menu)
-	{
+	if (ent->client->menu) {
 		PMenu_Close (ent);
 		return;
 	}
-	//FIREBLADE
 
-	if (cl->showinventory)
-	{
+	if (cl->showinventory) {
 		cl->showinventory = false;
 		return;
 	}
 
 	cl->resp.menu_shown = true;
 
-	//FIREBLADE
-	if (teamdm->value || ctf->value == 2) {
-		if (ent->client->resp.team == NOTEAM) {
-			OpenJoinMenu (ent);
-			return;
-		}
-	}
-	else if (teamplay->value)
-	{
-		cl->resp.menu_shown = true;
-		if (ent->client->resp.team == NOTEAM)
-			OpenJoinMenu (ent);
-		else
-			OpenWeaponMenu (ent);
+	if (teamplay->value && !ent->client->resp.team) {
+		OpenJoinMenu (ent);
 		return;
 	}
-	//FIREBLADE
 
-	if (dm_choose->value)
-	{
-		OpenWeaponMenu (ent);
-		cl->showinventory = false;
+	if (gameSettings & GS_WEAPONCHOOSE) {
+		OpenWeaponMenu(ent);
 		return;
 	}
+
+	if (teamplay->value)
+		return;
 
 	cl->showinventory = true;
 
-	gi.WriteByte (svc_inventory);
-	for (i = 0; i < MAX_ITEMS; i++)
-	{
-		gi.WriteShort (cl->inventory[i]);
+	gi.WriteByte(svc_inventory);
+	for (i = 0; i < MAX_ITEMS; i++) {
+		gi.WriteShort(cl->inventory[i]);
 	}
-	gi.unicast (ent, true);
+	gi.unicast(ent, true);
 }
 
 /*
@@ -1497,34 +1480,33 @@ void Cmd_Say_f (edict_t * ent, qboolean team, qboolean arg0, qboolean partner_ms
 	for (j = 1; j <= game.maxclients; j++)
 	{
 		other = &g_edicts[j];
-		if (!other->inuse)
+		if (!other->inuse || !other->client)
 			continue;
-		if (!other->client)
-			continue;
-		if (team)
+
+		if (other != ent)
 		{
-			// if we are the adminent... we might want to hear (if hearall is set)
-			if (!matchmode->value || !hearall->value || !other->client->pers.admin)	// hearall isn't set and we aren't adminent
-				if (!OnSameTeam (ent, other))
+			if (team)
+			{
+				// if we are the adminent... we might want to hear (if hearall is set)
+				if (!matchmode->value || !hearall->value || !other->client->pers.admin)	// hearall isn't set and we aren't adminent
+					if (!OnSameTeam(ent, other))
+						continue;
+			}
+
+			if (partner_msg && other != ent->client->resp.radio.partner)
+				continue;
+
+			if (team_round_going && (gameSettings & GS_ROUNDBASED))
+			{
+				if (!deadtalk->value && !IS_ALIVE(ent) && IS_ALIVE(other))
 					continue;
-		}
-		if (partner_msg)
-		{
-			if (other != ent->client->resp.radio.partner && other != ent)
+			}
+
+			if (IsInIgnoreList(other, ent))
 				continue;
 		}
-		//FIREBLADE
-		if (teamplay->value && team_round_going)
-		{
-			if (!IS_ALIVE(ent) && IS_ALIVE(other) && !ctf->value && !teamdm->value && !deadtalk->value)	//AQ2:TNG Slicer
-				continue;
-		}
-		//FIREBLADE
-		//PG BUND - BEGIN
-		if (IsInIgnoreList (other, ent))
-			continue;
-		//PG BUND - END
-		gi.cprintf (other, PRINT_CHAT, "%s", text);
+
+		gi.cprintf(other, PRINT_CHAT, "%s", text);
 	}
 
 }

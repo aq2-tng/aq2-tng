@@ -320,6 +320,7 @@ int in_warmup = 0;		// if warmup is currently on
 
 team_t teams[TEAM_TOP];
 int	teamCount = 2;
+int gameSettings;
 
 #define MAX_SPAWNS 512		// max DM spawn points supported
 
@@ -991,33 +992,26 @@ void JoinTeam (edict_t * ent, int desired_team, int skip_menuclose)
 
 	ent->client->resp.team = desired_team;
 	s = Info_ValueForKey (ent->client->pers.userinfo, "skin");
-	AssignSkin (ent, s, false);
+	AssignSkin(ent, s, false);
 	
+	ent->flags &= ~FL_GODMODE;
 	killPlayer(ent, true);
 
 	if (ctf->value)
 	{
-		ent->flags &= ~FL_GODMODE;
 		ent->client->resp.ctf_state = CTF_STATE_START;
-		gi.bprintf (PRINT_HIGH, "%s %s %s.\n",
-		ent->client->pers.netname, a, CTFTeamName (desired_team));
-		IRC_printf (IRC_T_GAME, "%n %s %n.",
-		ent->client->pers.netname, a, CTFTeamName (desired_team));
+		gi.bprintf (PRINT_HIGH, "%s %s %s.\n", ent->client->pers.netname, a, CTFTeamName(desired_team));
+		IRC_printf (IRC_T_GAME, "%n %s %n.", ent->client->pers.netname, a, CTFTeamName(desired_team));
 	}
 	else
 	{
-		if(teamdm->value)
-			ent->flags &= ~FL_GODMODE;
-		gi.bprintf (PRINT_HIGH, "%s %s %s.\n",
-		ent->client->pers.netname, a, TeamName (desired_team));
-		IRC_printf (IRC_T_GAME, "%n %s %n.",
-		ent->client->pers.netname, a, TeamName (desired_team));
+		gi.bprintf (PRINT_HIGH, "%s %s %s.\n", ent->client->pers.netname, a, TeamName(desired_team));
+		IRC_printf (IRC_T_GAME, "%n %s %n.", ent->client->pers.netname, a, TeamName(desired_team));
 	}
 
 	ent->client->resp.joined_team = level.realFramenum;
 
-	//AQ2:TNG - Slicer added the ctf->value coz teamplay people were spawning....
-	if ((ctf->value || teamdm->value) && team_round_going && (ent->inuse && ent->client->resp.team != NOTEAM))
+	if (!(gameSettings & GS_ROUNDBASED) && team_round_going && ent->inuse && ent->client->resp.team)
 	{
 		PutClientInServer (ent);
 		AddToTransparentList (ent);
@@ -1028,7 +1022,7 @@ void JoinTeam (edict_t * ent, int desired_team, int skip_menuclose)
 	}
 
 	//AQ2:TNG END
-	if (!skip_menuclose && (!teamdm->value || dm_choose->value) && ctf->value != 2)
+	if (!skip_menuclose && (gameSettings & GS_WEAPONCHOOSE))
 		OpenWeaponMenu (ent);
 }
 
@@ -1335,7 +1329,7 @@ void ResetScores (qboolean playerScores)
 	level.matchTime = 0;
 	num_ghost_players = 0;
 
-	MakeAllLivePlayersObservers ();
+	MakeAllLivePlayersObservers();
 
 	for(i = TEAM1; i < TEAM_TOP; i++)
 	{
@@ -1442,7 +1436,7 @@ int CheckForWinner()
 	int players[TEAM_TOP] = { 0 }, i, teamNum, teamsWithPlayers;
 	edict_t *ent;
 
-	if (ctf->value || teamdm->value)
+	if (!(gameSettings & GS_ROUNDBASED))
 		return WINNER_NONE;
 
 	for (i = 0; i < game.maxclients; i++)
@@ -1524,12 +1518,12 @@ int CheckForForcedWinner()
 	return bestTeam;
 }
 
-void SpawnPlayers ()
+static void SpawnPlayers(void)
 {
 	int i;
 	edict_t *ent;
 
-	if(!ctf->value && !teamdm->value)
+	if (gameSettings & GS_ROUNDBASED)
 	{
 		if (!use_oldspawns->value)
 			NS_SetupTeamSpawnPoints ();
@@ -1537,44 +1531,48 @@ void SpawnPlayers ()
 			SetupTeamSpawnPoints ();
 	}
 
-	InitTransparentList ();
-	for (i = 0; i < game.maxclients; i++)
+	InitTransparentList();
+	for (i = 0, ent = &g_edicts[1]; i < game.maxclients; i++, ent++)
 	{
-		ent = &g_edicts[1 + i];
-		if (ent->inuse && ent->client->resp.team != NOTEAM && ent->client->resp.subteam == 0)
-		{
-			// make sure teamplay spawners always have some weapon, warmup starts only after weapon selected
-			if (!ent->client->resp.weapon) {
-				if (WPF_ALLOWED(MP5_NUM)) {
-					ent->client->resp.weapon = GET_ITEM(MP5_NUM);
-				} else if (WPF_ALLOWED(MK23_NUM)) {
-					ent->client->resp.weapon = GET_ITEM(MK23_NUM);
-				} else if (WPF_ALLOWED(KNIFE_NUM)) {
-					ent->client->resp.weapon = GET_ITEM(KNIFE_NUM);
-				} else {
-					ent->client->resp.weapon = GET_ITEM(MK23_NUM);
-				}
-			}
+		if (!ent->inuse)
+			continue;
 
-			if (!ent->client->resp.item) {
-				ent->client->resp.item = GET_ITEM(KEV_NUM);
-			}
+		if (!ent->client->resp.team || ent->client->resp.subteam)
+			continue;
 
-			PutClientInServer (ent);
-			AddToTransparentList (ent);
+		// make sure teamplay spawners always have some weapon, warmup starts only after weapon selected
+		if (!ent->client->resp.weapon) {
+			if (WPF_ALLOWED(MP5_NUM)) {
+				ent->client->resp.weapon = GET_ITEM(MP5_NUM);
+			} else if (WPF_ALLOWED(MK23_NUM)) {
+				ent->client->resp.weapon = GET_ITEM(MK23_NUM);
+			} else if (WPF_ALLOWED(KNIFE_NUM)) {
+				ent->client->resp.weapon = GET_ITEM(KNIFE_NUM);
+			} else {
+				ent->client->resp.weapon = GET_ITEM(MK23_NUM);
+			}
 		}
+
+		if (!ent->client->resp.item) {
+			ent->client->resp.item = GET_ITEM(KEV_NUM);
+		}
+
+		PutClientInServer(ent);
+		AddToTransparentList(ent);
 	}
 
 	if(matchmode->value	&& limchasecam->value)
 	{
-		for (i = 0; i < game.maxclients; i++)
+		for (i = 0, ent = &g_edicts[1]; i < game.maxclients; i++, ent++)
 		{
-			ent = &g_edicts[1 + i];
-			if (ent->inuse && ent->client->resp.team != NOTEAM && ent->client->resp.subteam)
-			{
-				ent->client->chase_mode = 0;
-				NextChaseMode( ent );
-			}
+			if (!ent->inuse)
+				continue;
+
+			if (!ent->client->resp.team || !ent->client->resp.subteam)
+				continue;
+
+			ent->client->chase_mode = 0;
+			NextChaseMode( ent );
 		}
 	}
 }
@@ -1613,15 +1611,15 @@ void StartRound ()
 	current_round_length = 0;
 }
 
-void StartLCA ()
+static void StartLCA(void)
 {
-	if(!teamdm->value && ctf->value != 2)
-		CleanLevel ();
+	if (gameSettings & (GS_WEAPONCHOOSE|GS_ROUNDBASED))
+		CleanLevel();
 
 	if (use_tourney->value)
 	{
 		lights_camera_action = TourneySetTime (T_SPAWN);
-		TourneyTimeEvent (T_SPAWN, lights_camera_action);
+		TourneyTimeEvent(T_SPAWN, lights_camera_action);
 	}
 	else
 	{
@@ -1629,7 +1627,7 @@ void StartLCA ()
 		gi.sound(&g_edicts[0], CHAN_VOICE | CHAN_NO_PHS_ADD, level.snd_lights, 1.0, ATTN_NONE, 0.0);
 		lights_camera_action = 43;	// TempFile changed from 41
 	}
-	SpawnPlayers ();
+	SpawnPlayers();
 }
 
 // FindOverlap: Find the first (or next) overlapping player for ent.
@@ -1687,7 +1685,7 @@ void ContinueLCA ()
 	lights_camera_action--;
 }
 
-void MakeAllLivePlayersObservers ()
+void MakeAllLivePlayersObservers (void)
 {
 	edict_t *ent;
 	int saveteam, i;
@@ -1701,13 +1699,12 @@ void MakeAllLivePlayersObservers ()
 		ent = &g_edicts[1 + i];
 		if (!ent->inuse)
 			continue;
-		if(ent->solid == SOLID_NOT && ((!teamdm->value && !ctf->value) ||
-			ent->client->resp.team == NOTEAM ||	ent->client->resp.subteam))
+		if(ent->solid == SOLID_NOT && !ent->deadflag)
 			continue;
 
 		saveteam = ent->client->resp.team;
 		ent->client->resp.team = NOTEAM;
-		PutClientInServer (ent);
+		PutClientInServer(ent);
 		ent->client->resp.team = saveteam;
 	}
 }
@@ -1750,7 +1747,7 @@ qboolean CheckTimelimit( void )
 			} else {
 				gi.bprintf( PRINT_HIGH, "Timelimit hit.\n" );
 				IRC_printf( IRC_T_GAME, "Timelimit hit." );
-				if (ctf->value || teamdm->value)
+				if (!(gameSettings & GS_ROUNDBASED))
 					ResetPlayers();
 				EndDMLevel();
 			}
@@ -1972,7 +1969,7 @@ int CheckTeamRules (void)
 			{
 				in_warmup = 0;
 				team_game_going = 1;
-				StartLCA ();
+				StartLCA();
 			}
 			else
 			{
@@ -2065,7 +2062,7 @@ int CheckTeamRules (void)
 	else
 	/* team_round_going */
 	{
-		if (ctf->value || teamdm->value)
+		if (!(gameSettings & GS_ROUNDBASED))
 		{
 			if (CheckTimelimit())
 				return 1;
