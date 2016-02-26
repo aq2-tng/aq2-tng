@@ -1486,7 +1486,7 @@ void player_die(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage
 	// zucc solves problem of people stopping doors while in their dead bodies
 	// ...only need it in DM though...
 	// ...for teamplay, non-solid will get set soon after in CopyToBodyQue
-	if (gameSettings & GS_ROUNDBASED) {
+	if (!(gameSettings & GS_ROUNDBASED)) {
 		self->solid = SOLID_NOT;
 	}
 

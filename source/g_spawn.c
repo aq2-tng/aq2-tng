@@ -918,6 +918,9 @@ void SpawnEntities (char *mapname, char *entities, char *spawnpoint)
 	{
 		gameSettings |= GS_DEATHMATCH;
 
+		if (dm_choose->value)
+			gameSettings |= GS_WEAPONCHOOSE;
+
 		if (!teamplay->value)
 		{
 			gi.dprintf ("Team Deathmatch Enabled - Forcing teamplay on\n");
