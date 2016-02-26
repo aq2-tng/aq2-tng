@@ -106,7 +106,7 @@ void Cmd_Sub_f(edict_t * ent)
 
 	gi.bprintf(PRINT_HIGH, "%s is no longer a substitute for %s\n", ent->client->pers.netname, teams[ent->client->resp.team].name);
 	ent->client->resp.subteam = 0;
-	if(team_round_going && (teamdm->value || ctf->value))
+	if (team_round_going && !(gameSettings & GS_ROUNDBASED))
 	{
 		PutClientInServer (ent);
 		AddToTransparentList (ent);
@@ -130,7 +130,7 @@ void MM_SetCaptain( int teamNum, edict_t *ent )
 
 	teams[teamNum].captain = ent;
 	if (!ent) {
-		if (!team_round_going || (!teamdm->value && !ctf->value)) {
+		if (!team_round_going || (gameSettings & GS_ROUNDBASED)) {
 			if (teams[teamNum].ready) {
 				char temp[128];
 				Com_sprintf( temp, sizeof( temp ), "%s is no longer ready to play!", teams[teamNum].name );
@@ -232,7 +232,7 @@ void Cmd_Ready_f(edict_t * ent)
 		return;
 	}
 
-	if((teamdm->value || ctf->value) && team_round_going) {
+	if (!(gameSettings & GS_ROUNDBASED) && team_round_going) {
 		if(teamdm->value)
 			gi.cprintf(ent, PRINT_HIGH, "You can't unready in teamdm, use 'pausegame' instead\n");
 		else

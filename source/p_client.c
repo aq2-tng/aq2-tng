@@ -1301,7 +1301,6 @@ void LookAtKiller(edict_t * self, edict_t * inflictor, edict_t * attacker)
 		return;
 	}
 
-// NEW FORMULA FOR THIS FROM 3.20  -FB
 	if (dir[0])
 		self->client->killer_yaw = 180 / M_PI * atan2(dir[1], dir[0]);
 	else {
@@ -1313,7 +1312,6 @@ void LookAtKiller(edict_t * self, edict_t * inflictor, edict_t * attacker)
 	}
 	if (self->client->killer_yaw < 0)
 		self->client->killer_yaw += 360;
-// ^^^
 }
 
 /*
@@ -1330,23 +1328,6 @@ void player_die(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage
 	self->takedamage = DAMAGE_YES;
 	self->movetype = MOVETYPE_TOSS;
 
-	//FIREBLADE
-	if (self->solid == SOLID_TRIGGER) {
-		self->solid = SOLID_BBOX;
-		gi.linkentity(self);
-		RemoveFromTransparentList(self);
-	}
-	//FIREBLADE
-
-	// zucc solves problem of people stopping doors while in their dead bodies
-	// 
-	// ...only need it in DM though...
-	// ...for teamplay, non-solid will get set soon after in CopyToBodyQue
-	if (!teamplay->value || ctf->value || teamdm->value) {
-		self->solid = SOLID_NOT;
-		gi.linkentity(self);
-	}
-
 	self->s.modelindex2 = 0;	// remove linked weapon model
 	self->s.modelindex3 = 0;	// remove linked ctf flag
 
@@ -1356,17 +1337,21 @@ void player_die(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage
 	self->s.sound = 0;
 	self->client->weapon_sound = 0;
 
-	self->client->reload_attempts = 0;	// stop them from trying to reload
-	self->client->weapon_attempts = 0;
-
-	//TempFile
-	self->client->desired_zoom = 0;
-	self->client->autoreloading = false;
-	//TempFile
-
 	self->maxs[2] = -8;
 
 	self->svflags |= SVF_DEADMONSTER;
+
+	if (self->solid == SOLID_TRIGGER) {
+		self->solid = SOLID_BBOX;
+		RemoveFromTransparentList(self);
+	}
+
+	self->client->reload_attempts = 0;	// stop them from trying to reload
+	self->client->weapon_attempts = 0;
+
+	self->client->desired_zoom = 0;
+	self->client->autoreloading = false;
+
 	if (!self->deadflag) {
 		if (ctf->value) {
 			self->client->respawn_time = level.framenum + CTFGetRespawnTime(self) * HZ;
@@ -1392,7 +1377,6 @@ void player_die(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage
 		// let's be safe, if the player was killed and grapple disabled before it
 		CTFPlayerResetGrapple(self);
 
-		//FIREBLADE
 		if (!teamplay->value)
 			Cmd_Help_f(self);	// show scores
 
@@ -1409,16 +1393,11 @@ void player_die(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage
 
 	FreeClientEdicts(self->client);
 
-	//FIREBLADE
 	// clean up sniper rifle stuff
 	self->client->no_sniper_display = 0;
 	self->client->resp.sniper_mode = SNIPER_1X;
 	self->client->desired_fov = 90;
 	self->client->ps.fov = 90;
-	//FIREBLADE
-	//SLIC2: Removed this from here
-	//self->client->resp.streak = 0;
-	//SLIC2
 	Bandage(self);		// clear up the leg damage when dead sound?
 	self->client->bandage_stopped = 0;
 
@@ -1504,6 +1483,13 @@ void player_die(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage
 
 	self->client->resp.idletime = 0;
 
+	// zucc solves problem of people stopping doors while in their dead bodies
+	// ...only need it in DM though...
+	// ...for teamplay, non-solid will get set soon after in CopyToBodyQue
+	if (gameSettings & GS_ROUNDBASED) {
+		self->solid = SOLID_NOT;
+	}
+
 	self->deadflag = DEAD_DEAD;
 	gi.linkentity(self);
 
@@ -1565,7 +1551,7 @@ void InitClientResp(gclient_t *client)
 
 
 	// TNG:Freud, restore weapons and items from last map.
-	if (auto_equip->value && ((teamplay->value && !teamdm->value) || dm_choose->value) && ctf->value != 2) {
+	if (auto_equip->value && (gameSettings & GS_WEAPONCHOOSE)) {
 		if (item)
 			client->resp.item = item;
 		if (weapon)
@@ -1727,7 +1713,7 @@ void SelectSpawnPoint(edict_t * ent, vec3_t origin, vec3_t angles)
 	//FIREBLADE
 	if (ctf->value)
 		spot = SelectCTFSpawnPoint(ent);
-	else if (teamplay->value && !teamdm->value && ent->client->resp.team != NOTEAM && !in_warmup) {
+	else if (!(gameSettings & GS_DEATHMATCH) && ent->client->resp.team && !in_warmup) {
 		spot = SelectTeamplaySpawnPoint(ent);
 	} else {
 		spot = SelectDeathmatchSpawnPoint();
@@ -1871,7 +1857,7 @@ void respawn(edict_t *self)
 
 	if (!(self->svflags & SVF_NOCLIENT))
 	{
-		if (ctf->value || teamdm->value)
+		if (team_round_going && !(gameSettings & GS_ROUNDBASED))
 			AddToTransparentList(self);
 
 		if (respawn_effect->value) {
@@ -2399,7 +2385,7 @@ void PutClientInServer(edict_t * ent)
 
 	if ((int)uvtime->value > 0) {
 		if (teamplay->value) {
-			if ((ctf->value || teamdm->value) && team_round_going && !lights_camera_action) {
+			if (!(gameSettings & GS_ROUNDBASED) && team_round_going && !lights_camera_action) {
 				client->uvTime = uvtime->value;
 			}
 		} else if (dm_shield->value) {
@@ -2412,7 +2398,7 @@ void PutClientInServer(edict_t * ent)
 		AllItems(ent);
 	}
 
-	if ((teamplay->value && !teamdm->value && ctf->value != 2) || (!ctf->value && dm_choose->value))
+	if (gameSettings & GS_WEAPONCHOOSE)
 		EquipClient(ent);
 	else
 		EquipClientDM(ent);
@@ -3131,7 +3117,7 @@ void ClientBeginServerFrame(edict_t * ent)
 		{
 
 			if (teamplay->value) {
-				going_observer = (!ctf->value && !teamdm->value) || client->resp.team == NOTEAM || client->resp.subteam;
+				going_observer = ((gameSettings & GS_ROUNDBASED) || !client->resp.team || client->resp.subteam);
 			}
 			else
 			{

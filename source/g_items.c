@@ -312,15 +312,16 @@ void Drop_Special (edict_t * ent, gitem_t * item)
 	ent->client->unique_item_total--;
 	if (item->typeNum == BAND_NUM && INV_AMMO(ent, BAND_NUM) <= 1)
 	{
-		if(teamplay->value && !teamdm->value)
-			count = 1;
-		else
+		if (gameSettings & GS_DEATHMATCH)
 			count = 2;
+		else
+			count = 1;
+
 		ent->client->max_pistolmags = count;
 		if (INV_AMMO(ent, MK23_ANUM) > count)
 			INV_AMMO(ent, MK23_ANUM) = count;
 
-		if(teamplay->value && !teamdm->value) {
+		if (!(gameSettings & GS_DEATHMATCH)) {
 			if(ent->client->resp.weapon->typeNum == HC_NUM)
 				count = 12;
 			else
@@ -338,7 +339,7 @@ void Drop_Special (edict_t * ent, gitem_t * item)
 
 		ent->client->grenade_max = 2;
 		if (use_buggy_bandolier->value == 0) {
-			if ((!teamplay->value || teamdm->value) && INV_AMMO(ent, GRENADE_NUM) > 2)
+			if ((gameSettings & GS_DEATHMATCH) && INV_AMMO(ent, GRENADE_NUM) > 2)
 				INV_AMMO(ent, GRENADE_NUM) = 2;
 			else if (teamplay->value) {
 				if (ent->client->curr_weap == GRENADE_NUM)
@@ -350,10 +351,10 @@ void Drop_Special (edict_t * ent, gitem_t * item)
 			if (INV_AMMO(ent, GRENADE_NUM) > 2)
 				INV_AMMO(ent, GRENADE_NUM) = 2;
 		}
-		if(teamplay->value && !teamdm->value)
-			count = 1;
-		else
+		if (gameSettings & GS_DEATHMATCH)
 			count = 2;
+		else
+			count = 1;
 		ent->client->max_mp5mags = count;
 		if (INV_AMMO(ent, MP5_ANUM) > count)
 			INV_AMMO(ent, MP5_ANUM) = count;
@@ -362,10 +363,10 @@ void Drop_Special (edict_t * ent, gitem_t * item)
 		if (INV_AMMO(ent, KNIFE_NUM) > 10)
 			INV_AMMO(ent, KNIFE_NUM) = 10;
 
-		if(teamplay->value && !teamdm->value)
-			count = 10;
-		else
+		if (gameSettings & GS_DEATHMATCH)
 			count = 20;
+		else
+			count = 10;
 		ent->client->max_sniper_rnds = count;
 		if (INV_AMMO(ent, SNIPER_ANUM) > count)
 			INV_AMMO(ent, SNIPER_ANUM) = count;

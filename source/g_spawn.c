@@ -391,9 +391,9 @@ void ED_CallSpawn (edict_t * ent)
 		{	// found it
 
 			//FIXME: We do same checks in SpawnItem, do we need these here? -M
-			if (!teamplay->value || teamdm->value)
+			if (gameSettings & GS_DEATHMATCH)
 			{
-				if (dm_choose->value)
+				if (gameSettings & GS_WEAPONCHOOSE)
 					G_FreeEdict( ent );
 				else if (item->flags & (IT_AMMO|IT_WEAPON))
 					SpawnItem(ent, item);
@@ -872,9 +872,15 @@ void SpawnEntities (char *mapname, char *entities, char *spawnpoint)
 	timewarning = fragwarning = 0;
 
 	teamCount = 2;
+	gameSettings = 0;
 
 	if (ctf->value)
 	{
+		if (ctf->value == 2)
+			gi.cvar_forceset(ctf->name, "1"); //for now
+
+		gameSettings |= GS_WEAPONCHOOSE;
+
 		// Make sure teamplay is enabled
 		if (!teamplay->value)
 		{
@@ -907,11 +913,11 @@ void SpawnEntities (char *mapname, char *entities, char *spawnpoint)
 		strcpy(teams[TEAM2].skin, "male/ctf_b");
 		strcpy(teams[TEAM1].skin_index, "../players/male/ctf_r_i");
 		strcpy(teams[TEAM2].skin_index, "../players/male/ctf_b_i");
-		if(ctf->value == 2)
-			gi.cvar_forceset(ctf->name, "1"); //for now
 	}
 	else if(teamdm->value)
 	{
+		gameSettings |= GS_DEATHMATCH;
+
 		if (!teamplay->value)
 		{
 			gi.dprintf ("Team Deathmatch Enabled - Forcing teamplay on\n");
@@ -930,6 +936,7 @@ void SpawnEntities (char *mapname, char *entities, char *spawnpoint)
 	}
 	else if (use_3teams->value)
 	{
+		gameSettings |= (GS_ROUNDBASED | GS_WEAPONCHOOSE);
 		teamCount = 3;
 		if (!teamplay->value)
 		{
@@ -949,6 +956,7 @@ void SpawnEntities (char *mapname, char *entities, char *spawnpoint)
 	}
 	else if (matchmode->value)
 	{
+		gameSettings |= (GS_ROUNDBASED | GS_WEAPONCHOOSE);
 		if (!teamplay->value)
 		{
 			gi.dprintf ("Matchmode Enabled - Forcing teamplay on\n");
@@ -962,12 +970,28 @@ void SpawnEntities (char *mapname, char *entities, char *spawnpoint)
 	}
 	else if (use_tourney->value)
 	{
+		gameSettings |= (GS_ROUNDBASED | GS_WEAPONCHOOSE);
 		if (!teamplay->value)
 		{
 			gi.dprintf ("Tourney Enabled - Forcing teamplay on\n");
 			gi.cvar_forceset(teamplay->name, "1");
 		}
 	}
+	else if (teamplay->value)
+	{
+		gameSettings |= (GS_ROUNDBASED | GS_WEAPONCHOOSE);
+	}
+	else { //Its deathmatch
+		gameSettings |= GS_DEATHMATCH;
+		if (dm_choose->value)
+			gameSettings |= GS_WEAPONCHOOSE;
+	}
+
+	if (teamplay->value)
+		gameSettings |= GS_TEAMPLAY;
+	if (matchmode->value)
+		gameSettings |= GS_MATCHMODE;
+
 
 	gi.FreeTags(TAG_LEVEL);
 
@@ -1040,24 +1064,20 @@ void SpawnEntities (char *mapname, char *entities, char *spawnpoint)
 			}
 		}
 	}
-	
-	// AQ2:TNG End adding .flg files
 
 	G_FindTeams ();
 
 	// TNG:Freud - Ghosts
 	num_ghost_players = 0;
 
-	//FIREBLADE
-	if ((!teamplay->value || teamdm->value || ctf->value == 2) && !dm_choose->value)
+	if (!(gameSettings & GS_WEAPONCHOOSE))
 	{
-		//FIREBLADE
 		//zucc for special items
-		SetupSpecSpawn ();
+		SetupSpecSpawn();
 	}
 	else if (teamplay->value)
 	{
-		GetSpawnPoints ();
+		GetSpawnPoints();
 		//TNG:Freud - New spawning system
 		if(!use_oldspawns->value)
 			NS_GetSpawnPoints();

@@ -931,7 +931,7 @@ void Cmd_Choose_f(edict_t * ent)
 	gitem_t *item;
 
 	// only works in teamplay
-	if ((!teamplay->value && !dm_choose->value) || teamdm->value || ctf->value == 2)
+	if (!(gameSettings & GS_WEAPONCHOOSE))
 		return;
 
 	s = gi.args();
@@ -1034,7 +1034,7 @@ void Cmd_Roundtimeleft_f(edict_t * ent)
 		return;
 	}
 
-	if (ctf->value || teamdm->value || team_round_going != 1)
+	if (!(gameSettings & GS_ROUNDBASED) || !team_round_going)
 		return;
 
 	if ((int)roundtimelimit->value <= 0)

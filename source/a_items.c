@@ -135,7 +135,6 @@ void SpecThink(edict_t * spec)
 
 static void MakeTouchSpecThink(edict_t * ent)
 {
-	int isDeathmatch;
 
 	ent->touch = Touch_Item;
 
@@ -144,31 +143,26 @@ static void MakeTouchSpecThink(edict_t * ent)
 		ent->think = G_FreeEdict;
 		return;
 	}
-	isDeathmatch = (!teamplay->value || teamdm->value) ? 1 : 0;
-	if (isDeathmatch && dm_choose->value) {
+
+	if (gameSettings & GS_ROUNDBASED) {
+		ent->nextthink = level.framenum + 60 * HZ; //FIXME: should this be roundtime left
+		ent->think = G_FreeEdict;
+		return;
+	}
+
+	if (gameSettings & GS_WEAPONCHOOSE) {
 		ent->nextthink = level.framenum + 6 * HZ;
 		ent->think = G_FreeEdict;
 		return;
 	}
 
-	if (isDeathmatch || ctf->value == 2) {
-		if(item_respawnmode->value) {
-			ent->nextthink = level.framenum + (item_respawn->value*0.5f) * HZ;
-			ent->think = G_FreeEdict;
-		}
-		else {
-			ent->nextthink = level.framenum + item_respawn->value * HZ;
-			ent->think = SpecThink;
-		}
-	} else  {
-		//AQ2:TNG - Slicer This works for Special Items 
-		if (ctf->value) {
-			ent->nextthink = level.framenum + 6 * HZ;
-			ent->think = G_FreeEdict;
-		} else {
-			ent->nextthink = level.framenum + 60 * HZ;
-			ent->think = G_FreeEdict;
-		}
+	if(item_respawnmode->value) {
+		ent->nextthink = level.framenum + (item_respawn->value*0.5f) * HZ;
+		ent->think = G_FreeEdict;
+	}
+	else {
+		ent->nextthink = level.framenum + item_respawn->value * HZ;
+		ent->think = SpecThink;
 	}
 }
 

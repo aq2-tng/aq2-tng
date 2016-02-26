@@ -387,7 +387,7 @@ qboolean Pickup_Weapon (edict_t * ent, edict_t * other)
 		return false;
 
 	case GRENADE_NUM:
-		if (teamplay->value && !teamdm->value && ctf->value != 2 && !band)
+		if (!(gameSettings & GS_DEATHMATCH) && ctf->value != 2 && !band)
 			return false;
 
 		if (other->client->inventory[index] >= other->client->grenade_max)
@@ -435,8 +435,7 @@ qboolean Pickup_Weapon (edict_t * ent, edict_t * other)
 	if (!(ent->spawnflags & (DROPPED_ITEM | DROPPED_PLAYER_ITEM))
 		&& (SPEC_WEAPON_RESPAWN) && special)
 	{
-		if(DMFLAGS(DF_WEAPON_RESPAWN) &&
-			(!teamplay->value || teamdm->value || ctf->value == 2))
+		if (DMFLAGS(DF_WEAPON_RESPAWN) && ((gameSettings & GS_DEATHMATCH) || ctf->value == 2))
 			SetRespawn (ent, weapon_respawn->value);
 		else
 			SetSpecWeapHolder (ent);
@@ -699,30 +698,27 @@ void temp_think_specweap (edict_t * ent)
 {
 	ent->touch = Touch_Item;
 
-	if(DMFLAGS(DF_WEAPON_RESPAWN) && (!teamplay->value || teamdm->value || ctf->value == 2))
-	{
-		ent->nextthink = level.framenum + (weapon_respawn->value * 0.6f) * HZ;
-		ent->think = G_FreeEdict;
-	}
-	else if (ctf->value || (dm_choose->value && !teamplay->value))
-	{
-		ent->nextthink = level.framenum + 6 * HZ;
-		ent->think = ThinkSpecWeap;
-	}
-	else if ((!teamplay->value || teamdm->value) && !allweapon->value)
-	{
-		ent->nextthink = level.framenum + weapon_respawn->value * HZ;
-		ent->think = ThinkSpecWeap;
-	}
-	else if (teamplay->value && !allweapon->value)
-	{
-		ent->nextthink = level.framenum + 1000 * HZ;
-		ent->think = PlaceHolder;
-	}
-	else				// allweapon set
-	{
+	if (allweapon->value) { // allweapon set
 		ent->nextthink = level.framenum + 1 * HZ;
 		ent->think = G_FreeEdict;
+		return;
+	}
+
+	if (gameSettings & GS_ROUNDBASED) {
+		ent->nextthink = level.framenum + 1000 * HZ;
+		ent->think = PlaceHolder;
+		return;
+	}
+
+	if (gameSettings & GS_WEAPONCHOOSE) {
+		ent->nextthink = level.framenum + 6 * HZ;
+		ent->think = ThinkSpecWeap;
+	} else if (DMFLAGS(DF_WEAPON_RESPAWN)) {
+		ent->nextthink = level.framenum + (weapon_respawn->value * 0.6f) * HZ;
+		ent->think = G_FreeEdict;
+	} else {
+		ent->nextthink = level.framenum + weapon_respawn->value * HZ;
+		ent->think = ThinkSpecWeap;
 	}
 }
 
