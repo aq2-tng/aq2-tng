@@ -558,24 +558,13 @@ void ClientEndServerFrames (void)
 	if (!(level.realFramenum % (3 * HZ)) && !level.intermission_framenum)
 		updateLayout = 1;
 
-	for (i = 0, ent = g_edicts + 1; i < game.maxclients; i++, ent++)
-	{
-		if (!ent->inuse || !ent->client)
-			continue;
-
-		if (ent->client->chase_mode && ent->client->chase_target)
-			UpdateChaseCam( ent );
-
-		if (teamplay->value && !ent->client->resp.team)
-			spectators++;
-	}
-
 	// calc the player views now that all pushing
 	// and damage has been added
 	for (i = 0, ent = g_edicts + 1; i < game.maxclients; i++, ent++)
 	{
 		if (!ent->inuse || !ent->client)
 			continue;
+
 		ClientEndServerFrame(ent);
 
 		if (updateLayout && ent->client->showscores) {
@@ -586,6 +575,8 @@ void ClientEndServerFrames (void)
 
 			gi.unicast(ent, false);
 		}
+		if (teamplay->value && !ent->client->resp.team)
+			spectators++;
 	}
 
 	if (updateLayout && spectators && spectator_hud->value) {
@@ -605,9 +596,11 @@ void ClientEndServerFrames (void)
 
 	for (i = 0, ent = g_edicts + 1; i < game.maxclients; i++, ent++)
 	{
-		if (!ent->inuse || !ent->client || !ent->client->chase_target)
+		if (!ent->inuse || !ent->client)
 			continue;
-		G_SetSpectatorStats (ent);
+
+		if (ent->client->chase_target)
+			UpdateChaseCam(ent);
 	}
 }
 

@@ -120,30 +120,34 @@ void UpdateChaseCam( edict_t * ent )
 {
 	vec3_t o, ownerv, goal;
 	edict_t *targ;
-	vec3_t forward, right;
+	vec3_t forward, right, angles;
 	trace_t trace;
 	int i;
-	vec3_t angles;
+	gclient_t *client;
+	short oldStats[MAX_STATS];
 
 	if (ChaseTargetGone( ent ))
 		return;
 
-	targ = ent->client->resp.last_chase_target = ent->client->chase_target;
+	client = ent->client;
 
-	if (ent->client->chase_mode == 1)
+	targ = client->resp.last_chase_target = client->chase_target;
+
+	memcpy(oldStats, client->ps.stats, sizeof(oldStats));
+
+	if (client->chase_mode == 1)
 	{
 		VectorCopy( targ->s.origin, ownerv );
 
 		ownerv[2] += targ->viewheight;
 
-		VectorCopy( ent->client->ps.viewangles, angles );
+		VectorCopy(client->resp.cmd_angles, angles);
+		for (i = 0; i < 3; i++)
+			 angles[i] += SHORT2ANGLE(client->ps.pmove.delta_angles[i]);
+
 		AngleVectors( angles, forward, right, NULL );
 		VectorNormalize( forward );
 		VectorMA( ownerv, -150, forward, o );
-
-		// not sure if this should be left in... -FB
-		//              if (o[2] < targ->s.origin[2] + 20)  
-		//                      o[2] = targ->s.origin[2] + 20;
 
 		// jump animation lifts
 		if (!targ->groundentity)
@@ -175,75 +179,93 @@ void UpdateChaseCam( edict_t * ent )
 		}
 
 		if (targ->deadflag)
-			ent->client->ps.pmove.pm_type = PM_DEAD;
+			client->ps.pmove.pm_type = PM_DEAD;
 		else
-			ent->client->ps.pmove.pm_type = PM_FREEZE;
+			client->ps.pmove.pm_type = PM_FREEZE;
 
 		VectorCopy( goal, ent->s.origin );
 
-		ent->client->clientNum = ent - g_edicts - 1;
-		ent->client->ps.gunindex = ent->client->ps.gunframe = 0;
-		ent->client->desired_fov = 90;
-		ent->client->ps.fov = 90;
-
-		if (ent->client->resp.cmd_angles[PITCH] > 89)
-			ent->client->resp.cmd_angles[PITCH] = 89;
-		else if (ent->client->resp.cmd_angles[PITCH] < -89)
-			ent->client->resp.cmd_angles[PITCH] = -89;
-
 		for (i = 0; i < 3; i++) {
-			ent->client->ps.pmove.delta_angles[i] =
-				ANGLE2SHORT( ent->client->v_angle[i] - ent->client->resp.cmd_angles[i] );
+			client->ps.pmove.delta_angles[i] = ANGLE2SHORT(angles[i] - client->resp.cmd_angles[i]);
 		}
+		VectorCopy(angles, client->ps.viewangles);
+		VectorCopy(angles, client->v_angle);
 
-		VectorCopy( ent->client->resp.cmd_angles, ent->client->ps.viewangles );
+		client->clientNum = ent - g_edicts - 1;
+		client->ps.gunindex = client->ps.gunframe = 0;
+		client->desired_fov = 90;
+		client->ps.fov = 90;
+
+		ent->viewheight = 0;
+		memcpy(client->ps.stats, targ->client->ps.stats, sizeof(client->ps.stats));
+		client->ps.stats[STAT_SNIPER_ICON] = 0; // only show sniper lens when in chase mode 2
 	}
 	else             // chase_mode == 2
 	{
 
 		VectorCopy( targ->client->v_angle, angles );
 
-		if (!(game.serverfeatures & GMF_CLIENTNUM)) {
+		if (!(game.serverfeatures & GMF_CLIENTNUM))
+		{
 			VectorCopy( targ->s.origin, ownerv );
+			ownerv[2] += targ->viewheight;
 
 			AngleVectors( angles, forward, right, NULL );
 			VectorNormalize( forward );
 			VectorMA( ownerv, 11, forward, o );
-		}
-		else {
-			VectorCopy( targ->s.origin, o );
-		}
 
-		o[2] += targ->viewheight;
+			VectorCopy(o, ent->s.origin);
+			VectorScale(o, 8, client->ps.pmove.origin);
 
-		VectorCopy( o, ent->s.origin );
+			if (targ->deadflag)
+			{
+				client->ps.viewangles[ROLL] = 40;
+				client->ps.viewangles[PITCH] = -15;
+				client->ps.viewangles[YAW] = targ->client->killer_yaw;
+				client->ps.pmove.pm_type = PM_DEAD;
+			}
+			else
+			{
+				VectorCopy(targ->client->ps.kick_angles, client->ps.kick_angles);
+				for (i = 0; i < 3; i++) {
+					ent->client->ps.pmove.delta_angles[i] = ANGLE2SHORT(angles[i] - client->resp.cmd_angles[i]);
+				}
+				VectorCopy(angles, client->ps.viewangles);
+				VectorCopy(angles, client->v_angle);
+				client->ps.pmove.pm_type = PM_FREEZE;
+			}
+
+			ent->viewheight = 0;
+			memcpy(client->ps.stats, targ->client->ps.stats, sizeof(client->ps.stats));
+		}
+		else
+		{
+			client->ps = targ->client->ps;
+
+			VectorCopy(client->ps.viewangles, ent->s.angles);
+			VectorCopy(client->ps.viewangles, client->v_angle);
+			VectorScale(client->ps.pmove.origin, 0.125f, ent->s.origin);
+			ent->viewheight = targ->viewheight;
+
+			ent->client->ps.pmove.pm_type = PM_FREEZE;
+		}
 
 		ent->client->clientNum = targ - g_edicts - 1;
 		ent->client->ps.fov = targ->client->ps.fov;
 		ent->client->desired_fov = targ->client->ps.fov;
-
-		for (i = 0; i < 3; i++) {
-			ent->client->ps.pmove.delta_angles[i] =
-				ANGLE2SHORT( targ->client->v_angle[i] - ent->client->resp.cmd_angles[i] );
-		}
-
-		if (targ->deadflag)
-		{
-			ent->client->ps.viewangles[ROLL] = 40;
-			ent->client->ps.viewangles[PITCH] = -15;
-			ent->client->ps.viewangles[YAW] = targ->client->killer_yaw;
-			ent->client->ps.pmove.pm_type = PM_DEAD;
-		}
-		else
-		{
-			VectorCopy( angles, ent->client->ps.viewangles );
-			VectorCopy( angles, ent->client->v_angle );
-			ent->client->ps.pmove.pm_type = PM_FREEZE;
-		}
 	}
 
-	ent->viewheight = 0;
-	ent->client->ps.pmove.pm_flags |= PMF_NO_PREDICTION;
+	//protect these
+	for (i = STAT_TEAM_HEADER; i <= STAT_TEAM2_SCORE; i++) {
+		client->ps.stats[i] = oldStats[i];
+	}
+	client->ps.stats[STAT_TEAM3_PIC] = oldStats[STAT_TEAM3_PIC];
+	client->ps.stats[STAT_TEAM3_SCORE] = oldStats[STAT_TEAM3_SCORE];
+	client->ps.stats[STAT_LAYOUTS] = oldStats[STAT_LAYOUTS];
+	client->ps.stats[STAT_ID_VIEW] = oldStats[STAT_ID_VIEW];
+	client->ps.stats[STAT_FRAGS] = oldStats[STAT_FRAGS];
+
+	client->ps.pmove.pm_flags |= PMF_NO_PREDICTION;
 	gi.linkentity( ent );
 }
 
