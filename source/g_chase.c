@@ -183,7 +183,8 @@ void UpdateChaseCam( edict_t * ent )
 		else
 			client->ps.pmove.pm_type = PM_FREEZE;
 
-		VectorCopy( goal, ent->s.origin );
+		VectorCopy(goal, ent->s.origin);
+		VectorScale(goal, 8, client->ps.pmove.origin);
 
 		for (i = 0; i < 3; i++) {
 			client->ps.pmove.delta_angles[i] = ANGLE2SHORT(angles[i] - client->resp.cmd_angles[i]);
