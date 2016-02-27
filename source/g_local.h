@@ -1338,6 +1338,13 @@ typedef enum {
 	GENDER_NEUTRAL
 } gender_t;
 
+typedef enum {
+	LAYOUT_NONE,
+	LAYOUT_SCORES,
+	LAYOUT_SCORES2,
+	LAYOUT_MENU
+} layout_t;
+
 #define GENDER_STR( ent, he, she, it ) (((ent)->client->pers.gender == GENDER_MALE) ? he : (((ent)->client->pers.gender == GENDER_FEMALE) ? she : it))
 
 typedef struct gunStats_s
@@ -1474,23 +1481,22 @@ struct gclient_s
 {
   // known to server
   player_state_t ps;		// communicated by server to clients
-
   int ping;
+
+  // known to compatible server
   int clientNum;
 
   // private to game
-  client_persistant_t pers;
-  client_respawn_t resp;
-  pmove_state_t old_pmove;	// for detecting out-of-pmove changes
+  client_persistant_t	pers;
+  client_respawn_t		resp;
+  pmove_state_t			old_pmove;	// for detecting out-of-pmove changes
 
-  qboolean showscores;		// set layout stat
-  //FIREBLADE
+  layout_t layout;		// set layout stat
+  qboolean showinventory;	// set layout stat
+
+  pmenuhnd_t menu;		// current menu
 
   int rate;			// their "rate" setting
-
-  int scoreboardnum;
-  //FIREBLADE
-  qboolean showinventory;	// set layout stat
 
   int ammo_index;
 
@@ -1637,8 +1643,6 @@ struct gclient_s
 
   int reload_attempts;
   int weapon_attempts;
-
-  pmenuhnd_t *menu;		// current menu
 
   edict_t *chase_target;
   qboolean update_chase;

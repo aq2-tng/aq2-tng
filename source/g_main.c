@@ -567,8 +567,8 @@ void ClientEndServerFrames (void)
 
 		ClientEndServerFrame(ent);
 
-		if (updateLayout && ent->client->showscores) {
-			if (ent->client->menu)
+		if (updateLayout && ent->client->layout) {
+			if (ent->client->layout == LAYOUT_MENU)
 				PMenu_Update(ent);
 			else
 				DeathmatchScoreboardMessage(ent, ent->enemy);

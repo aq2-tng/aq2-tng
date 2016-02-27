@@ -63,8 +63,7 @@
 
 void MoveClientToIntermission (edict_t * ent)
 {
-	ent->client->showscores = true;
-	ent->client->scoreboardnum = 1;
+	ent->client->layout = LAYOUT_SCORES;
 
 	VectorCopy (level.intermission_origin, ent->s.origin);
 	ent->client->ps.pmove.origin[0] = level.intermission_origin[0] * 8;
@@ -101,8 +100,8 @@ void MoveClientToIntermission (edict_t * ent)
 	//FIREBLADE
 
 	// add the layout
-	DeathmatchScoreboardMessage (ent, NULL);
-	gi.unicast (ent, true);
+	DeathmatchScoreboardMessage(ent, NULL);
+	gi.unicast(ent, true);
 }
 
 void BeginIntermission (edict_t * targ)
@@ -277,34 +276,31 @@ void DeathmatchScoreboard (edict_t * ent)
   Display the scoreboard
   ==================
 */
-void Cmd_Score_f (edict_t * ent)
+void Cmd_Score_f(edict_t *ent)
 {
 	ent->client->showinventory = false;
 	
-	//FIREBLADE
-	if (ent->client->menu)
-		PMenu_Close (ent);
+	if (ent->client->layout == LAYOUT_MENU)
+		PMenu_Close(ent);
 	
-	if (ent->client->showscores)
+	if (ent->client->layout == LAYOUT_SCORES)
 	{
-		//FIREBLADE
-		if (teamplay->value && ent->client->scoreboardnum < 2)	// toggle scoreboards...
-		{
-			ent->client->scoreboardnum++;
-			DeathmatchScoreboard (ent);
+		if (teamplay->value) {	// toggle scoreboards...
+			ent->client->layout = LAYOUT_SCORES2;
+			DeathmatchScoreboard(ent);
 			return;
-		}
-		//FIREBLADE
-		
-		ent->client->showscores = false;
+		}	
+		ent->client->layout = LAYOUT_NONE;
+		return;
+	}
+
+	if (ent->client->layout == LAYOUT_SCORES2) {
+		ent->client->layout = LAYOUT_NONE;
 		return;
 	}
 	
-	ent->client->showscores = true;
-	//FIREBLADE
-	ent->client->scoreboardnum = 1;
-	//FIREBLADE
-	DeathmatchScoreboard (ent);
+	ent->client->layout = LAYOUT_SCORES;
+	DeathmatchScoreboard(ent);
 }
 
 
@@ -557,7 +553,7 @@ void G_SetStats (edict_t * ent)
 	//
 	ent->client->ps.stats[STAT_LAYOUTS] = 0;
 
-	if (level.intermission_framenum || ent->client->showscores)
+	if (level.intermission_framenum || ent->client->layout)
 		ent->client->ps.stats[STAT_LAYOUTS] |= 1;
 	if (ent->client->showinventory && ent->health > 0)
 		ent->client->ps.stats[STAT_LAYOUTS] |= 2;

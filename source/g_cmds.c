@@ -389,12 +389,10 @@ static void SelectNextItem (edict_t * ent, int itflags)
 
 	cl = ent->client;
 
-	//FIREBLADE
-	if (cl->menu) {
-		PMenu_Next (ent);
+	if (cl->layout == LAYOUT_MENU) {
+		PMenu_Next(ent);
 		return;
 	}
-	//FIREBLADE
 
 	if (ent->solid == SOLID_NOT && ent->deadflag != DEAD_DEAD)
 		return;
@@ -426,12 +424,10 @@ static void SelectPrevItem (edict_t * ent, int itflags)
 
 	cl = ent->client;
 
-	//FIREBLADE
-	if (cl->menu) {
+	if (cl->layout == LAYOUT_MENU) {
 		PMenu_Prev (ent);
 		return;
 	}
-	//FIREBLADE
 
 	if (ent->solid == SOLID_NOT && ent->deadflag != DEAD_DEAD)
 		return;
@@ -929,10 +925,8 @@ void Cmd_Inven_f (edict_t * ent)
 
 	cl = ent->client;
 
-	cl->showscores = false;
-
-	if (ent->client->menu) {
-		PMenu_Close (ent);
+	if (cl->layout == LAYOUT_MENU) {
+		PMenu_Close(ent);
 		return;
 	}
 
@@ -974,13 +968,10 @@ void Cmd_InvUse_f (edict_t * ent)
 {
 	gitem_t *it;
 
-	//FIREBLADE
-	if (ent->client->menu)
-	{
-		PMenu_Select (ent);
+	if (ent->client->layout == LAYOUT_MENU) {
+		PMenu_Select(ent);
 		return;
 	}
-	//FIREBLADE
 
 	if (!IS_ALIVE(ent))
 		return;
@@ -1162,14 +1153,12 @@ static void Cmd_Kill_f (edict_t * ent)
 Cmd_PutAway_f
 =================
 */
-void Cmd_PutAway_f (edict_t * ent)
+void Cmd_PutAway_f(edict_t *ent)
 {
-	ent->client->showscores = false;
-	ent->client->showinventory = false;
-//FIREBLADE
-	if (ent->client->menu)
-		PMenu_Close (ent);
-//FIREBLADE
+	if (ent->client->layout == LAYOUT_MENU)
+		PMenu_Close(ent);
+
+	ent->client->layout = LAYOUT_NONE;
 }
 
 /*

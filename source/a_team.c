@@ -2132,7 +2132,7 @@ void A_Scoreboard (edict_t * ent)
 {
   int wteam = 0;
 
-	if (ent->client->showscores && ent->client->scoreboardnum == 1)
+	if (ent->client->layout == LAYOUT_SCORES)
 	{
 		// blink header of the winning team during intermission
 		if (level.intermission_framenum && ((level.realFramenum / FRAMEDIV) & 8))
@@ -2360,7 +2360,7 @@ void A_ScoreboardMessage (edict_t * ent, edict_t * killer)
 
 	string[0] = 0;
 
-	if (ent->client->scoreboardnum == 1)
+	if (ent->client->layout == LAYOUT_SCORES)
 	{
 		char footer[256];
 		int team, len, footerLen = 0, remaining, deadview;
@@ -2703,7 +2703,7 @@ void A_ScoreboardMessage (edict_t * ent, edict_t * killer)
 			Q_strncatz(string, footer, sizeof(string));
 		}
 	}
-	else if (ent->client->scoreboardnum == 2)
+	else if (ent->client->layout == LAYOUT_SCORES2)
 	{
 		int ping, time, damage;
 

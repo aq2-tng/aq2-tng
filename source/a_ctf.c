@@ -1147,9 +1147,10 @@ void DeathmatchScoreboard(edict_t * ent);
 
 void CTFShowScores(edict_t * ent, pmenu_t * p)
 {
-	PMenu_Close(ent);
+	if (ent->client->layout == LAYOUT_MENU)
+		PMenu_Close(ent);
 
-	ent->client->showscores = true;
+	ent->client->layout = LAYOUT_SCORES;
 	ent->client->showinventory = false;
 	DeathmatchScoreboard(ent);
 }

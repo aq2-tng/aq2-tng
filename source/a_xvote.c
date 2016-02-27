@@ -236,9 +236,8 @@ void vShowMenu (edict_t * ent, char *menu)
 
 	Q_strncpyz(fixedmenu, menu, sizeof(fixedmenu));
 
-	if (ent->client->menu)
-	{
-		PMenu_Close (ent);
+	if (ent->client->layout == LAYOUT_MENU) {
+		PMenu_Close(ent);
 		return;
 	}
 	if (!*fixedmenu)
