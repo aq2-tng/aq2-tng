@@ -881,7 +881,9 @@ int GetWeaponNumFromArg(const char *s)
 
 	itemNum = 0;
 	// convert names a player might try (DW added a few)
-	if (!Q_stricmp(s, "A 2nd pistol") || !Q_stricmp(s, "akimbo"))
+	if (!Q_stricmp(s, "mark 23 pistol"))
+		itemNum = MK23_NUM;
+	else if (!Q_stricmp(s, "A 2nd pistol") || !Q_stricmp(s, "akimbo"))
 		itemNum = DUAL_NUM;
 	else if (!Q_stricmp(s, "shotgun"))
 		itemNum = M3_NUM;
