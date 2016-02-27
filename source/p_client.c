@@ -2509,7 +2509,7 @@ The game can override any of the settings in place
 (forcing skins or names, etc) before copying it off.
 ============
 */
-void ClientUserinfoChanged(edict_t * ent, char *userinfo)
+void ClientUserinfoChanged(edict_t *ent, char *userinfo)
 {
 	char *s, *r, tnick[16];
 	qboolean nickChanged = false;
