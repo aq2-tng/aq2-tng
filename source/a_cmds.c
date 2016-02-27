@@ -575,15 +575,15 @@ void Cmd_Weapon_f(edict_t * ent)
 		ent->client->weapon_attempts = 0;
 
 	if (ent->client->bandaging || ent->client->bandage_stopped) {
-		if (!(ent->client->resp.weapon_after_bandage_warned)) {
-			ent->client->resp.weapon_after_bandage_warned = true;
+		if (!ent->client->weapon_after_bandage_warned) {
+			ent->client->weapon_after_bandage_warned = true;
 			gi.cprintf(ent, PRINT_HIGH, "You'll get to your weapon when you're done bandaging!\n");
 		}
 		ent->client->weapon_attempts++;
 		return;
 	}
 
-	ent->client->resp.weapon_after_bandage_warned = false;
+	ent->client->weapon_after_bandage_warned = false;
 
 	if (ent->client->weaponstate == WEAPON_FIRING || ent->client->weaponstate == WEAPON_BUSY)
 	{

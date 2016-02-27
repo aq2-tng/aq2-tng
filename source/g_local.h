@@ -1384,6 +1384,9 @@ typedef struct
   gitem_t *chosenItem;		// item for teamplay
   gitem_t *chosenWeapon;	// weapon for teamplay
 
+  int menu_shown;		// has the main menu been shown
+  qboolean dm_selected;		// if dm weapon selection has been done once
+
   int mk23_mode;		// firing mode, semi or auto
   int mp5_mode;
   int m4_mode;
@@ -1426,8 +1429,6 @@ typedef struct
 
   int joined_team;		// last frame # at which the player joined a team
   int lastWave;			//last time used wave
-  int menu_shown;		// has the main menu been shown
-  qboolean dm_selected;		// if dm weapon selection has been done once
 
   radio_t radio;
  
@@ -1448,8 +1449,6 @@ typedef struct
   qboolean scramblevote;	// want scramble
 
   int ignore_time;		// framenum when the player called ignore - to prevent spamming
-
-  qboolean weapon_after_bandage_warned;	// to fix message bug when calling weapon while bandaging
 	
   int stat_mode;    		// Automatical Send of statistics to client
   int stat_mode_intermission;
@@ -1616,7 +1615,11 @@ struct gclient_s
   int took_damage;		//Took damage from multihit weapons
 
   int no_sniper_display;
+  
   int bandaging;
+  int bandage_stopped;
+  qboolean weapon_after_bandage_warned;	// to fix message bug when calling weapon while bandaging
+
   int leg_damage;
   int leg_dam_count;
   int leg_noise;
@@ -1626,8 +1629,6 @@ struct gclient_s
   int bleed_remain;
   vec3_t bleedloc_offset;	// location of bleeding (from origin)
   int bleeddelay;		// how long until we bleed again
-
-  int bandage_stopped;
 
   int doortoggle;		// set by player with opendoor command
 

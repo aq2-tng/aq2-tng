@@ -935,7 +935,7 @@ void Cmd_Inven_f (edict_t * ent)
 		return;
 	}
 
-	cl->resp.menu_shown = true;
+	cl->pers.menu_shown = true;
 
 	if (teamplay->value && !ent->client->resp.team) {
 		OpenJoinMenu (ent);

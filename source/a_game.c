@@ -519,7 +519,7 @@ void PrintMOTD(edict_t * ent)
 		}
 	}
 
-	if (!auto_menu->value || ent->client->resp.menu_shown) {
+	if (!auto_menu->value || ent->client->pers.menu_shown) {
 		gi.centerprintf(ent, "%s", msg_buf);
 	} else {
 		gi.cprintf(ent, PRINT_LOW, "%s", msg_buf);
