@@ -1003,7 +1003,7 @@ static void Cmd_WeapPrev_f (edict_t * ent)
 	gitem_t *it;
 	int selected_weapon;
 
-	if (ent->solid == SOLID_NOT && ent->deadflag != DEAD_DEAD)
+	if (!IS_ALIVE(ent))
 		return;
 
 	cl = ent->client;
@@ -1042,7 +1042,7 @@ static void Cmd_WeapNext_f (edict_t * ent)
 	gitem_t *it;
 	int selected_weapon;
 
-	if (ent->solid == SOLID_NOT && ent->deadflag != DEAD_DEAD)
+	if (!IS_ALIVE(ent))
 		return;
 
 	cl = ent->client;
@@ -1080,7 +1080,7 @@ static void Cmd_WeapLast_f (edict_t * ent)
 	int index;
 	gitem_t *it;
 
-	if (ent->solid == SOLID_NOT && ent->deadflag != DEAD_DEAD)
+	if (!IS_ALIVE(ent))
 		return;
 
 	cl = ent->client;

@@ -953,7 +953,7 @@ void Cmd_Choose_f(edict_t * ent)
 			gi.cprintf(ent, PRINT_HIGH, "Weapon disabled on this server.\n");
 			return;
 		}
-		ent->client->resp.weapon = GET_ITEM(itemNum);
+		ent->client->pers.chosenWeapon = GET_ITEM(itemNum);
 		break;
 	case LASER_NUM:
 	case KEV_NUM:
@@ -965,17 +965,17 @@ void Cmd_Choose_f(edict_t * ent)
 			gi.cprintf(ent, PRINT_HIGH, "Item disabled on this server.\n");
 			return;
 		}
-		ent->client->resp.item = GET_ITEM(itemNum);
+		ent->client->pers.chosenItem = GET_ITEM(itemNum);
 		break;
 	default:
 		gi.cprintf(ent, PRINT_HIGH, "Invalid weapon or item choice.\n");
 		return;
 	}
 
-	item = ent->client->resp.weapon;
+	item = ent->client->pers.chosenWeapon;
 	wpnText = (item && item->pickup_name) ? item->pickup_name : "NONE";
 
-	item = ent->client->resp.item;
+	item = ent->client->pers.chosenItem;
 	itmText = (item && item->pickup_name) ? item->pickup_name : "NONE";
 
 	gi.cprintf(ent, PRINT_HIGH, "Weapon selected: %s\nItem selected: %s\n", wpnText, itmText );
@@ -1125,11 +1125,15 @@ void Cmd_Ghost_f(edict_t * ent)
 	ent->client->resp.score = ghost->score;
 	ent->client->resp.kills = ghost->kills;
 	ent->client->resp.damage_dealt = ghost->damage_dealt;
-	if (teamplay->value) {
-		if (ghost->team != NOTEAM)
+	if (teamplay->value && ghost->team && ghost->team != ent->client->resp.team)
 			JoinTeam( ent, ghost->team, 1 );
-		ent->client->resp.weapon = ghost->weapon;
-		ent->client->resp.item = ghost->item;
+
+	if (gameSettings & GS_WEAPONCHOOSE) {
+		if (ghost->weapon)
+			ent->client->pers.chosenWeapon = ghost->weapon;
+
+		if (ghost->item)
+			ent->client->pers.chosenItem = ghost->item;
 	}
 
 	ent->client->resp.shotsTotal = ghost->shotsTotal;

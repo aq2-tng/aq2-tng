@@ -1328,7 +1328,7 @@ void CTFCapReward(edict_t * ent)
 	if (WPF_ALLOWED(KNIFE_NUM) && ent->client->inventory[ITEM_INDEX(GET_ITEM(KNIFE_NUM))] == 0)
 		ent->client->inventory[ITEM_INDEX(GET_ITEM(KNIFE_NUM))] += 1;
 
-	if (client->resp.item->typeNum == BAND_NUM) {
+	if (client->pers.chosenItem->typeNum == BAND_NUM) {
 		band += 1;
 		if (tgren->value > 0)	// team grenades is turned on
 		{
@@ -1346,7 +1346,7 @@ void CTFCapReward(edict_t * ent)
 	}
 
 
-	player_weapon = client->resp.weapon->typeNum;
+	player_weapon = client->pers.chosenWeapon->typeNum;
 	// find out which weapon the player is holding in it's inventory
 	if(client->unique_weapon_total > 0) {
 		if(ent->client->inventory[ITEM_INDEX(GET_ITEM(MP5_NUM))])
