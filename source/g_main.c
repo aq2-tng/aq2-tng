@@ -594,6 +594,9 @@ void ClientEndServerFrames (void)
 		}
 	}
 
+	if (level.intermission_framenum)
+		return;
+
 	for (i = 0, ent = g_edicts + 1; i < game.maxclients; i++, ent++)
 	{
 		if (!ent->inuse || !ent->client)
