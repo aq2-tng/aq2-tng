@@ -852,9 +852,10 @@ parsing textual entity definitions out of an ent file.
 void SpawnEntities (char *mapname, char *entities, char *spawnpoint)
 {
 	edict_t *ent = NULL;
-	int inhibit = 0;
-	char *com_token;
-	int i;
+	gclient_t   *client;
+	client_persistant_t pers;
+	int i, inhibit = 0;
+	char *com_token, *s;
 
 	// Reset teamplay stuff
 	for(i = TEAM1; i < TEAM_TOP; i++)
@@ -1005,14 +1006,31 @@ void SpawnEntities (char *mapname, char *entities, char *spawnpoint)
 	Q_strncpyz(game.spawnpoint, spawnpoint, sizeof(game.spawnpoint));
 
 	// set client fields on player ents
-	for (i = 0; i < game.maxclients; i++)
-		g_edicts[i + 1].client = game.clients + i;
+	for (i = 0, ent = &g_edicts[1]; i < game.maxclients; i++, ent++)
+	{
+		client = &game.clients[i];
+		ent->client = client;
 
+		if (!client->pers.connected)
+			continue;
+
+		// clear everything but the persistant data
+		pers = client->pers;
+		memset(client, 0, sizeof(*client));
+		client->pers = pers;
+		client->clientNum = i;
+		client->pers.connected = true;
+
+		// combine name and skin into a configstring
+		AssignSkin(ent, Info_ValueForKey(client->pers.userinfo, "skin"), false);
+	}
+
+	ent = NULL;
 	// parse ents
 	while (1)
 	{
 		// parse the opening brace      
-		com_token = COM_Parse (&entities);
+		com_token = COM_Parse(&entities);
 		if (!entities)
 			break;
 
@@ -1022,8 +1040,8 @@ void SpawnEntities (char *mapname, char *entities, char *spawnpoint)
 		if (!ent)
 			ent = g_edicts;
 		else
-			ent = G_Spawn ();
-		entities = ED_ParseEdict (entities, ent);
+			ent = G_Spawn();
+		entities = ED_ParseEdict(entities, ent);
 
 		// yet another map hack
 		if (!Q_stricmp (level.mapname, "command")
@@ -1068,7 +1086,7 @@ void SpawnEntities (char *mapname, char *entities, char *spawnpoint)
 		}
 	}
 
-	G_FindTeams ();
+	G_FindTeams();
 
 	// TNG:Freud - Ghosts
 	num_ghost_players = 0;
