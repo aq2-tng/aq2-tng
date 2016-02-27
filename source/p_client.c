@@ -1517,19 +1517,9 @@ void InitClientPersistant(gclient_t * client)
 // SLIC2 If resp structure gets memset to 0 lets cleannup unecessary initiations ( to 0 ) here
 void InitClientResp(gclient_t *client)
 {
-	qboolean menu_shown = client->resp.menu_shown;
-	qboolean dm_selected = client->resp.dm_selected;
-
 	memset(&client->resp, 0, sizeof(client->resp));
 
 	client->resp.enterframe = level.framenum;
-
-	if (auto_equip->value) {
-		if(!teamplay->value)
-			client->resp.menu_shown = menu_shown;
-
-		client->resp.dm_selected = dm_selected;
-	}
 
 	client->resp.gldynamic = 1;
 }
@@ -2347,7 +2337,7 @@ void PutClientInServer(edict_t * ent)
 	}
 	else {
 		going_observer = ent->client->pers.spectator;
-		if (dm_choose->value && !ent->client->resp.dm_selected)
+		if (dm_choose->value && !ent->client->pers.dm_selected)
 			going_observer = 1;
 	}
 
@@ -2418,6 +2408,11 @@ void ClientBeginDeathmatch(edict_t * ent)
 	if (!auto_equip->value || !(gameSettings & GS_WEAPONCHOOSE)) {
 		ent->client->pers.chosenWeapon = NULL;
 		ent->client->pers.chosenItem = NULL;
+		ent->client->pers.dm_selected = 0;
+		ent->client->pers.menu_shown = 0;
+	} else {
+		if (teamplay->value)
+			ent->client->pers.menu_shown = 0;
 	}
 
 	if (!dm_choose->value && !warmup->value) {
@@ -3064,16 +3059,16 @@ void ClientBeginServerFrame(edict_t * ent)
 	}
 
 	// show team or weapon menu immediately when connected
-	if (auto_menu->value && ent->client->layout != LAYOUT_MENU && !client->resp.menu_shown && (teamplay->value || dm_choose->value)) {
+	if (auto_menu->value && ent->client->layout != LAYOUT_MENU && !client->pers.menu_shown && (teamplay->value || dm_choose->value)) {
 		Cmd_Inven_f( ent );
 	}
 
 	if (!teamplay->value)
 	{
 		// force spawn when weapon and item selected in dm
-		if (!ent->client->pers.spectator && dm_choose->value && !client->resp.dm_selected) {
+		if (!ent->client->pers.spectator && dm_choose->value && !client->pers.dm_selected) {
 			if (client->pers.chosenWeapon && (client->pers.chosenItem || itm_flags->value == 0)) {
-				client->resp.dm_selected = 1;
+				client->pers.dm_selected = 1;
 
 				gi.bprintf(PRINT_HIGH, "%s joined the game\n", client->pers.netname);
 				IRC_printf(IRC_T_SERVER, "%n joined the game", client->pers.netname);
