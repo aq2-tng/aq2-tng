@@ -854,8 +854,9 @@ void SpawnEntities (char *mapname, char *entities, char *spawnpoint)
 	edict_t *ent = NULL;
 	gclient_t   *client;
 	client_persistant_t pers;
+	client_respawn_t resp;
 	int i, inhibit = 0;
-	char *com_token, *s;
+	char *com_token;
 
 	// Reset teamplay stuff
 	for(i = TEAM1; i < TEAM_TOP; i++)
@@ -1016,8 +1017,10 @@ void SpawnEntities (char *mapname, char *entities, char *spawnpoint)
 
 		// clear everything but the persistant data
 		pers = client->pers;
+		resp = client->resp;
 		memset(client, 0, sizeof(*client));
 		client->pers = pers;
+		client->resp = resp;
 		client->clientNum = i;
 		client->pers.connected = true;
 
