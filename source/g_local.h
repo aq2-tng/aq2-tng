@@ -1381,6 +1381,9 @@ typedef struct
   gitem_t *weapon;
   gitem_t *lastweapon;
 
+  gitem_t *chosenItem;		// item for teamplay
+  gitem_t *chosenWeapon;	// weapon for teamplay
+
   int mk23_mode;		// firing mode, semi or auto
   int mp5_mode;
   int m4_mode;
@@ -1410,10 +1413,6 @@ typedef struct
   int deaths;			// deaths
 
   int damage_dealt;		// keep track of damage dealt by player to other players
-
-  gitem_t *item;		// item for teamplay
-
-  gitem_t *weapon;		// weapon for teamplay
 
   int team;			// team the player is on
   int subteam;

@@ -322,7 +322,7 @@ void Drop_Special (edict_t * ent, gitem_t * item)
 			INV_AMMO(ent, MK23_ANUM) = count;
 
 		if (!(gameSettings & GS_DEATHMATCH)) {
-			if(ent->client->resp.weapon->typeNum == HC_NUM)
+			if(ent->client->pers.chosenWeapon->typeNum == HC_NUM)
 				count = 12;
 			else
 				count = 7;
@@ -699,12 +699,6 @@ qboolean Pickup_Ammo (edict_t * ent, edict_t * other)
 
 	if (!Add_Ammo (other, ent->item, count))
 		return false;
-
-	if (weapon && !oldcount)
-	{
-		if (other->client->pers.weapon != ent->item && other->client->pers.weapon == FindItem("blaster"))
-			other->client->newweapon = ent->item;
-	}
 
 	if (!(ent->spawnflags & (DROPPED_ITEM | DROPPED_PLAYER_ITEM)))
 		SetRespawn (ent, ammo_respawn->value);

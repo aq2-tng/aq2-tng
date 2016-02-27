@@ -455,135 +455,122 @@ void JoinTeamAuto (edict_t * ent, pmenu_t * p)
 
 void JoinTeam1 (edict_t * ent, pmenu_t * p)
 {
-	JoinTeam (ent, TEAM1, 0);
+	JoinTeam(ent, TEAM1, 0);
 }
 
 void JoinTeam2 (edict_t * ent, pmenu_t * p)
 {
-	JoinTeam (ent, TEAM2, 0);
+	JoinTeam(ent, TEAM2, 0);
 }
 
 void JoinTeam3 (edict_t * ent, pmenu_t * p)
 {
 	if (use_3teams->value)
-		JoinTeam (ent, TEAM3, 0);
+		JoinTeam(ent, TEAM3, 0);
 }
 
 void LeaveTeams (edict_t * ent, pmenu_t * p)
 {
-	LeaveTeam (ent);
-	PMenu_Close (ent);
-	OpenJoinMenu (ent);
+	LeaveTeam(ent);
+	PMenu_Close(ent);
+	OpenJoinMenu(ent);
 }
 
-void SelectWeapon2 (edict_t * ent, pmenu_t * p)
+void SelectWeapon2(edict_t *ent, pmenu_t *p)
 {
-	ent->client->resp.weapon = GET_ITEM(MP5_NUM);
-	PMenu_Close (ent);
-	OpenItemMenu (ent);
-	//PG BUND
+	ent->client->pers.chosenWeapon = GET_ITEM(MP5_NUM);
+	PMenu_Close(ent);
+	OpenItemMenu(ent);
 	unicastSound(ent, gi.soundindex("weapons/mp5slide.wav"), 1.0);
 }
 
-void SelectWeapon3 (edict_t * ent, pmenu_t * p)
+void SelectWeapon3(edict_t *ent, pmenu_t *p)
 {
-	ent->client->resp.weapon = GET_ITEM(M3_NUM);
-	PMenu_Close (ent);
-	OpenItemMenu (ent);
-	//PG BUND
+	ent->client->pers.chosenWeapon = GET_ITEM(M3_NUM);
+	PMenu_Close(ent);
+	OpenItemMenu(ent);
 	unicastSound(ent, gi.soundindex("weapons/m3in.wav"), 1.0);
 }
 
-void SelectWeapon4 (edict_t * ent, pmenu_t * p)
+void SelectWeapon4(edict_t *ent, pmenu_t *p)
 {
-	ent->client->resp.weapon = GET_ITEM(HC_NUM);
-	PMenu_Close (ent);
-	OpenItemMenu (ent);
-	//PG BUND
+	ent->client->pers.chosenWeapon = GET_ITEM(HC_NUM);
+	PMenu_Close(ent);
+	OpenItemMenu(ent);
 	unicastSound(ent, gi.soundindex("weapons/cclose.wav"), 1.0);
 }
 
-void SelectWeapon5 (edict_t * ent, pmenu_t * p)
+void SelectWeapon5(edict_t *ent, pmenu_t *p)
 {
-	ent->client->resp.weapon = GET_ITEM(SNIPER_NUM);
-	PMenu_Close (ent);
-	OpenItemMenu (ent);
-	//PG BUND
+	ent->client->pers.chosenWeapon = GET_ITEM(SNIPER_NUM);
+	PMenu_Close(ent);
+	OpenItemMenu(ent);
 	unicastSound(ent, gi.soundindex("weapons/ssgbolt.wav"), 1.0);
 }
 
-void SelectWeapon6 (edict_t * ent, pmenu_t * p)
+void SelectWeapon6(edict_t *ent, pmenu_t *p)
 {
-	ent->client->resp.weapon = GET_ITEM(M4_NUM);
-	PMenu_Close (ent);
-	OpenItemMenu (ent);
-	//PG BUND
+	ent->client->pers.chosenWeapon = GET_ITEM(M4_NUM);
+	PMenu_Close(ent);
+	OpenItemMenu(ent);
 	unicastSound(ent, gi.soundindex("weapons/m4a1slide.wav"), 1.0);
 }
 
-void SelectWeapon0 (edict_t * ent, pmenu_t * p)
+void SelectWeapon0(edict_t *ent, pmenu_t *p)
 {
-	ent->client->resp.weapon = GET_ITEM(KNIFE_NUM);
-	PMenu_Close (ent);
-	OpenItemMenu (ent);
-	//PG BUND
+	ent->client->pers.chosenWeapon = GET_ITEM(KNIFE_NUM);
+	PMenu_Close(ent);
+	OpenItemMenu(ent);
 	unicastSound(ent, gi.soundindex("weapons/stab.wav"), 1.0);
 }
 
-void SelectWeapon9 (edict_t * ent, pmenu_t * p)
+void SelectWeapon9(edict_t *ent, pmenu_t *p)
 {
-	ent->client->resp.weapon = GET_ITEM(DUAL_NUM);
-	PMenu_Close (ent);
-	OpenItemMenu (ent);
-	//PG BUND
+	ent->client->pers.chosenWeapon = GET_ITEM(DUAL_NUM);
+	PMenu_Close(ent);
+	OpenItemMenu(ent);
 	unicastSound(ent, gi.soundindex("weapons/mk23slide.wav"), 1.0);
 }
 
-void SelectItem1 (edict_t * ent, pmenu_t * p)
+void SelectItem1(edict_t *ent, pmenu_t *p)
 {
-	ent->client->resp.item = GET_ITEM(KEV_NUM);
-	PMenu_Close (ent);
-	//PG BUND
+	ent->client->pers.chosenItem = GET_ITEM(KEV_NUM);
+	PMenu_Close(ent);
 	unicastSound(ent, gi.soundindex("misc/veston.wav"), 1.0);
 }
 
-void SelectItem2 (edict_t * ent, pmenu_t * p)
+void SelectItem2(edict_t *ent, pmenu_t *p)
 {
-	ent->client->resp.item = GET_ITEM(LASER_NUM);
-	PMenu_Close (ent);
-	//PG BUND
+	ent->client->pers.chosenItem = GET_ITEM(LASER_NUM);
+	PMenu_Close(ent);
 	unicastSound(ent, gi.soundindex("misc/lasersight.wav"), 1.0);
 }
 
-void SelectItem3 (edict_t * ent, pmenu_t * p)
+void SelectItem3(edict_t *ent, pmenu_t *p)
 {
-	ent->client->resp.item = GET_ITEM(SLIP_NUM);
-	PMenu_Close (ent);
-	//PG BUND
+	ent->client->pers.chosenItem = GET_ITEM(SLIP_NUM);
+	PMenu_Close(ent);
 	unicastSound(ent, gi.soundindex("misc/veston.wav"), 1.0);
 }
 
-void SelectItem4 (edict_t * ent, pmenu_t * p)
+void SelectItem4(edict_t *ent, pmenu_t *p)
 {
-	ent->client->resp.item = GET_ITEM(SIL_NUM);
-	PMenu_Close (ent);
-	//PG BUND
+	ent->client->pers.chosenItem = GET_ITEM(SIL_NUM);
+	PMenu_Close(ent);
 	unicastSound(ent, gi.soundindex("misc/screw.wav"), 1.0);
 }
 
-void SelectItem5 (edict_t * ent, pmenu_t * p)
+void SelectItem5(edict_t *ent, pmenu_t *p)
 {
-	ent->client->resp.item = GET_ITEM(BAND_NUM);
-	PMenu_Close (ent);
-	//PG BUND
+	ent->client->pers.chosenItem = GET_ITEM(BAND_NUM);
+	PMenu_Close(ent);
 	unicastSound(ent, gi.soundindex("misc/veston.wav"), 1.0);
 }
 
-void SelectItem6 (edict_t * ent, pmenu_t * p)
+void SelectItem6(edict_t *ent, pmenu_t *p)
 {
-	ent->client->resp.item = GET_ITEM(HELM_NUM);
-	PMenu_Close (ent);
-	//PG BUND
+	ent->client->pers.chosenItem = GET_ITEM(HELM_NUM);
+	PMenu_Close(ent);
 	unicastSound(ent, gi.soundindex("misc/veston.wav"), 1.0);
 }
 
@@ -1541,20 +1528,20 @@ static void SpawnPlayers(void)
 			continue;
 
 		// make sure teamplay spawners always have some weapon, warmup starts only after weapon selected
-		if (!ent->client->resp.weapon) {
+		if (!ent->client->pers.chosenWeapon) {
 			if (WPF_ALLOWED(MP5_NUM)) {
-				ent->client->resp.weapon = GET_ITEM(MP5_NUM);
+				ent->client->pers.chosenWeapon = GET_ITEM(MP5_NUM);
 			} else if (WPF_ALLOWED(MK23_NUM)) {
-				ent->client->resp.weapon = GET_ITEM(MK23_NUM);
+				ent->client->pers.chosenWeapon = GET_ITEM(MK23_NUM);
 			} else if (WPF_ALLOWED(KNIFE_NUM)) {
-				ent->client->resp.weapon = GET_ITEM(KNIFE_NUM);
+				ent->client->pers.chosenWeapon = GET_ITEM(KNIFE_NUM);
 			} else {
-				ent->client->resp.weapon = GET_ITEM(MK23_NUM);
+				ent->client->pers.chosenWeapon = GET_ITEM(MK23_NUM);
 			}
 		}
 
-		if (!ent->client->resp.item) {
-			ent->client->resp.item = GET_ITEM(KEV_NUM);
+		if (!ent->client->pers.chosenWeapon) {
+			ent->client->pers.chosenWeapon = GET_ITEM(KEV_NUM);
 		}
 
 		PutClientInServer(ent);
@@ -1579,7 +1566,7 @@ static void SpawnPlayers(void)
 
 void RunWarmup ()
 {
-	int i;
+	int i, dead;
 	edict_t *ent;
 
 	if (!warmup->value || level.matchTime > 0 || team_round_going || lights_camera_action || (team_round_countdown > 0 && team_round_countdown <= 101))
@@ -1591,11 +1578,19 @@ void RunWarmup ()
 		InitTransparentList ();
 	}
 
-	for (i = 0; i < game.maxclients; i++)
+	for (i = 0, ent = &g_edicts[1]; i < game.maxclients; i++, ent++)
 	{
-		ent = &g_edicts[1 + i];
-		int dead = (ent->solid == SOLID_NOT && ent->deadflag == DEAD_NO && ent->movetype == MOVETYPE_NOCLIP);
-		if (ent->inuse && ent->client->resp.team != NOTEAM && ent->client->resp.subteam == 0 && dead && ent->client->resp.weapon && ent->client->resp.item && ent->client->latched_buttons & BUTTON_ATTACK)
+		if (!ent->inuse)
+			continue;
+			
+		if(!ent->client->resp.team || ent->client->resp.subteam)
+			continue;
+		
+		if (!ent->client->pers.chosenWeapon || !ent->client->pers.chosenItem)
+			continue;
+
+		dead = (ent->solid == SOLID_NOT && ent->deadflag == DEAD_NO && ent->movetype == MOVETYPE_NOCLIP);
+		if (dead && ent->client->latched_buttons & BUTTON_ATTACK)
 		{
 			ent->client->latched_buttons = 0;
 			PutClientInServer(ent);

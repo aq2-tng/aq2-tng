@@ -1517,8 +1517,6 @@ void InitClientPersistant(gclient_t * client)
 // SLIC2 If resp structure gets memset to 0 lets cleannup unecessary initiations ( to 0 ) here
 void InitClientResp(gclient_t *client)
 {
-	gitem_t *item = client->resp.item;
-	gitem_t *weapon = client->resp.weapon;
 	qboolean menu_shown = client->resp.menu_shown;
 	qboolean dm_selected = client->resp.dm_selected;
 
@@ -1526,36 +1524,11 @@ void InitClientResp(gclient_t *client)
 
 	client->resp.enterframe = level.framenum;
 
-	if (!dm_choose->value && !warmup->value) {
-		if (WPF_ALLOWED(MP5_NUM)) {
-			client->resp.weapon = GET_ITEM(MP5_NUM);
-		} else if (WPF_ALLOWED(MK23_NUM)) {
-			client->resp.weapon = GET_ITEM(MK23_NUM);
-		} else if (WPF_ALLOWED(KNIFE_NUM)) {
-			client->resp.weapon = GET_ITEM(KNIFE_NUM);
-		} else {
-			client->resp.weapon = GET_ITEM(MK23_NUM);
-		}
-		client->resp.item = GET_ITEM(KEV_NUM);
-	} else {
-		if (wp_flags->value < 2)
-			client->resp.weapon = GET_ITEM(MK23_NUM);
-	}
-
 	if (auto_equip->value) {
 		if(!teamplay->value)
 			client->resp.menu_shown = menu_shown;
 
 		client->resp.dm_selected = dm_selected;
-	}
-
-
-	// TNG:Freud, restore weapons and items from last map.
-	if (auto_equip->value && (gameSettings & GS_WEAPONCHOOSE)) {
-		if (item)
-			client->resp.item = item;
-		if (weapon)
-			client->resp.weapon = weapon;
 	}
 
 	client->resp.gldynamic = 1;
@@ -1973,25 +1946,24 @@ void EquipClient(edict_t * ent)
 	gclient_t *client;
 	gitem_t *item;
 	edict_t etemp;
-	int band = 0;
+	int band = 0, itemNum = 0;
 
 	client = ent->client;
-
-	if (!(client->resp.item) || !(client->resp.weapon))
-		return;
 
 	if(use_grapple->value)
 		client->inventory[ITEM_INDEX(FindItem("Grapple"))] = 1;
 
-	if (client->resp.item->typeNum == BAND_NUM) {
-		band = 1;
-		if (tgren->value > 0)	// team grenades is turned on
-		{
-			item = GET_ITEM(GRENADE_NUM);
-			client->inventory[ITEM_INDEX(item)] = tgren->value;
+	if (client->pers.chosenItem) {
+		if (client->pers.chosenItem->typeNum == BAND_NUM) {
+			band = 1;
+			if (tgren->value > 0)	// team grenades is turned on
+			{
+				item = GET_ITEM(GRENADE_NUM);
+				client->inventory[ITEM_INDEX(item)] = tgren->value;
+			}
 		}
-
 	}
+
 	// set them up with initial pistol ammo
 	if (WPF_ALLOWED(MK23_ANUM)) {
 		item = GET_ITEM(MK23_ANUM);
@@ -2001,7 +1973,10 @@ void EquipClient(edict_t * ent)
 			client->inventory[ITEM_INDEX(item)] = 1;
 	}
 
-	if (client->resp.weapon->typeNum == MP5_NUM) {
+	itemNum = client->pers.chosenWeapon ? client->pers.chosenWeapon->typeNum : 0;
+
+	switch (itemNum) {
+	case MP5_NUM:
 		item = GET_ITEM(MP5_NUM);
 		client->selected_item = ITEM_INDEX(item);
 		client->inventory[client->selected_item] = 1;
@@ -2014,7 +1989,8 @@ void EquipClient(edict_t * ent)
 		else
 			client->inventory[ITEM_INDEX(item)] = 1;
 		client->mp5_rds = client->mp5_max;
-	} else if (client->resp.weapon->typeNum == M4_NUM) {
+		break;
+	case M4_NUM:
 		item = GET_ITEM(M4_NUM);
 		client->selected_item = ITEM_INDEX(item);
 		client->inventory[client->selected_item] = 1;
@@ -2027,7 +2003,8 @@ void EquipClient(edict_t * ent)
 		else
 			client->inventory[ITEM_INDEX(item)] = 1;
 		client->m4_rds = client->m4_max;
-	} else if (client->resp.weapon->typeNum == M3_NUM) {
+		break;
+	case M3_NUM:
 		item = GET_ITEM(M3_NUM);
 		client->selected_item = ITEM_INDEX(item);
 		client->inventory[client->selected_item] = 1;
@@ -2040,7 +2017,8 @@ void EquipClient(edict_t * ent)
 		else
 			client->inventory[ITEM_INDEX(item)] = 7;
 		client->shot_rds = client->shot_max;
-	} else if (client->resp.weapon->typeNum == HC_NUM) {
+		break;
+	case HC_NUM:
 		item = GET_ITEM(HC_NUM);
 		client->selected_item = ITEM_INDEX(item);
 		client->inventory[client->selected_item] = 1;
@@ -2053,7 +2031,8 @@ void EquipClient(edict_t * ent)
 		else
 			client->inventory[ITEM_INDEX(item)] = 12;
 		client->cannon_rds = client->cannon_max;
-	} else if (client->resp.weapon->typeNum == SNIPER_NUM) {
+		break;
+	case SNIPER_NUM:
 		item = GET_ITEM(SNIPER_NUM);
 		client->selected_item = ITEM_INDEX(item);
 		client->inventory[ITEM_INDEX(item)] = 1;
@@ -2066,7 +2045,8 @@ void EquipClient(edict_t * ent)
 		else
 			client->inventory[ITEM_INDEX(item)] = 10;
 		client->sniper_rds = client->sniper_max;
-	} else if (client->resp.weapon->typeNum == DUAL_NUM) {
+		break;
+	case DUAL_NUM:
 		item = GET_ITEM(DUAL_NUM);
 		client->selected_item = ITEM_INDEX(item);
 		client->inventory[client->selected_item] = 1;
@@ -2078,7 +2058,8 @@ void EquipClient(edict_t * ent)
 		else
 			client->inventory[ITEM_INDEX(item)] = 2;
 		client->dual_rds = client->dual_max;
-	} else if (client->resp.weapon->typeNum == KNIFE_NUM) {
+		break;
+	case KNIFE_NUM:
 		item = GET_ITEM(KNIFE_NUM);
 		client->selected_item = ITEM_INDEX(item);
 		if (band)
@@ -2087,10 +2068,14 @@ void EquipClient(edict_t * ent)
 			client->inventory[client->selected_item] = 10;
 		client->pers.weapon = item;
 		client->curr_weap = KNIFE_NUM;
+		break;
 	}
 
-	etemp.item = client->resp.item;
-	Pickup_Special(&etemp, ent);
+	if (client->pers.chosenItem) {
+		memset(&etemp, 0, sizeof(etemp));
+		etemp.item = client->pers.chosenItem;
+		Pickup_Special(&etemp, ent);
+	}
 }
 
 // Igor[Rock] start
@@ -2429,6 +2414,30 @@ void ClientBeginDeathmatch(edict_t * ent)
 	if (auto_join->value && teamplay->value)
 		saved_team = ent->client->resp.team;
 
+	// clear weapons and items if not auto_equipt
+	if (!auto_equip->value || !(gameSettings & GS_WEAPONCHOOSE)) {
+		ent->client->pers.chosenWeapon = NULL;
+		ent->client->pers.chosenItem = NULL;
+	}
+
+	if (!dm_choose->value && !warmup->value) {
+		if (!ent->client->pers.chosenWeapon) {
+			if (WPF_ALLOWED(MP5_NUM))
+				ent->client->pers.chosenWeapon = GET_ITEM(MP5_NUM);
+			else if (WPF_ALLOWED(MK23_NUM))
+				ent->client->pers.chosenWeapon = GET_ITEM(MK23_NUM);
+			else if (WPF_ALLOWED(KNIFE_NUM))
+				ent->client->pers.chosenWeapon = GET_ITEM(KNIFE_NUM);
+			else
+				ent->client->pers.chosenWeapon = GET_ITEM(MK23_NUM);
+		}
+		if (!ent->client->pers.chosenItem)
+			ent->client->pers.chosenItem = GET_ITEM(KEV_NUM);
+	} else {
+		if (wp_flags->value < 2 && !ent->client->pers.chosenWeapon)
+			ent->client->pers.chosenWeapon = GET_ITEM(MK23_NUM);
+	}
+
 	InitClientResp(ent->client);
 
 	TourneyNewPlayer(ent);
@@ -2682,12 +2691,6 @@ void ClientDisconnect(edict_t * ent)
 	MM_LeftTeam( ent );
 	ent->client->resp.team = 0;
 
-	// reset item and weapon on disconnect
-	ent->client->resp.item = NULL;
-	ent->client->resp.weapon = NULL;
-	ent->client->resp.dm_selected = 0;
-	ent->client->resp.menu_shown = 0;
-
 	// drop items if they are alive/not observer
 	if (ent->solid != SOLID_NOT && !ent->deadflag)
 		TossItemsOnDeath(ent);
@@ -2781,8 +2784,8 @@ void CreateGhost(edict_t * ent)
 
 	// Teamplay variables
 	if (teamplay->value) {
-		ghost->weapon = ent->client->resp.weapon;
-		ghost->item = ent->client->resp.item;
+		ghost->weapon = ent->client->pers.chosenWeapon;
+		ghost->item = ent->client->pers.chosenItem;
 		ghost->team = ent->client->resp.team;
 	}
 
@@ -3069,7 +3072,7 @@ void ClientBeginServerFrame(edict_t * ent)
 	{
 		// force spawn when weapon and item selected in dm
 		if (!ent->client->pers.spectator && dm_choose->value && !client->resp.dm_selected) {
-			if (client->resp.weapon && (client->resp.item || itm_flags->value == 0)) {
+			if (client->pers.chosenWeapon && (client->pers.chosenItem || itm_flags->value == 0)) {
 				client->resp.dm_selected = 1;
 
 				gi.bprintf(PRINT_HIGH, "%s joined the game\n", client->pers.netname);
