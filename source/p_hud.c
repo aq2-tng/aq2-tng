@@ -61,19 +61,21 @@
   ======================================================================
 */
 
-void MoveClientToIntermission (edict_t * ent)
+void MoveClientToIntermission(edict_t *ent)
 {
-	ent->client->layout = LAYOUT_SCORES;
+	PMenu_Close(ent);
 
-	VectorCopy (level.intermission_origin, ent->s.origin);
+	ent->client->layout = LAYOUT_SCORES;
+	VectorCopy(level.intermission_origin, ent->s.origin);
 	ent->client->ps.pmove.origin[0] = level.intermission_origin[0] * 8;
 	ent->client->ps.pmove.origin[1] = level.intermission_origin[1] * 8;
 	ent->client->ps.pmove.origin[2] = level.intermission_origin[2] * 8;
-	VectorCopy (level.intermission_angle, ent->client->ps.viewangles);
+	VectorCopy(level.intermission_angle, ent->client->ps.viewangles);
 	ent->client->ps.pmove.pm_type = PM_FREEZE;
 	ent->client->ps.gunindex = 0;
 	ent->client->ps.blend[3] = 0;
 	ent->client->ps.rdflags &= ~RDF_UNDERWATER;
+	ent->client->ps.stats[STAT_FLASHES] = 0;
 
 	// clean up powerup info
 	ent->client->quad_framenum = 0;
@@ -83,21 +85,26 @@ void MoveClientToIntermission (edict_t * ent)
 	ent->client->grenade_blew_up = false;
 	ent->client->grenade_framenum = 0;
 
+	ent->watertype = 0;
+	ent->waterlevel = 0;
 	ent->viewheight = 0;
 	ent->s.modelindex = 0;
 	ent->s.modelindex2 = 0;
 	ent->s.modelindex3 = 0;
-	ent->s.modelindex = 0;
+	ent->s.modelindex4 = 0;
 	ent->s.effects = 0;
+	ent->s.renderfx = 0;
 	ent->s.sound = 0;
+	ent->s.event = 0;
+	ent->s.solid = 0;
 	ent->solid = SOLID_NOT;
+	ent->svflags = SVF_NOCLIENT;
 
-	//FIREBLADE
 	ent->client->resp.sniper_mode = SNIPER_1X;
 	ent->client->desired_fov = 90;
 	ent->client->ps.fov = 90;
 	ent->client->ps.stats[STAT_SNIPER_ICON] = 0;
-	//FIREBLADE
+	ent->client->pickup_msg_time = 0;
 
 	// add the layout
 	DeathmatchScoreboardMessage(ent, NULL);
@@ -112,12 +119,10 @@ void BeginIntermission (edict_t * targ)
 	if (level.intermission_framenum)
 		return;			// already activated
 
-	//FIREBLADE
 	if (ctf->value)
-		CTFCalcScores ();
+		CTFCalcScores();
 	else if (teamplay->value)
-		TallyEndOfLevelTeamScores ();
-	//FIREBLADE
+		TallyEndOfLevelTeamScores();
 
 	// respawn any dead clients
 	for (i = 0; i < game.maxclients; i++)
@@ -164,7 +169,11 @@ void BeginIntermission (edict_t * targ)
 		client = g_edicts + 1 + i;
 		if (!client->inuse)
 			continue;
-		MoveClientToIntermission (client);
+
+		if (client->solid == SOLID_TRIGGER)
+			RemoveFromTransparentList(client);
+
+		MoveClientToIntermission(client);
 	}
 }
 
@@ -262,10 +271,10 @@ void DeathmatchScoreboardMessage (edict_t * ent, edict_t * killer)
   Note that it isn't that hard to overflow the 1400 byte message limit!
   ==================
 */
-void DeathmatchScoreboard (edict_t * ent)
+void DeathmatchScoreboard(edict_t *ent)
 {
-	DeathmatchScoreboardMessage (ent, ent->enemy);
-	gi.unicast (ent, true);
+	DeathmatchScoreboardMessage(ent, ent->enemy);
+	gi.unicast(ent, true);
 }
 
 
@@ -558,7 +567,13 @@ void G_SetStats (edict_t * ent)
 	if (ent->client->showinventory && ent->health > 0)
 		ent->client->ps.stats[STAT_LAYOUTS] |= 2;
 
-	SetIDView (ent);
+	if (level.intermission_framenum) {
+		ent->client->ps.stats[STAT_SNIPER_ICON] = 0;
+		ent->client->ps.stats[STAT_HELPICON] = 0;
+		ent->client->ps.stats[STAT_ID_VIEW] = 0;
+	} else {
+		SetIDView(ent);
+	}
 
 	//FIREBLADE
 	if (ctf->value)

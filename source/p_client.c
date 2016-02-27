@@ -2341,7 +2341,7 @@ void PutClientInServer(edict_t * ent)
 			going_observer = 1;
 	}
 
-	if (going_observer) {
+	if (going_observer || level.intermission_framenum) {
 		ent->movetype = MOVETYPE_NOCLIP;
 		ent->solid = SOLID_NOT;
 		ent->svflags |= SVF_NOCLIENT;
@@ -2441,11 +2441,9 @@ void ClientBeginDeathmatch(edict_t * ent)
 	// locate ent at a spawn point
 	PutClientInServer(ent);
 
-// FROM 3.20 -FB
 	if (level.intermission_framenum) {
 		MoveClientToIntermission(ent);
 	} else {
-// ^^^
 		if (!teamplay->value && !dm_choose->value) {	//FB 5/31/99
 			// send effect
 			gi.WriteByte(svc_muzzleflash);
@@ -2462,19 +2460,16 @@ void ClientBeginDeathmatch(edict_t * ent)
 	if (saved_team)
 		JoinTeam(ent, saved_team, 1);
 
-//FIREBLADE
-	if (!teamplay->value && ent->solid == SOLID_NOT)
-	{
-		gi.bprintf(PRINT_HIGH, "%s became a spectator\n", ent->client->pers.netname);
-		IRC_printf(IRC_T_SERVER, "%n became a spectator", ent->client->pers.netname);
-	}
-//FIREBLADE
 
-//FIREBLADE
-	if (!level.intermission_framenum)
+	if (!level.intermission_framenum) {
+		if (!teamplay->value && ent->solid == SOLID_NOT) {
+			gi.bprintf(PRINT_HIGH, "%s became a spectator\n", ent->client->pers.netname);
+			IRC_printf(IRC_T_SERVER, "%n became a spectator", ent->client->pers.netname);
+		}
 		PrintMOTD(ent);
+	}
+
 	ent->client->resp.motd_refreshes = 1;
-//FIREBLADE
 
 	//AQ2:TNG - Slicer: Set time to check clients
 	checkFrame = level.framenum + (int)(check_time->value * HZ);
@@ -2724,6 +2719,8 @@ void ClientDisconnect(edict_t * ent)
 
 	if (ctf->value)
 		CTFDeadDropFlag(ent);
+
+	PMenu_Close(ent);
 
 	gi.unlinkentity(ent);
 
