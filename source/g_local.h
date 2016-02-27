@@ -1376,6 +1376,8 @@ typedef struct
 
   qboolean mvdspec;
 
+  xmenu_t x_menu;
+
   gitem_t *weapon;
   gitem_t *lastweapon;
 
@@ -1835,8 +1837,6 @@ struct edict_s
   qboolean splatted;
   int classnum;
   int typeNum;
-  // PG BUND
-  xmenu_t *x_menu;
 
   // hack for proper s.old_origin updates
   vec3_t		old_origin;
