@@ -180,8 +180,8 @@ xMenu_New (edict_t * ent, char *title, char *subtitle,
 	{
 		xMenu_Set (ent);
 
-		if (ent->client->menu)
-			PMenu_Close (ent);
+		if (ent->client->layout == LAYOUT_MENU)
+			PMenu_Close(ent);
 
 		PMenu_Open (ent, X_MENU->themenu, 5, XMENU_END_ENTRY);
 		return true;

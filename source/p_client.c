@@ -2403,10 +2403,6 @@ void PutClientInServer(edict_t * ent)
 	else
 		EquipClientDM(ent);
 
-	if (ent->client->menu) {
-		PMenu_Close(ent);
-	}
-
 	if (allweapon->value) {
 		AllWeapons(ent);
 	}
@@ -3056,7 +3052,7 @@ void ClientBeginServerFrame(edict_t * ent)
 		return;
 
 
-	if ((int)motd_time->value > (client->resp.motd_refreshes * 2) && !(client->menu)) {
+	if ((int)motd_time->value > client->resp.motd_refreshes * 2 && ent->client->layout != LAYOUT_MENU) {
 		if (client->resp.last_motd_refresh + 2 * HZ < level.realFramenum) {
 			client->resp.last_motd_refresh = level.realFramenum;
 			client->resp.motd_refreshes++;
@@ -3065,7 +3061,7 @@ void ClientBeginServerFrame(edict_t * ent)
 	}
 
 	// show team or weapon menu immediately when connected
-	if (auto_menu->value && !client->menu && !client->resp.menu_shown && (teamplay->value || dm_choose->value)) {
+	if (auto_menu->value && ent->client->layout != LAYOUT_MENU && !client->resp.menu_shown && (teamplay->value || dm_choose->value)) {
 		Cmd_Inven_f( ent );
 	}
 
