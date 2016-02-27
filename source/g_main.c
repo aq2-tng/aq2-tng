@@ -612,11 +612,6 @@ void ClientEndServerFrames (void)
   -----------------
   =================
 */
-
-//AZEROV
-extern void UnBan_TeamKillers (void);
-//AZEROV
-
 void EndDMLevel (void)
 {
 	edict_t *ent = NULL; // TNG Stats was: edict_t *ent = NULL;
@@ -777,19 +772,14 @@ void EndDMLevel (void)
 			}
 		}
 	}
-	//Igor[Rock] End
+
 	if (level.nextmap != NULL && !byvote) {
 		gi.bprintf (PRINT_HIGH, "Next map in rotation is %s.\n", level.nextmap);
 		IRC_printf (IRC_T_SERVER, "Next map in rotation is %s.", level.nextmap);
 	}
-	//FIREBLADE
 
-	ReadMOTDFile ();
-	BeginIntermission (ent);
-
-	//AZEROV
-	UnBan_TeamKillers ();
-	//AZEROV
+	ReadMOTDFile();
+	BeginIntermission(ent);
 }
 
 /*
