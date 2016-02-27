@@ -998,19 +998,22 @@ void JoinTeam (edict_t * ent, int desired_team, int skip_menuclose)
 
 	ent->client->resp.joined_team = level.realFramenum;
 
+	if (oldTeam == NOTEAM || desired_team == NOTEAM) {
+		G_UpdatePlayerStatusbar(ent, 1);
+	}
+
+	if (level.intermission_framenum)
+		return;
+
 	if (!(gameSettings & GS_ROUNDBASED) && team_round_going && ent->inuse && ent->client->resp.team)
 	{
 		PutClientInServer (ent);
 		AddToTransparentList (ent);
 	}
 
-	if (oldTeam == NOTEAM || desired_team == NOTEAM) {
-		G_UpdatePlayerStatusbar(ent, 1);
-	}
-
 	//AQ2:TNG END
 	if (!skip_menuclose && (gameSettings & GS_WEAPONCHOOSE))
-		OpenWeaponMenu (ent);
+		OpenWeaponMenu(ent);
 }
 
 void LeaveTeam (edict_t * ent)

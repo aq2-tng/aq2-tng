@@ -555,7 +555,17 @@ void ClientEndServerFrames (void)
 	int i, updateLayout = 0, spectators = 0;
 	edict_t *ent;
 
-	if (!(level.realFramenum % (3 * HZ)) && !level.intermission_framenum)
+	if (level.intermission_framenum) {
+		for (i = 0, ent = g_edicts + 1; i < game.maxclients; i++, ent++) {
+			if (!ent->inuse || !ent->client)
+				continue;
+
+			ClientEndServerFrame(ent);
+		}
+		return;
+	}
+
+	if (!(level.realFramenum % (3 * HZ)))
 		updateLayout = 1;
 
 	// calc the player views now that all pushing
@@ -593,9 +603,6 @@ void ClientEndServerFrames (void)
 			}
 		}
 	}
-
-	if (level.intermission_framenum)
-		return;
 
 	for (i = 0, ent = g_edicts + 1; i < game.maxclients; i++, ent++)
 	{

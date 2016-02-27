@@ -1227,33 +1227,6 @@ void ClientEndServerFrame (edict_t * ent)
 		return;
 	}
 
-	//FIREBLADE - Unstick avoidance stuff.
-	if (ent->solid == SOLID_TRIGGER && !lights_camera_action)
-	{
-		edict_t *overlap;
-		if ((overlap = FindOverlap (ent, NULL)) == NULL)
-		{
-			ent->solid = SOLID_BBOX;
-			gi.linkentity (ent);
-			RemoveFromTransparentList (ent);
-		}
-		else
-		{
-			do
-			{
-				if (overlap->solid == SOLID_BBOX)
-				{
-					overlap->solid = SOLID_TRIGGER;
-					gi.linkentity (overlap);
-					AddToTransparentList (overlap);
-				}
-				overlap = FindOverlap (ent, overlap);
-			}
-			while (overlap != NULL);
-		}
-	}
-	//FIREBLADE
-
 	//
 	// If the origin or velocity have changed since ClientThink(),
 	// update the pmove values.  This will happen when the client
@@ -1272,19 +1245,43 @@ void ClientEndServerFrame (edict_t * ent)
 	// If the end of unit layout is displayed, don't give
 	// the player any normal movement attributes
 	//
-	if (level.intermission_framenum)
-	{
-		// FIXME: add view drifting here?
+	if (level.intermission_framenum) {
 		current_client->ps.blend[3] = 0;
 		current_client->ps.fov = 90;
-		G_SetStats (ent);
+		current_client->desired_fov = 90;
+		G_SetStats(ent);
 		return;
 	}
 
-	AngleVectors (ent->client->v_angle, forward, right, up);
+	//FIREBLADE - Unstick avoidance stuff.
+	if (ent->solid == SOLID_TRIGGER && !lights_camera_action)
+	{
+		edict_t *overlap;
+		if ((overlap = FindOverlap(ent, NULL)) == NULL)
+		{
+			ent->solid = SOLID_BBOX;
+			gi.linkentity(ent);
+			RemoveFromTransparentList(ent);
+		}
+		else
+		{
+			do
+			{
+				if (overlap->solid == SOLID_BBOX)
+				{
+					overlap->solid = SOLID_TRIGGER;
+					gi.linkentity(overlap);
+					AddToTransparentList(overlap);
+				}
+				overlap = FindOverlap(ent, overlap);
+			} while (overlap != NULL);
+		}
+	}
+
+	AngleVectors(ent->client->v_angle, forward, right, up);
 
 	// burn from lava, etc
-	P_WorldEffects ();
+	P_WorldEffects();
 
 	//
 	// set model angles from view angles so other things in
