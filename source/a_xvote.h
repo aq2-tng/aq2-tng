@@ -43,7 +43,6 @@ typedef struct
   void (*InitClient) (edict_t * ent);	// called at ClientBegin (client initialization)
   // called at ClientConnect, if false, connection is refused.
 
-    qboolean (*ClientConnect) (edict_t * ent, char *userinfo);
   void (*ClientDisconnect) (edict_t * ent);	// called at ClientDisconnect
 
   void (*NewRound) (void);	// called when round ends (teamplay)
@@ -66,7 +65,6 @@ void vExitGame (void);
 void vInitLevel (void);
 void vExitLevel (char *NextMap);
 void vInitClient (edict_t * ent);
-qboolean vClientConnect (edict_t * ent, char *userinfo);
 void vClientDisconnect (edict_t * ent);
 void vNewRound (void);
 qboolean vCheckVote (void);

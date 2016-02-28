@@ -2604,9 +2604,6 @@ qboolean ClientConnect(edict_t * ent, char *userinfo)
 		return false;
 	}
 
-	if (vClientConnect(ent, userinfo) == false)
-		return false;
-
 	// they can connect
 	ent->client = game.clients + (ent - g_edicts - 1);
 
