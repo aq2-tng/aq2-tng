@@ -111,13 +111,15 @@ void MoveClientToIntermission(edict_t *ent)
 	gi.unicast(ent, true);
 }
 
-void BeginIntermission (edict_t * targ)
+void BeginIntermission(edict_t *targ)
 {
 	int i;
-	edict_t *ent, *client;
+	edict_t *ent;
 
 	if (level.intermission_framenum)
 		return;			// already activated
+
+	level.intermission_framenum = level.realFramenum;
 
 	if (ctf->value)
 		CTFCalcScores();
@@ -125,36 +127,33 @@ void BeginIntermission (edict_t * targ)
 		TallyEndOfLevelTeamScores();
 
 	// respawn any dead clients
-	for (i = 0; i < game.maxclients; i++)
+	for (i = 0, ent = g_edicts + 1; i < game.maxclients; i++, ent++)
 	{
-		client = g_edicts + 1 + i;
-		if (!client->inuse)
+		if (!ent->inuse)
 			continue;
-		if (client->health <= 0)
-			respawn (client);
+		if (ent->health <= 0)
+			respawn(ent);
 	}
 
-	level.intermission_framenum = level.realFramenum;
 	level.changemap = targ->map;
-
 	level.intermission_exit = 0;
 
 	// find an intermission spot
-	ent = G_Find (NULL, FOFS (classname), "info_player_intermission");
+	ent = G_Find(NULL, FOFS(classname), "info_player_intermission");
 	if (!ent)
 	{				// the map creator forgot to put in an intermission point...
-		ent = G_Find (NULL, FOFS (classname), "info_player_start");
+		ent = G_Find(NULL, FOFS(classname), "info_player_start");
 		if (!ent)
-			ent = G_Find (NULL, FOFS (classname), "info_player_deathmatch");
+			ent = G_Find(NULL, FOFS(classname), "info_player_deathmatch");
 	}
 	else
 	{				// chose one of four spots
 		i = rand () & 3;
 		while (i--)
 		{
-			ent = G_Find (ent, FOFS (classname), "info_player_intermission");
+			ent = G_Find(ent, FOFS(classname), "info_player_intermission");
 			if (!ent)		// wrap around the list
-				ent = G_Find (ent, FOFS (classname), "info_player_intermission");
+				ent = G_Find(ent, FOFS(classname), "info_player_intermission");
 		}
 	}
 
@@ -164,17 +163,15 @@ void BeginIntermission (edict_t * targ)
 	}
 
 	// move all clients to the intermission point
-	for (i = 0; i < game.maxclients; i++)
+	for (i = 0, ent = g_edicts + 1; i < game.maxclients; i++, ent++)
 	{
-		client = g_edicts + 1 + i;
-		if (!client->inuse)
+		if (!ent->inuse)
 			continue;
 
-		if (client->solid == SOLID_TRIGGER)
-			RemoveFromTransparentList(client);
-
-		MoveClientToIntermission(client);
+		MoveClientToIntermission(ent);
 	}
+
+	InitTransparentList();
 }
 
 /*

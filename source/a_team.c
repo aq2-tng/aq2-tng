@@ -1578,7 +1578,7 @@ void RunWarmup ()
 	if (!in_warmup)
 	{
 		in_warmup = 1;
-		InitTransparentList ();
+		InitTransparentList();
 	}
 
 	for (i = 0, ent = &g_edicts[1]; i < game.maxclients; i++, ent++)
