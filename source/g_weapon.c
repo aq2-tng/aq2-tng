@@ -1125,6 +1125,7 @@ void knife_touch(edict_t *ent, edict_t *other, cplane_t *plane, csurface_t *surf
 		vectoangles(ent->velocity, move_angles);
 		//AngleVectors (ent->s.angles, forward, right, up);
 		VectorCopy(ent->s.origin, dropped->s.origin);
+		VectorCopy(dropped->s.origin, dropped->old_origin);
 		VectorCopy(move_angles, dropped->s.angles);
 
 		dropped->nextthink = level.framenum + 120 * HZ;
@@ -1150,11 +1151,10 @@ void knife_throw(edict_t *self, vec3_t start, vec3_t dir, int damage, int speed)
 	edict_t *knife;
 	trace_t tr;
 
-	knife = G_Spawn ();
+	knife = G_Spawn();
 
 	VectorNormalize(dir);
 	VectorCopy(start, knife->s.origin);
-	VectorCopy(start, knife->old_origin);
 	vectoangles(dir, knife->s.angles);
 	VectorScale(dir, speed, knife->velocity);
 	knife->movetype = MOVETYPE_TOSS;
@@ -1186,7 +1186,11 @@ void knife_throw(edict_t *self, vec3_t start, vec3_t dir, int damage, int speed)
 		knife->touch(knife, tr.ent, NULL, NULL);
 	}
 
-	gi.linkentity(knife);
+	if (knife->inuse) {
+		VectorCopy(knife->s.origin, knife->s.old_origin);
+		VectorCopy(knife->s.origin, knife->old_origin);
+		gi.linkentity(knife);
+	}
 }
 
 

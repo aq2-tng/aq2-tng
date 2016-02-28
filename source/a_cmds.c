@@ -174,6 +174,7 @@ void SP_LaserSight(edict_t * self, gitem_t * item)
 	AngleVectors(self->client->v_angle, forward, right, NULL);
 	VectorSet(end, 100, 0, 0);
 	G_ProjectSource(self->s.origin, end, forward, right, start);
+	VectorCopy(self->s.origin, self->s.old_origin);
 	VectorCopy(self->s.origin, self->old_origin);
 	lasersight = G_Spawn();
 	lasersight->owner = self;
