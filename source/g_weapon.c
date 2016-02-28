@@ -89,36 +89,6 @@ void InitTookDamage(void)
 	}
 }
 
-/* zucc - bulletholes for testing spread patterns */
-void BulletHoleThink (edict_t *self)
-{
-	G_FreeEdict(self);
-}
-
-void SpawnHole (trace_t *tr, vec3_t dir)
-{
-	vec3_t origin;
-	edict_t *lss;
-
-	lss = G_Spawn();
-	lss->movetype = MOVETYPE_NOCLIP;
-	lss->solid = SOLID_TRIGGER;
-	lss->classname = "bhole";
-	//lss->s.modelindex = gi.modelindex ("models/weapons/g_m4/tris.md2" );
-	//lss->s.modelindex = gi.modelindex ("models/objects/holes/hole1/tris.md2" );
-	// bhole model doesn't want to show up, so be it
-	lss->s.modelindex = gi.modelindex("sprites/lsight.sp2");
-	lss->s.renderfx = RF_GLOW;
-	lss->gravity = 0;
-	lss->think = BulletHoleThink;
-	lss->nextthink = level.framenum + 1000 * HZ;
-	vectoangles(tr->plane.normal, lss->s.angles);
-	VectorNormalize (dir);
-	VectorMA(tr->endpos, 0, dir, origin);
-	VectorCopy(origin, lss->s.origin);
-	gi.linkentity(lss);
-}
-
 /*
 =================
 fire_lead
@@ -241,8 +211,7 @@ static void fire_lead (edict_t *self, vec3_t start, vec3_t aimdir, int damage, i
 				if (mod != MOD_M3 && mod != MOD_HC) {
 					AddDecal(self, &tr);
 				}
-				//zucc remove spawnhole for real release
-				//                                SpawnHole( &tr, dir );
+
 				if (strncmp(tr.surface->name, "sky", 3) != 0)
 				{
 					gi.WriteByte(svc_temp_entity);
@@ -455,9 +424,6 @@ static void fire_lead_ap(edict_t *self, vec3_t start, vec3_t aimdir, int damage,
 			}
 			else if (tr.ent != self && !water)
 			{
-				//zucc remove spawnhole for real release
-				//        SpawnHole( &tr, dir  );
-
 				if (strncmp(tr.surface->name, "sky", 3) != 0)
 				{
 					AddDecal(self, &tr);

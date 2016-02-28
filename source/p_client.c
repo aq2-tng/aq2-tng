@@ -1498,33 +1498,6 @@ void player_die(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage
 		CheckForUnevenTeams(self);
 }
 
-//=======================================================================
-
-/*
-==============
-InitClientPersistant
-
-This is only called when the game first initializes in single player,
-but is called after each death and level change in deathmatch
-==============
-*/
-// SLIC2 If pers structure gets memset to 0 lets cleannup unecessary initiations ( to 0 ) here
-void InitClientPersistant(gclient_t * client)
-{
-	memset(&client->pers, 0, sizeof(client->pers));
-}
-
-// SLIC2 If resp structure gets memset to 0 lets cleannup unecessary initiations ( to 0 ) here
-void InitClientResp(gclient_t *client)
-{
-	memset(&client->resp, 0, sizeof(client->resp));
-
-	client->resp.enterframe = level.framenum;
-
-	client->resp.gldynamic = 1;
-}
-
-
 /*
 =======================================================================
 
@@ -2397,17 +2370,19 @@ deathmatch mode, so clear everything out before starting them.
 */
 void ClientBeginDeathmatch(edict_t * ent)
 {
-	int checkFrame, saved_team = 0;
+	int checkFrame, saved_team = ent->client->resp.team;
 
 	G_InitEdict(ent);
+
+	memset(&ent->client->resp, 0, sizeof(ent->client->resp));
+
+	ent->client->resp.enterframe = level.framenum;
+	ent->client->resp.gldynamic = 1;
 
 	if (!ent->client->pers.connected) {
 		ent->client->pers.connected = true;
 		ClientUserinfoChanged(ent, ent->client->pers.userinfo);
 	}
-
-	if (auto_join->value && teamplay->value)
-		saved_team = ent->client->resp.team;
 
 	// clear weapons and items if not auto_equipt
 	if (!auto_equip->value || !(gameSettings & GS_WEAPONCHOOSE)) {
@@ -2438,7 +2413,6 @@ void ClientBeginDeathmatch(edict_t * ent)
 			ent->client->pers.chosenWeapon = GET_ITEM(MK23_NUM);
 	}
 
-	InitClientResp(ent->client);
 
 	TourneyNewPlayer(ent);
 	vInitClient(ent);
@@ -2462,7 +2436,7 @@ void ClientBeginDeathmatch(edict_t * ent)
 	IRC_printf(IRC_T_SERVER, "%n entered the game", ent->client->pers.netname);
 
 	// TNG:Freud Automaticly join saved teams.
-	if (saved_team)
+	if (saved_team && auto_join->value && teamplay->value)
 		JoinTeam(ent, saved_team, 1);
 
 
@@ -2641,9 +2615,10 @@ qboolean ClientConnect(edict_t * ent, char *userinfo)
 		ClientDisconnect(ent);
 	}
 
-	// clear the respawning variables
-	memset( &ent->client->resp, 0, sizeof( ent->client->resp ) );
-	InitClientPersistant(ent->client);
+	memset(ent->client, 0, sizeof(gclient_t));
+
+	Q_strncpyz(ent->client->pers.ip, ipaddr_buf, sizeof(ent->client->pers.ip));
+	Q_strncpyz(ent->client->pers.userinfo, userinfo, sizeof(ent->client->pers.userinfo));
 
 	if (game.serverfeatures & GMF_MVDSPEC) {
 		value = Info_ValueForKey(userinfo, "mvdspec");
@@ -2652,16 +2627,11 @@ qboolean ClientConnect(edict_t * ent, char *userinfo)
 		}
 	}
 
-	Q_strncpyz(ent->client->pers.ip, ipaddr_buf, sizeof(ent->client->pers.ip));
-	Q_strncpyz(ent->client->pers.userinfo, userinfo, sizeof(ent->client->pers.userinfo));
-
 	if (game.maxclients > 1) {
 		value = Info_ValueForKey(userinfo, "name");
 		gi.dprintf("%s@%s connected\n", value, ipaddr_buf);
 		IRC_printf(IRC_T_SERVER, "%n@%s connected", value, ipaddr_buf);
 	}
-
-	ent->svflags = 0;
 
 	//set connected on ClientBeginDeathmatch as clientconnect doesn't always
 	//guarantee a client is actually making it all the way into the game.
