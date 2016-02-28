@@ -2401,6 +2401,11 @@ void ClientBeginDeathmatch(edict_t * ent)
 
 	G_InitEdict(ent);
 
+	if (!ent->client->pers.connected) {
+		ent->client->pers.connected = true;
+		ClientUserinfoChanged(ent, ent->client->pers.userinfo);
+	}
+
 	if (auto_join->value && teamplay->value)
 		saved_team = ent->client->resp.team;
 
@@ -2647,18 +2652,20 @@ qboolean ClientConnect(edict_t * ent, char *userinfo)
 		}
 	}
 
-	ClientUserinfoChanged(ent, userinfo);
+	Q_strncpyz(ent->client->pers.ip, ipaddr_buf, sizeof(ent->client->pers.ip));
+	Q_strncpyz(ent->client->pers.userinfo, userinfo, sizeof(ent->client->pers.userinfo));
 
 	if (game.maxclients > 1) {
-		gi.dprintf("%s@%s connected\n", ent->client->pers.netname, ipaddr_buf);
-		IRC_printf(IRC_T_SERVER, "%n@%s connected", ent->client->pers.netname, ipaddr_buf);
+		value = Info_ValueForKey(userinfo, "name");
+		gi.dprintf("%s@%s connected\n", value, ipaddr_buf);
+		IRC_printf(IRC_T_SERVER, "%n@%s connected", value, ipaddr_buf);
 	}
-
-	Q_strncpyz(ent->client->pers.ip, ipaddr_buf, sizeof(ent->client->pers.ip));
 
 	ent->svflags = 0;
 
-	ent->client->pers.connected = true;
+	//set connected on ClientBeginDeathmatch as clientconnect doesn't always
+	//guarantee a client is actually making it all the way into the game.
+	//ent->client->pers.connected = true;
 	return true;
 }
 
