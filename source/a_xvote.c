@@ -39,7 +39,6 @@ vote_t xvotelist[] = {
    NULL,			// InitLevel
    _MapExitLevel,		// ExitLevel
    _MapInitClient,		// InitClient
-   NULL,			// ClientConnect
    _RemoveVoteFromMap,		// ClientDisconnect
    _MapWithMostVotes,		// Newround
    _CheckMapVotes,		// CheckVote
@@ -68,7 +67,6 @@ vote_t xvotelist[] = {
    NULL,			// InitLevel
    NULL,			// ExitLevel
    _InitKickClient,		// InitClient
-   NULL,			// ClientConnect
    _ClientKickDisconnect,	// ClientDisconnect
    _CheckKickVote,		// Newround
    NULL,			// CheckVote
@@ -97,7 +95,6 @@ vote_t xvotelist[] = {
    NULL,			// InitLevel
    NULL,			// ExitLevel
    _ClearIgnoreList,		// InitClient
-   NULL,			// ClientConnect
    _ClrIgnoresOn,		// ClientDisconnect
    NULL,			// Newround
    NULL,			// CheckVote
@@ -126,7 +123,6 @@ vote_t xvotelist[] = {
    NULL,			// InitLevel
    _ConfigExitLevel,		// ExitLevel
    _ConfigInitClient,		// InitClient
-   NULL,			// ClientConnect
    _RemoveVoteFromConfig,	// ClientDisconnect
    _ConfigWithMostVotes,	// Newround
    _CheckConfigVotes,		// CheckVote
@@ -154,7 +150,6 @@ vote_t xvotelist[] = {
    NULL,			// InitLevel
    NULL,			// ExitLevel
    NULL,			// InitClient
-   NULL,			// ClientConnect
    NULL,			// ClientDisconnect
    NULL,			// Newround
    NULL,			// CheckVote
@@ -183,7 +178,6 @@ vote_t xvotelist[] = {
    NULL,			// InitLevel
    NULL,			// ExitLevel
    NULL,			// InitClient
-   NULL,			// ClientConnect
    NULL,			// ClientDisconnect
    _CheckScrambleVote,		// Newround
    NULL,			// CheckVote
@@ -335,19 +329,6 @@ void vInitClient (edict_t * ent)
 		if (xvotelist[i].InitClient && xvotelist[i].DependsOn->value)
 			xvotelist[i].InitClient (ent);
 	}
-}
-
-qboolean vClientConnect (edict_t * ent, char *userinfo)
-{
-	int i;
-
-	for (i = 0; i < xvlistsize; i++)
-	{
-		if (xvotelist[i].ClientConnect && xvotelist[i].DependsOn->value &&
-			xvotelist[i].ClientConnect (ent, userinfo) == false)
-				return false;
-	}
-	return true;
 }
 
 void vClientDisconnect (edict_t * ent)
