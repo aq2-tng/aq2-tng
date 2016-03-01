@@ -643,141 +643,129 @@ void MapVoteMenu (edict_t * ent, pmenu_t * p)
 
 void ReadMaplistFile (void)
 {
-  int i, bs;
-  votelist_t *list = NULL, *tmp;
-  FILE *maplist_file;
-  char buf[MAX_STR_LEN];
-//Igor[Rock] BEGIN
-  // added variable maplist.ini Files with Variable "maplistname"
-  // changed maplistpath to a global variable!
-  cvar_t *maplistname;
+	int i, bs, maplen;
+	votelist_t *list = NULL, *tmp;
+	FILE *maplist_file;
+	char buf[MAX_STR_LEN];
+	//Igor[Rock] BEGIN
+	// added variable maplist.ini Files with Variable "maplistname"
+	// changed maplistpath to a global variable!
+	cvar_t *maplistname;
 
-  maplistname = gi.cvar ("maplistname", "maplist.ini", 0);
-  if (maplistname->string && *(maplistname->string))
-    sprintf (maplistpath, "%s/%s", GAMEVERSION, maplistname->string);
-  else
-    sprintf (maplistpath, "%s/%s", GAMEVERSION, "maplist.ini");
+	maplistname = gi.cvar ("maplistname", "maplist.ini", 0);
+	if (maplistname->string && *(maplistname->string))
+		Com_sprintf(maplistpath, sizeof(maplistpath), "%s/%s", GAMEVERSION, maplistname->string);
+	else
+		Com_sprintf(maplistpath, sizeof(maplistpath), "%s/%s", GAMEVERSION, "maplist.ini");
 
-  maplist_file = fopen (maplistpath, "r");
-//Igor[Rock] End
-  if (maplist_file == NULL)
-    {
-      // no "maplist.ini" file so use the maps from "action.ini"
-      if (num_maps <= 0)
+	maplist_file = fopen(maplistpath, "r");
+	//Igor[Rock] End
+	if (maplist_file == NULL)
+	{
+		// no "maplist.ini" file so use the maps from "action.ini"
+		if (num_maps <= 0)
+			return;
+
+		map_votes = (struct votelist_s *)gi.TagMalloc(sizeof(struct votelist_s), TAG_GAME);
+		map_votes->mapname = map_rotation[0];
+		map_votes->num_votes = 0;
+		map_votes->num_allvotes = 0;
+		map_votes->next = NULL;
+
+		list = map_votes;
+		for (i = 1; i < num_maps; i++)
+		{
+			tmp = (struct votelist_s *)gi.TagMalloc(sizeof(struct votelist_s), TAG_GAME);
+			tmp->mapname = map_rotation[i];
+			tmp->num_votes = 0;
+			tmp->num_allvotes = 0;
+			tmp->next = NULL;
+			list->next = tmp;
+			list = tmp;
+		}
+	}
+	else
+	{
+		// read the maplist.ini file
+		for (i = 0; fgets(buf, MAX_STR_LEN - 10, maplist_file) != NULL;)
+		{
+			//first remove trailing spaces
+			bs = strlen(buf);
+			while (bs > 0 && buf[bs - 1] <= ' ')
+				buf[--bs] = '\0';
+
+			if (bs < 3 || !strncmp(buf, "#", 1) || !strncmp(buf, "//", 2))
+				continue;
+
+			if (i == 0)
+			{
+				map_votes = (struct votelist_s *)gi.TagMalloc(sizeof(struct votelist_s), TAG_GAME);
+				map_votes->mapname = gi.TagMalloc(bs + 1, TAG_GAME);
+				strcpy(map_votes->mapname, buf);
+				map_votes->num_votes = 0;
+				map_votes->num_allvotes = 0;
+				map_votes->next = NULL;
+				list = map_votes;
+				i++;
+			}
+			else
+			{
+				tmp = (struct votelist_s *)gi.TagMalloc(sizeof(struct votelist_s), TAG_GAME);
+				tmp->mapname = gi.TagMalloc (bs + 1, TAG_GAME);
+				strcpy(tmp->mapname, buf);
+				tmp->num_votes = 0;
+				tmp->num_allvotes = 0;
+				tmp->next = NULL;
+				list->next = tmp;
+				list = tmp;
+				i++;
+			}
+		}
+		fclose(maplist_file);
+		map_num_maps = i;
+	}
+
+	//Igor[Rock] BEGIN
+	//load the saved values from the last run of the server
+	Q_strncatz(maplistpath, "-votes", sizeof(maplistpath));
+
+	maplist_file = fopen(maplistpath, "r");
+	if (maplist_file != NULL)
+	{
+		for (i = 0; fgets (buf, MAX_STR_LEN - 10, maplist_file) != NULL;)
+		{
+			//first remove trailing spaces
+			bs = strlen(buf);
+			while (bs > 0 && buf[bs - 1] <= ' ')
+				buf[--bs] = '\0';
+
+			if (bs < 1 || !strncmp(buf, "#", 1) || !strncmp(buf, "//", 2))
+				continue;
+
+			if (i == 0)
+			{
+				num_allvotes = atoi(buf);
+			}
+			else
+			{
+				if (bs < 3)
+					continue;
+
+				for (tmp = map_votes; tmp->next != NULL; tmp = tmp->next)
+				{
+					maplen = strlen(tmp->mapname);
+					if (maplen < bs && !strncmp(tmp->mapname, buf, maplen)) {
+						tmp->num_allvotes = atoi(&buf[maplen + 1]);
+						break;
+					}
+				}
+			}
+			i++;
+		}
+		fclose(maplist_file);
+	}
+
 	return;
-
-      map_votes =
-	(struct votelist_s *) gi.TagMalloc (sizeof (struct votelist_s),
-					    TAG_GAME);
-      map_votes->mapname = map_rotation[0];
-      map_votes->num_votes = 0;
-      //Igor[Rock] BEGIN
-      map_votes->num_allvotes = 0;
-      //Igor[Rock] END
-      map_votes->next = NULL;
-
-      list = map_votes;
-      for (i = 1; i < num_maps; i++)
-	{
-	  tmp =
-	    (struct votelist_s *) gi.TagMalloc (sizeof (struct votelist_s),
-						TAG_GAME);
-	  tmp->mapname = map_rotation[i];
-	  tmp->num_votes = 0;
-	  //Igor[Rock] BEGIN
-	  tmp->num_allvotes = 0;
-	  //Igor[Rock] END
-	  tmp->next = NULL;
-	  list->next = tmp;
-	  list = tmp;
-	}
-    }
-  else
-    {
-      // read the maplist.ini file
-      for (i = 0; fgets (buf, MAX_STR_LEN - 10, maplist_file) != NULL;)
-	{
-	  //first remove trailing spaces
-	  for (bs = strlen (buf);
-	       bs > 0 &&
-	       (buf[bs - 1] == '\r' || buf[bs - 1] == '\n'
-		|| buf[bs - 1] == ' '); bs--)
-	    buf[bs - 1] = '\0';
-	  if (bs > 0 &&
-	      strncmp (buf, "#", 1) != 0 && strncmp (buf, "//", 2) != 0)
-	    {
-	      if (i == 0)
-		{
-		  map_votes =
-		    (struct votelist_s *) gi.
-		    TagMalloc (sizeof (struct votelist_s), TAG_GAME);
-		  map_votes->mapname = gi.TagMalloc (bs + 1, TAG_GAME);
-		  strcpy (map_votes->mapname, buf);
-		  map_votes->num_votes = 0;
-		  //Igor[Rock] BEGIN
-		  map_votes->num_allvotes = 0;
-		  //Igor[Rock] END
-		  map_votes->next = NULL;
-		  list = map_votes;
-		  i++;
-		}
-	      else
-		{
-		  tmp =
-		    (struct votelist_s *) gi.
-		    TagMalloc (sizeof (struct votelist_s), TAG_GAME);
-		  tmp->mapname = gi.TagMalloc (bs + 1, TAG_GAME);
-		  strcpy (tmp->mapname, buf);
-		  tmp->num_votes = 0;
-		  //Igor[Rock] BEGIN
-		  tmp->num_allvotes = 0;
-		  //Igor[Rock] END
-		  tmp->next = NULL;
-		  list->next = tmp;
-		  list = tmp;
-		  i++;
-		}
-	    }
-	}
-      fclose (maplist_file);
-      map_num_maps = i;
-    }
-
-//Igor[Rock] BEGIN
-  //load the saved values from the last run of the server
-  Q_strncatz(maplistpath, "-votes", sizeof(maplistpath));
-
-  maplist_file = fopen (maplistpath, "r");
-  if (maplist_file != NULL)
-    {
-      for (i = 0; fgets (buf, MAX_STR_LEN - 10, maplist_file) != NULL;)
-	{
-	  //first remove trailing spaces
-	  for (bs = strlen (buf);
-	       bs > 0 && (buf[bs - 1] == '\r' || buf[bs - 1] == '\n'
-			  || buf[bs - 1] == ' '); bs--)
-	    buf[bs - 1] = '\0';
-	  if (i == 0)
-	    {
-	      num_allvotes = atoi (buf);
-	    }
-	  else
-	    {
-	      for (tmp = map_votes; tmp->next != NULL; tmp = tmp->next)
-		{
-		  if (!strncmp (tmp->mapname, buf, strlen (tmp->mapname)))
-		    {
-		      tmp->num_allvotes =
-			atoi (&buf[strlen (tmp->mapname) + 1]);
-		    }
-		}
-	    }
-	  i++;
-	}
-      fclose (maplist_file);
-    }
-//Igor[Rock] End
-  return;
 }
 
 //=== kick voting ==========================================================
@@ -1566,68 +1554,57 @@ void ConfigVoteMenu (edict_t * ent, pmenu_t * p)
 
 void ReadConfiglistFile (void)
 {
-  int i, bs;
-  configlist_t *list = NULL, *tmp;
-  FILE *configlist_file;
-  char buf[MAX_STR_LEN];
-  cvar_t *configlistname;
+	int i, bs;
+	configlist_t *list = NULL, *tmp;
+	FILE *configlist_file;
+	char buf[MAX_STR_LEN];
+	cvar_t *configlistname;
 
-  configlistname = gi.cvar ("configlistname", "configlist.ini", 0);
-  if (configlistname->string && *(configlistname->string))
-    sprintf (configlistpath, "%s/%s", GAMEVERSION, configlistname->string);
-  else
-    sprintf (configlistpath, "%s/%s", GAMEVERSION, "configlist.ini");
+	configlistname = gi.cvar("configlistname", "configlist.ini", 0);
+	if (configlistname->string && *(configlistname->string))
+		Com_sprintf(configlistpath, sizeof(configlistpath), "%s/%s", GAMEVERSION, configlistname->string);
+	else
+		Com_sprintf(configlistpath, sizeof(configlistpath), "%s/%s", GAMEVERSION, "configlist.ini");
 
-  configlist_file = fopen (configlistpath, "r");
-  //Igor[Rock] End
-  if (configlist_file == NULL)
-    {
-    }
-  else
-    {
-      // read the configlist.ini file
-      for (i = 0; fgets (buf, MAX_STR_LEN - 10, configlist_file) != NULL;)
+  configlist_file = fopen(configlistpath, "r");
+  if (!configlist_file)
+	  return;
+
+	// read the configlist.ini file
+	for (i = 0; fgets (buf, MAX_STR_LEN - 10, configlist_file) != NULL;)
 	{
-	  //first remove trailing spaces
-	  for (bs = strlen (buf);
-	       bs > 0 && (buf[bs - 1] == '\r' || buf[bs - 1] == '\n'
-			  || buf[bs - 1] == ' '); bs--)
-	    buf[bs - 1] = '\0';
-	  if (bs > 0 &&
-	      strncmp (buf, "#", 1) != 0 && strncmp (buf, "//", 2) != 0)
-	    {
-	      if (i == 0)
-		{
-		  config_votes =
-		    (struct configlist_s *) gi.
-		    TagMalloc (sizeof (struct configlist_s), TAG_GAME);
-		  config_votes->configname = gi.TagMalloc (bs + 1, TAG_GAME);
-		  strcpy (config_votes->configname, buf);
-		  config_votes->num_votes = 0;
-		  config_votes->next = NULL;
-		  list = config_votes;
-		  i++;
-		}
-	      else
-		{
-		  tmp =
-		    (struct configlist_s *) gi.
-		    TagMalloc (sizeof (struct configlist_s), TAG_GAME);
-		  tmp->configname = gi.TagMalloc (bs + 1, TAG_GAME);
-		  strcpy (tmp->configname, buf);
-		  tmp->num_votes = 0;
-		  tmp->next = NULL;
-		  list->next = tmp;
-		  list = tmp;
-		  i++;
-		}
-	    }
-	}
-      fclose (configlist_file);
-      config_num_configs = i;
-    }
+		//first remove trailing spaces
+		bs = strlen(buf);
+		while (bs > 0 && buf[bs - 1] <= ' ')
+			buf[--bs] = '\0';
 
-  return;
+		if (bs < 3 || !strncmp(buf, "#", 1) || !strncmp(buf, "//", 2))
+			continue;
+
+		if (i == 0)
+		{
+			config_votes = (struct configlist_s *)gi.TagMalloc(sizeof(struct configlist_s), TAG_GAME);
+			config_votes->configname = gi.TagMalloc(bs + 1, TAG_GAME);
+			strcpy(config_votes->configname, buf);
+			config_votes->num_votes = 0;
+			config_votes->next = NULL;
+			list = config_votes;
+			i++;
+		}
+		else
+		{
+			tmp = (struct configlist_s *)gi.TagMalloc(sizeof(struct configlist_s), TAG_GAME);
+			tmp->configname = gi.TagMalloc(bs + 1, TAG_GAME);
+			strcpy(tmp->configname, buf);
+			tmp->num_votes = 0;
+			tmp->next = NULL;
+			list->next = tmp;
+			list = tmp;
+			i++;
+		}
+	}
+	fclose(configlist_file);
+	config_num_configs = i;
 }
 
 
@@ -1946,22 +1923,6 @@ cvar_t *_InitScrambleVote (ini_t * ini)
 	return (use_scramblevote);
 }
 
-edict_t *_RandomTeamPlayer()
-{
-	int i;
-	edict_t *ent;
-
-	for (i = 1; i <= game.maxclients; i++)
-	{
-		ent = &g_edicts[rand() % game.maxclients + 1];
-		if (ent->client && ent->inuse && ent->client->resp.team != NOTEAM)
-		{
-			return ent;
-		}
-	}
-	return NULL;
-}
-
 void _CalcScrambleVotes (int *numclients, int *numvotes, float *percent)
 {
 	int i;
@@ -1986,9 +1947,9 @@ void _CalcScrambleVotes (int *numclients, int *numvotes, float *percent)
 
 void _CheckScrambleVote (void)
 {
-	int i, numvotes, playernum, team;
+	int i, j, numvotes, playernum, numplayers;
 	float votes;
-	edict_t *ent, *other;
+	edict_t *ent, *players[MAX_CLIENTS];
 	char buf[128];
 
 	_CalcScrambleVotes(&playernum, &numvotes, &votes);
@@ -2007,24 +1968,41 @@ void _CheckScrambleVote (void)
 	if (votes < scramblevote_pass->value)
 		return;
 
-	MakeAllLivePlayersObservers ();
-
-	for (i = 1; i <= game.maxclients; i++)
+	numplayers = 0;
+	for (i = 0, ent = &g_edicts[1]; i < game.maxclients; i++, ent++)
 	{
-		ent = &g_edicts[i];
-		if (ent->client && ent->inuse && ent->client->resp.team != NOTEAM)
-		{
-			other = _RandomTeamPlayer();
-			if(other != NULL && rand() % 2) {
-				team = other->client->resp.team;
-				other->client->resp.team = ent->client->resp.team;
-				ent->client->resp.team = team;
-				ent->client->resp.scramblevote = false;
-			}
-		}
+		if (!ent->inuse || !ent->client || !ent->client->resp.team)
+			continue;
+
+		players[numplayers++] = ent;
+	}
+
+	if (numplayers <= teamCount)
+		return;
+
+	for (i = numplayers - 1; i > 0; i--) {
+		j = rand() % (i + 1);
+		ent = players[j];
+		players[j] = players[i];
+		players[i] = ent;
+	}
+
+	MakeAllLivePlayersObservers();
+
+	for (i = 0; i < numplayers; i++) {
+		players[i]->client->resp.team = (i % teamCount) + 1;
 	}
 
 	CenterPrintAll("The teams have been scrambled!");
+
+	//Clear voting
+	for (i = 0, ent = &g_edicts[1]; i < game.maxclients; i++, ent++)
+	{
+		if (!ent->inuse || !ent->client)
+			continue;
+
+		ent->client->resp.scramblevote = 0;
+	}
 }
 
 void _VoteScrambleSelected (edict_t * ent, pmenu_t * p)
@@ -2038,11 +2016,6 @@ void Cmd_Votescramble_f(edict_t *ent)
 {
 	if (!teamplay->value || !use_scramblevote->value)
 		return;
-
-	if(use_3teams->value) {
-		gi.cprintf (ent, PRINT_HIGH, "Not in threeteam (yet).\n");
-		return;
-	}
 
 	ent->client->resp.scramblevote = !ent->client->resp.scramblevote;
 
