@@ -1863,7 +1863,21 @@ static cmdList_t commandList[] =
 	{ "pausegame", Cmd_PauseGame_f, 0 },
 	{ "unpausegame", Cmd_UnpauseGame_f, 0 },
 	{ "resetscores", Cmd_ResetScores_f, 0 },
-	{ "gamesettings", Cmd_PrintSettings_f, 0 }
+	{ "gamesettings", Cmd_PrintSettings_f, 0 },
+	//vote stuff
+	{ "votemap", Cmd_Votemap_f, 0 },
+	{ "maplist", Cmd_Maplist_f, 0 },
+	{ "votekick", Cmd_Votekick_f, 0 },
+	{ "votekicknum", Cmd_Votekicknum_f, 0 },
+	{ "kicklist", Cmd_Kicklist_f, 0 },
+	{ "ignore", Cmd_Ignore_f, 0 },
+	{ "ignorenum", Cmd_Ignorenum_f, 0 },
+	{ "ignorelist", Cmd_Ignorelist_f, 0 },
+	{ "ignoreclear", Cmd_Ignoreclear_f, 0 },
+	{ "ignorepart", Cmd_IgnorePart_f, 0 },
+	{ "voteconfig", Cmd_Voteconfig_f, 0 },
+	{ "configlist", Cmd_Configlist_f, 0 },
+	{ "votescramble", Cmd_Votescramble_f, 0 }
 };
 
 #define MAX_COMMAND_HASH 64
@@ -1934,10 +1948,6 @@ void ClientCommand (edict_t * ent)
 			return;
 		}
 	}
-
-
-	if (vCommand(ent, text))
-		return;
 
 	// anything that doesn't match a command will be a chat
 	Cmd_Say_f(ent, false, true, false);

@@ -31,37 +31,34 @@ typedef struct votelist_s
 }
 votelist_t;
 
-#define MAPMENUTITLE "Mapmenu"
-
-void Cmd_Votemap_f (edict_t * ent, char *t);
-void Cmd_Maplist_f (edict_t * ent, char *dummy);
-void _MapInitClient (edict_t * ent);
-void _RemoveVoteFromMap (edict_t * ent);
-void _MapExitLevel (char *NextMap);
-qboolean _CheckMapVotes (void);
-void _MapWithMostVotes (void);
-cvar_t *_InitMapVotelist (ini_t * ini);
-void MapVoteMenu (edict_t * ent, pmenu_t * p);
-
-//Igor[Rock] Begin
 extern votelist_t *map_votes;
 extern int map_num_maps;
-//Igor[Rock] End
 
+#define MAPMENUTITLE "Mapmenu"
+
+void Cmd_Votemap_f(edict_t *ent);
+void Cmd_Maplist_f(edict_t *ent);
+void _MapInitClient(edict_t *ent);
+void _RemoveVoteFromMap (edict_t *ent);
+void _MapExitLevel(char *NextMap);
+qboolean _CheckMapVotes(void);
+void _MapWithMostVotes(void);
+cvar_t *_InitMapVotelist(ini_t *ini);
+void MapVoteMenu(edict_t *ent, pmenu_t *p);
 
 //=== kick voting ==========================================================
 //==========================================================================
 
 #define KICKMENUTITLE "Kickmenu"
 
-cvar_t *_InitKickVote (ini_t * ini);
-void _InitKickClient (edict_t * ent);
-void _ClientKickDisconnect (edict_t * ent);
-void _KickVoteSelected (edict_t * ent, pmenu_t * p);
-void _CheckKickVote (void);
-void Cmd_Votekick_f (edict_t * ent, char *argument);
-void Cmd_Votekicknum_f (edict_t * ent, char *argument);
-void Cmd_Kicklist_f (edict_t * ent, char *argument);
+cvar_t *_InitKickVote(ini_t *ini);
+void _InitKickClient(edict_t *ent);
+void _ClientKickDisconnect (edict_t *ent);
+void _KickVoteSelected(edict_t *ent, pmenu_t *p);
+void _CheckKickVote(void);
+void Cmd_Votekick_f(edict_t *ent);
+void Cmd_Votekicknum_f(edict_t *ent);
+void Cmd_Kicklist_f(edict_t *ent);
 
 //=== player ignoring ======================================================
 //==========================================================================
@@ -71,18 +68,20 @@ void Cmd_Kicklist_f (edict_t * ent, char *argument);
 
 typedef edict_t *ignorelist_t[PG_MAXPLAYERS];
 
-void Cmd_Ignoreclear_f (edict_t * self, char *s);
-void Cmd_Ignorelist_f (edict_t * self, char *s);
-void Cmd_Ignorenum_f (edict_t * self, char *s);
-void Cmd_Ignore_f (edict_t * self, char *s);
-void Cmd_IgnorePart_f (edict_t * self, char *s);
-void _ClrIgnoresOn (edict_t * target);
-int IsInIgnoreList (edict_t * source, edict_t * subject);
-void _IgnoreVoteSelected (edict_t * ent, pmenu_t * p);
-void _ClearIgnoreList (edict_t * ent);
+void Cmd_Ignoreclear_f(edict_t *self);
+void Cmd_Ignorelist_f(edict_t *self);
+void Cmd_Ignorenum_f(edict_t *self);
+void Cmd_Ignore_f(edict_t *self);
+void Cmd_IgnorePart_f(edict_t *self);
+void _ClrIgnoresOn(edict_t *target);
+int IsInIgnoreList(edict_t *source, edict_t *subject);
+void _IgnoreVoteSelected(edict_t *ent, pmenu_t *p);
+void _ClearIgnoreList(edict_t *ent);
 
 //=== config voting ========================================================
 //==========================================================================
+
+#define CONFIGMENUTITLE "Configmenu"
 
 typedef struct configlist_s
 {
@@ -93,32 +92,27 @@ typedef struct configlist_s
 }
 configlist_t;
 
-#define CONFIGMENUTITLE "Configmenu"
-
-void Cmd_Voteconfig_f (edict_t * ent, char *t);
-void Cmd_Configlist_f (edict_t * ent, char *dummy);
-void _ConfigInitClient (edict_t * ent);
-void _RemoveVoteFromConfig (edict_t * ent);
-void _ConfigExitLevel (char *NextConfig);
-qboolean _CheckConfigVotes (void);
-void _ConfigWithMostVotes (void);
-cvar_t *_InitConfiglist (ini_t * ini);
-void ConfigVoteMenu (edict_t * ent, pmenu_t * p);
-
-//Igor[Rock] Begin
 extern configlist_t *config_votes;
 extern int config_num_configs;
-//Igor[Rock] End
 
+void Cmd_Voteconfig_f(edict_t *ent);
+void Cmd_Configlist_f(edict_t *ent);
+void _ConfigInitClient(edict_t *ent);
+void _RemoveVoteFromConfig(edict_t *ent);
+void _ConfigExitLevel(char *NextConfig);
+qboolean _CheckConfigVotes(void);
+void _ConfigWithMostVotes(void);
+cvar_t *_InitConfiglist (ini_t *ini);
+void ConfigVoteMenu(edict_t *ent, pmenu_t *p);
 
 //=== leave team ==========================================================
 //==========================================================================
 
 #define LEAVETEAMSTITLE "Leave Team"
 
-void LeaveTeams (edict_t * ent, pmenu_t * p);
+void LeaveTeams(edict_t *ent, pmenu_t *p);
 
-cvar_t *_InitScrambleVote (ini_t * ini);
-void _CheckScrambleVote (void);
-void _VoteScrambleSelected (edict_t * ent, pmenu_t * p);
-void Cmd_Votescramble_f (edict_t * ent, char *argument);
+cvar_t *_InitScrambleVote(ini_t *ini);
+void _CheckScrambleVote(void);
+void _VoteScrambleSelected(edict_t *ent, pmenu_t *p);
+void Cmd_Votescramble_f(edict_t *ent);

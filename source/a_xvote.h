@@ -13,19 +13,6 @@
 //
 //-----------------------------------------------------------------------------
 
-
-// maximum commands supported for every vote
-#define VOTE_MAX_COMMANDS 5
-
-typedef struct
-{
-  char *cmd;
-  void (*cmdfunc) (edict_t * ent, char *argument);
-}
-vcommand_t;
-
-typedef vcommand_t vcmdlist[VOTE_MAX_COMMANDS];
-
 typedef struct
 {
   cvar_t *DependsOn;		// if cvar = 1, vote is enabled
@@ -53,21 +40,16 @@ typedef struct
   // called if vote was selected in votemenu
 
   void (*VoteSelected) (edict_t * ent, pmenu_t * p);
-  vcmdlist commands;		// commands for voting  
-
-}
-vote_t;
+} vote_t;
 
 //extern vote_t *xvotelist[];
 
-void vInitGame (void);
-void vExitGame (void);
-void vInitLevel (void);
-void vExitLevel (char *NextMap);
-void vInitClient (edict_t * ent);
-void vClientDisconnect (edict_t * ent);
-void vNewRound (void);
-qboolean vCheckVote (void);
-qboolean _vCommand (edict_t * ent, char *cmd, char *arg);
-qboolean vCommand (edict_t * ent, char *cmd);
-void vShowMenu (edict_t * ent, char *menu);
+void vInitGame(void);
+void vExitGame(void);
+void vInitLevel(void);
+void vExitLevel(char *NextMap);
+void vInitClient(edict_t *ent);
+void vClientDisconnect(edict_t *ent);
+void vNewRound(void);
+qboolean vCheckVote(void);
+void vShowMenu(edict_t *ent, char *menu);
