@@ -1947,10 +1947,11 @@ void _CalcScrambleVotes (int *numclients, int *numvotes, float *percent)
 
 void _CheckScrambleVote (void)
 {
-	int i, j, numvotes, playernum, numplayers;
+	int i, j, numvotes, playernum, numplayers, newteam;
 	float votes;
-	edict_t *ent, *players[MAX_CLIENTS];
+	edict_t *ent, *players[MAX_CLIENTS], *oldCaptains[TEAM_TOP] = {NULL};
 	char buf[128];
+
 
 	_CalcScrambleVotes(&playernum, &numvotes, &votes);
 
@@ -1971,7 +1972,7 @@ void _CheckScrambleVote (void)
 	numplayers = 0;
 	for (i = 0, ent = &g_edicts[1]; i < game.maxclients; i++, ent++)
 	{
-		if (!ent->inuse || !ent->client || !ent->client->resp.team)
+		if (!ent->inuse || !ent->client || !ent->client->resp.team || ent->client->resp.subteam)
 			continue;
 
 		players[numplayers++] = ent;
@@ -1989,8 +1990,21 @@ void _CheckScrambleVote (void)
 
 	MakeAllLivePlayersObservers();
 
+	if (matchmode->value) {
+		for (i = TEAM1; i <= teamCount; i++) {
+			oldCaptains[i] = teams[i].captain;
+			teams[i].captain = NULL;
+		}
+	}
+
 	for (i = 0; i < numplayers; i++) {
-		players[i]->client->resp.team = (i % teamCount) + 1;
+		ent = players[i];
+		newteam = (i % teamCount) + 1;
+
+		if (oldCaptains[ent->client->resp.team] == ent && !teams[newteam].captain)
+			teams[newteam].captain = ent;
+
+		ent->client->resp.team = newteam;
 	}
 
 	CenterPrintAll("The teams have been scrambled!");

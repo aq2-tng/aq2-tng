@@ -1034,8 +1034,11 @@ Q_strncpyz
 */
 void Q_strncpyz( char *dest, const char *src, size_t size )
 {
-	while( --size && (*dest++ = *src++) );
-	*dest = '\0';
+	if (size)
+	{
+		while (--size && (*dest++ = *src++));
+		*dest = '\0';
+	}
 }
 /*
 ==============
@@ -1044,12 +1047,15 @@ Q_strncatz
 */
 void Q_strncatz( char *dest, const char *src, size_t size )
 {
-	while( --size && *dest++ );
-	if( size ) {
-		dest--;
-		while( --size && (*dest++ = *src++) );
+	if (size)
+	{
+		while (--size && *dest++);
+		if (size) {
+			dest--; size++;
+			while (--size && (*dest++ = *src++));
+		}
+		*dest = '\0';
 	}
-	*dest = '\0';
 }
 
 void Com_sprintf (char *dest, size_t size, const char *fmt, ...)

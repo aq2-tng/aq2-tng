@@ -2360,8 +2360,8 @@ void A_ScoreboardMessage (edict_t * ent, edict_t * killer)
 
 	if (ent->client->layout == LAYOUT_SCORES)
 	{
-		char footer[256];
-		int team, len, footerLen = 0, remaining, deadview;
+		char footer[256], playername[16];
+		int team, len, footerLen = 0, remaining, deadview, iscaptain;
 		int total[TEAM_TOP] = {0,0,0,0};
 		int totalsubs[TEAM_TOP] = {0,0,0,0}, subs[TEAM_TOP] = {0,0,0,0};
 		int totalscore[TEAM_TOP] = {0,0,0,0};
@@ -2579,13 +2579,18 @@ void A_ScoreboardMessage (edict_t * ent, edict_t * killer)
 					if (IS_ALIVE(cl_ent))
 						totalaliveprinted++;
 
+					playername[0] = 0;
+					if (IS_CAPTAIN(cl_ent)) {
+						playername[0] = '@';
+						playername[1] = 0;
+					}
+					Q_strncatz(playername, cl->pers.netname, sizeof(playername));
 					if (showExtra) {
 						sprintf( string + len,
-							"yv %d string%s \"%s%-15s %3d %3d %3d\" ",
+							"yv %d string%s \"%-15s %3d %3d %3d\" ",
 							line_y,
 							(deadview && cl_ent->solid != SOLID_NOT) ? "2" : "",
-							IS_CAPTAIN( cl_ent ) ? "@" : "",
-							cl->pers.netname,
+							playername,
 							cl->resp.score,
 							(level.framenum - cl->resp.enterframe) / (60 * HZ),
 							min(cl->ping, 999) );
@@ -2594,8 +2599,7 @@ void A_ScoreboardMessage (edict_t * ent, edict_t * killer)
 							"yv %i string%s \"%s%s\" ",
 							line_y,
 							(deadview && cl_ent->solid != SOLID_NOT) ? "2" : "",
-							IS_CAPTAIN( cl_ent ) ? "@" : "",
-							cl->pers.netname );
+							playername );
 					}
 
 					len = strlen( string );
