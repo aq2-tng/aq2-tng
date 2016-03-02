@@ -262,16 +262,8 @@ void Cmd_Maplist_f(edict_t *ent)
 			if (lines > 25)
 				break;
 		}
-		//Igor[Rock] begin
-		//    if (num_allvotes && vrot->value) {
-		//       sprintf(tmp_buf, "%s (%.2f,%2d%%%%)  ",
-		//             search->mapname, p_test,
-		//          (search->num_allvotes * 100) / num_allvotes);
-		//    }
-		//    else {
+
 		Com_sprintf (tmp_buf, sizeof(tmp_buf), "%s (%.2f)  ", search->mapname, p_test);
-		//    }
-		//Igor[Rock] End
 		Q_strncatz(msg_buf, tmp_buf, sizeof(msg_buf));
 		chars_on_line += len_mr;
 	}
@@ -444,9 +436,9 @@ void _MapWithMostVotes (void)
 
 	if (_MostVotesStr(sbuf))
 	{
-		Com_sprintf(buf, sizeof(buf), "Most wanted map: %s\n", sbuf);
+		Com_sprintf(buf, sizeof(buf), "Most wanted map: %s", sbuf);
 		G_HighlightStr(buf, buf, sizeof(buf));
-		gi.bprintf(PRINT_HIGH, buf);
+		gi.bprintf(PRINT_HIGH, "%s\n", buf);
 	}
 }
 
@@ -1362,9 +1354,9 @@ void _ConfigWithMostVotes (void)
 
 	if (_ConfigMostVotesStr(sbuf))
 	{
-		Com_sprintf(buf, sizeof(buf), "Most wanted config: %s\n", sbuf);
+		Com_sprintf(buf, sizeof(buf), "Most wanted config: %s", sbuf);
 		G_HighlightStr(buf, buf, sizeof(buf));
-		gi.bprintf(PRINT_HIGH, buf);
+		gi.bprintf(PRINT_HIGH, "%s\n", buf);
 	}
 }
 
@@ -1957,9 +1949,9 @@ void _CheckScrambleVote (void)
 
 	if (numvotes > 0)
 	{
-		Com_sprintf(buf, sizeof(buf), "Scramble: %d votes (%.1f%%), need %.1f%%\n", numvotes, votes, scramblevote_pass->value);
+		Com_sprintf(buf, sizeof(buf), "Scramble: %d votes (%.1f%%), need %.1f%%", numvotes, votes, scramblevote_pass->value);
 		G_HighlightStr(buf, buf, sizeof(buf));
-		gi.bprintf(PRINT_HIGH, buf);
+		gi.bprintf(PRINT_HIGH, "%s\n", buf);
 	}
 
 	if (playernum < scramblevote_min->value)
