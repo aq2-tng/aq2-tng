@@ -941,7 +941,7 @@ void Cmd_Choose_f(edict_t * ent)
 	if (*s) {
 		itemNum = GetItemNumFromArg(s);
 		if (!itemNum)
-			GetWeaponNumFromArg(s);
+			itemNum = GetWeaponNumFromArg(s);
 	}
 
 	switch(itemNum) {

@@ -2361,7 +2361,7 @@ void A_ScoreboardMessage (edict_t * ent, edict_t * killer)
 	if (ent->client->layout == LAYOUT_SCORES)
 	{
 		char footer[256], playername[16];
-		int team, len, footerLen = 0, remaining, deadview, iscaptain;
+		int team, len, footerLen = 0, remaining, deadview;
 		int total[TEAM_TOP] = {0,0,0,0};
 		int totalsubs[TEAM_TOP] = {0,0,0,0}, subs[TEAM_TOP] = {0,0,0,0};
 		int totalscore[TEAM_TOP] = {0,0,0,0};
@@ -2596,7 +2596,7 @@ void A_ScoreboardMessage (edict_t * ent, edict_t * killer)
 							min(cl->ping, 999) );
 					} else {
 						sprintf( string + len,
-							"yv %i string%s \"%s%s\" ",
+							"yv %i string%s \"%s\" ",
 							line_y,
 							(deadview && cl_ent->solid != SOLID_NOT) ? "2" : "",
 							playername );
