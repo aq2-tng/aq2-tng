@@ -241,6 +241,7 @@ void UpdateChaseCam( edict_t * ent )
 		}
 		else
 		{
+			i = client->ps.pmove.pm_flags & PMF_JUMP_HELD;
 			client->ps = targ->client->ps;
 
 			VectorCopy(client->ps.viewangles, ent->s.angles);
@@ -248,7 +249,9 @@ void UpdateChaseCam( edict_t * ent )
 			VectorScale(client->ps.pmove.origin, 0.125f, ent->s.origin);
 			ent->viewheight = targ->viewheight;
 
-			ent->client->ps.pmove.pm_type = PM_FREEZE;
+			client->ps.pmove.pm_flags &= ~PMF_JUMP_HELD;
+			client->ps.pmove.pm_flags |= i;
+			client->ps.pmove.pm_type = PM_FREEZE;
 		}
 
 		ent->client->clientNum = targ - g_edicts - 1;
