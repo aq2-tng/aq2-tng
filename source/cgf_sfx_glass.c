@@ -539,7 +539,7 @@ CGF_SFX_BreakGlass (edict_t * aGlassPane, edict_t * anInflictor,
   // meanwhile, make sure the player can move thru
   aGlassPane->solid = SOLID_NOT;
   aGlassPane->think = CGF_SFX_HideBreakableGlass;
-  aGlassPane->nextthink = level.time + aPaneDestructDelay;
+  aGlassPane->nextthink = level.framenum + aPaneDestructDelay * HZ;
 }
 
 
@@ -599,7 +599,7 @@ CGF_SFX_HideBreakableGlass (edict_t * aGlassPane)
       if (decal->owner == aGlassPane)
 	{
 	  // make it goaway in the next frame
-	  decal->nextthink = level.time + FRAMETIME;
+	  decal->nextthink = level.framenum + 1;
 	}
     }
 
@@ -608,7 +608,7 @@ CGF_SFX_HideBreakableGlass (edict_t * aGlassPane)
       if (decal->owner == aGlassPane)
 	{
 	  // make it goaway in the next frame
-	  decal->nextthink = level.time + FRAMETIME;
+	  decal->nextthink = level.framenum + 1;
 	}
     }
 
@@ -662,7 +662,7 @@ CGF_SFX_ApplyGlassFragmentLimit (const char *aClassName)
 
   if (oldfragment)
     {
-      // oldfragment->nextthink = level.time + FRAMETIME;
+      // oldfragment->nextthink = level.framenum + 1;
       G_FreeEdict (oldfragment);
     }
 }
@@ -728,7 +728,7 @@ CGF_SFX_GlassThrowDebris (edict_t * self, char *modelname, float speed,
   chunk->avelocity[1] = random () * 600;
   chunk->avelocity[2] = random () * 600;
   chunk->think = G_FreeEdict;
-  chunk->nextthink = level.time + 5 + random () * 5;
+  chunk->nextthink = level.framenum + (5 + random() * 5) * HZ;
   chunk->s.frame = 0;
   chunk->flags = 0;
   chunk->classname = "debris";

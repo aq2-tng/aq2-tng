@@ -85,6 +85,9 @@
 
 
 // AQ2:TNG Deathwatch - Updated the Version variables to show TNG Stuff
+#ifndef VERSION
+#define VERSION ""
+#endif
 #define ACTION_VERSION  "TNG " VERSION
 #define TNG_VERSION		"AQ2: The Next Generation"
 #define TNG_VERSION2	"AQ2: The Next Generation " VERSION
@@ -97,8 +100,6 @@
 extern char *map_rotation[];
 extern int num_maps, cur_map, num_allvotes;	// num_allvotes added by Igor[Rock]
 
-extern int *took_damage;
-
 void ReadConfigFile ();
 void ReadMOTDFile ();
 void PrintMOTD (edict_t *ent);
@@ -109,8 +110,6 @@ int KickDoor (trace_t * tr_old, edict_t * ent, vec3_t forward);
 
 // Prototypes of base Q2 functions that weren't included in any Q2 header
 qboolean loc_CanSee (edict_t *, edict_t *);
-qboolean IsNeutral (edict_t *);
-qboolean IsFemale (edict_t *);
 void ParseSayText (edict_t *, char *, size_t size);
 
 //PG BUND - BEGIN
@@ -120,13 +119,9 @@ void GetItemName (edict_t * ent, char *buf);
 void GetHealth (edict_t * ent, char *buf);
 void GetAmmo (edict_t * ent, char *buf);
 void GetNearbyTeammates (edict_t * self, char *buf);
-//PG BUND - END
-//AQ2:TNG SLICER  New Last killed enemy support
-void ResetKills (edict_t * ent);
+
 void ResetScores (qboolean playerScores);
-int ReadKilledPlayers (edict_t * ent);
 void AddKilledPlayer (edict_t * self, edict_t * ent);
-void GetLastKilledTarget (edict_t * self, char *buf);
 void VideoCheckClient (edict_t * ent);
 //AQ2:TNG END
 //TempFile
@@ -141,3 +136,9 @@ void GetLastLoss (edict_t * self, char *buf, char team);
 // ...also the modified viewheight -FB 7/18/99
 #define CROUCHING_MAXS2                 16
 #define CROUCHING_VIEWHEIGHT		8
+
+//a_team.c
+void MakeAllLivePlayersObservers( void );
+
+//a_cmds.c
+void Cmd_NextMap_f( edict_t * ent );

@@ -245,8 +245,6 @@ void PrintMOTD(edict_t * ent)
 		{
 			if (ctf->value) // Is it CTF?
 				server_type = "Capture the Flag";
-			else if (matchmode->value) // Is it Matchmode?
-				server_type = "Matchmode";
 			else if (use_3teams->value) // Is it 3 Teams?
 				server_type = "3 Team Teamplay";
 			else if (teamdm->value) // Is it TeamDM?
@@ -255,18 +253,24 @@ void PrintMOTD(edict_t * ent)
 				server_type = "Tourney";
 			else // No? Then it must be Teamplay
 				server_type = "Teamplay";
+
+			if (matchmode->value)
+				sprintf(msg_buf + strlen(msg_buf), "Matchmode: %s\n", server_type);
+			else
+				sprintf(msg_buf + strlen(msg_buf), "Game Type: %s\n", server_type);
 		}
 		else  // So it's not Teamplay?
 		{
 			// Set the appropiate Deathmatch mode
-			if ((int)dmflags->value & DF_MODELTEAMS)
+			if (DMFLAGS(DF_MODELTEAMS))
 				server_type = "Deathmatch (Teams by Model)";
-			else if ((int)dmflags->value & DF_SKINTEAMS)
+			else if (DMFLAGS(DF_SKINTEAMS))
 				server_type = "Deathmatch (Teams by Skin)";
 			else
 				server_type = "Deathmatch (No Teams)";
+
+			sprintf(msg_buf + strlen(msg_buf), "Game Type: %s\n", server_type);
 		}
-		sprintf(msg_buf + strlen(msg_buf), "Game Type: %s\n", server_type);
 		lines++;
 
 		/* new CTF settings added here for better readability */
@@ -352,7 +356,7 @@ void PrintMOTD(edict_t * ent)
 		lines++;
 
 		// If we're in Teamplay, and not CTF, we want to see what the roundlimit and roundtimelimit is
-		if (teamplay->value && !ctf->value && !teamdm->value)
+		if (gameSettings & GS_ROUNDBASED)
 		{
 			if ((int)roundlimit->value) // What is the roundlimit?
 				sprintf(msg_buf + strlen(msg_buf), "Roundlimit: %d", (int)roundlimit->value);
@@ -425,7 +429,7 @@ void PrintMOTD(edict_t * ent)
 		/*
 		 *  Are the dmflags set to disallow Friendly Fire?
 		 */
-		if (teamplay->value && !((int) dmflags->value & DF_NO_FRIENDLY_FIRE)) {
+		if (teamplay->value && !DMFLAGS(DF_NO_FRIENDLY_FIRE)) {
 			sprintf(msg_buf + strlen(msg_buf), "Friendly Fire Enabled\n");
 			lines++;
 		}
@@ -515,7 +519,7 @@ void PrintMOTD(edict_t * ent)
 		}
 	}
 
-	if (!auto_menu->value || ent->client->resp.menu_shown) {
+	if (!auto_menu->value || ent->client->pers.menu_shown) {
 		gi.centerprintf(ent, "%s", msg_buf);
 	} else {
 		gi.cprintf(ent, PRINT_LOW, "%s", msg_buf);
@@ -597,6 +601,7 @@ void EjectBlooder(edict_t * self, vec3_t start, vec3_t veloc)
 	blooder = G_Spawn();
 	VectorCopy(veloc, forward);
 	VectorCopy(start, blooder->s.origin);
+	VectorCopy(start, blooder->old_origin);
 	spd = 0;
 	VectorScale(forward, spd, blooder->velocity);
 	blooder->solid = SOLID_NOT;
@@ -605,7 +610,7 @@ void EjectBlooder(edict_t * self, vec3_t start, vec3_t veloc)
 	blooder->s.effects |= EF_GIB;
 	blooder->owner = self;
 	blooder->touch = BlooderTouch;
-	blooder->nextthink = level.time + 3.2;
+	blooder->nextthink = level.framenum + 3.2 * HZ;
 	blooder->think = BlooderDie;
 	blooder->classname = "blooder";
 
@@ -793,6 +798,7 @@ void EjectShell(edict_t * self, vec3_t start, int toggle)
 	}
 
 	VectorCopy(start, shell->s.origin);
+	VectorCopy(start, shell->old_origin);
 	if (fix == 0)		// we want some velocity on those center handed ones
 		fix = 1;
 	if (self->client->curr_weap == SNIPER_NUM)
@@ -845,7 +851,7 @@ void EjectShell(edict_t * self, vec3_t start, int toggle)
 	shell->owner = self;
 	shell->touch = ShellTouch;
 	float shell_subtract = shelllimit->value ? (1. / shelllimit->value) : 0.;
-	shell->nextthink = level.time + shelllife->value * (1.0 - (shells * shell_subtract));
+	shell->nextthink = level.framenum + shelllife->value * (1.0 - (shells * shell_subtract)) * HZ;
 	shell->think = ShellDie;
 	shell->classname = "shell";
 
@@ -884,7 +890,7 @@ void DecalOrSplatThink( edict_t *self )
 		return;
 	}
 
-	self->nextthink = level.time + FRAMETIME;
+	self->nextthink = level.framenum + 1;
 
 	if( self < self->movetarget )
 	{
@@ -942,21 +948,23 @@ void AddDecal(edict_t * self, trace_t * tr)
 
 	dec = FindEdictByClassnum("decal", decals);
 
-	if (dec) {
+	if( dec )
+	{
 		dec->think = DecalDie;
-		dec->nextthink = level.time + .1;
+		dec->nextthink = level.framenum + FRAMEDIV;
 	}
 
 	decal->solid = SOLID_NOT;
 	decal->movetype = MOVETYPE_NONE;
 	decal->s.modelindex = gi.modelindex("models/objects/holes/hole1/hole.md2");
 	VectorCopy(tr->endpos, decal->s.origin);
+	VectorCopy(tr->endpos, decal->old_origin);
 	vectoangles(tr->plane.normal, decal->s.angles);
 	decal->s.angles[ROLL] = crandom() * 180.f;
 
 	decal->owner = self;
 	decal->touch = NULL;
-	decal->nextthink = level.time + bholelife->value;
+	decal->nextthink = level.framenum + bholelife->value * HZ;
 	decal->think = bholelife->value ? DecalDie : NULL;
 	decal->classname = "decal";
 	decal->classnum = decals;
@@ -1013,9 +1021,10 @@ void AddSplat(edict_t * self, vec3_t point, trace_t * tr)
 
 	spt = FindEdictByClassnum("splat", splats);
 
-	if (spt) {
+	if( spt )
+	{
 		spt->think = SplatDie;
-		spt->nextthink = level.time + .1;
+		spt->nextthink = level.framenum + FRAMEDIV;
 	}
 
 	splat->solid = SOLID_NOT;
@@ -1030,13 +1039,14 @@ void AddSplat(edict_t * self, vec3_t point, trace_t * tr)
 		splat->s.modelindex = gi.modelindex("models/objects/splats/splat3/splat.md2");
 
 	VectorCopy(point, splat->s.origin);
+	VectorCopy(point, splat->old_origin);
 
 	vectoangles(tr->plane.normal, splat->s.angles);
 	splat->s.angles[ROLL] = crandom() * 180.f;
 
 	splat->owner = self;
 	splat->touch = NULL;
-	splat->nextthink = level.time + splatlife->value; // - (splats * .05);
+	splat->nextthink = level.framenum + splatlife->value * HZ; // - (splats * .05);
 	splat->think = splatlife->value ? SplatDie : NULL;
 	splat->classname = "splat";
 	splat->classnum = splats;
@@ -1063,122 +1073,120 @@ void AddSplat(edict_t * self, vec3_t point, trace_t * tr)
 
 /* %-variables for chat msgs */
 
-void GetWeaponName(edict_t * ent, char *buf)
+void GetWeaponName( edict_t *ent, char *buf )
 {
-	if (ent->solid != SOLID_NOT && ent->deadflag != DEAD_DEAD && ent->client->pers.weapon)
+	if( IS_ALIVE(ent) && ent->client->pers.weapon )
 	{
-		strcpy(buf, ent->client->pers.weapon->pickup_name);
+		strcpy( buf, ent->client->pers.weapon->pickup_name );
 		return;
 	}
-
-	strcpy(buf, "no weapon");
+	
+	strcpy( buf, "no weapon" );
 }
 
-void GetItemName(edict_t * ent, char *buf)
+void GetItemName( edict_t *ent, char *buf )
 {
-	int i;
-
-	if (ent->solid != SOLID_NOT && ent->deadflag != DEAD_DEAD)
+	int i, itemNum;
+	
+	if( IS_ALIVE(ent) )
 	{
-		for(i = 0; i<ITEM_COUNT; i++)
+		for( i = 0; i < ITEM_COUNT; i ++ )
 		{
-			if (INV_AMMO(ent, tnums[i]))
+			itemNum = ITEM_FIRST + i;
+			if( INV_AMMO( ent, itemNum ) )
 			{
-				strcpy(buf, GET_ITEM(tnums[i])->pickup_name);
+				strcpy( buf, GET_ITEM(itemNum)->pickup_name );
 				return;
 			}
 		}
 	}
-
-	strcpy(buf, "no item");
+	
+	strcpy( buf, "no item" );
 }
 
-void GetHealth(edict_t * ent, char *buf)
+void GetHealth( edict_t *ent, char *buf )
 {
-	if (ent->solid != SOLID_NOT && ent->deadflag != DEAD_DEAD)
-		sprintf(buf, "%d", ent->health);
+	if( IS_ALIVE(ent) )
+		sprintf( buf, "%d", ent->health );
 	else
-		sprintf(buf, "0");
+		sprintf( buf, "0" );
 }
 
-void GetAmmo(edict_t * ent, char *buf)
+void GetAmmo( edict_t *ent, char *buf )
 {
 	int ammo;
-
-	if (ent->solid != SOLID_NOT && ent->deadflag != DEAD_DEAD && ent->client->pers.weapon)
+	
+	if( IS_ALIVE(ent) && ent->client->pers.weapon )
 	{
-		switch (ent->client->curr_weap) {
+		switch( ent->client->curr_weap )
+		{
 		case MK23_NUM:
-			sprintf(buf, "%d round%s (%d extra mag%s)",
+			sprintf( buf, "%d round%s (%d extra mag%s)",
 				ent->client->mk23_rds, ent->client->mk23_rds == 1 ? "" : "s",
-				ent->client->pers.inventory[ent->client->ammo_index],
-				ent->client->pers.inventory[ent->client->ammo_index] == 1 ? "" : "s");
+				ent->client->inventory[ent->client->ammo_index],
+				ent->client->inventory[ent->client->ammo_index] == 1 ? "" : "s");
 			return;
 		case MP5_NUM:
-			sprintf(buf, "%d round%s (%d extra mag%s)",
+			sprintf( buf, "%d round%s (%d extra mag%s)",
 				ent->client->mp5_rds, ent->client->mp5_rds == 1 ? "" : "s",
-				ent->client->pers.inventory[ent->client->ammo_index],
-				ent->client->pers.inventory[ent->client->ammo_index] == 1 ? "" : "s");
+				ent->client->inventory[ent->client->ammo_index],
+				ent->client->inventory[ent->client->ammo_index] == 1 ? "" : "s");
 			return;
 		case M4_NUM:
-			sprintf(buf, "%d round%s (%d extra mag%s)",
+			sprintf( buf, "%d round%s (%d extra mag%s)",
 				ent->client->m4_rds, ent->client->m4_rds == 1 ? "" : "s",
-				ent->client->pers.inventory[ent->client->ammo_index],
-				ent->client->pers.inventory[ent->client->ammo_index] == 1 ? "" : "s");
+				ent->client->inventory[ent->client->ammo_index],
+				ent->client->inventory[ent->client->ammo_index] == 1 ? "" : "s");
 			return;
 		case M3_NUM:
-			sprintf(buf, "%d shell%s (%d extra shell%s)",
+			sprintf( buf, "%d shell%s (%d extra shell%s)",
 				ent->client->shot_rds, ent->client->shot_rds == 1 ? "" : "s",
-				ent->client->pers.inventory[ent->client->ammo_index],
-				ent->client->pers.inventory[ent->client->ammo_index] == 1 ? "" : "s");
+				ent->client->inventory[ent->client->ammo_index],
+				ent->client->inventory[ent->client->ammo_index] == 1 ? "" : "s");
 			return;
 		case HC_NUM:
-			sprintf(buf, "%d shell%s (%d extra shell%s)",
+			sprintf( buf, "%d shell%s (%d extra shell%s)",
 				ent->client->cannon_rds, ent->client->cannon_rds == 1 ? "" : "s",
-				ent->client->pers.inventory[ent->client->ammo_index],
-				ent->client->pers.inventory[ent->client->ammo_index] == 1 ? "" : "s");
+				ent->client->inventory[ent->client->ammo_index],
+				ent->client->inventory[ent->client->ammo_index] == 1 ? "" : "s");
 			return;
 		case SNIPER_NUM:
-			sprintf(buf, "%d round%s (%d extra round%s)",
+			sprintf( buf, "%d round%s (%d extra round%s)",
 				ent->client->sniper_rds, ent->client->sniper_rds == 1 ? "" : "s",
-				ent->client->pers.inventory[ent->client->ammo_index],
-				ent->client->pers.inventory[ent->client->ammo_index] == 1 ? "" : "s");
+				ent->client->inventory[ent->client->ammo_index],
+				ent->client->inventory[ent->client->ammo_index] == 1 ? "" : "s");
 			return;
 		case DUAL_NUM:
-			sprintf(buf, "%d round%s (%d extra mag%s)",
+			sprintf( buf, "%d round%s (%d extra mag%s)",
 				ent->client->dual_rds, ent->client->dual_rds == 1 ? "" : "s",
-				ent->client->pers.inventory[ent->client->ammo_index],
-				ent->client->pers.inventory[ent->client->ammo_index] == 1 ? "" : "s");
+				ent->client->inventory[ent->client->ammo_index],
+				ent->client->inventory[ent->client->ammo_index] == 1 ? "" : "s");
 			return;
 		case KNIFE_NUM:
-			ammo = INV_AMMO(ent, KNIFE_NUM);
-			sprintf(buf, "%d kni%s", ammo, (ammo == 1) ? "fe" : "ves");
+			ammo = INV_AMMO( ent, KNIFE_NUM );
+			sprintf( buf, "%d kni%s", ammo, (ammo == 1) ? "fe" : "ves" );
 			return;
 		case GRENADE_NUM:
-			ammo = INV_AMMO(ent, GRENADE_NUM);
-			sprintf(buf, "%d grenade%s", ammo, (ammo == 1) ? "" : "s");
+			ammo = INV_AMMO( ent, GRENADE_NUM );
+			sprintf( buf, "%d grenade%s", ammo, (ammo == 1) ? "" : "s" );
 			return;
 		}
 	}
-
-	strcpy(buf, "no ammo");
+	
+	strcpy( buf, "no ammo" );
 }
 
-void GetNearbyTeammates(edict_t * self, char *buf)
+void GetNearbyTeammates( edict_t *self, char *buf )
 {
-	char nearby_teammates[8][16];
-	int nearby_teammates_num = 0, l;
+	edict_t *nearby_teammates[8];
+	size_t nearby_teammates_num = 0, l;
 	edict_t *ent = NULL;
-
-	nearby_teammates_num = 0;
 
 	while ((ent = findradius(ent, self->s.origin, 1500)) != NULL) {
 		if (ent == self || !ent->client || !CanDamage(ent, self) || !OnSameTeam(ent, self))
 			continue;
 
-		Q_strncpyz(nearby_teammates[nearby_teammates_num], ent->client->pers.netname, sizeof(nearby_teammates[0]));
-
-		nearby_teammates_num++;
+		nearby_teammates[nearby_teammates_num++] = ent;
 		if (nearby_teammates_num >= 8)
 			break;
 	}
@@ -1188,7 +1196,7 @@ void GetNearbyTeammates(edict_t * self, char *buf)
 		return;
 	}
 
-	strcpy(buf, nearby_teammates[0]);
+	strcpy(buf, nearby_teammates[0]->client->pers.netname);
 	for (l = 1; l < nearby_teammates_num; l++)
 	{
 		if (l == nearby_teammates_num - 1)
@@ -1196,6 +1204,6 @@ void GetNearbyTeammates(edict_t * self, char *buf)
 		else
 			Q_strncatz(buf, ", ", PARSE_BUFSIZE);
 
-		Q_strncatz(buf, nearby_teammates[l], PARSE_BUFSIZE);
+		Q_strncatz( buf, nearby_teammates[l]->client->pers.netname, PARSE_BUFSIZE );
 	}
 }

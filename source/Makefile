@@ -87,11 +87,11 @@ endif
 GAME_OBJS = \
 	a_cmds.o a_ctf.o a_doorkick.o a_game.o a_items.o a_match.o \
 	a_menu.o a_radio.o a_team.o a_tourney.o a_vote.o a_xcmds.o a_xgame.o \
-	a_xmenu.o a_xvote.o cgf_sfx_glass.o g_ai.o g_chase.o g_cmds.o \
-	g_combat.o g_func.o g_items.o g_main.o g_misc.o g_monster.o \
+	a_xmenu.o a_xvote.o cgf_sfx_glass.o g_chase.o g_cmds.o \
+	g_combat.o g_func.o g_items.o g_main.o g_misc.o \
 	g_phys.o g_save.o g_spawn.o g_svcmds.o g_target.o g_trigger.o \
-	g_turret.o g_utils.o g_weapon.o g_xmisc.o m_move.o \
-	p_client.o p_hud.o p_trail.o p_view.o p_weapon.o q_shared.o \
+	g_utils.o g_weapon.o \
+	p_client.o p_hud.o p_view.o p_weapon.o q_shared.o \
 	tng_stats.o tng_flashlight.o tng_irc.o tng_ini.o tng_balancer.o \
 	g_grapple.o \
 	acesrc/acebot_ai.o acesrc/acebot_nodes.o acesrc/bot_combat.o \

@@ -128,22 +128,18 @@ void Cmd_Menu_f (edict_t * self)
 //
 void Cmd_Punch_f (edict_t * self)
 {
-	if ((!use_punch->value)
-	|| (self->deadflag == DEAD_DEAD)
-	|| (self->solid == SOLID_NOT)
-	|| (self->client->resp.sniper_mode != SNIPER_1X)
-	|| ((self->client->weaponstate != WEAPON_READY) && (self->client->weaponstate != WEAPON_END_MAG)) )
-	return;
+	if (!use_punch->value || !IS_ALIVE(self) || self->client->resp.sniper_mode != SNIPER_1X)
+		return;
+
+	if (self->client->weaponstate != WEAPON_READY && self->client->weaponstate != WEAPON_END_MAG)
+		return;
 
 	// animation moved to punch_attack() in a_xgame.c
 	// punch_attack is now called in ClientThink after evaluation punch_desired
 	// for "no punch when firing" stuff - TempFile
-
-	if (level.framenum > (self->client->resp.fire_time + PUNCH_DELAY))
-	{
-		self->client->resp.fire_time = level.framenum;	// you aren't Bruce Lee! :)
-
-		self->client->resp.punch_desired = true;
+	if (level.framenum > self->client->punch_framenum + PUNCH_DELAY) {
+		self->client->punch_framenum = level.framenum;	// you aren't Bruce Lee! :)
+		self->client->punch_desired = true;
 	}
 }
 
@@ -184,6 +180,9 @@ void Cmd_Voice_f (edict_t * self)
 	char *s;
 	char fullpath[MAX_QPATH];
 
+	if (!use_voice->value)
+		return;
+
 	s = gi.args ();
 	//check if no sound is given
 	if (!*s)
@@ -207,10 +206,11 @@ void Cmd_Voice_f (edict_t * self)
 	}
 	
 	//check if player is dead
-	if (self->deadflag == DEAD_DEAD || self->solid == SOLID_NOT)
+	if (!IS_ALIVE(self))
 		return;
-	strcpy (fullpath, PG_SNDPATH);
-	strcat (fullpath, s);
+
+	strcpy(fullpath, PG_SNDPATH);
+	strcat(fullpath, s);
 	// SLIC2 Taking this out.
 	/*if (radio_repeat->value)
 	{

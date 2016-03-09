@@ -61,7 +61,7 @@
 //FIREBLADE
 
 // legacy ABI support for Windows
-#ifdef WIN32
+#if defined( __GNUC__) && defined( WIN32 )
 #define		q_gameabi           __attribute__((callee_pop_aggregate_return(0)))
 #else
 #define		q_gameabi
@@ -154,6 +154,12 @@
 # define id386 1
 #else
 # define id386 0
+#endif
+
+#if __GNUC__ >= 4
+#define q_offsetof(t, m)    __builtin_offsetof(t, m)
+#else
+#define q_offsetof(t, m)    ((size_t)&((t *)0)->m)
 #endif
 
 //==============================================
@@ -363,6 +369,17 @@ char *COM_Parse (char **data_p);
 void Com_PageInMemory (byte * buffer, int size);
 
 //=============================================
+#define Q_isupper( c )	( (c) >= 'A' && (c) <= 'Z' )
+#define Q_islower( c )	( (c) >= 'a' && (c) <= 'z' )
+#define Q_isdigit( c )	( (c) >= '0' && (c) <= '9' )
+#define Q_isalpha( c )	( Q_isupper( c ) || Q_islower( c ) )
+#define Q_isalnum( c )	( Q_isalpha( c ) || Q_isdigit( c ) )
+
+int Q_tolower( int c );
+int Q_toupper( int c );
+
+char *Q_strlwr( char *s );
+char *Q_strupr( char *s );
 
 #ifndef Q_strnicmp
  int Q_strnicmp (const char *s1, const char *s2, size_t size);
@@ -370,6 +387,7 @@ void Com_PageInMemory (byte * buffer, int size);
 #ifndef Q_stricmp
 #  define Q_stricmp(s1, s2) Q_strnicmp((s1), (s2), 99999)
 #endif
+ char *Q_stristr( const char *str1, const char *str2 );
 
 // buffer safe operations
 void Q_strncpyz (char *dest, const char *src, size_t size );
@@ -1281,6 +1299,15 @@ temp_event_t;
 
    ==========================================================
  */
+
+// default server FPS
+#define BASE_FRAMERATE          10
+#define BASE_FRAMETIME          100
+#define BASE_1_FRAMETIME        0.01f   // 1/BASE_FRAMETIME
+#define BASE_FRAMETIME_1000     0.1f    // BASE_FRAMETIME/1000
+
+// maximum variable FPS factor
+#define MAX_FRAMEDIV    6
 
 #define ANGLE2SHORT(x)  ((int)((x)*65536/360) & 65535)
 #define SHORT2ANGLE(x)  ((x)*(360.0/65536))
