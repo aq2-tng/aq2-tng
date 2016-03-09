@@ -395,8 +395,7 @@ void InitGame( void )
 	noscore = gi.cvar( "noscore", "0", CVAR_LATCH );	// Was serverinfo
 	hud_noscore = gi.cvar( "hud_noscore", "1", CVAR_LATCH ); // Hide score from HUD in teamplay.
 	use_newscore = gi.cvar( "use_newscore", "0", 0 );
-	actionversion =
-		gi.cvar( "actionversion", "none set", CVAR_SERVERINFO | CVAR_LATCH );
+	actionversion = gi.cvar( "actionversion", "none set", CVAR_SERVERINFO | CVAR_LATCH );
 	gi.cvar_set( "actionversion", ACTION_VERSION );
 	use_voice = gi.cvar( "use_voice", "1", 0 );	//slicer
 	ppl_idletime = gi.cvar( "ppl_idletime", "15", 0 );
@@ -529,6 +528,8 @@ void InitGame( void )
 
 	warmup = gi.cvar( "warmup", "0", CVAR_LATCH );
 	spectator_hud = gi.cvar( "spectator_hud", "0", CVAR_LATCH );
+
+	use_mvd2 = gi.cvar( "use_mvd2", "0", 0 );	// JBravo: q2pro MVD2 recording. 0 = off, 1 = on
 
 	// items
 	InitItems();
