@@ -2715,7 +2715,6 @@ void ClientDisconnect(edict_t * ent)
 void CreateGhost(edict_t * ent)
 {
 	int i;
-	qboolean duplicate = false;
 	gghost_t *ghost;
 
 	if (ent->client->resp.score == 0 && ent->client->resp.damage_dealt == 0) {

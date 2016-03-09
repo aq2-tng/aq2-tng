@@ -651,8 +651,8 @@ extern itemList_t items[ITEM_MAX_NUM];
 #define BANDAGE_TIME    27	// 10 = 1 second
 #define BLEED_TIME      10	// 10 = 1 second is time for losing 1 health at slowest bleed rate
 // Igor's back in Time to hard grenades :-)
-//#define GRENADE_DAMRAD  170
-#define GRENADE_DAMRAD  250
+#define GRENADE_DAMRAD_CLASSIC  170
+#define GRENADE_DAMRAD          250
 
 
 typedef struct gitem_s
@@ -1161,7 +1161,7 @@ void Touch_Item (edict_t * ent, edict_t * other, cplane_t * plane,
 //
 qboolean KillBox (edict_t *ent);
 void	G_ProjectSource(vec3_t point, vec3_t distance, vec3_t forward, vec3_t right, vec3_t result);
-edict_t *G_Find(edict_t *from, size_t fieldofs, char *match);
+edict_t *G_Find(edict_t *from, ptrdiff_t fieldofs, char *match);
 edict_t *findradius(edict_t *from, vec3_t org, float rad);
 edict_t *G_PickTarget(char *targetname);
 void	G_UseTargets(edict_t *ent, edict_t * activator);

@@ -256,7 +256,7 @@ qboolean Pickup_Weapon (edict_t * ent, edict_t * other)
 	case MP5_NUM:
 		if (other->client->unique_weapon_total >= unique_weapons->value + band)
 			return false;		// we can't get it
-		if ((! allow_hoarding->value) && other->client->pers.inventory[index])
+		if ((! allow_hoarding->value) && other->client->inventory[index])
 			return false;		// we already have one
 
 		other->client->inventory[index]++;
@@ -271,7 +271,7 @@ qboolean Pickup_Weapon (edict_t * ent, edict_t * other)
 	case M4_NUM:
 		if (other->client->unique_weapon_total >= unique_weapons->value + band)
 			return false;		// we can't get it
-		if ((! allow_hoarding->value) && other->client->pers.inventory[index])
+		if ((! allow_hoarding->value) && other->client->inventory[index])
 			return false;		// we already have one
 
 		other->client->inventory[index]++;
@@ -286,7 +286,7 @@ qboolean Pickup_Weapon (edict_t * ent, edict_t * other)
 	case M3_NUM:
 		if (other->client->unique_weapon_total >= unique_weapons->value + band)
 			return false;		// we can't get it
-		if ((! allow_hoarding->value) && other->client->pers.inventory[index])
+		if ((! allow_hoarding->value) && other->client->inventory[index])
 			return false;		// we already have one
 
 		other->client->inventory[index]++;
@@ -315,7 +315,7 @@ qboolean Pickup_Weapon (edict_t * ent, edict_t * other)
 	case HC_NUM:
 		if (other->client->unique_weapon_total >= unique_weapons->value + band)
 			return false;		// we can't get it
-		if ((! allow_hoarding->value) && other->client->pers.inventory[index])
+		if ((! allow_hoarding->value) && other->client->inventory[index])
 			return false;		// we already have one
 
 		other->client->inventory[index]++;
@@ -336,7 +336,7 @@ qboolean Pickup_Weapon (edict_t * ent, edict_t * other)
 	case SNIPER_NUM:
 		if (other->client->unique_weapon_total >= unique_weapons->value + band)
 			return false;		// we can't get it
-		if ((! allow_hoarding->value) && other->client->pers.inventory[index])
+		if ((! allow_hoarding->value) && other->client->inventory[index])
 			return false;		// we already have one
 
 		other->client->inventory[index]++;
@@ -2073,12 +2073,10 @@ void weapon_grenade_fire (edict_t * ent, qboolean held)
 	int damage = 125;
 	int timer;
 	int speed;
-	float radius;
-
-	radius = damage + 40;
+	
 	if (is_quad)
 		damage *= 4;
-
+	
 	VectorSet (offset, 8, 8, ent->viewheight - 8);
 	AngleVectors (ent->client->v_angle, forward, right, NULL);
 	P_ProjectSource (ent->client, ent->s.origin, offset, forward, right, start);

@@ -525,6 +525,7 @@ Default _cone value is 10 (used to set size of light for spotlights)
 
 #define START_OFF       1
 
+/*
 static void
 light_use (edict_t * self, edict_t * other, edict_t * activator)
 {
@@ -539,6 +540,7 @@ light_use (edict_t * self, edict_t * other, edict_t * activator)
       self->spawnflags |= START_OFF;
     }
 }
+*/
 
 void SP_light (edict_t * self)
 {

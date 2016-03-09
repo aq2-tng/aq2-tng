@@ -308,7 +308,7 @@ void A_ScoreboardEndLevel (edict_t * ent, edict_t * killer)
 {
 	char string[2048];
 	gclient_t *sortedClients[MAX_CLIENTS], *cl;
-	int maxsize = 1000, i, line_x, line_y;
+	int maxsize = 1000, i, line_y;
 	int totalClients, secs, shots;
 	double accuracy, fpm;
 	int totalplayers[TEAM_TOP] = {0};
@@ -383,7 +383,6 @@ void A_ScoreboardEndLevel (edict_t * ent, edict_t * killer)
 			name_pos[TEAM2] + 160, teams[TEAM2].name);
 	}
 
-	line_x = 0;
 	line_y = 56;
 	sprintf(string + strlen (string),
 		"xv 0 yv 40 string2 \"Frags Player          Shots   Acc   FPM \" "

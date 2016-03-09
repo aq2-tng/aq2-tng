@@ -322,7 +322,7 @@ qboolean Pickup_Special (edict_t * ent, edict_t * other)
 		return false;
 
 	// Don't allow picking up multiple of the same special item.
-	if( (! allow_hoarding->value) && other->client->pers.inventory[ITEM_INDEX(ent->item)] )
+	if( (! allow_hoarding->value) && other->client->inventory[ITEM_INDEX(ent->item)] )
 		return false;
 
 	AddItem(other, ent->item);
@@ -713,7 +713,6 @@ qboolean Add_Ammo (edict_t * ent, gitem_t * item, int count)
 
 qboolean Pickup_Ammo (edict_t * ent, edict_t * other)
 {
-	int oldcount;
 	int count;
 	qboolean weapon;
 
@@ -724,8 +723,6 @@ qboolean Pickup_Ammo (edict_t * ent, edict_t * other)
 		count = ent->count;
 	else
 		count = ent->item->quantity;
-
-	oldcount = other->client->inventory[ITEM_INDEX (ent->item)];
 
 	if (!Add_Ammo (other, ent->item, count))
 		return false;

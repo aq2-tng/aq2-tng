@@ -1101,8 +1101,8 @@ Person gets frags/kills/damage/weapon/item/team/stats back if he disconnected
 */
 void Cmd_Ghost_f(edict_t * ent)
 {
-	int i, frames_since, found = 0;
-	gghost_t *ghost;
+	int i = 0, frames_since = 0;
+	gghost_t *ghost = NULL;
 
 	if (!use_ghosts->value) {
 		gi.cprintf(ent, PRINT_HIGH, "Ghosting is not enabled on this server\n");

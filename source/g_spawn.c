@@ -1269,7 +1269,7 @@ void G_UpdateSpectarorStatusbar( void )
 
 	//Team 2
 	count = 0;
-	sprintf( buffer + strlen( buffer ), "xr -%d yt %d string2 \"%s\" ", strlen( rowText ) * 8, 40, rowText );
+	sprintf( buffer + strlen( buffer ), "xr -%d yt %d string2 \"%s\" ", (int) strlen(rowText) * 8, 40, rowText );
 	for (i = 0, cl = game.clients; i < game.maxclients; i++, cl++) {
 		if (!cl->pers.connected || cl->resp.team != TEAM2)
 			continue;
