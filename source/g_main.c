@@ -278,7 +278,6 @@ game_export_t globals;
 spawn_temp_t st;
 
 int sm_meat_index;
-int snd_fry;
 int meansOfDeath;
 int locOfDeath;
 int stopAP;
@@ -331,9 +330,7 @@ cvar_t *use_warnings;
 cvar_t *use_mapvote;
 cvar_t *use_scramblevote;
 cvar_t *deathmatch;
-cvar_t *coop;
 cvar_t *dmflags;
-cvar_t *skill;
 cvar_t *fraglimit;
 cvar_t *timelimit;
 cvar_t *capturelimit;
@@ -444,8 +441,7 @@ cvar_t *radio_repeat_time;
 
 cvar_t *use_classic;		// Used to reset spread/gren strength to 1.52
 cvar_t *warmup;
-
-int pause_time = 0;
+cvar_t *spectator_hud;
 
 void SpawnEntities (char *mapname, char *entities, char *spawnpoint);
 void ClientThink (edict_t * ent, usercmd_t * cmd);
@@ -463,6 +459,7 @@ void ReadLevel (char *filename);
 void InitGame (void);
 void G_RunFrame (void);
 
+qboolean CheckTimelimit(void);
 int dosoft;
 int softquit = 0;
 
@@ -537,7 +534,7 @@ void Sys_Error (const char *error, ...)
   vsnprintf (text, sizeof(text),error, argptr);
   va_end (argptr);
 
-  gi.error (ERR_FATAL, "%s", text);
+  gi.error("%s", text);
 }
 
 void Com_Printf (const char *msg, ...)
@@ -549,7 +546,7 @@ void Com_Printf (const char *msg, ...)
   vsnprintf (text, sizeof(text), msg, argptr);
   va_end (argptr);
 
-  gi.dprintf ("%s", text);
+  gi.dprintf("%s", text);
 }
 
 #endif
@@ -564,25 +561,65 @@ void Com_Printf (const char *msg, ...)
 */
 void ClientEndServerFrames (void)
 {
-  int i;
-  edict_t *ent;
+	int i, updateLayout = 0, spectators = 0;
+	edict_t *ent;
 
-  // calc the player views now that all pushing
-  // and damage has been added
-	for (i = 0; i < maxclients->value; i++)
-	{
-		ent = g_edicts + 1 + i;
-		if (!ent->inuse || !ent->client)
-			continue;
-		ClientEndServerFrame (ent);
+	if (level.intermission_framenum) {
+		for (i = 0, ent = g_edicts + 1; i < game.maxclients; i++, ent++) {
+			if (!ent->inuse || !ent->client)
+				continue;
+
+			ClientEndServerFrame(ent);
+		}
+		return;
 	}
 
-	for (i = 0; i < maxclients->value; i++)
+	if (!(level.realFramenum % (3 * HZ)))
+		updateLayout = 1;
+
+	// calc the player views now that all pushing
+	// and damage has been added
+	for (i = 0, ent = g_edicts + 1; i < game.maxclients; i++, ent++)
 	{
-		ent = g_edicts + 1 + i;
-		if (!ent->inuse || !ent->client || !ent->client->chase_target)
+		if (!ent->inuse || !ent->client)
 			continue;
-		G_SetSpectatorStats (ent);
+
+		ClientEndServerFrame(ent);
+
+		if (updateLayout && ent->client->layout) {
+			if (ent->client->layout == LAYOUT_MENU)
+				PMenu_Update(ent);
+			else
+				DeathmatchScoreboardMessage(ent, ent->enemy);
+
+			gi.unicast(ent, false);
+		}
+		if (teamplay->value && !ent->client->resp.team)
+			spectators++;
+	}
+
+	if (updateLayout && spectators && spectator_hud->value) {
+		G_UpdateSpectarorStatusbar();
+		if (level.spec_statusbar_lastupdate >= level.realFramenum - 3 * HZ)
+		{
+			for (i = 0, ent = g_edicts + 1; i < game.maxclients; i++, ent++)
+			{
+				if (!ent->inuse || !ent->client)
+					continue;
+
+				if (!ent->client->resp.team)
+					G_UpdatePlayerStatusbar(ent, 0);
+			}
+		}
+	}
+
+	for (i = 0, ent = g_edicts + 1; i < game.maxclients; i++, ent++)
+	{
+		if (!ent->inuse || !ent->client)
+			continue;
+
+		if (ent->client->chase_target)
+			UpdateChaseCam(ent);
 	}
 }
 
@@ -594,11 +631,6 @@ void ClientEndServerFrames (void)
   -----------------
   =================
 */
-
-//AZEROV
-extern void UnBan_TeamKillers (void);
-//AZEROV
-
 void EndDMLevel (void)
 {
 	edict_t *ent = NULL; // TNG Stats was: edict_t *ent = NULL;
@@ -618,7 +650,7 @@ void EndDMLevel (void)
 	IRC_printf (IRC_T_GAME, "Game ending at: %s", ltm);
 
 	// stay on same level flag
-	if ((int) dmflags->value & DF_SAME_LEVEL)
+	if (DMFLAGS(DF_SAME_LEVEL))
 	{
 		ent = G_Spawn ();
 		ent->classname = "target_changelevel";
@@ -758,19 +790,14 @@ void EndDMLevel (void)
 			}
 		}
 	}
-	//Igor[Rock] End
+
 	if (level.nextmap != NULL && !byvote) {
 		gi.bprintf (PRINT_HIGH, "Next map in rotation is %s.\n", level.nextmap);
 		IRC_printf (IRC_T_SERVER, "Next map in rotation is %s.", level.nextmap);
 	}
-	//FIREBLADE
 
-	ReadMOTDFile ();
-	BeginIntermission (ent);
-
-	//AZEROV
-	UnBan_TeamKillers ();
-	//AZEROV
+	ReadMOTDFile();
+	BeginIntermission(ent);
 }
 
 /*
@@ -783,74 +810,38 @@ void CheckDMRules (void)
 	int i;
 	gclient_t *cl;
 
-	if (level.intermissiontime)
-		return;
-
-	if (!deathmatch->value)
+	if (level.intermission_framenum)
 		return;
 
 	//FIREBLADE
 	if (teamplay->value)
 	{
-		CheckTeamRules ();
+		if (matchmode->value && team_game_going)
+			level.matchTime += FRAMETIME;
 
-		if (ctf->value)
-		{
-			if (CTFCheckRules ())
-			{
-				ResetPlayers ();
-				EndDMLevel ();
-			}
-		}
+		if (!FRAMESYNC)
+			return;
+
+		if (CheckTeamRules())
+			return;
 	}
 	else				/* not teamplay */
 	{
-		if (timelimit->value)
-		{
-			if (level.time >= timelimit->value * 60)
-			{
-				gi.bprintf (PRINT_HIGH, "Timelimit hit.\n");
-				IRC_printf (IRC_T_GAME, "Timelimit hit.");
-				EndDMLevel ();
-				return;
-			}
-		}
+		if (!FRAMESYNC)
+			return;
 
-		if (dm_shield->value)
-		{
-			for (i = 0; i < maxclients->value; i++)
-			{
-				if (!g_edicts[i + 1].inuse)
-					continue;
-				if (game.clients[i].ctf_uvtime > 0)
-				{
-					game.clients[i].ctf_uvtime--;                                                               
-					if (!game.clients[i].ctf_uvtime)                                        
-					{                                                                                           
-						gi.centerprintf (&g_edicts[i + 1], "ACTION!");                                      
-					}                                                                                           
-					else if (game.clients[i].ctf_uvtime % 10 == 0)                                              
-					{                                                                                           
-						gi.centerprintf (&g_edicts[i + 1], "Shield %d",                                     
-						game.clients[i].ctf_uvtime / 10);                                                   
-					} 
-				}
-			}
-		}
+		if (CheckTimelimit())
+			return;
 
-		//FIREBLADE
-		//PG BUND - BEGIN
-		if (vCheckVote () == true)
-		{
-			EndDMLevel ();
+		if (vCheckVote()) {
+			EndDMLevel();
 			return;
 		}
-		//PG BUND - END
 	}
 
-	if (fraglimit->value)
+	if (fraglimit->value > 0)
 	{
-		for (i = 0; i < maxclients->value; i++)
+		for (i = 0; i < game.maxclients; i++)
 		{
 			cl = game.clients + i;
 			if (!g_edicts[i + 1].inuse)
@@ -860,7 +851,7 @@ void CheckDMRules (void)
 				gi.bprintf (PRINT_HIGH, "Fraglimit hit.\n");
 				IRC_printf (IRC_T_GAME, "Fraglimit hit.");
 				if (ctf->value)
-				ResetPlayers ();
+					ResetPlayers ();
 				EndDMLevel ();
 				return;
 			}
@@ -883,7 +874,7 @@ void ExitLevel (void)
 	if(softquit) {
 		gi.bprintf(PRINT_HIGH, "Soft quit was requested by admin. The server will now exit.\n");
 		/* leave clients reconnecting just in case if the server will come back */
-		for (i = 1; i <= (int) (maxclients->value); i++)
+		for (i = 1; i <= game.maxclients; i++)
 		{
 			ent = getEnt (i);
 			if(!ent->inuse)
@@ -894,8 +885,9 @@ void ExitLevel (void)
 		Com_sprintf (command, sizeof (command), "quit\n");
 		gi.AddCommandString (command);
 		level.changemap = NULL;
-		level.exitintermission = 0;
-		level.intermissiontime = 0;
+		level.intermission_exit = 0;
+		level.intermission_framenum = 0;
+		level.pauseFrames = 0;
 		ClientEndServerFrames ();
 		return;
 	}
@@ -903,21 +895,12 @@ void ExitLevel (void)
 	Com_sprintf (command, sizeof (command), "gamemap \"%s\"\n", level.changemap);
 	gi.AddCommandString (command);
 	level.changemap = NULL;
-	level.exitintermission = 0;
-	level.intermissiontime = 0;
+	level.intermission_exit = 0;
+	level.intermission_framenum = 0;
+	level.pauseFrames = 0;
 	ClientEndServerFrames ();
 
 	// clear some things before going to next level
-	for (i = 0; i < maxclients->value; i++)
-	{
-		ent = g_edicts + 1 + i;
-		if (!ent->inuse)
-			continue;
-		if (ent->health > ent->client->pers.max_health)
-			ent->health = ent->client->pers.max_health;
-	}
-
-	//FIREBLADE
 	if (teamplay->value)
 	{
 		for(i=TEAM1; i<TEAM_TOP; i++)
@@ -927,7 +910,7 @@ void ExitLevel (void)
 			gi.cvar_forceset(teams[i].teamscore->name, "0");
 		}
 	}
-	//FIREBLADE
+
 	if (ctf->value)
 	{
 		CTFInit ();
@@ -938,7 +921,7 @@ void ExitLevel (void)
 int day_cycle_at = 0;		// variable that keeps track where we are in the cycle (0 = normal, 1 = darker, 2 = dark, 3 = pitch black, 4 = dark, 5 = darker)
 float day_next_cycle = 10.0;
 
-void CycleLights ()
+void CycleLights (void)
 {
 	static const char brightness[] = "mmmlkjihgfedcbaaabcdefghijkl";
 	char temp[2];
@@ -976,45 +959,22 @@ void G_RunFrame (void)
 	int i;
 	edict_t *ent;
 
-	realLtime += 0.1f;
-
-	if(pause_time)
-	{
-		if(pause_time <= 50) {
-			if(pause_time % 10 == 0)
-				CenterPrintAll (va("Game will unpause in %i seconds!", pause_time/10));
-		}
-		else if(pause_time == 100)
-			CenterPrintAll ("Game will unpause in 10 seconds!");
-		else if ((pause_time % 100) == 0)
-			gi.bprintf (PRINT_HIGH, "Game is paused for %i:%02i.\n", (pause_time/10)/60, (pause_time/10)%60);
-
-		pause_time--;
-	}
-
-	if(!pause_time)
-	{
-		level.framenum++;
-		level.time = level.framenum * FRAMETIME;
-
-		// choose a client for monsters to target this frame
-		AI_SetSightClient ();
-	}
-
 	// IRC poll
 	IRC_poll ();
 
 
 	// exit intermissions
-	if (level.exitintermission)
+	if (level.intermission_exit)
 	{
 		ExitLevel ();
 		return;
 	}
 
 	// TNG Darkmatch Cycle
-	if(!pause_time)
+	if(!level.pauseFrames)
 	{
+		int updateStatMode = (level.framenum % (80 * FRAMEDIV)) ? 0 : 1;
+
 		CycleLights ();
 
 		//
@@ -1029,21 +989,17 @@ void G_RunFrame (void)
 
 			level.current_entity = ent;
 
-			VectorCopy (ent->s.origin, ent->s.old_origin);
+			VectorCopy( ent->old_origin, ent->s.old_origin );
 
 			// if the ground entity moved, make sure we are still on it
 			if (ent->groundentity && ent->groundentity->linkcount != ent->groundentity_linkcount)
 			{
 				ent->groundentity = NULL;
-				if (!(ent->flags & (FL_SWIM | FL_FLY)) && ent->svflags & SVF_MONSTER)
-				{
-					M_CheckGround (ent);
-				}
 			}
 
-			if (i > 0 && i <= maxclients->value)
+			if (i > 0 && i <= game.maxclients)
 			{
-				if (!(level.framenum % 80)) 
+				if (updateStatMode)
 					stuffcmd(ent, "cmd_stat_mode $stat_mode\n");
 
 				// TNG Stats End
@@ -1063,6 +1019,34 @@ void G_RunFrame (void)
 
 	// build the playerstate_t structures for all players
 	ClientEndServerFrames ();
+
+	if (level.pauseFrames) {
+		if (level.pauseFrames <= 5 * HZ) {
+			if (level.pauseFrames % HZ == 0)
+				CenterPrintAll( va( "Game will unpause in %i seconds!", level.pauseFrames / HZ ) );
+		}
+		else if (level.pauseFrames == 10 * HZ) {
+			CenterPrintAll( "Game will unpause in 10 seconds!" );
+		}
+		else if ((level.pauseFrames % 10 * HZ) == 0) {
+			gi.bprintf( PRINT_HIGH, "Game is paused for %i:%02i.\n", (level.pauseFrames / HZ) / 60, (level.pauseFrames / HZ) % 60 );
+		}
+		level.pauseFrames--;
+	}
+
+	level.realFramenum++;
+	if (!level.pauseFrames)
+	{
+		// save old_origins for next frame
+		ent = &g_edicts[0];
+		for(i = 0; i < globals.num_edicts; i++, ent++)
+		{
+			if (ent->inuse)
+				VectorCopy( ent->s.origin, ent->old_origin );
+		}
+		level.framenum++;
+		level.time = level.framenum * FRAMETIME;
+	}
 }
 
 

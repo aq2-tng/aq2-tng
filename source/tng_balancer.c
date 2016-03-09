@@ -7,18 +7,16 @@ edict_t *FindNewestPlayer(int team)
 {
 	edict_t *etmp,*ent = NULL;
 	int i;
-	int most_time = 0;
+	unsigned int most_time = 0;
 
-	for (i = 1; i <= maxclients->value; i++)
+	for (i = 1; i <= game.maxclients; i++)
 	{
 		etmp = g_edicts + i;
-		if (etmp->inuse)
+		if (etmp->inuse && etmp->client->resp.team == team)
 		{
-			if(etmp->client->resp.team == team) {
-				if(etmp->client->resp.joined_team > most_time) {
-					most_time = etmp->client->resp.joined_team;
-                                        ent = etmp;
-				}
+			if(etmp->client->resp.joined_team > most_time) {
+				most_time = etmp->client->resp.joined_team;
+				ent = etmp;
 			}
 		}
 	}
@@ -31,7 +29,7 @@ void CalculatePlayers(int *team1, int *team2, int *team3, int *spectator)
 	edict_t *e;
 	int i;
 
-	for (i = 1; i <= maxclients->value; i++)
+	for (i = 1; i <= game.maxclients; i++)
 	{
 		e = g_edicts + i;
 		if (e->inuse)

@@ -232,6 +232,106 @@ qboolean FloodCheck (edict_t *ent)
 	return 0;
 }
 
+/*
+==============
+LookupPlayer
+==============
+Look up a player by partial subname, full name or client id. If multiple
+matches, show a list. Return NULL on failure. Case insensitive.
+*/
+edict_t *LookupPlayer(edict_t *ent, const char *text, qboolean checkNUM, qboolean checkNick)
+{
+	edict_t		*p, *entMatch;
+	int			i, matchCount, numericMatch;
+	char		match[32];
+	const char	*m, *name;
+
+	if (!text[0])
+		return NULL;
+
+	Q_strncpyz(match, text, sizeof(match));
+	matchCount = numericMatch = 0;
+
+	m = match;
+
+	while (*m) {
+		if (!Q_isdigit(*m)) {
+			break;
+		}
+		m++;
+	}
+
+	if (!*m && checkNUM)
+	{
+		numericMatch = atoi(match);
+		if (numericMatch < 0 || numericMatch >= game.maxclients)
+		{
+			if (ent)
+				gi.cprintf(ent, PRINT_HIGH, "Invalid client id %d.\n", numericMatch);
+			return 0;
+		}
+
+		p = g_edicts + 1 + numericMatch;
+		if (!p->inuse || !p->client || p->client->pers.mvdspec) {
+			if (ent)
+				gi.cprintf(ent, PRINT_HIGH, "Client %d is not active.\n", numericMatch);
+			return NULL;
+		}
+
+		return p;
+	}
+
+	if (!checkNick) {
+		if (ent)
+			gi.cprintf(ent, PRINT_HIGH, "Invalid client id '%s'\n", match);
+
+		return NULL;
+	}
+
+	for (i = 0, p = g_edicts + 1; i < game.maxclients; i++, p++)
+	{
+		if (!p->inuse || !p->client || p->client->pers.mvdspec)
+			continue;
+
+		name = p->client->pers.netname;
+		if (!Q_stricmp(name, match)) { //Exact match
+			return p;
+		}
+
+		if (Q_stristr(name, match)) {
+			matchCount++;
+			entMatch = p;
+			continue;
+		}
+	}
+
+	if (matchCount == 1) {
+		return entMatch;
+	}
+
+	if (matchCount > 1)
+	{
+		if (ent)
+		{
+			gi.cprintf(ent, PRINT_HIGH, "'%s' matches multiple players:\n", match);
+			for (i = 0, p = g_edicts + 1; i < game.maxclients; i++, p++) {
+				if (!p->inuse || !p->client || p->client->pers.mvdspec)
+					continue;
+
+				name = p->client->pers.netname;
+				if (Q_stristr(name, match)) {
+					gi.cprintf(ent, PRINT_HIGH, "%3d. %s\n", i, name);
+				}
+			}
+		}
+		return NULL;
+	}
+
+	if (ent)
+		gi.cprintf(ent, PRINT_HIGH, "No player match found for '%s'\n", match);
+
+	return NULL;
+}
 
 char *ClientTeam (edict_t * ent)
 {
@@ -248,13 +348,13 @@ char *ClientTeam (edict_t * ent)
 	if (!p)
 		return value;
 
-	if ((int) (dmflags->value) & DF_MODELTEAMS)
+	if (DMFLAGS(DF_MODELTEAMS))
 	{
 		*p = 0;
 		return value;
 	}
 
-	// if ((int)(dmflags->value) & DF_SKINTEAMS)
+	// if (DMFLAGS(DF_SKINTEAMS))
 	return ++p;
 }
 
@@ -270,7 +370,7 @@ qboolean OnSameTeam (edict_t * ent1, edict_t * ent2)
 		return ent1->client->resp.team == ent2->client->resp.team;
 	//FIREBLADE
 
-	if (!((int) (dmflags->value) & (DF_MODELTEAMS | DF_SKINTEAMS)))
+	if (!DMFLAGS( (DF_MODELTEAMS | DF_SKINTEAMS) ))
 		return false;
 
 	Q_strncpyz (ent1Team, ClientTeam(ent1), sizeof(ent1Team));
@@ -283,7 +383,7 @@ qboolean OnSameTeam (edict_t * ent1, edict_t * ent2)
 }
 
 
-void SelectNextItem (edict_t * ent, int itflags)
+static void SelectNextItem (edict_t * ent, int itflags)
 {
 	gclient_t *cl;
 	int i, index;
@@ -291,13 +391,10 @@ void SelectNextItem (edict_t * ent, int itflags)
 
 	cl = ent->client;
 
-	//FIREBLADE
-	if (cl->menu)
-	{
-		PMenu_Next (ent);
+	if (cl->layout == LAYOUT_MENU) {
+		PMenu_Next(ent);
 		return;
 	}
-	//FIREBLADE
 
 	if (ent->solid == SOLID_NOT && ent->deadflag != DEAD_DEAD)
 		return;
@@ -305,8 +402,8 @@ void SelectNextItem (edict_t * ent, int itflags)
 	// scan  for the next valid one
 	for (i = 1; i <= MAX_ITEMS; i++)
 	{
-		index = (cl->pers.selected_item + i) % MAX_ITEMS;
-		if (!cl->pers.inventory[index])
+		index = (cl->selected_item + i) % MAX_ITEMS;
+		if (!cl->inventory[index])
 			continue;
 		it = &itemlist[index];
 		if (!it->use)
@@ -314,14 +411,14 @@ void SelectNextItem (edict_t * ent, int itflags)
 		if (!(it->flags & itflags))
 			continue;
 
-		cl->pers.selected_item = index;
+		cl->selected_item = index;
 		return;
 	}
 
-	cl->pers.selected_item = -1;
+	cl->selected_item = -1;
 }
 
-void SelectPrevItem (edict_t * ent, int itflags)
+static void SelectPrevItem (edict_t * ent, int itflags)
 {
 	gclient_t *cl;
 	int i, index;
@@ -329,13 +426,10 @@ void SelectPrevItem (edict_t * ent, int itflags)
 
 	cl = ent->client;
 
-	//FIREBLADE
-	if (cl->menu)
-	{
+	if (cl->layout == LAYOUT_MENU) {
 		PMenu_Prev (ent);
 		return;
 	}
-	//FIREBLADE
 
 	if (ent->solid == SOLID_NOT && ent->deadflag != DEAD_DEAD)
 		return;
@@ -343,8 +437,8 @@ void SelectPrevItem (edict_t * ent, int itflags)
 	// scan  for the next valid one
 	for (i = 1; i <= MAX_ITEMS; i++)
 	{
-		index = (cl->pers.selected_item + MAX_ITEMS - i) % MAX_ITEMS;
-		if (!cl->pers.inventory[index])
+		index = (cl->selected_item + MAX_ITEMS - i) % MAX_ITEMS;
+		if (!cl->inventory[index])
 			continue;
 		it = &itemlist[index];
 		if (!it->use)
@@ -352,11 +446,11 @@ void SelectPrevItem (edict_t * ent, int itflags)
 		if (!(it->flags & itflags))
 			continue;
 
-		cl->pers.selected_item = index;
+		cl->selected_item = index;
 		return;
 	}
 
-	cl->pers.selected_item = -1;
+	cl->selected_item = -1;
 }
 
 void ValidateSelectedItem (edict_t * ent)
@@ -365,7 +459,7 @@ void ValidateSelectedItem (edict_t * ent)
 
 	cl = ent->client;
 
-	if (cl->pers.inventory[cl->pers.selected_item])
+	if (cl->inventory[cl->selected_item])
 		return;			// valid
 
 	SelectNextItem (ent, -1);
@@ -381,7 +475,7 @@ Cmd_Give_f
 Give items to a client
 ==================
 */
-void Cmd_Give_f (edict_t * ent)
+static void Cmd_Give_f (edict_t * ent)
 {
 	char *name;
 	char fixedname[32];
@@ -392,15 +486,8 @@ void Cmd_Give_f (edict_t * ent)
 	edict_t *it_ent;
 	edict_t etemp;
 
-	if (deathmatch->value && !sv_cheats->value)
-	{
-		gi.cprintf (ent, PRINT_HIGH, "You must run the server with '+set cheats 1' to enable this command.\n");
-		return;
-	}
-
-	if (ent->solid == SOLID_NOT)
-	{
-		gi.cprintf (ent, PRINT_HIGH, "This command can't be used by spectators.\n");
+	if (ent->solid == SOLID_NOT) {
+		gi.cprintf(ent, PRINT_HIGH, "This command can't be used by spectators.\n");
 		return;
 	}
 
@@ -432,7 +519,7 @@ void Cmd_Give_f (edict_t * ent)
 				continue;
 			if (!(it->flags & IT_WEAPON))
 				continue;
-			ent->client->pers.inventory[i] += 1;
+			ent->client->inventory[i] += 1;
 		}
 		if (!give_all)
 			return;
@@ -488,14 +575,14 @@ void Cmd_Give_f (edict_t * ent)
 		gitem_armor_t   *info;
 
 		it = FindItem("Jacket Armor");
-		ent->client->pers.inventory[ITEM_INDEX(it)] = 0;
+		ent->client->inventory[ITEM_INDEX(it)] = 0;
 
 		it = FindItem("Combat Armor");
-		ent->client->pers.inventory[ITEM_INDEX(it)] = 0;
+		ent->client->inventory[ITEM_INDEX(it)] = 0;
 
 		it = FindItem("Body Armor");
 		info = (gitem_armor_t *)it->info;
-		ent->client->pers.inventory[ITEM_INDEX(it)] = info->max_count;
+		ent->client->inventory[ITEM_INDEX(it)] = info->max_count;
 
 		if (!give_all)
 		*/
@@ -526,7 +613,7 @@ void Cmd_Give_f (edict_t * ent)
 				continue;
 			if (it->flags & (IT_ARMOR|IT_WEAPON|IT_AMMO))
 				continue;
-			ent->client->pers.inventory[i] = 1;
+			ent->client->inventory[i] = 1;
 		}
 		return;
 	} */
@@ -564,11 +651,11 @@ void Cmd_Give_f (edict_t * ent)
 	if (it->flags & IT_AMMO)
 	{
 		/*  if (gi.argc() == 5)
-			ent->client->pers.inventory[index] = atoi(gi.argv(4));
+			ent->client->inventory[index] = atoi(gi.argv(4));
 		else if ( (gi.argc() == 4)  && !(Q_stricmp(it->pickup_name, "12 Gauge Shells")) )
-			ent->client->pers.inventory[index] = atoi(gi.argv(3));
+			ent->client->inventory[index] = atoi(gi.argv(3));
 		else */
-			ent->client->pers.inventory[index] += it->quantity;
+			ent->client->inventory[index] += it->quantity;
 	}
 	else if (it->flags & IT_ITEM)
 	{
@@ -600,16 +687,9 @@ Sets client to godmode
 argv(0) god
 ==================
 */
-void Cmd_God_f (edict_t * ent)
+static void Cmd_God_f (edict_t * ent)
 {
 	char *msg;
-
-	if (deathmatch->value && !sv_cheats->value)
-	{
-		gi.cprintf (ent, PRINT_HIGH,
-		"You must run the server with '+set cheats 1' to enable this command.\n");
-		return;
-	}
 
 	ent->flags ^= FL_GODMODE;
 	if (!(ent->flags & FL_GODMODE))
@@ -630,16 +710,9 @@ Sets client to notarget
 argv(0) notarget
 ==================
 */
-void Cmd_Notarget_f (edict_t * ent)
+static void Cmd_Notarget_f (edict_t * ent)
 {
 	char *msg;
-
-	if (deathmatch->value && !sv_cheats->value)
-	{
-		gi.cprintf (ent, PRINT_HIGH,
-		"You must run the server with '+set cheats 1' to enable this command.\n");
-		return;
-	}
 
 	ent->flags ^= FL_NOTARGET;
 	if (!(ent->flags & FL_NOTARGET))
@@ -658,16 +731,9 @@ Cmd_Noclip_f
 argv(0) noclip
 ==================
 */
-void Cmd_Noclip_f (edict_t * ent)
+static void Cmd_Noclip_f (edict_t * ent)
 {
 	char *msg;
-
-	if (deathmatch->value && !sv_cheats->value)
-	{
-		gi.cprintf (ent, PRINT_HIGH,
-		"You must run the server with '+set cheats 1' to enable this command.\n");
-		return;
-	}
 
 	if (ent->movetype == MOVETYPE_NOCLIP)
 	{
@@ -691,94 +757,97 @@ Cmd_Use_f
 Use an inventory item
 ==================
 */
-void Cmd_Use_f (edict_t * ent)
+static void Cmd_Use_f (edict_t * ent)
 {
-	gitem_t *it;
+	gitem_t *it = NULL;
 	char *s;
+	int itemNum = 0;
 
-	s = gi.args ();
+	s = gi.args();
 
-	//zucc - check for "special"
-	if (Q_stricmp (s, "special") == 0)
-	{
-		ReadySpecialWeapon (ent);
+	if (!*s || (ent->solid == SOLID_NOT && ent->deadflag != DEAD_DEAD)) {
+		gi.cprintf(ent, PRINT_HIGH, "Unknown item: %s\n", s);
 		return;
 	}
 
-	//zucc - alias names
-	if (!Q_stricmp (s, "blaster") || !Q_stricmp (s, "mark 23 pistol"))
-		s = MK23_NAME;
-	else if (!Q_stricmp (s, "A 2nd pistol") || !Q_stricmp (s, "railgun"))
-		s = DUAL_NAME;
-	else if (!Q_stricmp (s, "shotgun"))
-		s = M3_NAME;
-	else if (!Q_stricmp (s, "machinegun"))
-		s = HC_NAME;
-	else if (!Q_stricmp (s, "super shotgun"))
-		s = MP5_NAME;
-	else if (!Q_stricmp (s, "chaingun"))
-		s = SNIPER_NAME;
-	else if (!Q_stricmp (s, "bfg10k"))
-		s = KNIFE_NAME;
-	// zucc - let people pull up a knife ready to be thrown
-	else if (!Q_stricmp (s, "throwing combat knife"))
+	//zucc - check for "special"
+	if (!Q_stricmp(s, "special")) {
+		ReadySpecialWeapon(ent);
+		return;
+	}
+
+	if (!Q_stricmp(s, "throwing combat knife"))
 	{
 		if (ent->client->curr_weap != KNIFE_NUM)
 		{
-			ent->client->resp.knife_mode = 1;
+			ent->client->pers.knife_mode = 1;
 		}
 		else // switch to throwing mode if a knife is already out
 		{
-			//if(!ent->client->resp.knife_mode)
-				Cmd_New_Weapon_f (ent);
+			//if(!ent->client->pers.knife_mode)
+				Cmd_New_Weapon_f(ent);
 		}
-		s = KNIFE_NAME;
+		itemNum = KNIFE_NUM;
 	}
-	else if (!Q_stricmp (s, "slashing combat knife"))
+	else if (!Q_stricmp(s, "slashing combat knife"))
 	{
 		if (ent->client->curr_weap != KNIFE_NUM)
 		{
-			ent->client->resp.knife_mode = 0;
+			ent->client->pers.knife_mode = 0;
 		}
 		else // switch to slashing mode if a knife is already out
 		{
-			//if(ent->client->resp.knife_mode)
-				Cmd_New_Weapon_f (ent);
+			//if(ent->client->pers.knife_mode)
+				Cmd_New_Weapon_f(ent);
 		}
-		s = KNIFE_NAME;
+		itemNum = KNIFE_NUM;
 	}
-	else if (!Q_stricmp (s, "grenade launcher"))
-		s = M4_NAME;
-	else if (!Q_stricmp (s, "grenades"))
-		s = GRENADE_NAME;
 
-	it = FindItem (s);
+	if (!itemNum) {
+		itemNum = GetWeaponNumFromArg(s);
+		if (!itemNum) //Check Q2 weapon names
+		{
+			if (!Q_stricmp(s, "blaster"))
+				itemNum = MK23_NUM;
+			else if (!Q_stricmp(s, "railgun"))
+				itemNum = DUAL_NUM;
+			else if (!Q_stricmp(s, "machinegun"))
+				itemNum = HC_NUM;
+			else if (!Q_stricmp(s, "super shotgun"))
+				itemNum = MP5_NUM;
+			else if (!Q_stricmp(s, "chaingun"))
+				itemNum = SNIPER_NUM;
+			else if (!Q_stricmp(s, "bfg10k"))
+				itemNum = KNIFE_NUM;
+			else if (!Q_stricmp(s, "grenade launcher"))
+				itemNum = M4_NUM;
+			else if (!Q_stricmp(s, "grenades"))
+				itemNum = GRENADE_NUM;
+		}
+	}
 
-	//FIREBLADE
-	if (!it || (ent->solid == SOLID_NOT && ent->deadflag != DEAD_DEAD))
-	//FIREBLADE
-	{
-		gi.cprintf (ent, PRINT_HIGH, "Unknown item: %s\n", s);	// fixed capitalization -FB
+	if (itemNum)
+		it = GET_ITEM(itemNum);
+	else
+		it = FindItem(s);
+
+	if (!it) {
+		gi.cprintf(ent, PRINT_HIGH, "Unknown item: %s\n", s);
 		return;
 	}
 
-	if (!it->use)
-	{
+	if (!it->use) {
 		gi.cprintf (ent, PRINT_HIGH, "Item is not usable.\n");
 		return;
 	}
 
-	if (!ent->client->pers.inventory[ITEM_INDEX (it)])
-	{
+	if (!ent->client->inventory[ITEM_INDEX(it)]) {
 		gi.cprintf (ent, PRINT_HIGH, "Out of item: %s\n", s);
 		return;
 	}
 
-	//TempFile
 	ent->client->autoreloading = false;
-	//TempFile
-
-	it->use (ent, it);
+	it->use(ent, it);
 }
 
 /*
@@ -788,13 +857,13 @@ Cmd_Drop_f
 Drop an inventory item
 ==================
 */
-void Cmd_Drop_f (edict_t * ent)
+static void Cmd_Drop_f (edict_t * ent)
 {
 	int index;
 	gitem_t *it;
 	char *s;
 
-	if (ent->solid == SOLID_NOT || ent->deadflag == DEAD_DEAD)
+	if (!IS_ALIVE(ent))
 		return;
 
 	s = gi.args ();
@@ -836,7 +905,7 @@ void Cmd_Drop_f (edict_t * ent)
 		return;
 	}
 	index = ITEM_INDEX (it);
-	if (!ent->client->pers.inventory[index])
+	if (!ent->client->inventory[index])
 	{
 		gi.cprintf (ent, PRINT_HIGH, "Out of item: %s\n", s);
 		return;
@@ -858,58 +927,38 @@ void Cmd_Inven_f (edict_t * ent)
 
 	cl = ent->client;
 
-	cl->showscores = false;
-	cl->showhelp = false;
-
-	//FIREBLADE
-	if (ent->client->menu)
-	{
-		PMenu_Close (ent);
+	if (cl->layout == LAYOUT_MENU) {
+		PMenu_Close(ent);
 		return;
 	}
-	//FIREBLADE
 
-	if (cl->showinventory)
-	{
+	if (cl->showinventory) {
 		cl->showinventory = false;
 		return;
 	}
 
-	cl->resp.menu_shown = true;
+	cl->pers.menu_shown = true;
 
-	//FIREBLADE
-	if (teamdm->value || ctf->value == 2) {
-		if (ent->client->resp.team == NOTEAM) {
-			OpenJoinMenu (ent);
-			return;
-		}
-	}
-	else if (teamplay->value)
-	{
-		cl->resp.menu_shown = true;
-		if (ent->client->resp.team == NOTEAM)
-			OpenJoinMenu (ent);
-		else
-			OpenWeaponMenu (ent);
+	if (teamplay->value && !ent->client->resp.team) {
+		OpenJoinMenu (ent);
 		return;
 	}
-	//FIREBLADE
 
-	if (dm_choose->value)
-	{
-		OpenWeaponMenu (ent);
-		cl->showinventory = false;
+	if (gameSettings & GS_WEAPONCHOOSE) {
+		OpenWeaponMenu(ent);
 		return;
 	}
+
+	if (teamplay->value)
+		return;
 
 	cl->showinventory = true;
 
-	gi.WriteByte (svc_inventory);
-	for (i = 0; i < MAX_ITEMS; i++)
-	{
-		gi.WriteShort (cl->pers.inventory[i]);
+	gi.WriteByte(svc_inventory);
+	for (i = 0; i < MAX_ITEMS; i++) {
+		gi.WriteShort(cl->inventory[i]);
 	}
-	gi.unicast (ent, true);
+	gi.unicast(ent, true);
 }
 
 /*
@@ -921,28 +970,23 @@ void Cmd_InvUse_f (edict_t * ent)
 {
 	gitem_t *it;
 
-	//FIREBLADE
-	if (ent->client->menu)
-	{
-		PMenu_Select (ent);
+	if (ent->client->layout == LAYOUT_MENU) {
+		PMenu_Select(ent);
 		return;
 	}
-	//FIREBLADE
 
-	if (ent->solid == SOLID_NOT && ent->deadflag != DEAD_DEAD)
+	if (!IS_ALIVE(ent))
 		return;
 
 	ValidateSelectedItem (ent);
 
-	if (ent->client->pers.selected_item == -1)
-	{
-		gi.cprintf (ent, PRINT_HIGH, "No item to use.\n");
+	if (ent->client->selected_item < 1) {
+		gi.cprintf(ent, PRINT_HIGH, "No item to use.\n");
 		return;
 	}
 
-	it = &itemlist[ent->client->pers.selected_item];
-	if (!it->use)
-	{
+	it = &itemlist[ent->client->selected_item];
+	if (!it->use) {
 		gi.cprintf (ent, PRINT_HIGH, "Item is not usable.\n");
 		return;
 	}
@@ -954,14 +998,14 @@ void Cmd_InvUse_f (edict_t * ent)
 Cmd_WeapPrev_f
 =================
 */
-void Cmd_WeapPrev_f (edict_t * ent)
+static void Cmd_WeapPrev_f (edict_t * ent)
 {
 	gclient_t *cl;
 	int i, index;
 	gitem_t *it;
 	int selected_weapon;
 
-	if (ent->solid == SOLID_NOT && ent->deadflag != DEAD_DEAD)
+	if (!IS_ALIVE(ent))
 		return;
 
 	cl = ent->client;
@@ -975,7 +1019,7 @@ void Cmd_WeapPrev_f (edict_t * ent)
 	for (i = 1; i <= MAX_ITEMS; i++)
 	{
 		index = (selected_weapon + i) % MAX_ITEMS;
-		if (!cl->pers.inventory[index])
+		if (!cl->inventory[index])
 			continue;
 		it = &itemlist[index];
 		if (!it->use)
@@ -993,14 +1037,14 @@ void Cmd_WeapPrev_f (edict_t * ent)
 Cmd_WeapNext_f
 =================
 */
-void Cmd_WeapNext_f (edict_t * ent)
+static void Cmd_WeapNext_f (edict_t * ent)
 {
 	gclient_t *cl;
 	int i, index;
 	gitem_t *it;
 	int selected_weapon;
 
-	if (ent->solid == SOLID_NOT && ent->deadflag != DEAD_DEAD)
+	if (!IS_ALIVE(ent))
 		return;
 
 	cl = ent->client;
@@ -1014,7 +1058,7 @@ void Cmd_WeapNext_f (edict_t * ent)
 	for (i = 1; i <= MAX_ITEMS; i++)
 	{
 		index = (selected_weapon + MAX_ITEMS - i) % MAX_ITEMS;
-		if (!cl->pers.inventory[index])
+		if (!cl->inventory[index])
 			continue;
 		it = &itemlist[index];
 		if (!it->use)
@@ -1032,13 +1076,13 @@ void Cmd_WeapNext_f (edict_t * ent)
 Cmd_WeapLast_f
 =================
 */
-void Cmd_WeapLast_f (edict_t * ent)
+static void Cmd_WeapLast_f (edict_t * ent)
 {
 	gclient_t *cl;
 	int index;
 	gitem_t *it;
 
-	if (ent->solid == SOLID_NOT && ent->deadflag != DEAD_DEAD)
+	if (!IS_ALIVE(ent))
 		return;
 
 	cl = ent->client;
@@ -1047,7 +1091,7 @@ void Cmd_WeapLast_f (edict_t * ent)
 		return;
 
 	index = ITEM_INDEX (cl->pers.lastweapon);
-	if (!cl->pers.inventory[index])
+	if (!cl->inventory[index])
 		return;
 	it = &itemlist[index];
 	if (!it->use)
@@ -1062,7 +1106,7 @@ void Cmd_WeapLast_f (edict_t * ent)
 Cmd_InvDrop_f
 =================
 */
-void Cmd_InvDrop_f (edict_t * ent)
+static void Cmd_InvDrop_f (edict_t * ent)
 {
 	gitem_t *it;
 
@@ -1071,25 +1115,22 @@ void Cmd_InvDrop_f (edict_t * ent)
 		return;
 	// TNG: End
 
-	if (ent->solid == SOLID_NOT && ent->deadflag != DEAD_DEAD)
+	if (!IS_ALIVE(ent))
 		return;
 
-	ValidateSelectedItem (ent);
+	ValidateSelectedItem(ent);
 
-	if (ent->client->pers.selected_item == -1)
-	{
-		gi.cprintf (ent, PRINT_HIGH, "No item to drop.\n");
+	if (ent->client->selected_item < 1) {
+		gi.cprintf(ent, PRINT_HIGH, "No item to drop.\n");
 		return;
 	}
 
-	it = &itemlist[ent->client->pers.selected_item];
-	if (!it->drop)
-	{
+	it = &itemlist[ent->client->selected_item];
+	if (!it->drop) {
 		gi.cprintf (ent, PRINT_HIGH, "Item is not dropable.\n");
 		return;
 	}
-	it->drop (ent, it);
-
+	it->drop(ent, it);
 }
 
 /*
@@ -1097,45 +1138,16 @@ void Cmd_InvDrop_f (edict_t * ent)
 Cmd_Kill_f
 =================
 */
-void Cmd_Kill_f (edict_t * ent)
+static void Cmd_Kill_f (edict_t * ent)
 {
 	//FIREBLADE
-	if (ent->solid == SOLID_NOT || ent->deadflag == DEAD_DEAD)
+	if (!IS_ALIVE(ent))
 		return;
-	//FIREBLADE
-	// AQ:TNG - JBravo adding punishkills
-	if (punishkills->value)
-	{
-		if (ent->client->attacker && ent->client->attacker->client &&
-		(ent->client->attacker->client != ent->client))
-		{
-			char deathmsg[64];
-			Com_sprintf(deathmsg, sizeof(deathmsg), "%s ph34rs %s so much %s committed suicide! :)\n",
-				ent->client->pers.netname, ent->client->attacker->client->pers.netname,
-				ent->client->resp.radio_gender ? "she" : "he");
-			PrintDeathMessage(deathmsg, ent);
-			if(team_round_going || !OnSameTeam(ent, ent->client->attacker)) {
-				Add_Frag (ent->client->attacker);
-				Subtract_Frag (ent);
-				ent->client->resp.deaths++;
-			}
-		}
-	}
-	// End punishkills
+	
+	if ((level.framenum - ent->client->respawn_time) < 5 * HZ)
+		return;
 
-	if ((level.time - ent->client->respawn_time) < 5)
-		return;
-	ent->flags &= ~FL_GODMODE;
-	ent->health = 0;
-	meansOfDeath = MOD_SUICIDE;
-	player_die (ent, ent, ent, 100000, vec3_origin);
-// Forget all this... -FB
-//        // don't even bother waiting for death frames
-//        ent->deadflag = DEAD_DEAD;
-////FIREBLADE
-//        if (!teamplay->value)
-////FIREBLADE
-//                respawn (ent);
+	killPlayer(ent, true);
 }
 
 /*
@@ -1143,33 +1155,12 @@ void Cmd_Kill_f (edict_t * ent)
 Cmd_PutAway_f
 =================
 */
-void Cmd_PutAway_f (edict_t * ent)
+void Cmd_PutAway_f(edict_t *ent)
 {
-	ent->client->showscores = false;
-	ent->client->showhelp = false;
-	ent->client->showinventory = false;
-//FIREBLADE
-	if (ent->client->menu)
-		PMenu_Close (ent);
-//FIREBLADE
-}
+	if (ent->client->layout == LAYOUT_MENU)
+		PMenu_Close(ent);
 
-
-int PlayerSort (void const *a, void const *b)
-{
-	int anum, bnum;
-
-	anum = *(int *) a;
-	bnum = *(int *) b;
-
-	anum = game.clients[anum].ps.stats[STAT_FRAGS];
-	bnum = game.clients[bnum].ps.stats[STAT_FRAGS];
-
-	if (anum < bnum)
-		return -1;
-	if (anum > bnum)
-		return 1;
-	return 0;
+	ent->client->layout = LAYOUT_NONE;
 }
 
 /*
@@ -1177,39 +1168,33 @@ int PlayerSort (void const *a, void const *b)
 Cmd_Players_f
 =================
 */
-void Cmd_Players_f (edict_t * ent)
+static void Cmd_Players_f (edict_t * ent)
 {
 	int i;
 	int count = 0;
 	char small[64];
 	char large[1024];
-	int index[256];
+	gclient_t *sortedClients[MAX_CLIENTS], *cl;
 
-
-	for (i = 0; i < maxclients->value; i++)
-	{
-		if (game.clients[i].pers.connected)
-			index[count++] = i;
-	}
 
 	if (!teamplay->value || !noscore->value)
-	{
-		// sort by frags
-		qsort (index, count, sizeof (index[0]), PlayerSort);
-	}
+		count = G_SortedClients( sortedClients );
+	else
+		count = G_NotSortedClients( sortedClients );
 
 	// print information
 	large[0] = 0;
 
 	for (i = 0; i < count; i++)
 	{
+		cl = sortedClients[i];
 		if (!teamplay->value || !noscore->value)
 			Com_sprintf (small, sizeof (small), "%3i %s\n",
-				game.clients[index[i]].ps.stats[STAT_FRAGS],
-				game.clients[index[i]].pers.netname);
+				cl->ps.stats[STAT_FRAGS],
+				cl->pers.netname );
 		else
 			Com_sprintf (small, sizeof (small), "%s\n",
-				game.clients[index[i]].pers.netname);
+				cl->pers.netname);
 
 		if (strlen(small) + strlen(large) > sizeof (large) - 20)
 		{			// can't print all of them in one packet
@@ -1219,7 +1204,7 @@ void Cmd_Players_f (edict_t * ent)
 		strcat (large, small);
 	}
 
-	gi.cprintf (ent, PRINT_HIGH, "%s\n%i players\n", large, count);
+	gi.cprintf(ent, PRINT_HIGH, "%s\n%i players\n", large, count);
 }
 
 /*
@@ -1227,7 +1212,7 @@ void Cmd_Players_f (edict_t * ent)
 Cmd_Wave_f
 =================
 */
-void Cmd_Wave_f (edict_t * ent)
+static void Cmd_Wave_f (edict_t * ent)
 {
 	int i;
 
@@ -1240,7 +1225,7 @@ void Cmd_Wave_f (edict_t * ent)
 
 	if(wave_time->value > 0)
 	{
-		if(ent->client->resp.lastWave + ((int)wave_time->value * 10) > level.framenum)
+		if(ent->client->resp.lastWave + ((int)wave_time->value * HZ) > level.framenum)
 			return;
 
 		ent->client->resp.lastWave = level.framenum;
@@ -1287,17 +1272,17 @@ Cmd_Say_f
 */
 void Cmd_Say_f (edict_t * ent, qboolean team, qboolean arg0, qboolean partner_msg)
 {
-	//int i;  // FIXME: This was never used.
 	int j, offset_of_text;
 	edict_t *other;
 	char *args, text[256], *s;
-	//gclient_t *cl;  // FIXME: This was never used.
 	int meing = 0, isadmin = 0;
 
 	if (gi.argc() < 2 && !arg0)
 		return;
 	
 	args = gi.args();
+	if (!args)
+		return;
 
 	if (!sv_crlf->value)
 	{
@@ -1313,13 +1298,13 @@ void Cmd_Say_f (edict_t * ent, qboolean team, qboolean arg0, qboolean partner_ms
 	{
 		if (!Q_stricmp("%me", gi.argv(0))) {
 			meing = 4;
-			if(!args || !*args)
+			if (!*args)
 				return;
 		}
 	}
 	else
 	{
-		if(!args || !*args)
+		if (!*args)
 			return;
 
 		if (!Q_strnicmp("%me", args, 3))
@@ -1342,22 +1327,22 @@ void Cmd_Say_f (edict_t * ent, qboolean team, qboolean arg0, qboolean partner_ms
 	if (!teamplay->value)
 	{
 		//FIREBLADE
-		if (!((int)(dmflags->value) & (DF_MODELTEAMS | DF_SKINTEAMS)))
+		if (!DMFLAGS( (DF_MODELTEAMS | DF_SKINTEAMS) ))
 			team = false;
 	}
 	else if (matchmode->value)
 	{	
-		if (ent->client->resp.admin)
+		if (ent->client->pers.admin)
 			isadmin = 1;
 
 		if (mm_forceteamtalk->value == 1)
 		{
-			if (!ent->client->resp.captain && !partner_msg && !isadmin)
+			if (!IS_CAPTAIN(ent) && !partner_msg && !isadmin)
 				team = true;
 		}
 		else if (mm_forceteamtalk->value == 2)
 		{
-			if (!ent->client->resp.captain && !partner_msg && !isadmin &&
+			if (!IS_CAPTAIN(ent) && !partner_msg && !isadmin &&
 				(TeamsReady() || team_round_going))
 				team = true;
 		}
@@ -1372,34 +1357,30 @@ void Cmd_Say_f (edict_t * ent, qboolean team, qboolean arg0, qboolean partner_ms
 		}
 		if (!meing)		// TempFile
 			Com_sprintf (text, sizeof (text), "%s(%s): ",
-			(teamplay->value && (ent->solid == SOLID_NOT
-			|| ent->deadflag == DEAD_DEAD)) ? "[DEAD] " : "",
+			(teamplay->value && !IS_ALIVE(ent)) ? "[DEAD] " : "",
 			ent->client->pers.netname);
 		//TempFile - BEGIN
 		else
 			Com_sprintf (text, sizeof (text), "(%s%s ",
-			(teamplay->value && (ent->solid == SOLID_NOT
-			|| ent->deadflag == DEAD_DEAD)) ? "[DEAD] " : "",
+			(teamplay->value && !IS_ALIVE(ent)) ? "[DEAD] " : "",
 			ent->client->pers.netname);
 		//TempFile - END
 	}
 	else if (partner_msg)
 	{
-		if (ent->client->resp.radio_partner == NULL)
+		if (ent->client->resp.radio.partner == NULL)
 		{
 			gi.cprintf (ent, PRINT_HIGH, "You don't have a partner.\n");
 			return;
 		}
 		if (!meing)		//TempFile
 			Com_sprintf (text, sizeof (text), "[%sPARTNER] %s: ",
-			(teamplay->value && (ent->solid == SOLID_NOT
-			|| ent->deadflag == DEAD_DEAD)) ? "DEAD " : "",
+			(teamplay->value && !IS_ALIVE(ent)) ? "DEAD " : "",
 			ent->client->pers.netname);
 		//TempFile - BEGIN
 		else
 			Com_sprintf (text, sizeof (text), "%s partner %s ",
-			(teamplay->value && (ent->solid == SOLID_NOT
-			|| ent->deadflag == DEAD_DEAD)) ? "[DEAD] " : "",
+			(teamplay->value && !IS_ALIVE(ent)) ? "[DEAD] " : "",
 			ent->client->pers.netname);
 		//TempFile - END
 	}
@@ -1412,14 +1393,12 @@ void Cmd_Say_f (edict_t * ent, qboolean team, qboolean arg0, qboolean partner_ms
 				ent->client->pers.netname);
 			else
 				Com_sprintf (text, sizeof (text), "%s%s: ",
-				(teamplay->value && (ent->solid == SOLID_NOT
-				|| ent->deadflag == DEAD_DEAD)) ? "[DEAD] " : "",
+				(teamplay->value && !IS_ALIVE(ent)) ? "[DEAD] " : "",
 				ent->client->pers.netname);
 		}
 		else
 			Com_sprintf (text, sizeof (text), "%s%s ",
-			(teamplay->value && (ent->solid == SOLID_NOT
-			|| ent->deadflag == DEAD_DEAD)) ? "[DEAD] " : "",
+			(teamplay->value && !IS_ALIVE(ent)) ? "[DEAD] " : "",
 			ent->client->pers.netname);
 	}
 	//TempFile - END
@@ -1468,7 +1447,7 @@ void Cmd_Say_f (edict_t * ent, qboolean team, qboolean arg0, qboolean partner_ms
 	if (strlen(text) >= 254)
 		text[254] = 0;
 	
-	//if (ent->solid != SOLID_NOT && ent->deadflag != DEAD_DEAD)  // Disabled so we parse dead chat too.
+	//if( IS_ALIVE(ent) )  // Disabled so we parse dead chat too.
 	{
 		s = strchr(text + offset_of_text, '%');
 		if(s) {
@@ -1492,41 +1471,38 @@ void Cmd_Say_f (edict_t * ent, qboolean team, qboolean arg0, qboolean partner_ms
 	for (j = 1; j <= game.maxclients; j++)
 	{
 		other = &g_edicts[j];
-		if (!other->inuse)
+		if (!other->inuse || !other->client)
 			continue;
-		if (!other->client)
-			continue;
-		if (team)
+
+		if (other != ent)
 		{
-			// if we are the adminent... we might want to hear (if hearall is set)
-			if (!matchmode->value || !hearall->value || !other->client->resp.admin)	// hearall isn't set and we aren't adminent
-				if (!OnSameTeam (ent, other))
+			if (team)
+			{
+				// if we are the adminent... we might want to hear (if hearall is set)
+				if (!matchmode->value || !hearall->value || !other->client->pers.admin)	// hearall isn't set and we aren't adminent
+					if (!OnSameTeam(ent, other))
+						continue;
+			}
+
+			if (partner_msg && other != ent->client->resp.radio.partner)
+				continue;
+
+			if (team_round_going && (gameSettings & GS_ROUNDBASED))
+			{
+				if (!deadtalk->value && !IS_ALIVE(ent) && IS_ALIVE(other))
 					continue;
-		}
-		if (partner_msg)
-		{
-			if (other != ent->client->resp.radio_partner && other != ent)
+			}
+
+			if (IsInIgnoreList(other, ent))
 				continue;
 		}
-		//FIREBLADE
-		if (teamplay->value && team_round_going)
-		{
-			if ((ent->solid == SOLID_NOT || ent->deadflag == DEAD_DEAD) &&
-				(other->solid != SOLID_NOT && other->deadflag != DEAD_DEAD)
-				&& !ctf->value && !teamdm->value && !deadtalk->value)	//AQ2:TNG Slicer
-				continue;
-		}
-		//FIREBLADE
-		//PG BUND - BEGIN
-		if (IsInIgnoreList (other, ent))
-			continue;
-		//PG BUND - END
-		gi.cprintf (other, PRINT_CHAT, "%s", text);
+
+		gi.cprintf(other, PRINT_CHAT, "%s", text);
 	}
 
 }
 
-void Cmd_PlayerList_f (edict_t * ent)
+static void Cmd_PlayerList_f (edict_t * ent)
 {
 	int i;
 	char st[64];
@@ -1536,17 +1512,20 @@ void Cmd_PlayerList_f (edict_t * ent)
 	// connect time, ping, score, name
 
 	// Set the lines:
-	for (i = 0, e2 = g_edicts + 1; i < maxclients->value; i++, e2++)
+	for (i = 0, e2 = g_edicts + 1; i < game.maxclients; i++, e2++)
 	{
-		if (!e2->inuse)
+		int seconds = ((level.framenum - e2->client->resp.enterframe) / HZ) % 60;
+		int minutes = ((level.framenum - e2->client->resp.enterframe) / HZ) / 60;
+
+		if (!e2->inuse || !e2->client || e2->client->pers.mvdspec)
 			continue;
 
 		if(limchasecam->value)
-			Com_sprintf (st, sizeof (st), "%02d:%02d %4d %3d %s\n",(level.framenum - e2->client->resp.enterframe) / 600,((level.framenum - e2->client->resp.enterframe) % 600) / 10, e2->client->ping, e2->client->resp.team, e2->client->pers.netname); // This shouldn't show player's being 'spectators' during games with limchasecam set and/or during matchmode
+			Com_sprintf (st, sizeof (st), "%02d:%02d %4d %3d %s\n", minutes, seconds, e2->client->ping, e2->client->resp.team, e2->client->pers.netname); // This shouldn't show player's being 'spectators' during games with limchasecam set and/or during matchmode
 		else if (!teamplay->value || !noscore->value)
-			Com_sprintf (st, sizeof (st), "%02d:%02d %4d %3d %s%s\n",(level.framenum - e2->client->resp.enterframe) / 600,((level.framenum - e2->client->resp.enterframe) % 600) / 10, e2->client->ping, e2->client->resp.score, e2->client->pers.netname, (e2->solid == SOLID_NOT && e2->deadflag != DEAD_DEAD) ? " (dead)" : ""); // replaced 'spectator' with 'dead'
+			Com_sprintf (st, sizeof (st), "%02d:%02d %4d %3d %s%s\n", minutes, seconds, e2->client->ping, e2->client->resp.score, e2->client->pers.netname, (e2->solid == SOLID_NOT && e2->deadflag != DEAD_DEAD) ? " (dead)" : ""); // replaced 'spectator' with 'dead'
 		else
-			Com_sprintf (st, sizeof (st), "%02d:%02d %4d %s%s\n",(level.framenum - e2->client->resp.enterframe) / 600, ((level.framenum - e2->client->resp.enterframe) % 600) / 10, e2->client->ping, e2->client->pers.netname, (e2->solid == SOLID_NOT && e2->deadflag != DEAD_DEAD) ? " (dead)" : ""); // replaced 'spectator' with 'dead'
+			Com_sprintf (st, sizeof (st), "%02d:%02d %4d %s%s\n", minutes, seconds, e2->client->ping, e2->client->pers.netname, (e2->solid == SOLID_NOT && e2->deadflag != DEAD_DEAD) ? " (dead)" : ""); // replaced 'spectator' with 'dead'
 
 		if (strlen(text) + strlen(st) > sizeof(text) - 6)
 		{
@@ -1555,11 +1534,11 @@ void Cmd_PlayerList_f (edict_t * ent)
 		}
 		strcat (text, st);
 	}
-	gi.cprintf (ent, PRINT_HIGH, "%s", text);
+	gi.cprintf(ent, PRINT_HIGH, "%s", text);
 }
 
 //SLICER
-void Cmd_Ent_Count_f (edict_t * ent)
+static void Cmd_Ent_Count_f (edict_t * ent)
 {
 	int x = 0;
 	edict_t *e;
@@ -1570,10 +1549,373 @@ void Cmd_Ent_Count_f (edict_t * ent)
 			x++;
 	}
 
-	gi.cprintf (ent, PRINT_HIGH, "%d entities counted\n", x);
+	gi.cprintf(ent, PRINT_HIGH, "%d entities counted\n", x);
 }
 
 //SLICER END
+static void dmflagsSettings( char *s, size_t size, int flags )
+{
+	if (!flags) {
+		Q_strncatz( s, "NONE", size );
+		return;
+	}
+	if (flags & DF_NO_HEALTH)
+		Q_strncatz( s, "1 = no health ", size );
+	if (flags & DF_NO_ITEMS)
+		Q_strncatz( s, "2 = no items ", size );
+	if (flags & DF_WEAPONS_STAY)
+		Q_strncatz( s, "4 = weapons stay ", size );
+	if (flags & DF_NO_FALLING)
+		Q_strncatz( s, "8 = no fall damage ", size );
+	if (flags & DF_INSTANT_ITEMS)
+		Q_strncatz( s, "16 = instant items ", size );
+	if (flags & DF_SAME_LEVEL)
+		Q_strncatz( s, "32 = same level ", size );
+	if (flags & DF_SKINTEAMS)
+		Q_strncatz( s, "64 = skinteams ", size );
+	if (flags & DF_MODELTEAMS)
+		Q_strncatz( s, "128 = modelteams ", size );
+	if (flags & DF_NO_FRIENDLY_FIRE)
+		Q_strncatz( s, "256 = no ff ", size );
+	if (flags & DF_SPAWN_FARTHEST)
+		Q_strncatz( s, "512 = spawn fartherst ", size );
+	if (flags & DF_FORCE_RESPAWN)
+		Q_strncatz( s, "1024 = forse respawn ", size );
+	//if(flags & DF_NO_ARMOR)
+	//	Q_strncatz(s, "2048 = no armor ", size);
+	if (flags & DF_ALLOW_EXIT)
+		Q_strncatz( s, "4096 = allow exit ", size );
+	if (flags & DF_INFINITE_AMMO)
+		Q_strncatz( s, "8192 = infinite ammo ", size );
+	if (flags & DF_QUAD_DROP)
+		Q_strncatz( s, "16384 = quad drop ", size );
+	if (flags & DF_FIXED_FOV)
+		Q_strncatz( s, "32768 = fixed fov ", size );
+
+	if (flags & DF_WEAPON_RESPAWN)
+		Q_strncatz( s, "65536 = weapon respawn ", size );
+}
+
+extern char *menu_itemnames[ITEM_MAX_NUM];
+
+static void wpflagsSettings( char *s, size_t size, int flags )
+{
+	int i, num;
+
+	if (!(flags & WPF_MASK)) {
+		Q_strncatz( s, "No weapons", size );
+		return;
+	}
+	if ((flags & WPF_MASK) == WPF_MASK) {
+		Q_strncatz( s, "All weapons", size );
+		return;
+	}
+
+	for (i = 0; i<WEAPON_COUNT; i++) {
+		num = WEAPON_FIRST + i;
+		if (flags == items[WEAPON_FIRST + i].flag) {
+			Q_strncatz( s, va("%s only", menu_itemnames[num]), size );
+			return;
+		}
+	}
+
+	for (i = 0; i<WEAPON_COUNT; i++) {
+		num = WEAPON_FIRST + i;
+		if (flags & items[num].flag) {
+			Q_strncatz( s, va("%d = %s ", items[num].flag, menu_itemnames[num]), size );
+		}
+	}
+}
+
+static void itmflagsSettings( char *s, size_t size, int flags )
+{
+	int i, num;
+
+	if (!(flags & ITF_MASK)) {
+		Q_strncatz( s, "No items", size );
+		return;
+	}
+	if ((flags & ITF_MASK) == ITF_MASK) {
+		Q_strncatz( s, "All items", size );
+		return;
+	}
+
+	for (i = 0; i<ITEM_COUNT; i++) {
+		num = ITEM_FIRST + i;
+		if (flags == items[num].flag) {
+			Q_strncatz( s, va("%s only", menu_itemnames[num]), size );
+			return;
+		}
+	}
+
+	for (i = 0; i<ITEM_COUNT; i++) {
+		num = ITEM_FIRST + i;
+		if (flags & items[num].flag) {
+			Q_strncatz( s, va("%d = %s ", items[num].flag, menu_itemnames[num]), size );
+		}
+	}
+}
+
+//Print current match settings
+static void Cmd_PrintSettings_f( edict_t * ent )
+{
+	char text[1024] = "\0";
+	size_t length = 0;
+
+	if (game.serverfeatures & GMF_CLIENTNUM) {
+		Com_sprintf( text, sizeof( text ), "Server fps = %d\n", game.framerate );
+		length = strlen( text );
+	}
+
+	Com_sprintf( text + length, sizeof( text ) - length, "dmflags %i: ", (int)dmflags->value );
+	dmflagsSettings( text, sizeof( text ), (int)dmflags->value );
+
+	length = strlen( text );
+	Com_sprintf( text + length, sizeof( text ) - length, "\nwp_flags %i: ", (int)wp_flags->value );
+	wpflagsSettings( text, sizeof( text ), (int)wp_flags->value );
+
+	length = strlen( text );
+	Com_sprintf( text + length, sizeof( text ) - length, "\nitm_flags %i: ", (int)itm_flags->value );
+	itmflagsSettings( text, sizeof( text ), (int)itm_flags->value );
+
+	length = strlen( text );
+	Com_sprintf( text + length, sizeof( text ) - length, "\n"
+		"timelimit   %2d roundlimit  %2d roundtimelimit %2d\n"
+		"limchasecam %2d tgren       %2d hc_single      %2d\n"
+		"use_punch   %2d use_classic %2d\n",
+		(int)timelimit->value, (int)roundlimit->value, (int)roundtimelimit->value,
+		(int)limchasecam->value, (int)tgren->value, (int)hc_single->value,
+		(int)use_punch->value, (int)use_classic->value );
+
+	gi.cprintf( ent, PRINT_HIGH, text );
+}
+
+static void Cmd_SayAll_f (edict_t * ent) {
+	Cmd_Say_f (ent, false, false, false);
+}
+static void Cmd_SayTeam_f (edict_t * ent) {
+	if (teamplay->value) // disable mm2 trigger flooding
+		Cmd_Say_f (ent, true, false, false);
+}
+
+static void Cmd_Streak_f (edict_t * ent) {
+	gi.cprintf(ent,PRINT_HIGH, "Your Killing Streak is: %d\n", ent->client->resp.streakKills);
+}
+
+static void Cmd_LockTeam_f (edict_t * ent) {
+	Cmd_TeamLock_f(ent, 1);
+}
+
+static void Cmd_UnlockTeam_f (edict_t * ent) {
+	Cmd_TeamLock_f(ent, 0);
+}
+
+static void Cmd_PrintStats_f (edict_t *ent) {
+	Cmd_Stats_f(ent, gi.argv(1));
+}
+
+static void Cmd_PauseGame_f (edict_t *ent) {
+	Cmd_TogglePause_f(ent, true);
+}
+
+static void Cmd_UnpauseGame_f (edict_t *ent) {
+	Cmd_TogglePause_f(ent, false);
+}
+
+static void Cmd_InvNext_f (edict_t *ent) {
+	SelectNextItem(ent, -1);
+}
+
+static void Cmd_InvPrev_f (edict_t *ent) {
+	SelectPrevItem(ent, -1);
+}
+
+static void Cmd_InvNextw_f (edict_t *ent) {
+	SelectNextItem(ent, IT_WEAPON);
+}
+
+static void Cmd_InvPrevw_f (edict_t *ent) {
+	SelectPrevItem(ent, IT_WEAPON);
+}
+
+static void Cmd_InvNextp_f (edict_t *ent) {
+	SelectNextItem(ent, IT_POWERUP);
+}
+
+static void Cmd_InvPrevp_f (edict_t *ent) {
+	SelectPrevItem(ent, IT_POWERUP);
+}
+
+ // AQ2:TNG - Slicer : Video Check
+static void Cmd_VidRef_f (edict_t * ent)
+{
+	if (video_check->value || video_check_lockpvs->value)
+	{
+		Q_strncpyz(ent->client->resp.vidref, gi.argv(1), sizeof(ent->client->resp.vidref));
+	}
+
+}
+
+static void Cmd_CPSI_f (edict_t * ent)
+{
+	if (video_check->value || video_check_lockpvs->value || video_check_glclear->value || darkmatch->value)
+	{
+		ent->client->resp.glmodulate = atoi(gi.argv(1));
+		ent->client->resp.gllockpvs = atoi(gi.argv(2));
+		ent->client->resp.glclear = atoi(gi.argv(3));
+		ent->client->resp.gldynamic = atoi(gi.argv(4));
+		Q_strncpyz(ent->client->resp.gldriver, gi.argv (5), sizeof(ent->client->resp.gldriver));
+		//      strncpy(ent->client->resp.vidref,gi.argv(4),sizeof(ent->client->resp.vidref-1));
+		//      ent->client->resp.vidref[15] = 0;
+	}
+}
+
+#define CMDF_CHEAT	1 //Need cheat to be enabled
+#define CMDF_PAUSE	2 //Cant use while pause
+
+typedef struct cmdList_s
+{
+	const char *name;
+	void( *function ) (edict_t *ent);
+	int flags;
+	struct cmdList_s *next;
+	struct cmdList_s *hashNext;
+} cmdList_t;
+
+static cmdList_t commandList[] =
+{
+	{ "players", Cmd_Players_f, 0 },
+	{ "say", Cmd_SayAll_f, 0 },
+	{ "say_team", Cmd_SayTeam_f, 0 },
+	{ "score", Cmd_Score_f, 0 },
+	{ "help", Cmd_Help_f, 0 },
+	{ "use", Cmd_Use_f, CMDF_PAUSE },
+	{ "drop", Cmd_Drop_f, CMDF_PAUSE },
+	//cheats
+	{ "give", Cmd_Give_f, CMDF_CHEAT },
+	{ "god", Cmd_God_f, CMDF_CHEAT },
+	{ "notarget", Cmd_Notarget_f, CMDF_CHEAT },
+	{ "noclip", Cmd_Noclip_f, CMDF_CHEAT },
+	//-
+	{ "inven", Cmd_Inven_f, 0 },
+	{ "invnext", Cmd_InvNext_f, 0 },
+	{ "invprev", Cmd_InvPrev_f, 0 },
+	{ "invnextw", Cmd_InvNextw_f, 0 },
+	{ "invprevw", Cmd_InvPrevw_f, 0 },
+	{ "invnextp", Cmd_InvNextp_f, 0 },
+	{ "invprevp", Cmd_InvPrevp_f, 0 },
+	{ "invuse", Cmd_InvUse_f, CMDF_PAUSE },
+	{ "invdrop", Cmd_InvDrop_f, CMDF_PAUSE },
+	{ "weapprev", Cmd_WeapPrev_f, CMDF_PAUSE },
+	{ "weapnext", Cmd_WeapNext_f, CMDF_PAUSE },
+	{ "weaplast", Cmd_WeapLast_f, CMDF_PAUSE },
+	{ "kill", Cmd_Kill_f, 0 },
+	{ "putaway", Cmd_PutAway_f, 0 },
+	{ "wave", Cmd_Wave_f, CMDF_PAUSE },
+	{ "streak", Cmd_Streak_f, 0 },
+	{ "reload", Cmd_New_Reload_f, CMDF_PAUSE },
+	{ "weapon", Cmd_New_Weapon_f, CMDF_PAUSE },
+	{ "opendoor", Cmd_OpenDoor_f, CMDF_PAUSE },
+	{ "bandage", Cmd_Bandage_f, CMDF_PAUSE },
+	{ "id", Cmd_ID_f, 0 },
+	{ "irvision", Cmd_IR_f, CMDF_PAUSE },
+	{ "playerlist", Cmd_PlayerList_f, 0 },
+	{ "team", Team_f, 0 },
+	{ "radio", Cmd_Radio_f, 0 },
+	{ "radiogender", Cmd_Radiogender_f, 0 },
+	{ "radio_power", Cmd_Radio_power_f, 0 },
+	{ "radiopartner", Cmd_Radiopartner_f, 0 },
+	{ "radioteam", Cmd_Radioteam_f, 0 },
+	{ "channel", Cmd_Channel_f, 0 },
+	{ "say_partner", Cmd_Say_partner_f, 0 },
+	{ "partner", Cmd_Partner_f, 0 },
+	{ "unpartner", Cmd_Unpartner_f, 0 },
+	{ "motd", PrintMOTD, 0 },
+	{ "deny", Cmd_Deny_f, 0 },
+	{ "choose", Cmd_Choose_f, 0 },
+	{ "tkok", Cmd_TKOk, 0 },
+	{ "time", Cmd_Time, 0 },
+	{ "voice", Cmd_Voice_f, CMDF_PAUSE },
+	{ "setflag1", Cmd_SetFlag1_f, CMDF_PAUSE|CMDF_CHEAT },
+	{ "setflag2", Cmd_SetFlag2_f, CMDF_PAUSE|CMDF_CHEAT },
+	{ "saveflags", Cmd_SaveFlags_f, CMDF_PAUSE|CMDF_CHEAT },
+	{ "punch", Cmd_Punch_f, CMDF_PAUSE },
+	{ "menu", Cmd_Menu_f, 0 },
+	{ "rules", Cmd_Rules_f, 0 },
+	{ "lens", Cmd_Lens_f, CMDF_PAUSE },
+	{ "nextmap", Cmd_NextMap_f, 0 },
+	{ "%cpsi", Cmd_CPSI_f, 0 },
+	{ "%!fc", Cmd_VidRef_f, 0 },
+	{ "sub", Cmd_Sub_f, 0 },
+	{ "captain", Cmd_Captain_f, 0 },
+	{ "ready", Cmd_Ready_f, 0 },
+	{ "teamname", Cmd_Teamname_f, 0 },
+	{ "teamskin", Cmd_Teamskin_f, 0 },
+	{ "lock", Cmd_LockTeam_f, 0 },
+	{ "unlock", Cmd_UnlockTeam_f, 0 },
+	{ "entcount", Cmd_Ent_Count_f, 0 },
+	{ "stats", Cmd_PrintStats_f, 0 },
+	{ "flashlight", FL_make, CMDF_PAUSE },
+	{ "matchadmin", Cmd_SetAdmin_f, 0 },
+	{ "roundtimeleft", Cmd_Roundtimeleft_f, 0 },
+	{ "autorecord", Cmd_AutoRecord_f, 0 },
+	{ "stat_mode", Cmd_Statmode_f, 0 },
+	{ "cmd_stat_mode", Cmd_Statmode_f, 0 },
+	{ "ghost", Cmd_Ghost_f, 0 },
+	{ "pausegame", Cmd_PauseGame_f, 0 },
+	{ "unpausegame", Cmd_UnpauseGame_f, 0 },
+	{ "resetscores", Cmd_ResetScores_f, 0 },
+	{ "gamesettings", Cmd_PrintSettings_f, 0 },
+	//vote stuff
+	{ "votemap", Cmd_Votemap_f, 0 },
+	{ "maplist", Cmd_Maplist_f, 0 },
+	{ "votekick", Cmd_Votekick_f, 0 },
+	{ "votekicknum", Cmd_Votekicknum_f, 0 },
+	{ "kicklist", Cmd_Kicklist_f, 0 },
+	{ "ignore", Cmd_Ignore_f, 0 },
+	{ "ignorenum", Cmd_Ignorenum_f, 0 },
+	{ "ignorelist", Cmd_Ignorelist_f, 0 },
+	{ "ignoreclear", Cmd_Ignoreclear_f, 0 },
+	{ "ignorepart", Cmd_IgnorePart_f, 0 },
+	{ "voteconfig", Cmd_Voteconfig_f, 0 },
+	{ "configlist", Cmd_Configlist_f, 0 },
+	{ "votescramble", Cmd_Votescramble_f, 0 }
+};
+
+#define MAX_COMMAND_HASH 64
+
+static cmdList_t *commandHash[MAX_COMMAND_HASH];
+static const int numCommands = sizeof( commandList ) / sizeof( commandList[0] );
+
+size_t Cmd_HashValue( const char *name )
+{
+	size_t hash = 0;
+
+	while (*name) {
+		hash = hash * 33 + Q_tolower( *name++ );
+	}
+
+	return hash + (hash >> 5);
+}
+
+void InitCommandList( void )
+{
+
+	int i;
+	size_t hash;
+
+	for (i = 0; i < numCommands - 1; i++) {
+		commandList[i].next = &commandList[i + 1];
+	}
+	commandList[i].next = NULL;
+
+	memset( commandHash, 0, sizeof( commandHash ) );
+	for (i = 0; i < numCommands; i++) {
+		hash = Cmd_HashValue( commandList[i].name ) & (MAX_COMMAND_HASH - 1);
+		commandList[i].hashNext = commandHash[hash];
+		commandHash[hash] = &commandList[i];
+	}
+}
 
 /*
 =================
@@ -1582,476 +1924,34 @@ ClientCommand
 */
 void ClientCommand (edict_t * ent)
 {
-	char *cmd;
+	char		*text;
+	cmdList_t	*cmd;
+	size_t		hash;
 
 	if (!ent->client)
 		return;			// not fully in game yet
-	// if (level.intermissiontime)
+	// if (level.intermission_framenum)
 	// return;
 
-	cmd = gi.argv (0);
+	text = gi.argv(0);
 
-	if (Q_stricmp (cmd, "players") == 0)
-	{
-		Cmd_Players_f (ent);
-		return;
-	}
-	else if (Q_stricmp (cmd, "say") == 0)
-	{
-		Cmd_Say_f (ent, false, false, false);
-		return;
-	}
-	else if (Q_stricmp (cmd, "say_team") == 0)
-	{
-		/* people use automatic triggers with AprQ2 that are fine in teamplay but flood the server in dm */
-		if(!teamplay->value)
-			return;
-		Cmd_Say_f (ent, true, false, false);
-		return;
-	}
-	else if (Q_stricmp (cmd, "score") == 0)
-	{
-		Cmd_Score_f (ent);
-		return;
-	}
-	else if (Q_stricmp (cmd, "help") == 0)
-	{
-		Cmd_Help_f (ent);
-		return;
-	}
-	else if (Q_stricmp (cmd, "use") == 0)
-	{
-		if(pause_time)
-			return;
-		Cmd_Use_f (ent);
-		return;
-	}
-	else if (Q_stricmp (cmd, "drop") == 0)
-	{
-		if(pause_time)
-			return;
-		Cmd_Drop_f (ent);
-		return;
-	}
-	else if (Q_stricmp (cmd, "give") == 0)
-	{
-		Cmd_Give_f (ent);
-		return;
-	}
-	else if (Q_stricmp (cmd, "god") == 0)
-	{
-		Cmd_God_f (ent);
-		return;
-	}
-	else if (Q_stricmp (cmd, "notarget") == 0)
-	{
-		Cmd_Notarget_f (ent);
-		return;
-	}
-	else if (Q_stricmp (cmd, "noclip") == 0)
-	{
-		Cmd_Noclip_f (ent);
-		return;
-	}
-	else if (Q_stricmp (cmd, "inven") == 0)
-	{
-		Cmd_Inven_f (ent);
-		return;
-	}
-	else if (Q_stricmp (cmd, "invnext") == 0)
-	{
-		SelectNextItem (ent, -1);
-		return;
-	}
-	else if (Q_stricmp (cmd, "invprev") == 0)
-	{
-		SelectPrevItem (ent, -1);
-		return;
-	}
-	else if (Q_stricmp (cmd, "invnextw") == 0)
-	{
-		SelectNextItem (ent, IT_WEAPON);
-		return;
-	}
-	else if (Q_stricmp (cmd, "invprevw") == 0)
-	{
-		SelectPrevItem (ent, IT_WEAPON);
-		return;
-	}
-	else if (Q_stricmp (cmd, "invnextp") == 0)
-	{
-		SelectNextItem (ent, IT_POWERUP);
-		return;
-	}
-	else if (Q_stricmp (cmd, "invprevp") == 0)
-	{
-		SelectPrevItem (ent, IT_POWERUP);
-		return;
-	}
-	else if (Q_stricmp (cmd, "invuse") == 0)
-	{
-		Cmd_InvUse_f (ent);
-		return;
-	}
-	else if (Q_stricmp (cmd, "invdrop") == 0)
-	{
-		Cmd_InvDrop_f (ent);
-		return;
-	}
-	else if (Q_stricmp (cmd, "weapprev") == 0)
-	{
-		if(pause_time)
-			return;
-		Cmd_WeapPrev_f (ent);
-		return;
-	}
-	else if (Q_stricmp (cmd, "weapnext") == 0)
-	{
-		if(pause_time)
-			return;
-		Cmd_WeapNext_f (ent);
-		return;
-	}
-	else if (Q_stricmp (cmd, "weaplast") == 0)
-	{
-		if(pause_time)
-			return;
-		Cmd_WeapLast_f (ent);
-		return;
-	}
-	else if (Q_stricmp (cmd, "kill") == 0)
-	{
-		Cmd_Kill_f (ent);
-		return;
-	}
-	else if (Q_stricmp (cmd, "putaway") == 0)
-	{
-		Cmd_PutAway_f (ent);
-		return;
-	}
-	else if (Q_stricmp (cmd, "wave") == 0)
-	{
-		if(pause_time)
-			return;
-		Cmd_Wave_f (ent);
-		return;
-	}
-//zucc
-//      else if (Q_stricmp (cmd, "laser") == 0)
-//              SP_LaserSight (ent);
+	hash = Cmd_HashValue( text ) & (MAX_COMMAND_HASH - 1);
+	for (cmd = commandHash[hash]; cmd; cmd = cmd->hashNext) {
+		if (!Q_stricmp( text, cmd->name )) {
+			if ((cmd->flags & CMDF_CHEAT) && !sv_cheats->value) {
+				gi.cprintf(ent, PRINT_HIGH, "You must run the server with '+set cheats 1' to enable this command.\n");
+				return;
+			}
 
-	//SLIC2
+			if ((cmd->flags & CMDF_PAUSE) && level.pauseFrames)
+				return;
 
-	else if (Q_stricmp (cmd, "streak") == 0)
-	{
-		gi.cprintf(ent,PRINT_HIGH,"Your Killing Streak is: %d\n",ent->client->resp.streak);
-		return;
-	}
-	//SLIC2
-	else if (Q_stricmp (cmd, "reload") == 0)
-	{
-		if(pause_time)
+			cmd->function( ent );
 			return;
-		Cmd_New_Reload_f (ent);
-		return;
-	}
-	else if (Q_stricmp (cmd, "weapon") == 0)
-	{
-		if(pause_time)
-			return;
-		Cmd_New_Weapon_f (ent);
-		return;
-	}
-	else if (Q_stricmp (cmd, "opendoor") == 0)
-	{
-		if(pause_time)
-			return;
-		Cmd_OpenDoor_f (ent);
-		return;
-	}
-	else if (Q_stricmp (cmd, "bandage") == 0)
-	{
-		if(pause_time)
-			return;
-		Cmd_Bandage_f (ent);
-		return;
-	}
-	else if (Q_stricmp (cmd, "id") == 0)
-	{
-		Cmd_ID_f (ent);
-		return;
-	}
-	else if (Q_stricmp (cmd, "irvision") == 0)
-	{
-		if(pause_time)
-			return;
-		Cmd_IR_f (ent);
-		return;
-	}
-	else if (Q_stricmp (cmd, "playerlist") == 0)
-	{
-		Cmd_PlayerList_f (ent);
-		return;
-	}
-	else if (Q_stricmp (cmd, "team") == 0 && teamplay->value)
-	{
-		Team_f (ent);
-		return;
-	}
-	else if (Q_stricmp (cmd, "radio") == 0)
-	{
-		Cmd_Radio_f (ent);
-		return;
-	}
-	else if (Q_stricmp (cmd, "radiogender") == 0)
-	{
-		Cmd_Radiogender_f (ent);
-		return;
-	}
-	else if (Q_stricmp (cmd, "radio_power") == 0)
-	{
-		Cmd_Radio_power_f (ent);
-		return;
-	}
-	else if (Q_stricmp (cmd, "radiopartner") == 0)
-	{
-		Cmd_Radiopartner_f (ent);
-		return;
-	}
-	else if (Q_stricmp (cmd, "radioteam") == 0)
-	{
-		Cmd_Radioteam_f (ent);
-		return;
-	}
-	else if (Q_stricmp (cmd, "channel") == 0)
-	{
-		Cmd_Channel_f (ent);
-		return;
-	}
-	else if (Q_stricmp (cmd, "say_partner") == 0)
-	{
-		Cmd_Say_partner_f (ent);
-		return;
-	}
-	else if (Q_stricmp (cmd, "partner") == 0)
-	{
-		Cmd_Partner_f (ent);
-		return;
-	}
-	else if (Q_stricmp (cmd, "unpartner") == 0)
-	{
-		Cmd_Unpartner_f (ent);
-		return;
-	}
-	else if (Q_stricmp (cmd, "motd") == 0)
-	{
-		PrintMOTD (ent);
-		return;
-	}
-	else if (Q_stricmp (cmd, "deny") == 0)
-	{
-		Cmd_Deny_f (ent);
-		return;
-	}
-	else if (Q_stricmp (cmd, "choose") == 0)
-	{
-		Cmd_Choose_f (ent);
-		return;
-	}
-	else if (Q_stricmp (cmd, "tkok") == 0)
-	{
-		Cmd_TKOk (ent);
-		return;
-	}
-	else if (Q_stricmp (cmd, "time") == 0)
-	{
-		Cmd_Time (ent);
-		return;
-	}
-	else if (Q_stricmp (cmd, "voice") == 0)
-	{
-		if(pause_time)
-			return;
-		if(use_voice->value)
-			Cmd_Voice_f (ent);
-		return;
-	}
-//  else if (Q_stricmp (cmd, "addpoint") == 0 && sv_cheats->value)
-//    {
-//      Cmd_Addpoint_f (ent);	// See TF's additions below
-//      return;
-//    }
-	else if (Q_stricmp (cmd, "setflag1") == 0 && sv_cheats->value)
-	{
-		Cmd_SetFlag1_f (ent);
-		return;
-	}
-	else if (Q_stricmp (cmd, "setflag2") == 0 && sv_cheats->value)
-	{
-		Cmd_SetFlag2_f (ent);
-		return;
-	}
-	else if (Q_stricmp (cmd, "saveflags") == 0 && sv_cheats->value)
-	{
-		Cmd_SaveFlags_f (ent);
-		return;
-	}
-	else if (Q_stricmp (cmd, "punch") == 0)
-	{
-		if(pause_time)
-			return;
-		Cmd_Punch_f (ent);
-		return;
-	}
-	else if (Q_stricmp (cmd, "menu") == 0)
-	{
-		Cmd_Menu_f (ent);
-		return;
-	}
-	else if (Q_stricmp (cmd, "rules") == 0)
-	{
-		Cmd_Rules_f (ent);
-		return;
-	}
-	else if (vCommand (ent, cmd) == true);
-	else if (Q_stricmp (cmd, "lens") == 0)
-	{
-		if(pause_time)
-			return;
-		Cmd_Lens_f (ent);
-		return;
-	}
-	else if (Q_stricmp (cmd, "nextmap") == 0)
-	{
-		Cmd_NextMap_f (ent);
-		return;
-	}
-	else if (Q_stricmp (cmd, "%cpsi") == 0)
-	{
-		Cmd_CPSI_f (ent);
-		return;
-	}
-	else if (Q_stricmp (cmd, "%!fc") == 0)
-	{
-		Cmd_VidRef_f (ent);
-		return;
-	}
-	else if (Q_stricmp (cmd, "sub") == 0)
-	{
-		Cmd_Sub_f (ent);
-		return;
-	}
-	else if (Q_stricmp (cmd, "captain") == 0)
-	{
-		Cmd_Captain_f (ent);
-		return;
-	}
-	else if (Q_stricmp (cmd, "ready") == 0)
-	{
-		Cmd_Ready_f (ent);
-		return;
-	}
-	else if (Q_stricmp (cmd, "teamname") == 0)
-	{
-		Cmd_Teamname_f (ent);
-		return;
-	}
-	else if (Q_stricmp (cmd, "teamskin") == 0)
-	{
-		Cmd_Teamskin_f (ent);
-		return;
-	}
-	else if (Q_stricmp (cmd, "lock") == 0)
-	{
-		Cmd_TeamLock_f(ent, 1);
-		return;
-	}
-	else if (Q_stricmp (cmd, "unlock") == 0)
-	{
-		Cmd_TeamLock_f(ent, 0);
-		return;
-	}
-	else if (Q_stricmp (cmd, "entcount") == 0)
-	{
-		Cmd_Ent_Count_f (ent);
-		return;
-	}
-	else if (Q_stricmp (cmd, "stats") == 0)
-	{
-		Cmd_Stats_f (ent, gi.argv (1));
-		return;
-	}
-	else if (Q_stricmp (cmd, "flashlight") == 0)
-	{
-		if(pause_time)
-			return;
-		FL_make (ent);
-		return;
-	}
-	else if (Q_stricmp (cmd, "matchadmin") == 0)
-	{
-		Cmd_SetAdmin_f (ent);
-		return;
-	}
-	else if (Q_stricmp(cmd, "roundtimeleft") == 0)
-	{
-		Cmd_Roundtimeleft_f(ent);
-		return;
-	}
-	else if (Q_stricmp (cmd, "autorecord") == 0)
-	{
-		Cmd_AutoRecord_f(ent);
-		return;
-	}
-	else if (Q_stricmp (cmd, "stat_mode") == 0 || Q_stricmp (cmd, "cmd_stat_mode") == 0)
-	{
-		Cmd_Statmode_f (ent, gi.argv (1));
-		return;
-	}
-	else if (Q_stricmp (cmd, "ghost") == 0)
-	{
-		Cmd_Ghost_f (ent);
-		return;
-	}
-	else if (Q_stricmp (cmd, "pausegame") == 0)
-	{
-		Cmd_TogglePause_f(ent, true);
-		return;
-	}
-	else if (Q_stricmp (cmd, "unpausegame") == 0)
-	{
-		Cmd_TogglePause_f(ent, false);
-		return;
-	}
-	else if (Q_stricmp(cmd, "resetscores") == 0)
-	{
-		Cmd_ResetScores_f(ent);
-	}
-	else				// anything that doesn't match a command will be a chat
-		Cmd_Say_f (ent, false, true, false);
-}
-
- // AQ2:TNG - Slicer : Video Check
-void Cmd_VidRef_f (edict_t * ent)
-{
-	if (video_check->value || video_check_lockpvs->value)
-	{
-		Q_strncpyz (ent->client->resp.vidref, gi.argv(1), sizeof(ent->client->resp.vidref));
+		}
 	}
 
-}
-
-void Cmd_CPSI_f (edict_t * ent)
-{
-	if (video_check->value || video_check_lockpvs->value || video_check_glclear->value || darkmatch->value)
-	{
-		ent->client->resp.glmodulate = atoi(gi.argv(1));
-		ent->client->resp.gllockpvs = atoi(gi.argv(2));
-		ent->client->resp.glclear = atoi(gi.argv(3));
-		ent->client->resp.gldynamic = atoi(gi.argv(4));
-		Q_strncpyz (ent->client->resp.gldriver, gi.argv (5), sizeof(ent->client->resp.gldriver));
-		//      strncpy(ent->client->resp.vidref,gi.argv(4),sizeof(ent->client->resp.vidref-1));
-		//      ent->client->resp.vidref[15] = 0;
-	}
+	// anything that doesn't match a command will be a chat
+	Cmd_Say_f(ent, false, true, false);
 }
 
