@@ -218,11 +218,11 @@ qboolean FloodCheck (edict_t *ent)
 {
 	if (flood_threshold->value)
 	{
-		ent->client->penalty++;
+		ent->client->resp.penalty++;
 
-		if (ent->client->penalty > flood_threshold->value)
+		if (ent->client->resp.penalty > flood_threshold->value)
 		{
-			gi.cprintf (ent, PRINT_HIGH, "You can't talk for %d seconds.\n", ent->client->penalty - (int) flood_threshold->value);
+			gi.cprintf(ent, PRINT_HIGH, "You can't talk for %d seconds.\n", ent->client->resp.penalty - (int)flood_threshold->value);
 			return 1;
 		}
 	}
@@ -1142,7 +1142,7 @@ static void Cmd_Kill_f (edict_t * ent)
 	if (!IS_ALIVE(ent))
 		return;
 	
-	if ((level.framenum - ent->client->respawn_time) < 5 * HZ)
+	if ((level.framenum - ent->client->respawn_framenum) < 5 * HZ)
 		return;
 
 	killPlayer(ent, true);

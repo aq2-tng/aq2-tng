@@ -1470,6 +1470,7 @@ typedef struct
   qboolean checked;
   int checkframe[3];
 
+  int				penalty;
   //char skin[MAX_SKINLEN];
 }
 client_respawn_t;
@@ -1478,367 +1479,338 @@ client_respawn_t;
 // except for 'client->pers'
 struct gclient_s
 {
-  // known to server
-  player_state_t ps;		// communicated by server to clients
-  int ping;
+	// known to server
+	player_state_t	ps;		// communicated by server to clients
+	int				ping;
 
-  // known to compatible server
-  int clientNum;
+	// known to compatible server
+	int				clientNum;
 
-  // private to game
-  client_persistant_t	pers;
-  client_respawn_t		resp;
-  pmove_state_t			old_pmove;	// for detecting out-of-pmove changes
+	// private to game
+	client_persistant_t	pers;
+	client_respawn_t	resp;
+	pmove_state_t		old_pmove;	// for detecting out-of-pmove changes
 
-  layout_t layout;		// set layout stat
-  qboolean showinventory;	// set layout stat
+	layout_t			layout;		// set layout stat
+	qboolean			showinventory;	// set layout stat
 
-  pmenuhnd_t menu;		// current menu
+	pmenuhnd_t			menu;		// current menu
 
-  int rate;			// their "rate" setting
+	int					ammo_index;
 
-  int ammo_index;
+	int					buttons;
+	int					oldbuttons;
+	int					latched_buttons;
 
-  int buttons;
-  int oldbuttons;
-  int latched_buttons;
+	qboolean			weapon_thunk;
 
-  qboolean weapon_thunk;
+	gitem_t				*newweapon;
 
-  gitem_t *newweapon;
+	// sum up damage over an entire frame, so
+	// shotgun blasts give a single big kick
+	int					damage_armor;		// damage absorbed by armor
+	int					damage_parmor;		// damage absorbed by power armor
+	int					damage_blood;		// damage taken out of health
+	int					damage_knockback;	// impact damage
+	vec3_t				damage_from;		// origin for vector calculation
 
-  // sum up damage over an entire frame, so
-  // shotgun blasts give a single big kick
-  int damage_armor;		// damage absorbed by armor
+	float				killer_yaw;			// when dead, look at killer
 
-  int damage_parmor;		// damage absorbed by power armor
+	weaponstate_t	weaponstate;
+	vec3_t			kick_angles;		// weapon kicks
+	vec3_t			kick_origin;
+	float			v_dmg_roll, v_dmg_pitch, v_dmg_time;	// damage kicks
+	float			fall_time, fall_value;	// for view drop on fall
+	float			damage_alpha;
+	float			bonus_alpha;
+	vec3_t			damage_blend;
+	vec3_t			v_angle;			// aiming direction
+	float			bobtime;			// so off-ground doesn't change it
+	vec3_t			oldviewangles;
+	vec3_t			oldvelocity;
 
-  int damage_blood;		// damage taken out of health
+	int				next_drown_framenum;
+	int				old_waterlevel;
+	int				breather_sound;
 
-  int damage_knockback;		// impact damage
+	int				machinegun_shots;	// for weapon raising
 
-  vec3_t damage_from;		// origin for vector calculation
+	// animation vars
+	int				anim_end;
+	int				anim_priority;
+	qboolean		anim_duck;
+	qboolean		anim_run;
 
-  float killer_yaw;		// when dead, look at killer
+	// powerup timers
+	int				quad_framenum;
+	int				invincible_framenum;
+	int				breather_framenum;
+	int				enviro_framenum;
 
-  weaponstate_t weaponstate;
-  vec3_t kick_angles;		// weapon kicks
+	qboolean		grenade_blew_up;
+	int				grenade_framenum;
+	int				silencer_shots;
+	int				weapon_sound;
 
-  vec3_t kick_origin;
-  float v_dmg_roll, v_dmg_pitch, v_dmg_time;	// damage kicks
-
-  float fall_time, fall_value;	// for view drop on fall
-
-  float damage_alpha;
-  float bonus_alpha;
-  vec3_t damage_blend;
-  vec3_t v_angle;		// aiming direction
-
-  float bobtime;		// so off-ground doesn't change it
-
-  vec3_t oldviewangles;
-  vec3_t oldvelocity;
-
-  int next_drown_framenum;
-  int old_waterlevel;
-  int breather_sound;
-
-  int machinegun_shots;		// for weapon raising
-
-  // animation vars
-  int anim_end;
-  int anim_priority;
-  qboolean anim_duck;
-  qboolean anim_run;
-
-  // powerup timers
-  int quad_framenum;
-  int invincible_framenum;
-  int breather_framenum;
-  int enviro_framenum;
-
-  qboolean grenade_blew_up;
-  int grenade_framenum;
-  int silencer_shots;
-  int weapon_sound;
-
-  int pickup_msg_time;
-
-  int penalty;
-
-  int respawn_time;		// can respawn when time > this
-  // zucc
+	int				pickup_msg_framenum;
+	int				respawn_framenum;		// can respawn when time > this
   
-  int selected_item;
-  int inventory[MAX_ITEMS];
+	edict_t			*chase_target;
+	int				chase_mode;
 
-  // ammo capacities
-  int max_pistolmags;
-  int max_shells;
-  int max_mp5mags;
-  int max_m4mags;
-  int max_sniper_rnds;
+	int				selected_item;
+	int				inventory[MAX_ITEMS];
 
-  int mk23_max;
-  int mk23_rds;
+	// ammo capacities
+	int				max_pistolmags;
+	int				max_shells;
+	int				max_mp5mags;
+	int				max_m4mags;
+	int				max_sniper_rnds;
 
-  int dual_max;
-  int dual_rds;
-  int shot_max;
-  int shot_rds;
-  int sniper_max;
-  int sniper_rds;
-  int mp5_max;
-  int mp5_rds;
-  int m4_max;
-  int m4_rds;
-  int cannon_max;
-  int cannon_rds;
-  int knife_max;
-  int grenade_max;
+	int				mk23_max;
+	int				mk23_rds;
+
+	int				dual_max;
+	int				dual_rds;
+	int				shot_max;
+	int				shot_rds;
+	int				sniper_max;
+	int				sniper_rds;
+	int				mp5_max;
+	int				mp5_rds;
+	int				m4_max;
+	int				m4_rds;
+	int				cannon_max;
+	int				cannon_rds;
+	int				knife_max;
+	int				grenade_max;
 
 
-  int curr_weap;		// uses NAME_NUM values
+	int				curr_weap;		// uses NAME_NUM values
 
-  int fired;			// keep track of semi auto
-  int burst;			// remember if player is bursting or not
-  int fast_reload;		// for shotgun/sniper rifle
-  int idle_weapon;		// how many frames to keep our weapon idle
-  int desired_fov;		// what fov does the player want? (via zooming)
+	int				fired;			// keep track of semi auto
+	int				burst;			// remember if player is bursting or not
+	int				fast_reload;	// for shotgun/sniper rifle
+	int				idle_weapon;	// how many frames to keep our weapon idle
+	int				desired_fov;	// what fov does the player want? (via zooming)
+	int				desired_zoom;	// either 0, 1, 2, 4 or 6. This is set to 0 if no zooming shall be done, and is set to 0 after zooming is done.
 
-  int unique_weapon_total;
-  int unique_item_total;
-  int drop_knife;
-  int knife_sound;		// we attack several times when slashing but only want 1 sound
+	int				unique_weapon_total;
+	int				unique_item_total;
+	int				drop_knife;
+	int				knife_sound;		// we attack several times when slashing but only want 1 sound
 
-  int took_damage;		//Took damage from multihit weapons
+	int				punch_framenum;
+	qboolean		punch_desired;	//controlled in ClientThink
 
-  int no_sniper_display;
+	int				reload_attempts;
+	int				weapon_attempts;
+
+	qboolean		autoreloading;	//used for dual -> mk23 change with reloading
+
+	int				took_damage;		//Took damage from multihit weapons
+
+	int				no_sniper_display;
   
-  int bandaging;
-  int bandage_stopped;
-  qboolean weapon_after_bandage_warned;	// to fix message bug when calling weapon while bandaging
+	int				bandaging;
+	int				bandage_stopped;
+	qboolean		weapon_after_bandage_warned;	// to fix message bug when calling weapon while bandaging
 
-  int leg_damage;
-  int leg_dam_count;
-  int leg_noise;
-  int leghits;
+	int				leg_damage;
+	int				leg_dam_count;
+	int				leg_noise;
+	int				leghits;
 
-  int bleeding;			//remaining points to bleed away
-  int bleed_remain;
-  vec3_t bleedloc_offset;	// location of bleeding (from origin)
-  int bleeddelay;		// how long until we bleed again
+	int				bleeding;			//remaining points to bleed away
+	int				bleed_remain;
+	vec3_t			bleedloc_offset;	// location of bleeding (from origin)
+	int				bleeddelay;			// how long until we bleed again
 
-  int doortoggle;		// set by player with opendoor command
+	int				doortoggle;			// set by player with opendoor command
 
-  edict_t *attacker;		// keep track of the last person to hit us
-  int attacker_mod;		// and how they hit us
-  int attacker_loc;		// location of the hit
+	edict_t			*attacker;		// keep track of the last person to hit us
+	int				attacker_mod;	// and how they hit us
+	int				attacker_loc;	// location of the hit
 
-  int push_timeout;		// timeout for how long an attacker will get fall death credit
+	int				push_timeout;	// timeout for how long an attacker will get fall death credit
 
-  int jumping;
+	int				jumping;
 
-  int punch_framenum;
-  qboolean punch_desired;	//controlled in ClientThink
+	// Number of teammate woundings this game and a "before attack" tracker
+	int				team_wounds_before;
+	int				ff_warning;
 
-  int reload_attempts;
-  int weapon_attempts;
+	int				radio_num_kills;
 
-  edict_t *chase_target;
-  qboolean update_chase;
-  int chase_mode;
+	int				last_damaged_part;
+	char			last_damaged_players[256];
+	edict_t			*last_killed_target[MAX_LAST_KILLED];
 
-  qboolean autoreloading;	//used for dual -> mk23 change with reloading
-
-  // Number of teammate woundings this game and a "before attack" tracker
-  int team_wounds_before;
-  int ff_warning;
-
-  int radio_num_kills;
-
-  int last_damaged_part;
-  char last_damaged_players[256];
-  edict_t *last_killed_target[MAX_LAST_KILLED];
-
-  int desired_zoom;		//either 0, 1, 2, 4 or 6. This is set to 0 if no zooming shall be done, and is set to 0 after zooming is done.
-
-  int uvTime;
+	int				uvTime;
   
-  edict_t *ctf_grapple;		// entity of grapple
-  int ctf_grapplestate;		// true if pulling
-  int ctf_grapplereleaseframe;	// frame of grapple release
+	qboolean		team_force;		// are we forcing a team change
 
-  qboolean team_force;		// are we forcing a team change
+	edict_t			 *lasersight; // laser
+	edict_t			 *flashlight; // Flashlight
 
-  edict_t *lasersight; // laser
-  edict_t *flashlight; // Flashlight
+	edict_t			*ctf_grapple;		// entity of grapple
+	int				ctf_grapplestate;		// true if pulling
+	int				ctf_grapplereleaseframe;	// frame of grapple release
 };
 
 
 struct edict_s
 {
-  entity_state_t s;
-  struct gclient_s *client;	// NULL if not a player
-  // the server expects the first part
-  // of gclient_s to be a player_state_t
-  // but the rest of it is opaque
+	entity_state_t s;
+	struct gclient_s *client;	// NULL if not a player
+								// the server expects the first part
+								// of gclient_s to be a player_state_t
+								// but the rest of it is opaque
 
-  qboolean inuse;
-  int linkcount;
+	qboolean	inuse;
+	int			linkcount;
 
-  // FIXME: move these fields to a server private sv_entity_t
-  link_t area;			// linked to a division node or leaf
+	// FIXME: move these fields to a server private sv_entity_t
+	link_t		area;			// linked to a division node or leaf
 
-  int num_clusters;		// if -1, use headnode instead
+	int			num_clusters;	// if -1, use headnode instead
+	int			clusternums[MAX_ENT_CLUSTERS];
+	int			headnode;		// unused if num_clusters != -1
+	int			areanum, areanum2;
 
-  int clusternums[MAX_ENT_CLUSTERS];
-  int headnode;			// unused if num_clusters != -1
+	//================================
 
-  int areanum, areanum2;
-
-  //================================
-
-  int svflags;
-  vec3_t mins, maxs;
-  vec3_t absmin, absmax, size;
-  solid_t solid;
-  int clipmask;
-  edict_t *owner;
+	int			svflags;
+	vec3_t		mins, maxs;
+	vec3_t		absmin, absmax, size;
+	solid_t		solid;
+	int			clipmask;
+	edict_t		*owner;
 
 
-  // DO NOT MODIFY ANYTHING ABOVE THIS, THE SERVER
-  // EXPECTS THE FIELDS IN THAT ORDER!
+	// DO NOT MODIFY ANYTHING ABOVE THIS, THE SERVER
+	// EXPECTS THE FIELDS IN THAT ORDER!
 
-  //================================
-  int movetype;
-  int flags;
+	//================================
+	int			movetype;
+	int			flags;
 
-  char *model;
-  float freetime;		// sv.time when the object was freed
+	char		*model;
+	float		freetime;		// sv.time when the object was freed
 
-  //
-  // only used locally in game, not by server
-  //
-  char *message;
-  char *classname;
-  int spawnflags;
+	//
+	// only used locally in game, not by server
+	//
+	char		*message;
+	char		*classname;
+	int			spawnflags;
 
-  float timestamp;
+	float		timestamp;
 
-  float angle;			// set in qe3, -1 = up, -2 = down
+	float		angle;			// set in qe3, -1 = up, -2 = down
 
-  char *target;
-  char *targetname;
-  char *killtarget;
-  char *team;
-  char *pathtarget;
-  char *deathtarget;
-  char *combattarget;
-  edict_t *target_ent;
+	char		*target;
+	char		*targetname;
+	char		*killtarget;
+	char		*team;
+	char		*pathtarget;
+	char		*deathtarget;
+	char		*combattarget;
+	edict_t		*target_ent;
 
-  float speed, accel, decel;
-  vec3_t movedir;
-  vec3_t pos1, pos2;
+	float		speed, accel, decel;
+	vec3_t		movedir;
+	vec3_t		pos1, pos2;
 
-  vec3_t velocity;
-  vec3_t avelocity;
-  int mass;
-  int air_finished_framenum;
-  float gravity;		// per entity gravity multiplier (1.0 is normal) use for lowgrav artifact, flares
+	vec3_t		velocity;
+	vec3_t		avelocity;
+	int			mass;
+	int			air_finished_framenum;
+	float		gravity;		// per entity gravity multiplier (1.0 is normal)
+								// use for lowgrav artifact, flares
 
-  edict_t *goalentity;
-  edict_t *movetarget;
-  float yaw_speed;
-  float ideal_yaw;
+	edict_t		*goalentity;
+	edict_t		*movetarget;
+	float		yaw_speed;
+	float		ideal_yaw;
 
-  int nextthink;
-  void (*prethink) (edict_t * ent);
-  void (*think) (edict_t * self);
-  void (*blocked) (edict_t * self, edict_t * other);	//move to moveinfo?
+	int			nextthink;
+	void		(*prethink)(edict_t *ent);
+	void		(*think)(edict_t *self);
+	void		(*blocked)(edict_t *self, edict_t *other);	//move to moveinfo?
+	void		(*touch)(edict_t *self, edict_t *other, cplane_t *plane, csurface_t *surf);
+	void		(*use)(edict_t *self, edict_t *other, edict_t *activator);
+	void		(*pain)(edict_t *self, edict_t *other, float kick, int damage);
+	void		(*die)(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, vec3_t point);
 
-  void (*touch) (edict_t * self, edict_t * other, cplane_t * plane,
-		 csurface_t * surf);
-  void (*use) (edict_t * self, edict_t * other, edict_t * activator);
-  void (*pain) (edict_t * self, edict_t * other, float kick, int damage);
-  void (*die) (edict_t * self, edict_t * inflictor, edict_t * attacker,
-	       int damage, vec3_t point);
+	int			touch_debounce_framenum;	// are all these legit?  do we need more/less of them?
+	int			pain_debounce_framenum;
+	int			damage_debounce_framenum;
+	int			fly_sound_debounce_framenum;	//move to clientinfo
+	float		last_move_time;
 
-  int touch_debounce_framenum;	// are all these legit?  do we need more/less of them?
+	int			health;
+	int			max_health;
+	int			gib_health;
+	int			deadflag;
+	qboolean	show_hostile;
 
-  int pain_debounce_framenum;
-  int damage_debounce_framenum;
-  int fly_sound_debounce_framenum;	//move to clientinfo
+	char		*map;			// target_changelevel
 
-  float last_move_time;
+	int			viewheight;		// height above origin where eyesight is determined
+	int			takedamage;
+	int			dmg;
+	int			radius_dmg;
+	float		dmg_radius;
+	int			sounds;			//make this a spawntemp var?
+	int			count;
 
-  int health;
-  int max_health;
-  int gib_health;
-  int deadflag;
-  qboolean show_hostile;
+	edict_t		*chain;
+	edict_t		*enemy;
+	edict_t		*oldenemy;
+	edict_t		*activator;
+	edict_t		*groundentity;
+	int			groundentity_linkcount;
+	edict_t		*teamchain;
+	edict_t		*teammaster;
 
-  int powerarmor_framenum;
+	edict_t		*mynoise;		// can go in client only
+	edict_t		*mynoise2;
 
-  char *map;			// target_changelevel
+	int			noise_index;
+	int			noise_index2;
+	float		volume;
+	float		attenuation;
 
-  int viewheight;		// height above origin where eyesight is determined
+	// timing variables
+	float		wait;
+	float		delay;			// before firing targets
+	float		random;
 
-  int takedamage;
-  int dmg;
-  int radius_dmg;
-  float dmg_radius;
-  int sounds;			//make this a spawntemp var?
+	int			watertype;
+	int			waterlevel;
 
-  int count;
+	vec3_t		move_origin;
+	vec3_t		move_angles;
 
-  edict_t *chain;
-  edict_t *enemy;
-  edict_t *oldenemy;
-  edict_t *activator;
-  edict_t *groundentity;
-  int groundentity_linkcount;
-  edict_t *teamchain;
-  edict_t *teammaster;
+	// move this to clientinfo?
+	int			light_level;
 
-  edict_t *mynoise;		// can go in client only
+	int			style;			// also used as areaportal number
 
-  edict_t *mynoise2;
+	gitem_t		*item;		// for bonus items
 
-  int noise_index;
-  int noise_index2;
-  float volume;
-  float attenuation;
+	// common data blocks
+	moveinfo_t	moveinfo;
 
-  // timing variables
-  float wait;
-  float delay;			// before firing targets
+	// hack for proper s.old_origin updates
+	vec3_t		old_origin;
 
-  float random;
-
-  int watertype;
-  int waterlevel;
-
-  vec3_t move_origin;
-  vec3_t move_angles;
-
-  // move this to clientinfo?
-  int light_level;
-
-  int style;			// also used as areaportal number
-
-  gitem_t *item;		// for bonus items
-
-  // common data blocks
-  moveinfo_t moveinfo;
-
-  // action
-  qboolean splatted;
-  int classnum;
-  int typeNum;
-
-  // hack for proper s.old_origin updates
-  vec3_t		old_origin;
+	// action
+	qboolean	splatted;
+	int			classnum;
+	int			typeNum;
 };
 
 typedef struct

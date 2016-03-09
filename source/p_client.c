@@ -1354,13 +1354,13 @@ void player_die(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage
 
 	if (!self->deadflag) {
 		if (ctf->value) {
-			self->client->respawn_time = level.framenum + CTFGetRespawnTime(self) * HZ;
+			self->client->respawn_framenum = level.framenum + CTFGetRespawnTime(self) * HZ;
 		}
 		else if(teamdm->value) {
-			self->client->respawn_time = level.framenum + (int)(teamdm_respawn->value * HZ);
+			self->client->respawn_framenum = level.framenum + (int)(teamdm_respawn->value * HZ);
 		}
 		else {
-			self->client->respawn_time = level.framenum + 1 * HZ;
+			self->client->respawn_framenum = level.framenum + 1 * HZ;
 		}
 		LookAtKiller(self, inflictor, attacker);
 		self->client->ps.pmove.pm_type = PM_DEAD;
@@ -1811,7 +1811,7 @@ void respawn(edict_t *self)
 		}
 	}
 
-	self->client->respawn_time = level.framenum + 2 * HZ;
+	self->client->respawn_framenum = level.framenum + 2 * HZ;
 }
 
 //==============================================================
@@ -2489,7 +2489,7 @@ The game can override any of the settings in place
 */
 void ClientUserinfoChanged(edict_t *ent, char *userinfo)
 {
-	char *s, *r, tnick[16];
+	char *s, tnick[16];
 	qboolean nickChanged = false;
 	gclient_t *client = ent->client;
 
@@ -2522,9 +2522,6 @@ void ClientUserinfoChanged(edict_t *ent, char *userinfo)
 			s = Info_ValueForKey(userinfo, "spectator");
 			client->pers.spectator = (strcmp(s, "0") != 0);
 		}
-
-		r = Info_ValueForKey(userinfo, "rate");
-		client->rate = atoi(r);
 
 		// set skin
 		s = Info_ValueForKey(userinfo, "skin");
@@ -3014,8 +3011,8 @@ void ClientBeginServerFrame(edict_t * ent)
 
 	client = ent->client;
 
-	if (client->penalty > 0 && level.realFramenum % HZ == 0)
-		client->penalty--;
+	if (client->resp.penalty > 0 && level.realFramenum % HZ == 0)
+		client->resp.penalty--;
 
 	if (level.intermission_framenum)
 		return;
@@ -3056,7 +3053,7 @@ void ClientBeginServerFrame(edict_t * ent)
 			return;
 		}
 
-		if (level.framenum > client->respawn_time && (ent->solid == SOLID_NOT && ent->deadflag != DEAD_DEAD) != ent->client->pers.spectator)
+		if (level.framenum > client->respawn_framenum && (ent->solid == SOLID_NOT && ent->deadflag != DEAD_DEAD) != ent->client->pers.spectator)
 		{
 			if (ent->client->pers.spectator){
 				killPlayer(ent, false);
@@ -3078,7 +3075,7 @@ void ClientBeginServerFrame(edict_t * ent)
 
 	if (ent->deadflag) {
 		// wait for any button just going down
-		if (level.framenum > client->respawn_time)
+		if (level.framenum > client->respawn_framenum)
 		{
 
 			if (teamplay->value) {

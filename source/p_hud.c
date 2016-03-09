@@ -104,7 +104,7 @@ void MoveClientToIntermission(edict_t *ent)
 	ent->client->desired_fov = 90;
 	ent->client->ps.fov = 90;
 	ent->client->ps.stats[STAT_SNIPER_ICON] = 0;
-	ent->client->pickup_msg_time = 0;
+	ent->client->pickup_msg_framenum = 0;
 
 	// add the layout
 	DeathmatchScoreboardMessage(ent, NULL);
@@ -543,7 +543,7 @@ void G_SetStats (edict_t * ent)
 	//
 	// pickup message
 	//
-	if (level.realFramenum > ent->client->pickup_msg_time)
+	if (level.realFramenum > ent->client->pickup_msg_framenum)
 	{
 		ent->client->ps.stats[STAT_PICKUP_ICON] = 0;
 		ent->client->ps.stats[STAT_PICKUP_STRING] = 0;
