@@ -331,8 +331,8 @@ void Cmd_Reload_f(edict_t * ent)
 			}
 		}
 		ent->client->ps.fov = 90;
-		if (ent->client->pers.weapon)
-			ent->client->ps.gunindex = gi.modelindex(ent->client->pers.weapon->view_model);
+		if (ent->client->weapon)
+			ent->client->ps.gunindex = gi.modelindex(ent->client->weapon->view_model);
 		break;
 	case DUAL_NUM:
 		if (ent->client->dual_rds == ent->client->dual_max)
@@ -434,8 +434,8 @@ void _SetSniper(edict_t * ent, int zoom)
 	ent->client->resp.sniper_mode = sniper_mode;
 	ent->client->desired_fov = desired_fov;
 
-	if (sniper_mode == SNIPER_1X && ent->client->pers.weapon)
-		ent->client->ps.gunindex = gi.modelindex(ent->client->pers.weapon->view_model);
+	if (sniper_mode == SNIPER_1X && ent->client->weapon)
+		ent->client->ps.gunindex = gi.modelindex(ent->client->weapon->view_model);
 	//show the model if switching to 1x
 
 	if (oldmode == SNIPER_1X && ent->client->weaponstate != WEAPON_RELOADING) {
@@ -727,8 +727,8 @@ void Cmd_Bandage_f(edict_t * ent)
 		ent->client->resp.sniper_mode = SNIPER_1X;
 		ent->client->ps.fov = 90;
 		ent->client->desired_fov = 90;
-		if (ent->client->pers.weapon)
-			ent->client->ps.gunindex = gi.modelindex(ent->client->pers.weapon->view_model);
+		if (ent->client->weapon)
+			ent->client->ps.gunindex = gi.modelindex(ent->client->weapon->view_model);
 		gi.cprintf(ent, PRINT_HIGH, "You've started bandaging\n");
 
 	} else if (ent->client->bandaging == 1)

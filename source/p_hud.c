@@ -411,7 +411,7 @@ void G_SetStats (edict_t * ent)
 		// ammo by weapon
 		// 
 		//
-		if (ent->client->pers.weapon && ent->client->curr_weap)
+		if (ent->client->weapon && ent->client->curr_weap)
 		{
 			switch (ent->client->curr_weap) {
 			case MK23_NUM:
@@ -534,8 +534,8 @@ void G_SetStats (edict_t * ent)
 		// TNG: Show health icon when bandaging (thanks to Dome for this code)
 		if (ent->client->weaponstate == WEAPON_BANDAGING || ent->client->bandaging || ent->client->bandage_stopped)
 			ent->client->ps.stats[STAT_HELPICON] = level.pic_health;
-		else if ((ent->client->pers.hand == CENTER_HANDED || ent->client->ps.fov > 91) && ent->client->pers.weapon)
-			ent->client->ps.stats[STAT_HELPICON] = level.pic_items[ent->client->pers.weapon->typeNum];
+		else if ((ent->client->pers.hand == CENTER_HANDED || ent->client->ps.fov > 91) && ent->client->weapon)
+			ent->client->ps.stats[STAT_HELPICON] = level.pic_items[ent->client->weapon->typeNum];
 		else
 			ent->client->ps.stats[STAT_HELPICON] = 0;
 	}

@@ -1008,10 +1008,10 @@ static void Cmd_WeapPrev_f (edict_t * ent)
 
 	cl = ent->client;
 
-	if (!cl->pers.weapon)
+	if (!cl->weapon)
 		return;
 
-	selected_weapon = ITEM_INDEX (cl->pers.weapon);
+	selected_weapon = ITEM_INDEX(cl->weapon);
 
 	// scan  for the next valid one
 	for (i = 1; i <= MAX_ITEMS; i++)
@@ -1025,7 +1025,7 @@ static void Cmd_WeapPrev_f (edict_t * ent)
 		if (!(it->flags & IT_WEAPON))
 			continue;
 		it->use (ent, it);
-		if (cl->pers.weapon == it)
+		if (cl->weapon == it)
 			return;			// successful
 	}
 }
@@ -1047,10 +1047,10 @@ static void Cmd_WeapNext_f (edict_t * ent)
 
 	cl = ent->client;
 
-	if (!cl->pers.weapon)
+	if (!cl->weapon)
 		return;
 
-	selected_weapon = ITEM_INDEX (cl->pers.weapon);
+	selected_weapon = ITEM_INDEX(cl->weapon);
 
 	// scan  for the next valid one
 	for (i = 1; i <= MAX_ITEMS; i++)
@@ -1064,7 +1064,7 @@ static void Cmd_WeapNext_f (edict_t * ent)
 		if (!(it->flags & IT_WEAPON))
 			continue;
 		it->use (ent, it);
-		if (cl->pers.weapon == it)
+		if (cl->weapon == it)
 			return;			// successful
 	}
 }
@@ -1085,10 +1085,10 @@ static void Cmd_WeapLast_f (edict_t * ent)
 
 	cl = ent->client;
 
-	if (!cl->pers.weapon || !cl->pers.lastweapon)
+	if (!cl->weapon || !cl->lastweapon)
 		return;
 
-	index = ITEM_INDEX (cl->pers.lastweapon);
+	index = ITEM_INDEX(cl->lastweapon);
 	if (!cl->inventory[index])
 		return;
 	it = &itemlist[index];

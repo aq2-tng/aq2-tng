@@ -1248,7 +1248,7 @@ void TossClientWeapon(edict_t * self)
 	qboolean quad;
 	float spread;
 
-	item = self->client->pers.weapon;
+	item = self->client->weapon;
 	if (!self->client->inventory[self->client->ammo_index])
 		item = NULL;
 	if (item && (strcmp(item->pickup_name, "Blaster") == 0))
@@ -1943,7 +1943,7 @@ void EquipClient(edict_t * ent)
 		item = GET_ITEM(MP5_NUM);
 		client->selected_item = ITEM_INDEX(item);
 		client->inventory[client->selected_item] = 1;
-		client->pers.weapon = item;
+		client->weapon = item;
 		client->curr_weap = MP5_NUM;
 		client->unique_weapon_total = 1;
 		item = GET_ITEM(MP5_ANUM);
@@ -1957,7 +1957,7 @@ void EquipClient(edict_t * ent)
 		item = GET_ITEM(M4_NUM);
 		client->selected_item = ITEM_INDEX(item);
 		client->inventory[client->selected_item] = 1;
-		client->pers.weapon = item;
+		client->weapon = item;
 		client->curr_weap = M4_NUM;
 		client->unique_weapon_total = 1;
 		item = GET_ITEM(M4_ANUM);
@@ -1971,7 +1971,7 @@ void EquipClient(edict_t * ent)
 		item = GET_ITEM(M3_NUM);
 		client->selected_item = ITEM_INDEX(item);
 		client->inventory[client->selected_item] = 1;
-		client->pers.weapon = item;
+		client->weapon = item;
 		client->curr_weap = M3_NUM;
 		client->unique_weapon_total = 1;
 		item = GET_ITEM(SHELL_ANUM);
@@ -1985,7 +1985,7 @@ void EquipClient(edict_t * ent)
 		item = GET_ITEM(HC_NUM);
 		client->selected_item = ITEM_INDEX(item);
 		client->inventory[client->selected_item] = 1;
-		client->pers.weapon = item;
+		client->weapon = item;
 		client->curr_weap = HC_NUM;
 		client->unique_weapon_total = 1;
 		item = GET_ITEM(SHELL_ANUM);
@@ -1999,7 +1999,7 @@ void EquipClient(edict_t * ent)
 		item = GET_ITEM(SNIPER_NUM);
 		client->selected_item = ITEM_INDEX(item);
 		client->inventory[ITEM_INDEX(item)] = 1;
-		client->pers.weapon = item;
+		client->weapon = item;
 		client->curr_weap = SNIPER_NUM;
 		client->unique_weapon_total = 1;
 		item = GET_ITEM(SNIPER_ANUM);
@@ -2013,7 +2013,7 @@ void EquipClient(edict_t * ent)
 		item = GET_ITEM(DUAL_NUM);
 		client->selected_item = ITEM_INDEX(item);
 		client->inventory[client->selected_item] = 1;
-		client->pers.weapon = item;
+		client->weapon = item;
 		client->curr_weap = DUAL_NUM;
 		item = GET_ITEM(MK23_ANUM);
 		if (band)
@@ -2029,7 +2029,7 @@ void EquipClient(edict_t * ent)
 			client->inventory[client->selected_item] = 20;
 		else
 			client->inventory[client->selected_item] = 10;
-		client->pers.weapon = item;
+		client->weapon = item;
 		client->curr_weap = KNIFE_NUM;
 		break;
 	}
@@ -2064,7 +2064,7 @@ void EquipClientDM(edict_t * ent)
 		item = GET_ITEM(MP5_NUM);
 		client->selected_item = ITEM_INDEX(item);
 		client->inventory[client->selected_item] = 1;
-		client->pers.weapon = item;
+		client->weapon = item;
 		client->mp5_rds = client->mp5_max;
 		client->curr_weap = MP5_NUM;
 		if (!allweapon->value) {
@@ -2077,7 +2077,7 @@ void EquipClientDM(edict_t * ent)
 		item = GET_ITEM(M4_NUM);
 		client->selected_item = ITEM_INDEX(item);
 		client->inventory[client->selected_item] = 1;
-		client->pers.weapon = item;
+		client->weapon = item;
 		client->m4_rds = client->m4_max;
 		client->curr_weap = M4_NUM;
 		if (!allweapon->value) {
@@ -2090,7 +2090,7 @@ void EquipClientDM(edict_t * ent)
 		item = GET_ITEM(M3_NUM);
 		client->selected_item = ITEM_INDEX(item);
 		client->inventory[client->selected_item] = 1;
-		client->pers.weapon = item;
+		client->weapon = item;
 		client->shot_rds = client->shot_max;
 		client->curr_weap = M3_NUM;
 		if (!allweapon->value) {
@@ -2103,7 +2103,7 @@ void EquipClientDM(edict_t * ent)
 		item = GET_ITEM(HC_NUM);
 		client->selected_item = ITEM_INDEX(item);
 		client->inventory[client->selected_item] = 1;
-		client->pers.weapon = item;
+		client->weapon = item;
 		client->cannon_rds = client->cannon_max;
 		client->shot_rds = client->shot_max;
 		client->curr_weap = HC_NUM;
@@ -2117,7 +2117,7 @@ void EquipClientDM(edict_t * ent)
 		item = GET_ITEM(SNIPER_NUM);
 		client->selected_item = ITEM_INDEX(item);
 		client->inventory[client->selected_item] = 1;
-		client->pers.weapon = item;
+		client->weapon = item;
 		client->sniper_rds = client->sniper_max;
 		client->curr_weap = SNIPER_NUM;
 		if (!allweapon->value) {
@@ -2130,7 +2130,7 @@ void EquipClientDM(edict_t * ent)
 		item = GET_ITEM(DUAL_NUM);
 		client->selected_item = ITEM_INDEX(item);
 		client->inventory[client->selected_item] = 1;
-		client->pers.weapon = item;
+		client->weapon = item;
 		client->dual_rds = client->dual_max;
 		client->mk23_rds = client->mk23_max;
 		client->curr_weap = DUAL_NUM;
@@ -2141,14 +2141,14 @@ void EquipClientDM(edict_t * ent)
 		item = GET_ITEM(GRENADE_NUM);
 		client->selected_item = ITEM_INDEX(item);
 		client->inventory[client->selected_item] = tgren->value;
-		client->pers.weapon = item;
+		client->weapon = item;
 		client->curr_weap = GRENADE_NUM;
 		break;
 	case KNIFE_NUM:
 		item = GET_ITEM(KNIFE_NUM);
 		client->selected_item = ITEM_INDEX(item);
 		client->inventory[client->selected_item] = 10;
-		client->pers.weapon = item;
+		client->weapon = item;
 		client->curr_weap = KNIFE_NUM;
 		break;
 	}
@@ -2203,19 +2203,19 @@ void PutClientInServer(edict_t * ent)
 	client->selected_item = ITEM_INDEX( item );
 	client->inventory[client->selected_item] = 1;
 
-	client->pers.weapon = item;
-	client->pers.lastweapon = item;
+	client->weapon = item;
+	client->lastweapon = item;
 
 	if (WPF_ALLOWED( KNIFE_NUM )) {
 		item = GET_ITEM( KNIFE_NUM );
 		client->inventory[ITEM_INDEX( item )] = 1;
 		if (!WPF_ALLOWED( MK23_NUM )) {
 			client->selected_item = ITEM_INDEX( item );
-			client->pers.weapon = item;
-			client->pers.lastweapon = item;
+			client->weapon = item;
+			client->lastweapon = item;
 		}
 	}
-	client->curr_weap = client->pers.weapon->typeNum;
+	client->curr_weap = client->weapon->typeNum;
 
 
 	ent->health = 100;
@@ -2274,7 +2274,7 @@ void PutClientInServer(edict_t * ent)
 
 	// clear playerstate values
 	client->ps.fov = 90;
-	client->ps.gunindex = gi.modelindex(client->pers.weapon->view_model);
+	client->ps.gunindex = gi.modelindex(client->weapon->view_model);
 
 	// clear entity state values
 	ent->s.effects = 0;
@@ -2356,7 +2356,7 @@ void PutClientInServer(edict_t * ent)
 	}
 
 	// force the current weapon up
-	client->newweapon = client->pers.weapon;
+	client->newweapon = client->weapon;
 	ChangeWeapon(ent);
 }
 

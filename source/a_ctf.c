@@ -1437,7 +1437,7 @@ void CTFCapReward(edict_t * ent)
 
 	// automagically change to special in any case, it's fully reloaded
 	if((client->curr_weap != player_weapon && ent->client->weaponstate == WEAPON_READY) || was_bandaging) {
-		client->newweapon = client->pers.weapon;
+		client->newweapon = client->weapon;
 		ent->client->weaponstate = WEAPON_READY;
 		ent->client->ps.gunframe = 0;
 		ReadySpecialWeapon(ent);

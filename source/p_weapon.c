@@ -426,12 +426,7 @@ qboolean Pickup_Weapon (edict_t * ent, edict_t * other)
 		}
 		break;
 	}
-	/* zucc - don't want auto switching
-	if (other->client->pers.weapon != ent->item && 
-	(other->client->inventory[index] == 1) &&
-	( other->client->pers.weapon == FindItem("blaster") ) )
-	other->client->newweapon = ent->item;
-	*/
+
 	if (!(ent->spawnflags & (DROPPED_ITEM | DROPPED_PLAYER_ITEM))
 		&& (SPEC_WEAPON_RESPAWN) && special)
 	{
@@ -452,13 +447,13 @@ void ShowGun (edict_t * ent)
 	int nIndex;
 
 	// No weapon?
-	if (!ent->client->pers.weapon) {
+	if (!ent->client->weapon) {
 		ent->s.modelindex2 = 0;
 		return;
 	}
 
 	// Determine the weapon's precache index.
-	nIndex = ent->client->pers.weapon->typeNum;
+	nIndex = ent->client->weapon->typeNum;
 
 	// Clear previous weapon model.
 	ent->s.skinnum &= 255;
@@ -496,17 +491,17 @@ void ChangeWeapon (edict_t * ent)
 	// zucc - prevent reloading queue for previous weapon from doing anything
 	ent->client->reload_attempts = 0;
 
-	ent->client->pers.lastweapon = ent->client->pers.weapon;
-	ent->client->pers.weapon = ent->client->newweapon;
+	ent->client->lastweapon = ent->client->weapon;
+	ent->client->weapon = ent->client->newweapon;
 	ent->client->newweapon = NULL;
 	ent->client->machinegun_shots = 0;
 
-	if (ent->client->pers.weapon && ent->client->pers.weapon->ammo)
-		ent->client->ammo_index = ITEM_INDEX (FindItem (ent->client->pers.weapon->ammo));
+	if (ent->client->weapon && ent->client->weapon->ammo)
+		ent->client->ammo_index = ITEM_INDEX(FindItem(ent->client->weapon->ammo));
 	else
 		ent->client->ammo_index = 0;
 
-	if (!ent->client->pers.weapon || ent->s.modelindex != 255)	// zucc vwep
+	if (!ent->client->weapon || ent->s.modelindex != 255)	// zucc vwep
 	{				// dead 
 		ent->client->ps.gunindex = 0;
 		return;
@@ -520,7 +515,7 @@ void ChangeWeapon (edict_t * ent)
 		return;
 	//FIREBLADE
 
-	ent->client->ps.gunindex = gi.modelindex (ent->client->pers.weapon->view_model);
+	ent->client->ps.gunindex = gi.modelindex (ent->client->weapon->view_model);
 
 	// zucc hentai's animation for vwep
 	ent->client->anim_priority = ANIM_PAIN;
@@ -538,7 +533,7 @@ void ChangeWeapon (edict_t * ent)
 	ShowGun (ent);
 	// zucc done
 
-	ent->client->curr_weap = ent->client->pers.weapon->typeNum;
+	ent->client->curr_weap = ent->client->weapon->typeNum;
 	if (ent->client->curr_weap == GRENADE_NUM) {
 		// Fix the "use grenades;drop bandolier" bug, caused infinite grenades.
 		if (teamplay->value && INV_AMMO( ent, GRENADE_NUM ) == 0)
@@ -566,14 +561,14 @@ void Think_Weapon (edict_t * ent)
 	}
 
 	// call active weapon think routine
-	if (ent->client->pers.weapon && ent->client->pers.weapon->weaponthink)
+	if (ent->client->weapon && ent->client->weapon->weaponthink)
 	{
 		is_quad = (ent->client->quad_framenum > level.framenum);
 		if (ent->client->silencer_shots)
 			is_silenced = MZ_SILENCED;
 		else
 			is_silenced = 0;
-		ent->client->pers.weapon->weaponthink (ent);
+		ent->client->weapon->weaponthink (ent);
 	}
 }
 
@@ -599,7 +594,7 @@ Use_Weapon (edict_t * ent, gitem_t * item)
 
 
   // see if we're already using it
-  if (item == ent->client->pers.weapon)
+  if (item == ent->client->weapon)
     return;
 
   // zucc - let them change if they want
@@ -788,8 +783,7 @@ void Drop_Weapon (edict_t * ent, gitem_t * item)
 	else if (item->typeNum == MP5_NUM)
 	{
 
-		if (ent->client->pers.weapon == item
-		&& (ent->client->inventory[index] == 1))
+		if (ent->client->weapon == item && ent->client->inventory[index] == 1)
 		{
 			replacement = GET_ITEM(MK23_NUM);	// back to the pistol then
 			ent->client->newweapon = replacement;
@@ -806,8 +800,7 @@ void Drop_Weapon (edict_t * ent, gitem_t * item)
 	else if (item->typeNum == M4_NUM)
 	{
 
-		if (ent->client->pers.weapon == item
-		&& (ent->client->inventory[index] == 1))
+		if (ent->client->weapon == item && ent->client->inventory[index] == 1)
 		{
 			replacement = GET_ITEM(MK23_NUM);	// back to the pistol then
 			ent->client->newweapon = replacement;
@@ -824,8 +817,7 @@ void Drop_Weapon (edict_t * ent, gitem_t * item)
 	else if (item->typeNum == M3_NUM)
 	{
 
-		if (ent->client->pers.weapon == item
-		&& (ent->client->inventory[index] == 1))
+		if (ent->client->weapon == item && ent->client->inventory[index] == 1)
 		{
 			replacement = GET_ITEM(MK23_NUM);	// back to the pistol then
 			ent->client->newweapon = replacement;
@@ -840,8 +832,7 @@ void Drop_Weapon (edict_t * ent, gitem_t * item)
 	}
 	else if (item->typeNum == HC_NUM)
 	{
-		if (ent->client->pers.weapon == item
-		&& (ent->client->inventory[index] == 1))
+		if (ent->client->weapon == item && ent->client->inventory[index] == 1)
 		{
 			replacement = GET_ITEM(MK23_NUM);	// back to the pistol then
 			ent->client->newweapon = replacement;
@@ -856,8 +847,7 @@ void Drop_Weapon (edict_t * ent, gitem_t * item)
 	}
 	else if (item->typeNum == SNIPER_NUM)
 	{
-		if (ent->client->pers.weapon == item
-		&& (ent->client->inventory[index] == 1))
+		if (ent->client->weapon == item && ent->client->inventory[index] == 1)
 		{
 			// in case they are zoomed in
 			ent->client->ps.fov = 90;
@@ -875,7 +865,7 @@ void Drop_Weapon (edict_t * ent, gitem_t * item)
 	}
 	else if (item->typeNum == DUAL_NUM)
 	{
-		if (ent->client->pers.weapon == item)
+		if (ent->client->weapon == item)
 		{
 			replacement = GET_ITEM(MK23_NUM);	// back to the pistol then
 			ent->client->newweapon = replacement;
@@ -889,8 +879,7 @@ void Drop_Weapon (edict_t * ent, gitem_t * item)
 	{
 		//gi.cprintf(ent, PRINT_HIGH, "Before checking knife inven frames = %d\n", ent->client->ps.gunframe);
 
-		if (((ent->client->pers.weapon == item))
-		&& (ent->client->inventory[index] == 1))
+		if (ent->client->weapon == item && ent->client->inventory[index] == 1)
 		{
 			replacement = GET_ITEM(MK23_NUM);	// back to the pistol then
 			ent->client->newweapon = replacement;
@@ -906,8 +895,7 @@ void Drop_Weapon (edict_t * ent, gitem_t * item)
 	}
 	else if (item->typeNum == GRENADE_NUM)
 	{
-		if ((ent->client->pers.weapon == item)
-		&& (ent->client->inventory[index] == 1))
+		if (ent->client->weapon == item && ent->client->inventory[index] == 1)
 		{
 			if (((ent->client->ps.gunframe >= GRENADE_IDLE_FIRST)
 			  && (ent->client->ps.gunframe <= GRENADE_IDLE_LAST))
@@ -943,8 +931,7 @@ void Drop_Weapon (edict_t * ent, gitem_t * item)
 			//ChangeWeapon( ent );
 		}
 	}
-	else if ((item == ent->client->pers.weapon
-			|| item == ent->client->newweapon)
+	else if ((item == ent->client->weapon || item == ent->client->newweapon)
 			&& ent->client->inventory[index] == 1)
 	{
 		gi.cprintf (ent, PRINT_HIGH, "Can't drop current weapon\n");
@@ -975,11 +962,11 @@ void DropSpecialWeapon (edict_t * ent)
 {
 	int itemNum;
 
-	itemNum = ent->client->pers.weapon ? ent->client->pers.weapon->typeNum : 0;
+	itemNum = ent->client->weapon ? ent->client->weapon->typeNum : 0;
 
 	// first check if their current weapon is a special weapon, if so, drop it.
 	if (itemNum >= MP5_NUM && itemNum <= SNIPER_NUM)
-		Drop_Weapon (ent, ent->client->pers.weapon);
+		Drop_Weapon (ent, ent->client->weapon);
 	else if (INV_AMMO(ent, SNIPER_NUM) > 0)
 		Drop_Weapon (ent, GET_ITEM(SNIPER_NUM));
 	else if (INV_AMMO(ent, HC_NUM) > 0)
@@ -1002,12 +989,12 @@ void DropExtraSpecial (edict_t * ent)
 {
 	int itemNum;
 
-	itemNum = ent->client->pers.weapon ? ent->client->pers.weapon->typeNum : 0;
+	itemNum = ent->client->weapon ? ent->client->weapon->typeNum : 0;
 	if (itemNum >= MP5_NUM && itemNum <= SNIPER_NUM)
 	{
 		// if they have more than 1 then they are willing to drop one           
 		if (INV_AMMO(ent, itemNum) > 1) {
-			Drop_Weapon (ent, ent->client->pers.weapon);
+			Drop_Weapon(ent, ent->client->weapon);
 			return;
 		}
 	}
@@ -1102,8 +1089,8 @@ Weapon_Generic (edict_t * ent, int FRAME_ACTIVATE_LAST, int FRAME_FIRE_LAST,
   if (ent->s.modelindex != 255)
     return;			// not on client, so VWep animations could do wacky things
 
-  if(ent->client->ctf_grapple) {
-	  if (Q_stricmp(ent->client->pers.weapon->pickup_name, "Grapple") == 0 &&
+  if (ent->client->ctf_grapple && ent->client->weapon) {
+	  if (Q_stricmp(ent->client->weapon->pickup_name, "Grapple") == 0 &&
 			  ent->client->weaponstate == WEAPON_FIRING)
 		  return;
   }
@@ -1661,9 +1648,8 @@ Weapon_Generic (edict_t * ent, int FRAME_ACTIVATE_LAST, int FRAME_FIRE_LAST,
       ent->client->desired_fov = 90;
       ent->client->ps.fov = 90;
       ent->client->resp.sniper_mode = 0;
-      if (ent->client->pers.weapon)
-	ent->client->ps.gunindex =
-	  gi.modelindex (ent->client->pers.weapon->view_model);
+      if (ent->client->weapon)
+		ent->client->ps.gunindex = gi.modelindex(ent->client->weapon->view_model);
 
       // zucc more vwep stuff
       if ((FRAME_DEACTIVATE_LAST - FRAME_DEACTIVATE_FIRST) < 4)
@@ -1892,7 +1878,7 @@ Weapon_Generic (edict_t * ent, int FRAME_ACTIVATE_LAST, int FRAME_FIRE_LAST,
 			    "Calling non specific ammo code\n");
 		if ((!ent->client->ammo_index)
 		    || (ent->client->inventory[ent->client->ammo_index] >=
-			ent->client->pers.weapon->quantity))
+			ent->client->weapon->quantity))
 		  {
 		    bFire = 1;
 		  }
@@ -2923,7 +2909,7 @@ void Sniper_Fire (edict_t * ent)
 	ent->client->sniper_rds--;
 	ent->client->ps.fov = 90;	// so we can watch the next round get chambered
 	ent->client->ps.gunindex =
-	gi.modelindex (ent->client->pers.weapon->view_model);
+	gi.modelindex(ent->client->weapon->view_model);
 	ent->client->no_sniper_display = 1;
 
 

@@ -978,8 +978,8 @@ void AddSplat(edict_t * self, vec3_t point, trace_t * tr)
 
 void GetWeaponName(edict_t * ent, char *buf)
 {
-	if (ent->client->pers.weapon) {
-		strcpy(buf, ent->client->pers.weapon->pickup_name);
+	if (ent->client->weapon) {
+		strcpy(buf, ent->client->weapon->pickup_name);
 		return;
 	}
 
@@ -1011,7 +1011,7 @@ void GetAmmo(edict_t * ent, char *buf)
 {
 	int ammo;
 
-	if (ent->client->pers.weapon) {
+	if (ent->client->weapon) {
 		switch (ent->client->curr_weap) {
 		case MK23_NUM:
 			sprintf(buf, "%d rounds (%d extra clips)",

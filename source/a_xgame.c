@@ -141,8 +141,8 @@ static void GetViewedEnemyWeapon(edict_t *self, char *buf)
 	edict_t *the_enemy;
 
 	the_enemy = DetermineViewedPlayer(self, false);
-	if (the_enemy && the_enemy->client)
-		strcpy(buf, the_enemy->client->pers.weapon->pickup_name);
+	if (the_enemy && the_enemy->client && the_enemy->client->weapon)
+		strcpy(buf, the_enemy->client->weapon->pickup_name);
 	else
 		strcpy(buf, "no weapon");
 }

@@ -1377,9 +1377,6 @@ typedef struct
 
   xmenu_t x_menu;
 
-  gitem_t *weapon;
-  gitem_t *lastweapon;
-
   gitem_t *chosenItem;		// item for teamplay
   gitem_t *chosenWeapon;	// weapon for teamplay
 
@@ -1491,172 +1488,174 @@ struct gclient_s
 	client_respawn_t	resp;
 	pmove_state_t		old_pmove;	// for detecting out-of-pmove changes
 
-	layout_t			layout;		// set layout stat
-	qboolean			showinventory;	// set layout stat
+	layout_t	layout;		// set layout stat
+	qboolean	showinventory;	// set layout stat
 
-	pmenuhnd_t			menu;		// current menu
+	pmenuhnd_t	menu;		// current menu
 
-	int					ammo_index;
+	int			ammo_index;
 
-	int					buttons;
-	int					oldbuttons;
-	int					latched_buttons;
+	int			buttons;
+	int			oldbuttons;
+	int			latched_buttons;
 
-	qboolean			weapon_thunk;
+	qboolean	weapon_thunk;
 
-	gitem_t				*newweapon;
+	gitem_t		*newweapon;
 
 	// sum up damage over an entire frame, so
 	// shotgun blasts give a single big kick
-	int					damage_armor;		// damage absorbed by armor
-	int					damage_parmor;		// damage absorbed by power armor
-	int					damage_blood;		// damage taken out of health
-	int					damage_knockback;	// impact damage
-	vec3_t				damage_from;		// origin for vector calculation
+	int			damage_armor;		// damage absorbed by armor
+	int			damage_parmor;		// damage absorbed by power armor
+	int			damage_blood;		// damage taken out of health
+	int			damage_knockback;	// impact damage
+	vec3_t		damage_from;		// origin for vector calculation
 
-	float				killer_yaw;			// when dead, look at killer
+	float		killer_yaw;			// when dead, look at killer
 
 	weaponstate_t	weaponstate;
-	vec3_t			kick_angles;		// weapon kicks
-	vec3_t			kick_origin;
-	float			v_dmg_roll, v_dmg_pitch, v_dmg_time;	// damage kicks
-	float			fall_time, fall_value;	// for view drop on fall
-	float			damage_alpha;
-	float			bonus_alpha;
-	vec3_t			damage_blend;
-	vec3_t			v_angle;			// aiming direction
-	float			bobtime;			// so off-ground doesn't change it
-	vec3_t			oldviewangles;
-	vec3_t			oldvelocity;
+	vec3_t		kick_angles;		// weapon kicks
+	vec3_t		kick_origin;
+	float		v_dmg_roll, v_dmg_pitch, v_dmg_time;	// damage kicks
+	float		fall_time, fall_value;	// for view drop on fall
+	float		damage_alpha;
+	float		bonus_alpha;
+	vec3_t		damage_blend;
+	vec3_t		v_angle;			// aiming direction
+	float		bobtime;			// so off-ground doesn't change it
+	vec3_t		oldviewangles;
+	vec3_t		oldvelocity;
 
-	int				next_drown_framenum;
-	int				old_waterlevel;
-	int				breather_sound;
+	int			next_drown_framenum;
+	int			old_waterlevel;
+	int			breather_sound;
 
-	int				machinegun_shots;	// for weapon raising
+	int			machinegun_shots;	// for weapon raising
 
 	// animation vars
-	int				anim_end;
-	int				anim_priority;
-	qboolean		anim_duck;
-	qboolean		anim_run;
+	int			anim_end;
+	int			anim_priority;
+	qboolean	anim_duck;
+	qboolean	anim_run;
 
 	// powerup timers
-	int				quad_framenum;
-	int				invincible_framenum;
-	int				breather_framenum;
-	int				enviro_framenum;
+	int			quad_framenum;
+	int			invincible_framenum;
+	int			breather_framenum;
+	int			enviro_framenum;
 
-	qboolean		grenade_blew_up;
-	int				grenade_framenum;
-	int				silencer_shots;
-	int				weapon_sound;
+	qboolean	grenade_blew_up;
+	int			grenade_framenum;
+	int			silencer_shots;
+	int			weapon_sound;
 
-	int				pickup_msg_framenum;
-	int				respawn_framenum;		// can respawn when time > this
+	int			pickup_msg_framenum;
+	int			respawn_framenum;		// can respawn when time > this
   
-	edict_t			*chase_target;
-	int				chase_mode;
+	edict_t		*chase_target;
+	int			chase_mode;
 
-	int				selected_item;
-	int				inventory[MAX_ITEMS];
+	int			selected_item;
+	int			inventory[MAX_ITEMS];
 
 	// ammo capacities
-	int				max_pistolmags;
-	int				max_shells;
-	int				max_mp5mags;
-	int				max_m4mags;
-	int				max_sniper_rnds;
+	int			max_pistolmags;
+	int			max_shells;
+	int			max_mp5mags;
+	int			max_m4mags;
+	int			max_sniper_rnds;
 
-	int				mk23_max;
-	int				mk23_rds;
+	int			mk23_max;
+	int			mk23_rds;
 
-	int				dual_max;
-	int				dual_rds;
-	int				shot_max;
-	int				shot_rds;
-	int				sniper_max;
-	int				sniper_rds;
-	int				mp5_max;
-	int				mp5_rds;
-	int				m4_max;
-	int				m4_rds;
-	int				cannon_max;
-	int				cannon_rds;
-	int				knife_max;
-	int				grenade_max;
+	int			dual_max;
+	int			dual_rds;
+	int			shot_max;
+	int			shot_rds;
+	int			sniper_max;
+	int			sniper_rds;
+	int			mp5_max;
+	int			mp5_rds;
+	int			m4_max;
+	int			m4_rds;
+	int			cannon_max;
+	int			cannon_rds;
+	int			knife_max;
+	int			grenade_max;
 
+	gitem_t		*weapon;
+	gitem_t		*lastweapon;
 
-	int				curr_weap;		// uses NAME_NUM values
+	int			curr_weap;		// uses NAME_NUM values
 
-	int				fired;			// keep track of semi auto
-	int				burst;			// remember if player is bursting or not
-	int				fast_reload;	// for shotgun/sniper rifle
-	int				idle_weapon;	// how many frames to keep our weapon idle
-	int				desired_fov;	// what fov does the player want? (via zooming)
-	int				desired_zoom;	// either 0, 1, 2, 4 or 6. This is set to 0 if no zooming shall be done, and is set to 0 after zooming is done.
+	int			fired;			// keep track of semi auto
+	int			burst;			// remember if player is bursting or not
+	int			fast_reload;	// for shotgun/sniper rifle
+	int			idle_weapon;	// how many frames to keep our weapon idle
+	int			desired_fov;	// what fov does the player want? (via zooming)
+	int			desired_zoom;	// either 0, 1, 2, 4 or 6. This is set to 0 if no zooming shall be done, and is set to 0 after zooming is done.
 
-	int				unique_weapon_total;
-	int				unique_item_total;
-	int				drop_knife;
-	int				knife_sound;		// we attack several times when slashing but only want 1 sound
+	int			unique_weapon_total;
+	int			unique_item_total;
+	int			drop_knife;
+	int			knife_sound;		// we attack several times when slashing but only want 1 sound
 
-	int				punch_framenum;
-	qboolean		punch_desired;	//controlled in ClientThink
+	int			punch_framenum;
+	qboolean	punch_desired;	//controlled in ClientThink
 
-	int				reload_attempts;
-	int				weapon_attempts;
+	int			reload_attempts;
+	int			weapon_attempts;
 
-	qboolean		autoreloading;	//used for dual -> mk23 change with reloading
+	qboolean	autoreloading;	//used for dual -> mk23 change with reloading
 
-	int				took_damage;		//Took damage from multihit weapons
+	int			took_damage;		//Took damage from multihit weapons
 
-	int				no_sniper_display;
+	int			no_sniper_display;
   
-	int				bandaging;
-	int				bandage_stopped;
-	qboolean		weapon_after_bandage_warned;	// to fix message bug when calling weapon while bandaging
+	int			bandaging;
+	int			bandage_stopped;
+	qboolean	weapon_after_bandage_warned;	// to fix message bug when calling weapon while bandaging
 
-	int				leg_damage;
-	int				leg_dam_count;
-	int				leg_noise;
-	int				leghits;
+	int			leg_damage;
+	int			leg_dam_count;
+	int			leg_noise;
+	int			leghits;
 
-	int				bleeding;			//remaining points to bleed away
-	int				bleed_remain;
-	vec3_t			bleedloc_offset;	// location of bleeding (from origin)
-	int				bleeddelay;			// how long until we bleed again
+	int			bleeding;			//remaining points to bleed away
+	int			bleed_remain;
+	vec3_t		bleedloc_offset;	// location of bleeding (from origin)
+	int			bleeddelay;			// how long until we bleed again
 
-	int				doortoggle;			// set by player with opendoor command
+	int			doortoggle;			// set by player with opendoor command
 
-	edict_t			*attacker;		// keep track of the last person to hit us
-	int				attacker_mod;	// and how they hit us
-	int				attacker_loc;	// location of the hit
+	edict_t		*attacker;		// keep track of the last person to hit us
+	int			attacker_mod;	// and how they hit us
+	int			attacker_loc;	// location of the hit
 
-	int				push_timeout;	// timeout for how long an attacker will get fall death credit
+	int			push_timeout;	// timeout for how long an attacker will get fall death credit
 
-	int				jumping;
+	int			jumping;
 
 	// Number of teammate woundings this game and a "before attack" tracker
-	int				team_wounds_before;
-	int				ff_warning;
+	int			team_wounds_before;
+	int			ff_warning;
 
-	int				radio_num_kills;
+	int			radio_num_kills;
 
-	int				last_damaged_part;
-	char			last_damaged_players[256];
-	edict_t			*last_killed_target[MAX_LAST_KILLED];
+	int			last_damaged_part;
+	char		last_damaged_players[256];
+	edict_t		*last_killed_target[MAX_LAST_KILLED];
 
-	int				uvTime;
+	int			uvTime;
   
-	qboolean		team_force;		// are we forcing a team change
+	qboolean	team_force;		// are we forcing a team change
 
-	edict_t			 *lasersight; // laser
-	edict_t			 *flashlight; // Flashlight
+	edict_t		*lasersight; // laser
+	edict_t		*flashlight; // Flashlight
 
-	edict_t			*ctf_grapple;		// entity of grapple
-	int				ctf_grapplestate;		// true if pulling
-	int				ctf_grapplereleaseframe;	// frame of grapple release
+	edict_t		*ctf_grapple;		// entity of grapple
+	int			ctf_grapplestate;		// true if pulling
+	int			ctf_grapplereleaseframe;	// frame of grapple release
 };
 
 
