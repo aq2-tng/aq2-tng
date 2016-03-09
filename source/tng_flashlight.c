@@ -10,45 +10,51 @@ make the flashlight
 void FL_make (edict_t * self)
 {
 	vec3_t start, forward, right, end;
+	edict_t *flashlight = self->client->flashlight;
 
-	if ((self->deadflag == DEAD_DEAD) || (self->solid == SOLID_NOT))
+	// Always remove a dead person's flashlight.
+	if( ! IS_ALIVE(self) )
 	{
-		if (self->flashlight)
+		if( flashlight )
 		{
-			G_FreeEdict (self->flashlight);
-			self->flashlight = NULL;
+			G_FreeEdict( flashlight );
+			self->client->flashlight = NULL;
 		}
 		return;
 	}
 
-	if (self->flashlight)
+	// Allow flashlights to be turned off even if use_flashlight was disabled mid-round.
+	if( flashlight )
 	{
-		G_FreeEdict (self->flashlight);
-		self->flashlight = NULL;
-		gi.sound (self, CHAN_VOICE, gi.soundindex ("misc/flashlight.wav"), 1, ATTN_NORM, 0);
+		G_FreeEdict( flashlight );
+		self->client->flashlight = NULL;
+		gi.sound( self, CHAN_VOICE, gi.soundindex("misc/flashlight.wav"), 1, ATTN_NORM, 0 );
 		return;
 	}
 
-	if (!(darkmatch->value || use_flashlight->value))
+	// Don't allow flashlights to be turned on without darkmatch or use_flashlight.
+	if( !(darkmatch->value || use_flashlight->value) )
 		return;
 
-	gi.sound (self, CHAN_VOICE, gi.soundindex ("misc/flashlight.wav"), 1, ATTN_NORM, 0);
+	gi.sound( self, CHAN_VOICE, gi.soundindex("misc/flashlight.wav"), 1, ATTN_NORM, 0 );
 
-	AngleVectors (self->client->v_angle, forward, right, NULL);
+	AngleVectors(self->client->v_angle, forward, right, NULL);
 
-	VectorSet (end, 100, 0, 0);
-	G_ProjectSource (self->s.origin, end, forward, right, start);
+	VectorSet(end, 100, 0, 0);
+	G_ProjectSource(self->s.origin, end, forward, right, start);
 
-	self->flashlight = G_Spawn ();
-	self->flashlight->owner = self;
-	self->flashlight->movetype = MOVETYPE_NOCLIP;
-	self->flashlight->solid = SOLID_NOT;
-	self->flashlight->classname = "flashlight";
-	self->flashlight->s.modelindex = gi.modelindex ("sprites/null.sp2");
-	self->flashlight->s.skinnum = 0;
-	self->flashlight->s.effects |= EF_HYPERBLASTER;	// Other effects can be used here, such as flag1, but these look corney and dull. Try stuff and tell me if you find anything cool (EF_HYPERBLASTER)
-	self->flashlight->think = FL_think;
-	self->flashlight->nextthink = level.time + 0.1;
+	flashlight = G_Spawn();
+	flashlight->owner = self;
+	flashlight->movetype = MOVETYPE_NOCLIP;
+	flashlight->solid = SOLID_NOT;
+	flashlight->classname = "flashlight";
+	flashlight->s.modelindex = gi.modelindex("sprites/null.sp2");
+	flashlight->s.skinnum = 0;
+	flashlight->s.effects |= EF_HYPERBLASTER; // Other effects can be used here, such as flag1, but these look corney and dull. Try stuff and tell me if you find anything cool (EF_HYPERBLASTER)
+	flashlight->think = FL_think;
+	flashlight->nextthink = level.framenum + FRAMEDIV;
+
+	self->client->flashlight = flashlight;
 }
 
 /*
@@ -102,7 +108,7 @@ void FL_think (edict_t * self)
 	VectorCopy(tr.endpos,self->s.origin);
 
 	gi.linkentity (self);
-	self->nextthink = level.time + 0.1; */
+	self->nextthink = level.framenum + FRAMEDIV; */
 
 	if (self->owner->client->pers.firing_style == ACTION_FIRING_CLASSIC)
 		height = 8;
@@ -128,6 +134,6 @@ void FL_think (edict_t * self)
 	VectorCopy (tr.endpos, self->s.origin);
 
 	gi.linkentity (self);
-	self->nextthink = level.time + 0.1;
+	self->nextthink = level.framenum + FRAMEDIV;
 
 }

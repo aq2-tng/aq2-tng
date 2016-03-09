@@ -129,17 +129,20 @@ IRC_identd (void *unused)
   return 0;
 }
 
-static void
-IRC_identd_start (void)
+static void IRC_identd_start (void)
 {
-  DWORD tid;
-
-  if (IRC_identd_is_running == FALSE)
-    {
-      IRC_identd_is_running = TRUE;
-      CloseHandle (CreateThread (NULL, 0, (LPTHREAD_START_ROUTINE) IRC_identd,
-				 NULL, 0, &tid));
-    }
+	if (IRC_identd_is_running == FALSE)
+	{
+		DWORD tid = 0;
+		HANDLE ihandle;
+		
+		IRC_identd_is_running = TRUE;
+		
+		ihandle = CreateThread( NULL, 0, (LPTHREAD_START_ROUTINE)IRC_identd, NULL, 0, &tid );
+		if (ihandle) {
+			CloseHandle( ihandle );
+		}
+	}
 }
 
 #endif

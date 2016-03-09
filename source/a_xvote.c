@@ -23,8 +23,6 @@
 
 #include "g_local.h"
 
-//#define xvlistsize (sizeof(xvotelist)/sizeof(vote_t))
-
 cvar_t *_InitLeaveTeam (ini_t * ini)
 {
 	return teamplay;
@@ -39,24 +37,11 @@ vote_t xvotelist[] = {
    _ClearMapVotes,		// InitLevel
    _MapExitLevel,		// ExitLevel
    _MapInitClient,		// InitClient
-   NULL,			// ClientConnect
    _RemoveVoteFromMap,		// ClientDisconnect
    _MapWithMostVotes,		// Newround
    _CheckMapVotes,		// CheckVote
    MAPMENUTITLE,		// Votetitle
    MapVoteMenu,			// VoteSelected
-
-   {				// commands
-    {"votemap", Cmd_Votemap_f}
-    ,
-    {"maplist", Cmd_Maplist_f}
-    ,
-    {NULL, NULL}
-    ,
-    {NULL, NULL}
-    ,
-    {NULL, NULL}
-    }
    }
   ,
 
@@ -68,24 +53,11 @@ vote_t xvotelist[] = {
    NULL,			// InitLevel
    NULL,			// ExitLevel
    _InitKickClient,		// InitClient
-   NULL,			// ClientConnect
    _ClientKickDisconnect,	// ClientDisconnect
    _CheckKickVote,		// Newround
    NULL,			// CheckVote
    KICKMENUTITLE,		// Votetitle
    _KickVoteSelected,		// VoteSelected
-
-   {				// commands
-    {"votekick", Cmd_Votekick_f}
-    ,
-    {"votekicknum", Cmd_Votekicknum_f}
-    ,
-    {"kicklist", Cmd_Kicklist_f}
-    ,
-    {NULL, NULL}
-    ,
-    {NULL, NULL}
-    }
    }
   ,
 
@@ -97,24 +69,11 @@ vote_t xvotelist[] = {
    NULL,			// InitLevel
    NULL,			// ExitLevel
    _ClearIgnoreList,		// InitClient
-   NULL,			// ClientConnect
    _ClrIgnoresOn,		// ClientDisconnect
    NULL,			// Newround
    NULL,			// CheckVote
    IGNOREMENUTITLE,		// Votetitle
    _IgnoreVoteSelected,		// VoteSelected
-
-   {				// commands
-    {"ignore", Cmd_Ignore_f}
-    ,
-    {"ignorenum", Cmd_Ignorenum_f}
-    ,
-    {"ignorelist", Cmd_Ignorelist_f}
-    ,
-    {"ignoreclear", Cmd_Ignoreclear_f}
-    ,
-    {"ignorepart", Cmd_IgnorePart_f}
-    }
    }
   ,
 
@@ -126,24 +85,11 @@ vote_t xvotelist[] = {
    NULL,			// InitLevel
    _ConfigExitLevel,		// ExitLevel
    _ConfigInitClient,		// InitClient
-   NULL,			// ClientConnect
    _RemoveVoteFromConfig,	// ClientDisconnect
    _ConfigWithMostVotes,	// Newround
    _CheckConfigVotes,		// CheckVote
    CONFIGMENUTITLE,		// Votetitle
    ConfigVoteMenu,		// VoteSelected
-
-   {				// commands
-    {"voteconfig", Cmd_Voteconfig_f}
-    ,
-    {"configlist", Cmd_Configlist_f}
-    ,
-    {NULL, NULL}
-    ,
-    {NULL, NULL}
-    ,
-    {NULL, NULL}
-    }
    }
   ,
   // Leave Team
@@ -154,24 +100,11 @@ vote_t xvotelist[] = {
    NULL,			// InitLevel
    NULL,			// ExitLevel
    NULL,			// InitClient
-   NULL,			// ClientConnect
    NULL,			// ClientDisconnect
    NULL,			// Newround
    NULL,			// CheckVote
    "Leave Team",		// Votetitle
    LeaveTeams,			// VoteSelected
-
-   {				// commands
-    {NULL, NULL}
-    ,
-    {NULL, NULL}
-    ,
-    {NULL, NULL}
-    ,
-    {NULL, NULL}
-    ,
-    {NULL, NULL}
-    }
    }
   ,
 
@@ -183,24 +116,11 @@ vote_t xvotelist[] = {
    NULL,			// InitLevel
    NULL,			// ExitLevel
    NULL,			// InitClient
-   NULL,			// ClientConnect
    NULL,			// ClientDisconnect
    _CheckScrambleVote,		// Newround
    NULL,			// CheckVote
    "Team Scramble",		// Votetitle
    _VoteScrambleSelected,	// VoteSelected
-
-   {				// commands
-    {"votescramble", Cmd_Votescramble_f}
-    ,
-    {NULL, NULL}
-    ,
-    {NULL, NULL}
-    ,
-    {NULL, NULL}
-    ,
-    {NULL, NULL}
-    }
    }
 
 };
@@ -208,215 +128,160 @@ vote_t xvotelist[] = {
 static const int xvlistsize = (sizeof(xvotelist)/sizeof(vote_t));
 
  /**/
-void _AddVoteMenu (edict_t * ent, int fromix)
+void _AddVoteMenu(edict_t *ent, int fromix)
 {
-  int i = 0, j = 0;
-  qboolean erg = true;
+	int i = 0, j = 0;
+	vote_t *xvote;
 
-	while (i < xvlistsize && erg == true)
+	for (i = 0, xvote = xvotelist; i < xvlistsize; i++, xvote++)
 	{
-		if (xvotelist[i].VoteTitle && xvotelist[i].DependsOn->value
-		&& xvotelist[i].VoteSelected)
+		if (xvote->VoteTitle && xvote->DependsOn->value && xvote->VoteSelected)
 		{
 			if (j >= fromix)
 			{
-				erg = xMenu_Add(ent, xvotelist[i].VoteTitle,
-								xvotelist[i].VoteSelected);
+				if (!xMenu_Add(ent, xvote->VoteTitle, xvote->VoteSelected))
+					break;
 			}
 			j++;
 		}
-		i++;
 	}
 }
 
-void vShowMenu (edict_t * ent, char *menu)
+void vShowMenu(edict_t *ent, char *menu)
 {
 	int i;
 	char fixedmenu[128];
+	vote_t *xvote;
 
 	Q_strncpyz(fixedmenu, menu, sizeof(fixedmenu));
 
-	if (ent->client->menu)
-	{
-		PMenu_Close (ent);
+	if (ent->client->layout == LAYOUT_MENU) {
+		PMenu_Close(ent);
 		return;
 	}
 	if (!*fixedmenu)
 	{
 		// general menu
-		if (xMenu_New (ent, "Menu", NULL, _AddVoteMenu) == false)
+		if (xMenu_New(ent, "Menu", NULL, _AddVoteMenu) == false)
 		{
-			gi.cprintf (ent, PRINT_MEDIUM, "Nothing to choose.\n");
+			gi.cprintf(ent, PRINT_MEDIUM, "Nothing to choose.\n");
 		}
+		return;
 	}
-	else
-	{
 
-		for (i = 0; i < xvlistsize; i++)
+	for (i = 0, xvote = xvotelist; i < xvlistsize; i++, xvote++)
+	{
+		if (xvote->DependsOn->value && xvote->VoteSelected && !Q_stricmp(fixedmenu, xvote->VoteTitle))
 		{
-			if (xvotelist[i].DependsOn->value && xvotelist[i].VoteSelected
-			&& Q_stricmp (fixedmenu, xvotelist[i].VoteTitle) == 0)
-			{
-				xvotelist[i].VoteSelected (ent, NULL);
-				return;
-			}
+			xvote->VoteSelected(ent, NULL);
+			return;
 		}
-		gi.cprintf (ent, PRINT_MEDIUM, "No such menu: %s\n", fixedmenu);
 	}
+	gi.cprintf(ent, PRINT_MEDIUM, "No such menu: %s\n", fixedmenu);
 }
 
-void vInitGame (void)
+void vInitGame(void)
 {
 	int i;
+	vote_t *xvote;
 	ini_t ini;
 
 	ini.pfile = NULL;
 
-	if (OpenIniFile (IniPath (), &ini) == false)
-		gi.dprintf ("Error opening ini file %s.\n", IniPath ());
+	if (OpenIniFile(IniPath(), &ini) == false)
+		gi.dprintf("Error opening ini file %s.\n", IniPath());
 
-	for (i = 0; i < xvlistsize; i++)
+	for (i = 0, xvote = xvotelist; i < xvlistsize; i++, xvote++)
 	{
-		if (xvotelist[i].InitGame)
-			xvotelist[i].DependsOn = xvotelist[i].InitGame (&ini);
-		if (!xvotelist[i].DependsOn)
-			xvotelist[i].DependsOn = deathmatch;
+		if (xvote->InitGame)
+			xvote->DependsOn = xvote->InitGame(&ini);
+		if (!xvote->DependsOn)
+			xvote->DependsOn = deathmatch;
 	}
-	CloseIniFile (&ini);
+	CloseIniFile(&ini);
 }
 
-void vExitGame (void)
+void vExitGame(void)
 {
 	int i;
+	vote_t *xvote;
 
-	for (i = 0; i < xvlistsize; i++)
+	for (i = 0, xvote = xvotelist; i < xvlistsize; i++, xvote++)
 	{
-		if (xvotelist[i].ExitGame)
-			xvotelist[i].ExitGame ();
-	}
-}
-
-void vInitLevel (void)
-{
-	int i;
-
-	for (i = 0; i < xvlistsize; i++)
-	{
-		if (xvotelist[i].InitLevel && xvotelist[i].DependsOn->value)
-			xvotelist[i].InitLevel ();
+		if (xvote->ExitGame)
+			xvote->ExitGame();
 	}
 }
 
-void vExitLevel (char *NextMap)
+void vInitLevel(void)
 {
 	int i;
+	vote_t *xvote;
 
-	for (i = 0; i < xvlistsize; i++)
+	for (i = 0, xvote = xvotelist; i < xvlistsize; i++, xvote++)
 	{
-		// gi.dprintf("Checking %s\n", xvotelist[i].VoteTitle);    
-		if (xvotelist[i].ExitLevel && xvotelist[i].DependsOn->value)
-		{
-			// gi.dprintf("value ok.\n");
-			xvotelist[i].ExitLevel (NextMap);
-			/*
-			// first come, first serve..
-			if (NextMap[0])
-			return;
-			*/
-		}
+		if (xvote->InitLevel && xvote->DependsOn->value)
+			xvote->InitLevel();
 	}
 }
 
-void vInitClient (edict_t * ent)
+void vExitLevel(char *NextMap)
 {
 	int i;
+	vote_t *xvote;
 
-	for (i = 0; i < xvlistsize; i++)
+	for (i = 0, xvote = xvotelist; i < xvlistsize; i++, xvote++)
 	{
-		if (xvotelist[i].InitClient && xvotelist[i].DependsOn->value)
-			xvotelist[i].InitClient (ent);
+		if (xvote->ExitLevel && xvote->DependsOn->value)
+			xvote->ExitLevel(NextMap);
 	}
 }
 
-qboolean vClientConnect (edict_t * ent, char *userinfo)
+void vInitClient(edict_t *ent)
 {
 	int i;
+	vote_t *xvote;
 
-	for (i = 0; i < xvlistsize; i++)
+	for (i = 0, xvote = xvotelist; i < xvlistsize; i++, xvote++)
 	{
-		if (xvotelist[i].ClientConnect && xvotelist[i].DependsOn->value &&
-			xvotelist[i].ClientConnect (ent, userinfo) == false)
-				return false;
-	}
-	return true;
-}
-
-void vClientDisconnect (edict_t * ent)
-{
-	int i;
-
-	for (i = 0; i < xvlistsize; i++)
-	{
-		if (xvotelist[i].ClientDisconnect && xvotelist[i].DependsOn->value)
-			xvotelist[i].ClientDisconnect (ent);
+		if (xvote->InitClient && xvote->DependsOn->value)
+			xvote->InitClient(ent);
 	}
 }
 
-void vNewRound (void)
+void vClientDisconnect(edict_t *ent)
 {
 	int i;
+	vote_t *xvote;
 
-	for (i = 0; i < xvlistsize; i++)
+	for (i = 0, xvote = xvotelist; i < xvlistsize; i++, xvote++)
 	{
-		if (xvotelist[i].NewRound && xvotelist[i].DependsOn->value)
-			xvotelist[i].NewRound ();
+		if (xvote->ClientDisconnect && xvote->DependsOn->value)
+			xvote->ClientDisconnect(ent);
 	}
 }
 
-qboolean vCheckVote (void)
+void vNewRound(void)
 {
 	int i;
+	vote_t *xvote;
 
-	for (i = 0; i < xvlistsize; i++)
+	for (i = 0, xvote = xvotelist; i < xvlistsize; i++, xvote++)
 	{
-		if (xvotelist[i].CheckVote && xvotelist[i].DependsOn->value && xvotelist[i].CheckVote() == true)
+		if (xvote->NewRound && xvote->DependsOn->value)
+			xvote->NewRound();
+	}
+}
+
+qboolean vCheckVote(void)
+{
+	int i;
+	vote_t *xvote;
+
+	for (i = 0, xvote = xvotelist; i < xvlistsize; i++, xvote++)
+	{
+		if (xvote->CheckVote && xvote->DependsOn->value && xvote->CheckVote() == true)
 			return true;
 	}
 	return false;
-}
-
-
-qboolean _vCommand (edict_t * ent, char *cmd, char *arg)
-{
-	int i, j;
-
-	for (i = 0; i < xvlistsize; i++)
-	{
-		// gi.dprintf("Checking %s\n", xvotelist[i].VoteTitle);    
-		if (xvotelist[i].DependsOn->value)
-		{
-			// gi.dprintf("value ok.\n");     
-			j = 0;
-			while (xvotelist[i].commands[j].cmd && j < VOTE_MAX_COMMANDS)
-			{
-				if (Q_stricmp (cmd, xvotelist[i].commands[j].cmd) == 0)
-				{
-					if (xvotelist[i].commands[j].cmdfunc)
-					{
-						xvotelist[i].commands[j].cmdfunc (ent, arg);
-						return true;
-					}
-				}
-				j++;
-			}
-		}
-	}
-
-	return false;
-}
-
-
-qboolean vCommand (edict_t * ent, char *cmd)
-{
-	return _vCommand (ent, cmd, gi.args());
 }

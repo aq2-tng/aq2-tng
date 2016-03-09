@@ -14,7 +14,7 @@
 
 #include "g_local.h"
 
-void PMenu_Open (edict_t * ent, pmenu_t * entries, int cur, int num)
+void PMenu_Open (edict_t *ent, pmenu_t *entries, int cur, int num)
 {
 	pmenuhnd_t *hnd;
 	pmenu_t *p;
@@ -23,13 +23,12 @@ void PMenu_Open (edict_t * ent, pmenu_t * entries, int cur, int num)
 	if (!ent->client)
 		return;
 
-	if (ent->client->menu)
-	{
-		gi.dprintf ("warning, ent already has a menu\n");
-		PMenu_Close (ent);
+	if (ent->client->layout == LAYOUT_MENU) {
+		gi.dprintf("warning, ent already has a menu\n");
+		PMenu_Close(ent);
 	}
 
-	hnd = gi.TagMalloc (sizeof (*hnd), TAG_GAME);
+	hnd = &ent->client->menu;
 
 	hnd->entries = entries;
 	hnd->num = num;
@@ -48,22 +47,19 @@ void PMenu_Open (edict_t * ent, pmenu_t * entries, int cur, int num)
 	else
 		hnd->cur = i;
 
-	ent->client->showscores = true;
-	ent->client->inmenu = true;
-	ent->client->menu = hnd;
+	ent->client->layout = LAYOUT_MENU;
 
-	PMenu_Update (ent);
-	gi.unicast (ent, true);
+	PMenu_Update(ent);
+	gi.unicast(ent, true);
 }
 
 void PMenu_Close (edict_t * ent)
 {
-	if (!ent->client->menu)
+	if (ent->client->layout != LAYOUT_MENU)
 		return;
 
-	gi.TagFree (ent->client->menu);
-	ent->client->menu = NULL;
-	ent->client->showscores = false;
+	memset(&ent->client->menu, 0, sizeof(ent->client->menu));
+	ent->client->layout = LAYOUT_NONE;
 }
 
 void PMenu_Update (edict_t * ent)
@@ -76,15 +72,12 @@ void PMenu_Update (edict_t * ent)
 	char *t;
 	qboolean alt = false;
 
-	if (!ent->client->menu)
-	{
-		gi.dprintf ("warning:  ent has no menu\n");
+	if (ent->client->layout != LAYOUT_MENU)
 		return;
-	}
 
-	hnd = ent->client->menu;
+	hnd = &ent->client->menu;
 
-	strcpy (string, "xv 32 yv 8 ");
+	strcpy(string, "xv 32 yv 8 ");
 	len = strlen(string);
 
 	for (i = 0, p = hnd->entries; i < hnd->num; i++, p++)
@@ -126,8 +119,8 @@ void PMenu_Update (edict_t * ent)
 			break;
 	}
 
-	gi.WriteByte (svc_layout);
-	gi.WriteString (string);
+	gi.WriteByte(svc_layout);
+	gi.WriteString(string);
 }
 
 void PMenu_Next (edict_t * ent)
@@ -136,13 +129,10 @@ void PMenu_Next (edict_t * ent)
 	int i;
 	pmenu_t *p;
 
-	if (!ent->client->menu)
-	{
-		gi.dprintf ("warning:  ent has no menu\n");
+	if (ent->client->layout != LAYOUT_MENU)
 		return;
-	}
 
-	hnd = ent->client->menu;
+	hnd = &ent->client->menu;
 
 	if (hnd->cur < 0)
 		return;			// no selectable entries
@@ -161,8 +151,8 @@ void PMenu_Next (edict_t * ent)
 
 	hnd->cur = i;
 
-	PMenu_Update (ent);
-	gi.unicast (ent, true);
+	PMenu_Update(ent);
+	gi.unicast(ent, true);
 }
 
 void PMenu_Prev (edict_t * ent)
@@ -171,13 +161,10 @@ void PMenu_Prev (edict_t * ent)
 	int i;
 	pmenu_t *p;
 
-	if (!ent->client->menu)
-	{
-		gi.dprintf ("warning:  ent has no menu\n");
+	if (ent->client->layout != LAYOUT_MENU)
 		return;
-	}
 
-	hnd = ent->client->menu;
+	hnd = &ent->client->menu;
 
 	if (hnd->cur < 0)
 		return;			// no selectable entries
@@ -200,8 +187,8 @@ void PMenu_Prev (edict_t * ent)
 
 	hnd->cur = i;
 
-	PMenu_Update (ent);
-	gi.unicast (ent, true);
+	PMenu_Update(ent);
+	gi.unicast(ent, true);
 }
 
 void PMenu_Select (edict_t * ent)
@@ -209,13 +196,10 @@ void PMenu_Select (edict_t * ent)
 	pmenuhnd_t *hnd;
 	pmenu_t *p;
 
-	if (!ent->client->menu)
-	{
-		gi.dprintf ("warning:  ent has no menu\n");
+	if (ent->client->layout != LAYOUT_MENU)
 		return;
-	}
 
-	hnd = ent->client->menu;
+	hnd = &ent->client->menu;
 
 	if (hnd->cur < 0)
 		return;			// no selectable entries
@@ -223,5 +207,5 @@ void PMenu_Select (edict_t * ent)
 	p = hnd->entries + hnd->cur;
 
 	if (p->SelectFunc)
-		p->SelectFunc (ent, p);
+		p->SelectFunc(ent, p);
 }
