@@ -486,6 +486,12 @@ Features
   Commands:
   use_buggy_bandolier [0/1] - if you wish to revert back to the old bandolier behavior, set this to 1
 
+* Q2pro MVD server demo support
+  When AQ2TNG is running under a q2pro Quake2 executable that is properly configured (built with CONFIG_MVD_SERVER
+  set to 1 at compile time it can record every single match into a dedicated file.  For this to work the cvar
+  sv_mvd_enable must also be set to 1.  The demos go into the action/demos folder on the server and contain
+  all players points of view for the entire match.   To activate this simply set use_mvd2 1 in your server config.
+
 --------------------------------------------------------------------------------------------------------------------
 Contact Information
   If you wish to contact the TNG team, to report a bug, suggest a new feature, or offer JBravo your

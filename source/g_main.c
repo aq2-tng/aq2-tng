@@ -407,6 +407,8 @@ cvar_t *dm_shield;
 
 cvar_t *item_respawnmode;
 
+cvar_t *use_mvd2;	// JBravo: activate mvd2 recording on servers running q2pro
+
 cvar_t *item_respawn;
 cvar_t *weapon_respawn;
 cvar_t *ammo_respawn;
@@ -639,15 +641,25 @@ void EndDMLevel (void)
 	votelist_t *maptosort = NULL;
 	votelist_t *tmp = NULL;
 	int newmappos; // TNG Stats, was: int newmappos;
-	char ltm[64] = "\0";
-	struct tm *now;
-	time_t tnow;
+	struct tm *now = NULL;
+	time_t tnow = 0;
+	char ltm[64] = "";
+	char mvdstring[512] = "";
 
 	tnow = time ((time_t *) 0);
 	now = localtime (&tnow);
 	(void) strftime (ltm, 64, "%A %d %B %H:%M:%S", now);
 	gi.bprintf (PRINT_HIGH, "Game ending at: %s\n", ltm);
 	IRC_printf (IRC_T_GAME, "Game ending at: %s", ltm);
+
+	// JBravo: Stop q2pro MVD2 recording
+	if (use_mvd2->value)
+	{
+		Com_sprintf( mvdstring, sizeof(mvdstring), "mvdstop\n" );
+		gi.AddCommandString( mvdstring );
+		gi.bprintf( PRINT_HIGH, "Ending MVD recording.\n" );
+	}
+	// JBravo: End MVD2
 
 	// stay on same level flag
 	if (DMFLAGS(DF_SAME_LEVEL))
