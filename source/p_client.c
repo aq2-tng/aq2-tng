@@ -624,7 +624,11 @@ void PrintDeathMessage(char *msg, edict_t * gibee)
 
 	for (j = 1; j <= game.maxclients; j++) {
 		other = &g_edicts[j];
+#ifndef NO_BOTS
+		if (!other->inuse || !other->client || other->is_bot)
+#else
 		if (!other->inuse || !other->client)
+#endif
 			continue;
 
 		// only print if he's NOT gibee, NOT attacker, and NOT alive! -TempFile
@@ -1786,6 +1790,14 @@ void CleanBodies()
 
 void respawn(edict_t *self)
 {
+#ifndef NO_BOTS
+	if (self->is_bot)
+	{
+		ACESP_Respawn (self);
+		return;
+	}
+#endif
+
 	if (self->solid != SOLID_NOT || self->deadflag == DEAD_DEAD)
 		CopyToBodyQue(self);
 
@@ -2268,6 +2280,14 @@ void PutClientInServer(edict_t * ent)
 	ent->flags &= ~(FL_NO_KNOCKBACK | FL_GODMODE);
 	ent->svflags &= ~(SVF_DEADMONSTER | SVF_NOCLIENT);
 
+#ifndef NO_BOTS
+	ent->is_bot = false;
+	ent->last_node = -1;
+	ent->is_jumping = false;
+	ent->is_triggering = false;
+	ent->grenadewait = 0;
+#endif
+
 	VectorCopy(mins, ent->mins);
 	VectorCopy(maxs, ent->maxs);
 	VectorClear(ent->velocity);
@@ -2360,6 +2380,10 @@ void PutClientInServer(edict_t * ent)
 	ChangeWeapon(ent);
 }
 
+#ifndef NO_BOTS
+char current_map[55] = "";
+#endif
+
 /*
 =====================
 ClientBeginDeathmatch
@@ -2417,6 +2441,10 @@ void ClientBeginDeathmatch(edict_t * ent)
 	TourneyNewPlayer(ent);
 	vInitClient(ent);
 
+#ifndef NO_BOTS
+	ACEIT_PlayerAdded(ent);
+#endif
+
 	// locate ent at a spawn point
 	PutClientInServer(ent);
 
@@ -2449,6 +2477,24 @@ void ClientBeginDeathmatch(edict_t * ent)
 	}
 
 	ent->client->resp.motd_refreshes = 1;
+
+#ifndef NO_BOTS
+	// If the map changes on us, init and reload the nodes
+	if(strcmp(level.mapname,current_map))
+	{
+		
+		ACEND_InitNodes();
+		ACEND_LoadNodes();
+//		ACESP_LoadBots();
+		ACESP_LoadBotConfig();
+/*		if ((minplayers->value) && (!ent->is_bot) && (maxclients->value > 1))
+		{
+			for (tempi=0; tempi<minplayers->value; tempi++)
+				ACESP_SpawnBot( (int)rand() % 1, NULL, NULL, NULL);
+		}
+*/		strcpy(current_map,level.mapname);
+	}
+#endif
 
 	//AQ2:TNG - Slicer: Set time to check clients
 	checkFrame = level.framenum + (int)(check_time->value * HZ);
@@ -2608,7 +2654,11 @@ qboolean ClientConnect(edict_t * ent, char *userinfo)
 	ent->client = game.clients + (ent - g_edicts - 1);
 
 	// We're not going to attempt to support reconnection...
+#ifndef NO_BOTS
+	if (ent->is_bot == false && ent->client->pers.connected) {
+#else
 	if (ent->client->pers.connected) {
+#endif
 		ClientDisconnect(ent);
 	}
 
@@ -2667,7 +2717,8 @@ void ClientDisconnect(edict_t * ent)
 	gi.bprintf(PRINT_HIGH, "%s disconnected\n", ent->client->pers.netname);
 	IRC_printf(IRC_T_SERVER, "%n disconnected", ent->client->pers.netname);
 
-	if (!teamplay->value && !ent->client->pers.spectator) {
+	if( !teamplay->value && !ent->client->pers.spectator )
+	{
 		// send effect
 		gi.WriteByte( svc_muzzleflash );
 		gi.WriteShort( ent - g_edicts );
@@ -2675,8 +2726,12 @@ void ClientDisconnect(edict_t * ent)
 		gi.multicast( ent->s.origin, MULTICAST_PVS );
 	}
 
-	if (use_ghosts->value)
+	if( use_ghosts->value )
 		CreateGhost( ent );
+
+#ifndef NO_BOTS
+	ACEIT_PlayerRemoved( ent );
+#endif
 
 	// go clear any clients that have this guy as their attacker
 	for (i = 1, etemp = g_edicts + 1; i <= game.maxclients; i++, etemp++) {
@@ -3093,6 +3148,10 @@ void ClientBeginServerFrame(edict_t * ent)
 			}
 
 			if (going_observer) {
+#ifndef NO_BOTS
+				if( ! ent->is_bot )
+				{
+#endif
 				CopyToBodyQue(ent);
 				ent->solid = SOLID_NOT;
 				ent->svflags |= SVF_NOCLIENT;
@@ -3100,6 +3159,18 @@ void ClientBeginServerFrame(edict_t * ent)
 				ent->health = 100;
 				ent->deadflag = DEAD_NO;
 				ent->client->ps.gunindex = 0;
+#ifndef NO_BOTS
+				}
+				else
+				{
+					ent->client->chase_mode = 0;
+					ent->client->chase_target = NULL;
+					ent->client->desired_fov = 90;
+					ent->client->ps.fov = 90; // FB 5/31/99 added
+					ent->client->ps.pmove.pm_flags &= ~PMF_NO_PREDICTION;
+					ent->solid = SOLID_BBOX;
+				}
+#endif
 				client->ps.pmove.delta_angles[PITCH] = ANGLE2SHORT(0 - client->resp.cmd_angles[PITCH]);
 				client->ps.pmove.delta_angles[YAW] = ANGLE2SHORT(client->killer_yaw - client->resp.cmd_angles[YAW]);
 				client->ps.pmove.delta_angles[ROLL] = ANGLE2SHORT(0 - client->resp.cmd_angles[ROLL]);
@@ -3109,7 +3180,13 @@ void ClientBeginServerFrame(edict_t * ent)
 				VectorCopy(ent->s.angles, client->ps.viewangles);
 				VectorCopy(ent->s.angles, client->v_angle);
 				gi.linkentity(ent);
-
+#ifndef NO_BOTS
+				if( ent->is_bot )
+				{
+					respawn( ent );
+				}
+				else
+#endif
 				if (teamplay->value && !in_warmup && limchasecam->value) {
 					ent->client->chase_mode = 0;
 					NextChaseMode( ent );

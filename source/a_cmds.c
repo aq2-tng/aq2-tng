@@ -1154,3 +1154,13 @@ void Cmd_Ghost_f(edict_t * ent)
 	}
 	num_ghost_players--;
 }
+
+#ifndef NO_BOTS
+void Cmd_Placenode_f (edict_t *ent)
+{
+	if(ent->waterlevel)
+		ACEND_AddNode(ent,NODE_WATER);
+	else
+		ACEND_AddNode(ent,NODE_MOVE);
+}
+#endif

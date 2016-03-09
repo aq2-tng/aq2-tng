@@ -595,6 +595,54 @@ void ServerCommand (void)
 			}
 		}
 	}
+#ifndef NO_BOTS
+	else if(Q_stricmp (cmd, "botdebug") == 0)
+	{
+ 		if (strcmp(gi.argv(2),"on")==0)
+		{
+			gi.bprintf (PRINT_MEDIUM, "BOT: Debug Mode On\n");
+			debug_mode = true;
+		}
+		else
+		{
+			gi.bprintf (PRINT_MEDIUM, "BOT: Debug Mode Off\n");
+			debug_mode = false;
+		}
+	}
+	//RiEvEr - new node visibility method
+	else if(Q_stricmp (cmd, "shownodes") == 0)
+	{
+ 		if (strcmp(gi.argv(2),"on")==0)
+		{
+			gi.bprintf (PRINT_MEDIUM, "BOT: ShowNodes On\n");
+			shownodes_mode = true;
+		}
+		else
+		{
+			gi.bprintf (PRINT_MEDIUM, "BOT: ShowNodes Off\n");
+			shownodes_mode = false;
+		}
+	}
+	else if (Q_stricmp (cmd, "addbot") == 0)
+	{
+		if(teamplay->value) // team, name, skin (ignored)
+			ACESP_SpawnBot (gi.argv(2), gi.argv(3), gi.argv(4), NULL);
+		else // name, skin
+			ACESP_SpawnBot (NULL, gi.argv(2), gi.argv(3), NULL);
+	}
+	// removebot
+	else if(Q_stricmp (cmd, "removebot") == 0)
+		ACESP_RemoveBot(gi.argv(2));
+	// Node saving
+	else if(Q_stricmp (cmd, "savenodes") == 0)
+		ACEND_SaveNodes();
+	// Clear all node data.
+	else if(Q_stricmp (cmd, "initnodes") == 0)
+		ACEND_InitNodes();
+	// Generate map entity nodes (items/doors/etc) and load saved nodes; you should probably "initnodes" first.
+	else if(Q_stricmp (cmd, "loadnodes") == 0)
+		ACEND_LoadNodes();
+#endif
 	else
 		gi.cprintf (NULL, PRINT_HIGH, "Unknown server command \"%s\"\n", cmd);
 }
