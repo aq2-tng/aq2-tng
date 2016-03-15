@@ -58,6 +58,119 @@ char	*TeamName(int team);
 void	LTKsetBotName( char	*bot_name );
 void	ACEAI_Cmd_Choose( edict_t *ent, char *s);
 
+void InitClientPersistant( gclient_t *client )
+{
+	gitem_t *item;
+	
+	memset( &client->pers, 0, sizeof(client->pers) );
+	
+	// changed to mk23
+	item = GET_ITEM(MK23_NUM);
+	client->selected_item = ITEM_INDEX(item);
+	client->inventory[client->selected_item] = 1;
+	
+	client->pers.weapon = item;
+	client->pers.lastweapon = item;
+	
+	if( WPF_ALLOWED(KNIFE_NUM) )
+	{
+		item = GET_ITEM(KNIFE_NUM);
+		client->inventory[ITEM_INDEX(item)] = 1;
+		if( ! WPF_ALLOWED(MK23_NUM) )
+		{
+			client->selected_item = ITEM_INDEX(item);
+			client->pers.weapon = item;
+			client->pers.lastweapon = item;
+		}
+	}
+	
+	//zucc changed maximum ammo amounts
+	client->knife_max = 10;
+	client->grenade_max = 2;
+	
+	client->pers.connected = true;
+	//zucc
+	client->fired = 0;
+	client->burst = 0;
+	client->fast_reload = 0;
+	client->machinegun_shots = 0;
+	client->unique_weapon_total = 0;
+	client->unique_item_total = 0;
+	if( WPF_ALLOWED(MK23_NUM) )
+		client->curr_weap = MK23_NUM;
+	else if( WPF_ALLOWED(KNIFE_NUM) )
+		client->curr_weap = KNIFE_NUM;
+	else
+		client->curr_weap = MK23_NUM;
+	
+	// AQ2:TNG - JBravo adding UVtime
+	client->uvTime = 0;
+}
+
+void InitClientResp( gclient_t *client )
+{
+	int team = client->resp.team;
+	gitem_t *item = client->pers.chosenItem;
+	gitem_t *weapon = client->pers.chosenWeapon;
+	char *mapvote = client->resp.mapvote;
+	
+	memset( &client->resp, 0, sizeof(client->resp) );
+	client->resp.team = team;
+	client->resp.enterframe = level.framenum;
+	client->resp.mapvote = mapvote;
+	
+	if( !dm_choose->value && !warmup->value )
+	{
+		if( WPF_ALLOWED(MP5_NUM) )
+			client->pers.chosenWeapon = GET_ITEM(MP5_NUM);
+		else if( WPF_ALLOWED(MK23_NUM) )
+			client->pers.chosenWeapon = GET_ITEM(MK23_NUM);
+		else if( WPF_ALLOWED(KNIFE_NUM) )
+			client->pers.chosenWeapon = GET_ITEM(KNIFE_NUM);
+		else
+			client->pers.chosenWeapon = GET_ITEM(MK23_NUM);
+		client->pers.chosenItem = GET_ITEM(KEV_NUM);
+	}
+	else if (wp_flags->value < 2)
+		client->pers.chosenWeapon = GET_ITEM(MK23_NUM);
+	
+	// TNG:Freud, restore weapons and items from last map.
+	if( auto_equip->value && ((teamplay->value && !teamdm->value) || dm_choose->value) && ctf->value != 2 )
+	{
+		if( item )
+			client->pers.chosenItem = item;
+		if( weapon )
+			client->pers.chosenWeapon = weapon;
+	}
+	
+	client->resp.team = NOTEAM;
+	
+	// TNG:Freud, restore team from previous map
+	if( auto_join->value && team )
+		client->resp.team = team;
+	
+	client->resp.gldynamic = 1;
+	client->resp.checked = false;
+}
+
+void FetchClientEntData( edict_t *ent ){}
+
+qboolean StartClient( edict_t *ent )
+{
+	if( ent->client->resp.team != NOTEAM )
+		return false;
+	
+	// start as 'observer'
+	ent->movetype = MOVETYPE_NOCLIP;
+	ent->solid = SOLID_NOT;
+	ent->svflags |= SVF_NOCLIENT;
+	ent->client->resp.team = NOTEAM;
+	ent->client->ps.gunindex = 0;
+	gi.linkentity( ent );
+	
+	return true;
+}
+
 //==========================================
 // Joining a team (hacked from AQ2 code)
 //==========================================
@@ -495,7 +608,7 @@ void ACESP_PutClientInServer (edict_t *bot, qboolean respawn, int team)
 	bot->inuse = true;		//Werewolf
 	bot->solid = SOLID_BBOX;
 	bot->deadflag = DEAD_NO;
-	bot->air_finished = level.time + 12;
+	bot->air_finished_framenum = level.framenum + 12 * HZ;
 	bot->clipmask = MASK_PLAYERSOLID;
 	bot->model = "players/male/tris.md2";
 	bot->pain = player_pain;
@@ -663,7 +776,7 @@ void ACESP_PutClientInServer (edict_t *bot, qboolean respawn, int team)
         client->knife_max = 10;
         client->grenade_max = 2;        
 
-        bot->lasersight = NULL;
+        bot->client->lasersight = NULL;
 
         //other
         client->bandaging = 0;
@@ -675,9 +788,8 @@ void ACESP_PutClientInServer (edict_t *bot, qboolean respawn, int team)
         client->idle_weapon = 0;
         client->drop_knife = 0;
         client->no_sniper_display = 0;
-        client->knife_sound     = 0;
+        client->knife_sound = 0;
         client->doortoggle = 0;
-        client->have_laser = 0; 
 
 		// Choose Teamplay weapon
 		if( bot->weaponchoice == 0)
@@ -749,7 +861,7 @@ void ACESP_PutClientInServer (edict_t *bot, qboolean respawn, int team)
                         if (teamplay->value)
                                 EquipClient(bot);
                         
-                        if (bot->client->menu)
+                        if( bot->client->pers.menu_shown )
                         {
                                 PMenu_Close(bot);
                                 return;
@@ -807,16 +919,7 @@ void ACESP_PutClientInServer (edict_t *bot, qboolean respawn, int team)
 //AQ2 END
 		*/
 	}
-	//RiEvEr - Set Radio Gender
-	if( IsFemale(bot) )
-	{
-		bot->client->resp.radio_gender = 1;
-	}
-	else
-	{
-		bot->client->resp.radio_gender = 0;
-	}
-	//R	
+	bot->client->resp.radio.gender = (bot->client->pers.gender == GENDER_FEMALE) ? 1 : 0;
 }
 
 ///////////////////////////////////////////////////////////////////////

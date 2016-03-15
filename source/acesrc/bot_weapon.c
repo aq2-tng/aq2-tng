@@ -67,7 +67,7 @@ int		BOTWP_ChangeSniperMode(edict_t *bot)
 
 int			BOTWP_GetMK23Mode(edict_t *bot)
 {
-	return (bot->client->resp.mk23_mode );
+	return (bot->client->pers.mk23_mode );
 }
 
 //---------------------------------------------

@@ -219,7 +219,7 @@ void Cmd_NextMap_f( edict_t *ent );
 #ifndef NO_BOTS
 void Cmd_Placenode_f( edict_t *ent );
 
-void Cmd_PlaceTrigger_f( edict_t *ent )
+static void Cmd_PlaceTrigger_f( edict_t *ent )
 {
 	ent->is_triggering = 1;
 }
@@ -1147,7 +1147,7 @@ static void Cmd_InvDrop_f (edict_t * ent)
 Cmd_Kill_f
 =================
 */
-static void Cmd_Kill_f (edict_t * ent)
+void Cmd_Kill_f( edict_t *ent )
 {
 	//FIREBLADE
 	if (!IS_ALIVE(ent))

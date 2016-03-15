@@ -104,7 +104,7 @@ void BOTCOM_BasicAttack (edict_t *bot, usercmd_t *cmd, vec3_t vTarget)
 			if( random() < 0.3 && bHasWeapon)
 			{
 				// Yes we do.
-				bot->client->resp.knife_mode = 1;
+				bot->client->pers.knife_mode = 1;
 			}
 			else
 			{
@@ -117,7 +117,7 @@ void BOTCOM_BasicAttack (edict_t *bot, usercmd_t *cmd, vec3_t vTarget)
 		else
 		{
 			// Outside desired throwing range
-			bot->client->resp.knife_mode =0;
+			bot->client->pers.knife_mode = 0;
 		}
 	}
 	else if(!(bot->client->pers.weapon == FindItem(SNIPER_NAME))) // Stop moving with sniper rifle

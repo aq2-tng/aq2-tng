@@ -30,7 +30,7 @@
 
 #include "g_local.h"
 #include "cgf_sfx_glass.h"
-
+#include <time.h>
 
 /*QUAKED func_group (0 0 0) ?
 Used to group brushes together just for editor convenience.

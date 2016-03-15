@@ -1187,8 +1187,12 @@ size_t  G_HighlightStr(char *dst, const char *src, size_t size);
 char	*G_CopyString(char *in);
 qboolean visible(edict_t *self, edict_t *other, int mask);
 
-// Re-enabled for bots
-float *tv (float x, float y, float z);
+#ifndef NO_BOTS
+qboolean ai_visible( edict_t *self, edict_t *other );
+qboolean infront( edict_t *self, edict_t *other );
+float *tv( float x, float y, float z );
+#endif
+
 char *vtos (vec3_t v);
 
 float vectoyaw (vec3_t vec);

@@ -661,7 +661,7 @@ qboolean ACEAI_FindEnemy(edict_t *self, int *total)
 		   continue;
 // AQ2 END
 
-		if((players[i]->deadflag == DEAD_NO) && visible(self, players[i]) && 
+		if((players[i]->deadflag == DEAD_NO) && ai_visible(self, players[i]) && 
 			gi.inPVS(self->s.origin, players[i]->s.origin)	)
 		{
 // RiEvEr
@@ -695,7 +695,7 @@ qboolean ACEAI_FindEnemy(edict_t *self, int *total)
 		// Check if it was recent
 		if( self->client->push_timeout > 0)
 		{
-			if(!self->client->attacker->deadflag && visible(self, self->client->attacker) && 
+			if(!self->client->attacker->deadflag && ai_visible(self, self->client->attacker) && 
 				gi.inPVS(self->s.origin, self->client->attacker->s.origin)	)
 			{
 				self->enemy = self->client->attacker;
@@ -940,27 +940,27 @@ void ACEAI_Cmd_Choose (edict_t *ent, char *s)
             return;
     
     if ( Q_stricmp(s, MP5_NAME) == 0 )
-            ent->client->resp.weapon = FindItem(MP5_NAME);
+            ent->client->pers.chosenWeapon = FindItem(MP5_NAME);
     else if ( Q_stricmp(s, M3_NAME) == 0 )
-            ent->client->resp.weapon = FindItem(M3_NAME);
+            ent->client->pers.chosenWeapon = FindItem(M3_NAME);
     else if ( Q_stricmp(s, M4_NAME) == 0 )
-            ent->client->resp.weapon = FindItem(M4_NAME);
+            ent->client->pers.chosenWeapon = FindItem(M4_NAME);
     else if ( Q_stricmp(s, HC_NAME) == 0 )
-            ent->client->resp.weapon = FindItem(HC_NAME);
+            ent->client->pers.chosenWeapon = FindItem(HC_NAME);
     else if ( Q_stricmp(s, SNIPER_NAME) == 0 )
-            ent->client->resp.weapon = FindItem(SNIPER_NAME);
+            ent->client->pers.chosenWeapon = FindItem(SNIPER_NAME);
     else if ( Q_stricmp(s, KNIFE_NAME) == 0 )
-            ent->client->resp.weapon = FindItem(KNIFE_NAME);
+            ent->client->pers.chosenWeapon = FindItem(KNIFE_NAME);
     else if ( Q_stricmp(s, DUAL_NAME) == 0 )
-            ent->client->resp.weapon = FindItem(DUAL_NAME);
+            ent->client->pers.chosenWeapon = FindItem(DUAL_NAME);
     else if ( Q_stricmp(s, KEV_NAME) == 0 )
-            ent->client->resp.item = FindItem(KEV_NAME);
+            ent->client->pers.chosenItem = FindItem(KEV_NAME);
     else if ( Q_stricmp(s, LASER_NAME) == 0 )
-            ent->client->resp.item = FindItem(LASER_NAME);
+            ent->client->pers.chosenItem = FindItem(LASER_NAME);
     else if ( Q_stricmp(s, SLIP_NAME) == 0 )
-            ent->client->resp.item = FindItem(SLIP_NAME);
+            ent->client->pers.chosenItem = FindItem(SLIP_NAME);
     else if ( Q_stricmp(s, SIL_NAME) == 0 )
-            ent->client->resp.item = FindItem(SIL_NAME);
+            ent->client->pers.chosenItem = FindItem(SIL_NAME);
     else if ( Q_stricmp(s, BAND_NAME) == 0 )
-            ent->client->resp.item = FindItem(BAND_NAME);
+            ent->client->pers.chosenItem = FindItem(BAND_NAME);
 }

@@ -503,7 +503,7 @@ static void plat_blocked(edict_t *self, edict_t *other)
 }
 
 
-static void Use_Plat(edict_t *ent, edict_t *other, edict_t *activator)
+void Use_Plat(edict_t *ent, edict_t *other, edict_t *activator)
 {
 	if (ent->think)
 		return;			// already down
