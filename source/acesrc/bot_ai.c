@@ -541,7 +541,7 @@ LeaveThink:
     
 	ClientThink (bot, &cmd);
     
-    bot->nextthink = level.time + FRAMETIME;
+    bot->nextthink = level.framenum + FRAMETIME;
 }
 
 /*
@@ -1029,5 +1029,5 @@ LeaveThink:
         
 		ClientThink (bot, &cmd);
         
-        bot->nextthink = level.time + FRAMETIME;
+        bot->nextthink = level.framenum + FRAMETIME;
 }*/

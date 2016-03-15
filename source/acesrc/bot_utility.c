@@ -57,7 +57,7 @@ void BOTUT_NodeMarker (int iNode)
 
 	ent->s.modelindex = gi.modelindex ("models/items/ammo/grenades/medium/tris.md2");
 	ent->owner = ent;
-	ent->nextthink = level.time + 0.2;
+	ent->nextthink = level.framenum + FRAMETIME * 2;
 	ent->think = G_FreeEdict;                
 	ent->dmg = 0;
 

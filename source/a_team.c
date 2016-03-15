@@ -1607,7 +1607,7 @@ int CheckForWinner()
 
 {
 
-	int players[TEAM_TOP] = { 0 }, i, teamNum, teamsWithPlayers;
+	int players[TEAM_TOP] = { 0 }, i = 0, teamNum = 0, teamsWithPlayers = 0;
 
 	edict_t *ent;
 

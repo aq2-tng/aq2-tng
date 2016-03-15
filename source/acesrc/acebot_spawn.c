@@ -535,7 +535,7 @@ void ACESP_HoldSpawn(edict_t *self)
 	self->think = BOTAI_Think;
 #endif
 
-	self->nextthink = level.time + FRAMETIME;
+	self->nextthink = level.framenum + FRAMETIME;
 
 	// send effect
 	gi.WriteByte (svc_muzzleflash);
@@ -722,8 +722,8 @@ void ACESP_PutClientInServer (edict_t *bot, qboolean respawn, int team)
     if(!respawn)
 	{
 		bot->think = ACESP_HoldSpawn;
-//		bot->nextthink = level.time + 0.1;
-		bot->nextthink = level.time + random()*3.0; // up to three seconds
+//		bot->nextthink = level.framenum + FRAMETIME;
+		bot->nextthink = level.framenum + random() * 3.0 * HZ; // up to three seconds
 	}
 	else
 	{
@@ -761,7 +761,7 @@ void ACESP_PutClientInServer (edict_t *bot, qboolean respawn, int team)
 #else
 		bot->think = BOTAI_Think;
 #endif
-		bot->nextthink = level.time + FRAMETIME;
+		bot->nextthink = level.framenum + FRAMETIME;
 
 //AQ2 ADD
         client->mk23_max = 12;

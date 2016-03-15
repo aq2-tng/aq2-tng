@@ -250,7 +250,7 @@ matches, show a list. Return NULL on failure. Case insensitive.
 */
 edict_t *LookupPlayer(edict_t *ent, const char *text, qboolean checkNUM, qboolean checkNick)
 {
-	edict_t		*p, *entMatch;
+	edict_t		*p = NULL, *entMatch = NULL;
 	int			i, matchCount, numericMatch;
 	char		match[32];
 	const char	*m, *name;
