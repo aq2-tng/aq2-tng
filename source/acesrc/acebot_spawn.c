@@ -85,8 +85,20 @@ void InitClientPersistant( gclient_t *client )
 	}
 	
 	//zucc changed maximum ammo amounts
+	client->max_pistolmags = 2;
+	client->max_shells = 14;
+	client->max_mp5mags = 2;
+	client->max_m4mags = 1;
+	client->max_sniper_rnds = 20;
 	client->knife_max = 10;
 	client->grenade_max = 2;
+	client->mk23_max = 12;
+	client->mp5_max = 30;
+	client->m4_max = 24;
+	client->shot_max = 7;
+	client->sniper_max = 6;
+	client->cannon_max = 2;
+	client->dual_max = 24;
 	
 	client->pers.connected = true;
 	//zucc
@@ -152,8 +164,6 @@ void InitClientResp( gclient_t *client )
 	client->resp.gldynamic = 1;
 	client->resp.checked = false;
 }
-
-void FetchClientEntData( edict_t *ent ){}
 
 qboolean StartClient( edict_t *ent )
 {
@@ -576,26 +586,21 @@ void ACESP_PutClientInServer (edict_t *bot, qboolean respawn, int team)
 	client = bot->client;
 
 	// deathmatch wipes most client data every spawn
-	if (deathmatch->value)
-	{
-		char userinfo[MAX_INFO_STRING];
-
-		resp = bot->client->resp;
-		memcpy (userinfo, client->pers.userinfo, sizeof(userinfo));
-		InitClientPersistant (client);
-		ClientUserinfoChanged (bot, userinfo);
-	}
-	else
-		memset (&resp, 0, sizeof(resp));
+	char userinfo[MAX_INFO_STRING];
+	resp = bot->client->resp;
+	memcpy (userinfo, client->pers.userinfo, sizeof(userinfo));
+	InitClientPersistant (client);
+	ClientUserinfoChanged (bot, userinfo);
 	
-	// clear everything but the persistant data
+	// clear everything but the persistant data and health
 	saved = client->pers;
+	int health = bot->health;
+	int max_health = bot->max_health;
 	memset (client, 0, sizeof(*client));
 	client->pers = saved;
 	client->resp = resp;
-	
-	// copy some data from the client to the entity
-	FetchClientEntData (bot);
+	bot->health = health;
+	bot->max_health = max_health;
 	
 	// clear entity values
 	bot->groundentity = NULL;
@@ -644,7 +649,7 @@ void ACESP_PutClientInServer (edict_t *bot, qboolean respawn, int team)
 //AQ2	client->ps.pmove.pm_flags &= ~PMF_NO_PREDICTION;
 //ZOID
 
-	if (deathmatch->value && ((int)dmflags->value & DF_FIXED_FOV))
+	if( (int) dmflags->value & DF_FIXED_FOV )
 	{
 		client->ps.fov = 90;
 	}
@@ -939,6 +944,10 @@ void ACESP_Respawn (edict_t *self)
 		ACESP_PutClientInServer (self,true,0);
 
 	self->svflags &= ~SVF_NOCLIENT;
+
+	if( team_round_going && !(gameSettings & GS_ROUNDBASED) )
+		AddToTransparentList( self );
+
 //AQ2 END
 
 	// add a teleportation effect
@@ -948,7 +957,7 @@ void ACESP_Respawn (edict_t *self)
 //AQ2	self->client->ps.pmove.pm_flags = PMF_TIME_TELEPORT;
 //AQ2	self->client->ps.pmove.pm_time = 14;
 
-	self->client->respawn_time = level.time;
+	self->client->respawn_time = level.framenum + 2 * HZ;
 
 	if( random() < 0.15)
 	{
