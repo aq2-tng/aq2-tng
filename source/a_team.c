@@ -1543,8 +1543,8 @@ static void SpawnPlayers(void)
 			}
 		}
 
-		if (!ent->client->pers.chosenWeapon) {
-			ent->client->pers.chosenWeapon = GET_ITEM(KEV_NUM);
+		if (!ent->client->pers.chosenItem) {
+			ent->client->pers.chosenItem = GET_ITEM(KEV_NUM);
 		}
 
 		PutClientInServer(ent);
