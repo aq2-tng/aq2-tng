@@ -1453,6 +1453,8 @@ typedef struct
   int hitsTotal;					//Total number of hits
   int streakKills;					//Kills in a row
   int streakHS;						//Headshots in a Row
+  int streakKillsHighest;			//Highest kills in a row
+  int streakHSHighest;				//Highest headshots in a Row
 
   int hitsLocations[LOC_MAX];		//Number of hits for different locations
   gunStats_t gunstats[MAX_GUNSTAT]; //Number of shots/hits for different guns

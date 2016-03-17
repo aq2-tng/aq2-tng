@@ -204,7 +204,7 @@ void Cmd_Stats_f (edict_t *targetent, char *arg)
 		return;
 	}
 
-	gi.cprintf (targetent, PRINT_HIGH, "Weapon             Accuracy Hits/Shots Kills Headshots\n");		
+	gi.cprintf (targetent, PRINT_HIGH, "Weapon            Accuracy Hits/Shots Kills Headshots\n");		
 
 	gun = ent->client->resp.gunstats;
 	for (y = 0; y < MAX_GUNSTAT; y++, gun++) {
@@ -214,39 +214,39 @@ void Cmd_Stats_f (edict_t *targetent, char *arg)
 
 		switch (y) {
 		case MOD_MK23:
-			string = "Pistol            ";
+			string = "Pistol";
 			break;
 		case MOD_DUAL:
-			string = "Dual Pistols      ";
+			string = "Dual Pistols";
 			break;
 		case MOD_KNIFE:
-			string = "Slashing Knife    ";
+			string = "Slashing Knife";
 			break;
 		case MOD_KNIFE_THROWN:
-			string = "Throwing Knife    ";
+			string = "Throwing Knife";
 			break;
 		case MOD_M4:
-			string = "M4 Assault Rifle  ";
+			string = "M4 Assault Rifle";
 			break;
 		case MOD_MP5:
-			string = "MP5 Submachinegun ";
+			string = "MP5 Submachinegun";
 			break;
 		case MOD_SNIPER:
-			string = "Sniper Rifle      ";
+			string = "Sniper Rifle";
 			break;
 		case MOD_HC:
-			string = "Handcannon        ";
+			string = "Handcannon";
 			break;
 		case MOD_M3:
-			string = "M3 Shotgun        ";
+			string = "M3 Shotgun";
 			break;
 		default:
-			string = "Unknown Weapon    ";
+			string = "Unknown Weapon";
 			break;
 		}
 
 		perc_hit = (double)gun->hits * 100.0 / (double)gun->shots; // Percentage of shots that hit
-		gi.cprintf( targetent, PRINT_HIGH, "%s %6.2f  %5i/%-5i  %3i   %i\n",
+		gi.cprintf( targetent, PRINT_HIGH, "%-17s  %6.2f  %4i/%-4i  %3i   %5i\n",
 			string, perc_hit, gun->hits, gun->shots, gun->kills, gun->headshots );
 	}
 
@@ -254,7 +254,7 @@ void Cmd_Stats_f (edict_t *targetent, char *arg)
 
 
 	// Final Part
-	gi.cprintf (targetent, PRINT_HIGH, "Location                         Hits     (%%)\n");		
+	gi.cprintf (targetent, PRINT_HIGH, "Location                          Hits     (%%)\n");		
 
 	for (y = 0; y < LOC_MAX; y++) {
 		locHits = ent->client->resp.hitsLocations[y];
@@ -290,7 +290,7 @@ void Cmd_Stats_f (edict_t *targetent, char *arg)
 		}
 
 		perc_hit = (double)locHits * 100.0 / (double)hits;
-		gi.cprintf( targetent, PRINT_HIGH, "%-26s %10i  (%6.2f)\n", string, locHits, perc_hit );
+		gi.cprintf( targetent, PRINT_HIGH, "%-27s %10i  (%6.2f)\n", string, locHits, perc_hit );
 	}
 	gi.cprintf (targetent, PRINT_HIGH, "\n");
 
@@ -299,9 +299,9 @@ void Cmd_Stats_f (edict_t *targetent, char *arg)
 	else
 		perc_hit = 0.0;
 
-	gi.cprintf (targetent, PRINT_HIGH, "Average Accuracy:                        %.2f\n", perc_hit); // Average
+	gi.cprintf (targetent, PRINT_HIGH, "Average Accuracy:                         %.2f\n", perc_hit); // Average
 	gi.cprintf (targetent, PRINT_HIGH, "\nžžžžžžžžžžžžžžžžžžžžžžžžžžžžžžžžžžžžžžžžžžžžžžžžžžžžžŸ\n\n");
-
+	gi.cprintf(targetent, PRINT_HIGH, "Highest streaks:  kills: %d headshots: %d\n", ent->client->resp.streakKillsHighest, ent->client->resp.streakHSHighest);
 }
 
 void A_ScoreboardEndLevel (edict_t * ent, edict_t * killer)

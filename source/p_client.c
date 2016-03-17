@@ -366,6 +366,9 @@ void Add_Frag(edict_t * ent, int mod)
 		if (IS_ALIVE(ent))
 		{
 			ent->client->resp.streakKills++;
+			if (ent->client->resp.streakKills > ent->client->resp.streakKillsHighest)
+				ent->client->resp.streakKillsHighest = ent->client->resp.streakKills;
+
 			if (ent->client->resp.streakKills % 5 == 0 && use_rewards->value)
 			{
 				sprintf(buf, "IMPRESSIVE %s!", ent->client->pers.netname);
@@ -387,8 +390,11 @@ void Add_Frag(edict_t * ent, int mod)
 		// end changing sound dir
 	} else { //Deathmatch
 
-		if (IS_ALIVE(ent))
+		if (IS_ALIVE(ent)) {
 			ent->client->resp.streakKills++;
+			if (ent->client->resp.streakKills > ent->client->resp.streakKillsHighest)
+				ent->client->resp.streakKillsHighest = ent->client->resp.streakKills;
+		}
 
 		if (ent->client->resp.streakKills < 4)
 			frags = 1;
