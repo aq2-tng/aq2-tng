@@ -213,7 +213,7 @@ void BOTCOM_BasicAttack (edict_t *bot, usercmd_t *cmd, vec3_t vTarget)
 	}
 	// Store time we last saw an enemy
 	// This value is used to decide if we initiate a long range search or not.
-	bot->teamPauseTime = level.time;
+	bot->teamPauseTime = level.framenum;
 	
 //	if(debug_mode)
 //		debug_printf("%s attacking %s\n",bot->client->pers.netname,bot->enemy->client->pers.netname);

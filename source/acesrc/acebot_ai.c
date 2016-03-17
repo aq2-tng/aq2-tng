@@ -110,7 +110,7 @@ void ACEAI_Think (edict_t *self)
 	// In teamplay pick a random node
 	if( self->state == STATE_POSITION )
 	{
-		if( level.time >= self->teamPauseTime)
+		if( level.framenum >= self->teamPauseTime)
 		{
 			// We've waited long enough - let's go kick some ass!
 			self->state = STATE_WANDER;
@@ -123,10 +123,10 @@ void ACEAI_Think (edict_t *self)
 
 	// Kill the bot if completely stuck somewhere
 	if(VectorLength(self->velocity) > 37) //
-		self->suicide_timeout = level.time + 10.0;
+		self->suicide_timeout = level.framenum + 10.0 * HZ;
 
 
-	if(self->suicide_timeout < level.time && !teamplay->value)
+	if( self->suicide_timeout < level.framenum && !teamplay->value )
 	{
 		self->health = 0;
 		player_die (self, self, self, 100000, vec3_origin);

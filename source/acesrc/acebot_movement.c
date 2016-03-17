@@ -676,7 +676,7 @@ void ACEMV_Move(edict_t *self, usercmd_t *ucmd)
 	{
 		if( 
 			( !teamplay->value ) ||
-			(teamplay->value && level.time >= (self->teamPauseTime))
+			(teamplay->value && level.framenum >= (self->teamPauseTime))
 			)
 		{
 			self->state = STATE_WANDER;
@@ -1018,7 +1018,7 @@ void ACEMV_Wander(edict_t *self, usercmd_t *ucmd)
 	vec3_t  temp;
 	
 	// Do not move
-	if(self->next_move_time > level.time)
+	if(self->next_move_time > level.framenum)
 		return;
 
 	// Special check for elevators, stand still until the ride comes to a complete stop.
@@ -1029,7 +1029,7 @@ void ACEMV_Wander(edict_t *self, usercmd_t *ucmd)
 			self->velocity[0] = 0;
 			self->velocity[1] = 0;
 			self->velocity[2] = 0;
-			self->next_move_time = level.time + 0.5;
+			self->next_move_time = level.framenum + 0.5 * HZ;
 			return;
 		}
 	
@@ -1337,7 +1337,7 @@ void ACEMV_Attack (edict_t *self, usercmd_t *ucmd)
 
 	// Store time we last saw an enemy
 	// This value is used to decide if we initiate a long range search or not.
-	self->teamPauseTime = level.time;
+	self->teamPauseTime = level.framenum;
 	
 //	if(debug_mode)
 //		debug_printf("%s attacking %s\n",self->client->pers.netname,self->enemy->client->pers.netname);

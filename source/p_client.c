@@ -2348,8 +2348,8 @@ void PutClientInServer(edict_t * ent)
 		ent->current_node = ACEND_FindClosestReachableNode( ent, NODE_DENSITY, NODE_ALL );
 		ent->goal_node = ent->current_node;
 		ent->next_node = ent->current_node;
-		ent->next_move_time = level.time; // FIXME
-		ent->suicide_timeout = level.time + 15.0; // FIXME
+		ent->next_move_time = level.framenum;
+		ent->suicide_timeout = level.framenum + 15.0 * HZ;
 		
 		ent->killchat = false;
 		VectorClear( ent->lastSeen );
@@ -2423,17 +2423,17 @@ void PutClientInServer(edict_t * ent)
 			const char *s = Info_ValueForKey( ent->client->pers.userinfo, "skin" );
 			AssignSkin( ent, s, false /* nickChanged */ );
 			// Anti centipede timer
-			ent->teamPauseTime = level.time + 3.0 + (rand() % 7); // FIXME
+			ent->teamPauseTime = level.framenum + (3.0 + (rand() % 7)) * HZ;
 			// Radio setup
 			ent->teamReportedIn = true;
-			ent->lastRadioTime = level.time; // FIXME
+			ent->lastRadioTime = level.framenum;
 			// Change facing angle for each bot
 			randomnode = (int)( num_players * random() );
 			VectorSubtract( nodes[randomnode].origin, ent->s.origin, ent->move_vector );
 			ent->move_vector[2] = 0;
 		}
 		else
-			ent->teamPauseTime = level.time; // FIXME
+			ent->teamPauseTime = level.framenum;
 		
 		//RiEvEr - new node pathing system
 		memset( &(ent->pathList), 0, sizeof(ent->pathList) );
@@ -2894,6 +2894,7 @@ void ClientDisconnect(edict_t * ent)
 
 #ifndef NO_BOTS
 	ent->is_bot = false;
+	ent->think = NULL;
 #endif
 }
 
