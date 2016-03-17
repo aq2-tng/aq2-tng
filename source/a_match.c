@@ -308,11 +308,10 @@ void Cmd_Teamname_f(edict_t * ent)
 
 void Cmd_Teamskin_f(edict_t * ent)
 {
-	char *s;
-	int teamNum;
+	char *s, newskin[32];
+	int i, teamNum;
 	team_t *team;
-/*	int i;
-	edict_t *e;*/
+	edict_t *e;
 
 	if (!matchmode->value) {
 		gi.cprintf(ent, PRINT_HIGH, "This command needs matchmode to be enabled\n");
@@ -344,31 +343,32 @@ void Cmd_Teamskin_f(edict_t * ent)
 	}
 
 	s = gi.argv(1);
-	if(!strcmp(s, team->skin)) {
-		gi.cprintf(ent, PRINT_HIGH, "Your team skin is already %s\n", s);
-		return;
-	}
-
-	Q_strncpyz(team->skin, s, sizeof(team->skin));
+	Q_strncpyz(newskin, s, sizeof(newskin));
 	if(ctf->value) {
-		s = strchr(team->skin, '/');
+		s = strchr(newskin, '/');
 		if(s)
 			s[1] = 0;
 		else
-			strcpy(team->skin, "male/");
-		Q_strncatz(team->skin, teamNum == 1 ? CTF_TEAM1_SKIN : CTF_TEAM2_SKIN, sizeof(team->skin));
+			strcpy(newskin, "male/");
+		Q_strncatz(newskin, teamNum == 1 ? CTF_TEAM1_SKIN : CTF_TEAM2_SKIN, sizeof(newskin));
 	}
+
+	if (!strcmp(newskin, team->skin)) {
+		gi.cprintf(ent, PRINT_HIGH, "Your team skin is already %s\n", newskin);
+		return;
+	}
+
+	Q_strncpyz(team->skin, newskin, sizeof(team->skin));
 
 	Com_sprintf(team->skin_index, sizeof(team->skin_index), "../players/%s_i", team->skin );
 	level.pic_teamskin[teamNum] = gi.imageindex(team->skin_index);
-/*	for (i = 1; i <= game.maxclients; i++) { //lets update players skin
-		e = g_edicts + i;
-		if (!e->inuse)
+	for (i = 0, e = &g_edicts[1]; i < game.maxclients; i++, e++) { //lets update players skin
+		if (!e->inuse || !e->client)
 			continue;
 
-		if(e->client->resp.team == team)
-			AssignSkin(e, teams[team].skin, false);
-	}*/
+		if (e->client->resp.team == teamNum)
+			AssignSkin(e, team->skin, false);
+	}
 	gi.cprintf(ent, PRINT_HIGH, "New team skin: %s\n", team->skin);
 }
 

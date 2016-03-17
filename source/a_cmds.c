@@ -144,7 +144,7 @@ void SP_LaserSight(edict_t * self, gitem_t * item)
 	vec3_t start, forward, right, end;
 	edict_t *lasersight = self->client->lasersight;
 
-	if (!INV_AMMO(self, LASER_NUM)) {
+	if (!INV_AMMO(self, LASER_NUM) || !self->client->weapon) {
 		if (lasersight) {  // laser is on
 			G_FreeEdict(lasersight);
 			self->client->lasersight = NULL;
@@ -153,7 +153,7 @@ void SP_LaserSight(edict_t * self, gitem_t * item)
 	}
 	//zucc code to make it be used with the right weapons
 
-	switch (self->client->curr_weap) {
+	switch (self->client->weapon->typeNum) {
 	case MK23_NUM:
 	case MP5_NUM:
 	case M4_NUM:
@@ -245,7 +245,7 @@ void Cmd_New_Reload_f(edict_t * ent)
 void Cmd_Reload_f(edict_t * ent)
 {
 	//+BD - If the player is dead, don't bother
-	if (!IS_ALIVE(ent))
+	if (!IS_ALIVE(ent) || !ent->client->weapon)
 		return;
 
 	if (ent->client->weaponstate == WEAPON_BANDAGING ||
@@ -264,7 +264,7 @@ void Cmd_Reload_f(edict_t * ent)
 	//First, grab the current magazine max count...
 
 	//Set the weaponstate...
-	switch(ent->client->curr_weap) {
+	switch(ent->client->weapon->typeNum) {
 	case M3_NUM:
 		if (ent->client->shot_rds >= ent->client->shot_max)
 			return;
@@ -529,7 +529,7 @@ void Cmd_Lens_f(edict_t * ent)
 	int nArg;
 	char args[8];
 
-	if (ent->client->curr_weap != SNIPER_NUM)
+	if (!ent->client->weapon || ent->client->weapon->typeNum != SNIPER_NUM)
 		return;
 
 	nArg = atoi(gi.args());
@@ -569,6 +569,9 @@ void Cmd_Weapon_f(edict_t * ent)
 {
 	int dead;
 
+	if (!ent->client->weapon)
+		return;
+
 	dead = !IS_ALIVE(ent);
 
 	ent->client->weapon_attempts--;
@@ -593,7 +596,7 @@ void Cmd_Weapon_f(edict_t * ent)
 		return;
 	}
 
-	switch(ent->client->curr_weap) {
+	switch(ent->client->weapon->typeNum) {
 	case MK23_NUM:
 		if (!dead)
 			gi.sound(ent, CHAN_ITEM, gi.soundindex("misc/click.wav"), 1, ATTN_NORM, 0);
@@ -674,7 +677,6 @@ void Cmd_Weapon_f(edict_t * ent)
 		}
 		break;
 	}
-
 }
 
 // sets variable to toggle nearby door status
@@ -684,61 +686,62 @@ void Cmd_OpenDoor_f(edict_t * ent)
 	return;
 }
 
-void Cmd_Bandage_f(edict_t * ent)
+void Cmd_Bandage_f(edict_t *ent)
 {
+	if (!IS_ALIVE(ent))
+		return;
 
-	if ((ent->client->bleeding != 0 || ent->client->leg_damage != 0)
-	    && ent->client->bandaging != 1)
-		ent->client->reload_attempts = 0;	// prevent any further reloading
-
-	if ((ent->client->weaponstate == WEAPON_READY || ent->client->weaponstate == WEAPON_END_MAG)
-	    && (ent->client->bleeding != 0 || ent->client->leg_damage != 0)
-	    && ent->client->bandaging != 1) {
-
-		// zucc - check if they have a primed grenade
-
-		if (ent->client->curr_weap == GRENADE_NUM
-		    && ((ent->client->ps.gunframe >= GRENADE_IDLE_FIRST
-			 && ent->client->ps.gunframe <= GRENADE_IDLE_LAST)
-			|| (ent->client->ps.gunframe >= GRENADE_THROW_FIRST
-			    && ent->client->ps.gunframe <= GRENADE_THROW_LAST)))
-		{
-			int damage;
-
-			ent->client->ps.gunframe = 0;
-
-			if (use_classic->value)
-				damage = 170;
-			else
-				damage = GRENADE_DAMRAD;
-			
-			if(ent->client->quad_framenum > level.framenum)
-				damage *= 1.5f;
-
-			fire_grenade2(ent, ent->s.origin, vec3_origin, damage, 0, 2 * HZ, damage * 2, false);
-
-			INV_AMMO(ent, GRENADE_NUM)--;
-			if (INV_AMMO(ent, GRENADE_NUM) <= 0) {
-				ent->client->newweapon = GET_ITEM(MK23_NUM);
-			}
-		}
-
-		ent->client->bandaging = 1;
-		ent->client->resp.sniper_mode = SNIPER_1X;
-		ent->client->ps.fov = 90;
-		ent->client->desired_fov = 90;
-		if (ent->client->weapon)
-			ent->client->ps.gunindex = gi.modelindex(ent->client->weapon->view_model);
-		gi.cprintf(ent, PRINT_HIGH, "You've started bandaging\n");
-
-	} else if (ent->client->bandaging == 1)
+	if (ent->client->bandaging) {
 		gi.cprintf(ent, PRINT_HIGH, "Already bandaging\n");
-	//FIREBLADE 12/26/98 - fix inappropriate message
-	else if (ent->client->bleeding == 0 && ent->client->leg_damage == 0)
+		return;
+	}
+
+	if (ent->client->bleeding == 0 && ent->client->leg_damage == 0) {
 		gi.cprintf(ent, PRINT_HIGH, "No need to bandage\n");
-	else
+		return;
+	}
+
+	ent->client->reload_attempts = 0;	// prevent any further reloading
+
+	if (ent->client->weaponstate != WEAPON_READY && ent->client->weaponstate != WEAPON_END_MAG) {
 		gi.cprintf(ent, PRINT_HIGH, "Can't bandage now\n");
-	//FIREBLADE
+		return;
+	}
+
+	// zucc - check if they have a primed grenade
+	if (ent->client->curr_weap == GRENADE_NUM
+		&& ((ent->client->ps.gunframe >= GRENADE_IDLE_FIRST
+			&& ent->client->ps.gunframe <= GRENADE_IDLE_LAST)
+		|| (ent->client->ps.gunframe >= GRENADE_THROW_FIRST
+			&& ent->client->ps.gunframe <= GRENADE_THROW_LAST)))
+	{
+		int damage;
+
+		ent->client->ps.gunframe = 0;
+
+		if (use_classic->value)
+			damage = 170;
+		else
+			damage = GRENADE_DAMRAD;
+			
+		if(ent->client->quad_framenum > level.framenum)
+			damage *= 1.5f;
+
+		fire_grenade2(ent, ent->s.origin, vec3_origin, damage, 0, 2 * HZ, damage * 2, false);
+
+		INV_AMMO(ent, GRENADE_NUM)--;
+		if (INV_AMMO(ent, GRENADE_NUM) <= 0) {
+			ent->client->newweapon = GET_ITEM(MK23_NUM);
+		}
+	}
+
+	ent->client->bandaging = 1;
+	ent->client->resp.sniper_mode = SNIPER_1X;
+	ent->client->ps.fov = 90;
+	ent->client->desired_fov = 90;
+	if (ent->client->weapon)
+		ent->client->ps.gunindex = gi.modelindex(ent->client->weapon->view_model);
+	gi.cprintf(ent, PRINT_HIGH, "You've started bandaging\n");
 }
 
 // function called in generic_weapon function that does the bandaging

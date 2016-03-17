@@ -1359,40 +1359,40 @@ typedef struct gunStats_s
 // client data that stays across multiple level loads
 typedef struct
 {
-  char userinfo[MAX_INFO_STRING];
-  char netname[16];
-  char ip[64];
-  int hand;
+	char userinfo[MAX_INFO_STRING];
+	char netname[16];
+	char ip[64];
+	int hand;
 
-  qboolean connected;		// a loadgame will leave valid entities that
-  // just don't have a connection yet
+	qboolean connected;		// a loadgame will leave valid entities that
+	// just don't have a connection yet
 
-  int admin;
+	int admin;
 
-  gender_t	gender;
-  qboolean spectator;
-  int firing_style;
+	gender_t	gender;
+	qboolean spectator;
+	int firing_style;
 
-  qboolean mvdspec;
+	qboolean mvdspec;
 
-  xmenu_t x_menu;
+	xmenu_t x_menu;
 
-  gitem_t *chosenItem;		// item for teamplay
-  gitem_t *chosenWeapon;	// weapon for teamplay
+	gitem_t *chosenItem;		// item for teamplay
+	gitem_t *chosenWeapon;	// weapon for teamplay
 
-  int menu_shown;		// has the main menu been shown
-  qboolean dm_selected;		// if dm weapon selection has been done once
+	int menu_shown;		// has the main menu been shown
+	qboolean dm_selected;		// if dm weapon selection has been done once
 
-  int mk23_mode;		// firing mode, semi or auto
-  int mp5_mode;
-  int m4_mode;
-  int knife_mode;
-  int grenade_mode;
-  int hc_mode;
-  int id;			// id command on or off
-  int irvision;			// ir on or off (only matters if player has ir device, currently bandolier)
+	int mk23_mode;		// firing mode, semi or auto
+	int mp5_mode;
+	int m4_mode;
+	int knife_mode;
+	int grenade_mode;
+	int hc_mode;
+	int id;			// id command on or off
+	int irvision;			// ir on or off (only matters if player has ir device, currently bandolier)
 
-  ignorelist_t ignorelist;
+	ignorelist_t ignorelist;
 }
 client_persistant_t;
 
