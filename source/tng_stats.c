@@ -84,7 +84,7 @@ void ResetStats(edict_t *ent)
 	for (i = 0; i<LOC_MAX; i++)
 		ent->client->resp.hitsLocations[i] = 0;
 
-	memset( &ent->client->resp.gunstats, 0, sizeof( gunStats_t ) );
+	memset(ent->client->resp.gunstats, 0, sizeof(ent->client->resp.gunstats));
 }
 
 void Stats_AddShot( edict_t *ent, int gun )
