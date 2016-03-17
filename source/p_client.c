@@ -2280,14 +2280,6 @@ void PutClientInServer(edict_t * ent)
 	ent->flags &= ~(FL_NO_KNOCKBACK | FL_GODMODE);
 	ent->svflags &= ~(SVF_DEADMONSTER | SVF_NOCLIENT);
 
-#ifndef NO_BOTS
-	ent->is_bot = false;
-	ent->last_node = -1;
-	ent->is_jumping = false;
-	ent->is_triggering = false;
-	ent->grenadewait = 0;
-#endif
-
 	VectorCopy(mins, ent->mins);
 	VectorCopy(maxs, ent->maxs);
 	VectorClear(ent->velocity);
@@ -2325,6 +2317,136 @@ void PutClientInServer(edict_t * ent)
 	VectorCopy(ent->s.angles, client->ps.viewangles);
 	VectorCopy(ent->s.angles, client->v_angle);
 
+#ifndef NO_BOTS
+	ent->last_node = -1;
+	ent->is_jumping = false;
+	ent->is_triggering = false;
+	ent->grenadewait = 0;
+	
+	if( ent->is_bot )
+	{
+		ent->classname = "bot";
+		
+		ent->enemy = NULL;
+		ent->movetarget = NULL;
+		if( ! teamplay->value )
+		{
+			ent->state = STATE_MOVE;
+			ent->botState = BS_ROAM;
+			ent->nextState = BS_ROAM;
+			ent->secondaryState = BSS_NONE;
+		}
+		else
+		{
+			ent->state = STATE_POSITION;
+			ent->botState = BS_ROAM;
+			ent->nextState = BS_ROAM;
+			ent->secondaryState = BSS_POSITION;
+		}
+		
+		// Set the current node
+		ent->current_node = ACEND_FindClosestReachableNode( ent, NODE_DENSITY, NODE_ALL );
+		ent->goal_node = ent->current_node;
+		ent->next_node = ent->current_node;
+		ent->next_move_time = level.time; // FIXME
+		ent->suicide_timeout = level.time + 15.0; // FIXME
+		
+		ent->killchat = false;
+		VectorClear( ent->lastSeen );
+		ent->cansee = false;
+		
+		ent->bot_strafe = SPEED_WALK;
+		ent->bot_speed = 0;
+		VectorClear( ent->lastPosition );
+		
+		int counter = 0;
+		
+		// Choose Teamplay weapon
+		if( ent->weaponchoice == 0 )
+			counter = rand() % 5;
+		else
+			counter = ent->weaponchoice - 1; // Range is 1..5
+		
+		switch( counter )
+		{
+		case 0:
+			ACEAI_Cmd_Choose( ent, MP5_NAME );
+			break;
+		case 1:
+			ACEAI_Cmd_Choose( ent, M4_NAME );
+			break;
+		case 2:
+			ACEAI_Cmd_Choose( ent, M3_NAME );
+			break;
+		case 3:
+			ACEAI_Cmd_Choose( ent, HC_NAME );
+			break;
+		case 4:
+			ACEAI_Cmd_Choose( ent, SNIPER_NAME );
+			break;
+		default:
+			ACEAI_Cmd_Choose( ent, M3_NAME );
+			break;
+		}
+		
+		// Choose Teamplay equipment
+		if( ent->equipchoice == 0 )
+			counter = rand() % 5;
+		else
+			counter = ent->equipchoice - 1; // Range is 1..5
+
+		switch( counter )
+		{
+		case 0:
+			ACEAI_Cmd_Choose( ent, SIL_NAME );
+			break;
+		case 1:
+			ACEAI_Cmd_Choose( ent, SLIP_NAME );
+			break;
+		case 2:
+			ACEAI_Cmd_Choose( ent, BAND_NAME );
+			break;
+		case 3:
+			ACEAI_Cmd_Choose( ent, KEV_NAME );
+			break;
+		case 4:
+			ACEAI_Cmd_Choose( ent, LASER_NAME );
+			break;
+		default:
+			ACEAI_Cmd_Choose( ent, KEV_NAME );
+			break;
+		}
+		
+		if( teamplay->value )
+		{
+			int randomnode = 0;
+			const char *s = Info_ValueForKey( ent->client->pers.userinfo, "skin" );
+			AssignSkin( ent, s, false /* nickChanged */ );
+			// Anti centipede timer
+			ent->teamPauseTime = level.time + 3.0 + (rand() % 7); // FIXME
+			// Radio setup
+			ent->teamReportedIn = true;
+			ent->lastRadioTime = level.time; // FIXME
+			// Change facing angle for each bot
+			randomnode = (int)( num_players * random() );
+			VectorSubtract( nodes[randomnode].origin, ent->s.origin, ent->move_vector );
+			ent->move_vector[2] = 0;
+		}
+		else
+			ent->teamPauseTime = level.time; // FIXME
+		
+		//RiEvEr - new node pathing system
+		memset( &(ent->pathList), 0, sizeof(ent->pathList) );
+		ent->pathList.head = ent->pathList.tail = NULL;
+		//R
+		
+		ent->client->resp.radio.gender = (ent->client->pers.gender == GENDER_FEMALE) ? 1 : 0;
+	}
+	
+	if( (! ent->is_bot) || (ent->think != ACESP_HoldSpawn) )  // if( respawn )
+	{
+#endif
+
 	if (teamplay->value) {
 		going_observer = (!ent->client->resp.team || ent->client->resp.subteam);
 	}
@@ -2342,6 +2464,10 @@ void PutClientInServer(edict_t * ent)
 		gi.linkentity(ent);
 		return;
 	}
+
+#ifndef NO_BOTS
+	}  // end if( respawn )
+#endif
 
 	if (!teamplay->value) {	// this handles telefrags...
 		KillBox(ent);
@@ -2765,6 +2891,10 @@ void ClientDisconnect(edict_t * ent)
 	ent->classname = "disconnected";
 	ent->svflags = SVF_NOCLIENT;
 	ent->client->pers.connected = false;
+
+#ifndef NO_BOTS
+	ent->is_bot = false;
+#endif
 }
 
 void CreateGhost(edict_t * ent)
