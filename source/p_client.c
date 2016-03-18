@@ -2449,6 +2449,12 @@ void PutClientInServer(edict_t * ent)
 
 	if (teamplay->value) {
 		going_observer = (!ent->client->resp.team || ent->client->resp.subteam);
+#ifndef NO_BOTS
+		// Prevent bots from spawning except at round start.
+		// FIXME: This doesn't seem like the right way to do this.
+		if( ent->is_bot && ! lights_camera_action )
+			going_observer = 1;
+#endif
 	}
 	else {
 		going_observer = ent->client->pers.spectator;
