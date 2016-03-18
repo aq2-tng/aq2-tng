@@ -154,31 +154,8 @@ int GetNextTeamNumber()
 //==========================
 void ACESP_JoinTeam(edict_t *ent, int desired_team)
 {
-        char *s, *a;
-  
-
-        if (ent->client->resp.team == desired_team)
-                return;
-
-        a = (ent->client->resp.team == NOTEAM) ? "joined" : "changed to";
-
-        ent->client->resp.team = desired_team;
-        s = Info_ValueForKey (ent->client->pers.userinfo, "skin");
-        AssignSkin(ent, s, true /* nickChanged */);
-
-        if (ent->solid != SOLID_NOT)  // alive, in game
-        {
-                ent->health = 0;
-                player_die (ent, ent, ent, 100000, vec3_origin);
-                ent->deadflag = DEAD_DEAD;
-        }
-
-        safe_bprintf(PRINT_HIGH, "%s %s %s.\n",
-                        ent->client->pers.netname, a, TeamName(desired_team));
-
-        ent->client->resp.joined_team = level.framenum;
-
-        CheckForUnevenTeams(ent);
+	JoinTeam( ent, desired_team, true );
+	CheckForUnevenTeams( ent );
 }
 
 //======================================
@@ -403,7 +380,7 @@ void	ACESP_SpawnBotFromConfig( char *inString )
 	bot->weaponchoice = weaponchoice;
 	bot->equipchoice = equipchoice;
 
-	InitClientResp (bot->client);
+	//InitClientResp (bot->client);
 	
     if(teamplay->value)
 	{
@@ -507,9 +484,9 @@ void ACESP_PutClientInServer( edict_t *bot, qboolean respawn, int team )
 		bot->nextthink = level.framenum + FRAMETIME;
 	}
 	
-	bot->client->resp.team = team;
-	
 	PutClientInServer( bot );
+	
+	JoinTeam( bot, team, true );
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -628,7 +605,7 @@ void ACESP_SetName(edict_t *bot, char *name, char *skin, char *team)
 
 	// Set the name for the bot.
 	// name
-	if(strlen(name) == 0)
+	if( (!name) || !strlen(name) )
 	{
 		// RiEvEr - new code to get random bot names
 		LTKsetBotName(bot_name);
@@ -637,7 +614,7 @@ void ACESP_SetName(edict_t *bot, char *name, char *skin, char *team)
 		strcpy(bot_name,name);
 
 	// skin
-	if(strlen(skin) == 0)
+	if( (!skin) || !strlen(skin) )
 	{
 		// randomly choose skin 
 		rnd = random();
@@ -744,7 +721,7 @@ void ACESP_SpawnBot (char *team, char *name, char *skin, char *userinfo)
 		}
 	}
 
-	InitClientResp (bot->client);
+	//InitClientResp (bot->client);
 	
 
 //AQ2 CHANGE

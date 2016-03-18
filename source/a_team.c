@@ -1076,6 +1076,12 @@ void JoinTeam (edict_t * ent, int desired_team, int skip_menuclose)
 	if (oldTeam == desired_team || ent->client->pers.mvdspec)
 		return;
 
+#ifndef NO_BOTS
+	// Bots are always allowed to join their selected team.
+	if( ent->is_bot )
+		;
+	else
+#endif
 	if (matchmode->value)
 	{
 		if (mm_allowlock->value && teams[desired_team].locked) {
