@@ -51,58 +51,13 @@
 //AQ2 ADD
 #define	CONFIG_FILE_VERSION 1
 
+void	ClientBeginDeathmatch( edict_t *ent );
 void	AllItems( edict_t *ent );
 void	AllWeapons( edict_t *ent );
 void	EquipClient( edict_t *ent );
 char	*TeamName(int team);
 void	LTKsetBotName( char	*bot_name );
 void	ACEAI_Cmd_Choose( edict_t *ent, char *s);
-
-void InitClientResp( gclient_t *client )
-{
-	int team = client->resp.team;
-	gitem_t *item = client->pers.chosenItem;
-	gitem_t *weapon = client->pers.chosenWeapon;
-	char *mapvote = client->resp.mapvote;
-	
-	memset( &client->resp, 0, sizeof(client->resp) );
-	client->resp.team = team;
-	client->resp.enterframe = level.framenum;
-	client->resp.mapvote = mapvote;
-	
-	if( !dm_choose->value && !warmup->value )
-	{
-		if( WPF_ALLOWED(MP5_NUM) )
-			client->pers.chosenWeapon = GET_ITEM(MP5_NUM);
-		else if( WPF_ALLOWED(MK23_NUM) )
-			client->pers.chosenWeapon = GET_ITEM(MK23_NUM);
-		else if( WPF_ALLOWED(KNIFE_NUM) )
-			client->pers.chosenWeapon = GET_ITEM(KNIFE_NUM);
-		else
-			client->pers.chosenWeapon = GET_ITEM(MK23_NUM);
-		client->pers.chosenItem = GET_ITEM(KEV_NUM);
-	}
-	else if (wp_flags->value < 2)
-		client->pers.chosenWeapon = GET_ITEM(MK23_NUM);
-	
-	// TNG:Freud, restore weapons and items from last map.
-	if( auto_equip->value && ((teamplay->value && !teamdm->value) || dm_choose->value) && ctf->value != 2 )
-	{
-		if( item )
-			client->pers.chosenItem = item;
-		if( weapon )
-			client->pers.chosenWeapon = weapon;
-	}
-	
-	client->resp.team = NOTEAM;
-	
-	// TNG:Freud, restore team from previous map
-	if( auto_join->value && team )
-		client->resp.team = team;
-	
-	client->resp.gldynamic = 1;
-	client->resp.checked = false;
-}
 
 //==========================================
 // Joining a team (hacked from AQ2 code)
@@ -261,7 +216,7 @@ void ACESP_LoadBotConfig()
 // Input string is from the config file and should have
 // all the data we need to spawn a bot
 //
-void	ACESP_SpawnBotFromConfig( char *inString )
+edict_t *ACESP_SpawnBotFromConfig( char *inString )
 {
 	edict_t	*bot;
 	char	userinfo[MAX_INFO_STRING];
@@ -286,7 +241,7 @@ void	ACESP_SpawnBotFromConfig( char *inString )
 
 		// Check for comments
 		if( ttype == HASH || ttype == LEXERR)
-			return;
+			return NULL;
 
 		// Check for semicolon (end of input marker)
 		if( ttype == SEMIC || ttype == EOL)
@@ -341,87 +296,30 @@ void	ACESP_SpawnBotFromConfig( char *inString )
 
 	}// End while
 	
-	bot = ACESP_FindFreeClient ();
-	
-	if (!bot)
-	{
-		safe_bprintf (PRINT_MEDIUM, "Server is full, increase Maxclients.\n");
-		return;
-	}
-
-	bot->yaw_speed = 100; // yaw speed
-//	bot->inuse = true;
-	bot->is_bot = true;
-
 	// To allow bots to respawn
 	// initialise userinfo
-	memset (userinfo, 0, sizeof(userinfo));
-
+	memset( userinfo, 0, sizeof(userinfo) );
+	
 	// add bot's name/skin/hand to userinfo
-	Info_SetValueForKey (userinfo, "name", name);
-	Info_SetValueForKey (userinfo, "skin", modelskin);
-	Info_SetValueForKey (userinfo, "hand", "2"); // bot is center handed for now!
-	Info_SetValueForKey (userinfo, "spectator", "0"); // NOT a spectator
-	Info_SetValueForKey (userinfo, "gender", gender);
-
-	ClientConnect (bot, userinfo);
+	Info_SetValueForKey( userinfo, "name", name );
+	Info_SetValueForKey( userinfo, "skin", modelskin );
+	Info_SetValueForKey( userinfo, "hand", "2" ); // bot is center handed for now!
+	Info_SetValueForKey( userinfo, "spectator", "0" ); // NOT a spectator
+	Info_SetValueForKey( userinfo, "gender", gender );
 	
-	G_InitEdict (bot);
-
-	// locate ent at a spawn point
-	if(teamplay->value)
+	char team_str[ 2 ] = "0";
+	snprintf( team_str, 2, "%i", team );
+	
+	bot = ACESP_SpawnBot( team_str, name, modelskin, userinfo );
+	
+	// FIXME: This might have to happen earlier to take effect.
+	if( bot )
 	{
-		// Make sure we have a team
-		if(!team)
-			team = GetNextTeamNumber();
+		bot->weaponchoice = weaponchoice;
+		bot->equipchoice = equipchoice;
 	}
-
-	// Set up the preferred weapon & equipment
-	bot->weaponchoice = weaponchoice;
-	bot->equipchoice = equipchoice;
-
-	//InitClientResp (bot->client);
 	
-    if(teamplay->value)
-	{
-		ACESP_PutClientInServer (bot,true, team);
-	}
-	else
- 		ACESP_PutClientInServer (bot,true,0);
-
-
-	// make sure all view stuff is valid
-	ClientEndServerFrame (bot);
-	
-	ACEIT_PlayerAdded (bot); // let the world know we added another
-
-	ACEAI_PickLongRangeGoal(bot); // pick a new goal
-
-	// LTK chat stuff
-	if( random() < 0.33)
-	{
-		// Store current enemies available
-		int		i, counter = 0;
-		edict_t *myplayer[MAX_BOTS];
-
-		for(i=0;i<=num_players;i++)
-		{
-			// Find all available enemies to insult
-			if(players[i] == NULL || players[i] == bot || 
-			   players[i]->solid == SOLID_NOT)
-			   continue;
-		
-			if(teamplay->value && OnSameTeam( bot, players[i]) )
-			   continue;
-			myplayer[counter++] = players[i];
-		}
-		if(counter > 0)
-		{
-			// Say something insulting to them!
-			if(ltk_chat->value)	// Some people don't want this *sigh*
-				LTK_Chat( bot, myplayer[rand()%counter], DBC_WELCOME);
-		}
-	}	
+	return bot;
 }
 //AQ2 END
 
@@ -686,70 +584,40 @@ char *LocalTeamNames[4] = { "spectator", "1", "2", "3" };
 ///////////////////////////////////////////////////////////////////////
 // Spawn the bot
 ///////////////////////////////////////////////////////////////////////
-void ACESP_SpawnBot (char *team, char *name, char *skin, char *userinfo)
+edict_t *ACESP_SpawnBot( char *team_str, char *name, char *skin, char *userinfo )
 {
-	edict_t	*bot;
-	
-	bot = ACESP_FindFreeClient ();
-	
-	if (!bot)
+	edict_t	*bot = ACESP_FindFreeClient();
+	if( ! bot )
 	{
-		safe_bprintf (PRINT_MEDIUM, "Server is full, increase Maxclients.\n");
-		return;
+		safe_bprintf( PRINT_MEDIUM, "Server is full, increase Maxclients.\n" );
+		return NULL;
 	}
-
-	bot->yaw_speed = 100; // yaw speed
-	bot->inuse = true;
+	
 	bot->is_bot = true;
-
+	
 	// To allow bots to respawn
-	if(userinfo == NULL)
-		ACESP_SetName(bot, name, skin, team);
+	if( ! userinfo )
+		ACESP_SetName( bot, name, skin, team_str );  // includes ClientConnect
 	else
-		ClientConnect (bot, userinfo);
+		ClientConnect( bot, userinfo );
 	
-	G_InitEdict (bot);
-
+	ClientBeginDeathmatch( bot );
+	
 	// Balance the teams!
-	if(teamplay->value)
+	int team = 0;
+	if( teamplay->value )
 	{
-		if( (team == NULL) || (strlen(team) < 1) )
-		{
-			int team_num = GetNextTeamNumber();
-			team = LocalTeamNames[team_num];
-			gi.bprintf(PRINT_HIGH, "Assigned to team %i\n", team_num);
-		}
+		if( team_str )
+			team = atoi( team_str );
+		if( ! team )
+			team = GetNextTeamNumber();
+		team_str = LocalTeamNames[ team ];
 	}
-
-	//InitClientResp (bot->client);
 	
-
-//AQ2 CHANGE
-	// Set up the preferred weapon & equipment
-	bot->weaponchoice = 0;
-	bot->equipchoice = 0;
-// 		ACESP_PutClientInServer (bot,false,0);
-	// locate ent at a spawn point
-	if(teamplay->value)
-	{
-		if ((team != NULL) && (strcmp(team,"1")==0) )
-			ACESP_PutClientInServer (bot,true, TEAM1);
-		else if ((team != NULL) && (strcmp(team,"3")==0) && use_3teams->value)
-			ACESP_PutClientInServer (bot,true, TEAM3);
-		else
-			ACESP_PutClientInServer (bot,true, TEAM2);
-	}
-	else
- 		ACESP_PutClientInServer (bot,true,0); 
-//AQ2 END
-
-	// make sure all view stuff is valid
-	ClientEndServerFrame (bot);
+	ACESP_PutClientInServer( bot, true, team );
 	
-	ACEIT_PlayerAdded (bot); // let the world know we added another
-
 	ACEAI_PickLongRangeGoal(bot); // pick a new goal
-
+	
 	// LTK chat stuff
 	if( random() < 0.33)
 	{
@@ -775,7 +643,8 @@ void ACESP_SpawnBot (char *team, char *name, char *skin, char *userinfo)
 				LTK_Chat( bot, myplayer[rand()%counter], DBC_WELCOME);
 		}
 	}	
-
+	
+	return bot;
 }
 
 void	ClientDisconnect( edict_t *ent );

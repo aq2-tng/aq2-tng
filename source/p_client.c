@@ -2449,12 +2449,6 @@ void PutClientInServer(edict_t * ent)
 
 	if (teamplay->value) {
 		going_observer = (!ent->client->resp.team || ent->client->resp.subteam);
-#ifndef NO_BOTS
-		// Prevent bots from spawning except at round start.
-		// FIXME: This doesn't seem like the right way to do this.
-		if( ent->is_bot && ! lights_camera_action )
-			going_observer = 1;
-#endif
 	}
 	else {
 		going_observer = ent->client->pers.spectator;
@@ -2612,9 +2606,9 @@ void ClientBeginDeathmatch(edict_t * ent)
 
 #ifndef NO_BOTS
 	// If the map changes on us, init and reload the nodes
-	if(strcmp(level.mapname,current_map))
+	// FIXME: Put this somewhere else; it shouldn't happen on player connection.
+	if( (! ent->is_bot) && strcmp( level.mapname, current_map ) )
 	{
-		
 		ACEND_InitNodes();
 		ACEND_LoadNodes();
 //		ACESP_LoadBots();
@@ -2624,7 +2618,7 @@ void ClientBeginDeathmatch(edict_t * ent)
 			for (tempi=0; tempi<minplayers->value; tempi++)
 				ACESP_SpawnBot( (int)rand() % 1, NULL, NULL, NULL);
 		}
-*/		strcpy(current_map,level.mapname);
+*/		strcpy( current_map, level.mapname );
 	}
 #endif
 
@@ -2787,10 +2781,11 @@ qboolean ClientConnect(edict_t * ent, char *userinfo)
 
 	// We're not going to attempt to support reconnection...
 #ifndef NO_BOTS
-	if (ent->is_bot == false && ent->client->pers.connected) {
-#else
-	if (ent->client->pers.connected) {
+	if( ent->is_bot )
+		;
+	else
 #endif
+	if (ent->client->pers.connected) {
 		ClientDisconnect(ent);
 	}
 
@@ -3285,10 +3280,6 @@ void ClientBeginServerFrame(edict_t * ent)
 			}
 
 			if (going_observer) {
-#ifndef NO_BOTS
-				if( ! ent->is_bot )
-				{
-#endif
 				CopyToBodyQue(ent);
 				ent->solid = SOLID_NOT;
 				ent->svflags |= SVF_NOCLIENT;
@@ -3296,18 +3287,6 @@ void ClientBeginServerFrame(edict_t * ent)
 				ent->health = 100;
 				ent->deadflag = DEAD_NO;
 				ent->client->ps.gunindex = 0;
-#ifndef NO_BOTS
-				}
-				else
-				{
-					ent->client->chase_mode = 0;
-					ent->client->chase_target = NULL;
-					ent->client->desired_fov = 90;
-					ent->client->ps.fov = 90; // FB 5/31/99 added
-					ent->client->ps.pmove.pm_flags &= ~PMF_NO_PREDICTION;
-					ent->solid = SOLID_BBOX;
-				}
-#endif
 				client->ps.pmove.delta_angles[PITCH] = ANGLE2SHORT(0 - client->resp.cmd_angles[PITCH]);
 				client->ps.pmove.delta_angles[YAW] = ANGLE2SHORT(client->killer_yaw - client->resp.cmd_angles[YAW]);
 				client->ps.pmove.delta_angles[ROLL] = ANGLE2SHORT(0 - client->resp.cmd_angles[ROLL]);
@@ -3317,13 +3296,7 @@ void ClientBeginServerFrame(edict_t * ent)
 				VectorCopy(ent->s.angles, client->ps.viewangles);
 				VectorCopy(ent->s.angles, client->v_angle);
 				gi.linkentity(ent);
-#ifndef NO_BOTS
-				if( ent->is_bot )
-				{
-					respawn( ent );
-				}
-				else
-#endif
+
 				if (teamplay->value && !in_warmup && limchasecam->value) {
 					ent->client->chase_mode = 0;
 					NextChaseMode( ent );
