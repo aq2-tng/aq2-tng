@@ -594,6 +594,7 @@ edict_t *ACESP_SpawnBot( char *team_str, char *name, char *skin, char *userinfo 
 	}
 	
 	bot->is_bot = true;
+	bot->yaw_speed = 100;
 	
 	// To allow bots to respawn
 	if( ! userinfo )
