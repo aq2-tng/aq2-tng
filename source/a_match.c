@@ -151,7 +151,7 @@ void MM_SetCaptain( int teamNum, edict_t *ent )
 		gi.sound( &g_edicts[0], CHAN_VOICE | CHAN_NO_PHS_ADD, gi.soundindex( "misc/comp_up.wav" ), 1.0, ATTN_NONE, 0.0 );
 
 		for (i = TEAM1; i <= teamCount; i++) {
-			if (i != teamNum && teams[teamNum].wantReset)
+			if (i != teamNum && teams[i].wantReset)
 				gi.cprintf( ent, PRINT_HIGH, "Team %i wants to reset scores, type 'resetscores' to accept\n", i );
 		}
 	}
