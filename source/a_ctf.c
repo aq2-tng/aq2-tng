@@ -344,8 +344,9 @@ void CTFSwapTeams()
 
 	for (i = 0; i < game.maxclients; i++) {
 		ent = &g_edicts[1 + i];
-		if (ent->inuse) {
+		if (ent->inuse && ent->client->resp.team) {
 			ent->client->resp.team = CTFOtherTeam(ent->client->resp.team);
+			AssignSkin(ent, teams[ent->client->resp.team].skin, false);
 		}
 	}
 
