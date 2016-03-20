@@ -92,17 +92,15 @@ void ACEAI_Think (edict_t *self)
 //	if( (self->solid == SOLID_NOT) && (teamplay->value) )
 //		return;
 
-	if(self->state == STATE_WANDER && 
-		(self->wander_timeout < level.time)
-		)
+	if( self->state == STATE_WANDER && self->wander_timeout < level.framenum )
 	  ACEAI_PickLongRangeGoal(self); // pick a new long range goal
 
 	//RiEvEr Radio Use
-	if( !self->teamReportedIn && (self->lastRadioTime<(level.time - 2.0)) )
+	if( ! self->teamReportedIn && (self->lastRadioTime < level.framenum - 2.0 * HZ) )
 	{
 		RadioBroadcast(self, 0, "reportin");
 		BOTUT_Cmd_Say_f( self, "Equipped with %W and %I. Current health %H.");
-		self->lastRadioTime = level.time;
+		self->lastRadioTime = level.framenum;
 		self->teamReportedIn = true;
 	}
 	//R RU
@@ -116,7 +114,7 @@ void ACEAI_Think (edict_t *self)
 			self->state = STATE_WANDER;
 		}
 		// Don't go here too often
-		if( self->goal_node == INVALID || self->wander_timeout < level.time )
+		if( self->goal_node == INVALID || self->wander_timeout < level.framenum )
 			ACEAI_PickLongRangeGoal(self);
 	}
 	
@@ -239,7 +237,7 @@ void ACEAI_Think (edict_t *self)
 			ACEMV_Move(self,&ucmd);
 		else if (self->state == STATE_COVER)
 		{
-			if (self->wander_timeout < level.time)
+			if( self->wander_timeout < level.framenum )
 			{
 				self->state = STATE_WANDER;
 			}
@@ -257,7 +255,7 @@ void ACEAI_Think (edict_t *self)
 //AQ2 ADD
 	// Check if there's a door nearby that we cannot trace (like in ACTCITY3)
 	//Added by Werewolf
-	if(self->last_door_time < (level.time - 2.0 - random()) )
+	if( self->last_door_time < level.framenum - (2.0 + random()) * HZ )
 	{
 	trace_t	tTrace;
 	vec3_t	vStart, vDest;
@@ -274,7 +272,7 @@ void ACEAI_Think (edict_t *self)
 		{
 			// Toggle any door that may be nearby
 			Cmd_OpenDoor_f ( self );
-			self->last_door_time = level.time + random()*2;
+			self->last_door_time = level.framenum + random() * 2.0 * HZ;
 		}
 	  }
 	}
@@ -323,7 +321,7 @@ void ACEAI_PickLongRangeGoal(edict_t *self)
 	if(current_node == -1)
 	{
 		self->state = STATE_WANDER;
-		self->wander_timeout = level.time + 1.0;
+		self->wander_timeout = level.framenum + 1.0 * HZ;
 		self->goal_node = -1;
 		return;
 	}
@@ -361,7 +359,7 @@ void ACEAI_PickLongRangeGoal(edict_t *self)
 			self->state = STATE_MOVE;
 			self->tries = 0; // Reset the count of how many times we tried this goal
 			ACEND_SetGoal(self,i);
-			self->wander_timeout = level.time + 1.0;
+			self->wander_timeout = level.framenum + 1.0 * HZ;
 			return;
 		}
 	}
@@ -478,7 +476,7 @@ void ACEAI_PickLongRangeGoal(edict_t *self)
 	{
 		self->goal_node = INVALID;
 		self->state = STATE_WANDER;
-		self->wander_timeout = level.time + 1.0;
+		self->wander_timeout = level.framenum + 1.0 * HZ;
 		if(debug_mode)
 			debug_printf("%s did not find a LR goal, wandering.\n",self->client->pers.netname);
 		return; // no path? 
@@ -581,7 +579,7 @@ void ACEAI_PickSafeGoal(edict_t *self)
 		self->state = STATE_FLEE;
 		self->tries = 0; // Reset the count of how many times we tried this goal
 		ACEND_SetGoal(self,i);
-		self->wander_timeout = level.time + 2.0;
+		self->wander_timeout = level.framenum + 2.0 * HZ;
 //		LTK_Say (self, "Under fire, extracting!");
 
 		return;
@@ -595,7 +593,7 @@ void ACEAI_PickSafeGoal(edict_t *self)
 	{
 		self->goal_node = INVALID;
 		self->state = STATE_WANDER;
-		self->wander_timeout = level.time + 1.0;
+		self->wander_timeout = level.framenum + 1.0 * HZ;
 		if(debug_mode)
 			debug_printf("%s did not find a LR goal, wandering.\n",self->client->pers.netname);
 		return; // no path? 

@@ -2609,6 +2609,7 @@ void ClientBeginDeathmatch(edict_t * ent)
 	// FIXME: Put this somewhere else; it shouldn't happen on player connection.
 	if( (! ent->is_bot) && strcmp( level.mapname, current_map ) )
 	{
+		strcpy( current_map, level.mapname );
 		ACEND_InitNodes();
 		ACEND_LoadNodes();
 //		ACESP_LoadBots();
@@ -2618,7 +2619,7 @@ void ClientBeginDeathmatch(edict_t * ent)
 			for (tempi=0; tempi<minplayers->value; tempi++)
 				ACESP_SpawnBot( (int)rand() % 1, NULL, NULL, NULL);
 		}
-*/		strcpy( current_map, level.mapname );
+*/
 	}
 #endif
 

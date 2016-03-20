@@ -78,13 +78,13 @@ qboolean	AntStartSearch(edict_t *ent, int from, int to )
 	//@@ TESTING ONLY!! antSearch always available
 	antSearch = 1;
 	// Check we're allowed to search - if so, do it
-	if(1)// (antSearch > 0) && (ent->antLastCallTime < level.time - ANT_FREQ) )
+	if(1)// (antSearch > 0) && (ent->antLastCallTime < level.framenum - ANT_FREQ) )
 	{
 		// Decrement the semaphore to limit calls to this function
 		//@@ If we ever get multithreading then we can increment later
 		antSearch--;
 		// make a note of when this bot last made a path call
-		ent->antLastCallTime = level.time;
+		ent->antLastCallTime = level.framenum;
 		// Set up the lists
 		AntInitSearch(ent);
 		// If we found a path

@@ -51,12 +51,13 @@ int		BOTWP_ChangeSniperMode(edict_t *bot)
 	if ( bot->client->curr_weap != SNIPER_NUM )
 		return INVALID;	// (-1)
 	// Don't change modes too quickly
-	if ( (bot->fLastZoomTime + 0.3) < level.time)
+	//if ( (bot->fLastZoomTime + 0.3) < level.time)
+	if( level.framenum >= bot->fLastZoomTime + 0.3 * HZ )
 	{
 		// Change the weapon mode
 		Cmd_Weapon_f(bot);
 		if( iLastMode != BOTWP_GetSniperMode(bot))
-			bot->fLastZoomTime = level.time;
+			bot->fLastZoomTime = level.framenum;
 	}
 	return (BOTWP_GetSniperMode(bot));
 }

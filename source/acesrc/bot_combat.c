@@ -49,7 +49,7 @@ void BOTCOM_AimAt (edict_t *bot, vec3_t target, vec3_t angles)
 {
     vec3_t vDir, vStart;
 
-	if (level.time > bot->grenadewait)
+	if( level.framenum > bot->grenadewait )
 	{
 		bot->grenadewait = 0;
 		VectorCopy(bot->s.origin, vStart);
