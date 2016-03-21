@@ -294,7 +294,7 @@ void ACEAI_Think (edict_t *self)
 	// send command through id's code
 	ClientThink (self, &ucmd);
 	
-	self->nextthink = level.framenum + FRAMETIME;
+	self->nextthink = level.framenum + 0.1 * HZ;
 }
 
 ///////////////////////////////////////////////////////////////////////

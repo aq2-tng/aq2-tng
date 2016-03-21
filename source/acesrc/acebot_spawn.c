@@ -370,7 +370,7 @@ void ACESP_PutClientInServer( edict_t *bot, qboolean respawn, int team )
 	if( ! respawn )
 	{
 		bot->think = ACESP_HoldSpawn;
-		bot->nextthink = level.framenum + random() * 3.0 * HZ;
+		bot->nextthink = level.framenum + random() * 3 * HZ;
 	}
 	else
 	{
