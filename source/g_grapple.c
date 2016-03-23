@@ -152,7 +152,7 @@ void CTFGrapplePull(edict_t *self)
 	vec3_t hookdir, v;
 	float vlen;
 
-	if (strcmp(self->owner->client->pers.weapon->classname, "weapon_grapple") == 0 &&
+	if (strcmp(self->owner->client->weapon->classname, "weapon_grapple") == 0 &&
 		!self->owner->client->newweapon &&
 		self->owner->client->weaponstate != WEAPON_FIRING &&
 		self->owner->client->weaponstate != WEAPON_ACTIVATING) {

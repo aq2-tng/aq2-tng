@@ -534,15 +534,16 @@ T_Damage (edict_t * targ, edict_t * inflictor, edict_t * attacker, vec3_t dir,
 					if (!friendlyFire)
 					{
 						attacker->client->resp.streakHS++;
+						if (attacker->client->resp.streakHS > attacker->client->resp.streakHSHighest)
+							attacker->client->resp.streakHSHighest = attacker->client->resp.streakHS;
 
 						if(attacker->client->resp.streakHS % 3 == 0)
 						{
 							if (use_rewards->value)
 							{
-								sprintf(buf, "ACCURACY %s!", attacker->client->pers.netname);
-								CenterPrintAll (buf);
-								gi.sound(&g_edicts[0], CHAN_VOICE | CHAN_NO_PHS_ADD,
-									gi.soundindex("tng/accuracy.wav"), 1.0, ATTN_NONE, 0.0);
+								Com_sprintf(buf, sizeof(buf), "ACCURACY %s!", attacker->client->pers.netname);
+								CenterPrintAll(buf);
+								gi.sound(&g_edicts[0], CHAN_VOICE | CHAN_NO_PHS_ADD, gi.soundindex("tng/accuracy.wav"), 1.0, ATTN_NONE, 0.0);
 							}
 						}
 					}

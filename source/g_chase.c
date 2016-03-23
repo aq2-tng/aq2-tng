@@ -284,7 +284,6 @@ void SetChase( edict_t *ent, edict_t *target )
 		ent->client->clientNum = (target - g_edicts) - 1;
 	}
 	ent->client->chase_target = target;
-	ent->client->update_chase = true;
 }
 
 void ChaseNext( edict_t * ent )

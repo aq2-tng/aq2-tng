@@ -1065,9 +1065,9 @@ void AddSplat(edict_t * self, vec3_t point, trace_t * tr)
 
 void GetWeaponName( edict_t *ent, char *buf )
 {
-	if( IS_ALIVE(ent) && ent->client->pers.weapon )
+	if( IS_ALIVE(ent) && ent->client->weapon )
 	{
-		strcpy( buf, ent->client->pers.weapon->pickup_name );
+		strcpy( buf, ent->client->weapon->pickup_name );
 		return;
 	}
 	
@@ -1105,8 +1105,8 @@ void GetHealth( edict_t *ent, char *buf )
 void GetAmmo( edict_t *ent, char *buf )
 {
 	int ammo;
-	
-	if( IS_ALIVE(ent) && ent->client->pers.weapon )
+
+	if( IS_ALIVE(ent) && ent->client->weapon )
 	{
 		switch( ent->client->curr_weap )
 		{
