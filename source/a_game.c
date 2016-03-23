@@ -1105,7 +1105,7 @@ void GetHealth( edict_t *ent, char *buf )
 void GetAmmo( edict_t *ent, char *buf )
 {
 	int ammo;
-	
+
 	if( IS_ALIVE(ent) && ent->client->weapon )
 	{
 		switch( ent->client->curr_weap )

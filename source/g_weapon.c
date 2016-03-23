@@ -866,7 +866,7 @@ void kick_attack (edict_t *ent)
 			genderstr = GENDER_STR( tr.ent, "his", "her", "its" );
 
 			gi.cprintf(ent, PRINT_HIGH, "You kick %s's %s from %s hands!\n",
-				tr.ent->client->pers.netname,(tr.ent->client->pers.weapon)->pickup_name, genderstr);
+				tr.ent->client->pers.netname,(tr.ent->client->weapon)->pickup_name, genderstr);
 
 			gi.cprintf(tr.ent, PRINT_HIGH,	"%s kicked your weapon from your hands!\n", ent->client->pers.netname);
 
@@ -945,7 +945,7 @@ void punch_attack(edict_t * ent)
 
 				genderstr = GENDER_STR(tr.ent, "his", "her", "its");
 				gi.cprintf(ent, PRINT_HIGH, "You hit %s's %s from %s hands!\n",
-					tr.ent->client->pers.netname, (tr.ent->client->pers.weapon)->pickup_name, genderstr);
+					tr.ent->client->pers.netname, (tr.ent->client->weapon)->pickup_name, genderstr);
 
 				gi.cprintf(tr.ent, PRINT_HIGH, "%s hit your weapon from your hands!\n",
 					ent->client->pers.netname);

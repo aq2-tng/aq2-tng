@@ -350,8 +350,9 @@ void CTFSwapTeams()
 
 	for (i = 0; i < game.maxclients; i++) {
 		ent = &g_edicts[1 + i];
-		if (ent->inuse) {
+		if (ent->inuse && ent->client->resp.team) {
 			ent->client->resp.team = CTFOtherTeam(ent->client->resp.team);
+			AssignSkin(ent, teams[ent->client->resp.team].skin, false);
 		}
 	}
 
@@ -1443,7 +1444,7 @@ void CTFCapReward(edict_t * ent)
 
 	// automagically change to special in any case, it's fully reloaded
 	if((client->curr_weap != player_weapon && ent->client->weaponstate == WEAPON_READY) || was_bandaging) {
-		client->newweapon = client->pers.weapon;
+		client->newweapon = client->weapon;
 		ent->client->weaponstate = WEAPON_READY;
 		ent->client->ps.gunframe = 0;
 		ReadySpecialWeapon(ent);
