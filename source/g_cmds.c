@@ -216,15 +216,6 @@
 
 void Cmd_NextMap_f( edict_t *ent );
 
-#ifndef NO_BOTS
-void Cmd_Placenode_f( edict_t *ent );
-
-void Cmd_PlaceTrigger_f( edict_t *ent )
-{
-	ent->is_triggering = 1;
-}
-#endif
-
 qboolean FloodCheck (edict_t *ent)
 {
 	if (flood_threshold->value)
@@ -250,7 +241,7 @@ matches, show a list. Return NULL on failure. Case insensitive.
 */
 edict_t *LookupPlayer(edict_t *ent, const char *text, qboolean checkNUM, qboolean checkNick)
 {
-	edict_t		*p, *entMatch;
+	edict_t		*p = NULL, *entMatch = NULL;
 	int			i, matchCount, numericMatch;
 	char		match[32];
 	const char	*m, *name;
@@ -1147,7 +1138,7 @@ static void Cmd_InvDrop_f (edict_t * ent)
 Cmd_Kill_f
 =================
 */
-static void Cmd_Kill_f (edict_t * ent)
+void Cmd_Kill_f( edict_t *ent )
 {
 	//FIREBLADE
 	if (!IS_ALIVE(ent))
@@ -1875,10 +1866,6 @@ static cmdList_t commandList[] =
 	{ "unpausegame", Cmd_UnpauseGame_f, 0 },
 	{ "resetscores", Cmd_ResetScores_f, 0 },
 	{ "gamesettings", Cmd_PrintSettings_f, 0 },
-#ifndef NO_BOTS
-	{ "placenode", Cmd_Placenode_f, 0 },
-	{ "placetrigger", Cmd_PlaceTrigger_f, 0 },
-#endif
 	//vote stuff
 	{ "votemap", Cmd_Votemap_f, 0 },
 	{ "maplist", Cmd_Maplist_f, 0 },
@@ -1943,11 +1930,6 @@ void ClientCommand (edict_t * ent)
 
 	if (!ent->client)
 		return;			// not fully in game yet
-
-#ifndef NO_BOTS
-	if( ACECM_Commands(ent) )
-		return;
-#endif
 
 	// if (level.intermission_framenum)
 	// return;

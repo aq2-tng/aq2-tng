@@ -287,9 +287,6 @@
 #include	"tng_irc.h"
 #include	"tng_balancer.h"
 #include	"g_grapple.h"
-#ifndef NO_BOTS
-#include	"acesrc/botnav.h"
-#endif
 #define		getEnt(entnum)	(edict_t *)((char *)globals.edicts + (globals.edict_size * entnum))	//AQ:TNG Slicer - This was missing
 #define		GAMEVERSION			"action"	// the "gameversion" client command will print this plus compile date
 
@@ -946,9 +943,6 @@ extern cvar_t *noscore;
 extern cvar_t *hud_noscore;
 extern cvar_t *use_newscore;
 extern cvar_t *actionversion;
-#ifndef NO_BOTS
-extern cvar_t *ltk_jumpy;
-#endif
 extern cvar_t *use_voice;
 extern cvar_t *ppl_idletime;
 extern cvar_t *use_tourney;
@@ -1859,68 +1853,6 @@ struct edict_s
 
   // hack for proper s.old_origin updates
   vec3_t		old_origin;
-
-#ifndef NO_BOTS
-	int old_health;
-
-	int recheck_timeout;
-	int jumphack_timeout;
-
-	qboolean is_bot; 
-	qboolean is_jumping; 
-	qboolean is_triggering; 
-	 
-	// For movement 
-	vec3_t move_vector;  
-	float next_move_time; 
-	float wander_timeout; 
-	float suicide_timeout; 
- 
-//AQ2 ADD 
-	// Door and pause time stuff. 
-	float	last_door_time;	// Used to open doors without immediately closing them again! 
-	float	teamPauseTime;	// To stop the centipede effect and seperate the team out a little 
-	qboolean	teamReportedIn;	// Have we reported in yet? 
-	float	lastRadioTime;	// Don't use the radio too often 
-	// Path to follow 
-	ltklist_t	pathList;	// Single linked list of node numbers 
-	float	antLastCallTime;	// Check for calling complex pathsearcher 
-	// Who killed me? 
-	edict_t	*lastkilledby;	// Set in ClientObituary... 
-	int grenadewait; // Raptor007: Moved here from player_state_t.
-//AQ2 END 
- 
-	// For node code 
-	int current_node; // current node 
-	int goal_node; // current goal node 
-	int next_node; // the node that will take us one step closer to our goal 
-	int node_timeout; 
-	int last_node; 
-	int tries; 
-	 
-	// AI related stuff 
-	int weaponchoice; 
-	int equipchoice; 
-	float	fLastZoomTime;	// Time we last changed sniper zoom mode 
- 
-	// Enemy related 
-	qboolean	killchat;	// Have we reported an enemy death and taunted him 
-	vec3_t		lastSeen; 
-	qboolean	cansee; 
- 
-	// States 
-	int state;	//ACE only 
-	int botState; 
-	int nextState; 
-	int secondaryState; 
- 
-	// Movement 
-	int	bot_strafe; 
-	int bot_speed; 
-	qboolean	bCrawl; 
-	qboolean	bLastJump; 
-	vec3_t	lastPosition; 
-#endif
 };
 
 typedef struct
@@ -2087,6 +2019,3 @@ extern int gameSettings;
 
 
 #include "a_ctf.h"
-#ifndef NO_BOTS
-#include "acesrc/acebot.h"
-#endif

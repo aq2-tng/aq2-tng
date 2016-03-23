@@ -1607,7 +1607,7 @@ int CheckForWinner()
 
 {
 
-	int players[TEAM_TOP] = { 0 }, i, teamNum, teamsWithPlayers;
+	int players[TEAM_TOP] = { 0 }, i = 0, teamNum = 0, teamsWithPlayers = 0;
 
 	edict_t *ent;
 
@@ -1814,11 +1814,6 @@ static void SpawnPlayers(void)
 			ent->client->pers.chosenWeapon = GET_ITEM(KEV_NUM);
 		}
 
-#ifndef NO_BOTS
-		if( !Q_stricmp( ent->classname, "bot" ) )
-			ACESP_PutClientInServer( ent, true, ent->client->resp.team );
-		else
-#endif
 		PutClientInServer(ent);
 		AddToTransparentList(ent);
 	}
@@ -1972,21 +1967,10 @@ void MakeAllLivePlayersObservers (void)
 		if(ent->solid == SOLID_NOT && !ent->deadflag)
 			continue;
 
-#ifndef NO_BOTS
-		qboolean is_bot = ent->is_bot;
-		char *classname = ent->classname;
-#endif
-
 		saveteam = ent->client->resp.team;
 		ent->client->resp.team = NOTEAM;
 		PutClientInServer(ent);
 		ent->client->resp.team = saveteam;
-
-#ifndef NO_BOTS
-		ent->is_bot = is_bot;
-		if( is_bot )
-			ent->classname = classname;
-#endif
 	}
 }
 

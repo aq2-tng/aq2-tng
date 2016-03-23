@@ -577,7 +577,7 @@ void Cmd_TogglePause_f(edict_t * ent, qboolean pause)
 	{
 		if(level.pauseFrames > 0)
 		{
-			gi.cprintf(ent, PRINT_HIGH, "Game is already paused you silly\n", time);
+			gi.cprintf(ent, PRINT_HIGH, "Game is already paused you silly\n");
 			return;
 		}
 		if (level.intermission_framenum) {
@@ -599,7 +599,7 @@ void Cmd_TogglePause_f(edict_t * ent, qboolean pause)
 	{
 		if (!level.pauseFrames)
 		{
-			gi.cprintf(ent, PRINT_HIGH, "Game is not paused\n", time);
+			gi.cprintf(ent, PRINT_HIGH, "Game is not paused\n");
 			return;
 		}
 		if(!lastPaused)

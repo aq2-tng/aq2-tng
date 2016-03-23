@@ -34,11 +34,18 @@ void Cmd_Say_f (edict_t * ent, qboolean team, qboolean arg0,
 
 // Each of the possible radio messages and their length
 typedef struct radio_msg_s
+
 {
+
 	char *msg;			// the msg name 
 
+
+
 	int length;			// length in server frames (ie tenths of a second), rounded up
+
 	int sndIndex;
+
+
 
 } radio_msg_t;
 
@@ -299,7 +306,7 @@ static void AddRadioMsg( radio_t *radio, int sndIndex, int len, edict_t *from_pl
 	}
 }
 
-static void RadioBroadcast (edict_t * ent, int partner, char *msg)
+void RadioBroadcast (edict_t * ent, int partner, char *msg)
 {
 	int j, i, msg_len, numSnds;
 	edict_t *other;
@@ -478,9 +485,13 @@ void Cmd_Radio_power_f (edict_t * ent)
 	}
 
 	radio = &ent->client->resp.radio;
+
 	radio->power_off = !radio->power_off;
 
+
+
 	gi.centerprintf(ent, "Radio switched %s", (radio->power_off) ? "off" : "on");
+
 	unicastSound(ent, globalRadio[RADIO_CLICK].sndIndex, 1.0);
 }
 
@@ -495,6 +506,7 @@ void Cmd_Channel_f (edict_t * ent)
 	}
 
 	radio = &ent->client->resp.radio;
+
 	radio->partner_mode = !radio->partner_mode;
 	if (radio->partner_mode)
 	{
@@ -525,12 +537,19 @@ void Cmd_Partner_f (edict_t * ent)
 
 	radio = &ent->client->resp.radio;
 	if (radio->partner) {
+
 		if (radio->partner->inuse) {
+
 			gi.centerprintf( ent, "You already have a partner, %s", radio->partner->client->pers.netname );
+
 			return;
+
 		}
+
 		// just in case RadioThink hasn't caught it yet... avoid any problems
+
 		radio->partner = NULL;
+
 	}
 
 	target = DetermineViewedPlayer(ent, true);
@@ -637,8 +656,10 @@ void Cmd_Deny_f (edict_t * ent)
 		gi.centerprintf (ent, "You denied %s", target->client->pers.netname);
 		gi.centerprintf (target, "%s has denied you", ent->client->pers.netname);
 		radio->partner_last_denied_from = target;
+
 		radio->partner_last_offered_from = NULL;
 		if (target->client->resp.radio.partner_last_offered_to == ent)
+
 			target->client->resp.radio.partner_last_offered_to = NULL;
 	}
 	else
@@ -664,67 +685,130 @@ void Cmd_Say_partner_f (edict_t * ent)
 
 	Cmd_Say_f (ent, false, false, true);
 }
+
 //SLIC2 Redesigned and optimized these two functions
+
 qboolean CheckForFlood( edict_t * ent )
+
 {
+
 	radio_t	*radio = &ent->client->resp.radio;
+
 	//If he's muted..
+
 	if (radio->rd_mute) {
+
 		if (radio->rd_mute > level.framenum)	// Still muted..
+
 			return false;
 
+
+
 		radio->rd_mute = 0;	// No longer muted..
-	}
-	if (!radio->rd_Count) {
-		radio->rd_time = level.framenum;
-		radio->rd_Count++;
-	}
-	else {
-		if (level.framenum - radio->rd_time < (int)(radio_time->value * HZ)) {
-			if (++radio->rd_Count >= (int)radio_max->value) {
-				gi.cprintf( ent, PRINT_HIGH,
-					"[RADIO FLOOD PROTECTION]: Flood Detected, you are silenced for %d secs\n", (int)radio_ban->value );
-				radio->rd_mute = level.framenum + (int)(radio_ban->value * HZ);
-				return false;
-			}
-		}
-		else {
-			radio->rd_Count = 0;
-		}
+
 	}
 
+	if (!radio->rd_Count) {
+
+		radio->rd_time = level.framenum;
+
+		radio->rd_Count++;
+
+	}
+
+	else {
+
+		if (level.framenum - radio->rd_time < (int)(radio_time->value * HZ)) {
+
+			if (++radio->rd_Count >= (int)radio_max->value) {
+
+				gi.cprintf( ent, PRINT_HIGH,
+
+					"[RADIO FLOOD PROTECTION]: Flood Detected, you are silenced for %d secs\n", (int)radio_ban->value );
+
+				radio->rd_mute = level.framenum + (int)(radio_ban->value * HZ);
+
+				return false;
+
+			}
+
+		}
+
+		else {
+
+			radio->rd_Count = 0;
+
+		}
+
+	}
+
+
+
 	return true;
+
 }
 
+
+
 qboolean CheckForRepeat( edict_t * ent, int radioCode )
+
 {
+
 	radio_t	*radio = &ent->client->resp.radio;
 
+
+
 	//If he's muted..
+
 	if (radio->rd_mute) {
+
 		if (radio->rd_mute > level.framenum)	// Still muted..
+
 			return false;
 
+
+
 		radio->rd_mute = 0;	// No longer muted..
+
 	}
 
+
+
 	if (radio->rd_lastRadio == radioCode) {	//He's trying to repeat it..
+
 		if (level.framenum - radio->rd_repTime < (int)(radio_repeat_time->value * HZ)) {
+
 			if (++radio->rd_repCount == (int)radio_repeat->value) {	//Busted
+
 				gi.cprintf( ent, PRINT_HIGH, "[RADIO FLOOD PROTECTION]: Repeat Flood Detected, you are silenced for %d secs\n", (int)radio_ban->value );
+
 				radio->rd_mute = level.framenum + (int)(radio_ban->value * HZ);
+
 				return false;
+
 			}
+
 		}
+
 		else {
+
 			radio->rd_repCount = 0;
+
 		}
+
 	}
+
 	else {
+
 		radio->rd_lastRadio = radioCode;
+
 		radio->rd_repCount = 0;
+
 	}
+
 	radio->rd_repTime = level.framenum;
+
 	return true;
+
 }
 
