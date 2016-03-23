@@ -56,6 +56,10 @@ ARCH=i386
 CFLAGS+=-m32
 endif
 
+ifdef NO_BOTS
+CFLAGS += -DNO_BOTS
+endif
+
 DO_CC=$(CC) $(CFLAGS) $(SHLIBCFLAGS) -o $@ -c $<
 DO_LINK=$(CC) $(CFLAGS) $(SHLIBLDFLAGS) -o $@ $(GAME_OBJS) $(SHLIBLIBS)
 
@@ -95,12 +99,14 @@ GAME_OBJS = \
 	tng_stats.o tng_flashlight.o tng_irc.o tng_ini.o tng_balancer.o \
 	g_grapple.o
 
+ifndef NO_BOTS
 GAME_OBJS += acesrc/acebot_ai.o acesrc/acebot_nodes.o acesrc/bot_combat.o \
 	acesrc/bot_states.o acesrc/acebot_cmds.o acesrc/acebot_spawn.o \
 	acesrc/bot_env_doors.o acesrc/bot_utility.o acesrc/acebot_compress.o \
 	acesrc/bot_ai.o acesrc/bot_movement.o acesrc/bot_weapon.o \
 	acesrc/acebot_items.o acesrc/botchat.o acesrc/botnav.o \
 	acesrc/acebot_movement.o acesrc/bot_collision.o acesrc/botscan.o
+endif
 
 game$(ARCH).$(SHLIBEXT) : $(GAME_OBJS)
 	$(DO_LINK)

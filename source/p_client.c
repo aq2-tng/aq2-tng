@@ -624,12 +624,12 @@ void PrintDeathMessage(char *msg, edict_t * gibee)
 
 	for (j = 1; j <= game.maxclients; j++) {
 		other = &g_edicts[j];
-#ifndef NO_BOTS
-		if (!other->inuse || !other->client || other->is_bot)
-#else
 		if (!other->inuse || !other->client)
-#endif
 			continue;
+#ifndef NO_BOTS
+		if( other->is_bot )
+			continue;
+#endif
 
 		// only print if he's NOT gibee, NOT attacker, and NOT alive! -TempFile
 		if (other != gibee && other != gibee->client->attacker && other->solid == SOLID_NOT)

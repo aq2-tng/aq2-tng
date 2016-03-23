@@ -1190,9 +1190,10 @@ qboolean visible(edict_t *self, edict_t *other, int mask);
 #ifndef NO_BOTS
 qboolean ai_visible( edict_t *self, edict_t *other );
 qboolean infront( edict_t *self, edict_t *other );
-float *tv( float x, float y, float z );
 #endif
 
+// Re-enabled for bots
+float *tv (float x, float y, float z);
 char *vtos (vec3_t v);
 
 float vectoyaw (vec3_t vec);

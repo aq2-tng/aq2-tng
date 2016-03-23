@@ -1045,7 +1045,7 @@ void G_RunFrame (void)
 				// allow bots to think
 				if(!ent->is_bot)
 #endif
-					continue;
+				continue;
 			}
 
 			G_RunEntity (ent);

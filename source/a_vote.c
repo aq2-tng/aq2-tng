@@ -954,7 +954,7 @@ void _CheckKickVote (void)
 #ifndef NO_BOTS
 		if (! mtarget->is_bot)  // No minimum player count to kick bots.
 #endif
-			return;
+		return;
 
 	if (Allkickvotes < kickvote_need->value)
 		return;
