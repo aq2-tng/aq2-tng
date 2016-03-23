@@ -80,7 +80,7 @@ void BOTCOM_BasicAttack (edict_t *bot, usercmd_t *cmd, vec3_t vTarget)
 
 	// Don't stand around if all you have is a knife or no weapon.
 	if( 
-		(bot->client->pers.weapon == FindItem(KNIFE_NAME)) 
+		(bot->client->weapon == FindItem(KNIFE_NAME)) 
 		|| !bHasWeapon // kick attack
 		)
 	{
@@ -120,7 +120,7 @@ void BOTCOM_BasicAttack (edict_t *bot, usercmd_t *cmd, vec3_t vTarget)
 			bot->client->pers.knife_mode = 0;
 		}
 	}
-	else if(!(bot->client->pers.weapon == FindItem(SNIPER_NAME))) // Stop moving with sniper rifle
+	else if(!(bot->client->weapon == FindItem(SNIPER_NAME))) // Stop moving with sniper rifle
 	{
 		// Randomly choose a movement direction
 		fRandValue = random();	
@@ -149,8 +149,8 @@ void BOTCOM_BasicAttack (edict_t *bot, usercmd_t *cmd, vec3_t vTarget)
 	}
 
 	if( (vDist < 600) && 
-		( !(bot->client->pers.weapon == FindItem(KNIFE_NAME)) && 
-		!(bot->client->pers.weapon == FindItem(SNIPER_NAME))) // Stop jumping with sniper rifle
+		( !(bot->client->weapon == FindItem(KNIFE_NAME)) && 
+		!(bot->client->weapon == FindItem(SNIPER_NAME))) // Stop jumping with sniper rifle
 		&&( bHasWeapon )	// Jump already set for kick attack
 		)
 	{
@@ -187,7 +187,7 @@ void BOTCOM_BasicAttack (edict_t *bot, usercmd_t *cmd, vec3_t vTarget)
 	if( 
 		(ltk_skill->value < 10 )
 		&& ( bHasWeapon )	// Kick attacks must be accurate
-		&& (!(bot->client->pers.weapon == FindItem(KNIFE_NAME))) // Knives accurate
+		&& (!(bot->client->weapon == FindItem(KNIFE_NAME))) // Knives accurate
 		)
 	{
 		short int	up, right, iFactor=8;
@@ -196,7 +196,7 @@ void BOTCOM_BasicAttack (edict_t *bot, usercmd_t *cmd, vec3_t vTarget)
 
 		// Not that complex. We miss by 0 to 80 units based on skill value and random factor
 		// Unless we have a sniper rifle!
-		if(bot->client->pers.weapon == FindItem(SNIPER_NAME))
+		if(bot->client->weapon == FindItem(SNIPER_NAME))
 			iFactor = 1;
 		vTarget[0] += ( right * (((iFactor*(10 - ltk_skill->value)) *random())) );
 		vTarget[2] += ( up * (((iFactor*(10 - ltk_skill->value)) *random())) );

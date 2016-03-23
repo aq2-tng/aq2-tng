@@ -486,7 +486,7 @@ void BOTAI_Think(edict_t *bot)
         bot->last_node = INVALID;
 
         // Stop "key flooding"
-        if (level.framenum > bot->client->respawn_time)
+        if (level.framenum > bot->client->respawn_framenum)
         {
             bot->client->buttons = 0;       // clear buttons
             cmd.buttons = BUTTON_ATTACK;   // hit the attack button

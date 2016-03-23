@@ -417,7 +417,7 @@ void ACESP_Respawn (edict_t *self)
 //AQ2	self->client->ps.pmove.pm_flags = PMF_TIME_TELEPORT;
 //AQ2	self->client->ps.pmove.pm_time = 14;
 
-	self->client->respawn_time = level.framenum + 2 * HZ;
+	self->client->respawn_framenum = level.framenum + 2 * HZ;
 
 	if( random() < 0.15)
 	{

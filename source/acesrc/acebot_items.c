@@ -167,7 +167,7 @@ qboolean ACEIT_ChangeWeapon (edict_t *ent, gitem_t *item)
 	}
 
 	// see if we're already using it
-	if (item == ent->client->pers.weapon)
+	if (item == ent->client->weapon)
 	{
 		//Do we have one in the chamber?
         if( ent->client->weaponstate == WEAPON_END_MAG)
@@ -218,7 +218,7 @@ qboolean ACEIT_ChangeMK23SpecialWeapon (edict_t *ent, gitem_t *item)
 			clips = true;
 	}
 	// see if we're already using it
-	if (item == ent->client->pers.weapon)
+	if (item == ent->client->weapon)
 	{
 		//Do we have one in the chamber?
         if( ent->client->weaponstate == WEAPON_END_MAG)
@@ -288,7 +288,7 @@ qboolean ACEIT_ChangeHCSpecialWeapon (edict_t *ent, gitem_t *item)
 		loaded = false;
 	}
 	// see if we're already using it
-	if (item == ent->client->pers.weapon)
+	if (item == ent->client->weapon)
 	{
 /*		//Do we have one in the chamber?
         if( ent->client->weaponstate == WEAPON_END_MAG)
@@ -359,7 +359,7 @@ qboolean ACEIT_ChangeSniperSpecialWeapon (edict_t *ent, gitem_t *item)
 		loaded = false;
 	}
 	// see if we're already using it
-	if (item == ent->client->pers.weapon)
+	if (item == ent->client->weapon)
 	{
 /*		//Do we have one in the chamber?
         if( ent->client->weaponstate == WEAPON_END_MAG)
@@ -429,7 +429,7 @@ qboolean ACEIT_ChangeM3SpecialWeapon (edict_t *ent, gitem_t *item)
 		loaded = false;
 	}
 	// see if we're already using it
-	if (item == ent->client->pers.weapon)
+	if (item == ent->client->weapon)
 	{
 /*		//Do we have one in the chamber?
         if( ent->client->weaponstate == WEAPON_END_MAG)
@@ -499,7 +499,7 @@ qboolean ACEIT_ChangeM4SpecialWeapon (edict_t *ent, gitem_t *item)
 		loaded = false;
 	}
 	// see if we're already using it
-	if (item == ent->client->pers.weapon)
+	if (item == ent->client->weapon)
 	{
 /*		//Do we have one in the chamber?
 		if( ent->client->weaponstate == WEAPON_END_MAG)
@@ -573,7 +573,7 @@ qboolean ACEIT_ChangeMP5SpecialWeapon (edict_t *ent, gitem_t *item)
 		loaded = false;
 	}
 	// see if we're already using it
-	if (item == ent->client->pers.weapon)
+	if (item == ent->client->weapon)
 	{
 		// No ammo - forget it!
 		if(!loaded && !clips)
@@ -640,7 +640,7 @@ qboolean ACEIT_ChangeDualSpecialWeapon (edict_t *ent, gitem_t *item)
 	}
 
 	// see if we're already using it
-	if (item == ent->client->pers.weapon)
+	if (item == ent->client->weapon)
 	{
 /*		//Do we have one in the chamber?
         if( ent->client->weaponstate == WEAPON_END_MAG)
@@ -712,7 +712,7 @@ qboolean ACEIT_ChangeGrenSpecialWeapon (edict_t *ent, gitem_t *item)
 		loaded = false;
 	}
 	// see if we're already using it
-	if (item == ent->client->pers.weapon)
+	if (item == ent->client->weapon)
 	{
 /*		//Do we have one in the chamber?
         if( ent->client->weaponstate == WEAPON_END_MAG)
@@ -913,7 +913,7 @@ float ACEIT_ItemNeed(edict_t *self, int item)
 				return 0.6;  
 			else
 				return 0.0;
-	
+/*
 		case ITEMLIST_COMBATARMOR:
 			if(ACEIT_CanUseArmor (FindItem("Combat Armor"), self))
 				return 0.6;  
@@ -929,7 +929,7 @@ float ACEIT_ItemNeed(edict_t *self, int item)
 		case ITEMLIST_POWERSCREEN:
 		case ITEMLIST_POWERSHIELD:
 			return 0.5;  
-
+*/
 /*		case ITEMLIST_FLAG1:
 			// If I am on team one, I want team two's flag
 			if(!self->client->inventory[item] && self->client->resp.ctf_team == CTF_TEAM2)
@@ -956,13 +956,12 @@ float ACEIT_ItemNeed(edict_t *self, int item)
 			else
 				return 0.0;*/
 //AQ2 ADD
-		#warning "ITEMLIST_MP5 == SNIPER_ANUM"
-		//case ITEMLIST_MP5:
-		case ITEMLIST_M4:
-		case ITEMLIST_M3:
-		case ITEMLIST_HC:
-		case ITEMLIST_SNIPER:
-		case ITEMLIST_DUAL:
+		case MP5_NUM:
+		case M4_NUM:
+		case M3_NUM:
+		case HC_NUM:
+		case SNIPER_NUM:
+		case DUAL_NUM:
                 if(
 					( self->client->unique_weapon_total < unique_weapons->value + band )
 					&& 	(!self->client->inventory[item])
@@ -972,34 +971,34 @@ float ACEIT_ItemNeed(edict_t *self, int item)
 					return 0.0;
 
 		case MK23_ANUM:
-			//if(self->client->inventory[MK23_ANUM] < self->client->max_bullets)
+			if(self->client->inventory[MK23_ANUM] < self->client->max_pistolmags)
 				return 0.3;  
-			//else
-			//	return 0.0;
+			else
+				return 0.0;
 
 		case M4_ANUM:
-			//if(self->client->inventory[M4_ANUM] < self->client->max_cells)
+			if(self->client->inventory[M4_ANUM] < self->client->max_m4mags)
 				return 0.3;  
-			//else
-			//	return 0.0;
+			else
+				return 0.0;
 
 		case MP5_ANUM:
-			//if(self->client->inventory[MP5_ANUM] < self->client->max_rockets)
+			if(self->client->inventory[MP5_ANUM] < self->client->max_mp5mags)
 				return 0.3;  
-			//else
-			//	return 0.0;
+			else
+				return 0.0;
 
 		case SNIPER_ANUM:
-			//if(self->client->inventory[SNIPER_ANUM] < self->client->max_slugs)
+			if(self->client->inventory[SNIPER_ANUM] < self->client->max_sniper_rnds)
 				return 0.3;  
-			//else
-			//	return 0.0;
+			else
+				return 0.0;
 
 		case SHELL_ANUM:
-			//if(self->client->inventory[SHELL_ANUM] < self->client->max_shells)
+			if(self->client->inventory[SHELL_ANUM] < self->client->max_shells)
 				return 0.3;  
-			//else
-			//	return 0.0;
+			else
+				return 0.0;
 
 		case ITEMLIST_KNIFE:
 			if(self->client->inventory[ITEM_INDEX(FindItem(KNIFE_NAME))] < self->client->knife_max)

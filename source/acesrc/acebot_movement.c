@@ -1140,7 +1140,7 @@ void ACEMV_Attack (edict_t *self, usercmd_t *ucmd)
 //AQ2 CHANGE
 	// Don't stand around if all you have is a knife or no weapon.
 	if( 
-		(self->client->pers.weapon == FindItem(KNIFE_NAME)) 
+		(self->client->weapon == FindItem(KNIFE_NAME)) 
 		|| !bHasWeapon // kick attack
 		)
 	{
@@ -1180,7 +1180,7 @@ void ACEMV_Attack (edict_t *self, usercmd_t *ucmd)
 			self->client->pers.knife_mode = 0;
 		}
 	}
-	else //if(!(self->client->pers.weapon == FindItem(SNIPER_NAME))) // Stop moving with sniper rifle
+	else //if(!(self->client->weapon == FindItem(SNIPER_NAME))) // Stop moving with sniper rifle
 	{
 		// Randomly choose a movement direction
 		c = random();		
@@ -1197,8 +1197,8 @@ void ACEMV_Attack (edict_t *self, usercmd_t *ucmd)
 	}
 //AQ2 END
 	if( (dist < 600) && 
-		( !(self->client->pers.weapon == FindItem(KNIFE_NAME)) 
-)//		&& !(self->client->pers.weapon == FindItem(SNIPER_NAME))) // Stop jumping with sniper rifle
+		( !(self->client->weapon == FindItem(KNIFE_NAME)) 
+)//		&& !(self->client->weapon == FindItem(SNIPER_NAME))) // Stop jumping with sniper rifle
 		&&( bHasWeapon )	// Jump already set for kick attack
 		)
 	{
@@ -1222,9 +1222,9 @@ void ACEMV_Attack (edict_t *self, usercmd_t *ucmd)
 //		c = random();
 //		if(c < 0.50)	//Only crouch at 50% probability
 		if (!self->client->inventory[ITEM_INDEX(FindItem(LASER_NAME))])
-			if( (self->client->pers.weapon == FindItem(M4_NAME)) ||
-				(self->client->pers.weapon == FindItem(MP5_NAME)) ||
-				(self->client->pers.weapon == FindItem(MK23_NAME)) )
+			if( (self->client->weapon == FindItem(M4_NAME)) ||
+				(self->client->weapon == FindItem(MP5_NAME)) ||
+				(self->client->weapon == FindItem(MK23_NAME)) )
 			{
 				ucmd->upmove = -SPEED_RUN;
 			}
@@ -1242,7 +1242,7 @@ void ACEMV_Attack (edict_t *self, usercmd_t *ucmd)
 		if( ACEAI_CheckShot( self ))
 		{
 			ucmd->buttons = BUTTON_ATTACK;
-			if(self->client->pers.weapon == FindItem(GRENADE_NAME))
+			if(self->client->weapon == FindItem(GRENADE_NAME))
 			{
 				self->grenadewait = level.framenum + 2.0 * HZ;
 				ucmd->forwardmove= -SPEED_RUN; //Stalk back, behold of the holy Grenade!
@@ -1272,7 +1272,7 @@ void ACEMV_Attack (edict_t *self, usercmd_t *ucmd)
 	VectorCopy(self->enemy->s.origin,target);
 
 	// Werewolf: Aim higher if using grenades
-	if(self->client->pers.weapon == FindItem(GRENADE_NAME))
+	if(self->client->weapon == FindItem(GRENADE_NAME))
 		target[2] += 35;
 
 
@@ -1282,7 +1282,7 @@ void ACEMV_Attack (edict_t *self, usercmd_t *ucmd)
 	if( 
 		(ltk_skill->value < 10 )
 		&& ( bHasWeapon )	// Kick attacks must be accurate
-		&& (!(self->client->pers.weapon == FindItem(KNIFE_NAME))) // Knives accurate
+		&& (!(self->client->weapon == FindItem(KNIFE_NAME))) // Knives accurate
 		)
 	{
 		short int sign[3], iFactor = 7;
@@ -1292,7 +1292,7 @@ void ACEMV_Attack (edict_t *self, usercmd_t *ucmd)
 
 		// Not that complex. We miss by 0 to 80 units based on skill value and random factor
 		// Unless we have a sniper rifle!
-		if(self->client->pers.weapon == FindItem(SNIPER_NAME))
+		if(self->client->weapon == FindItem(SNIPER_NAME))
 			iFactor = 5;
 
 		// Shoot less accurately if we just turned around and are far away.
@@ -1310,7 +1310,7 @@ void ACEMV_Attack (edict_t *self, usercmd_t *ucmd)
 	}
 	//Werewolf: Snipers of skill 10 are complete lethal, so I don't use that code down there
 /*	else if (ltk_skill->value == 11)
-	if(self->client->pers.weapon == FindItem(SNIPER_NAME))
+	if(self->client->weapon == FindItem(SNIPER_NAME))
 	{
 		short int	up, right, iFactor=1;
 		up = (random() < 0.5)? -1 :1;
