@@ -1536,243 +1536,124 @@ int TeamHasPlayers (int team)
 }
 
 qboolean BothTeamsHavePlayers()
-
 {
-
 	int players[TEAM_TOP] = { 0 }, i, teamsWithPlayers;
-
 	edict_t *ent;
 
-
-
 	//AQ2:TNG Slicer Matchmode
-
 	if (matchmode->value && !TeamsReady())
-
 		return false;
-
-
-
 	//AQ2:TNG END
 
 	if (use_tourney->value)
-
 		return (LastOpponent > 1);
 
-
-
 	for (i = 0; i < game.maxclients; i++)
-
 	{
-
 		ent = &g_edicts[1 + i];
-
 		if (!ent->inuse || game.clients[i].resp.team == NOTEAM)
-
 			continue;
-
 		if (!game.clients[i].resp.subteam)
-
 			players[game.clients[i].resp.team]++;
-
 	}
-
-
 
 	teamsWithPlayers = 0;
-
 	for (i = TEAM1; i <= teamCount; i++)
-
 	{
-
 		if (players[i]) {
-
 			teamsWithPlayers++;
-
 		}
-
 	}
-
-
 
 	return (teamsWithPlayers == teamCount);
-
 }
-
-
 
 // CheckForWinner: Checks for a winner (or not).
-
 int CheckForWinner()
-
 {
-
 	int players[TEAM_TOP] = { 0 }, i = 0, teamNum = 0, teamsWithPlayers = 0;
-
 	edict_t *ent;
-
-
 
 	if (!(gameSettings & GS_ROUNDBASED))
-
 		return WINNER_NONE;
 
-
-
 	for (i = 0; i < game.maxclients; i++)
-
 	{
-
 		ent = &g_edicts[1 + i];
-
 		if (!ent->inuse || ent->solid == SOLID_NOT)
-
 			continue;
-
-
 
 		teamNum = game.clients[i].resp.team;
-
 		if (teamNum == NOTEAM)
-
 			continue;
 
-
-
 		players[teamNum]++;
-
 	}
-
-
 
 	teamsWithPlayers = 0;
-
 	for (i = TEAM1; i <= teamCount; i++)
-
 	{
-
 		if (players[i]) {
-
 			teamsWithPlayers++;
-
 			teamNum = i;
-
 		}
-
 	}
-
-
 
 	if (teamsWithPlayers)
-
 		return (teamsWithPlayers > 1) ? WINNER_NONE : teamNum;
 
-
-
 	return WINNER_TIE;
-
 }
 
-
-
 // CheckForForcedWinner: A winner is being forced, find who it is.
-
 int CheckForForcedWinner()
-
 {
-
 	int players[TEAM_TOP] = { 0 };
-
 	int health[TEAM_TOP] = { 0 };
-
 	int i, teamNum, bestTeam, secondBest;
-
 	edict_t *ent;
 
-
-
 	for (i = 0; i < game.maxclients; i++)
-
 	{
-
 		ent = &g_edicts[1 + i];
-
 		if (!ent->inuse || ent->solid == SOLID_NOT)
-
 			continue;
-
 		teamNum = game.clients[i].resp.team;
-
 		if (teamNum == NOTEAM)
-
 			continue;
-
-
 
 		players[teamNum]++;
-
 		health[teamNum] += ent->health;
-
 	}
-
-
 
 	bestTeam = secondBest = NOTEAM;
-
 	for (i = TEAM1; i <= teamCount; i++)
-
 	{
-
 		if (players[i] < players[bestTeam]) {
-
 			continue;
-
 		}
-
 		if (players[i] > players[bestTeam]) {
-
 			bestTeam = i;
-
 			secondBest = NOTEAM;
-
 			continue;
-
 		}
-
 		//Same amound of players, check health
-
 		if (health[i] < health[bestTeam]) {
-
 			continue;
-
 		}
-
 		if (health[i] > health[bestTeam]) {
-
 			bestTeam = i;
-
 			secondBest = NOTEAM;
-
 			continue;
-
 		}
-
 		//Same as bestTeam
-
 		secondBest = i;
-
 	}
 
-
-
 	if (bestTeam == NOTEAM || secondBest != NOTEAM)
-
 		return WINNER_TIE;
 
-
-
 	return bestTeam;
-
 }
 
 static void SpawnPlayers(void)
