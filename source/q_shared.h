@@ -1216,7 +1216,7 @@ temp_event_t;
 #define STAT_HEALTH                     1
 #define STAT_AMMO_ICON                  2
 #define STAT_AMMO                       3
-#define STAT_ARMOR_ICON                 4
+#define STAT_TEAM_ICON                  4
 #define STAT_ARMOR                      5
 #define STAT_SELECTED_ICON              6
 #define STAT_PICKUP_ICON                7

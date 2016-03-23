@@ -490,7 +490,7 @@ void G_SetStats (edict_t * ent)
 		//
 		// armor
 		//
-		ent->client->ps.stats[STAT_ARMOR_ICON] = 0;
+		//ent->client->ps.stats[STAT_ARMOR_ICON] = 0; // Replaced with STAT_TEAM_ICON.
 		ent->client->ps.stats[STAT_ARMOR] = 0;
 
 		//
@@ -547,6 +547,21 @@ void G_SetStats (edict_t * ent)
 			ent->client->ps.stats[STAT_HELPICON] = level.pic_items[ent->client->weapon->typeNum];
 		else
 			ent->client->ps.stats[STAT_HELPICON] = 0;
+		
+		// Hide health, ammo, weapon, and bandaging state when free spectating.
+		if( ! IS_ALIVE(ent) )
+		{
+			ent->client->ps.stats[STAT_HEALTH_ICON] = 0;
+			ent->client->ps.stats[STAT_AMMO_ICON] = 0;
+			ent->client->ps.stats[STAT_SELECTED_ICON] = 0;
+			ent->client->ps.stats[STAT_HELPICON] = 0;
+		}
+		
+		// Team icon.
+		if( teamplay->value && hud_team_icon->value && (ent->client->resp.team != NOTEAM) && IS_ALIVE(ent) )
+			ent->client->ps.stats[STAT_TEAM_ICON] = gi.imageindex(teams[ent->client->resp.team].skin_index);
+		else
+			ent->client->ps.stats[STAT_TEAM_ICON] = 0;
 	}
 
 	//
