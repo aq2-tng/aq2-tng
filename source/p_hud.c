@@ -104,7 +104,7 @@ void MoveClientToIntermission(edict_t *ent)
 	ent->client->desired_fov = 90;
 	ent->client->ps.fov = 90;
 	ent->client->ps.stats[STAT_SNIPER_ICON] = 0;
-	ent->client->pickup_msg_time = 0;
+	ent->client->pickup_msg_framenum = 0;
 
 	// add the layout
 	DeathmatchScoreboardMessage(ent, NULL);
@@ -420,7 +420,7 @@ void G_SetStats (edict_t * ent)
 		// ammo by weapon
 		// 
 		//
-		if (ent->client->pers.weapon && ent->client->curr_weap)
+		if (ent->client->weapon && ent->client->curr_weap)
 		{
 			switch (ent->client->curr_weap) {
 			case MK23_NUM:
@@ -543,8 +543,8 @@ void G_SetStats (edict_t * ent)
 		// TNG: Show health icon when bandaging (thanks to Dome for this code)
 		if (ent->client->weaponstate == WEAPON_BANDAGING || ent->client->bandaging || ent->client->bandage_stopped)
 			ent->client->ps.stats[STAT_HELPICON] = level.pic_health;
-		else if ((ent->client->pers.hand == CENTER_HANDED || ent->client->ps.fov > 91) && ent->client->pers.weapon)
-			ent->client->ps.stats[STAT_HELPICON] = level.pic_items[ent->client->pers.weapon->typeNum];
+		else if ((ent->client->pers.hand == CENTER_HANDED || ent->client->ps.fov > 91) && ent->client->weapon)
+			ent->client->ps.stats[STAT_HELPICON] = level.pic_items[ent->client->weapon->typeNum];
 		else
 			ent->client->ps.stats[STAT_HELPICON] = 0;
 	}
@@ -552,7 +552,7 @@ void G_SetStats (edict_t * ent)
 	//
 	// pickup message
 	//
-	if (level.realFramenum > ent->client->pickup_msg_time)
+	if (level.realFramenum > ent->client->pickup_msg_framenum)
 	{
 		ent->client->ps.stats[STAT_PICKUP_ICON] = 0;
 		ent->client->ps.stats[STAT_PICKUP_STRING] = 0;

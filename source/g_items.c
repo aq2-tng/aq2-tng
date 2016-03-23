@@ -845,7 +845,7 @@ void Touch_Item (edict_t * ent, edict_t * other, cplane_t * plane,
 			other->client->ps.stats[STAT_PICKUP_ICON] = gi.imageindex(ent->item->icon);
 
 		other->client->ps.stats[STAT_PICKUP_STRING] = CS_ITEMS + ITEM_INDEX (ent->item);
-		other->client->pickup_msg_time = level.realFramenum + 3 * HZ;
+		other->client->pickup_msg_framenum = level.realFramenum + 3 * HZ;
 
 		// change selected item
 		if (ent->item->use)

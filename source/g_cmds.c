@@ -229,11 +229,11 @@ qboolean FloodCheck (edict_t *ent)
 {
 	if (flood_threshold->value)
 	{
-		ent->client->penalty++;
+		ent->client->resp.penalty++;
 
-		if (ent->client->penalty > flood_threshold->value)
+		if (ent->client->resp.penalty > flood_threshold->value)
 		{
-			gi.cprintf (ent, PRINT_HIGH, "You can't talk for %d seconds.\n", ent->client->penalty - (int) flood_threshold->value);
+			gi.cprintf(ent, PRINT_HIGH, "You can't talk for %d seconds.\n", ent->client->resp.penalty - (int)flood_threshold->value);
 			return 1;
 		}
 	}
@@ -1019,10 +1019,10 @@ static void Cmd_WeapPrev_f (edict_t * ent)
 
 	cl = ent->client;
 
-	if (!cl->pers.weapon)
+	if (!cl->weapon)
 		return;
 
-	selected_weapon = ITEM_INDEX (cl->pers.weapon);
+	selected_weapon = ITEM_INDEX(cl->weapon);
 
 	// scan  for the next valid one
 	for (i = 1; i <= MAX_ITEMS; i++)
@@ -1036,7 +1036,7 @@ static void Cmd_WeapPrev_f (edict_t * ent)
 		if (!(it->flags & IT_WEAPON))
 			continue;
 		it->use (ent, it);
-		if (cl->pers.weapon == it)
+		if (cl->weapon == it)
 			return;			// successful
 	}
 }
@@ -1058,10 +1058,10 @@ static void Cmd_WeapNext_f (edict_t * ent)
 
 	cl = ent->client;
 
-	if (!cl->pers.weapon)
+	if (!cl->weapon)
 		return;
 
-	selected_weapon = ITEM_INDEX (cl->pers.weapon);
+	selected_weapon = ITEM_INDEX(cl->weapon);
 
 	// scan  for the next valid one
 	for (i = 1; i <= MAX_ITEMS; i++)
@@ -1075,7 +1075,7 @@ static void Cmd_WeapNext_f (edict_t * ent)
 		if (!(it->flags & IT_WEAPON))
 			continue;
 		it->use (ent, it);
-		if (cl->pers.weapon == it)
+		if (cl->weapon == it)
 			return;			// successful
 	}
 }
@@ -1096,10 +1096,10 @@ static void Cmd_WeapLast_f (edict_t * ent)
 
 	cl = ent->client;
 
-	if (!cl->pers.weapon || !cl->pers.lastweapon)
+	if (!cl->weapon || !cl->lastweapon)
 		return;
 
-	index = ITEM_INDEX (cl->pers.lastweapon);
+	index = ITEM_INDEX(cl->lastweapon);
 	if (!cl->inventory[index])
 		return;
 	it = &itemlist[index];
@@ -1153,7 +1153,7 @@ void Cmd_Kill_f( edict_t *ent )
 	if (!IS_ALIVE(ent))
 		return;
 	
-	if ((level.framenum - ent->client->respawn_time) < 5 * HZ)
+	if ((level.framenum - ent->client->respawn_framenum) < 5 * HZ)
 		return;
 
 	killPlayer(ent, true);
