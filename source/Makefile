@@ -93,8 +93,9 @@ GAME_OBJS = \
 	g_utils.o g_weapon.o \
 	p_client.o p_hud.o p_view.o p_weapon.o q_shared.o \
 	tng_stats.o tng_flashlight.o tng_irc.o tng_ini.o tng_balancer.o \
-	g_grapple.o \
-	acesrc/acebot_ai.o acesrc/acebot_nodes.o acesrc/bot_combat.o \
+	g_grapple.o
+
+GAME_OBJS += acesrc/acebot_ai.o acesrc/acebot_nodes.o acesrc/bot_combat.o \
 	acesrc/bot_states.o acesrc/acebot_cmds.o acesrc/acebot_spawn.o \
 	acesrc/bot_env_doors.o acesrc/bot_utility.o acesrc/acebot_compress.o \
 	acesrc/bot_ai.o acesrc/bot_movement.o acesrc/bot_weapon.o \
