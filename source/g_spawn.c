@@ -1127,13 +1127,13 @@ xl < value > xr < value > yb < value > yt < value > xv < value > yv < value >
 #endif
 
 #define STATBAR_COMMON \
-	"yb -24 " \
 /* team icon (draw first to prevent covering health at 320x240) */ \
 	"if 4 " \
 		"xl 0 " \
 		"yb -32 " \
 		"pic 4 " \
 	"endif " \
+	"yb -24 " \
 /* health */ \
 	"if 0 " \
 		"xv 0 " \

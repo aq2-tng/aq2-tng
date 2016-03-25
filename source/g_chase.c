@@ -200,6 +200,8 @@ void UpdateChaseCam( edict_t * ent )
 		ent->viewheight = 0;
 		memcpy(client->ps.stats, targ->client->ps.stats, sizeof(client->ps.stats));
 		client->ps.stats[STAT_SNIPER_ICON] = 0; // only show sniper lens when in chase mode 2
+		if( client->ps.stats[STAT_HELPICON] != level.pic_health ) // Keep bandaging icon.
+			client->ps.stats[STAT_HELPICON] = 0; // No weapon icon in 3rd person chase.
 	}
 	else             // chase_mode == 2
 	{
@@ -257,6 +259,14 @@ void UpdateChaseCam( edict_t * ent )
 		ent->client->clientNum = targ - g_edicts - 1;
 		ent->client->ps.fov = targ->client->ps.fov;
 		ent->client->desired_fov = targ->client->ps.fov;
+
+		// Keep bandaging icon from stats, but weapon icon is based on observer's hand and fov.
+		if( client->ps.stats[STAT_HELPICON] == level.pic_health )
+			;
+		else if( (client->pers.hand == CENTER_HANDED || client->ps.fov > 91) && targ->client->weapon )
+			client->ps.stats[STAT_HELPICON] = level.pic_items[targ->client->weapon->typeNum];
+		else
+			client->ps.stats[STAT_HELPICON] = 0;
 	}
 
 	//protect these
