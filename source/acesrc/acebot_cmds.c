@@ -143,7 +143,7 @@ void debug_printf(char *fmt, ...)
 	va_end (argptr);
 
 	if (dedicated->value)
-		gi.cprintf(NULL, PRINT_MEDIUM, bigbuffer);
+		gi.cprintf(NULL, PRINT_MEDIUM, "%s", bigbuffer);
 
 	for (i=0 ; i<maxclients->value ; i++)
 	{
@@ -151,7 +151,7 @@ void debug_printf(char *fmt, ...)
 		if (!cl_ent->inuse || cl_ent->is_bot)
 			continue;
 
-		gi.cprintf(cl_ent,  PRINT_MEDIUM, bigbuffer);
+		gi.cprintf(cl_ent, PRINT_MEDIUM, "%s", bigbuffer);
 	}
 
 }
@@ -173,7 +173,7 @@ void safe_cprintf (edict_t *ent, int printlevel, char *fmt, ...)
 	vsprintf (bigbuffer,fmt,argptr);
 	va_end (argptr);
 
-	real_cprintf(ent, printlevel, bigbuffer);
+	real_cprintf(ent, printlevel, "%s", bigbuffer);
 	
 }
 
@@ -194,7 +194,7 @@ void safe_centerprintf (edict_t *ent, char *fmt, ...)
 	vsprintf (bigbuffer,fmt,argptr);
 	va_end (argptr);
 	
-	real_centerprintf(ent, bigbuffer);
+	real_centerprintf(ent, "%s", bigbuffer);
 	
 }
 
@@ -215,7 +215,7 @@ void safe_bprintf (int printlevel, char *fmt, ...)
 	va_end (argptr);
 
 	if (dedicated->value)
-		gi.cprintf(NULL, printlevel, bigbuffer);
+		gi.cprintf(NULL, printlevel, "%s", bigbuffer);
 
 	for (i=0 ; i<maxclients->value ; i++)
 	{
@@ -223,7 +223,7 @@ void safe_bprintf (int printlevel, char *fmt, ...)
 		if (!cl_ent->inuse || cl_ent->is_bot)
 			continue;
 
-		real_cprintf(cl_ent, printlevel, bigbuffer);
+		real_cprintf(cl_ent, printlevel, "%s", bigbuffer);
 	}
 }
 
