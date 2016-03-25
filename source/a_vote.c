@@ -119,8 +119,6 @@ int _numclients (void)
 #endif
 
 		count++;
-		if (other->inuse && Info_ValueForKey(other->client->pers.userinfo, "mvdspec")[0] == '\0')
-			count++;
 	}
 	return count;
 }
