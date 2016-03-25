@@ -2732,7 +2732,7 @@ void A_ScoreboardMessage (edict_t * ent, edict_t * killer)
 	}
 	else if (ent->client->layout == LAYOUT_SCORES2)
 	{
-		int ping, time, deaths;
+		int ping, time;
 		char ping_buf[ 5 ] = "";
 
 		if (noscore->value)
@@ -2770,7 +2770,7 @@ void A_ScoreboardMessage (edict_t * ent, edict_t * killer)
 			// Raptor007: This has a string buffer so the bots branch can say "BOT" here.
 #ifndef NO_BOTS
 			if( cl_ent->is_bot )
-				strncpy( ping_buf, 5, "BOT" );
+				strcpy( ping_buf, "BOT" );
 			else
 #endif
 			snprintf( ping_buf, 5, "%4d", ping );
