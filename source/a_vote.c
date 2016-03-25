@@ -238,7 +238,7 @@ void Cmd_Maplist_f(edict_t *ent)
 	most = MapWithMostVotes (&p_most);
 
 	sprintf (msg_buf,
-		"List of maps that can be voted on:\nRequire more than %d%%%% votes (%.2f)\n\n",
+		"List of maps that can be voted on:\nRequire more than %d%% votes (%.2f)\n\n",
 		(int)mapvote_pass->value, mapvote_pass->value / 100.0f);
 
 	lines = chars_on_line = 0;
@@ -282,7 +282,7 @@ void Cmd_Maplist_f(edict_t *ent)
 
 	Q_strncatz(msg_buf, "\n\n", sizeof(msg_buf));
 	Com_sprintf (tmp_buf, sizeof(tmp_buf),
-		"%d/%d (%.2f%%%%) clients voted\n%d client%s minimum (%d%%%% required)",
+		"%d/%d (%.2f%%) clients voted\n%d client%s minimum (%d%% required)",
 		map_num_votes, map_num_clients,
 		(float)( (float)map_num_votes /
 		(float)(map_num_clients > 0 ? map_num_clients : 1) * 100.0f),	// TempFile changed to percentual display
@@ -409,7 +409,7 @@ qboolean _CheckMapVotes (void)
 
 	if (_iCheckMapVotes() == true)
 	{
-		gi.bprintf (PRINT_HIGH, "More than %i%%%% map votes reached.\n", (int)mapvote_pass->value);
+		gi.bprintf (PRINT_HIGH, "More than %i%% map votes reached.\n", (int)mapvote_pass->value);
 		return true;
 	}
 	return false;
@@ -850,7 +850,7 @@ void _DoKick (edict_t * target)
 {
 	char buf[128];
 
-	sprintf (buf, "more than %i%%%% voted for.", (int) kickvote_pass->value);
+	sprintf (buf, "more than %i%% voted for.", (int) kickvote_pass->value);
 
 #ifndef NO_BOTS
 	if (target->is_bot)
@@ -1212,7 +1212,7 @@ void Cmd_Configlist_f(edict_t *ent)
 	most = ConfigWithMostVotes (&p_most);
 
 	sprintf (msg_buf,
-		"List of configs that can be voted on:\nRequire more than %d%%%% votes (%.2f)\n\n",
+		"List of configs that can be voted on:\nRequire more than %d%% votes (%.2f)\n\n",
 		(int) cvote_pass->value,
 		(float) ((float) cvote_pass->value / 100.0));
 
@@ -1254,7 +1254,7 @@ void Cmd_Configlist_f(edict_t *ent)
 
 	Q_strncatz (msg_buf, "\n\n", sizeof(msg_buf));
 	Com_sprintf (tmp_buf, sizeof(tmp_buf), 
-		"%d/%d (%.2f%%%%) clients voted\n%d client%s minimum (%d%%%% required)",
+		"%d/%d (%.2f%%) clients voted\n%d client%s minimum (%d%% required)",
 		config_num_votes, config_num_clients,
 		(float) ((float) config_num_votes / (float) (config_num_clients >
 		0 ? config_num_clients : 1) * 100),
@@ -1360,7 +1360,7 @@ qboolean _ConfigMostVotesStr (char *buf)
 	most = ConfigWithMostVotes (&p_most);
 	if (most != NULL)
 	{
-		sprintf (buf, "%s (%.2f%%%%)", most->configname, p_most * 100.0);
+		sprintf (buf, "%s (%.2f%%)", most->configname, p_most * 100.0);
 		return true;
 	}
 	else
