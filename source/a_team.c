@@ -2754,7 +2754,7 @@ void A_ScoreboardMessage (edict_t * ent, edict_t * killer)
 		else
 		// Raptor007: I think this works well for any teamplay mode.
 		{
-			strcpy (string,
+			strcpy( string + strlen(string),
 			"xv 0 yv 32 string2 \"Team Player          Time Ping Kills Deaths\" "
 			"xv 0 yv 40 string2 \"Ÿ Ÿ Ÿ Ÿ Ÿ Ÿ\" ");
 		}
