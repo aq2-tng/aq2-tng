@@ -2721,7 +2721,7 @@ void A_ScoreboardMessage (edict_t * ent, edict_t * killer)
 	}
 	else if (ent->client->layout == LAYOUT_SCORES2)
 	{
-		int ping, time, deaths;
+		int ping, time;
 		char ping_buf[ 5 ] = "";
 
 		if (noscore->value)

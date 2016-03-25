@@ -111,7 +111,7 @@ int _numclients (void)
 	count = 0;
 	for (i = 0, other = g_edicts + 1; i < game.maxclients; i++, other++)
 	{
-		if (!other->inuse || !other->client || other->client->pers.mvdspec)
+		if (!other->inuse || !other->client || !other->client->pers.connected || other->client->pers.mvdspec)
 			continue;
 
 		count++;
