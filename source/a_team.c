@@ -2388,7 +2388,7 @@ void A_ScoreboardMessage (edict_t * ent, edict_t * killer)
 		int maxPlayers, printCount, base_x, showExtra = 0, subLines = 0;
 
 		// new scoreboard for regular teamplay up to 16 players
-		if (use_newscore->value == 1 && teamplay->value && !use_3teams->value && !matchmode->value && !ctf->value) {
+		if (use_newscore->value == 1 && teamplay->value && !matchmode->value && !ctf->value) {
 			A_NewScoreboardMessage(ent);
 			return;
 		}
