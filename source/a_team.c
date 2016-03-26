@@ -2312,9 +2312,9 @@ void A_NewScoreboardMessage(edict_t * ent)
 	}
 
 	// print teams
-	for (i = TEAM1; i <= TEAM2; i++)
+	for (i = TEAM1; i <= use_3teams->value ? TEAM3 : TEAM2; i++)
 	{
-		Com_sprintf( buf, sizeof( buf ), "xv 44 yv %d string2 \"%3d %-11s Frg Tim Png\"", line++ * lineh, teams[i].score, teams[i].name );
+		Com_sprintf( buf, sizeof( buf ), "xv 44 yv %d string2 \"%3d %-11.11s Frg Tim Png\"", line++ * lineh, teams[i].score, teams[i].name );
 		Q_strncatz( string, buf, sizeof( string ) );
 
 		Com_sprintf( buf, sizeof( buf ), "xv 44 yv %d string2 \"%s\" ",
@@ -2399,7 +2399,7 @@ void A_ScoreboardMessage (edict_t * ent, edict_t * killer)
 		int maxPlayers, printCount, base_x, showExtra = 0, subLines = 0;
 
 		// new scoreboard for regular teamplay up to 16 players
-		if (use_newscore->value == 1 && teamplay->value && !use_3teams->value && !matchmode->value && !ctf->value) {
+		if (use_newscore->value == 1 && teamplay->value && !matchmode->value && !ctf->value) {
 			A_NewScoreboardMessage(ent);
 			return;
 		}
