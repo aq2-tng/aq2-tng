@@ -2301,7 +2301,7 @@ void A_NewScoreboardMessage(edict_t * ent)
 	}
 
 	// print teams
-	for (i = TEAM1; i <= use_3teams->value ? TEAM3 : TEAM2; i++)
+	for (i = TEAM1; i <= (use_3teams->value ? TEAM3 : TEAM2); i++)
 	{
 		Com_sprintf( buf, sizeof( buf ), "xv 44 yv %d string2 \"%3d %-11.11s Frg Tim Png\"", line++ * lineh, teams[i].score, teams[i].name );
 		Q_strncatz( string, buf, sizeof( string ) );
