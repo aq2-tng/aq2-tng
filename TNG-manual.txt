@@ -480,6 +480,15 @@ Features
   Commands:
   use_buggy_bandolier [0/1] - if you wish to revert back to the old bandolier behavior, set this to 1
 
+* Bots
+  Now you can fill out your teams with bots, or create an entire team of bots to fight.
+
+  Commands:
+  sv addbot [team] [name] - add a bot for the duration of the current map
+  sv removebot [name] - remove a bot
+  ltk_skill [0-10] - set bot skill (default 5)
+  ltk_chat [0/1] - allow bots to chat
+
 * Variable Framerate Support
   Although Quake 2 typically runs the server at a fixed 10 frames per second, some advanced Quake 2 servers can
   be built with variable framerate support to allow faster updating.  AQ2-TNG now supports this.
