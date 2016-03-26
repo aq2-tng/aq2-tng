@@ -489,6 +489,12 @@ Features
   ltk_skill [0-10] - set bot skill (default 5)
   ltk_chat [0/1] - allow bots to chat
 
+* Slap
+  Server admins can slap players into the air, and optionally deal damage.
+
+  Commands:
+  sv slap [name] [damage] [power] - slap a player, with optional damage (default 0) and power (default 100)
+
 * Variable Framerate Support
   Although Quake 2 typically runs the server at a fixed 10 frames per second, some advanced Quake 2 servers can
   be built with variable framerate support to allow faster updating.  AQ2-TNG now supports this.
