@@ -480,6 +480,12 @@ Features
   Commands:
   use_buggy_bandolier [0/1] - if you wish to revert back to the old bandolier behavior, set this to 1
 
+* Slap
+  Server admins can slap players into the air, and optionally deal damage.
+
+  Commands:
+  sv slap [name] [damage] [power] - slap a player, with optional damage (default 0) and power (default 100)
+
 * Variable Framerate Support
   Although Quake 2 typically runs the server at a fixed 10 frames per second, some advanced Quake 2 servers can
   be built with variable framerate support to allow faster updating.  AQ2-TNG now supports this.
