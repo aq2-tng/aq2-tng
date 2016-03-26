@@ -482,12 +482,23 @@ Features
 
 * Bots
   Now you can fill out your teams with bots, or create an entire team of bots to fight.
+  You can define persistent bots in bots/botdata.cfg, or create and remove them on demand.
+  Bots wander pretty stupidly unless you create a linked network of nodes for them to follow.
 
   Commands:
   sv addbot [team] [name] - add a bot for the duration of the current map
   sv removebot [name] - remove a bot
   ltk_skill [0-10] - set bot skill (default 5)
   ltk_chat [0/1] - allow bots to chat
+  sv botdebug [on/off] - toggle bot node editing and output for debugging
+  addnode [type] - place a new node at your current position
+  addlink [num1] [num2] - add a link from node num1 to num2, and a reverse link if possible
+  removelink [num1] [num2] - remove the link from node num1 to num2; does not remove reverse
+  movenode [num] - move an existing node to your current position
+  nodetype [num] [type] - show or change the type of a node
+  sv initnodes - clear all nodes
+  sv loadnodes - load saved nodes from terrain/<mapname>.ltk
+  sv savenodes - save all nodes and links for this map to terrain/<mapname>.ltk
 
 * Slap
   Server admins can slap players into the air, and optionally deal damage.

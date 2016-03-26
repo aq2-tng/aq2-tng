@@ -94,6 +94,7 @@ From 2.81
 - Tweaked bot aiming so they're not such ridiculous crack shots in certain circumstances.
 - Bots are no longer counted in voting, and you can kickvote bots with any number of players (minimum is ignored).
 + Added optional gender to 'botdata.cfg' parsing.
+* Bot-safe printf functions no longer parse an extra level of "%".
 + Added 'sv_fps' support for servers that implement variable framerate.  Default value (10) retains old behavior.
 
 From 2.8
