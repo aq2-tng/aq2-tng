@@ -452,6 +452,13 @@ void _ClearMapVotes (void)
 	map_num_votes = 0;
 	map_num_clients = 0;
 	map_need_to_check_votes = true;
+	
+	votelist_t *search = NULL;
+	for( search = map_votes; search != NULL; search = search->next )
+	{
+		search->num_votes = 0;
+		search->num_allvotes = 0;
+	}
 }
 
 //
