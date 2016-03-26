@@ -48,9 +48,9 @@ Features
   kickvote_min [#] - Minimum number of players that need to vote for a single player. 0 to ignore that.
   kickvote_tempban [0/1] - When set to 1, it will ban the kicked person until the map changes
   vk_public [0/1] - When on (1), it will show who votes for who.
-  kicklist - this will display a list of all players with their id number. (client side)
-  votekick "player" - this will cast your votekick vote for player "player". (client side)
-  votekicknum [#] - this will cast your votekick vote for the player with id number #. (client side)
+  kicklist - this will display a list of all players with their id number. (client side)
+  votekick "player" - this will cast your votekick vote for player "player". (client side)
+  votekicknum [#] - this will cast your votekick vote for the player with id number #. (client side)
 
 * Configvoting
   Configvoting allows clients to vote for a certain configuration, predefined by the server admin, to be
@@ -195,9 +195,9 @@ Features
   Commands:
   menu - this will open the TNG menu. (client side)
   ignore "player" - this will ignore the player with the name "player".
-  ignorelist - this will display a list of all players on the server with their id.
-  ignorenum [#] - ignorenum will ignore the player with the id given.
-  ignoreclear - this will clear your ignore list.
+  ignorelist - this will display a list of all players on the server with their id.
+  ignorenum [#] - ignorenum will ignore the player with the id given.
+  ignoreclear - this will clear your ignore list.
 
 * Video Setting Checking
   TNG offers a way to check for gl_lockpvs and to cap the gl_modulate settings.
@@ -219,7 +219,7 @@ Features
   server.
 
 * Punching
-  We have added the extra 'punch' attack, which basically  is a weaker version of a kick. It is very close range 
+  We have added the extra 'punch' attack, which basically is a weaker version of a kick. It is very close range 
   and does up to 20 damage and can punch the weapon of a player out of his hands. When bandaging, shooting, 
   reloading or zoomed with a sniper rifle, you cannot punch.
 
@@ -271,13 +271,6 @@ Features
 
   Example:
   sv stuffcmd all say !gl_modulate - This will make all clients say their gl_modulate setting.
-
-* Weapon Spread
-  M4 spread resetted to original value (300), instead reduced the spread for MP5 (240 instead 250) 
-  and Akimbos (275 instead 300).
-
-  Command:
-  use_classic [0/1] - Turn on (1) to use the original 1.52 values.
 
 * Grenade Strength
   Grenades are a little bit more powerful, so they're not as useless as they were sinces AQ 1.52 
@@ -419,6 +412,7 @@ Features
   darkmatch [0/1/2/3] - when set to 1 it's total darkness, when set to 2, its near darkness, when set to 3
   it will simulate day/night.
   day_cycle [#] - Time in seconds where Darkmatch mode 3 will change its light settings
+  use_flashlight [0/1] - allow flashlight use in non-darkmatch
   flashlight - this toggle will turn the flashlight on and off. (client side)
 
 * Map Restarting
@@ -485,6 +479,13 @@ Features
   
   Commands:
   use_buggy_bandolier [0/1] - if you wish to revert back to the old bandolier behavior, set this to 1
+
+* Variable Framerate Support
+  Although Quake 2 typically runs the server at a fixed 10 frames per second, some advanced Quake 2 servers can
+  be built with variable framerate support to allow faster updating.  AQ2-TNG now supports this.
+
+  Commands:
+  sv_fps [10/20/30/40/50/60] - set server framerate (default is 10)
 
 * Q2pro MVD server demo support
   When AQ2TNG is running under a q2pro Quake2 executable that is properly configured (built with CONFIG_MVD_SERVER
