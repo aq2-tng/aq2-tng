@@ -1219,7 +1219,7 @@ void G_SetupStatusbar( void )
 	{
 		Q_strncpyz(level.statusbar, STATBAR_COMMON, sizeof(level.statusbar));
 
-		if(!(noscore->value && teamplay->value)) //  frags
+		if(!((noscore->value || hud_noscore->value) && teamplay->value)) //  frags
 			Q_strncatz(level.statusbar, "xr -50 yt 2 num 3 14 ", sizeof(level.statusbar));
 
 		if (ctf->value)
