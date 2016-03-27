@@ -392,33 +392,8 @@ void ACESP_PutClientInServer( edict_t *bot, qboolean respawn, int team )
 ///////////////////////////////////////////////////////////////////////
 void ACESP_Respawn (edict_t *self)
 {
-// AQ2 CHANGED
-	if (self->solid != SOLID_NOT || self->deadflag == DEAD_DEAD)
-	{
-		CopyToBodyQue (self);
-	}
-
-	if(teamplay->value)
-		ACESP_PutClientInServer (self,true, self->client->resp.team);
-	else
-		ACESP_PutClientInServer (self,true,0);
-
-	self->svflags &= ~SVF_NOCLIENT;
-
-	if( team_round_going && !(gameSettings & GS_ROUNDBASED) )
-		AddToTransparentList( self );
-
-//AQ2 END
-
-	// add a teleportation effect
-//AQ2	self->s.event = EV_PLAYER_TELEPORT;
-
-		// hold in place briefly
-//AQ2	self->client->ps.pmove.pm_flags = PMF_TIME_TELEPORT;
-//AQ2	self->client->ps.pmove.pm_time = 14;
-
-	self->client->respawn_framenum = level.framenum + 2 * HZ;
-
+	respawn( self );
+	
 	if( random() < 0.15)
 	{
 		// Store current enemies available
@@ -473,7 +448,7 @@ edict_t *ACESP_FindFreeClient (void)
 		if(bot->count > max_count)
 			max_count = bot->count;
 	}
-
+	
 	// Check for free spot
 	for (i = maxclients->value; i > 0; i--)
 	{
@@ -482,11 +457,11 @@ edict_t *ACESP_FindFreeClient (void)
 		if (!bot->inuse)
 			break;
 	}
-
-	bot->count = max_count + 1; // Will become bot name...
-
+	
 	if (bot->inuse)
-		bot = NULL;
+		return NULL;
+	
+	bot->count = max_count + 1; // Will become bot name...
 	
 	return bot;
 }

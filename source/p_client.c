@@ -1796,14 +1796,6 @@ void CleanBodies()
 
 void respawn(edict_t *self)
 {
-#ifndef NO_BOTS
-	if (self->is_bot)
-	{
-		ACESP_Respawn (self);
-		return;
-	}
-#endif
-
 	if (self->solid != SOLID_NOT || self->deadflag == DEAD_DEAD)
 		CopyToBodyQue(self);
 
@@ -2512,10 +2504,6 @@ void PutClientInServer(edict_t * ent)
 	ChangeWeapon(ent);
 }
 
-#ifndef NO_BOTS
-char current_map[55] = "";
-#endif
-
 /*
 =====================
 ClientBeginDeathmatch
@@ -2609,25 +2597,6 @@ void ClientBeginDeathmatch(edict_t * ent)
 	}
 
 	ent->client->resp.motd_refreshes = 1;
-
-#ifndef NO_BOTS
-	// If the map changes on us, init and reload the nodes
-	// FIXME: Put this somewhere else; it shouldn't happen on player connection.
-	if( (! ent->is_bot) && strcmp( level.mapname, current_map ) )
-	{
-		strcpy( current_map, level.mapname );
-		ACEND_InitNodes();
-		ACEND_LoadNodes();
-//		ACESP_LoadBots();
-		ACESP_LoadBotConfig();
-/*		if ((minplayers->value) && (!ent->is_bot) && (maxclients->value > 1))
-		{
-			for (tempi=0; tempi<minplayers->value; tempi++)
-				ACESP_SpawnBot( (int)rand() % 1, NULL, NULL, NULL);
-		}
-*/
-	}
-#endif
 
 	//AQ2:TNG - Slicer: Set time to check clients
 	checkFrame = level.framenum + (int)(check_time->value * HZ);
@@ -2784,11 +2753,6 @@ qboolean ClientConnect(edict_t * ent, char *userinfo)
 	ent->client = game.clients + (ent - g_edicts - 1);
 
 	// We're not going to attempt to support reconnection...
-#ifndef NO_BOTS
-	if( ent->is_bot )
-		;
-	else
-#endif
 	if (ent->client->pers.connected) {
 		ClientDisconnect(ent);
 	}
