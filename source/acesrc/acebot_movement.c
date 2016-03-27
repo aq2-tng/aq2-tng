@@ -897,8 +897,8 @@ void ACEMV_Move(edict_t *self, usercmd_t *ucmd)
 	{
 		// Otherwise move as fast as we can
 		ucmd->forwardmove = SPEED_WALK / 2; // Reduced from SPEED_RUN
-//		ucmd->upmove = SPEED_RUN * 4 / 5;
-		self->velocity[2] = SPEED_RUN * 4 / 5;
+		ucmd->upmove = SPEED_RUN;
+//		self->velocity[2] = SPEED_RUN * 4 / 5;
 		ucmd->sidemove = 0;
 		
 		ACEMV_ChangeBotAngle(self);
@@ -913,8 +913,8 @@ void ACEMV_Move(edict_t *self, usercmd_t *ucmd)
 	   )
 	{
 		ucmd->forwardmove = SPEED_WALK; // Reduced from SPEED_RUN
-//		ucmd->upmove = SPEED_WALK;
-		self->velocity[2] = SPEED_WALK;
+		ucmd->upmove = SPEED_WALK;
+//		self->velocity[2] = SPEED_WALK;
 		ACEMV_ChangeBotAngle(self);
 		return;
 	}
