@@ -497,7 +497,7 @@ void ACEMV_ChangeBotAngle (edict_t *ent)
 	float	move;
 	float	speed;
 	vec3_t  ideal_angle;
-			
+	
 	// Normalize the move angle first
 	VectorNormalize(ent->move_vector);
 
@@ -513,7 +513,7 @@ void ACEMV_ChangeBotAngle (edict_t *ent)
 	if (current_yaw != ideal_yaw)
 	{	
 		move = ideal_yaw - current_yaw;
-		speed = ent->yaw_speed / game.framediv;
+		speed = ent->yaw_speed;
 		if (ideal_yaw > current_yaw)
 		{
 			if (move >= 180)
@@ -541,7 +541,7 @@ void ACEMV_ChangeBotAngle (edict_t *ent)
 	if (current_pitch != ideal_pitch)
 	{	
 		move = ideal_pitch - current_pitch;
-		speed = ent->yaw_speed / game.framediv;
+		speed = ent->yaw_speed;
 		if (ideal_pitch > current_pitch)
 		{
 			if (move >= 180)
@@ -975,7 +975,7 @@ void ACEMV_Move(edict_t *self, usercmd_t *ucmd)
 		
 	// Check to see if stuck, and if so try to free us
 	// Also handles crouching
- 	if(VectorLength(self->velocity) < 37 / game.framediv)
+ 	if( VectorLength(self->velocity) < 37 )
 	{
 		// Keep a random factor just in case....
 		if(random() > 0.5 && ACEMV_SpecialMove(self, ucmd))
@@ -1081,7 +1081,7 @@ void ACEMV_Wander(edict_t *self, usercmd_t *ucmd)
 //		return;
 	
 	// Check for special movement if we have a normal move (have to test)
- 	if(VectorLength(self->velocity) < 37 / game.framediv)
+ 	if( VectorLength(self->velocity) < 37 )
 	{
 		if(random() > 0.1 && ACEMV_SpecialMove(self,ucmd))
 			return;
