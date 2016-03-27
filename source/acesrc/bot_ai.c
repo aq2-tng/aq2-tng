@@ -526,7 +526,7 @@ LeaveThink:
 	// Set movement speed
 	cmd.forwardmove = bot->bot_speed;
 	// set approximate ping
-	cmd.msec = 75 + floor (random () * 25) + 1;
+	cmd.msec = 1000 / BOT_FPS;
 	// show random ping values in scoreboard
 	bot->client->ping = cmd.msec;
 
@@ -541,7 +541,7 @@ LeaveThink:
     
 	ClientThink (bot, &cmd);
     
-    bot->nextthink = level.framenum + FRAMETIME;
+    bot->nextthink = level.framenum + (game.framerate / BOT_FPS);
 }
 
 /*
@@ -1029,5 +1029,5 @@ LeaveThink:
         
 		ClientThink (bot, &cmd);
         
-        bot->nextthink = level.framenum + FRAMETIME;
+        bot->nextthink = level.framenum + (game.framerate / BOT_FPS);
 }*/

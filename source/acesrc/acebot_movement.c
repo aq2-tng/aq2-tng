@@ -513,7 +513,7 @@ void ACEMV_ChangeBotAngle (edict_t *ent)
 	if (current_yaw != ideal_yaw)
 	{	
 		move = ideal_yaw - current_yaw;
-		speed = ent->yaw_speed;
+		speed = ent->yaw_speed / BOT_FPS;
 		if (ideal_yaw > current_yaw)
 		{
 			if (move >= 180)
@@ -541,7 +541,7 @@ void ACEMV_ChangeBotAngle (edict_t *ent)
 	if (current_pitch != ideal_pitch)
 	{	
 		move = ideal_pitch - current_pitch;
-		speed = ent->yaw_speed;
+		speed = ent->yaw_speed / BOT_FPS;
 		if (ideal_pitch > current_pitch)
 		{
 			if (move >= 180)

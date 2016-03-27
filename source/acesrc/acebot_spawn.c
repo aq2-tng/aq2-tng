@@ -343,7 +343,7 @@ void ACESP_HoldSpawn(edict_t *self)
 	self->think = BOTAI_Think;
 #endif
 
-	self->nextthink = level.framenum + FRAMETIME;
+	self->nextthink = level.framenum + 1;
 
 	// send effect
 	gi.WriteByte (svc_muzzleflash);
@@ -379,7 +379,7 @@ void ACESP_PutClientInServer( edict_t *bot, qboolean respawn, int team )
 		#else
 			bot->think = BOTAI_Think;
 		#endif
-		bot->nextthink = level.framenum + FRAMETIME;
+		bot->nextthink = level.framenum + 1;
 	}
 	
 	PutClientInServer( bot );
@@ -594,7 +594,7 @@ edict_t *ACESP_SpawnBot( char *team_str, char *name, char *skin, char *userinfo 
 	}
 	
 	bot->is_bot = true;
-	bot->yaw_speed = 100;
+	bot->yaw_speed = 1000;  // deg/sec
 	
 	// To allow bots to respawn
 	if( ! userinfo )

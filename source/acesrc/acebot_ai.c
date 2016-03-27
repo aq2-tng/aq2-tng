@@ -281,7 +281,7 @@ void ACEAI_Think (edict_t *self)
 	//debug_printf("State: %d\n",self->state);
 
 	// set approximate ping
-	ucmd.msec = 75 + floor (random () * 25) + 1;
+	ucmd.msec = 1000 / BOT_FPS;
 
 	// show random ping values in scoreboard
 	self->client->ping = ucmd.msec;
@@ -294,7 +294,7 @@ void ACEAI_Think (edict_t *self)
 	// send command through id's code
 	ClientThink (self, &ucmd);
 	
-	self->nextthink = level.framenum + 0.1 * HZ;
+	self->nextthink = level.framenum + (game.framerate / BOT_FPS);
 }
 
 ///////////////////////////////////////////////////////////////////////
