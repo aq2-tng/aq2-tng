@@ -491,11 +491,12 @@ Features
   ltk_skill [0-10] - set bot skill (default 5)
   ltk_chat [0/1] - allow bots to chat
   sv botdebug [on/off] - toggle bot node editing and output for debugging
-  addnode [type] - place a new node at your current position
+  addnode [type] - place a new node at your current position (it will tell you its number)
   addlink [num1] [num2] - add a link from node num1 to num2, and a reverse link if possible
   removelink [num1] [num2] - remove the link from node num1 to num2; does not remove reverse
   movenode [num] - move an existing node to your current position
   nodetype [num] [type] - show or change the type of a node
+  shownode [num] - display a temporary marker of a node's location
   sv initnodes - clear all nodes
   sv loadnodes - load saved nodes from terrain/<mapname>.ltk
   sv savenodes - save all nodes and links for this map to terrain/<mapname>.ltk
