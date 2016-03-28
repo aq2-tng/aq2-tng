@@ -179,7 +179,7 @@ void G_UseTargets (edict_t * ent, edict_t * activator)
 		// create a temp object to fire at a later time
 		t = G_Spawn ();
 		t->classname = "DelayedUse";
-		t->nextthink = level.time + ent->delay;
+		t->nextthink = level.framenum + ent->delay * HZ;
 		t->think = Think_Delay;
 		t->activator = activator;
 		if (!activator)
@@ -428,8 +428,8 @@ edict_t *G_Spawn (void)
 	int i;
 	edict_t *e;
 
-	e = &g_edicts[(int) maxclients->value + 1];
-	for (i = maxclients->value + 1; i < globals.num_edicts; i++, e++)
+	e = &g_edicts[game.maxclients + 1];
+	for (i = game.maxclients + 1; i < globals.num_edicts; i++, e++)
 	{
 		// the first couple seconds of server time can involve a lot of
 		// freeing and allocating, so relax the replacement policy
@@ -459,7 +459,7 @@ void G_FreeEdict (edict_t * ed)
 {
 	gi.unlinkentity (ed);		// unlink from world
 
-	if ((ed - g_edicts) <= (maxclients->value + BODY_QUEUE_SIZE))
+	if ((ed - g_edicts) <= (game.maxclients + BODY_QUEUE_SIZE))
 	{
 		//              gi.dprintf("tried to free special edict\n");
 		return;
@@ -533,6 +533,21 @@ void G_TouchSolids (edict_t * ent)
 }
 
 
+size_t G_HighlightStr(char *dst, const char *src, size_t size)
+{
+	size_t ret = strlen(src);
+
+	if (size) {
+		size_t i, len = ret >= size ? size - 1 : ret;
+
+		for (i = 0; i < len; i++)
+			dst[i] = src[i] | 0x80;
+		dst[i] = 0;
+	}
+
+	return ret;
+}
+
 /*
 ==============================================================================
 
@@ -570,3 +585,85 @@ qboolean KillBox (edict_t * ent)
 
 	return true;			// all clear
 }
+
+/*
+=============
+visible
+
+returns 1 if the entity is visible to self, even if not infront ()
+=============
+*/
+qboolean visible(edict_t *self, edict_t *other, int mask)
+{
+	vec3_t	spot1, spot2, add;
+	trace_t	trace;
+	int		i;
+
+	VectorCopy(self->s.origin, spot1);
+	spot1[2] += self->viewheight;
+
+	VectorCopy(other->s.origin, spot2);
+	spot2[2] += other->viewheight;
+
+	PRETRACE();
+	for (i = 0; i < 10; i++)
+	{
+		trace = gi.trace(spot1, vec3_origin, vec3_origin, spot2, self, mask);
+
+		if (trace.fraction == 1.0) {
+			POSTTRACE();
+			return true;
+		}
+
+		if (trace.ent == world && trace.surface && (trace.surface->flags & (SURF_TRANS33 | SURF_TRANS66)))
+		{
+			mask &= ~MASK_WATER;
+			VectorSubtract(trace.endpos, spot1, add);
+			VectorNormalize(add);
+			VectorMA(trace.endpos, 10, add, spot1);
+			continue;
+		}
+
+		break;
+	}
+	POSTTRACE();
+
+	return false;
+}
+
+#ifndef NO_BOTS
+/*
+=============
+ai_visible
+
+returns 1 if the entity is visible to self, even if not infront ()
+=============
+*/
+qboolean ai_visible( edict_t *self, edict_t *other )
+{
+	return visible( self, other, MASK_OPAQUE );
+}
+
+/*
+=============
+infront
+
+returns 1 if the entity is in front (in sight) of self
+=============
+*/
+qboolean infront( edict_t *self, edict_t *other )
+{
+	vec3_t vec = {0.f,0.f,0.f};
+	float dot = 0.f;
+	vec3_t forward = {0.f,0.f,0.f};
+	
+	AngleVectors( self->s.angles, forward, NULL, NULL );
+	VectorSubtract( other->s.origin, self->s.origin, vec );
+	VectorNormalize( vec );
+	dot = DotProduct( vec, forward );
+	
+	if( dot > 0.3f )
+		return true;
+	return false;
+}
+#endif

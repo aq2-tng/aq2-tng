@@ -89,10 +89,13 @@ From 2.81
 - Chat replacements (like %k) now work when dead too, and invalid options no longer attempt to resolve as printf replacements.
 - Fixed some issues with "%" in voting printf statements.
 - Clients no longer get additional map votes to spend when the map changes by other means.
++ Added bot support.  Use 'sv addbot' to spawn them on demand, or 'botdata.cfg' to spawn them every map.
 * Bots branch no longer messes up multiplayer view models (player_state_t was not the expected size).
 - Tweaked bot aiming so they're not such ridiculous crack shots in certain circumstances.
 - Bots are no longer counted in voting, and you can kickvote bots with any number of players (minimum is ignored).
 + Added optional gender to 'botdata.cfg' parsing.
+* Bot-safe printf functions no longer parse an extra level of "%".
++ Added 'sv_fps' support for servers that implement variable framerate.  Default value (10) retains old behavior.
 
 From 2.8
 - Radio kill count was missing for falling death

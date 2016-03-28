@@ -92,17 +92,15 @@ void ACEAI_Think (edict_t *self)
 //	if( (self->solid == SOLID_NOT) && (teamplay->value) )
 //		return;
 
-	if(self->state == STATE_WANDER && 
-		(self->wander_timeout < level.time)
-		)
+	if( self->state == STATE_WANDER && self->wander_timeout < level.framenum )
 	  ACEAI_PickLongRangeGoal(self); // pick a new long range goal
 
 	//RiEvEr Radio Use
-	if( !self->teamReportedIn && (self->lastRadioTime<(level.time - 2.0)) )
+	if( ! self->teamReportedIn && (self->lastRadioTime < level.framenum - 2.0 * HZ) )
 	{
 		RadioBroadcast(self, 0, "reportin");
 		BOTUT_Cmd_Say_f( self, "Equipped with %W and %I. Current health %H.");
-		self->lastRadioTime = level.time;
+		self->lastRadioTime = level.framenum;
 		self->teamReportedIn = true;
 	}
 	//R RU
@@ -110,23 +108,23 @@ void ACEAI_Think (edict_t *self)
 	// In teamplay pick a random node
 	if( self->state == STATE_POSITION )
 	{
-		if( level.time >= self->teamPauseTime)
+		if( level.framenum >= self->teamPauseTime)
 		{
 			// We've waited long enough - let's go kick some ass!
 			self->state = STATE_WANDER;
 		}
 		// Don't go here too often
-		if( self->goal_node == INVALID || self->wander_timeout < level.time )
+		if( self->goal_node == INVALID || self->wander_timeout < level.framenum )
 			ACEAI_PickLongRangeGoal(self);
 	}
 	
 
 	// Kill the bot if completely stuck somewhere
 	if(VectorLength(self->velocity) > 37) //
-		self->suicide_timeout = level.time + 10.0;
+		self->suicide_timeout = level.framenum + 10.0 * HZ;
 
 
-	if(self->suicide_timeout < level.time && !teamplay->value)
+	if( self->suicide_timeout < level.framenum && !teamplay->value )
 	{
 		self->health = 0;
 		player_die (self, self, self, 100000, vec3_origin);
@@ -239,7 +237,7 @@ void ACEAI_Think (edict_t *self)
 			ACEMV_Move(self,&ucmd);
 		else if (self->state == STATE_COVER)
 		{
-			if (self->wander_timeout < level.time)
+			if( self->wander_timeout < level.framenum )
 			{
 				self->state = STATE_WANDER;
 			}
@@ -257,7 +255,7 @@ void ACEAI_Think (edict_t *self)
 //AQ2 ADD
 	// Check if there's a door nearby that we cannot trace (like in ACTCITY3)
 	//Added by Werewolf
-	if(self->last_door_time < (level.time - 2.0 - random()) )
+	if( self->last_door_time < level.framenum - (2.0 + random()) * HZ )
 	{
 	trace_t	tTrace;
 	vec3_t	vStart, vDest;
@@ -274,7 +272,7 @@ void ACEAI_Think (edict_t *self)
 		{
 			// Toggle any door that may be nearby
 			Cmd_OpenDoor_f ( self );
-			self->last_door_time = level.time + random()*2;
+			self->last_door_time = level.framenum + random() * 2.0 * HZ;
 		}
 	  }
 	}
@@ -283,7 +281,7 @@ void ACEAI_Think (edict_t *self)
 	//debug_printf("State: %d\n",self->state);
 
 	// set approximate ping
-	ucmd.msec = 75 + floor (random () * 25) + 1;
+	ucmd.msec = 1000 / BOT_FPS;
 
 	// show random ping values in scoreboard
 	self->client->ping = ucmd.msec;
@@ -296,7 +294,7 @@ void ACEAI_Think (edict_t *self)
 	// send command through id's code
 	ClientThink (self, &ucmd);
 	
-	self->nextthink = level.time + FRAMETIME;
+	self->nextthink = level.framenum + (game.framerate / BOT_FPS);
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -323,7 +321,7 @@ void ACEAI_PickLongRangeGoal(edict_t *self)
 	if(current_node == -1)
 	{
 		self->state = STATE_WANDER;
-		self->wander_timeout = level.time + 1.0;
+		self->wander_timeout = level.framenum + 1.0 * HZ;
 		self->goal_node = -1;
 		return;
 	}
@@ -361,7 +359,7 @@ void ACEAI_PickLongRangeGoal(edict_t *self)
 			self->state = STATE_MOVE;
 			self->tries = 0; // Reset the count of how many times we tried this goal
 			ACEND_SetGoal(self,i);
-			self->wander_timeout = level.time + 1.0;
+			self->wander_timeout = level.framenum + 1.0 * HZ;
 			return;
 		}
 	}
@@ -478,7 +476,7 @@ void ACEAI_PickLongRangeGoal(edict_t *self)
 	{
 		self->goal_node = INVALID;
 		self->state = STATE_WANDER;
-		self->wander_timeout = level.time + 1.0;
+		self->wander_timeout = level.framenum + 1.0 * HZ;
 		if(debug_mode)
 			debug_printf("%s did not find a LR goal, wandering.\n",self->client->pers.netname);
 		return; // no path? 
@@ -581,7 +579,7 @@ void ACEAI_PickSafeGoal(edict_t *self)
 		self->state = STATE_FLEE;
 		self->tries = 0; // Reset the count of how many times we tried this goal
 		ACEND_SetGoal(self,i);
-		self->wander_timeout = level.time + 2.0;
+		self->wander_timeout = level.framenum + 2.0 * HZ;
 //		LTK_Say (self, "Under fire, extracting!");
 
 		return;
@@ -595,7 +593,7 @@ void ACEAI_PickSafeGoal(edict_t *self)
 	{
 		self->goal_node = INVALID;
 		self->state = STATE_WANDER;
-		self->wander_timeout = level.time + 1.0;
+		self->wander_timeout = level.framenum + 1.0 * HZ;
 		if(debug_mode)
 			debug_printf("%s did not find a LR goal, wandering.\n",self->client->pers.netname);
 		return; // no path? 
@@ -661,7 +659,7 @@ qboolean ACEAI_FindEnemy(edict_t *self, int *total)
 		   continue;
 // AQ2 END
 
-		if((players[i]->deadflag == DEAD_NO) && visible(self, players[i]) && 
+		if((players[i]->deadflag == DEAD_NO) && ai_visible(self, players[i]) && 
 			gi.inPVS(self->s.origin, players[i]->s.origin)	)
 		{
 // RiEvEr
@@ -695,7 +693,7 @@ qboolean ACEAI_FindEnemy(edict_t *self, int *total)
 		// Check if it was recent
 		if( self->client->push_timeout > 0)
 		{
-			if(!self->client->attacker->deadflag && visible(self, self->client->attacker) && 
+			if(!self->client->attacker->deadflag && ai_visible(self, self->client->attacker) && 
 				gi.inPVS(self->s.origin, self->client->attacker->s.origin)	)
 			{
 				self->enemy = self->client->attacker;
@@ -940,27 +938,27 @@ void ACEAI_Cmd_Choose (edict_t *ent, char *s)
             return;
     
     if ( Q_stricmp(s, MP5_NAME) == 0 )
-            ent->client->resp.weapon = FindItem(MP5_NAME);
+            ent->client->pers.chosenWeapon = FindItem(MP5_NAME);
     else if ( Q_stricmp(s, M3_NAME) == 0 )
-            ent->client->resp.weapon = FindItem(M3_NAME);
+            ent->client->pers.chosenWeapon = FindItem(M3_NAME);
     else if ( Q_stricmp(s, M4_NAME) == 0 )
-            ent->client->resp.weapon = FindItem(M4_NAME);
+            ent->client->pers.chosenWeapon = FindItem(M4_NAME);
     else if ( Q_stricmp(s, HC_NAME) == 0 )
-            ent->client->resp.weapon = FindItem(HC_NAME);
+            ent->client->pers.chosenWeapon = FindItem(HC_NAME);
     else if ( Q_stricmp(s, SNIPER_NAME) == 0 )
-            ent->client->resp.weapon = FindItem(SNIPER_NAME);
+            ent->client->pers.chosenWeapon = FindItem(SNIPER_NAME);
     else if ( Q_stricmp(s, KNIFE_NAME) == 0 )
-            ent->client->resp.weapon = FindItem(KNIFE_NAME);
+            ent->client->pers.chosenWeapon = FindItem(KNIFE_NAME);
     else if ( Q_stricmp(s, DUAL_NAME) == 0 )
-            ent->client->resp.weapon = FindItem(DUAL_NAME);
+            ent->client->pers.chosenWeapon = FindItem(DUAL_NAME);
     else if ( Q_stricmp(s, KEV_NAME) == 0 )
-            ent->client->resp.item = FindItem(KEV_NAME);
+            ent->client->pers.chosenItem = FindItem(KEV_NAME);
     else if ( Q_stricmp(s, LASER_NAME) == 0 )
-            ent->client->resp.item = FindItem(LASER_NAME);
+            ent->client->pers.chosenItem = FindItem(LASER_NAME);
     else if ( Q_stricmp(s, SLIP_NAME) == 0 )
-            ent->client->resp.item = FindItem(SLIP_NAME);
+            ent->client->pers.chosenItem = FindItem(SLIP_NAME);
     else if ( Q_stricmp(s, SIL_NAME) == 0 )
-            ent->client->resp.item = FindItem(SIL_NAME);
+            ent->client->pers.chosenItem = FindItem(SIL_NAME);
     else if ( Q_stricmp(s, BAND_NAME) == 0 )
-            ent->client->resp.item = FindItem(BAND_NAME);
+            ent->client->pers.chosenItem = FindItem(BAND_NAME);
 }

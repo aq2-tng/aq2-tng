@@ -53,6 +53,12 @@
 #ifndef _ACEBOT_H
 #define _ACEBOT_H
 
+// We could run the bots at the server framerate, but they're designed
+// to do certain things with a random chance per frame, so it seems
+// best to just run them at 10fps.
+//#define BOT_FPS (game.framerate)
+#define BOT_FPS (10)
+
 // Only 100 allowed for now (probably never be enough edicts for 'em
 #define MAX_BOTS 100
 
@@ -306,6 +312,7 @@ void     ACEAI_PickShortRangeGoal(edict_t *self);
 void	 ACEAI_PickSafeGoal(edict_t *self);
 qboolean ACEAI_FindEnemy(edict_t *self, int *total);
 qboolean ACEAI_ChooseWeapon(edict_t *self);
+void ACEAI_Cmd_Choose( edict_t *ent, char *s );
 
 // acebot_cmds.c protos
 qboolean ACECM_Commands(edict_t *ent);
@@ -362,13 +369,13 @@ void     ACEND_LoadNodes();
 void	 ACESP_SaveBots();
 void	 ACESP_LoadBots();
 void	 ACESP_LoadBotConfig();
-void	 ACESP_SpawnBotFromConfig( char *inString );
+edict_t *ACESP_SpawnBotFromConfig( char *inString );
 void     ACESP_HoldSpawn(edict_t *self);
 void     ACESP_PutClientInServer (edict_t *bot, qboolean respawn, int team);
 void     ACESP_Respawn (edict_t *self);
 edict_t *ACESP_FindFreeClient (void);
 void     ACESP_SetName(edict_t *bot, char *name, char *skin, char *team);
-void     ACESP_SpawnBot (char *team, char *name, char *skin, char *userinfo);
+edict_t *ACESP_SpawnBot (char *team, char *name, char *skin, char *userinfo);
 void     ACESP_ReAddBots();
 void     ACESP_RemoveBot(char *name);
 void	 safe_cprintf (edict_t *ent, int printlevel, char *fmt, ...);

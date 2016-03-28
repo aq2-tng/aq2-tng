@@ -117,7 +117,7 @@ void CGF_SFX_AttachDecalToGlass (edict_t * aGlassPane, edict_t * aDecal);
    + in void SP_func_explosive (edict_t *self)
    add
    self->think     = CGF_SFX_TestBreakableGlassAndRemoveIfNot_Think;
-   self->nextthink = level.time + FRAMETIME;
+   self->nextthink = level.framenum + 1;
    as the last statement (thus after gi.linkentity (self);)
 
    @ file g_save.c

@@ -56,6 +56,81 @@ void ACEMV_ChangeBotAngle (edict_t *ent);
 qboolean	ACEND_LadderForward( edict_t *self );
 qboolean ACEMV_CanJump(edict_t *self);
 
+/*
+=============
+M_CheckBottom
+
+Returns false if any part of the bottom of the entity is off an edge that
+is not a staircase.
+
+=============
+*/
+int c_yes = 0, c_no = 0;
+
+#define STEPSIZE 18
+
+qboolean M_CheckBottom( edict_t *ent )
+{
+	vec3_t mins = {0,0,0}, maxs = {0,0,0}, start = {0,0,0}, stop = {0,0,0};
+	trace_t trace;
+	int x = 0, y = 0;
+	float mid = 0, bottom = 0;
+	
+	VectorAdd( ent->s.origin, ent->mins, mins );
+	VectorAdd( ent->s.origin, ent->maxs, maxs );
+	
+	// if all of the points under the corners are solid world, don't bother
+	// with the tougher checks
+	// the corners must be within 16 of the midpoint
+	start[2] = mins[2] - 1;
+	for( x = 0; x <= 1; x ++ )
+		for( y = 0; y <= 1; y ++ )
+		{
+			start[0] = x ? maxs[0] : mins[0];
+			start[1] = y ? maxs[1] : mins[1];
+			if( gi.pointcontents(start) != CONTENTS_SOLID )
+				goto realcheck;
+		}
+	
+	c_yes ++;
+	return true;  // we got out easy
+	
+realcheck:
+	c_no ++;
+	//
+	// check it for real...
+	//
+	start[2] = mins[2];
+	
+	// the midpoint must be within 16 of the bottom
+	start[0] = stop[0] = (mins[0] + maxs[0]) * 0.5;
+	start[1] = stop[1] = (mins[1] + maxs[1]) * 0.5;
+	stop[2] = start[2] - 2 * STEPSIZE;
+	trace = gi.trace( start, vec3_origin, vec3_origin, stop, ent, MASK_MONSTERSOLID );
+	
+	if( trace.fraction == 1.0 )
+		return false;
+	mid = bottom = trace.endpos[2];
+	
+	// the corners must be within 16 of the midpoint        
+	for( x = 0; x <= 1; x ++ )
+		for( y = 0; y <= 1; y ++ )
+		{
+			start[0] = stop[0] = x ? maxs[0] : mins[0];
+			start[1] = stop[1] = y ? maxs[1] : mins[1];
+			
+			trace = gi.trace( start, vec3_origin, vec3_origin, stop, ent, MASK_MONSTERSOLID );
+			
+			if( trace.fraction != 1.0 && trace.endpos[2] > bottom )
+				bottom = trace.endpos[2];
+			if( trace.fraction == 1.0 || mid - trace.endpos[2] > STEPSIZE )
+				return false;
+		}
+	
+	c_yes ++;
+	return true;
+}
+
 //=============================================================
 // CanMoveSafely (dronebot)
 //=============================================================
@@ -159,7 +234,7 @@ qboolean ACEMV_CanMove(edict_t *self, int direction)
 	{
 
 		Cmd_OpenDoor_f ( self );	// Open the door
-		self->last_door_time = level.time + random()*1; // wait!
+		self->last_door_time = level.framenum + random() * HZ; // wait!
 		if(debug_mode)
 			debug_printf("%s: move blocked\n",self->client->pers.netname);
 		return false;	
@@ -206,7 +281,7 @@ qboolean ACEMV_CanJumpInternal(edict_t *self, int direction)
 	{
 
 		Cmd_OpenDoor_f ( self );	// Open the door
-		self->last_door_time = level.time + random()*1; // wait!
+		self->last_door_time = level.framenum + random() * HZ; // wait!
 		if(debug_mode)
 			debug_printf("%s: move blocked\n",self->client->pers.netname);
 		return false;	
@@ -258,7 +333,7 @@ qboolean ACEMV_SpecialMove(edict_t *self, usercmd_t *ucmd)
 		//RiEvEr
 		if (Q_stricmp(tr.ent->classname, "func_door_rotating") == 0)
 		{
-			ucmd->forwardmove = -400;	// back up in case it's trying to open
+			ucmd->forwardmove = -SPEED_RUN; // back up in case it's trying to open
 			return true;
 		}
 		//R
@@ -276,8 +351,8 @@ qboolean ACEMV_SpecialMove(edict_t *self, usercmd_t *ucmd)
 //RiEvEr		if(!tr.allsolid) 
 		if( tr.fraction == 1.0 )
 		{
-			ucmd->forwardmove = 400; 
-			ucmd->upmove = -400; 
+			ucmd->forwardmove = SPEED_RUN;
+			ucmd->upmove = -SPEED_RUN;
 			return true;
 		}
 		
@@ -289,8 +364,8 @@ qboolean ACEMV_SpecialMove(edict_t *self, usercmd_t *ucmd)
 //RiEvEr		if(!tr.allsolid)
 		if( tr.fraction == 1.0)
 		{	
-			ucmd->forwardmove = 400;
-			ucmd->upmove = 400;
+			ucmd->forwardmove = SPEED_RUN;
+			ucmd->upmove = SPEED_RUN;
 			return true;
 		}
 		//RiEvEr
@@ -349,15 +424,15 @@ qboolean ACEMV_CheckEyes(edict_t *self, usercmd_t *ucmd)
 		
 	if(traceFront.contents & 0x8000000) // using detail brush here cuz sometimes it does not pick up ladders...??
 	{
-		ucmd->upmove = 400;
-		ucmd->forwardmove = 400;
+		ucmd->upmove = SPEED_RUN;
+		ucmd->forwardmove = SPEED_RUN;
 		return true;
 	}
 	
 	// If this check fails we need to continue on with more detailed checks
 	if(traceFront.fraction == 1)
 	{	
-		ucmd->forwardmove = 400;
+		ucmd->forwardmove = SPEED_RUN;
 		return true;
 	}
 
@@ -398,7 +473,7 @@ qboolean ACEMV_CheckEyes(edict_t *self, usercmd_t *ucmd)
 			else
 				self->s.angles[YAW] += -(1.0 - traceRight.fraction) * 45.0;
 			
-			ucmd->forwardmove = 400;
+			ucmd->forwardmove = SPEED_RUN;
 			ACEMV_ChangeBotAngle(self);
 			return true;
 		}
@@ -422,7 +497,7 @@ void ACEMV_ChangeBotAngle (edict_t *ent)
 	float	move;
 	float	speed;
 	vec3_t  ideal_angle;
-			
+	
 	// Normalize the move angle first
 	VectorNormalize(ent->move_vector);
 
@@ -438,7 +513,7 @@ void ACEMV_ChangeBotAngle (edict_t *ent)
 	if (current_yaw != ideal_yaw)
 	{	
 		move = ideal_yaw - current_yaw;
-		speed = ent->yaw_speed;
+		speed = ent->yaw_speed / BOT_FPS;
 		if (ideal_yaw > current_yaw)
 		{
 			if (move >= 180)
@@ -466,7 +541,7 @@ void ACEMV_ChangeBotAngle (edict_t *ent)
 	if (current_pitch != ideal_pitch)
 	{	
 		move = ideal_pitch - current_pitch;
-		speed = ent->yaw_speed;
+		speed = ent->yaw_speed / BOT_FPS;
 		if (ideal_pitch > current_pitch)
 		{
 			if (move >= 180)
@@ -508,9 +583,9 @@ void ACEMV_MoveToGoal(edict_t *self, usercmd_t *ucmd)
 		
 		// strafe left/right
 		if(rand()%1 && ACEMV_CanMove(self, MOVE_LEFT))
-				ucmd->sidemove = -400;
+				ucmd->sidemove = -SPEED_RUN;
 		else if(ACEMV_CanMove(self, MOVE_RIGHT))
-				ucmd->sidemove = 400;
+				ucmd->sidemove = SPEED_RUN;
 		return;
 
 	}
@@ -544,19 +619,19 @@ void ACEMV_MoveToGoal(edict_t *self, usercmd_t *ucmd)
 							|| ( (tTrace.ent->moveinfo.state != STATE_BOTTOM) && (tTrace.ent->moveinfo.state != STATE_TOP) )
 							)
 						{
-								ucmd->forwardmove = -400;
+								ucmd->forwardmove = -SPEED_RUN;
 								return;
 						}
 						else
 						{
 							// Open it
-							if( (self->last_door_time < (level.time - 2.0)) &&
+							if( (self->last_door_time < level.framenum - 2.0 * HZ) &&
 								(tTrace.ent->moveinfo.state != STATE_TOP) &&
 								(tTrace.ent->moveinfo.state != STATE_UP) )
 							{
 								Cmd_OpenDoor_f ( self );	// Open the door
-								self->last_door_time = level.time + random()*3; // wait!
-								ucmd->forwardmove = -400;
+								self->last_door_time = level.framenum + random() * 3.0 * HZ; // wait!
+								ucmd->forwardmove = -SPEED_RUN;
 								return;
 							}
 						}
@@ -564,11 +639,11 @@ void ACEMV_MoveToGoal(edict_t *self, usercmd_t *ucmd)
 					else	//No door sighted, try opening anyway
 					{
 							// Open it
-							if (self->last_door_time < (level.time - 2.0))
+							if( self->last_door_time < level.framenum - 2.0 * HZ )
 							{
 								Cmd_OpenDoor_f ( self );	// Open the door
-								self->last_door_time = level.time + random()*3; // wait!
-								ucmd->forwardmove = -400;
+								self->last_door_time = level.framenum + random() * 3.0 * HZ; // wait!
+								ucmd->forwardmove = -SPEED_RUN;
 								return;
 							}
 					}
@@ -579,7 +654,7 @@ void ACEMV_MoveToGoal(edict_t *self, usercmd_t *ucmd)
 		// Set bot's movement direction
 		VectorSubtract (self->movetarget->s.origin, self->s.origin, self->move_vector);
 		ACEMV_ChangeBotAngle(self);
-		ucmd->forwardmove = 400;
+		ucmd->forwardmove = SPEED_RUN;
 		return;
 	}
 }
@@ -601,11 +676,11 @@ void ACEMV_Move(edict_t *self, usercmd_t *ucmd)
 	{
 		if( 
 			( !teamplay->value ) ||
-			(teamplay->value && level.time >= (self->teamPauseTime))
+			(teamplay->value && level.framenum >= (self->teamPauseTime))
 			)
 		{
 			self->state = STATE_WANDER;
-			self->wander_timeout = level.time + 1.0;
+			self->wander_timeout = level.framenum + 1.0 * HZ;
 			return;
 		}
 		else
@@ -615,12 +690,12 @@ void ACEMV_Move(edict_t *self, usercmd_t *ucmd)
 			if (self->state == STATE_FLEE)
 			{
 				self->state = STATE_POSITION;
-				self->wander_timeout = level.time + 3.0;
+				self->wander_timeout = level.framenum + 3.0 * HZ;
 			}
 			else
 			{
 				self->state = STATE_POSITION;
-				self->wander_timeout = level.time + 1.0;
+				self->wander_timeout = level.framenum + 1.0 * HZ;
 			}
 			return;
 		}
@@ -637,11 +712,11 @@ void ACEMV_Move(edict_t *self, usercmd_t *ucmd)
 
 	if(current_node_type == NODE_GRAPPLE)
 	{
-		if (self->last_door_time < level.time)
+		if( self->last_door_time < level.framenum )
 		{
-			ucmd->forwardmove = 200; //walk forwards a little
+			ucmd->forwardmove = SPEED_WALK; //walk forwards a little
 //			Cmd_OpenDoor_f ( self );	// Open the door
-			self->last_door_time = level.time + random()*2; // wait!
+			self->last_door_time = level.framenum + random() * 2.0 * HZ; // wait!
 		}
 
 	}
@@ -694,7 +769,7 @@ void ACEMV_Move(edict_t *self, usercmd_t *ucmd)
 						|| ( (tTrace.ent->moveinfo.state != STATE_BOTTOM) && (tTrace.ent->moveinfo.state != STATE_TOP) )
 						)
 					{
-						ucmd->forwardmove = -400; //walk backwards a little
+						ucmd->forwardmove = -SPEED_RUN; //walk backwards a little
 //						VectorCopy(self->move_vector,dist);
 //						VectorScale(dist,25,self->velocity);
 						return;
@@ -702,13 +777,13 @@ void ACEMV_Move(edict_t *self, usercmd_t *ucmd)
 					else
 					{
 						// Open it
-						if( (self->last_door_time < (level.time - 2.0)) &&
+						if( (self->last_door_time < level.framenum - 2.0 * HZ) &&
 							(tTrace.ent->moveinfo.state != STATE_TOP) &&
 							(tTrace.ent->moveinfo.state != STATE_UP) )
 						{
 							Cmd_OpenDoor_f ( self );	// Open the door
-							self->last_door_time = level.time + random()*3; // wait!
-							ucmd->forwardmove = -400; //walk backwards a little
+							self->last_door_time = level.framenum + random() * 3.0 * HZ; // wait!
+							ucmd->forwardmove = -SPEED_RUN; //walk backwards a little
 //							VectorCopy(self->move_vector,dist);
 //							VectorScale(dist,25,self->velocity);
 							return;
@@ -719,7 +794,7 @@ void ACEMV_Move(edict_t *self, usercmd_t *ucmd)
 				{
 
 					// Back up slowly - may have a teammate in the way
-					ucmd->forwardmove = -400;
+					ucmd->forwardmove = -SPEED_RUN;
 //					VectorCopy(self->move_vector,dist);
 //					VectorScale(dist,25,self->velocity);
 
@@ -745,7 +820,7 @@ void ACEMV_Move(edict_t *self, usercmd_t *ucmd)
 		// Move to the center
 		self->move_vector[2] = 0; // kill z movement	
 		if(VectorLength(self->move_vector) > 10)
-			ucmd->forwardmove = 200; // walk to center
+			ucmd->forwardmove = SPEED_WALK; // walk to center
 				
 		ACEMV_ChangeBotAngle(self);
 		
@@ -774,26 +849,28 @@ void ACEMV_Move(edict_t *self, usercmd_t *ucmd)
 //			self->move_vector[1]=0;
 //			self->move_vector[2]=0;
 			// Set up a jump move
-			if ((400 * distance / 128) < 400)
-				ucmd->forwardmove = 400 * distance / 128;
+			if( SPEED_RUN * distance / 64 < SPEED_RUN )            // This was distance / 128 but
+				ucmd->forwardmove = SPEED_RUN * distance / 64; // they didn't jump far enough.
 			else
-				ucmd->forwardmove = 400;
-			ucmd->upmove = 400;
+				ucmd->forwardmove = SPEED_RUN;
+			ucmd->upmove = SPEED_RUN;
 
 			self->move_vector[2] *= 2;
 
 			ACEMV_ChangeBotAngle(self);
-		
+
+			/*		
 			// RiEvEr - re-instate the velocity hack
-			if (self->jumphack_timeout < level.time)
+			if (self->jumphack_timeout < level.framenum)
 			{
 				VectorCopy(self->move_vector,dist);
 				if ((440 * distance / 128) < 440)
 					VectorScale(dist,(440 * distance / 128),self->velocity);
 				else
 					VectorScale(dist,440,self->velocity);
-				self->jumphack_timeout = level.time + 3;
+				self->jumphack_timeout = level.framenum + 3.0 * HZ;
 			}
+			*/
 		}
 		else
 		{
@@ -819,8 +896,9 @@ void ACEMV_Move(edict_t *self, usercmd_t *ucmd)
 		distance < NODE_DENSITY)
 	{
 		// Otherwise move as fast as we can
-		ucmd->forwardmove = 100; // Reduced from 400
-		self->velocity[2] = 320;
+		ucmd->forwardmove = SPEED_WALK / 2; // Reduced from SPEED_RUN
+		ucmd->upmove = SPEED_RUN;
+//		self->velocity[2] = SPEED_RUN * 4 / 5;
 		ucmd->sidemove = 0;
 		
 		ACEMV_ChangeBotAngle(self);
@@ -834,9 +912,9 @@ void ACEMV_Move(edict_t *self, usercmd_t *ucmd)
 	   nodes[self->next_node].origin[2] > self->s.origin[2])
 	   )
 	{
-		ucmd->forwardmove = 200; // Reduced from 400
-//		ucmd->upmove = 200;
-		self->velocity[2] = 200;
+		ucmd->forwardmove = SPEED_WALK; // Reduced from SPEED_RUN
+		ucmd->upmove = SPEED_WALK;
+//		self->velocity[2] = SPEED_WALK;
 		ACEMV_ChangeBotAngle(self);
 		return;
 	}
@@ -846,10 +924,10 @@ void ACEMV_Move(edict_t *self, usercmd_t *ucmd)
 //	   (nodes[self->next_node].origin[2] > self->s.origin[2])
 	   )
 	{
-		ucmd->forwardmove = 100; // Reduced from 400
-		ucmd->upmove = -400;	//Added by Werewolf to cause crouching
-//		ucmd->upmove = 200;
-//		self->velocity[2] = 200;
+		ucmd->forwardmove = SPEED_WALK / 2; // Reduced from 400
+		ucmd->upmove = -SPEED_RUN; //Added by Werewolf to cause crouching
+//		ucmd->upmove = SPEED_WALK;
+//		self->velocity[2] = SPEED_WALK;
 		ACEMV_ChangeBotAngle(self);
 		return;
 	}
@@ -862,8 +940,8 @@ void ACEMV_Move(edict_t *self, usercmd_t *ucmd)
 	   nodes[self->next_node].origin[2] > self->s.origin[2]+16 && distance < NODE_DENSITY)
 	   )
 	{
-		ucmd->forwardmove = 400; 
-		ucmd->upmove = 400;
+		ucmd->forwardmove = SPEED_RUN;
+		ucmd->upmove = SPEED_RUN;
 		ACEMV_ChangeBotAngle(self);
 		return;
 	}*/
@@ -877,9 +955,9 @@ void ACEMV_Move(edict_t *self, usercmd_t *ucmd)
 
 		// If the next node is not in the water, then move up to get out.
 		if(next_node_type != NODE_WATER && !(gi.pointcontents(nodes[self->next_node].origin) & MASK_WATER)) // Exit water
-			ucmd->upmove = 400;
+			ucmd->upmove = SPEED_RUN;
 		
-		ucmd->forwardmove = 300;
+		ucmd->forwardmove = SPEED_RUN * 3 / 4;
 		return;
 
 	}
@@ -897,7 +975,7 @@ void ACEMV_Move(edict_t *self, usercmd_t *ucmd)
 		
 	// Check to see if stuck, and if so try to free us
 	// Also handles crouching
- 	if(VectorLength(self->velocity) < 37)
+ 	if( VectorLength(self->velocity) < 37 )
 	{
 		// Keep a random factor just in case....
 		if(random() > 0.5 && ACEMV_SpecialMove(self, ucmd))
@@ -907,8 +985,8 @@ void ACEMV_Move(edict_t *self, usercmd_t *ucmd)
 
 		ACEMV_ChangeBotAngle(self);
 
-		ucmd->forwardmove = 400;
-		ucmd->upmove = 400;
+		ucmd->forwardmove = SPEED_RUN;
+		ucmd->upmove = SPEED_RUN;
 		
 		return;
 	}
@@ -919,13 +997,12 @@ void ACEMV_Move(edict_t *self, usercmd_t *ucmd)
 	// If it's safe to move forward (I can't believe ACE didn't check this!
 	if (ACEMV_CanMove( self, MOVE_FORWARD) || (current_node_type == NODE_LADDER) || (current_node_type==NODE_DOOR))
 	{
-
-		ucmd->forwardmove = 400; 
+		ucmd->forwardmove = SPEED_RUN;
 	}
 	else
 	{
 		// Forget about this route!
-//		ucmd->forwardmove = -100; 
+//		ucmd->forwardmove = -SPEED_WALK / 2;
 //		self->movetarget = NULL;
 	}	
 }
@@ -943,7 +1020,7 @@ void ACEMV_Wander(edict_t *self, usercmd_t *ucmd)
 	vec3_t  temp;
 	
 	// Do not move
-	if(self->next_move_time > level.time)
+	if(self->next_move_time > level.framenum)
 		return;
 
 	// Special check for elevators, stand still until the ride comes to a complete stop.
@@ -954,7 +1031,7 @@ void ACEMV_Wander(edict_t *self, usercmd_t *ucmd)
 			self->velocity[0] = 0;
 			self->velocity[1] = 0;
 			self->velocity[2] = 0;
-			self->next_move_time = level.time + 0.5;
+			self->next_move_time = level.framenum + 0.5 * HZ;
 			return;
 		}
 	
@@ -972,15 +1049,17 @@ void ACEMV_Wander(edict_t *self, usercmd_t *ucmd)
 	if(gi.pointcontents (temp) & MASK_WATER)
 	{
 		// If drowning and no node, move up
-		if(self->client->next_drown_time > 0)
+		if(self->client->next_drown_framenum > 0)
 		{
-			ucmd->upmove = 1;	
-			self->s.angles[PITCH] = -45; 
+//			ucmd->upmove = 1;
+			ucmd->upmove = SPEED_RUN;
+			self->s.angles[PITCH] = -45;
 		}
 		else
-			ucmd->upmove = 15;	
+//			ucmd->upmove = 15;
+			ucmd->upmove = SPEED_WALK;
 
-		ucmd->forwardmove = 300;
+		ucmd->forwardmove = SPEED_RUN * 3 / 4;
 	}
 //	else
 //		self->client->next_drown_time = 0; // probably shound not be messing with this, but
@@ -993,8 +1072,8 @@ void ACEMV_Wander(edict_t *self, usercmd_t *ucmd)
 	{
 		//	safe_bprintf(PRINT_MEDIUM,"lava jump\n");
 		self->s.angles[YAW] += random() * 360 - 180; 
-		ucmd->forwardmove = 400;
-		ucmd->upmove = 400;
+		ucmd->forwardmove = SPEED_RUN;
+		ucmd->upmove = SPEED_RUN;
 		return;
 	}
 
@@ -1002,7 +1081,7 @@ void ACEMV_Wander(edict_t *self, usercmd_t *ucmd)
 //		return;
 	
 	// Check for special movement if we have a normal move (have to test)
- 	if(VectorLength(self->velocity) < 37)
+ 	if( VectorLength(self->velocity) < 37 )
 	{
 		if(random() > 0.1 && ACEMV_SpecialMove(self,ucmd))
 			return;
@@ -1012,7 +1091,7 @@ void ACEMV_Wander(edict_t *self, usercmd_t *ucmd)
 		if(!M_CheckBottom(self) && !self->groundentity) // if there is ground continue otherwise wait for next move
 			ucmd->forwardmove = 0;
 		else if( ACEMV_CanMove( self, MOVE_FORWARD))
-			ucmd->forwardmove = 200;
+			ucmd->forwardmove = SPEED_WALK;
 		
 		return;
 	}
@@ -1021,13 +1100,13 @@ void ACEMV_Wander(edict_t *self, usercmd_t *ucmd)
 	// If it's safe to move forward (I can't believe ACE didn't check this!
 	if( ACEMV_CanMove( self, MOVE_FORWARD))
 	{
-		ucmd->forwardmove = 400; 
+		ucmd->forwardmove = SPEED_RUN;
 	}
 	else
 	{
 		// Need a "findbestdirection" routine in here
 		// Forget about this route!
-		ucmd->forwardmove = -100; 
+		ucmd->forwardmove = -SPEED_WALK / 2;
 		self->movetarget = NULL;
 	}	
 
@@ -1061,19 +1140,19 @@ void ACEMV_Attack (edict_t *self, usercmd_t *ucmd)
 //AQ2 CHANGE
 	// Don't stand around if all you have is a knife or no weapon.
 	if( 
-		(self->client->pers.weapon == FindItem(KNIFE_NAME)) 
+		(self->client->weapon == FindItem(KNIFE_NAME)) 
 		|| !bHasWeapon // kick attack
 		)
 	{
 		// Don't walk off the edge
 		if( ACEMV_CanMove( self, MOVE_FORWARD))
 		{
-			ucmd->forwardmove += 400;
+			ucmd->forwardmove += SPEED_RUN;
 		}
 		else
 		{
 			// Can't get there!
-			ucmd->forwardmove = -200;
+			ucmd->forwardmove = -SPEED_WALK;
 			self->enemy=NULL;
 			self->state = STATE_WANDER;
 			return;
@@ -1085,41 +1164,41 @@ void ACEMV_Attack (edict_t *self, usercmd_t *ucmd)
 			if( random() < 0.3 && bHasWeapon)
 			{
 				// Yes we do.
-				self->client->resp.knife_mode = 1;
+				self->client->pers.knife_mode = 1;
 			}
 			else
 			{
 				if( dist < 64 )	// Too close
-					ucmd->forwardmove = -200;
+					ucmd->forwardmove = -SPEED_WALK;
 				// Kick Attack needed!
-				ucmd->upmove = 400;
+				ucmd->upmove = SPEED_RUN;
 			}
 		}
 		else
 		{
 			// Outside desired throwing range
-			self->client->resp.knife_mode =0;
+			self->client->pers.knife_mode = 0;
 		}
 	}
-	else //if(!(self->client->pers.weapon == FindItem(SNIPER_NAME))) // Stop moving with sniper rifle
+	else //if(!(self->client->weapon == FindItem(SNIPER_NAME))) // Stop moving with sniper rifle
 	{
 		// Randomly choose a movement direction
 		c = random();		
 		if(c < 0.2 && ACEMV_CanMove(self,MOVE_LEFT))
-			ucmd->sidemove -= 400; 
+			ucmd->sidemove -= SPEED_RUN; 
 		else if(c < 0.4 && ACEMV_CanMove(self,MOVE_RIGHT))
-			ucmd->sidemove += 400; 
+			ucmd->sidemove += SPEED_RUN;
 
 		c = random();
 		if(c < 0.6 && ACEMV_CanMove(self,MOVE_FORWARD))
-			ucmd->forwardmove += 400; 
+			ucmd->forwardmove += SPEED_RUN;
 		else if(c < 0.8 && ACEMV_CanMove(self,MOVE_FORWARD))
-			ucmd->forwardmove -= 400;
+			ucmd->forwardmove -= SPEED_RUN;
 	}
 //AQ2 END
 	if( (dist < 600) && 
-		( !(self->client->pers.weapon == FindItem(KNIFE_NAME)) 
-)//		&& !(self->client->pers.weapon == FindItem(SNIPER_NAME))) // Stop jumping with sniper rifle
+		( !(self->client->weapon == FindItem(KNIFE_NAME)) 
+)//		&& !(self->client->weapon == FindItem(SNIPER_NAME))) // Stop jumping with sniper rifle
 		&&( bHasWeapon )	// Jump already set for kick attack
 		)
 	{
@@ -1129,10 +1208,10 @@ void ACEMV_Attack (edict_t *self, usercmd_t *ucmd)
 		if(c < 0.10) //Werewolf: was 0.15
 		{
 			if (ACEMV_CanJump(self))
-				ucmd->upmove += 400;
+				ucmd->upmove += SPEED_RUN;
 		}
 		else if( c> 0.85 )	// Only crouch sometimes
-			ucmd->upmove -= 200;
+			ucmd->upmove -= SPEED_WALK;
 	}
 
   }	//The rest applies even for fleeing bots
@@ -1142,12 +1221,12 @@ void ACEMV_Attack (edict_t *self, usercmd_t *ucmd)
 	{
 //		c = random();
 //		if(c < 0.50)	//Only crouch at 50% probability
-		if (!self->client->pers.inventory[ITEM_INDEX(FindItem(LASER_NAME))])
-			if( (self->client->pers.weapon == FindItem(M4_NAME)) ||
-				(self->client->pers.weapon == FindItem(MP5_NAME)) ||
-				(self->client->pers.weapon == FindItem(MK23_NAME)) )
+		if (!self->client->inventory[ITEM_INDEX(FindItem(LASER_NAME))])
+			if( (self->client->weapon == FindItem(M4_NAME)) ||
+				(self->client->weapon == FindItem(MP5_NAME)) ||
+				(self->client->weapon == FindItem(MK23_NAME)) )
 			{
-				ucmd->upmove = -400; 
+				ucmd->upmove = -SPEED_RUN;
 			}
 	}
 	
@@ -1163,15 +1242,15 @@ void ACEMV_Attack (edict_t *self, usercmd_t *ucmd)
 		if( ACEAI_CheckShot( self ))
 		{
 			ucmd->buttons = BUTTON_ATTACK;
-			if(self->client->pers.weapon == FindItem(GRENADE_NAME))
+			if(self->client->weapon == FindItem(GRENADE_NAME))
 			{
-				self->grenadewait = level.time + 2;
-				ucmd->forwardmove=-400; //Stalk back, behold of the holy Grenade!
+				self->grenadewait = level.framenum + 2.0 * HZ;
+				ucmd->forwardmove= -SPEED_RUN; //Stalk back, behold of the holy Grenade!
 			}
 		}
 		else if (self->state != STATE_FLEE)
 		{
-			if (ucmd->upmove == -400)
+			if (ucmd->upmove == -SPEED_RUN)
 				ucmd->upmove = 0;
 			if (ltk_jumpy->value)
 			{
@@ -1179,12 +1258,12 @@ void ACEMV_Attack (edict_t *self, usercmd_t *ucmd)
 				if(c < 0.50)	//Only jump at 50% probability
 				{
 					if (ACEMV_CanJump(self))
-					ucmd->upmove = 400;
+					ucmd->upmove = SPEED_RUN;
 				}
 				else if (c < 0.75 && ACEMV_CanMove(self,MOVE_LEFT))
-					ucmd->sidemove -= 200;
+					ucmd->sidemove -= SPEED_WALK;
 				else if (ACEMV_CanMove(self,MOVE_RIGHT))
-					ucmd->sidemove += 200;
+					ucmd->sidemove += SPEED_WALK;
 			}
 		}
 	}
@@ -1193,7 +1272,7 @@ void ACEMV_Attack (edict_t *self, usercmd_t *ucmd)
 	VectorCopy(self->enemy->s.origin,target);
 
 	// Werewolf: Aim higher if using grenades
-	if(self->client->pers.weapon == FindItem(GRENADE_NAME))
+	if(self->client->weapon == FindItem(GRENADE_NAME))
 		target[2] += 35;
 
 
@@ -1203,7 +1282,7 @@ void ACEMV_Attack (edict_t *self, usercmd_t *ucmd)
 	if( 
 		(ltk_skill->value < 10 )
 		&& ( bHasWeapon )	// Kick attacks must be accurate
-		&& (!(self->client->pers.weapon == FindItem(KNIFE_NAME))) // Knives accurate
+		&& (!(self->client->weapon == FindItem(KNIFE_NAME))) // Knives accurate
 		)
 	{
 		short int sign[3], iFactor = 7;
@@ -1213,7 +1292,7 @@ void ACEMV_Attack (edict_t *self, usercmd_t *ucmd)
 
 		// Not that complex. We miss by 0 to 80 units based on skill value and random factor
 		// Unless we have a sniper rifle!
-		if(self->client->pers.weapon == FindItem(SNIPER_NAME))
+		if(self->client->weapon == FindItem(SNIPER_NAME))
 			iFactor = 5;
 
 		// Shoot less accurately if we just turned around and are far away.
@@ -1231,7 +1310,7 @@ void ACEMV_Attack (edict_t *self, usercmd_t *ucmd)
 	}
 	//Werewolf: Snipers of skill 10 are complete lethal, so I don't use that code down there
 /*	else if (ltk_skill->value == 11)
-	if(self->client->pers.weapon == FindItem(SNIPER_NAME))
+	if(self->client->weapon == FindItem(SNIPER_NAME))
 	{
 		short int	up, right, iFactor=1;
 		up = (random() < 0.5)? -1 :1;
@@ -1243,13 +1322,13 @@ void ACEMV_Attack (edict_t *self, usercmd_t *ucmd)
 //AQ2 END
 
 	// Werewolf: release trigger after 1 second for grenades
-	if ((self->grenadewait == level.time + 1) && (self->solid != SOLID_NOT))
+	if( (self->grenadewait == level.framenum + 1 * HZ) && (self->solid != SOLID_NOT) )
 	{
 		ucmd->buttons = 0;
 	}
 
 	//Werewolf: Wait 3 seconds for grenade to launch before facing elsewhere
-	if (level.time >= self->grenadewait)
+	if( level.framenum >= self->grenadewait )
 	{
 		self->grenadewait = 0;
 		// Set direction
@@ -1262,7 +1341,7 @@ void ACEMV_Attack (edict_t *self, usercmd_t *ucmd)
 
 	// Store time we last saw an enemy
 	// This value is used to decide if we initiate a long range search or not.
-	self->teamPauseTime = level.time;
+	self->teamPauseTime = level.framenum;
 	
 //	if(debug_mode)
 //		debug_printf("%s attacking %s\n",self->client->pers.netname,self->enemy->client->pers.netname);
@@ -1276,7 +1355,8 @@ qboolean	AntPathMove( edict_t *self )
 {
 	//node_t *temp = &nodes[self->current_node];	// For checking our position
 
-	if( level.time == (float)((int)level.time) )
+	//if( level.time == (float)((int)level.time) )
+	if( level.framenum % HZ == 0 )
 	{
 		if( 
 			!AntLinkExists( self->current_node, SLLfront(&self->pathList) )

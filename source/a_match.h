@@ -22,8 +22,12 @@
 //
 //-----------------------------------------------------------------------------
 
+#define IS_CAPTAIN(ent) (teams[(ent)->client->resp.team].captain == (ent))
+#define	HAVE_CAPTAIN(teamNum) (teams[(teamNum)].captain)
+
 void SendScores (void);
 int TeamsReady(void);
+void MM_LeftTeam( edict_t * ent );
 void Cmd_Captain_f (edict_t * ent);
 void Cmd_Ready_f (edict_t * ent);
 void Cmd_Sub_f (edict_t * ent);
@@ -35,7 +39,3 @@ int CheckForCaptains (int cteam);
 void Cmd_SetAdmin_f (edict_t * ent);
 void Cmd_TogglePause_f(edict_t * ent, qboolean pause);
 void Cmd_ResetScores_f(edict_t * ent);
-
-extern float matchtime;
-extern float realLtime;
-

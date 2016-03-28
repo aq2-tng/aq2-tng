@@ -37,7 +37,7 @@ ctfstate_t;
 typedef struct ctfgame_s {
 	int team1, team2;
 	int total1, total2;	// these are only set when going into intermission!
-	float last_flag_capture;
+	int last_flag_capture;
 	int last_capture_team;
 	qboolean halftime;
 
@@ -110,23 +110,20 @@ void CTFEffects (edict_t * player);
 void CTFCalcScores (void);
 void SetCTFStats (edict_t * ent);
 void CTFDeadDropFlag (edict_t * self);
-void CTFScoreboardMessage (edict_t * ent, edict_t * killer);
 void CTFFlagSetup (edict_t * ent);
 void CTFResetFlag (int team);
 void CTFFragBonuses (edict_t * targ, edict_t * inflictor, edict_t * attacker);
 void CTFCheckHurtCarrier (edict_t * targ, edict_t * attacker);
 void CTFDestroyFlag (edict_t * self);
+void CTFResetFlags( void );
 
 void CTFOpenJoinMenu (edict_t * ent);
-qboolean CTFStartClient (edict_t * ent);
 
 qboolean CTFCheckRules (void);
 qboolean HasFlag (edict_t * ent);
 
 void SP_misc_ctf_banner (edict_t * ent);
 void SP_misc_ctf_small_banner (edict_t * ent);
-
-extern char *ctf_statusbar;
 
 void SP_trigger_teleport (edict_t * ent);
 void SP_info_teleport_destination (edict_t * ent);

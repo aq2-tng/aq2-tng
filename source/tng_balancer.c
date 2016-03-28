@@ -5,67 +5,58 @@ cvar_t *use_balancer;
 
 edict_t *FindNewestPlayer(int team)
 {
-	edict_t *etmp,*ent = NULL;
+	edict_t *e, *newest = NULL;
 	int i;
-	int most_time = 0;
 
-	for (i = 1; i <= maxclients->value; i++)
+	for (i = 0, e = &g_edicts[1]; i < game.maxclients; i++, e++)
 	{
-		etmp = g_edicts + i;
-		if (etmp->inuse)
-		{
-			if(etmp->client->resp.team == team) {
-				if(etmp->client->resp.joined_team > most_time) {
-					most_time = etmp->client->resp.joined_team;
-                                        ent = etmp;
-				}
-			}
+		if (!e->inuse || e->client->resp.team != team)
+			continue;
+
+		if (!newest || e->client->resp.joined_team > newest->client->resp.joined_team) {
+			newest = e;
 		}
 	}
 
-	return ent;
+	return newest;
 }
 
-void CalculatePlayers(int *team1, int *team2, int *team3, int *spectator)
+void CalculatePlayers(int *players)
 {
 	edict_t *e;
 	int i;
 
-	for (i = 1; i <= maxclients->value; i++)
+	for (i = 0, e = &g_edicts[1]; i < game.maxclients; i++, e++)
 	{
-		e = g_edicts + i;
-		if (e->inuse)
-		{
-			if(e->client->resp.team == TEAM1 && team1 != NULL)
-				(*team1)++;
-			else if(e->client->resp.team == TEAM2 && team2 != NULL)
-				(*team2)++;
-			else if(e->client->resp.team == TEAM3 && team3 != NULL)
-				(*team3)++;
-			else if(e->client->resp.team == NOTEAM && spectator != NULL)
-				(*spectator)++;
-			// if it's none of the above, what the heck is it?!
-		}
+		if (!e->inuse)
+			continue;
+
+		players[e->client->resp.team]++;
 	}
 }
 
 /* parameter can be current (dead) player or null */
 qboolean CheckForUnevenTeams (edict_t *ent)
 {
-        edict_t *swap_ent = NULL;
-	int team1 = 0, team2 = 0, other_team = 0;
+	edict_t *swap_ent = NULL;
+	int i, other_team, players[TEAM_TOP] = {0}, leastPlayers, mostPlayers;
 
-	if(!use_balancer->value || use_3teams->value)
+	if(!use_balancer->value)
 		return false;
 
-	CalculatePlayers(&team1, &team2, NULL, NULL);
+	CalculatePlayers(players);
 
-	if(team1 > team2+1) {
-		other_team = TEAM2;
-		swap_ent = FindNewestPlayer(TEAM1);
-	} else if(team2 > team1+1) {
-		other_team = TEAM1;
-		swap_ent = FindNewestPlayer(TEAM2);
+	leastPlayers = mostPlayers = TEAM1;
+	for (i = TEAM1; i <= teamCount; i++) {
+		if (players[i] > players[mostPlayers])
+			mostPlayers = i;
+
+		if (players[i] < players[leastPlayers])
+			leastPlayers = i;
+	}
+	if (players[mostPlayers] > players[leastPlayers] + 1) {
+		other_team = leastPlayers;
+		swap_ent = FindNewestPlayer(mostPlayers);
 	}
 
 	if(swap_ent && (!ent || ent == swap_ent)) {
@@ -81,23 +72,27 @@ qboolean CheckForUnevenTeams (edict_t *ent)
 
 qboolean IsAllowedToJoin(edict_t *ent, int desired_team)
 {
-	int onteam1 = 0, onteam2 = 0;
-
-	/* FIXME: make this work with threeteam */
-	if (use_3teams->value)
-		return true;
+	int i, players[TEAM_TOP] = {0}, mostPlayers;
 
 	if(ent->client->team_force) {
 		ent->client->team_force = false;
 		return true;
 	}
 
-	CalculatePlayers(&onteam1, &onteam2, NULL, NULL);
+	CalculatePlayers(players);
+
+	mostPlayers = 0;
+	for (i = TEAM1; i <= teamCount; i++) {
+		if (i == desired_team)
+			continue;
+
+		if (!mostPlayers || players[i] > players[mostPlayers])
+			mostPlayers = i;
+	}
 
 	/* can join both teams if they are even and can join if the other team has less players than current */
-	if((desired_team == TEAM1 && onteam1 < onteam2) ||
-		(desired_team == TEAM2 && onteam2 < onteam1) ||
-		(ent->client->resp.team == NOTEAM && onteam1 == onteam2))
+	if (players[desired_team] < players[mostPlayers] ||
+		(ent->client->resp.team == NOTEAM && players[desired_team] == players[mostPlayers]))
 		return true;
 	return false;
 }

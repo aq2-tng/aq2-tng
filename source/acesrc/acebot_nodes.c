@@ -729,7 +729,7 @@ void ACEND_ShowNode(int node)
 
 	ent->s.modelindex = gi.modelindex ("models/items/ammo/grenades/medium/tris.md2");
 	ent->owner = ent;
-	ent->nextthink = level.time + 60.0;	// 1 minute is long enough!
+	ent->nextthink = level.framenum + 60 * HZ; // 1 minute is long enough!
 	ent->think = G_FreeEdict;                
 	ent->dmg = 0;
 

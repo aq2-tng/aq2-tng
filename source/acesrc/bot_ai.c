@@ -135,7 +135,7 @@ void BOTAI_PickLongRangeGoal(edict_t *bot, int	iType)
 	if(current_node == -1)
 	{
 		bot->nextState = BS_ROAM;
-		bot->wander_timeout = level.time + 1.0;
+		bot->wander_timeout = level.framenum + 1.0 * HZ;
 		bot->goal_node = -1;
 		return;
 	}
@@ -168,7 +168,7 @@ void BOTAI_PickLongRangeGoal(edict_t *bot, int	iType)
 		{
 			bot->tries = 0; // Reset the count of how many times we tried this goal
 			ACEND_SetGoal(bot,i);
-			bot->wander_timeout = level.time + 1.0;
+			bot->wander_timeout = level.framenum + 1.0 * HZ;
 			return;
 		}
 	}
@@ -259,7 +259,7 @@ void BOTAI_PickLongRangeGoal(edict_t *bot, int	iType)
 	if(fBestWeight == 0.0 || goal_node == INVALID )
 	{
 		bot->goal_node = INVALID;
-		bot->wander_timeout = level.time + 1.0;
+		bot->wander_timeout = level.framenum + 1.0 * HZ;
 		if(debug_mode)
 			debug_printf("%s did not find a LR goal, wandering.\n",bot->client->pers.netname);
 		return; // no path? 
@@ -486,7 +486,7 @@ void BOTAI_Think(edict_t *bot)
         bot->last_node = INVALID;
 
         // Stop "key flooding"
-        if (level.time > bot->client->respawn_time)
+        if (level.framenum > bot->client->respawn_framenum)
         {
             bot->client->buttons = 0;       // clear buttons
             cmd.buttons = BUTTON_ATTACK;   // hit the attack button
@@ -526,7 +526,7 @@ LeaveThink:
 	// Set movement speed
 	cmd.forwardmove = bot->bot_speed;
 	// set approximate ping
-	cmd.msec = 75 + floor (random () * 25) + 1;
+	cmd.msec = 1000 / BOT_FPS;
 	// show random ping values in scoreboard
 	bot->client->ping = cmd.msec;
 
@@ -541,7 +541,7 @@ LeaveThink:
     
 	ClientThink (bot, &cmd);
     
-    bot->nextthink = level.time + FRAMETIME;
+    bot->nextthink = level.framenum + (game.framerate / BOT_FPS);
 }
 
 /*
@@ -1029,5 +1029,5 @@ LeaveThink:
         
 		ClientThink (bot, &cmd);
         
-        bot->nextthink = level.time + FRAMETIME;
+        bot->nextthink = level.framenum + (game.framerate / BOT_FPS);
 }*/
