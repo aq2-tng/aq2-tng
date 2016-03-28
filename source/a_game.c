@@ -874,7 +874,7 @@ edict_t *FindEdictByClassnum(char *classname, int classnum)
 // Decal/splat attached to some moving entity.
 void DecalOrSplatThink( edict_t *self )
 {
-	if( level.time >= self->wait )
+	if( level.framenum >= self->wait )
 	{
 		G_FreeEdict(self);
 		return;
