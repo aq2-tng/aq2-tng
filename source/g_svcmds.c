@@ -334,10 +334,6 @@ void SVCmd_WriteIP_f (void)
 	fclose (f);
 }
 
-// zucc so it works under vc++
-void ExitLevel (void);
-
-//Black Cross - Begin
 /*
 =================
 SV_Nextmap_f
@@ -364,13 +360,12 @@ This will stuff a certain command to the client.
 */
 void SVCmd_stuffcmd_f ()
 {
-	int i, u, team = 0;
+	int i, u, team = -1, stuffAll = 0;
 	char text[256];
 	char user[64], tmp[64];
 	edict_t *ent;
 
-	if (gi.argc () < 4)
-	{
+	if (gi.argc() < 4) {
 		gi.cprintf (NULL, PRINT_HIGH, "Usage: stuffcmd <user id> <text>\n");
 		return;
 	}
@@ -392,39 +387,37 @@ void SVCmd_stuffcmd_f ()
 	}
 	Q_strncatz (text, "\n", sizeof(text));
 
-	if(!Q_stricmp (user, "team1"))
-		team = TEAM1;
-	else if(!Q_stricmp (user, "team2"))
-		team = TEAM2;
-	else if(use_3teams->value && !Q_stricmp (user, "team3"))
-		team = TEAM3;
+	if (!Q_stricmp(user, "all")) {
+		stuffAll = 1;
+	} else if (!Q_strnicmp(user, "team", 4)) {
+		team = TP_GetTeamFromArg(user+4);
+	}
 
-	if(team && !teamplay->value)
-	{
-		gi.cprintf (NULL, PRINT_HIGH, "Not in Teamplay mode\n");
+	if(team > -1 && !teamplay->value) {
+		gi.cprintf(NULL, PRINT_HIGH, "Not in Teamplay mode\n");
 		return;
 	}
 
-	if (team || !Q_stricmp(user, "all"))
+	if (stuffAll || team > -1)
 	{
-		for (i = 1; i <= (int) (maxclients->value); i++)
+		for (i = 1; i <= game.maxclients; i++)
 		{
 			ent = getEnt (i);
 			if(!ent->inuse)
 				continue;
 
-			if (!team || ent->client->resp.team == team)
-			{
+			if (stuffAll || ent->client->resp.team == team) {
 				gi.cprintf(ent, PRINT_HIGH, "Console stuffed: %s", text);
-				stuffcmd (ent, text);
+				stuffcmd(ent, text);
 			}
 		}
 		return;
 	}
 
-	for (u = 0; u < strlen(user); u++)
+	u = strlen(user);
+	for (i = 0; i < u; i++)
 	{
-		if (!isdigit(user[u]))
+		if (!isdigit(user[i]))
 		{
 			gi.cprintf (NULL, PRINT_HIGH, "Usage: stuffcmd <user id> <text>\n");
 			return;
@@ -432,7 +425,7 @@ void SVCmd_stuffcmd_f ()
 	}
 
 	i = atoi(user) + 1;
-	if (i > (int)(maxclients->value))
+	if (i > game.maxclients)
 	{				/* if is inserted number > server capacity */
 		gi.cprintf (NULL, PRINT_HIGH, "User id is not valid\n");
 		return;
@@ -614,28 +607,13 @@ Kick a client entity
 */
 void Kick_Client (edict_t * ent)
 {
-	int i = 0;
-	char ban_string[32];
-	edict_t *entL;
-
-	if (!ent->client)
+	if (!ent || !ent->client || !ent->client->pers.connected)
 		return;
 
 	// We used to kick on names, but people got crafty and figured
 	// out that putting in a space after their name let them get
 	// around the stupid 'kick' function. So now we kick by number.
-	for (i = 0; i < game.maxclients; i++)
-	{
-		entL = &g_edicts[1 + i];
-		if (!entL || !entL->inuse)
-			continue;
-		if (entL->client && ent == entL)
-		{
-			Com_sprintf(ban_string, sizeof(ban_string), "kick %d\n", i);
-			gi.AddCommandString (ban_string);
-			break;
-		}
-	}
+	gi.AddCommandString(va("kick %d\n", ent->client - game.clients));
 }
 
 /*
@@ -647,10 +625,9 @@ qboolean Ban_TeamKiller (edict_t * ent, int rounds)
 {
 	int i = 0;
 
-	if (!ent || !ent->client || !ent->client->ipaddr)
+	if (!ent || !ent->client || !ent->client->pers.ip[0])
 	{
-		gi.cprintf (NULL, PRINT_HIGH,
-			"Unable to determine client->ipaddr for edict\n");
+		gi.cprintf(NULL, PRINT_HIGH, "Unable to determine client ip address for edict\n");
 		return false;
 	}
 
@@ -664,12 +641,12 @@ qboolean Ban_TeamKiller (edict_t * ent, int rounds)
 	{
 		if (numipfilters == MAX_IPFILTERS)
 		{
-			gi.cprintf (NULL, PRINT_HIGH, "IP filter list is full\n");
+			gi.cprintf(NULL, PRINT_HIGH, "IP filter list is full\n");
 			return false;
 		}
 		numipfilters++;
 	}
-	if (!StringToFilter (ent->client->ipaddr, &ipfilters[i], rounds))
+	if (!StringToFilter(ent->client->pers.ip, &ipfilters[i], rounds))
 	{
 		ipfilters[i].compare = 0xffffffff;
 		return false;

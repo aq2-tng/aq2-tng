@@ -92,23 +92,24 @@ SV_RunThink
 Runs thinking code for this frame if necessary
 =============
 */
-qboolean
-SV_RunThink (edict_t * ent)
+qboolean SV_RunThink(edict_t *ent)
 {
-  float thinktime;
+	int     thinkframe;
 
-  thinktime = ent->nextthink;
-  if (thinktime <= 0)
-    return true;
-  if (thinktime > level.time + 0.001)
-    return true;
+	thinkframe = ent->nextthink;
+	if (thinkframe <= 0)
+		return true;
+	if (thinkframe > level.framenum)
+		return true;
 
-  ent->nextthink = 0;
-  if (!ent->think)
-    gi.error ("NULL ent->think");
-  ent->think (ent);
+	ent->nextthink = 0;
+	if (!ent->think) {
+		gi.error("NULL ent->think");
+		return false;
+	}
+	ent->think(ent);
 
-  return false;
+	return false;
 }
 
 /*
@@ -600,7 +601,7 @@ SV_Physics_Pusher (edict_t * ent)
 	}
     }
   if (pushed_p > &pushed[MAX_EDICTS])
-    gi.error (ERR_FATAL, "pushed_p > &pushed[MAX_EDICTS], memory corrupted");
+    gi.error("pushed_p > &pushed[MAX_EDICTS], memory corrupted");
 
   if (part)
     {
@@ -608,7 +609,7 @@ SV_Physics_Pusher (edict_t * ent)
       for (mv = ent; mv; mv = mv->teamchain)
 	{
 	  if (mv->nextthink > 0)
-	    mv->nextthink += FRAMETIME;
+		  mv->nextthink++;
 	}
 
       // if the pusher has a "blocked" function, call it
@@ -654,17 +655,18 @@ SV_Physics_Noclip
 A moving object that doesn't obey physics
 =============
 */
-void
-SV_Physics_Noclip (edict_t * ent)
+void SV_Physics_Noclip(edict_t *ent)
 {
 // regular thinking
-  if (!SV_RunThink (ent))
-    return;
+	if (!SV_RunThink(ent))
+		return;
+	if (!ent->inuse)
+		return;
 
-  VectorMA (ent->s.angles, FRAMETIME, ent->avelocity, ent->s.angles);
-  VectorMA (ent->s.origin, FRAMETIME, ent->velocity, ent->s.origin);
+	VectorMA(ent->s.angles, FRAMETIME, ent->avelocity, ent->s.angles);
+	VectorMA(ent->s.origin, FRAMETIME, ent->velocity, ent->s.origin);
 
-  gi.linkentity (ent);
+	gi.linkentity(ent);
 }
 
 /*
@@ -825,6 +827,8 @@ SV_Physics_Toss (edict_t * ent)
 
 // regular thinking
   SV_RunThink (ent);
+  if (!ent->inuse)
+	  return;
 
   // if not a team captain, so movement will be handled elsewhere
   if (ent->flags & FL_TEAMSLAVE)
@@ -926,171 +930,6 @@ SV_Physics_Toss (edict_t * ent)
     }
 }
 
-/*
-===============================================================================
-
-STEPPING MOVEMENT
-
-===============================================================================
-*/
-
-/*
-=============
-SV_Physics_Step
-
-Monsters freefall when they don't have a ground entity, otherwise
-all movement is done with discrete steps.
-
-This is also used for objects that have become still on the ground, but
-will fall if the floor is pulled out from under them.
-FIXME: is this true?
-=============
-*/
-
-//FIXME: hacked in for E3 demo
-#define sv_stopspeed            100
-#define sv_friction                     6
-#define sv_waterfriction        1
-
-void
-SV_AddRotationalFriction (edict_t * ent)
-{
-  int n;
-  float adjustment;
-
-  VectorMA (ent->s.angles, FRAMETIME, ent->avelocity, ent->s.angles);
-  adjustment = FRAMETIME * sv_stopspeed * sv_friction;
-  for (n = 0; n < 3; n++)
-    {
-      if (ent->avelocity[n] > 0)
-	{
-	  ent->avelocity[n] -= adjustment;
-	  if (ent->avelocity[n] < 0)
-	    ent->avelocity[n] = 0;
-	}
-      else
-	{
-	  ent->avelocity[n] += adjustment;
-	  if (ent->avelocity[n] > 0)
-	    ent->avelocity[n] = 0;
-	}
-    }
-}
-
-void
-SV_Physics_Step (edict_t * ent)
-{
-  qboolean wasonground;
-  qboolean hitsound = false;
-  float *vel;
-  float speed, newspeed, control;
-  float friction;
-  edict_t *groundentity;
-  int mask;
-
-  // airborn monsters should always check for ground
-  if (!ent->groundentity)
-    M_CheckGround (ent);
-
-  groundentity = ent->groundentity;
-
-  SV_CheckVelocity (ent);
-
-  if (groundentity)
-    wasonground = true;
-  else
-    wasonground = false;
-
-  if (ent->avelocity[0] || ent->avelocity[1] || ent->avelocity[2])
-    SV_AddRotationalFriction (ent);
-
-  // add gravity except:
-  //   flying monsters
-  //   swimming monsters who are in the water
-  if (!wasonground)
-    if (!(ent->flags & FL_FLY))
-      if (!((ent->flags & FL_SWIM) && (ent->waterlevel > 2)))
-	{
-	  if (ent->velocity[2] < sv_gravity->value * -0.1)
-	    hitsound = true;
-	  if (ent->waterlevel == 0)
-	    SV_AddGravity (ent);
-	}
-
-  // friction for flying monsters that have been given vertical velocity
-  if ((ent->flags & FL_FLY) && (ent->velocity[2] != 0))
-    {
-      speed = fabs (ent->velocity[2]);
-      control = speed < sv_stopspeed ? sv_stopspeed : speed;
-      friction = sv_friction / 3;
-      newspeed = speed - (FRAMETIME * control * friction);
-      if (newspeed < 0)
-	newspeed = 0;
-      newspeed /= speed;
-      ent->velocity[2] *= newspeed;
-    }
-
-  // friction for flying monsters that have been given vertical velocity
-  if ((ent->flags & FL_SWIM) && (ent->velocity[2] != 0))
-    {
-      speed = fabs (ent->velocity[2]);
-      control = speed < sv_stopspeed ? sv_stopspeed : speed;
-      newspeed =
-	speed - (FRAMETIME * control * sv_waterfriction * ent->waterlevel);
-      if (newspeed < 0)
-	newspeed = 0;
-      newspeed /= speed;
-      ent->velocity[2] *= newspeed;
-    }
-
-  if (ent->velocity[2] || ent->velocity[1] || ent->velocity[0])
-    {
-      // apply friction
-      // let dead monsters who aren't completely onground slide
-      if ((wasonground) || (ent->flags & (FL_SWIM | FL_FLY)))
-	if (!(ent->health <= 0.0 && !M_CheckBottom (ent)))
-	  {
-	    vel = ent->velocity;
-	    speed = sqrt (vel[0] * vel[0] + vel[1] * vel[1]);
-	    if (speed)
-	      {
-		friction = sv_friction;
-
-		control = speed < sv_stopspeed ? sv_stopspeed : speed;
-		newspeed = speed - FRAMETIME * control * friction;
-
-		if (newspeed < 0)
-		  newspeed = 0;
-		newspeed /= speed;
-
-		vel[0] *= newspeed;
-		vel[1] *= newspeed;
-	      }
-	  }
-
-      if (ent->svflags & SVF_MONSTER)
-	mask = MASK_MONSTERSOLID;
-      else
-	mask = MASK_SOLID;
-      SV_FlyMove (ent, FRAMETIME, mask);
-
-      gi.linkentity (ent);
-      G_TouchTriggers (ent);
-
-// Following check was added in 3.20.  Adding here.  -FB
-      if (!ent->inuse)
-	return;
-
-      if (ent->groundentity)
-	if (!wasonground)
-	  if (hitsound)
-	    gi.sound (ent, 0, gi.soundindex ("world/land.wav"), 1, 1, 0);
-    }
-
-// regular thinking
-  SV_RunThink (ent);
-}
-
 //============================================================================
 /*
 ================
@@ -1098,13 +937,12 @@ G_RunEntity
 
 ================
 */
-void
-G_RunEntity (edict_t * ent)
+void G_RunEntity(edict_t *ent)
 {
   if (ent->prethink)
     ent->prethink (ent);
 
-  switch ((int) ent->movetype)
+  switch (ent->movetype)
     {
     case MOVETYPE_PUSH:
     case MOVETYPE_STOP:
@@ -1117,7 +955,7 @@ G_RunEntity (edict_t * ent)
       SV_Physics_Noclip (ent);
       break;
     case MOVETYPE_STEP:
-      SV_Physics_Step (ent);
+      //SV_Physics_Step (ent);
       break;
 
     case MOVETYPE_BOUNCE:

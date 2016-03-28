@@ -224,6 +224,7 @@ void CTFSetFlag(int team, char *str)
 		SPAWNFLAG_NOT_COOP | SPAWNFLAG_NOT_DEATHMATCH);
 
 	VectorCopy(position, ent->s.origin);
+	VectorCopy(position, ent->old_origin);
 
 	ED_CallSpawn (ent);
 }
@@ -267,7 +268,7 @@ int CTFGetRespawnTime(edict_t *ent)
 	int spawntime = ctf_respawn->value;
 	if(ent->client->resp.team == TEAM1 && ctfgame.spawn_red > -1)
 		spawntime = ctfgame.spawn_red;
-	if(ent->client->resp.team == TEAM2 && ctfgame.spawn_blue > -1)
+	else if(ent->client->resp.team == TEAM2 && ctfgame.spawn_blue > -1)
 		spawntime = ctfgame.spawn_blue;
 
 	gi.cprintf(ent, PRINT_HIGH, "You will respawn in %d seconds\n", spawntime);
@@ -282,7 +283,7 @@ qboolean HasFlag(edict_t * ent)
 {
 	if (!ctf->value)
 		return false;
-	if (ent->client->pers.inventory[ITEM_INDEX(flag1_item)] || ent->client->pers.inventory[ITEM_INDEX(flag2_item)])
+	if (ent->client->inventory[ITEM_INDEX(flag1_item)] || ent->client->inventory[ITEM_INDEX(flag2_item)])
 		return true;
 	return false;
 }
@@ -344,14 +345,14 @@ void ResetPlayers()
 
 void CTFSwapTeams()
 {
-	//vec3_t point;  // FIXME: This was never used.
 	edict_t *ent;
 	int i;
 
 	for (i = 0; i < game.maxclients; i++) {
 		ent = &g_edicts[1 + i];
-		if (ent->inuse) {
+		if (ent->inuse && ent->client->resp.team) {
 			ent->client->resp.team = CTFOtherTeam(ent->client->resp.team);
+			AssignSkin(ent, teams[ent->client->resp.team].skin, false);
 		}
 	}
 
@@ -368,12 +369,12 @@ void CTFAssignTeam(gclient_t * who)
 
 	who->resp.ctf_state = CTF_STATE_START;
 
-	if (!((int) dmflags->value & DF_CTF_FORCEJOIN)) {
+	if (!DMFLAGS(DF_CTF_FORCEJOIN)) {
 		who->resp.team = NOTEAM;
 		return;
 	}
 
-	for (i = 1; i <= (int)maxclients->value; i++) {
+	for (i = 1; i <= game.maxclients; i++) {
 		player = &g_edicts[i];
 		if (!player->inuse || player->client == who)
 			continue;
@@ -410,15 +411,6 @@ edict_t *SelectCTFSpawnPoint(edict_t * ent)
 	int selection;
 	float range, range1, range2;
 	char *cname;
-
-	/*if (ent->client->resp.ctf_state != CTF_STATE_START) {
-		if (rand() & 1) {
-			if ((int) (dmflags->value) & DF_SPAWN_FARTHEST)
-				return SelectFarthestDeathmatchSpawnPoint();
-			else
-				return SelectRandomDeathmatchSpawnPoint();
-		}
-	}*/ //Why the fuck this was here? -Mani
 
 	ent->client->resp.ctf_state = CTF_STATE_PLAYING;
 
@@ -511,15 +503,15 @@ void CTFFragBonuses(edict_t * targ, edict_t * inflictor, edict_t * attacker)
 	}
 
 	// did the attacker frag the flag carrier?
-	if (targ->client->pers.inventory[ITEM_INDEX(enemy_flag_item)]) {
-		attacker->client->resp.ctf_lastfraggedcarrier = level.time;
+	if (targ->client->inventory[ITEM_INDEX(enemy_flag_item)]) {
+		attacker->client->resp.ctf_lastfraggedcarrier = level.framenum;
 		attacker->client->resp.score += CTF_FRAG_CARRIER_BONUS;
 		gi.cprintf(attacker, PRINT_MEDIUM,
 			   "BONUS: %d points for fragging enemy flag carrier.\n", CTF_FRAG_CARRIER_BONUS);
 
 		// the the target had the flag, clear the hurt carrier
 		// field on the other team
-		for (i = 1; i <= maxclients->value; i++) {
+		for (i = 1; i <= game.maxclients; i++) {
 			ent = g_edicts + i;
 			if (ent->inuse && ent->client->resp.team == otherteam)
 				ent->client->resp.ctf_lasthurtcarrier = 0;
@@ -528,8 +520,8 @@ void CTFFragBonuses(edict_t * targ, edict_t * inflictor, edict_t * attacker)
 	}
 
 	if (targ->client->resp.ctf_lasthurtcarrier &&
-	    level.time - targ->client->resp.ctf_lasthurtcarrier <
-	    CTF_CARRIER_DANGER_PROTECT_TIMEOUT && !attacker->client->pers.inventory[ITEM_INDEX(flag_item)]) {
+	    level.framenum - targ->client->resp.ctf_lasthurtcarrier <
+	    CTF_CARRIER_DANGER_PROTECT_TIMEOUT * HZ && !attacker->client->inventory[ITEM_INDEX(flag_item)]) {
 		// attacker is on the same team as the flag carrier and
 		// fragged a guy who hurt our flag carrier
 		attacker->client->resp.score += CTF_CARRIER_DANGER_PROTECT_BONUS;
@@ -566,9 +558,9 @@ void CTFFragBonuses(edict_t * targ, edict_t * inflictor, edict_t * attacker)
 		return;		// can't find attacker's flag
 
 	// find attacker's team's flag carrier
-	for (i = 1; i <= maxclients->value; i++) {
+	for (i = 1; i <= game.maxclients; i++) {
 		carrier = g_edicts + i;
-		if (carrier->inuse && carrier->client->pers.inventory[ITEM_INDEX(flag_item)])
+		if (carrier->inuse && carrier->client->inventory[ITEM_INDEX(flag_item)])
 			break;
 		carrier = NULL;
 	}
@@ -578,8 +570,8 @@ void CTFFragBonuses(edict_t * targ, edict_t * inflictor, edict_t * attacker)
 	VectorSubtract(targ->s.origin, flag->s.origin, v1);
 	VectorSubtract(attacker->s.origin, flag->s.origin, v2);
 
-	if (VectorLength(v1) < CTF_TARGET_PROTECT_RADIUS ||
-	    VectorLength(v2) < CTF_TARGET_PROTECT_RADIUS || loc_CanSee(flag, targ) || loc_CanSee(flag, attacker)) {
+	if (VectorLength(v1) < CTF_TARGET_PROTECT_RADIUS || VectorLength(v2) < CTF_TARGET_PROTECT_RADIUS
+		|| visible(flag, targ, MASK_SOLID) || visible(flag, attacker, MASK_SOLID)) {
 		// we defended the base flag
 		attacker->client->resp.score += CTF_FLAG_DEFENSE_BONUS;
 		if (flag->solid == SOLID_NOT) {
@@ -604,7 +596,7 @@ void CTFFragBonuses(edict_t * targ, edict_t * inflictor, edict_t * attacker)
 
 		if (VectorLength(v1) < CTF_ATTACKER_PROTECT_RADIUS ||
 		    VectorLength(v2) < CTF_ATTACKER_PROTECT_RADIUS ||
-		    loc_CanSee(carrier, targ) || loc_CanSee(carrier, attacker)) {
+			visible(carrier, targ, MASK_SOLID) || visible(carrier, attacker, MASK_SOLID)) {
 			attacker->client->resp.score += CTF_CARRIER_PROTECT_BONUS;
 			gi.bprintf(PRINT_MEDIUM, "%s defends the %s's flag carrier.\n",
 				   attacker->client->pers.netname, CTFTeamName(attacker->client->resp.team));
@@ -628,9 +620,9 @@ void CTFCheckHurtCarrier(edict_t * targ, edict_t * attacker)
 	else
 		flag_item = flag1_item;
 
-	if (targ->client->pers.inventory[ITEM_INDEX(flag_item)] &&
+	if (targ->client->inventory[ITEM_INDEX(flag_item)] &&
 	    targ->client->resp.team != attacker->client->resp.team)
-		attacker->client->resp.ctf_lasthurtcarrier = level.time;
+		attacker->client->resp.ctf_lasthurtcarrier = level.framenum;
 }
 
 /*------------------------------------------------------------------------*/
@@ -653,17 +645,17 @@ void CTFResetFlag(int team)
 	}
 
 	/* hifi: drop this team flag if a player is carrying one (so the next loop returns it correctly) */
-	for (i = 1; i <= (int)maxclients->value; i++) {
+	for (i = 1; i <= game.maxclients; i++) {
 		ent= &g_edicts[i];
 		if(team == TEAM1) {
-			if (ent->client->pers.inventory[ITEM_INDEX(flag1_item)]) {
+			if (ent->client->inventory[ITEM_INDEX(flag1_item)]) {
 				Drop_Item(ent, flag1_item);
-				ent->client->pers.inventory[ITEM_INDEX(flag1_item)] = 0;
+				ent->client->inventory[ITEM_INDEX(flag1_item)] = 0;
 			}
 		} else if(team == TEAM2) {
-			if (ent->client->pers.inventory[ITEM_INDEX(flag2_item)]) {
+			if (ent->client->inventory[ITEM_INDEX(flag2_item)]) {
 				Drop_Item(ent, flag2_item);
-				ent->client->pers.inventory[ITEM_INDEX(flag2_item)] = 0;
+				ent->client->inventory[ITEM_INDEX(flag2_item)] = 0;
 			}
 		}
 	}
@@ -720,15 +712,15 @@ qboolean CTFPickup_Flag(edict_t * ent, edict_t * other)
 		if (!(ent->spawnflags & DROPPED_ITEM)) {
 			// the flag is at home base.  if the player has the enemy
 			// flag, he's just won!
-			if (other->client->pers.inventory[ITEM_INDEX(enemy_flag_item)]) {
+			if (other->client->inventory[ITEM_INDEX(enemy_flag_item)]) {
 				gi.bprintf(PRINT_HIGH, "%s captured the %s flag!\n",
 					   other->client->pers.netname, CTFOtherTeamName(team));
 				IRC_printf(IRC_T_GAME, "%n captured the %n flag!\n",
 					   other->client->pers.netname,
 					   CTFOtherTeamName(team));
-				other->client->pers.inventory[ITEM_INDEX(enemy_flag_item)] = 0;
+				other->client->inventory[ITEM_INDEX(enemy_flag_item)] = 0;
 
-				ctfgame.last_flag_capture = level.time;
+				ctfgame.last_flag_capture = level.framenum;
 				ctfgame.last_capture_team = team;
 				if (team == TEAM1)
 					ctfgame.team1++;
@@ -744,19 +736,19 @@ qboolean CTFPickup_Flag(edict_t * ent, edict_t * other)
 				CTFCapReward(other);
 
 				// Ok, let's do the player loop, hand out the bonuses
-				for (i = 1; i <= maxclients->value; i++) {
+				for (i = 1; i <= game.maxclients; i++) {
 					player = &g_edicts[i];
 					if (!player->inuse)
 						continue;
 
 					if (player->client->resp.team != other->client->resp.team)
-						player->client->resp.ctf_lasthurtcarrier = -5;
+						player->client->resp.ctf_lasthurtcarrier = 0;
 					else if (player->client->resp.team == other->client->resp.team) {
 						if (player != other)
 							player->client->resp.score += CTF_TEAM_BONUS;
 						// award extra points for capture assists
 						if (player->client->resp.ctf_lastreturnedflag +
-						    CTF_RETURN_FLAG_ASSIST_TIMEOUT > level.time) {
+							CTF_RETURN_FLAG_ASSIST_TIMEOUT * HZ > level.framenum) {
 							gi.bprintf(PRINT_HIGH,
 								   "%s gets an assist for returning the flag!\n",
 								   player->client->pers.netname);
@@ -766,7 +758,7 @@ qboolean CTFPickup_Flag(edict_t * ent, edict_t * other)
 							player->client->resp.score += CTF_RETURN_FLAG_ASSIST_BONUS;
 						}
 						if (player->client->resp.ctf_lastfraggedcarrier +
-						    CTF_FRAG_CARRIER_ASSIST_TIMEOUT > level.time) {
+							CTF_FRAG_CARRIER_ASSIST_TIMEOUT * HZ > level.framenum) {
 							gi.bprintf(PRINT_HIGH,
 								   "%s gets an assist for fragging the flag carrier!\n",
 								   player->client->pers.netname);
@@ -788,7 +780,7 @@ qboolean CTFPickup_Flag(edict_t * ent, edict_t * other)
 		IRC_printf(IRC_T_GAME, "%n returned the %s flag!\n", other->client->pers.netname, CTFTeamName(team));
 
 		other->client->resp.score += CTF_RECOVERY_BONUS;
-		other->client->resp.ctf_lastreturnedflag = level.time;
+		other->client->resp.ctf_lastreturnedflag = level.framenum;
 		gi.sound(ent, CHAN_RELIABLE + CHAN_NO_PHS_ADD + CHAN_VOICE,
 			 gi.soundindex("tng/flagret.wav"), 1, ATTN_NONE, 0);
 		//CTFResetFlag will remove this entity!  We must return false
@@ -796,8 +788,8 @@ qboolean CTFPickup_Flag(edict_t * ent, edict_t * other)
 		return false;
 	}
 // AQ2:TNG - JBravo adding UVtime
-	if (other->client->ctf_uvtime) {
-		other->client->ctf_uvtime = 0;
+	if (other->client->uvTime) {
+		other->client->uvTime = 0;
 		gi.centerprintf(other, "Flag taken! Shields are DOWN! Run for it!");
 	} else {
 		gi.centerprintf(other, "You've got the ENEMY FLAG! Run for it!");
@@ -807,8 +799,8 @@ qboolean CTFPickup_Flag(edict_t * ent, edict_t * other)
 	IRC_printf(IRC_T_GAME, "%n got the %n flag!\n", other->client->pers.netname, CTFTeamName(team));
 	other->client->resp.score += CTF_FLAG_BONUS;
 
-	other->client->pers.inventory[ITEM_INDEX(flag_item)] = 1;
-	other->client->resp.ctf_flagsince = level.time;
+	other->client->inventory[ITEM_INDEX(flag_item)] = 1;
+	other->client->resp.ctf_flagsince = level.framenum;
 
 	// pick up the flag
 	// if it's not a dropped flag, we just make is disappear
@@ -824,7 +816,7 @@ qboolean CTFPickup_Flag(edict_t * ent, edict_t * other)
 static void CTFDropFlagTouch(edict_t * ent, edict_t * other, cplane_t * plane, csurface_t * surf)
 {
 	//owner (who dropped us) can't touch for two secs
-	if (other == ent->owner && ent->nextthink - level.time > CTF_AUTO_FLAG_RETURN_TIMEOUT - 2)
+	if (other == ent->owner && ent->nextthink > level.framenum + (CTF_AUTO_FLAG_RETURN_TIMEOUT - 2) * HZ)
 		return;
 
 	Touch_Item(ent, other, plane, surf);
@@ -853,22 +845,22 @@ void CTFDeadDropFlag(edict_t * self)
 	if (!flag1_item || !flag2_item)
 		CTFInit();
 
-	if (self->client->pers.inventory[ITEM_INDEX(flag1_item)]) {
+	if (self->client->inventory[ITEM_INDEX(flag1_item)]) {
 		dropped = Drop_Item(self, flag1_item);
-		self->client->pers.inventory[ITEM_INDEX(flag1_item)] = 0;
+		self->client->inventory[ITEM_INDEX(flag1_item)] = 0;
 		gi.bprintf(PRINT_HIGH, "%s lost the %s flag!\n", self->client->pers.netname, CTFTeamName(TEAM1));
 		IRC_printf(IRC_T_GAME, "%n lost the %n flag!\n", self->client->pers.netname, CTFTeamName(TEAM1));
 
-	} else if (self->client->pers.inventory[ITEM_INDEX(flag2_item)]) {
+	} else if (self->client->inventory[ITEM_INDEX(flag2_item)]) {
 		dropped = Drop_Item(self, flag2_item);
-		self->client->pers.inventory[ITEM_INDEX(flag2_item)] = 0;
+		self->client->inventory[ITEM_INDEX(flag2_item)] = 0;
 		gi.bprintf(PRINT_HIGH, "%s lost the %s flag!\n", self->client->pers.netname, CTFTeamName(TEAM2));
 		IRC_printf(IRC_T_GAME, "%n lost the %n flag!\n", self->client->pers.netname, CTFTeamName(TEAM2));
 	}
 
 	if (dropped) {
 		dropped->think = CTFDropFlagThink;
-		dropped->nextthink = level.time + CTF_AUTO_FLAG_RETURN_TIMEOUT;
+		dropped->nextthink = level.framenum + CTF_AUTO_FLAG_RETURN_TIMEOUT * HZ;
 		dropped->touch = CTFDropFlagTouch;
 	}
 }
@@ -881,17 +873,17 @@ void CTFDrop_Flag(edict_t * ent, gitem_t * item)
 		if (!flag1_item || !flag2_item)
 			CTFInit();
 
-		if (ent->client->pers.inventory[ITEM_INDEX(flag1_item)]) {
+		if (ent->client->inventory[ITEM_INDEX(flag1_item)]) {
 			dropped = Drop_Item(ent, flag1_item);
-			ent->client->pers.inventory[ITEM_INDEX(flag1_item)] = 0;
-		} else if (ent->client->pers.inventory[ITEM_INDEX(flag2_item)]) {
+			ent->client->inventory[ITEM_INDEX(flag1_item)] = 0;
+		} else if (ent->client->inventory[ITEM_INDEX(flag2_item)]) {
 			dropped = Drop_Item(ent, flag2_item);
-			ent->client->pers.inventory[ITEM_INDEX(flag2_item)] = 0;
+			ent->client->inventory[ITEM_INDEX(flag2_item)] = 0;
 		}
 
 		if (dropped) {
 			dropped->think = CTFDropFlagThink;
-			dropped->nextthink = level.time + CTF_AUTO_FLAG_RETURN_TIMEOUT;
+			dropped->nextthink = level.framenum + CTF_AUTO_FLAG_RETURN_TIMEOUT * HZ;
 			dropped->touch = CTFDropFlagTouch;
 		}
 	} else {
@@ -907,7 +899,7 @@ static void CTFFlagThink(edict_t * ent)
 {
 	if (ent->solid != SOLID_NOT)
 		ent->s.frame = 173 + (((ent->s.frame - 173) + 1) % 16);
-	ent->nextthink = level.time + FRAMETIME;
+	ent->nextthink = level.framenum + FRAMEDIV;
 }
 
 void CTFFlagSetup(edict_t * ent)
@@ -937,10 +929,11 @@ void CTFFlagSetup(edict_t * ent)
 	}
 
 	VectorCopy(tr.endpos, ent->s.origin);
+	VectorCopy(tr.endpos, ent->old_origin);
 
 	gi.linkentity(ent);
 
-	ent->nextthink = level.time + FRAMETIME;
+	ent->nextthink = level.framenum + 1;
 	ent->think = CTFFlagThink;
 }
 
@@ -948,10 +941,10 @@ void CTFEffects(edict_t * player)
 {
 	player->s.effects &= ~(EF_FLAG1 | EF_FLAG2);
 	if (player->health > 0) {
-		if (player->client->pers.inventory[ITEM_INDEX(flag1_item)]) {
+		if (player->client->inventory[ITEM_INDEX(flag1_item)]) {
 			player->s.effects |= EF_FLAG1;
 		}
-		if (player->client->pers.inventory[ITEM_INDEX(flag2_item)]) {
+		if (player->client->inventory[ITEM_INDEX(flag2_item)]) {
 			player->s.effects |= EF_FLAG2;
 		}
 	}
@@ -960,9 +953,9 @@ void CTFEffects(edict_t * player)
 	if(player->health > 100)
 		player->s.effects |= EF_TAGTRAIL;
 
-	if (player->client->pers.inventory[ITEM_INDEX(flag1_item)])
+	if (player->client->inventory[ITEM_INDEX(flag1_item)])
 		player->s.modelindex3 = gi.modelindex("models/flags/flag1.md2");
-	else if (player->client->pers.inventory[ITEM_INDEX(flag2_item)])
+	else if (player->client->inventory[ITEM_INDEX(flag2_item)])
 		player->s.modelindex3 = gi.modelindex("models/flags/flag2.md2");
 	else
 		player->s.modelindex3 = 0;
@@ -974,7 +967,7 @@ void CTFCalcScores(void)
 	int i;
 
 	ctfgame.total1 = ctfgame.total2 = 0;
-	for (i = 0; i < maxclients->value; i++) {
+	for (i = 0; i < game.maxclients; i++) {
 		if (!g_edicts[i + 1].inuse)
 			continue;
 		if (game.clients[i].resp.team == TEAM1)
@@ -996,11 +989,11 @@ void SetCTFStats(edict_t * ent)
 	edict_t *e;
 
 	// logo headers for the frag display
-	ent->client->ps.stats[STAT_TEAM1_HEADER] = gi.imageindex("ctfsb1");
-	ent->client->ps.stats[STAT_TEAM2_HEADER] = gi.imageindex("ctfsb2");
+	ent->client->ps.stats[STAT_TEAM1_HEADER] = level.pic_ctf_teamtag[TEAM1];
+	ent->client->ps.stats[STAT_TEAM2_HEADER] = level.pic_ctf_teamtag[TEAM2];
 
 	// if during intermission, we must blink the team header of the winning team
-	if (level.intermissiontime && (level.framenum & 8)) {	// blink 1/8th second
+	if (level.intermission_framenum && ((level.realFramenum / FRAMEDIV) & 8)) {	// blink 1/8th second
 		// note that ctfgame.total[12] is set when we go to intermission
 		if (ctfgame.team1 > ctfgame.team2)
 			ent->client->ps.stats[STAT_TEAM1_HEADER] = 0;
@@ -1020,7 +1013,7 @@ void SetCTFStats(edict_t * ent)
 	//   flag at base
 	//   flag taken
 	//   flag dropped
-	p1 = gi.imageindex("i_ctf1");
+	p1 = level.pic_ctf_flagbase[TEAM1];
 	e = G_Find(NULL, FOFS(classname), "item_flag_team1");
 	if (e != NULL) {
 		if (e->solid == SOLID_NOT) {
@@ -1028,17 +1021,17 @@ void SetCTFStats(edict_t * ent)
 
 			// not at base
 			// check if on player
-			p1 = gi.imageindex("i_ctf1d");	// default to dropped
-			for (i = 1; i <= maxclients->value; i++)
-				if (g_edicts[i].inuse && g_edicts[i].client->pers.inventory[ITEM_INDEX(flag1_item)]) {
+			p1 = level.pic_ctf_flagdropped[TEAM1];	// default to dropped
+			for (i = 1; i <= game.maxclients; i++)
+				if (g_edicts[i].inuse && g_edicts[i].client->inventory[ITEM_INDEX(flag1_item)]) {
 					// enemy has it
-					p1 = gi.imageindex("i_ctf1t");
+					p1 = level.pic_ctf_flagtaken[TEAM1];
 					break;
 				}
 		} else if (e->spawnflags & DROPPED_ITEM)
-			p1 = gi.imageindex("i_ctf1d");	// must be dropped
+			p1 = level.pic_ctf_flagdropped[TEAM1];	// must be dropped
 	}
-	p2 = gi.imageindex("i_ctf2");
+	p2 = level.pic_ctf_flagbase[TEAM2];
 	e = G_Find(NULL, FOFS(classname), "item_flag_team2");
 	if (e != NULL) {
 		if (e->solid == SOLID_NOT) {
@@ -1046,27 +1039,27 @@ void SetCTFStats(edict_t * ent)
 
 			// not at base
 			// check if on player
-			p2 = gi.imageindex("i_ctf2d");	// default to dropped
-			for (i = 1; i <= maxclients->value; i++)
-				if (g_edicts[i].inuse && g_edicts[i].client->pers.inventory[ITEM_INDEX(flag2_item)]) {
+			p2 = level.pic_ctf_flagdropped[TEAM2];	// default to dropped
+			for (i = 1; i <= game.maxclients; i++)
+				if (g_edicts[i].inuse && g_edicts[i].client->inventory[ITEM_INDEX(flag2_item)]) {
 					// enemy has it
-					p2 = gi.imageindex("i_ctf2t");
+					p2 = level.pic_ctf_flagtaken[TEAM2];
 					break;
 				}
 		} else if (e->spawnflags & DROPPED_ITEM)
-			p2 = gi.imageindex("i_ctf2d");	// must be dropped
+			p2 = level.pic_ctf_flagdropped[TEAM2];	// must be dropped
 	}
 
 	ent->client->ps.stats[STAT_TEAM1_PIC] = p1;
 	ent->client->ps.stats[STAT_TEAM2_PIC] = p2;
 
-	if (ctfgame.last_flag_capture && level.time - ctfgame.last_flag_capture < 5) {
+	if (ctfgame.last_flag_capture && level.framenum < ctfgame.last_flag_capture + 5 * HZ) {
 		if (ctfgame.last_capture_team == TEAM1)
-			if (level.framenum & 8)
+			if ((level.realFramenum / FRAMEDIV) & 8)
 				ent->client->ps.stats[STAT_TEAM1_PIC] = p1;
 			else
 				ent->client->ps.stats[STAT_TEAM1_PIC] = 0;
-		else if (level.framenum & 8)
+		else if ((level.realFramenum / FRAMEDIV) & 8)
 			ent->client->ps.stats[STAT_TEAM2_PIC] = p2;
 		else
 			ent->client->ps.stats[STAT_TEAM2_PIC] = 0;
@@ -1076,16 +1069,19 @@ void SetCTFStats(edict_t * ent)
 	ent->client->ps.stats[STAT_TEAM2_SCORE] = ctfgame.team2;
 
 	ent->client->ps.stats[STAT_FLAG_PIC] = 0;
-	if (ent->client->resp.team == TEAM1 &&
-	    ent->client->pers.inventory[ITEM_INDEX(flag2_item)] && (level.framenum & 8))
-		ent->client->ps.stats[STAT_FLAG_PIC] = gi.imageindex("i_ctf2");
+	if ((level.realFramenum / FRAMEDIV) & 8)
+	{
+		if (ent->client->resp.team == TEAM1 &&
+			ent->client->inventory[ITEM_INDEX(flag2_item)])
+			ent->client->ps.stats[STAT_FLAG_PIC] = level.pic_ctf_flagbase[TEAM2];
 
-	else if (ent->client->resp.team == TEAM2 &&
-		 ent->client->pers.inventory[ITEM_INDEX(flag1_item)] && (level.framenum & 8))
-		ent->client->ps.stats[STAT_FLAG_PIC] = gi.imageindex("i_ctf1");
+		else if (ent->client->resp.team == TEAM2 &&
+			ent->client->inventory[ITEM_INDEX(flag1_item)])
+			ent->client->ps.stats[STAT_FLAG_PIC] = level.pic_ctf_flagbase[TEAM1];
+	}
 
 	ent->client->ps.stats[STAT_ID_VIEW] = 0;
-	if (!ent->client->resp.id)
+	if (!ent->client->pers.id)
 		SetIDView(ent);
 }
 
@@ -1105,233 +1101,6 @@ void SP_info_player_team2(edict_t * self)
 {
 }
 
-/*
-==================
-CTFScoreboardMessage
-==================
-*/
-void CTFScoreboardMessage(edict_t * ent, edict_t * killer)
-{
-	char entry[1024], string[1400], damage[50];
-	int len, i, j, k, n;
-	int sorted[2][MAX_CLIENTS];
-	int sortedscores[2][MAX_CLIENTS];
-	int score, total[2], totalscore[2];
-	int last[2];
-	gclient_t *cl;
-	edict_t *cl_ent;
-	int team, maxsize = 1000;
-
-	if (ent->client->scoreboardnum == 1) {
-		// sort the clients by team and score
-		total[0] = total[1] = 0;
-		last[0] = last[1] = 0;
-		totalscore[0] = totalscore[1] = 0;
-		for (i = 0; i < game.maxclients; i++) {
-			cl_ent = g_edicts + 1 + i;
-			if (!cl_ent->inuse)
-				continue;
-			if (game.clients[i].resp.team == TEAM1)
-				team = 0;
-			else if (game.clients[i].resp.team == TEAM2)
-				team = 1;
-			else
-				continue;	// unknown team?
-
-			score = game.clients[i].resp.score;
-			for (j = 0; j < total[team]; j++) {
-				if (score > sortedscores[team][j])
-					break;
-			}
-			for (k = total[team]; k > j; k--) {
-				sorted[team][k] = sorted[team][k - 1];
-				sortedscores[team][k] = sortedscores[team][k - 1];
-			}
-			sorted[team][j] = i;
-			sortedscores[team][j] = score;
-			totalscore[team] += score;
-			total[team]++;
-		}
-
-		// print level name and exit rules
-		// add the clients in sorted order
-		*string = 0;
-		len = 0;
-
-		// team one
-		sprintf(string, "if 30 xv 8 yv 8 pic 30 endif "
-			"xv 40 yv 28 string \"%4d/%-3d\" "
-			"xv 98 yv 12 num 2 26 "
-			"if 31 xv 168 yv 8 pic 31 endif "
-			"xv 200 yv 28 string \"%4d/%-3d\" "
-			"xv 256 yv 12 num 2 27 ", totalscore[0], total[0], totalscore[1], total[1]);
-		len = strlen(string);
-
-		for (i = 0; i < 16; i++) {
-			if (i >= total[0] && i >= total[1])
-				break;	// we're done
-			*entry = 0;
-
-			// left side
-			if (i < total[0]) {
-				cl = &game.clients[sorted[0][i]];
-				cl_ent = g_edicts + 1 + sorted[0][i];
-				sprintf(entry + strlen(entry),
-					"ctf 0 %d %d %d %d ",
-					42 + i * 8, sorted[0][i], cl->resp.score, cl->ping > 999 ? 999 : cl->ping);
-				if (cl_ent->client->pers.inventory[ITEM_INDEX(flag2_item)])
-					sprintf(entry + strlen(entry), "xv 56 yv %d picn sbfctf2 ", 42 + i * 8);
-				if (maxsize - len > strlen(entry)) {
-					strcat(string, entry);
-					len = strlen(string);
-					last[0] = i;
-				}
-			}
-			// right side
-			if (i < total[1]) {
-				cl = &game.clients[sorted[1][i]];
-				cl_ent = g_edicts + 1 + sorted[1][i];
-
-				sprintf(entry + strlen(entry),
-					"ctf 160 %d %d %d %d ",
-					42 + i * 8, sorted[1][i], cl->resp.score, cl->ping > 999 ? 999 : cl->ping);
-
-				if (cl_ent->client->pers.inventory[ITEM_INDEX(flag1_item)])
-					sprintf(entry + strlen(entry), "xv 216 yv %d picn sbfctf1 ", 42 + i * 8);
-				if (maxsize - len > strlen(entry)) {
-					strcat(string, entry);
-					len = strlen(string);
-					last[1] = i;
-				}
-			}
-		}
-
-		// put in spectators if we have enough room
-		if (last[0] > last[1])
-			j = last[0];
-		else
-			j = last[1];
-		j = (j + 2) * 8 + 42;
-
-		k = n = 0;
-		if (maxsize - len > 50) {
-			for (i = 0; i < maxclients->value; i++) {
-				cl_ent = g_edicts + 1 + i;
-				cl = &game.clients[i];
-				if (!cl_ent->inuse || cl_ent->solid != SOLID_NOT || cl_ent->client->resp.team != NOTEAM)
-					continue;
-
-				if (!k) {
-					k = 1;
-					sprintf(entry, "xv 0 yv %d string2 \"Spectators\" ", j);
-					strcat(string, entry);
-					len = strlen(string);
-					j += 8;
-				}
-
-				sprintf(entry + strlen(entry), "ctf %d %d %d %d %d ", (n & 1) ? 160 : 0,	// x
-					j,	// y
-					i,	// playernum
-					cl->resp.score, cl->ping > 999 ? 999 : cl->ping);
-				if (maxsize - len > strlen(entry)) {
-					strcat(string, entry);
-					len = strlen(string);
-				}
-
-				if (n & 1)
-					j += 8;
-				n++;
-			}
-		}
-
-		if (total[0] - last[0] > 1)	// couldn't fit everyone
-			sprintf(string + strlen(string),
-				"xv 8 yv %d string \"..and %d more\" ", 42 + (last[0] + 1) * 8, total[0] - last[0] - 1);
-		if (total[1] - last[1] > 1)	// couldn't fit everyone
-			sprintf(string + strlen(string),
-				"xv 168 yv %d string \"..and %d more\" ",
-				42 + (last[1] + 1) * 8, total[1] - last[1] - 1);
-	} else if (ent->client->scoreboardnum == 2) {
-		int total, score, ping;
-		int sortedscores[MAX_CLIENTS], sorted[MAX_CLIENTS];
-
-		total = score = 0;
-
-		for (i = 0; i < game.maxclients; i++) {
-			cl_ent = g_edicts + 1 + i;
-			if (!cl_ent->inuse)
-				continue;
-
-			score = game.clients[i].resp.score;
-			if (noscore->value) {
-				j = total;
-			} else {
-				for (j = 0; j < total; j++) {
-					if (score > sortedscores[j])
-						break;
-				}
-				for (k = total; k > j; k--) {
-					sorted[k] = sorted[k - 1];
-					sortedscores[k] = sortedscores[k - 1];
-				}
-			}
-			sorted[j] = i;
-			sortedscores[j] = score;
-			total++;
-		}
-
-		if (noscore->value)
-			// AQ2:TNG Deathwatch - Nice little bar
-		{
-			strcpy(string, "xv 0 yv 32 string2 \"Player          Time Ping\" "
-			       "xv 0 yv 40 string2 \"ùûûûûûûûûûûûûûü ùûûü ùûûü\" ");
-		} else {
-			strcpy(string,
-			       "xv 0 yv 32 string2 \"Frags Player          Time Ping Damage Kills\" "
-			       "xv 0 yv 40 string2 \"ùûûûü ùûûûûûûûûûûûûûü ùûûü ùûûü ùûûûûü ùûûûü\" ");
-		}
-		// AQ2:TNG END
-
-		for (i = 0; i < total; i++) {
-			ping = game.clients[sorted[i]].ping;
-			if (ping > 999)
-				ping = 999;
-			if (noscore->value) {
-				sprintf(string + strlen(string),
-					"xv 0 yv %d string \"%-15s %4d %4d\" ",
-					48 + i * 8,
-					game.clients[sorted[i]].pers.netname,
-					(level.framenum - game.clients[sorted[i]].resp.enterframe) / 600, ping);
-			} else {
-				if (game.clients[sorted[i]].resp.damage_dealt < 1000000)
-					sprintf(damage, "%d", game.clients[sorted[i]].resp.damage_dealt);
-				else
-					strcpy(damage, "******");
-				sprintf(string + strlen(string),
-					"xv 0 yv %d string \"%5d %-15s %4d %4d %6s %5d\" ",
-					48 + i * 8,
-					sortedscores[i],
-					game.clients[sorted[i]].pers.netname,
-					(level.framenum -
-					 game.clients[sorted[i]].resp.enterframe) / 600, ping,
-					damage, game.clients[sorted[i]].resp.kills);
-			}
-
-			if (strlen(string) > (maxsize - 100) && i < (total - 2)) {
-				sprintf(string + strlen(string),
-					"xv 0 yv %d string \"..and %d more\" ", 48 + (i + 1) * 8, (total - i - 1));
-				break;
-			}
-		}
-	}
-
-	if (strlen(string) > 1023)	// for debugging...
-		gi.dprintf("Warning: scoreboard string neared or exceeded max length\nDump:\n%s\n---\n", string);
-
-	gi.WriteByte(svc_layout);
-	gi.WriteString(string);
-}
-
 /*-----------------------------------------------------------------------*/
 /*QUAKED misc_ctf_banner (1 .5 0) (-4 -64 0) (4 64 248) TEAM2
 The origin is the bottom of the banner.
@@ -1340,7 +1109,7 @@ The banner is 248 tall.
 static void misc_ctf_banner_think(edict_t * ent)
 {
 	ent->s.frame = (ent->s.frame + 1) % 16;
-	ent->nextthink = level.time + FRAMETIME;
+	ent->nextthink = level.framenum + FRAMEDIV;
 }
 
 void SP_misc_ctf_banner(edict_t * ent)
@@ -1355,7 +1124,7 @@ void SP_misc_ctf_banner(edict_t * ent)
 	gi.linkentity(ent);
 
 	ent->think = misc_ctf_banner_think;
-	ent->nextthink = level.time + FRAMETIME;
+	ent->nextthink = level.framenum + 1;
 }
 
 /*QUAKED misc_ctf_small_banner (1 .5 0) (-4 -32 0) (4 32 124) TEAM2
@@ -1374,7 +1143,7 @@ void SP_misc_ctf_small_banner(edict_t * ent)
 	gi.linkentity(ent);
 
 	ent->think = misc_ctf_banner_think;
-	ent->nextthink = level.time + FRAMETIME;
+	ent->nextthink = level.framenum + 1;
 }
 
 /*-----------------------------------------------------------------------*/
@@ -1385,9 +1154,10 @@ void DeathmatchScoreboard(edict_t * ent);
 
 void CTFShowScores(edict_t * ent, pmenu_t * p)
 {
-	PMenu_Close(ent);
+	if (ent->client->layout == LAYOUT_MENU)
+		PMenu_Close(ent);
 
-	ent->client->showscores = true;
+	ent->client->layout = LAYOUT_SCORES;
 	ent->client->showinventory = false;
 	DeathmatchScoreboard(ent);
 }
@@ -1449,6 +1219,7 @@ static void old_teleporter_touch(edict_t * self, edict_t * other, cplane_t * pla
 
 	VectorCopy(dest->s.origin, other->s.origin);
 	VectorCopy(dest->s.origin, other->s.old_origin);
+	VectorCopy(dest->s.origin, other->old_origin);
 
 	// clear the velocity and hold them in place briefly
 	VectorClear(other->velocity);
@@ -1545,7 +1316,6 @@ void CTFCapReward(edict_t * ent)
 {
 	gclient_t *client;
 	gitem_t *item;
-	//edict_t etemp;  // FIXME: This was never used.
 	int was_bandaging = 0;
 	int band;
 	int player_weapon;
@@ -1562,40 +1332,39 @@ void CTFCapReward(edict_t * ent)
 	client = ent->client;
 
 	// give initial knife if none
-	if ((int)wp_flags->value & WPF_KNIFE &&
-			ent->client->pers.inventory[ITEM_INDEX(GET_ITEM(KNIFE_NUM))] == 0)
-		ent->client->pers.inventory[ITEM_INDEX(GET_ITEM(KNIFE_NUM))] += 1;
+	if (WPF_ALLOWED(KNIFE_NUM) && ent->client->inventory[ITEM_INDEX(GET_ITEM(KNIFE_NUM))] == 0)
+		ent->client->inventory[ITEM_INDEX(GET_ITEM(KNIFE_NUM))] += 1;
 
-	if (client->resp.item->typeNum == BAND_NUM) {
-		band =+ 1;
+	if (client->pers.chosenItem->typeNum == BAND_NUM) {
+		band += 1;
 		if (tgren->value > 0)	// team grenades is turned on
 		{
 			item = GET_ITEM(GRENADE_NUM);
-			client->pers.inventory[ITEM_INDEX(item)] = tgren->value;
+			client->inventory[ITEM_INDEX(item)] = tgren->value;
 		}
 
 	}
 
 	// give pistol clips
-	if ((int)wp_flags->value & WPF_MK23) {
+	if (WPF_ALLOWED(MK23_ANUM)) {
 		item = GET_ITEM(MK23_ANUM);
 		client->mk23_rds = client->mk23_max;
-		client->pers.inventory[ITEM_INDEX(item)] = 1*band;
+		client->inventory[ITEM_INDEX(item)] = 1*band;
 	}
 
 
-	player_weapon = client->resp.weapon->typeNum;
+	player_weapon = client->pers.chosenWeapon->typeNum;
 	// find out which weapon the player is holding in it's inventory
 	if(client->unique_weapon_total > 0) {
-		if(ent->client->pers.inventory[ITEM_INDEX(GET_ITEM(MP5_NUM))])
+		if(ent->client->inventory[ITEM_INDEX(GET_ITEM(MP5_NUM))])
 			player_weapon = MP5_NUM;
-		if(ent->client->pers.inventory[ITEM_INDEX(GET_ITEM(M4_NUM))])
+		if(ent->client->inventory[ITEM_INDEX(GET_ITEM(M4_NUM))])
 			player_weapon = M4_NUM;
-		if(ent->client->pers.inventory[ITEM_INDEX(GET_ITEM(M3_NUM))])
+		if(ent->client->inventory[ITEM_INDEX(GET_ITEM(M3_NUM))])
 			player_weapon = M3_NUM;
-		if(ent->client->pers.inventory[ITEM_INDEX(GET_ITEM(HC_NUM))])
+		if(ent->client->inventory[ITEM_INDEX(GET_ITEM(HC_NUM))])
 			player_weapon = HC_NUM;
-		if(ent->client->pers.inventory[ITEM_INDEX(GET_ITEM(SNIPER_NUM))])
+		if(ent->client->inventory[ITEM_INDEX(GET_ITEM(SNIPER_NUM))])
 			player_weapon = SNIPER_NUM;
 	}
 
@@ -1604,58 +1373,58 @@ void CTFCapReward(edict_t * ent)
 	if (player_weapon == MP5_NUM) {
 		if(client->unique_weapon_total < 1) {
 			item = GET_ITEM(MP5_NUM);
-			client->pers.inventory[ITEM_INDEX(item)] = 1;
+			client->inventory[ITEM_INDEX(item)] = 1;
 			client->unique_weapon_total = 1;
 		}
 		item = GET_ITEM(MP5_ANUM);
-		client->pers.inventory[ITEM_INDEX(item)] = 1*band;
+		client->inventory[ITEM_INDEX(item)] = 1*band;
 		client->mp5_rds = client->mp5_max;
 	} else if (player_weapon == M4_NUM) {
 		if(client->unique_weapon_total < 1) {
 			item = GET_ITEM(M4_NUM);
-			client->pers.inventory[ITEM_INDEX(item)] = 1;
+			client->inventory[ITEM_INDEX(item)] = 1;
 			client->unique_weapon_total = 1;
 		}
 		item = GET_ITEM(M4_ANUM);
-		client->pers.inventory[ITEM_INDEX(item)] = 1*band;
+		client->inventory[ITEM_INDEX(item)] = 1*band;
 		client->m4_rds = client->m4_max;
 	} else if (player_weapon == M3_NUM) {
 		if(client->unique_weapon_total < 1) {
 			item = GET_ITEM(M3_NUM);
-			client->pers.inventory[ITEM_INDEX(item)] = 1;
+			client->inventory[ITEM_INDEX(item)] = 1;
 			client->unique_weapon_total = 1;
 		}
 		item = GET_ITEM(SHELL_ANUM);
-		client->pers.inventory[ITEM_INDEX(item)] = 7*band;
+		client->inventory[ITEM_INDEX(item)] = 7*band;
 		client->shot_rds = client->shot_max;
 	} else if (player_weapon == HC_NUM) {
 		if(client->unique_weapon_total < 1) {
 			item = GET_ITEM(HC_NUM);
-			client->pers.inventory[ITEM_INDEX(item)] = 1;
+			client->inventory[ITEM_INDEX(item)] = 1;
 			client->unique_weapon_total = 1;
 		}
 		item = GET_ITEM(SHELL_ANUM);
-		client->pers.inventory[ITEM_INDEX(item)] = 12*band;
+		client->inventory[ITEM_INDEX(item)] = 12*band;
 		client->cannon_rds = client->cannon_max;
 	} else if (player_weapon == SNIPER_NUM) {
 		if(client->unique_weapon_total < 1) {
 			item = GET_ITEM(SNIPER_NUM);
-			client->pers.inventory[ITEM_INDEX(item)] = 1;
+			client->inventory[ITEM_INDEX(item)] = 1;
 			client->unique_weapon_total = 1;
 		}
 		item = GET_ITEM(SNIPER_ANUM);
-		client->pers.inventory[ITEM_INDEX(item)] = 10*band;
+		client->inventory[ITEM_INDEX(item)] = 10*band;
 		client->sniper_rds = client->sniper_max;
 	} else if (player_weapon == DUAL_NUM) {
 		item = GET_ITEM(DUAL_NUM);
-		client->pers.inventory[ITEM_INDEX(item)] = 1;
+		client->inventory[ITEM_INDEX(item)] = 1;
 
 		item = GET_ITEM(MK23_ANUM);
-		client->pers.inventory[ITEM_INDEX(item)] = 2*band;
+		client->inventory[ITEM_INDEX(item)] = 2*band;
 		client->dual_rds = client->dual_max;
 	} else if (player_weapon == KNIFE_NUM) {
 		item = GET_ITEM(KNIFE_NUM);
-		client->pers.inventory[ITEM_INDEX(item)] = 10*band;
+		client->inventory[ITEM_INDEX(item)] = 10*band;
 	}
 
 	if(ent->client->bandaging || ent->client->bandage_stopped)
@@ -1675,7 +1444,7 @@ void CTFCapReward(edict_t * ent)
 
 	// automagically change to special in any case, it's fully reloaded
 	if((client->curr_weap != player_weapon && ent->client->weaponstate == WEAPON_READY) || was_bandaging) {
-		client->newweapon = client->pers.weapon;
+		client->newweapon = client->weapon;
 		ent->client->weaponstate = WEAPON_READY;
 		ent->client->ps.gunframe = 0;
 		ReadySpecialWeapon(ent);
@@ -1683,7 +1452,6 @@ void CTFCapReward(edict_t * ent)
 
 	// give health times cap streak
 	ent->health = ent->max_health * (ent->client->resp.ctf_capstreak > 4 ? 4 : ent->client->resp.ctf_capstreak);
-	ent->client->pers.health = ent->health;
 
 	if(ent->client->resp.ctf_capstreak == 2)
 		gi.centerprintf(ent, "CAPTURED TWO TIMES IN A ROW!\n\nYou have been rewarded with DOUBLE health and ammo!\n\nNow go get some more!");

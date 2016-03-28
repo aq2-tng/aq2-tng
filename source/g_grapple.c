@@ -28,7 +28,7 @@ void CTFResetGrapple(edict_t *self)
 		gi.sound (self->owner, CHAN_RELIABLE+CHAN_WEAPON, gi.soundindex("weapons/grapple/grreset.wav"), volume, ATTN_NORM, 0);
 		cl = self->owner->client;
 		cl->ctf_grapple = NULL;
-		cl->ctf_grapplereleasetime = level.time;
+		cl->ctf_grapplereleaseframe = level.framenum;
 		cl->ctf_grapplestate = CTF_GRAPPLE_STATE_FLY; // we're firing, not on hook
 		cl->ps.pmove.pm_flags &= ~PMF_NO_PREDICTION;
 		G_FreeEdict(self);
@@ -152,7 +152,7 @@ void CTFGrapplePull(edict_t *self)
 	vec3_t hookdir, v;
 	float vlen;
 
-	if (strcmp(self->owner->client->pers.weapon->classname, "weapon_grapple") == 0 &&
+	if (strcmp(self->owner->client->weapon->classname, "weapon_grapple") == 0 &&
 		!self->owner->client->newweapon &&
 		self->owner->client->weaponstate != WEAPON_FIRING &&
 		self->owner->client->weaponstate != WEAPON_ACTIVATING) {
@@ -172,8 +172,7 @@ void CTFGrapplePull(edict_t *self)
 			gi.linkentity (self);
 		} else
 			VectorCopy(self->enemy->velocity, self->velocity);
-		if (self->enemy->takedamage &&
-			!CheckTeamDamage (self->enemy, self->owner)) {
+		if (self->enemy->takedamage) {
 			float volume = 1.0;
 
 			if (self->owner->client->silencer_shots)
@@ -234,6 +233,7 @@ void CTFFireGrapple (edict_t *self, vec3_t start, vec3_t dir, int damage, int sp
 	grapple = G_Spawn();
 	VectorCopy (start, grapple->s.origin);
 	VectorCopy (start, grapple->s.old_origin);
+	VectorCopy (start, grapple->old_origin);
 	vectoangles (dir, grapple->s.angles);
 	VectorScale (dir, speed, grapple->velocity);
 	grapple->movetype = MOVETYPE_FLYMISSILE;
@@ -246,7 +246,7 @@ void CTFFireGrapple (edict_t *self, vec3_t start, vec3_t dir, int damage, int sp
 //	grapple->s.sound = gi.soundindex ("misc/lasfly.wav");
 	grapple->owner = self;
 	grapple->touch = CTFGrappleTouch;
-//	grapple->nextthink = level.time + FRAMETIME;
+//	grapple->nextthink = level.framenum + 1;
 //	grapple->think = CTFGrappleThink;
 	grapple->dmg = damage;
 	self->client->ctf_grapple = grapple;
