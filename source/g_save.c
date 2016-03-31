@@ -367,7 +367,7 @@ void InitGame( void )
 	dmflags = gi.cvar( "dmflags", "0", CVAR_SERVERINFO );
 	fraglimit = gi.cvar( "fraglimit", "0", CVAR_SERVERINFO );
 	timelimit = gi.cvar( "timelimit", "0", CVAR_SERVERINFO );
-	maptime = gi.cvar("maptime", "0:00", CVAR_SERVERINFO);
+	maptime = gi.cvar("maptime", "0:00", CVAR_SERVERINFO | CVAR_NOSET);
 	capturelimit = gi.cvar( "capturelimit", "0", CVAR_SERVERINFO );
 	password = gi.cvar( "password", "", CVAR_USERINFO );
 	filterban = gi.cvar( "filterban", "1", 0 );
@@ -460,9 +460,9 @@ void InitGame( void )
 	mm_pausecount = gi.cvar( "mm_allowcount", "3", CVAR_LATCH );
 	mm_pausetime = gi.cvar( "mm_pausetime", "2", CVAR_LATCH );
 
-	teams[TEAM1].teamscore = gi.cvar( "t1", "0", CVAR_SERVERINFO );
-	teams[TEAM2].teamscore = gi.cvar( "t2", "0", CVAR_SERVERINFO );
-	teams[TEAM3].teamscore = gi.cvar( "t3", "0", CVAR_SERVERINFO );
+	teams[TEAM1].teamscore = gi.cvar("t1", "0", CVAR_SERVERINFO | CVAR_NOSET);
+	teams[TEAM2].teamscore = gi.cvar("t2", "0", CVAR_SERVERINFO | CVAR_NOSET);
+	teams[TEAM3].teamscore = gi.cvar("t3", "0", CVAR_SERVERINFO | CVAR_NOSET);
 	stats_endmap = gi.cvar( "stats_endmap", "1", 0 );
 	stats_afterround = gi.cvar( "stats_afterround", "0", 0 );
 
