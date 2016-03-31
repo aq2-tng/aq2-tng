@@ -902,11 +902,6 @@ void ExitLevel (void)
 			gi.cvar_forceset(teams[i].teamscore->name, "0");
 		}
 	}
-
-	if (ctf->value)
-	{
-		CTFInit ();
-	}
 }
 
 // TNG Darkmatch

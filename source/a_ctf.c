@@ -60,19 +60,15 @@ cvar_t *ctf_model;
 
 /*--------------------------------------------------------------------------*/
 
-gitem_t *flag1_item;
-gitem_t *flag2_item;
+gitem_t *team_flag[TEAM_TOP];
+
+//FIXME: should ctfgame score/last_flag_capture/last_capture_team reset when match is over/reset score cmd is used?
 
 void CTFInit(void)
 {
-	if (!flag1_item)
-		flag1_item = FindItemByClassname("item_flag_team1");
-	if (!flag2_item)
-		flag2_item = FindItemByClassname("item_flag_team2");
-	if(ctfgame.author)
-		gi.TagFree(ctfgame.author);
-	if(ctfgame.comment)
-		gi.TagFree(ctfgame.comment);
+	team_flag[TEAM1] = FindItemByClassname("item_flag_team1");
+	team_flag[TEAM2] = FindItemByClassname("item_flag_team2");
+
 	memset(&ctfgame, 0, sizeof(ctfgame));
 }
 
@@ -84,6 +80,8 @@ qboolean CTFLoadConfig(char *mapname)
 	char *ptr;
 	FILE *fh;
 
+	memset(&ctfgame, 0, sizeof(ctfgame));
+
 	gi.dprintf("Trying to load CTF configuration file\n", mapname);
 
 	/* zero is perfectly acceptable respawn time, but we want to know if it came from the config or not */
@@ -92,8 +90,7 @@ qboolean CTFLoadConfig(char *mapname)
 
 	sprintf (buf, "%s/tng/%s.ctf", GAMEVERSION, mapname);
 	fh = fopen (buf, "r");
-	if (!fh)
-	{
+	if (!fh) {
 		gi.dprintf ("Warning: CTF configuration file %s was not found.\n", buf);
 		return false;
 	}
@@ -103,14 +100,12 @@ qboolean CTFLoadConfig(char *mapname)
 	ptr = INI_Find(fh, "ctf", "author");
 	if(ptr) {
 		gi.dprintf(" Author    : %s\n", ptr);
-		ctfgame.author = gi.TagMalloc(strlen(ptr)+1, TAG_LEVEL);
-		strcpy(ctfgame.author, ptr);
+		Q_strncpyz(ctfgame.author, ptr, sizeof(ctfgame.author));
 	}
 	ptr = INI_Find(fh, "ctf", "comment");
 	if(ptr) {
 		gi.dprintf(" Comment   : %s\n", ptr);
-		ctfgame.comment = gi.TagMalloc(strlen(ptr)+1, TAG_LEVEL);
-		strcpy(ctfgame.comment, ptr);
+		Q_strncpyz(ctfgame.comment, ptr, sizeof(ctfgame.comment));
 	}
 
 	ptr = INI_Find(fh, "ctf", "type");
@@ -277,7 +272,7 @@ qboolean HasFlag(edict_t * ent)
 {
 	if (!ctf->value)
 		return false;
-	if (ent->client->inventory[ITEM_INDEX(flag1_item)] || ent->client->inventory[ITEM_INDEX(flag2_item)])
+	if (ent->client->inventory[items[FLAG_T1_NUM].index] || ent->client->inventory[items[FLAG_T2_NUM].index])
 		return true;
 	return false;
 }
@@ -474,7 +469,6 @@ void CTFFragBonuses(edict_t * targ, edict_t * inflictor, edict_t * attacker)
 	int i, otherteam;
 	gitem_t *flag_item, *enemy_flag_item;
 	edict_t *ent, *flag, *carrier;
-	char *c;
 	vec3_t v1, v2;
 
 	carrier = NULL;
@@ -484,17 +478,12 @@ void CTFFragBonuses(edict_t * targ, edict_t * inflictor, edict_t * attacker)
 		return;
 
 	otherteam = CTFOtherTeam(targ->client->resp.team);
-	if (otherteam < 0)
+	if (otherteam < 1)
 		return;		// whoever died isn't on a team
 
 	// same team, if the flag at base, check to he has the enemy flag
-	if (targ->client->resp.team == TEAM1) {
-		flag_item = flag1_item;
-		enemy_flag_item = flag2_item;
-	} else {
-		flag_item = flag2_item;
-		enemy_flag_item = flag1_item;
-	}
+	flag_item = team_flag[targ->client->resp.team];
+	enemy_flag_item = team_flag[otherteam];
 
 	// did the attacker frag the flag carrier?
 	if (targ->client->inventory[ITEM_INDEX(enemy_flag_item)]) {
@@ -531,19 +520,8 @@ void CTFFragBonuses(edict_t * targ, edict_t * inflictor, edict_t * attacker)
 	// flag and flag carrier area defense bonuses
 	// we have to find the flag and carrier entities
 	// find the flag
-	switch (attacker->client->resp.team) {
-	case TEAM1:
-		c = "item_flag_team1";
-		break;
-	case TEAM2:
-		c = "item_flag_team2";
-		break;
-	default:
-		return;
-	}
-
 	flag = NULL;
-	while ((flag = G_Find(flag, FOFS(classname), c)) != NULL) {
+	while ((flag = G_Find(flag, FOFS(classname), flag_item->classname)) != NULL) {
 		if (!(flag->spawnflags & DROPPED_ITEM))
 			break;
 	}
@@ -604,17 +582,16 @@ void CTFFragBonuses(edict_t * targ, edict_t * inflictor, edict_t * attacker)
 
 void CTFCheckHurtCarrier(edict_t * targ, edict_t * attacker)
 {
-	gitem_t *flag_item;
+	int otherteam;
 
 	if (!targ->client || !attacker->client)
 		return;
 
-	if (targ->client->resp.team == TEAM1)
-		flag_item = flag2_item;
-	else
-		flag_item = flag1_item;
+	otherteam = CTFOtherTeam(targ->client->resp.team);
+	if (otherteam < 1)
+		return;
 
-	if (targ->client->inventory[ITEM_INDEX(flag_item)] &&
+	if (targ->client->inventory[ITEM_INDEX(team_flag[otherteam])] &&
 	    targ->client->resp.team != attacker->client->resp.team)
 		attacker->client->resp.ctf_lasthurtcarrier = level.framenum;
 }
@@ -623,38 +600,22 @@ void CTFCheckHurtCarrier(edict_t * targ, edict_t * attacker)
 
 void CTFResetFlag(int team)
 {
-	char *c;
 	int i;
 	edict_t *ent = NULL;
-
-	switch (team) {
-	case TEAM1:
-		c = "item_flag_team1";
-		break;
-	case TEAM2:
-		c = "item_flag_team2";
-		break;
-	default:
-		return;
-	}
+	gitem_t *teamFlag = team_flag[team];
 
 	/* hifi: drop this team flag if a player is carrying one (so the next loop returns it correctly) */
-	for (i = 1; i <= game.maxclients; i++) {
-		ent= &g_edicts[i];
-		if(team == TEAM1) {
-			if (ent->client->inventory[ITEM_INDEX(flag1_item)]) {
-				Drop_Item(ent, flag1_item);
-				ent->client->inventory[ITEM_INDEX(flag1_item)] = 0;
-			}
-		} else if(team == TEAM2) {
-			if (ent->client->inventory[ITEM_INDEX(flag2_item)]) {
-				Drop_Item(ent, flag2_item);
-				ent->client->inventory[ITEM_INDEX(flag2_item)] = 0;
-			}
+	for (i = 0, ent = ent = &g_edicts[1]; i < game.maxclients; i++, ent++) {
+		if (!ent->inuse)
+			continue;
+
+		if (ent->client->inventory[ITEM_INDEX(teamFlag)]) {
+			Drop_Item(ent, teamFlag);
+			ent->client->inventory[ITEM_INDEX(teamFlag)] = 0;
 		}
 	}
 
-	while ((ent = G_Find(ent, FOFS(classname), c)) != NULL) {
+	while ((ent = G_Find(ent, FOFS(classname), teamFlag->classname)) != NULL) {
 		if (ent->spawnflags & DROPPED_ITEM)
 			G_FreeEdict(ent);
 		else {
@@ -694,11 +655,11 @@ qboolean CTFPickup_Flag(edict_t * ent, edict_t * other)
 
 	// same team, if the flag at base, check to he has the enemy flag
 	if (team == TEAM1) {
-		flag_item = flag1_item;
-		enemy_flag_item = flag2_item;
+		flag_item = team_flag[TEAM1];
+		enemy_flag_item = team_flag[TEAM2];
 	} else {
-		flag_item = flag2_item;
-		enemy_flag_item = flag1_item;
+		flag_item = team_flag[TEAM2];
+		enemy_flag_item = team_flag[TEAM1];
 	}
 
 	if (team == other->client->resp.team) {
@@ -836,18 +797,15 @@ void CTFDeadDropFlag(edict_t * self)
 {
 	edict_t *dropped = NULL;
 
-	if (!flag1_item || !flag2_item)
-		CTFInit();
-
-	if (self->client->inventory[ITEM_INDEX(flag1_item)]) {
-		dropped = Drop_Item(self, flag1_item);
-		self->client->inventory[ITEM_INDEX(flag1_item)] = 0;
+	if (self->client->inventory[ITEM_INDEX(team_flag[TEAM1])]) {
+		dropped = Drop_Item(self, team_flag[TEAM1]);
+		self->client->inventory[ITEM_INDEX(team_flag[TEAM1])] = 0;
 		gi.bprintf(PRINT_HIGH, "%s lost the %s flag!\n", self->client->pers.netname, CTFTeamName(TEAM1));
 		IRC_printf(IRC_T_GAME, "%n lost the %n flag!\n", self->client->pers.netname, CTFTeamName(TEAM1));
 
-	} else if (self->client->inventory[ITEM_INDEX(flag2_item)]) {
-		dropped = Drop_Item(self, flag2_item);
-		self->client->inventory[ITEM_INDEX(flag2_item)] = 0;
+	} else if (self->client->inventory[ITEM_INDEX(team_flag[TEAM2])]) {
+		dropped = Drop_Item(self, team_flag[TEAM2]);
+		self->client->inventory[ITEM_INDEX(team_flag[TEAM2])] = 0;
 		gi.bprintf(PRINT_HIGH, "%s lost the %s flag!\n", self->client->pers.netname, CTFTeamName(TEAM2));
 		IRC_printf(IRC_T_GAME, "%n lost the %n flag!\n", self->client->pers.netname, CTFTeamName(TEAM2));
 	}
@@ -864,15 +822,12 @@ void CTFDrop_Flag(edict_t * ent, gitem_t * item)
 	edict_t *dropped = NULL;
 
 	if (ctf_dropflag->value) {
-		if (!flag1_item || !flag2_item)
-			CTFInit();
-
-		if (ent->client->inventory[ITEM_INDEX(flag1_item)]) {
-			dropped = Drop_Item(ent, flag1_item);
-			ent->client->inventory[ITEM_INDEX(flag1_item)] = 0;
-		} else if (ent->client->inventory[ITEM_INDEX(flag2_item)]) {
-			dropped = Drop_Item(ent, flag2_item);
-			ent->client->inventory[ITEM_INDEX(flag2_item)] = 0;
+		if (ent->client->inventory[ITEM_INDEX(team_flag[TEAM1])]) {
+			dropped = Drop_Item(ent, team_flag[TEAM1]);
+			ent->client->inventory[ITEM_INDEX(team_flag[TEAM1])] = 0;
+		} else if (ent->client->inventory[ITEM_INDEX(team_flag[TEAM2])]) {
+			dropped = Drop_Item(ent, team_flag[TEAM2]);
+			ent->client->inventory[ITEM_INDEX(team_flag[TEAM2])] = 0;
 		}
 
 		if (dropped) {
@@ -882,7 +837,7 @@ void CTFDrop_Flag(edict_t * ent, gitem_t * item)
 		}
 	} else {
 		if (rand() & 1)
-			gi.cprintf(ent, PRINT_HIGH, "Only lusers drop flags.\n");
+			gi.cprintf(ent, PRINT_HIGH, "Only losers drop flags.\n");
 		else
 			gi.cprintf(ent, PRINT_HIGH, "Winners don't drop flags.\n");
 	}
@@ -934,25 +889,24 @@ void CTFFlagSetup(edict_t * ent)
 void CTFEffects(edict_t * player)
 {
 	player->s.effects &= ~(EF_FLAG1 | EF_FLAG2);
-	if (player->health > 0) {
-		if (player->client->inventory[ITEM_INDEX(flag1_item)]) {
-			player->s.effects |= EF_FLAG1;
-		}
-		if (player->client->inventory[ITEM_INDEX(flag2_item)]) {
-			player->s.effects |= EF_FLAG2;
-		}
-	}
 
 	// megahealth players glow anyway
 	if(player->health > 100)
 		player->s.effects |= EF_TAGTRAIL;
 
-	if (player->client->inventory[ITEM_INDEX(flag1_item)])
+	player->s.modelindex3 = 0;
+	if (player->client->inventory[ITEM_INDEX(team_flag[TEAM1])])
+	{
 		player->s.modelindex3 = gi.modelindex("models/flags/flag1.md2");
-	else if (player->client->inventory[ITEM_INDEX(flag2_item)])
+		if (player->health > 0)
+			player->s.effects |= EF_FLAG1;
+	}
+	else if (player->client->inventory[ITEM_INDEX(team_flag[TEAM2])])
+	{
 		player->s.modelindex3 = gi.modelindex("models/flags/flag2.md2");
-	else
-		player->s.modelindex3 = 0;
+		if (player->health > 0)
+			player->s.effects |= EF_FLAG2;
+	}
 }
 
 // called when we enter the intermission
@@ -979,7 +933,7 @@ void GetCTFScores(int *t1score, int *t2score)
 
 void SetCTFStats(edict_t * ent)
 {
-	int p1, p2;
+	int teamnum, flagpic[TEAM_TOP] = {0}, doBlink = ((level.realFramenum / FRAMEDIV) & 8);
 	edict_t *e;
 
 	// logo headers for the frag display
@@ -987,7 +941,7 @@ void SetCTFStats(edict_t * ent)
 	ent->client->ps.stats[STAT_TEAM2_HEADER] = level.pic_ctf_teamtag[TEAM2];
 
 	// if during intermission, we must blink the team header of the winning team
-	if (level.intermission_framenum && ((level.realFramenum / FRAMEDIV) & 8)) {	// blink 1/8th second
+	if (level.intermission_framenum && doBlink) {	// blink 1/8th second
 		// note that ctfgame.total[12] is set when we go to intermission
 		if (ctfgame.team1 > ctfgame.team2)
 			ent->client->ps.stats[STAT_TEAM1_HEADER] = 0;
@@ -1007,71 +961,43 @@ void SetCTFStats(edict_t * ent)
 	//   flag at base
 	//   flag taken
 	//   flag dropped
-	p1 = level.pic_ctf_flagbase[TEAM1];
-	e = G_Find(NULL, FOFS(classname), "item_flag_team1");
-	if (e != NULL) {
-		if (e->solid == SOLID_NOT) {
-			int i;
+	for (teamnum = TEAM1; teamnum <= TEAM2; teamnum++) {
+		flagpic[teamnum] = level.pic_ctf_flagbase[teamnum];
+		e = G_Find(NULL, FOFS(classname), team_flag[teamnum]->classname);
+		if (e != NULL) {
+			if (e->solid == SOLID_NOT) {
+				int i;
 
-			// not at base
-			// check if on player
-			p1 = level.pic_ctf_flagdropped[TEAM1];	// default to dropped
-			for (i = 1; i <= game.maxclients; i++)
-				if (g_edicts[i].inuse && g_edicts[i].client->inventory[ITEM_INDEX(flag1_item)]) {
-					// enemy has it
-					p1 = level.pic_ctf_flagtaken[TEAM1];
-					break;
-				}
-		} else if (e->spawnflags & DROPPED_ITEM)
-			p1 = level.pic_ctf_flagdropped[TEAM1];	// must be dropped
-	}
-	p2 = level.pic_ctf_flagbase[TEAM2];
-	e = G_Find(NULL, FOFS(classname), "item_flag_team2");
-	if (e != NULL) {
-		if (e->solid == SOLID_NOT) {
-			int i;
-
-			// not at base
-			// check if on player
-			p2 = level.pic_ctf_flagdropped[TEAM2];	// default to dropped
-			for (i = 1; i <= game.maxclients; i++)
-				if (g_edicts[i].inuse && g_edicts[i].client->inventory[ITEM_INDEX(flag2_item)]) {
-					// enemy has it
-					p2 = level.pic_ctf_flagtaken[TEAM2];
-					break;
-				}
-		} else if (e->spawnflags & DROPPED_ITEM)
-			p2 = level.pic_ctf_flagdropped[TEAM2];	// must be dropped
+				// not at base
+				// check if on player
+				flagpic[teamnum] = level.pic_ctf_flagdropped[teamnum];	// default to dropped
+				for (i = 1; i <= game.maxclients; i++)
+					if (g_edicts[i].inuse && g_edicts[i].client->inventory[ITEM_INDEX(team_flag[teamnum])]) {
+						// enemy has it
+						flagpic[teamnum] = level.pic_ctf_flagtaken[teamnum];
+						break;
+					}
+			} else if (e->spawnflags & DROPPED_ITEM)
+				flagpic[teamnum] = level.pic_ctf_flagdropped[teamnum];	// must be dropped
+		}
 	}
 
-	ent->client->ps.stats[STAT_TEAM1_PIC] = p1;
-	ent->client->ps.stats[STAT_TEAM2_PIC] = p2;
-
-	if (ctfgame.last_flag_capture && level.framenum < ctfgame.last_flag_capture + 5 * HZ) {
-		if (ctfgame.last_capture_team == TEAM1)
-			if ((level.realFramenum / FRAMEDIV) & 8)
-				ent->client->ps.stats[STAT_TEAM1_PIC] = p1;
-			else
-				ent->client->ps.stats[STAT_TEAM1_PIC] = 0;
-		else if ((level.realFramenum / FRAMEDIV) & 8)
-			ent->client->ps.stats[STAT_TEAM2_PIC] = p2;
-		else
-			ent->client->ps.stats[STAT_TEAM2_PIC] = 0;
+	if (ctfgame.last_flag_capture && level.framenum < ctfgame.last_flag_capture + 5 * HZ && !doBlink) {
+		flagpic[ctfgame.last_capture_team] = 0;
 	}
+
+	ent->client->ps.stats[STAT_TEAM1_PIC] = flagpic[TEAM1];
+	ent->client->ps.stats[STAT_TEAM2_PIC] = flagpic[TEAM2];
 
 	ent->client->ps.stats[STAT_TEAM1_SCORE] = ctfgame.team1;
 	ent->client->ps.stats[STAT_TEAM2_SCORE] = ctfgame.team2;
 
 	ent->client->ps.stats[STAT_FLAG_PIC] = 0;
-	if ((level.realFramenum / FRAMEDIV) & 8)
+	if (doBlink)
 	{
-		if (ent->client->resp.team == TEAM1 &&
-			ent->client->inventory[ITEM_INDEX(flag2_item)])
-			ent->client->ps.stats[STAT_FLAG_PIC] = level.pic_ctf_flagbase[TEAM2];
-
-		else if (ent->client->resp.team == TEAM2 &&
-			ent->client->inventory[ITEM_INDEX(flag1_item)])
-			ent->client->ps.stats[STAT_FLAG_PIC] = level.pic_ctf_flagbase[TEAM1];
+		teamnum = CTFOtherTeam(ent->client->resp.team);
+		if (teamnum > 0 && ent->client->inventory[ITEM_INDEX(team_flag[teamnum])])
+			ent->client->ps.stats[STAT_FLAG_PIC] = level.pic_ctf_flagbase[teamnum];
 	}
 
 	ent->client->ps.stats[STAT_ID_VIEW] = 0;
@@ -1171,14 +1097,12 @@ qboolean CTFCheckRules(void)
 				gi.soundindex ("tng/1_minute.wav"), 1.0, ATTN_NONE, 0.0);
 			ctfgame.halftime = 1;
 		}
-
-		if(ctfgame.halftime == 1 && level.time == (timelimit->value * 60) / 2 - 10) {
+		else if(ctfgame.halftime == 1 && level.time == (timelimit->value * 60) / 2 - 10) {
 			gi.sound (&g_edicts[0], CHAN_VOICE | CHAN_NO_PHS_ADD,
 				gi.soundindex ("world/10_0.wav"), 1.0, ATTN_NONE, 0.0);
 			ctfgame.halftime = 2;
 		}
-
-		if(ctfgame.halftime < 3 && level.time == (timelimit->value * 60) / 2 + 1) {
+		else if(ctfgame.halftime < 3 && level.time == (timelimit->value * 60) / 2 + 1) {
 			team_round_going = team_round_countdown = team_game_going = 0;
 			MakeAllLivePlayersObservers ();
 			CTFSwapTeams();

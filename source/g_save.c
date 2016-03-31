@@ -538,8 +538,7 @@ void InitGame( void )
 	globals.edicts = g_edicts;
 	globals.max_edicts = game.maxentities;
 
-	if (ctf->value)
-		CTFInit();
+	CTFInit();
 
 	//PG BUND - must be at end of gameinit:
 	vInitGame();
