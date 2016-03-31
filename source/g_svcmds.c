@@ -494,6 +494,20 @@ void SVCmd_SoftQuit_f (void)
 	softquit = 1;
 }
 
+qboolean ScrambleTeams(void);
+
+void SVCmd_Scramble_f(void)
+{
+	if (!teamplay->value) {
+		gi.cprintf(NULL, PRINT_HIGH, "Scramble is for teamplay only\n");
+		return;
+	}
+
+	if (!ScrambleTeams()) {
+		gi.cprintf(NULL, PRINT_HIGH, "Need more players to scramble\n");
+	}
+}
+
 /*
 =================
 ServerCommand
@@ -534,6 +548,8 @@ void ServerCommand (void)
 		SVCmd_ResetScores_f ();
 	else if (Q_stricmp (cmd, "softquit") == 0)
 		SVCmd_SoftQuit_f ();
+	else if (Q_stricmp(cmd, "scramble") == 0)
+		SVCmd_Scramble_f();
 	else
 		gi.cprintf (NULL, PRINT_HIGH, "Unknown server command \"%s\"\n", cmd);
 }

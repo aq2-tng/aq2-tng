@@ -1915,51 +1915,10 @@ cvar_t *_InitScrambleVote (ini_t * ini)
 	return (use_scramblevote);
 }
 
-void _CalcScrambleVotes (int *numclients, int *numvotes, float *percent)
+qboolean ScrambleTeams(void)
 {
-	int i;
-	edict_t *ent;
-
-	*numclients = _numclients ();
-	*numvotes = 0;
-	*percent = 0.00f;
-
-	for (i = 1; i <= game.maxclients; i++)
-	{
-		ent = &g_edicts[i];
-		if (ent->client && ent->inuse && ent->client->resp.scramblevote)
-		{
-			(*numvotes)++;
-		}
-	}
-
-	if(*numvotes > 0)
-		(*percent) = (float) (((float) *numvotes / (float) *numclients) * 100.0);
-}
-
-void _CheckScrambleVote (void)
-{
-	int i, j, numvotes, playernum, numplayers, newteam;
-	float votes;
+	int i, j, numplayers, newteam;
 	edict_t *ent, *players[MAX_CLIENTS], *oldCaptains[TEAM_TOP] = {NULL};
-	char buf[128];
-
-
-	_CalcScrambleVotes(&playernum, &numvotes, &votes);
-
-	if (numvotes > 0)
-	{
-		Com_sprintf(buf, sizeof(buf), "Scramble: %d votes (%.1f%%), need %.1f%%", numvotes, votes, scramblevote_pass->value);
-		G_HighlightStr(buf, buf, sizeof(buf));
-		gi.bprintf(PRINT_HIGH, "%s\n", buf);
-	}
-
-	if (playernum < scramblevote_min->value)
-		return;
-	if (numvotes < scramblevote_need->value)
-		return;
-	if (votes < scramblevote_pass->value)
-		return;
 
 	numplayers = 0;
 	for (i = 0, ent = &g_edicts[1]; i < game.maxclients; i++, ent++)
@@ -1971,7 +1930,7 @@ void _CheckScrambleVote (void)
 	}
 
 	if (numplayers <= teamCount)
-		return;
+		return false;
 
 	for (i = numplayers - 1; i > 0; i--) {
 		j = rand() % (i + 1);
@@ -2009,6 +1968,54 @@ void _CheckScrambleVote (void)
 
 		ent->client->resp.scramblevote = 0;
 	}
+	return true;
+}
+
+
+void _CalcScrambleVotes (int *numclients, int *numvotes, float *percent)
+{
+	int i;
+	edict_t *ent;
+
+	*numclients = _numclients ();
+	*numvotes = 0;
+	*percent = 0.00f;
+
+	for (i = 1; i <= game.maxclients; i++)
+	{
+		ent = &g_edicts[i];
+		if (ent->client && ent->inuse && ent->client->resp.scramblevote)
+		{
+			(*numvotes)++;
+		}
+	}
+
+	if(*numvotes > 0)
+		(*percent) = (float) (((float) *numvotes / (float) *numclients) * 100.0);
+}
+
+void _CheckScrambleVote (void)
+{
+	int numvotes = 0, playernum = 0;
+	float votes = 0.0f;
+	char buf[128];
+
+	_CalcScrambleVotes(&playernum, &numvotes, &votes);
+
+	if (numvotes > 0) {
+		Com_sprintf(buf, sizeof(buf), "Scramble: %d votes (%.1f%%), need %.1f%%", numvotes, votes, scramblevote_pass->value);
+		G_HighlightStr(buf, buf, sizeof(buf));
+		gi.bprintf(PRINT_HIGH, "%s\n", buf);
+	}
+
+	if (playernum < scramblevote_min->value)
+		return;
+	if (numvotes < scramblevote_need->value)
+		return;
+	if (votes < scramblevote_pass->value)
+		return;
+
+	ScrambleTeams();
 }
 
 void _VoteScrambleSelected (edict_t * ent, pmenu_t * p)
