@@ -330,6 +330,7 @@ cvar_t *deathmatch;
 cvar_t *dmflags;
 cvar_t *fraglimit;
 cvar_t *timelimit;
+cvar_t *maptime;
 cvar_t *capturelimit;
 cvar_t *password;
 cvar_t *maxclients;
@@ -1033,6 +1034,14 @@ void G_RunFrame (void)
 		}
 		level.framenum++;
 		level.time = level.framenum * FRAMETIME;
+
+		if (level.framenum % (5 * HZ) == 0) {
+			unsigned int gametime;
+
+			gametime = (matchmode->value) ? level.matchTime : level.time;
+
+			gi.cvar_forceset(maptime->name, va("%d:%02d", gametime / 60, gametime % 60));
+		}
 	}
 }
 

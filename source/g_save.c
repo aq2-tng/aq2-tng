@@ -367,6 +367,7 @@ void InitGame( void )
 	dmflags = gi.cvar( "dmflags", "0", CVAR_SERVERINFO );
 	fraglimit = gi.cvar( "fraglimit", "0", CVAR_SERVERINFO );
 	timelimit = gi.cvar( "timelimit", "0", CVAR_SERVERINFO );
+	maptime = gi.cvar("maptime", "0:00", CVAR_SERVERINFO);
 	capturelimit = gi.cvar( "capturelimit", "0", CVAR_SERVERINFO );
 	password = gi.cvar( "password", "", CVAR_USERINFO );
 	filterban = gi.cvar( "filterban", "1", 0 );
