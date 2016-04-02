@@ -2392,7 +2392,7 @@ void A_ScoreboardMessage (edict_t * ent, edict_t * killer)
 		int totalscore[TEAM_TOP] = {0,0,0,0};
 		int totalalive[TEAM_TOP] = {0,0,0,0};
 		int totalaliveprinted;
-		int name_pos;
+		int name_pos, flagindex = 0;
 		int tpic[TEAM_TOP][2] = {{0,0},{24,26},{25,27},{30,31}};
 		char temp[16];
 		int maxPlayersPerTeam, scoreWidth = 3, rowWidth, rowChars, rowGap, headerOffset = 0;
@@ -2571,6 +2571,9 @@ void A_ScoreboardMessage (edict_t * ent, edict_t * killer)
 				line_y += 8;
 			}
 
+			if (ctf->value)
+				flagindex = (i == TEAM1) ? items[FLAG_T1_NUM].index : items[FLAG_T2_NUM].index;
+
 			printCount = 0;
 			totalaliveprinted = 0;
 
@@ -2628,12 +2631,9 @@ void A_ScoreboardMessage (edict_t * ent, edict_t * killer)
 					}
 
 					len = strlen( string );
-					if (ctf->value){
-						if ((i == TEAM1 && cl->inventory[ITEM_INDEX( flag2_item )])
-							|| (i == TEAM2 && cl->inventory[ITEM_INDEX( flag1_item )])) {
-							sprintf( string + len, "xv %i picn sbfctf%s xv %i ", line_x - 8, i == TEAM1 ? "2" : "1", line_x );
-							len = strlen( string );
-						}
+					if (ctf->value && cl->inventory[flagindex]){
+						sprintf( string + len, "xv %i picn sbfctf%s xv %i ", line_x - 8, i == TEAM1 ? "2" : "1", line_x );
+						len = strlen( string );
 					}
 
 					line_y += 8;
