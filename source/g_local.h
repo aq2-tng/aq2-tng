@@ -1021,6 +1021,7 @@ extern cvar_t *spectator_hud;
 
 extern cvar_t *fraglimit;
 extern cvar_t *timelimit;
+extern cvar_t *maptime;
 extern cvar_t *capturelimit;
 extern cvar_t *password;
 extern cvar_t *g_select_empty;
