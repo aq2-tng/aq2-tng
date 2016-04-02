@@ -999,6 +999,8 @@ void SpawnEntities (char *mapname, char *entities, char *spawnpoint)
 		gameSettings |= GS_MATCHMODE;
 
 
+	gi.cvar_forceset(maptime->name, "0:00");
+
 	gi.FreeTags(TAG_LEVEL);
 
 	memset(&level, 0, sizeof (level));

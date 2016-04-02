@@ -48,8 +48,8 @@ typedef struct ctfgame_s {
 	int spawn_red;
 	int spawn_blue;
 	qboolean custom_spawns;
-	char *author;
-	char *comment;
+	char author[64];
+	char comment[128];
 } ctfgame_t;
 
 extern ctfgame_t ctfgame;
@@ -132,6 +132,5 @@ void ResetPlayers ();
 void GetCTFScores(int *t1score, int *t2score);
 void CTFCapReward(edict_t *);
 
-extern gitem_t *flag1_item;
-extern gitem_t *flag2_item;
+gitem_t *team_flag[TEAM_TOP];
 
