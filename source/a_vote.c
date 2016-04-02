@@ -680,6 +680,7 @@ void ReadMaplistFile (void)
 	cvar_t *maplistname;
 
 	map_votes = NULL;
+	map_num_maps = 0;
 
 	maplistname = gi.cvar ("maplistname", "maplist.ini", 0);
 	if (maplistname->string && *(maplistname->string))
@@ -703,12 +704,13 @@ void ReadMaplistFile (void)
 			tmp->num_allvotes = 0;
 			tmp->next = NULL;
 			map_votes = VotelistInsert( map_votes, tmp );
+			map_num_maps ++;
 		}
 	}
 	else
 	{
 		// read the maplist.ini file
-		for (i = 0; fgets(buf, MAX_STR_LEN - 10, maplist_file) != NULL;)
+		while( fgets(buf, MAX_STR_LEN - 10, maplist_file) )
 		{
 			//first remove trailing spaces
 			bs = strlen(buf);
@@ -725,10 +727,9 @@ void ReadMaplistFile (void)
 			tmp->num_allvotes = 0;
 			tmp->next = NULL;
 			map_votes = VotelistInsert( map_votes, tmp );
-			i++;
+			map_num_maps ++;
 		}
 		fclose(maplist_file);
-		map_num_maps = i;
 	}
 
 	//Igor[Rock] BEGIN
