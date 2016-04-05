@@ -669,7 +669,7 @@ qboolean ACEAI_FindEnemy(edict_t *self, int *total)
 
 			// Can we see this enemy, or is it so close that we should not ignore it!
 			if( infront( self, players[i] ) ||
-				(weight < 300 )	)
+				((weight < 300) && !INV_AMMO( players[i], SLIP_NUM )) )
 			{
 				total+=1;
 				// See if it's better than what we have already
