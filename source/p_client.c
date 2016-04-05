@@ -1586,9 +1586,11 @@ edict_t *SelectRandomDeathmatchSpawnPoint(void)
 		return NULL;
 
 	if (count <= 2) {
-		spot1 = spot2 = NULL;
-	} else
-		count -= 2;
+		return (rand() % count) ? spot2 : spot1;
+	}
+
+	
+	count -= 2;
 
 	selection = rand() % count;
 

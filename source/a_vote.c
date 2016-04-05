@@ -650,16 +650,41 @@ void MapVoteMenu (edict_t * ent, pmenu_t * p)
 		gi.cprintf (ent, PRINT_MEDIUM, "No map to vote for.\n");
 }
 
+votelist_t *VotelistInsert( votelist_t *start, votelist_t *insert )
+{
+	// If this is the first element or goes before the first, it's the new start point.
+	if( (! start) || (strcasecmp( insert->mapname, start->mapname ) < 0) )
+	{
+		insert->next = start;
+		return insert;
+	}
+	
+	// Loop until we find a place to insert the new element into the list.
+	votelist_t *tmp;
+	for( tmp = start; tmp->next && (strcasecmp( insert->mapname, tmp->next->mapname ) >= 0); tmp = tmp->next ){}
+	
+	// Insert the new element.
+	votelist_t *after = tmp->next;
+	tmp->next = insert;
+	insert->next = after;
+	
+	// We didn't replace it, so return the original start point.
+	return start;
+}
+
 void ReadMaplistFile (void)
 {
 	int i, bs, maplen;
-	votelist_t *list = NULL, *tmp;
+	votelist_t *tmp = NULL;
 	FILE *maplist_file;
 	char buf[MAX_STR_LEN];
 	//Igor[Rock] BEGIN
 	// added variable maplist.ini Files with Variable "maplistname"
 	// changed maplistpath to a global variable!
 	cvar_t *maplistname;
+
+	map_votes = NULL;
+	map_num_maps = 0;
 
 	maplistname = gi.cvar ("maplistname", "maplist.ini", 0);
 	if (maplistname->string && *(maplistname->string))
@@ -675,28 +700,21 @@ void ReadMaplistFile (void)
 		if (num_maps <= 0)
 			return;
 
-		map_votes = (struct votelist_s *)gi.TagMalloc(sizeof(struct votelist_s), TAG_GAME);
-		map_votes->mapname = map_rotation[0];
-		map_votes->num_votes = 0;
-		map_votes->num_allvotes = 0;
-		map_votes->next = NULL;
-
-		list = map_votes;
-		for (i = 1; i < num_maps; i++)
+		for (i = 0; i < num_maps; i++)
 		{
 			tmp = (struct votelist_s *)gi.TagMalloc(sizeof(struct votelist_s), TAG_GAME);
 			tmp->mapname = map_rotation[i];
 			tmp->num_votes = 0;
 			tmp->num_allvotes = 0;
 			tmp->next = NULL;
-			list->next = tmp;
-			list = tmp;
+			map_votes = VotelistInsert( map_votes, tmp );
+			map_num_maps ++;
 		}
 	}
 	else
 	{
 		// read the maplist.ini file
-		for (i = 0; fgets(buf, MAX_STR_LEN - 10, maplist_file) != NULL;)
+		while( fgets(buf, MAX_STR_LEN - 10, maplist_file) )
 		{
 			//first remove trailing spaces
 			bs = strlen(buf);
@@ -706,32 +724,16 @@ void ReadMaplistFile (void)
 			if (bs < 3 || !strncmp(buf, "#", 1) || !strncmp(buf, "//", 2))
 				continue;
 
-			if (i == 0)
-			{
-				map_votes = (struct votelist_s *)gi.TagMalloc(sizeof(struct votelist_s), TAG_GAME);
-				map_votes->mapname = gi.TagMalloc(bs + 1, TAG_GAME);
-				strcpy(map_votes->mapname, buf);
-				map_votes->num_votes = 0;
-				map_votes->num_allvotes = 0;
-				map_votes->next = NULL;
-				list = map_votes;
-				i++;
-			}
-			else
-			{
-				tmp = (struct votelist_s *)gi.TagMalloc(sizeof(struct votelist_s), TAG_GAME);
-				tmp->mapname = gi.TagMalloc (bs + 1, TAG_GAME);
-				strcpy(tmp->mapname, buf);
-				tmp->num_votes = 0;
-				tmp->num_allvotes = 0;
-				tmp->next = NULL;
-				list->next = tmp;
-				list = tmp;
-				i++;
-			}
+			tmp = (struct votelist_s *)gi.TagMalloc(sizeof(struct votelist_s), TAG_GAME);
+			tmp->mapname = gi.TagMalloc (bs + 1, TAG_GAME);
+			strcpy(tmp->mapname, buf);
+			tmp->num_votes = 0;
+			tmp->num_allvotes = 0;
+			tmp->next = NULL;
+			map_votes = VotelistInsert( map_votes, tmp );
+			map_num_maps ++;
 		}
 		fclose(maplist_file);
-		map_num_maps = i;
 	}
 
 	//Igor[Rock] BEGIN
@@ -1944,51 +1946,10 @@ cvar_t *_InitScrambleVote (ini_t * ini)
 	return (use_scramblevote);
 }
 
-void _CalcScrambleVotes (int *numclients, int *numvotes, float *percent)
+qboolean ScrambleTeams(void)
 {
-	int i;
-	edict_t *ent;
-
-	*numclients = _numclients ();
-	*numvotes = 0;
-	*percent = 0.00f;
-
-	for (i = 1; i <= game.maxclients; i++)
-	{
-		ent = &g_edicts[i];
-		if (ent->client && ent->inuse && ent->client->resp.scramblevote)
-		{
-			(*numvotes)++;
-		}
-	}
-
-	if(*numvotes > 0)
-		(*percent) = (float) (((float) *numvotes / (float) *numclients) * 100.0);
-}
-
-void _CheckScrambleVote (void)
-{
-	int i, j, numvotes, playernum, numplayers, newteam;
-	float votes;
+	int i, j, numplayers, newteam;
 	edict_t *ent, *players[MAX_CLIENTS], *oldCaptains[TEAM_TOP] = {NULL};
-	char buf[128];
-
-
-	_CalcScrambleVotes(&playernum, &numvotes, &votes);
-
-	if (numvotes > 0)
-	{
-		Com_sprintf(buf, sizeof(buf), "Scramble: %d votes (%.1f%%), need %.1f%%", numvotes, votes, scramblevote_pass->value);
-		G_HighlightStr(buf, buf, sizeof(buf));
-		gi.bprintf(PRINT_HIGH, "%s\n", buf);
-	}
-
-	if (playernum < scramblevote_min->value)
-		return;
-	if (numvotes < scramblevote_need->value)
-		return;
-	if (votes < scramblevote_pass->value)
-		return;
 
 	numplayers = 0;
 	for (i = 0, ent = &g_edicts[1]; i < game.maxclients; i++, ent++)
@@ -2000,7 +1961,7 @@ void _CheckScrambleVote (void)
 	}
 
 	if (numplayers <= teamCount)
-		return;
+		return false;
 
 	for (i = numplayers - 1; i > 0; i--) {
 		j = rand() % (i + 1);
@@ -2038,6 +1999,54 @@ void _CheckScrambleVote (void)
 
 		ent->client->resp.scramblevote = 0;
 	}
+	return true;
+}
+
+
+void _CalcScrambleVotes (int *numclients, int *numvotes, float *percent)
+{
+	int i;
+	edict_t *ent;
+
+	*numclients = _numclients ();
+	*numvotes = 0;
+	*percent = 0.00f;
+
+	for (i = 1; i <= game.maxclients; i++)
+	{
+		ent = &g_edicts[i];
+		if (ent->client && ent->inuse && ent->client->resp.scramblevote)
+		{
+			(*numvotes)++;
+		}
+	}
+
+	if(*numvotes > 0)
+		(*percent) = (float) (((float) *numvotes / (float) *numclients) * 100.0);
+}
+
+void _CheckScrambleVote (void)
+{
+	int numvotes = 0, playernum = 0;
+	float votes = 0.0f;
+	char buf[128];
+
+	_CalcScrambleVotes(&playernum, &numvotes, &votes);
+
+	if (numvotes > 0) {
+		Com_sprintf(buf, sizeof(buf), "Scramble: %d votes (%.1f%%), need %.1f%%", numvotes, votes, scramblevote_pass->value);
+		G_HighlightStr(buf, buf, sizeof(buf));
+		gi.bprintf(PRINT_HIGH, "%s\n", buf);
+	}
+
+	if (playernum < scramblevote_min->value)
+		return;
+	if (numvotes < scramblevote_need->value)
+		return;
+	if (votes < scramblevote_pass->value)
+		return;
+
+	ScrambleTeams();
 }
 
 void _VoteScrambleSelected (edict_t * ent, pmenu_t * p)

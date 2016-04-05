@@ -120,17 +120,25 @@ void xMenu_Set (edict_t * ent)
 		i++;
 	}
 
+        x_menu->themenu[XMENU_END_ENTRY - 5].text = NULL;
+        x_menu->themenu[XMENU_END_ENTRY - 5].SelectFunc = NULL;
 	if (x_menu->xmenucount == XMENU_TOTAL_ENTRIES)
 	{
-		//next must be enabled
-		x_menu->themenu[XMENU_END_ENTRY - 5].text = xRaw[2];
-		x_menu->themenu[XMENU_END_ENTRY - 5].SelectFunc = xMenu_Next;
+		// The page is full.
+		XMENU_ENTRY save_entry;
+		memcpy( &save_entry, &(x_menu->xmenuentries[ XMENU_TOTAL_ENTRIES - 1 ]), sizeof(XMENU_ENTRY) );
+		x_menu->xmenucount --;
+		x_menu->DoAddMenu( ent, x_menu->xmenutop + XMENU_MAX_ENTRIES );
+		if( x_menu->xmenucount == XMENU_TOTAL_ENTRIES )
+		{
+			// There are more choices after this page, so next must be enabled.
+			x_menu->themenu[XMENU_END_ENTRY - 5].text = xRaw[2];
+			x_menu->themenu[XMENU_END_ENTRY - 5].SelectFunc = xMenu_Next;
+		}
+		memcpy( &(x_menu->xmenuentries[ XMENU_TOTAL_ENTRIES - 1 ]), &save_entry, sizeof(XMENU_ENTRY) );
+		x_menu->xmenucount = XMENU_TOTAL_ENTRIES;
 	}
-	else
-	{
-		x_menu->themenu[XMENU_END_ENTRY - 5].text = NULL;
-		x_menu->themenu[XMENU_END_ENTRY - 5].SelectFunc = NULL;
-	}
+
 	if (x_menu->xmenutop)
 	{
 		//prev must be enabled
