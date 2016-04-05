@@ -667,9 +667,10 @@ qboolean ACEAI_FindEnemy(edict_t *self, int *total)
 			VectorSubtract(self->s.origin, players[i]->s.origin, dist);
 			weight = VectorLength( dist );
 
-			// Can we see this enemy, or is it so close that we should not ignore it!
-			if( infront( self, players[i] ) ||
-				((weight < 300) && !INV_AMMO( players[i], SLIP_NUM )) )
+			// Can we see this enemy, or is it making noise that we shouldn't ignore?
+			if( infront( self, players[i] )
+			|| ((weight < 300) && !INV_AMMO( players[i], SLIP_NUM ))
+			|| ((players[i]->client->weaponstate == WEAPON_FIRING) && !INV_AMMO( players[i], SIL_NUM )) )
 			{
 				total+=1;
 				// See if it's better than what we have already
