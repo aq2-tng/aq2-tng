@@ -1295,6 +1295,10 @@ void ACEMV_Attack (edict_t *self, usercmd_t *ucmd)
 		if(self->client->weapon == FindItem(SNIPER_NAME))
 			iFactor = 5;
 
+		// Shoot less accurately if we just got hit.
+		if( self->client->push_timeout > 45 )
+			iFactor += self->client->push_timeout - 45;
+
 		// Shoot less accurately if we just turned around and are far away.
 		vectoangles( attackvector, angles );
 		float yaw_diff = angles[YAW] - self->s.angles[YAW];
