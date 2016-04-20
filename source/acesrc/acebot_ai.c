@@ -667,10 +667,28 @@ qboolean ACEAI_FindEnemy(edict_t *self, int *total)
 			VectorSubtract(self->s.origin, players[i]->s.origin, dist);
 			weight = VectorLength( dist );
 
-			// Can we see this enemy, or is it making noise that we shouldn't ignore?
-			if( infront( self, players[i] )
-			|| ((weight < 300) && !INV_AMMO( players[i], SLIP_NUM ))
-			|| ((players[i]->client->weaponstate == WEAPON_FIRING) && !INV_AMMO( players[i], SIL_NUM )) )
+			// Can we hear their weapon firing?
+			qboolean weapon_loud = false;
+			if( players[i]->client->weaponstate == WEAPON_FIRING )
+			{
+				switch( players[i]->client->weapon->typeNum )
+				{
+					case DUAL_NUM:
+					case M4_NUM:
+					case M3_NUM:
+					case HC_NUM:
+						weapon_loud = true;
+						break;
+					case KNIFE_NUM:
+					case GRENADE_NUM:
+						break;
+					default:
+						weapon_loud = !INV_AMMO( players[i], SIL_NUM );
+				}
+			}
+
+			// Can we see this enemy, or are they making noise that we shouldn't ignore?
+			if( infront( self, players[i] ) || weapon_loud || ((weight < 300) && !INV_AMMO( players[i], SLIP_NUM )) )
 			{
 				total+=1;
 				// See if it's better than what we have already
