@@ -384,7 +384,7 @@ void InitGame( void )
 		gi.cvar_forceset( "actionmaps", "0" );
 	}
 	nohud = gi.cvar( "nohud", "0", CVAR_LATCH );
-	hud_team_icon = gi.cvar( "hud_team_icon", "1", 0 );
+	hud_team_icon = gi.cvar( "hud_team_icon", "0", 0 );
 	hud_items_cycle = gi.cvar( "hud_items_cycle", "20", 0 );
 	roundlimit = gi.cvar( "roundlimit", "0", CVAR_SERVERINFO );
 	limchasecam = gi.cvar( "limchasecam", "0", CVAR_LATCH );
