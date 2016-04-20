@@ -384,7 +384,7 @@ void InitGame( void )
 		gi.cvar_forceset( "actionmaps", "0" );
 	}
 	nohud = gi.cvar( "nohud", "0", CVAR_LATCH );
-	hud_team_icon = gi.cvar( "hud_team_icon", "1", 0 );
+	hud_team_icon = gi.cvar( "hud_team_icon", "0", 0 );
 	hud_items_cycle = gi.cvar( "hud_items_cycle", "20", 0 );
 	roundlimit = gi.cvar( "roundlimit", "0", CVAR_SERVERINFO );
 	limchasecam = gi.cvar( "limchasecam", "0", CVAR_LATCH );
@@ -394,7 +394,7 @@ void InitGame( void )
 	twbanrounds = gi.cvar( "twbanrounds", "2", 0 );
 	tkbanrounds = gi.cvar( "tkbanrounds", "2", 0 );
 	noscore = gi.cvar( "noscore", "0", CVAR_LATCH );	// Was serverinfo
-	hud_noscore = gi.cvar( "hud_noscore", "1", CVAR_LATCH ); // Hide score from HUD in teamplay.
+	hud_noscore = gi.cvar( "hud_noscore", "0", CVAR_LATCH ); // Hide score from HUD in teamplay.
 	use_newscore = gi.cvar( "use_newscore", "0", 0 );
 	actionversion = gi.cvar( "actionversion", "none set", CVAR_SERVERINFO | CVAR_LATCH );
 	gi.cvar_set( "actionversion", ACTION_VERSION );
