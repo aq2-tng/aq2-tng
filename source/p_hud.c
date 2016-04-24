@@ -482,7 +482,8 @@ void G_SetStats (edict_t * ent)
 		if (ent->client->resp.sniper_mode == SNIPER_1X
 			|| ent->client->weaponstate == WEAPON_RELOADING
 			|| ent->client->weaponstate == WEAPON_BUSY
-			|| ent->client->no_sniper_display)
+			|| ent->client->no_sniper_display
+			|| ! IS_ALIVE(ent) )
 			ent->client->ps.stats[STAT_SNIPER_ICON] = 0;
 		else
 			ent->client->ps.stats[STAT_SNIPER_ICON] = level.pic_sniper_mode[ent->client->resp.sniper_mode];
