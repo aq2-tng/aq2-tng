@@ -498,7 +498,7 @@ void SVCmd_Slap_f (void)
 {
 	if( gi.argc() < 3 )
 	{
-		gi.cprintf( NULL, PRINT_HIGH, "Usage: sv slap <name> [<damage>] [<power>]\n" );
+		gi.cprintf( NULL, PRINT_HIGH, "Usage: sv slap <name/id> [<damage>] [<power>]\n" );
 		return;
 	}
 	if( lights_camera_action )
@@ -513,15 +513,23 @@ void SVCmd_Slap_f (void)
 	float power = (gi.argc() >= 5) ? atof(gi.argv(4)) : 100.f;
 	vec3_t slap_dir = {0.f,0.f,1.f}, slap_normal = {0.f,0.f,-1.f};
 	qboolean found_victim = false;
+	size_t i = 0;
+	int user_id = name_len ? (atoi(name) + 1) : 0;
 
-	size_t i;
+	// See if we're slapping by user ID.
+	for( i = 0; i < name_len; i ++ )
+	{
+		if( ! isdigit(name[i]) )
+			user_id = 0;
+	}
+
 	for( i = 0; i < maxclients->value ; i ++ )
 	{
 		edict_t *ent = g_edicts + i + 1;
-		if( ent->inuse && (strncasecmp( ent->client->pers.netname, name, name_len ) == 0) )
+		if( ent->inuse && ( (user_id == i + 1) || ((! user_id) && (strncasecmp( ent->client->pers.netname, name, name_len ) == 0)) ) )
 		{
 			found_victim = true;
-			if( (ent->deadflag != DEAD_DEAD) && (ent->solid != SOLID_NOT) )
+			if( IS_ALIVE(ent) )
 			{
 				slap_dir[ 0 ] = crandom() * 0.5f;
 				slap_dir[ 1 ] = crandom() * 0.5f;
