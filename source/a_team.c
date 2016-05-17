@@ -343,6 +343,12 @@ static size_t transparentEntryCount = 0;
 transparent_list_t *transparent_list = NULL;
 static transparent_list_t *transparentlistFree = NULL;
 
+#define STATFLAGS_TEAM   0x01
+#define STATFLAGS_TIME   0x02
+#define STATFLAGS_PING   0x04
+#define STATFLAGS_KILLS  0x08
+#define STATFLAGS_DEATHS 0x10
+#define STATFLAGS_DAMAGE 0x20
 
 void InitTransparentList( void )
 {
@@ -2732,8 +2738,7 @@ void A_ScoreboardMessage (edict_t * ent, edict_t * killer)
 	}
 	else if (ent->client->layout == LAYOUT_SCORES2)
 	{
-		int ping, time;
-		char ping_buf[ 5 ] = "";
+		char team_buf[ 6 ] = "", time_buf[ 6 ] = "", ping_buf[ 6 ] = "", kills_buf[ 7 ] = "", deaths_buf[ 8 ] = "", damage_buf[ 8 ] = "";
 
 		if (noscore->value)
 			totalClients = G_NotSortedClients(sortedClients);
@@ -2744,55 +2749,55 @@ void A_ScoreboardMessage (edict_t * ent, edict_t * killer)
 		line_y = 48;
 		strcpy( string, "xv 0 " );
 
-		if (noscore->value)
-		// AQ2:TNG Deathwatch - Nice little bar
-		{
-			strcpy(string + strlen(string),
-				"yv 32 string2 \"Player          Time Ping\" "
-				"yv 40 string2 \"Ÿ Ÿ Ÿ\" ");
-		}
-		else
-		// Raptor007: I think this works well for any teamplay mode.
-		{
-			strcpy( string + strlen(string),
-			"xv 0 yv 32 string2 \"Team Player          Time Ping Kills Deaths\" "
-			"xv 0 yv 40 string2 \"Ÿ Ÿ Ÿ Ÿ Ÿ Ÿ\" ");
-		}
+		int stats = statflags->value;
+		if( noscore->value )
+			stats &= ~(STATFLAGS_KILLS | STATFLAGS_DEATHS | STATFLAGS_DAMAGE);
+
+		sprintf( string + strlen(string),
+			"xv 0 yv 32 string2 \"%sPlayer         %s%s%s%s%s\" ",
+			((stats & STATFLAGS_TEAM)   ? "Team "   : ""),
+			((stats & STATFLAGS_TIME)   ? " Time"   : ""),
+			((stats & STATFLAGS_PING)   ? " Ping"   : ""),
+			((stats & STATFLAGS_KILLS)  ? " Kills"  : ""),
+			((stats & STATFLAGS_DEATHS) ? " Deaths" : ""),
+			((stats & STATFLAGS_DAMAGE) ? " Damage" : "")
+		);
+		sprintf( string + strlen(string),
+			"xv 0 yv 40 string2 \"%sŸ%s%s%s%s%s\" ",
+			((stats & STATFLAGS_TEAM)   ? "Ÿ "   : ""),
+			((stats & STATFLAGS_TIME)   ? " Ÿ"   : ""),
+			((stats & STATFLAGS_PING)   ? " Ÿ"   : ""),
+			((stats & STATFLAGS_KILLS)  ? " Ÿ"  : ""),
+			((stats & STATFLAGS_DEATHS) ? " Ÿ" : ""),
+			((stats & STATFLAGS_DAMAGE) ? " Ÿ" : "")
+		);
 
 		for (i = 0; i < totalClients; i++)
 		{
 			cl = sortedClients[i];
 			cl_ent = g_edicts + 1 + (cl - game.clients);
 
-			ping = min( 9999, cl->ping );
-			time = min( 9999, (level.framenum - cl->resp.enterframe) / (60 * HZ) );
-
-			// Raptor007: This has a string buffer so the bots branch can say "BOT" here.
+			snprintf( team_buf,   6, " %c%c%c ", (cl->resp.team ? (cl->resp.team + '0') : ' '), (IS_CAPTAIN(cl_ent) ? 'C' : ' '), (cl->resp.subteam ? 'S' : ' ') );
+			snprintf( ping_buf,   6, " %4i", min( 9999, cl->ping ) );
 #ifndef NO_BOTS
 			if( cl_ent->is_bot )
-				strcpy( ping_buf, "BOT" );
-			else
+				strcpy( ping_buf, "  BOT" );
 #endif
-			snprintf( ping_buf, 5, "%4d", ping );
+			snprintf( time_buf,   6, " %4i", min( 9999, (level.framenum - cl->resp.enterframe) / (60 * HZ) ) );
+			snprintf( kills_buf,  7, " %5i", min( 99999, cl->resp.score) );
+			snprintf( deaths_buf, 8, " %6i", min( 999999, cl->resp.deaths) );
+			snprintf( damage_buf, 8, " %6i", min( 999999, cl->resp.damage_dealt) );
 
-			if (noscore->value)
-			{
-				sprintf( string + strlen(string), "yv %d string \"%-15s %4d %4s\" ",
-					line_y, cl->pers.netname, time, ping_buf );
-			}
-			else
-			{
-				sprintf( string + strlen(string), "yv %d string \" %c%c%c %-15s %4d %4s %5i %6i\"",
-					line_y,
-					cl->resp.team ? (cl->resp.team + '0') : ' ',
-					IS_CAPTAIN(cl_ent) ? 'C' : ' ',
-					cl->resp.subteam ? 'S' : ' ',
-					cl->pers.netname,
-					time,
-					ping_buf,
-					min(99999, cl->resp.score),
-					min(999999, cl->resp.deaths) );
-			}
+			sprintf( string + strlen(string), "yv %d string \"%s%-15s%s%s%s%s%s\"",
+				line_y,
+				((stats & STATFLAGS_TEAM)   ? team_buf   : ""),
+				cl->pers.netname,
+				((stats & STATFLAGS_TIME)   ? time_buf   : ""),
+				((stats & STATFLAGS_PING)   ? ping_buf   : ""),
+				((stats & STATFLAGS_KILLS)  ? kills_buf  : ""),
+				((stats & STATFLAGS_DEATHS) ? deaths_buf : ""),
+				((stats & STATFLAGS_DAMAGE) ? damage_buf : "")
+			);
 			
 			line_y += 8;
 			if (strlen(string) > (maxsize - 100) && i < (totalClients - 2))

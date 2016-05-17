@@ -945,6 +945,7 @@ extern cvar_t *hud_items_cycle;
 extern cvar_t *noscore;
 extern cvar_t *hud_noscore;
 extern cvar_t *use_newscore;
+extern cvar_t *statflags;
 extern cvar_t *actionversion;
 #ifndef NO_BOTS
 extern cvar_t *ltk_jumpy;
