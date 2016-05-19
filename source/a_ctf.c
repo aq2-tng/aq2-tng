@@ -693,6 +693,7 @@ qboolean CTFPickup_Flag(edict_t * ent, edict_t * other)
 
 				// other gets another 10 frag bonus
 				other->client->resp.score += CTF_CAPTURE_BONUS;
+				other->client->resp.ctf_caps++;
 
 				CTFCapReward(other);
 

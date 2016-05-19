@@ -343,12 +343,16 @@ static size_t transparentEntryCount = 0;
 transparent_list_t *transparent_list = NULL;
 static transparent_list_t *transparentlistFree = NULL;
 
-#define STATFLAGS_TEAM   0x01
-#define STATFLAGS_TIME   0x02
-#define STATFLAGS_PING   0x04
-#define STATFLAGS_KILLS  0x08
-#define STATFLAGS_DEATHS 0x10
-#define STATFLAGS_DAMAGE 0x20
+#define SCORE2FLAGS_TEAM   0x01
+#define SCORE2FLAGS_TIME   0x02
+#define SCORE2FLAGS_PING   0x04
+#define SCORE2FLAGS_CAPS   0x08
+#define SCORE2FLAGS_SCORE  0x10
+#define SCORE2FLAGS_KILLS  0x20
+#define SCORE2FLAGS_DEATHS 0x40
+#define SCORE2FLAGS_DAMAGE 0x80
+#define SCORE2FLAGS_DEFAULT (SCORE2FLAGS_TEAM | SCORE2FLAGS_TIME | SCORE2FLAGS_PING | SCORE2FLAGS_KILLS | SCORE2FLAGS_DEATHS)
+#define SCORE2FLAGS_DEF_CTF (SCORE2FLAGS_TEAM | SCORE2FLAGS_TIME | SCORE2FLAGS_PING | SCORE2FLAGS_CAPS  | SCORE2FLAGS_SCORE)
 
 void InitTransparentList( void )
 {
@@ -2733,7 +2737,7 @@ void A_ScoreboardMessage (edict_t * ent, edict_t * killer)
 	}
 	else if (ent->client->layout == LAYOUT_SCORES2)
 	{
-		char team_buf[ 6 ] = "", time_buf[ 6 ] = "", ping_buf[ 6 ] = "", kills_buf[ 7 ] = "", deaths_buf[ 8 ] = "", damage_buf[ 8 ] = "";
+		char team_buf[6] = "", time_buf[6] = "", ping_buf[6] = "", caps_buf[6] = "", score_buf[7] = "", kills_buf[7] = "", deaths_buf[8] = "", damage_buf[8] = "";
 
 		if (noscore->value)
 			totalClients = G_NotSortedClients(sortedClients);
@@ -2744,27 +2748,35 @@ void A_ScoreboardMessage (edict_t * ent, edict_t * killer)
 		line_y = 48;
 		strcpy( string, "xv 0 " );
 
-		int stats = statflags->value;
+		int s2f = score2flags->value;
+		if( s2f < 0 )
+			s2f = ctf->value ? SCORE2FLAGS_DEFAULT : SCORE2FLAGS_DEF_CTF;
 		if( noscore->value )
-			stats &= ~(STATFLAGS_KILLS | STATFLAGS_DEATHS | STATFLAGS_DAMAGE);
+			s2f &= ~(SCORE2FLAGS_SCORE | SCORE2FLAGS_KILLS | SCORE2FLAGS_DEATHS | SCORE2FLAGS_DAMAGE | SCORE2FLAGS_CAPS);
+		if( ! ctf->value )
+			s2f &= ~SCORE2FLAGS_CAPS;
 
 		sprintf( string + strlen(string),
-			"xv 0 yv 32 string2 \"%sPlayer         %s%s%s%s%s\" ",
-			((stats & STATFLAGS_TEAM)   ? "Team "   : ""),
-			((stats & STATFLAGS_TIME)   ? " Time"   : ""),
-			((stats & STATFLAGS_PING)   ? " Ping"   : ""),
-			((stats & STATFLAGS_KILLS)  ? " Kills"  : ""),
-			((stats & STATFLAGS_DEATHS) ? " Deaths" : ""),
-			((stats & STATFLAGS_DAMAGE) ? " Damage" : "")
+			"xv 0 yv 32 string2 \"%sPlayer         %s%s%s%s%s%s%s\" ",
+			((s2f & SCORE2FLAGS_TEAM)   ? "Team "   : ""),
+			((s2f & SCORE2FLAGS_TIME)   ? " Time"   : ""),
+			((s2f & SCORE2FLAGS_PING)   ? " Ping"   : ""),
+			((s2f & SCORE2FLAGS_CAPS)   ? " Caps"   : ""),
+			((s2f & SCORE2FLAGS_SCORE)  ? " Score"  : ""),
+			((s2f & SCORE2FLAGS_KILLS)  ? " Kills"  : ""),
+			((s2f & SCORE2FLAGS_DEATHS) ? " Deaths" : ""),
+			((s2f & SCORE2FLAGS_DAMAGE) ? " Damage" : "")
 		);
 		sprintf( string + strlen(string),
-			"xv 0 yv 40 string2 \"%sŸ%s%s%s%s%s\" ",
-			((stats & STATFLAGS_TEAM)   ? "Ÿ "   : ""),
-			((stats & STATFLAGS_TIME)   ? " Ÿ"   : ""),
-			((stats & STATFLAGS_PING)   ? " Ÿ"   : ""),
-			((stats & STATFLAGS_KILLS)  ? " Ÿ"  : ""),
-			((stats & STATFLAGS_DEATHS) ? " Ÿ" : ""),
-			((stats & STATFLAGS_DAMAGE) ? " Ÿ" : "")
+			"xv 0 yv 40 string2 \"%sŸ%s%s%s%s%s%s%s\" ",
+			((s2f & SCORE2FLAGS_TEAM)   ? "Ÿ "   : ""),
+			((s2f & SCORE2FLAGS_TIME)   ? " Ÿ"   : ""),
+			((s2f & SCORE2FLAGS_PING)   ? " Ÿ"   : ""),
+			((s2f & SCORE2FLAGS_CAPS)   ? " Ÿ"   : ""),
+			((s2f & SCORE2FLAGS_SCORE)  ? " Ÿ"  : ""),
+			((s2f & SCORE2FLAGS_KILLS)  ? " Ÿ"  : ""),
+			((s2f & SCORE2FLAGS_DEATHS) ? " Ÿ" : ""),
+			((s2f & SCORE2FLAGS_DAMAGE) ? " Ÿ" : "")
 		);
 
 		for (i = 0; i < totalClients; i++)
@@ -2773,21 +2785,25 @@ void A_ScoreboardMessage (edict_t * ent, edict_t * killer)
 			cl_ent = g_edicts + 1 + (cl - game.clients);
 
 			snprintf( team_buf,   6, " %c%c%c ", (cl->resp.team ? (cl->resp.team + '0') : ' '), (IS_CAPTAIN(cl_ent) ? 'C' : ' '), (cl->resp.subteam ? 'S' : ' ') );
-			snprintf( ping_buf,   6, " %4i", min( 9999, cl->ping ) );
 			snprintf( time_buf,   6, " %4i", min( 9999, (level.framenum - cl->resp.enterframe) / (60 * HZ) ) );
+			snprintf( ping_buf,   6, " %4i", min( 9999, cl->ping ) );
+			snprintf( caps_buf,   6, " %4i", min( 9999, cl->resp.ctf_caps ) );
+			snprintf( score_buf,  7, " %5i", min( 99999, cl->resp.score) );
 			snprintf( kills_buf,  7, " %5i", min( 99999, cl->resp.kills) );
 			snprintf( deaths_buf, 8, " %6i", min( 999999, cl->resp.deaths) );
 			snprintf( damage_buf, 8, " %6i", min( 999999, cl->resp.damage_dealt) );
 
-			sprintf( string + strlen(string), "yv %d string \"%s%-15s%s%s%s%s%s\"",
+			sprintf( string + strlen(string), "yv %d string \"%s%-15s%s%s%s%s%s%s%s\"",
 				line_y,
-				((stats & STATFLAGS_TEAM)   ? team_buf   : ""),
+				((s2f & SCORE2FLAGS_TEAM)   ? team_buf   : ""),
 				cl->pers.netname,
-				((stats & STATFLAGS_TIME)   ? time_buf   : ""),
-				((stats & STATFLAGS_PING)   ? ping_buf   : ""),
-				((stats & STATFLAGS_KILLS)  ? kills_buf  : ""),
-				((stats & STATFLAGS_DEATHS) ? deaths_buf : ""),
-				((stats & STATFLAGS_DAMAGE) ? damage_buf : "")
+				((s2f & SCORE2FLAGS_TIME)   ? time_buf   : ""),
+				((s2f & SCORE2FLAGS_PING)   ? ping_buf   : ""),
+				((s2f & SCORE2FLAGS_CAPS)   ? caps_buf   : ""),
+				((s2f & SCORE2FLAGS_SCORE)  ? score_buf  : ""),
+				((s2f & SCORE2FLAGS_KILLS)  ? kills_buf  : ""),
+				((s2f & SCORE2FLAGS_DEATHS) ? deaths_buf : ""),
+				((s2f & SCORE2FLAGS_DAMAGE) ? damage_buf : "")
 			);
 			
 			line_y += 8;
