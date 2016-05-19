@@ -2223,8 +2223,14 @@ static int G_PlayerCmp( const void *p1, const void *p2 )
 	gclient_t *a = *(gclient_t * const *)p1;
 	gclient_t *b = *(gclient_t * const *)p2;
 	
-	if (a->resp.score != b->resp.score) 
-		return b->resp.score - a->resp.score;
+	if( ctf->value )
+	{
+		if( a->resp.score != b->resp.score )
+			return b->resp.score - a->resp.score;
+	}
+	
+	if (a->resp.kills != b->resp.kills)
+		return b->resp.kills - a->resp.kills;
 	
 	if (a->resp.deaths < b->resp.deaths)
 		return -1;
@@ -2769,7 +2775,7 @@ void A_ScoreboardMessage (edict_t * ent, edict_t * killer)
 			snprintf( team_buf,   6, " %c%c%c ", (cl->resp.team ? (cl->resp.team + '0') : ' '), (IS_CAPTAIN(cl_ent) ? 'C' : ' '), (cl->resp.subteam ? 'S' : ' ') );
 			snprintf( ping_buf,   6, " %4i", min( 9999, cl->ping ) );
 			snprintf( time_buf,   6, " %4i", min( 9999, (level.framenum - cl->resp.enterframe) / (60 * HZ) ) );
-			snprintf( kills_buf,  7, " %5i", min( 99999, cl->resp.score) );
+			snprintf( kills_buf,  7, " %5i", min( 99999, cl->resp.kills) );
 			snprintf( deaths_buf, 8, " %6i", min( 999999, cl->resp.deaths) );
 			snprintf( damage_buf, 8, " %6i", min( 999999, cl->resp.damage_dealt) );
 
