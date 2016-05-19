@@ -1730,12 +1730,7 @@ qboolean CheckTimelimit( void )
 {
 	if (timelimit->value > 0)
 	{
-		float gametime;
-
-		if (matchmode->value)
-			gametime = level.matchTime;
-		else
-			gametime = level.time;
+		float gametime = matchmode->value ? level.matchTime : level.time;
 
 		if (gametime >= timelimit->value * 60)
 		{
@@ -1763,6 +1758,29 @@ qboolean CheckTimelimit( void )
 			level.matchTime = 0;
 			
 			return true;
+		}
+		
+		// CTF with use_warnings should have the same warnings when the map is ending as it does for halftime (see CTFCheckRules).
+		// Otherwise, use_warnings should warn about 3 minutes and 1 minute left, but only if there aren't round ending warnings.
+		if( use_warnings->value && (ctf->value || ! roundtimelimit->value) )
+		{
+			if( timewarning < 3 && ctf->value && gametime >= timelimit->value * 60 - 10 )
+			{
+				gi.sound( &g_edicts[0], CHAN_VOICE | CHAN_NO_PHS_ADD, gi.soundindex("world/10_0.wav"), 1.0, ATTN_NONE, 0.0 );
+				timewarning = 3;
+			}
+			else if( timewarning < 2 && gametime >= (timelimit->value - 1) * 60 )
+			{
+				CenterPrintAll( "1 MINUTE LEFT..." );
+				gi.sound( &g_edicts[0], CHAN_VOICE | CHAN_NO_PHS_ADD, gi.soundindex("tng/1_minute.wav"), 1.0, ATTN_NONE, 0.0 );
+				timewarning = 2;
+			}
+			else if( timewarning < 1 && (! ctf->value) && timelimit->value > 3 && gametime >= (timelimit->value - 3) * 60 )
+			{
+				CenterPrintAll( "3 MINUTES LEFT..." );
+				gi.sound( &g_edicts[0], CHAN_VOICE | CHAN_NO_PHS_ADD, gi.soundindex("tng/3_minutes.wav"), 1.0, ATTN_NONE, 0.0 );
+				timewarning = 1;
+			}
 		}
 	}
 	
