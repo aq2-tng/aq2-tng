@@ -343,17 +343,14 @@ static size_t transparentEntryCount = 0;
 transparent_list_t *transparent_list = NULL;
 static transparent_list_t *transparentlistFree = NULL;
 
-#define SCORE2FLAGS_NO_DEFAULT 0x001
-#define SCORE2FLAGS_TEAM       0x002
-#define SCORE2FLAGS_TIME       0x004
-#define SCORE2FLAGS_PING       0x008
-#define SCORE2FLAGS_CAPS       0x010
-#define SCORE2FLAGS_SCORE      0x020
-#define SCORE2FLAGS_KILLS      0x040
-#define SCORE2FLAGS_DEATHS     0x080
-#define SCORE2FLAGS_DAMAGE     0x100
-#define SCORE2FLAGS_DEFAULT     (SCORE2FLAGS_TEAM | SCORE2FLAGS_TIME | SCORE2FLAGS_PING | SCORE2FLAGS_KILLS | SCORE2FLAGS_DEATHS)
-#define SCORE2FLAGS_DEFAULT_CTF (SCORE2FLAGS_TEAM | SCORE2FLAGS_TIME | SCORE2FLAGS_PING | SCORE2FLAGS_CAPS  | SCORE2FLAGS_SCORE)
+#define SCORES2_TEAM   0x01
+#define SCORES2_TIME   0x02
+#define SCORES2_PING   0x04
+#define SCORES2_CAPS   0x08
+#define SCORES2_SCORE  0x10
+#define SCORES2_KILLS  0x20
+#define SCORES2_DEATHS 0x40
+#define SCORES2_DAMAGE 0x80
 
 void InitTransparentList( void )
 {
@@ -2767,39 +2764,37 @@ void A_ScoreboardMessage (edict_t * ent, edict_t * killer)
 		line_y = 48;
 		strcpy( string, "xv 0 " );
 
-		int s2f = score2flags->value;
-		if( !(s2f & SCORE2FLAGS_NO_DEFAULT) )
-			s2f |= ctf->value ? SCORE2FLAGS_DEFAULT_CTF : SCORE2FLAGS_DEFAULT;
+		int s2f = ctf->value ? scores2ctf->value : scores2teamplay->value;
 		if( noscore->value )
-			s2f &= ~(SCORE2FLAGS_SCORE | SCORE2FLAGS_KILLS | SCORE2FLAGS_DEATHS | SCORE2FLAGS_DAMAGE | SCORE2FLAGS_CAPS);
+			s2f &= ~(SCORES2_CAPS | SCORES2_SCORE | SCORES2_KILLS | SCORES2_DEATHS | SCORES2_DAMAGE);
 		else if( ! ctf->value )
 		{
-			s2f &= ~SCORE2FLAGS_CAPS;
-			if( s2f & SCORE2FLAGS_SCORE )
-				s2f = (s2f & ~SCORE2FLAGS_SCORE) | SCORE2FLAGS_KILLS;
+			s2f &= ~SCORES2_CAPS;
+			if( s2f & SCORES2_SCORE )
+				s2f = (s2f & ~SCORES2_SCORE) | SCORES2_KILLS;
 		}
 
 		sprintf( string + strlen(string),
 			"xv 0 yv 32 string2 \"%sPlayer         %s%s%s%s%s%s%s\" ",
-			((s2f & SCORE2FLAGS_TEAM)   ? "Team "   : ""),
-			((s2f & SCORE2FLAGS_TIME)   ? " Time"   : ""),
-			((s2f & SCORE2FLAGS_PING)   ? " Ping"   : ""),
-			((s2f & SCORE2FLAGS_CAPS)   ? " Caps"   : ""),
-			((s2f & SCORE2FLAGS_SCORE)  ? " Score"  : ""),
-			((s2f & SCORE2FLAGS_KILLS)  ? " Kills"  : ""),
-			((s2f & SCORE2FLAGS_DEATHS) ? " Deaths" : ""),
-			((s2f & SCORE2FLAGS_DAMAGE) ? " Damage" : "")
+			((s2f & SCORES2_TEAM)   ? "Team "   : ""),
+			((s2f & SCORES2_TIME)   ? " Time"   : ""),
+			((s2f & SCORES2_PING)   ? " Ping"   : ""),
+			((s2f & SCORES2_CAPS)   ? " Caps"   : ""),
+			((s2f & SCORES2_SCORE)  ? " Score"  : ""),
+			((s2f & SCORES2_KILLS)  ? " Kills"  : ""),
+			((s2f & SCORES2_DEATHS) ? " Deaths" : ""),
+			((s2f & SCORES2_DAMAGE) ? " Damage" : "")
 		);
 		sprintf( string + strlen(string),
 			"xv 0 yv 40 string2 \"%sùûûûûûûûûûûûûûü%s%s%s%s%s%s%s\" ",
-			((s2f & SCORE2FLAGS_TEAM)   ? "ùûûü "   : ""),
-			((s2f & SCORE2FLAGS_TIME)   ? " ùûûü"   : ""),
-			((s2f & SCORE2FLAGS_PING)   ? " ùûûü"   : ""),
-			((s2f & SCORE2FLAGS_CAPS)   ? " ùûûü"   : ""),
-			((s2f & SCORE2FLAGS_SCORE)  ? " ùûûûü"  : ""),
-			((s2f & SCORE2FLAGS_KILLS)  ? " ùûûûü"  : ""),
-			((s2f & SCORE2FLAGS_DEATHS) ? " ùûûûûü" : ""),
-			((s2f & SCORE2FLAGS_DAMAGE) ? " ùûûûûü" : "")
+			((s2f & SCORES2_TEAM)   ? "ùûûü "   : ""),
+			((s2f & SCORES2_TIME)   ? " ùûûü"   : ""),
+			((s2f & SCORES2_PING)   ? " ùûûü"   : ""),
+			((s2f & SCORES2_CAPS)   ? " ùûûü"   : ""),
+			((s2f & SCORES2_SCORE)  ? " ùûûûü"  : ""),
+			((s2f & SCORES2_KILLS)  ? " ùûûûü"  : ""),
+			((s2f & SCORES2_DEATHS) ? " ùûûûûü" : ""),
+			((s2f & SCORES2_DAMAGE) ? " ùûûûûü" : "")
 		);
 
 		for (i = 0; i < totalClients; i++)
@@ -2818,15 +2813,15 @@ void A_ScoreboardMessage (edict_t * ent, edict_t * killer)
 
 			sprintf( string + strlen(string), "yv %d string \"%s%-15s%s%s%s%s%s%s%s\"",
 				line_y,
-				((s2f & SCORE2FLAGS_TEAM)   ? team_buf   : ""),
+				((s2f & SCORES2_TEAM)   ? team_buf   : ""),
 				cl->pers.netname,
-				((s2f & SCORE2FLAGS_TIME)   ? time_buf   : ""),
-				((s2f & SCORE2FLAGS_PING)   ? ping_buf   : ""),
-				((s2f & SCORE2FLAGS_CAPS)   ? caps_buf   : ""),
-				((s2f & SCORE2FLAGS_SCORE)  ? score_buf  : ""),
-				((s2f & SCORE2FLAGS_KILLS)  ? kills_buf  : ""),
-				((s2f & SCORE2FLAGS_DEATHS) ? deaths_buf : ""),
-				((s2f & SCORE2FLAGS_DAMAGE) ? damage_buf : "")
+				((s2f & SCORES2_TIME)   ? time_buf   : ""),
+				((s2f & SCORES2_PING)   ? ping_buf   : ""),
+				((s2f & SCORES2_CAPS)   ? caps_buf   : ""),
+				((s2f & SCORES2_SCORE)  ? score_buf  : ""),
+				((s2f & SCORES2_KILLS)  ? kills_buf  : ""),
+				((s2f & SCORES2_DEATHS) ? deaths_buf : ""),
+				((s2f & SCORES2_DAMAGE) ? damage_buf : "")
 			);
 			
 			line_y += 8;
