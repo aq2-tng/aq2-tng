@@ -1348,6 +1348,7 @@ void ResetScores (qboolean playerScores)
 		ent->client->resp.damage_dealt = 0;
 		ent->client->resp.streakHS = 0;
 		ent->client->resp.streakKills = 0;
+		ent->client->resp.ctf_caps = 0;
 		ent->client->resp.ctf_capstreak = 0;
 		ent->client->resp.deaths = 0;
 		ent->client->resp.team_kills = 0;
@@ -2243,14 +2244,8 @@ static int G_PlayerCmp( const void *p1, const void *p2 )
 	gclient_t *a = *(gclient_t * const *)p1;
 	gclient_t *b = *(gclient_t * const *)p2;
 	
-	if( ctf->value )
-	{
-		if( a->resp.score != b->resp.score )
-			return b->resp.score - a->resp.score;
-	}
-	
-	if (a->resp.kills != b->resp.kills)
-		return b->resp.kills - a->resp.kills;
+	if (a->resp.score != b->resp.score)
+		return b->resp.score - a->resp.score;
 	
 	if (a->resp.deaths < b->resp.deaths)
 		return -1;
