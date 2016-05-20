@@ -343,16 +343,17 @@ static size_t transparentEntryCount = 0;
 transparent_list_t *transparent_list = NULL;
 static transparent_list_t *transparentlistFree = NULL;
 
-#define SCORE2FLAGS_TEAM   0x01
-#define SCORE2FLAGS_TIME   0x02
-#define SCORE2FLAGS_PING   0x04
-#define SCORE2FLAGS_CAPS   0x08
-#define SCORE2FLAGS_SCORE  0x10
-#define SCORE2FLAGS_KILLS  0x20
-#define SCORE2FLAGS_DEATHS 0x40
-#define SCORE2FLAGS_DAMAGE 0x80
-#define SCORE2FLAGS_DEFAULT (SCORE2FLAGS_TEAM | SCORE2FLAGS_TIME | SCORE2FLAGS_PING | SCORE2FLAGS_KILLS | SCORE2FLAGS_DEATHS)
-#define SCORE2FLAGS_DEF_CTF (SCORE2FLAGS_TEAM | SCORE2FLAGS_TIME | SCORE2FLAGS_PING | SCORE2FLAGS_CAPS  | SCORE2FLAGS_SCORE)
+#define SCORE2FLAGS_NO_DEFAULT 0x001
+#define SCORE2FLAGS_TEAM       0x002
+#define SCORE2FLAGS_TIME       0x004
+#define SCORE2FLAGS_PING       0x008
+#define SCORE2FLAGS_CAPS       0x010
+#define SCORE2FLAGS_SCORE      0x020
+#define SCORE2FLAGS_KILLS      0x040
+#define SCORE2FLAGS_DEATHS     0x080
+#define SCORE2FLAGS_DAMAGE     0x100
+#define SCORE2FLAGS_DEFAULT     (SCORE2FLAGS_TEAM | SCORE2FLAGS_TIME | SCORE2FLAGS_PING | SCORE2FLAGS_KILLS | SCORE2FLAGS_DEATHS)
+#define SCORE2FLAGS_DEFAULT_CTF (SCORE2FLAGS_TEAM | SCORE2FLAGS_TIME | SCORE2FLAGS_PING | SCORE2FLAGS_CAPS  | SCORE2FLAGS_SCORE)
 
 void InitTransparentList( void )
 {
@@ -2767,12 +2768,16 @@ void A_ScoreboardMessage (edict_t * ent, edict_t * killer)
 		strcpy( string, "xv 0 " );
 
 		int s2f = score2flags->value;
-		if( s2f < 0 )
-			s2f = ctf->value ? SCORE2FLAGS_DEFAULT : SCORE2FLAGS_DEF_CTF;
+		if( !(s2f & SCORE2FLAGS_NO_DEFAULT) )
+			s2f |= ctf->value ? SCORE2FLAGS_DEFAULT_CTF : SCORE2FLAGS_DEFAULT;
 		if( noscore->value )
 			s2f &= ~(SCORE2FLAGS_SCORE | SCORE2FLAGS_KILLS | SCORE2FLAGS_DEATHS | SCORE2FLAGS_DAMAGE | SCORE2FLAGS_CAPS);
-		if( ! ctf->value )
+		else if( ! ctf->value )
+		{
 			s2f &= ~SCORE2FLAGS_CAPS;
+			if( s2f & SCORE2FLAGS_SCORE )
+				s2f = (s2f & ~SCORE2FLAGS_SCORE) | SCORE2FLAGS_KILLS;
+		}
 
 		sprintf( string + strlen(string),
 			"xv 0 yv 32 string2 \"%sPlayer         %s%s%s%s%s%s%s\" ",
