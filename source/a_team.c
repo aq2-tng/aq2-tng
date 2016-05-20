@@ -343,12 +343,17 @@ static size_t transparentEntryCount = 0;
 transparent_list_t *transparent_list = NULL;
 static transparent_list_t *transparentlistFree = NULL;
 
-#define STATFLAGS_TEAM   0x01
-#define STATFLAGS_TIME   0x02
-#define STATFLAGS_PING   0x04
-#define STATFLAGS_KILLS  0x08
-#define STATFLAGS_DEATHS 0x10
-#define STATFLAGS_DAMAGE 0x20
+#define SCORE2FLAGS_NO_DEFAULT 0x001
+#define SCORE2FLAGS_TEAM       0x002
+#define SCORE2FLAGS_TIME       0x004
+#define SCORE2FLAGS_PING       0x008
+#define SCORE2FLAGS_CAPS       0x010
+#define SCORE2FLAGS_SCORE      0x020
+#define SCORE2FLAGS_KILLS      0x040
+#define SCORE2FLAGS_DEATHS     0x080
+#define SCORE2FLAGS_DAMAGE     0x100
+#define SCORE2FLAGS_DEFAULT     (SCORE2FLAGS_TEAM | SCORE2FLAGS_TIME | SCORE2FLAGS_PING | SCORE2FLAGS_KILLS | SCORE2FLAGS_DEATHS)
+#define SCORE2FLAGS_DEFAULT_CTF (SCORE2FLAGS_TEAM | SCORE2FLAGS_TIME | SCORE2FLAGS_PING | SCORE2FLAGS_CAPS  | SCORE2FLAGS_SCORE)
 
 void InitTransparentList( void )
 {
@@ -1737,12 +1742,7 @@ qboolean CheckTimelimit( void )
 {
 	if (timelimit->value > 0)
 	{
-		float gametime;
-
-		if (matchmode->value)
-			gametime = level.matchTime;
-		else
-			gametime = level.time;
+		float gametime = matchmode->value ? level.matchTime : level.time;
 
 		if (gametime >= timelimit->value * 60)
 		{
@@ -1770,6 +1770,29 @@ qboolean CheckTimelimit( void )
 			level.matchTime = 0;
 			
 			return true;
+		}
+		
+		// CTF with use_warnings should have the same warnings when the map is ending as it does for halftime (see CTFCheckRules).
+		// Otherwise, use_warnings should warn about 3 minutes and 1 minute left, but only if there aren't round ending warnings.
+		if( use_warnings->value && (ctf->value || ! roundtimelimit->value) )
+		{
+			if( timewarning < 3 && ctf->value && gametime >= timelimit->value * 60 - 10 )
+			{
+				gi.sound( &g_edicts[0], CHAN_VOICE | CHAN_NO_PHS_ADD, gi.soundindex("world/10_0.wav"), 1.0, ATTN_NONE, 0.0 );
+				timewarning = 3;
+			}
+			else if( timewarning < 2 && gametime >= (timelimit->value - 1) * 60 )
+			{
+				CenterPrintAll( "1 MINUTE LEFT..." );
+				gi.sound( &g_edicts[0], CHAN_VOICE | CHAN_NO_PHS_ADD, gi.soundindex("tng/1_minute.wav"), 1.0, ATTN_NONE, 0.0 );
+				timewarning = 2;
+			}
+			else if( timewarning < 1 && (! ctf->value) && timelimit->value > 3 && gametime >= (timelimit->value - 3) * 60 )
+			{
+				CenterPrintAll( "3 MINUTES LEFT..." );
+				gi.sound( &g_edicts[0], CHAN_VOICE | CHAN_NO_PHS_ADD, gi.soundindex("tng/3_minutes.wav"), 1.0, ATTN_NONE, 0.0 );
+				timewarning = 1;
+			}
 		}
 	}
 	
@@ -2234,8 +2257,14 @@ static int G_PlayerCmp( const void *p1, const void *p2 )
 	gclient_t *a = *(gclient_t * const *)p1;
 	gclient_t *b = *(gclient_t * const *)p2;
 	
-	if (a->resp.score != b->resp.score) 
-		return b->resp.score - a->resp.score;
+	if( ctf->value )
+	{
+		if( a->resp.score != b->resp.score )
+			return b->resp.score - a->resp.score;
+	}
+	
+	if (a->resp.kills != b->resp.kills)
+		return b->resp.kills - a->resp.kills;
 	
 	if (a->resp.deaths < b->resp.deaths)
 		return -1;
@@ -2738,7 +2767,7 @@ void A_ScoreboardMessage (edict_t * ent, edict_t * killer)
 	}
 	else if (ent->client->layout == LAYOUT_SCORES2)
 	{
-		char team_buf[ 6 ] = "", time_buf[ 6 ] = "", ping_buf[ 6 ] = "", kills_buf[ 7 ] = "", deaths_buf[ 8 ] = "", damage_buf[ 8 ] = "";
+		char team_buf[6] = "", time_buf[6] = "", ping_buf[6] = "", caps_buf[6] = "", score_buf[7] = "", kills_buf[7] = "", deaths_buf[8] = "", damage_buf[8] = "";
 
 		if (noscore->value)
 			totalClients = G_NotSortedClients(sortedClients);
@@ -2749,27 +2778,39 @@ void A_ScoreboardMessage (edict_t * ent, edict_t * killer)
 		line_y = 48;
 		strcpy( string, "xv 0 " );
 
-		int stats = statflags->value;
+		int s2f = score2flags->value;
+		if( !(s2f & SCORE2FLAGS_NO_DEFAULT) )
+			s2f |= ctf->value ? SCORE2FLAGS_DEFAULT_CTF : SCORE2FLAGS_DEFAULT;
 		if( noscore->value )
-			stats &= ~(STATFLAGS_KILLS | STATFLAGS_DEATHS | STATFLAGS_DAMAGE);
+			s2f &= ~(SCORE2FLAGS_SCORE | SCORE2FLAGS_KILLS | SCORE2FLAGS_DEATHS | SCORE2FLAGS_DAMAGE | SCORE2FLAGS_CAPS);
+		else if( ! ctf->value )
+		{
+			s2f &= ~SCORE2FLAGS_CAPS;
+			if( s2f & SCORE2FLAGS_SCORE )
+				s2f = (s2f & ~SCORE2FLAGS_SCORE) | SCORE2FLAGS_KILLS;
+		}
 
 		sprintf( string + strlen(string),
-			"xv 0 yv 32 string2 \"%sPlayer         %s%s%s%s%s\" ",
-			((stats & STATFLAGS_TEAM)   ? "Team "   : ""),
-			((stats & STATFLAGS_TIME)   ? " Time"   : ""),
-			((stats & STATFLAGS_PING)   ? " Ping"   : ""),
-			((stats & STATFLAGS_KILLS)  ? " Kills"  : ""),
-			((stats & STATFLAGS_DEATHS) ? " Deaths" : ""),
-			((stats & STATFLAGS_DAMAGE) ? " Damage" : "")
+			"xv 0 yv 32 string2 \"%sPlayer         %s%s%s%s%s%s%s\" ",
+			((s2f & SCORE2FLAGS_TEAM)   ? "Team "   : ""),
+			((s2f & SCORE2FLAGS_TIME)   ? " Time"   : ""),
+			((s2f & SCORE2FLAGS_PING)   ? " Ping"   : ""),
+			((s2f & SCORE2FLAGS_CAPS)   ? " Caps"   : ""),
+			((s2f & SCORE2FLAGS_SCORE)  ? " Score"  : ""),
+			((s2f & SCORE2FLAGS_KILLS)  ? " Kills"  : ""),
+			((s2f & SCORE2FLAGS_DEATHS) ? " Deaths" : ""),
+			((s2f & SCORE2FLAGS_DAMAGE) ? " Damage" : "")
 		);
 		sprintf( string + strlen(string),
-			"xv 0 yv 40 string2 \"%sùûûûûûûûûûûûûûü%s%s%s%s%s\" ",
-			((stats & STATFLAGS_TEAM)   ? "ùûûü "   : ""),
-			((stats & STATFLAGS_TIME)   ? " ùûûü"   : ""),
-			((stats & STATFLAGS_PING)   ? " ùûûü"   : ""),
-			((stats & STATFLAGS_KILLS)  ? " ùûûûü"  : ""),
-			((stats & STATFLAGS_DEATHS) ? " ùûûûûü" : ""),
-			((stats & STATFLAGS_DAMAGE) ? " ùûûûûü" : "")
+			"xv 0 yv 40 string2 \"%sùûûûûûûûûûûûûûü%s%s%s%s%s%s%s\" ",
+			((s2f & SCORE2FLAGS_TEAM)   ? "ùûûü "   : ""),
+			((s2f & SCORE2FLAGS_TIME)   ? " ùûûü"   : ""),
+			((s2f & SCORE2FLAGS_PING)   ? " ùûûü"   : ""),
+			((s2f & SCORE2FLAGS_CAPS)   ? " ùûûü"   : ""),
+			((s2f & SCORE2FLAGS_SCORE)  ? " ùûûûü"  : ""),
+			((s2f & SCORE2FLAGS_KILLS)  ? " ùûûûü"  : ""),
+			((s2f & SCORE2FLAGS_DEATHS) ? " ùûûûûü" : ""),
+			((s2f & SCORE2FLAGS_DAMAGE) ? " ùûûûûü" : "")
 		);
 
 		for (i = 0; i < totalClients; i++)
@@ -2778,25 +2819,29 @@ void A_ScoreboardMessage (edict_t * ent, edict_t * killer)
 			cl_ent = g_edicts + 1 + (cl - game.clients);
 
 			snprintf( team_buf,   6, " %c%c%c ", (cl->resp.team ? (cl->resp.team + '0') : ' '), (IS_CAPTAIN(cl_ent) ? 'C' : ' '), (cl->resp.subteam ? 'S' : ' ') );
+			snprintf( time_buf,   6, " %4i", min( 9999, (level.framenum - cl->resp.enterframe) / (60 * HZ) ) );
 			snprintf( ping_buf,   6, " %4i", min( 9999, cl->ping ) );
 #ifndef NO_BOTS
 			if( cl_ent->is_bot )
 				strcpy( ping_buf, "  BOT" );
 #endif
-			snprintf( time_buf,   6, " %4i", min( 9999, (level.framenum - cl->resp.enterframe) / (60 * HZ) ) );
-			snprintf( kills_buf,  7, " %5i", min( 99999, cl->resp.score) );
+			snprintf( caps_buf,   6, " %4i", min( 9999, cl->resp.ctf_caps ) );
+			snprintf( score_buf,  7, " %5i", min( 99999, cl->resp.score) );
+			snprintf( kills_buf,  7, " %5i", min( 99999, cl->resp.kills) );
 			snprintf( deaths_buf, 8, " %6i", min( 999999, cl->resp.deaths) );
 			snprintf( damage_buf, 8, " %6i", min( 999999, cl->resp.damage_dealt) );
 
-			sprintf( string + strlen(string), "yv %d string \"%s%-15s%s%s%s%s%s\"",
+			sprintf( string + strlen(string), "yv %d string \"%s%-15s%s%s%s%s%s%s%s\"",
 				line_y,
-				((stats & STATFLAGS_TEAM)   ? team_buf   : ""),
+				((s2f & SCORE2FLAGS_TEAM)   ? team_buf   : ""),
 				cl->pers.netname,
-				((stats & STATFLAGS_TIME)   ? time_buf   : ""),
-				((stats & STATFLAGS_PING)   ? ping_buf   : ""),
-				((stats & STATFLAGS_KILLS)  ? kills_buf  : ""),
-				((stats & STATFLAGS_DEATHS) ? deaths_buf : ""),
-				((stats & STATFLAGS_DAMAGE) ? damage_buf : "")
+				((s2f & SCORE2FLAGS_TIME)   ? time_buf   : ""),
+				((s2f & SCORE2FLAGS_PING)   ? ping_buf   : ""),
+				((s2f & SCORE2FLAGS_CAPS)   ? caps_buf   : ""),
+				((s2f & SCORE2FLAGS_SCORE)  ? score_buf  : ""),
+				((s2f & SCORE2FLAGS_KILLS)  ? kills_buf  : ""),
+				((s2f & SCORE2FLAGS_DEATHS) ? deaths_buf : ""),
+				((s2f & SCORE2FLAGS_DAMAGE) ? damage_buf : "")
 			);
 			
 			line_y += 8;
