@@ -39,11 +39,12 @@ ifdef DEBUG
 	CFLAGS=$(BASE_CFLAGS) -g
 else
 	CFLAGS=$(BASE_CFLAGS) -O2
+endif
 
-	# If it's not for release, allow machine-specific optimizations.
-	ifneq ($(RELEASE),yes)
-		CFLAGS+=-march=native -mtune=native
-	endif
+ifdef NATIVE
+# Allow machine-specific optimizations.
+# This is no longer default because some build environments don't like it.
+CFLAGS+=-march=native -mtune=native
 endif
 
 ifdef X86

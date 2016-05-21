@@ -20,8 +20,16 @@ char *INI_Find( FILE *fh, const char *section, const char *key )
 	memset( _ini_ret, 0, MAX_INI_STR_LEN );
 	memset( _ini_file, 0, MAX_INI_SIZE );
 
-	fread( _ini_file, 1, MAX_INI_SIZE, fh );
+	int was_at = fseek( fh, 0, SEEK_CUR );
 	fseek( fh, 0, SEEK_SET );
+	int read_size = fread( _ini_file, 1, MAX_INI_SIZE, fh );
+	fseek( fh, was_at, SEEK_SET );
+
+	if( read_size == MAX_INI_SIZE )
+	{
+		_ini_file[ MAX_INI_SIZE - 1 ] = '\0';
+		gi.dprintf( "INI_Find: file is too long, ignoring the end\n" );
+	}
 
 	// This allows us to handle pre-section name/value pairs without redundant code below.
 	if( ! section )
