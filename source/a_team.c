@@ -343,14 +343,15 @@ static size_t transparentEntryCount = 0;
 transparent_list_t *transparent_list = NULL;
 static transparent_list_t *transparentlistFree = NULL;
 
-#define SCORES2_TEAM   0x01
-#define SCORES2_TIME   0x02
-#define SCORES2_PING   0x04
-#define SCORES2_CAPS   0x08
-#define SCORES2_SCORE  0x10
-#define SCORES2_KILLS  0x20
-#define SCORES2_DEATHS 0x40
-#define SCORES2_DAMAGE 0x80
+#define SCORES2_TEAM   0x001
+#define SCORES2_TIME   0x002
+#define SCORES2_PING   0x004
+#define SCORES2_CAPS   0x008
+#define SCORES2_SCORE  0x010
+#define SCORES2_KILLS  0x020
+#define SCORES2_DEATHS 0x040
+#define SCORES2_DAMAGE 0x080
+#define SCORES2_ACC    0x100
 
 void InitTransparentList( void )
 {
@@ -2748,7 +2749,7 @@ void A_ScoreboardMessage (edict_t * ent, edict_t * killer)
 	}
 	else if (ent->client->layout == LAYOUT_SCORES2)
 	{
-		char team_buf[6] = "", time_buf[6] = "", ping_buf[6] = "", caps_buf[6] = "", score_buf[7] = "", kills_buf[7] = "", deaths_buf[8] = "", damage_buf[8] = "";
+		char team_buf[6]="", time_buf[6]="", ping_buf[6]="", caps_buf[6]="", score_buf[7]="", kills_buf[7]="", deaths_buf[8]="", damage_buf[8]="", acc_buf[5]="";
 
 		if (noscore->value)
 			totalClients = G_NotSortedClients(sortedClients);
@@ -2761,7 +2762,7 @@ void A_ScoreboardMessage (edict_t * ent, edict_t * killer)
 
 		int s2f = ctf->value ? scores2ctf->value : scores2teamplay->value;
 		if( noscore->value )
-			s2f &= ~(SCORES2_CAPS | SCORES2_SCORE | SCORES2_KILLS | SCORES2_DEATHS | SCORES2_DAMAGE);
+			s2f &= ~(SCORES2_CAPS | SCORES2_SCORE | SCORES2_KILLS | SCORES2_DEATHS | SCORES2_DAMAGE | SCORES2_ACC);
 		else if( ! ctf->value )
 		{
 			s2f &= ~SCORES2_CAPS;
@@ -2770,7 +2771,7 @@ void A_ScoreboardMessage (edict_t * ent, edict_t * killer)
 		}
 
 		sprintf( string + strlen(string),
-			"xv 0 yv 32 string2 \"%sPlayer         %s%s%s%s%s%s%s\" ",
+			"xv 0 yv 32 string2 \"%sPlayer         %s%s%s%s%s%s%s%s\" ",
 			((s2f & SCORES2_TEAM)   ? "Team "   : ""),
 			((s2f & SCORES2_TIME)   ? " Time"   : ""),
 			((s2f & SCORES2_PING)   ? " Ping"   : ""),
@@ -2778,10 +2779,11 @@ void A_ScoreboardMessage (edict_t * ent, edict_t * killer)
 			((s2f & SCORES2_SCORE)  ? " Score"  : ""),
 			((s2f & SCORES2_KILLS)  ? " Kills"  : ""),
 			((s2f & SCORES2_DEATHS) ? " Deaths" : ""),
-			((s2f & SCORES2_DAMAGE) ? " Damage" : "")
+			((s2f & SCORES2_DAMAGE) ? " Damage" : ""),
+			((s2f & SCORES2_ACC)    ? " Acc"    : "")
 		);
 		sprintf( string + strlen(string),
-			"xv 0 yv 40 string2 \"%sŸ%s%s%s%s%s%s%s\" ",
+			"xv 0 yv 40 string2 \"%sŸ%s%s%s%s%s%s%s%s\" ",
 			((s2f & SCORES2_TEAM)   ? "Ÿ "   : ""),
 			((s2f & SCORES2_TIME)   ? " Ÿ"   : ""),
 			((s2f & SCORES2_PING)   ? " Ÿ"   : ""),
@@ -2789,7 +2791,8 @@ void A_ScoreboardMessage (edict_t * ent, edict_t * killer)
 			((s2f & SCORES2_SCORE)  ? " Ÿ"  : ""),
 			((s2f & SCORES2_KILLS)  ? " Ÿ"  : ""),
 			((s2f & SCORES2_DEATHS) ? " Ÿ" : ""),
-			((s2f & SCORES2_DAMAGE) ? " Ÿ" : "")
+			((s2f & SCORES2_DAMAGE) ? " Ÿ" : ""),
+			((s2f & SCORES2_TIME)   ? " Ÿ"   : "")
 		);
 
 		for (i = 0; i < totalClients; i++)
@@ -2805,8 +2808,10 @@ void A_ScoreboardMessage (edict_t * ent, edict_t * killer)
 			snprintf( kills_buf,  7, " %5i", min( 99999, cl->resp.kills) );
 			snprintf( deaths_buf, 8, " %6i", min( 999999, cl->resp.deaths) );
 			snprintf( damage_buf, 8, " %6i", min( 999999, cl->resp.damage_dealt) );
+			if( cl->resp.shotsTotal )
+				snprintf( acc_buf, 5, " %3.f", (double) cl->resp.hitsTotal * 100.0 / (double) cl->resp.shotsTotal );
 
-			sprintf( string + strlen(string), "yv %d string \"%s%-15s%s%s%s%s%s%s%s\"",
+			sprintf( string + strlen(string), "yv %d string \"%s%-15s%s%s%s%s%s%s%s%s\"",
 				line_y,
 				((s2f & SCORES2_TEAM)   ? team_buf   : ""),
 				cl->pers.netname,
@@ -2816,7 +2821,8 @@ void A_ScoreboardMessage (edict_t * ent, edict_t * killer)
 				((s2f & SCORES2_SCORE)  ? score_buf  : ""),
 				((s2f & SCORES2_KILLS)  ? kills_buf  : ""),
 				((s2f & SCORES2_DEATHS) ? deaths_buf : ""),
-				((s2f & SCORES2_DAMAGE) ? damage_buf : "")
+				((s2f & SCORES2_DAMAGE) ? damage_buf : ""),
+				((s2f & SCORES2_ACC)    ? acc_buf    : "")
 			);
 			
 			line_y += 8;
