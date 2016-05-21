@@ -18,13 +18,8 @@ MACHINE=$(shell uname -m)
 SYSTEM=$(shell uname -s)
 ARCH=i386
 
-# this will fix raspberry pi dualcore gameARCH.so on build.
-ifeq ($(MACHINE),armv6l)
-ARCH=arm
-endif
-
-# this will fix raspberry pi quadcore gameARCH.so on build.
-ifeq ($(MACHINE),armv7l)
+# If machine starts with arm (any type of Raspberry Pi) make gamearm.so.
+ifneq (,$(findstring __arm,__$(MACHINE)))
 ARCH=arm
 endif
 
