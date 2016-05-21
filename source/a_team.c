@@ -2803,7 +2803,7 @@ void A_ScoreboardMessage (edict_t * ent, edict_t * killer)
 			((s2f & SCORES2_KILLS)  ? " Ÿ"  : ""),
 			((s2f & SCORES2_DEATHS) ? " Ÿ" : ""),
 			((s2f & SCORES2_DAMAGE) ? " Ÿ" : ""),
-			((s2f & SCORES2_TIME)   ? " Ÿ"   : "")
+			((s2f & SCORES2_ACC)    ? " Ÿ"   : "")
 		);
 
 		for (i = 0; i < totalClients; i++)
@@ -2825,6 +2825,8 @@ void A_ScoreboardMessage (edict_t * ent, edict_t * killer)
 			snprintf( damage_buf, 8, " %6i", min( 999999, cl->resp.damage_dealt) );
 			if( cl->resp.shotsTotal )
 				snprintf( acc_buf, 5, " %3.f", (double) cl->resp.hitsTotal * 100.0 / (double) cl->resp.shotsTotal );
+			else
+				acc_buf[ 0 ] = '\0';
 
 			sprintf( string + strlen(string), "yv %d string \"%s%-15s%s%s%s%s%s%s%s%s\"",
 				line_y,
