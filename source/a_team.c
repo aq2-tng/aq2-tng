@@ -2808,10 +2808,7 @@ void A_ScoreboardMessage (edict_t * ent, edict_t * killer)
 			snprintf( kills_buf,  7, " %5i", min( 99999, cl->resp.kills) );
 			snprintf( deaths_buf, 8, " %6i", min( 999999, cl->resp.deaths) );
 			snprintf( damage_buf, 8, " %6i", min( 999999, cl->resp.damage_dealt) );
-			if( cl->resp.shotsTotal )
-				snprintf( acc_buf, 5, " %3.f", (double) cl->resp.hitsTotal * 100.0 / (double) cl->resp.shotsTotal );
-			else
-				acc_buf[ 0 ] = '\0';
+			snprintf( acc_buf   , 5, " %3.f", cl->resp.shotsTotal ? (double) cl->resp.hitsTotal * 100.0 / (double) cl->resp.shotsTotal : 0. );
 
 			sprintf( string + strlen(string), "yv %d string \"%s%-15s%s%s%s%s%s%s%s%s\"",
 				line_y,
