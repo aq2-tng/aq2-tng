@@ -942,6 +942,8 @@ extern cvar_t *hud_items_cycle;
 extern cvar_t *noscore;
 extern cvar_t *hud_noscore;
 extern cvar_t *use_newscore;
+extern cvar_t *scores2teamplay;
+extern cvar_t *scores2ctf;
 extern cvar_t *actionversion;
 extern cvar_t *use_voice;
 extern cvar_t *ppl_idletime;
@@ -1432,6 +1434,7 @@ typedef struct
   int subteam;
 
   int ctf_state;
+  int ctf_caps;
   int ctf_capstreak;
   int ctf_lasthurtcarrier;
   int ctf_lastreturnedflag;
