@@ -1,0 +1,16 @@
+[ctf]
+type=balanced
+author=dudemcpek
+grapple=no
+
+[respawn]
+red=5
+blue=5
+
+[flags]
+red=<756 2942 -481>
+blue=<3662 1351 -481>
+
+[spawns]
+red=<915 2723 -481 145>,<546 2825 -481 1>,<838 3269 -326 -86>
+blue=<3297 1569 -481 -29>,<3273 1072 -328 93>,<3695 1561 -289 -176>
