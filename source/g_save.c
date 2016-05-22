@@ -396,6 +396,8 @@ void InitGame( void )
 	noscore = gi.cvar( "noscore", "0", CVAR_LATCH );	// Was serverinfo
 	hud_noscore = gi.cvar( "hud_noscore", "0", CVAR_LATCH ); // Hide score from HUD in teamplay.
 	use_newscore = gi.cvar( "use_newscore", "0", 0 );
+	scores2teamplay = gi.cvar( "scores2teamplay", "487", 0 ); // Flags: T+t+P+K+D+d+A
+	scores2ctf = gi.cvar( "scores2ctf", "31", 0 );            // Flags: T+t+P+C+S
 	actionversion = gi.cvar( "actionversion", "none set", CVAR_SERVERINFO | CVAR_LATCH );
 	gi.cvar_set( "actionversion", ACTION_VERSION );
 	use_voice = gi.cvar( "use_voice", "1", 0 );	//slicer

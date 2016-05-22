@@ -343,6 +343,15 @@ static size_t transparentEntryCount = 0;
 transparent_list_t *transparent_list = NULL;
 static transparent_list_t *transparentlistFree = NULL;
 
+#define SCORES2_TEAM   0x001
+#define SCORES2_TIME   0x002
+#define SCORES2_PING   0x004
+#define SCORES2_CAPS   0x008
+#define SCORES2_SCORE  0x010
+#define SCORES2_KILLS  0x020
+#define SCORES2_DEATHS 0x040
+#define SCORES2_DAMAGE 0x080
+#define SCORES2_ACC    0x100
 
 void InitTransparentList( void )
 {
@@ -1340,6 +1349,7 @@ void ResetScores (qboolean playerScores)
 		ent->client->resp.damage_dealt = 0;
 		ent->client->resp.streakHS = 0;
 		ent->client->resp.streakKills = 0;
+		ent->client->resp.ctf_caps = 0;
 		ent->client->resp.ctf_capstreak = 0;
 		ent->client->resp.deaths = 0;
 		ent->client->resp.team_kills = 0;
@@ -1720,12 +1730,7 @@ qboolean CheckTimelimit( void )
 {
 	if (timelimit->value > 0)
 	{
-		float gametime;
-
-		if (matchmode->value)
-			gametime = level.matchTime;
-		else
-			gametime = level.time;
+		float gametime = matchmode->value ? level.matchTime : level.time;
 
 		if (gametime >= timelimit->value * 60)
 		{
@@ -1753,6 +1758,29 @@ qboolean CheckTimelimit( void )
 			level.matchTime = 0;
 			
 			return true;
+		}
+		
+		// CTF with use_warnings should have the same warnings when the map is ending as it does for halftime (see CTFCheckRules).
+		// Otherwise, use_warnings should warn about 3 minutes and 1 minute left, but only if there aren't round ending warnings.
+		if( use_warnings->value && (ctf->value || ! roundtimelimit->value) )
+		{
+			if( timewarning < 3 && ctf->value && gametime >= timelimit->value * 60 - 10 )
+			{
+				gi.sound( &g_edicts[0], CHAN_VOICE | CHAN_NO_PHS_ADD, gi.soundindex("world/10_0.wav"), 1.0, ATTN_NONE, 0.0 );
+				timewarning = 3;
+			}
+			else if( timewarning < 2 && gametime >= (timelimit->value - 1) * 60 )
+			{
+				CenterPrintAll( "1 MINUTE LEFT..." );
+				gi.sound( &g_edicts[0], CHAN_VOICE | CHAN_NO_PHS_ADD, gi.soundindex("tng/1_minute.wav"), 1.0, ATTN_NONE, 0.0 );
+				timewarning = 2;
+			}
+			else if( timewarning < 1 && (! ctf->value) && timelimit->value > 3 && gametime >= (timelimit->value - 3) * 60 )
+			{
+				CenterPrintAll( "3 MINUTES LEFT..." );
+				gi.sound( &g_edicts[0], CHAN_VOICE | CHAN_NO_PHS_ADD, gi.soundindex("tng/3_minutes.wav"), 1.0, ATTN_NONE, 0.0 );
+				timewarning = 1;
+			}
 		}
 	}
 	
@@ -2217,7 +2245,7 @@ static int G_PlayerCmp( const void *p1, const void *p2 )
 	gclient_t *a = *(gclient_t * const *)p1;
 	gclient_t *b = *(gclient_t * const *)p2;
 	
-	if (a->resp.score != b->resp.score) 
+	if (a->resp.score != b->resp.score)
 		return b->resp.score - a->resp.score;
 	
 	if (a->resp.deaths < b->resp.deaths)
@@ -2721,8 +2749,7 @@ void A_ScoreboardMessage (edict_t * ent, edict_t * killer)
 	}
 	else if (ent->client->layout == LAYOUT_SCORES2)
 	{
-		int ping, time;
-		char ping_buf[ 5 ] = "";
+		char team_buf[6]="", time_buf[6]="", ping_buf[6]="", caps_buf[6]="", score_buf[7]="", kills_buf[7]="", deaths_buf[8]="", damage_buf[8]="", acc_buf[5]="";
 
 		if (noscore->value)
 			totalClients = G_NotSortedClients(sortedClients);
@@ -2733,50 +2760,69 @@ void A_ScoreboardMessage (edict_t * ent, edict_t * killer)
 		line_y = 48;
 		strcpy( string, "xv 0 " );
 
-		if (noscore->value)
-		// AQ2:TNG Deathwatch - Nice little bar
+		int s2f = ctf->value ? scores2ctf->value : scores2teamplay->value;
+		if( noscore->value )
+			s2f &= ~(SCORES2_CAPS | SCORES2_SCORE | SCORES2_KILLS | SCORES2_DEATHS | SCORES2_DAMAGE | SCORES2_ACC);
+		else if( ! ctf->value )
 		{
-			strcpy(string + strlen(string),
-				"yv 32 string2 \"Player          Time Ping\" "
-				"yv 40 string2 \"Ÿ Ÿ Ÿ\" ");
+			s2f &= ~SCORES2_CAPS;
+			if( s2f & SCORES2_SCORE )
+				s2f = (s2f & ~SCORES2_SCORE) | SCORES2_KILLS;
 		}
-		else
-		// Raptor007: I think this works well for any teamplay mode.
-		{
-			strcpy( string + strlen(string),
-			"xv 0 yv 32 string2 \"Team Player          Time Ping Kills Deaths\" "
-			"xv 0 yv 40 string2 \"Ÿ Ÿ Ÿ Ÿ Ÿ Ÿ\" ");
-		}
+
+		sprintf( string + strlen(string),
+			"xv 0 yv 32 string2 \"%sPlayer         %s%s%s%s%s%s%s%s\" ",
+			((s2f & SCORES2_TEAM)   ? "Team "   : ""),
+			((s2f & SCORES2_TIME)   ? " Time"   : ""),
+			((s2f & SCORES2_PING)   ? " Ping"   : ""),
+			((s2f & SCORES2_CAPS)   ? " Caps"   : ""),
+			((s2f & SCORES2_SCORE)  ? " Score"  : ""),
+			((s2f & SCORES2_KILLS)  ? " Kills"  : ""),
+			((s2f & SCORES2_DEATHS) ? " Deaths" : ""),
+			((s2f & SCORES2_DAMAGE) ? " Damage" : ""),
+			((s2f & SCORES2_ACC)    ? " Acc"    : "")
+		);
+		sprintf( string + strlen(string),
+			"xv 0 yv 40 string2 \"%sŸ%s%s%s%s%s%s%s%s\" ",
+			((s2f & SCORES2_TEAM)   ? "Ÿ "   : ""),
+			((s2f & SCORES2_TIME)   ? " Ÿ"   : ""),
+			((s2f & SCORES2_PING)   ? " Ÿ"   : ""),
+			((s2f & SCORES2_CAPS)   ? " Ÿ"   : ""),
+			((s2f & SCORES2_SCORE)  ? " Ÿ"  : ""),
+			((s2f & SCORES2_KILLS)  ? " Ÿ"  : ""),
+			((s2f & SCORES2_DEATHS) ? " Ÿ" : ""),
+			((s2f & SCORES2_DAMAGE) ? " Ÿ" : ""),
+			((s2f & SCORES2_ACC)    ? " Ÿ"   : "")
+		);
 
 		for (i = 0; i < totalClients; i++)
 		{
 			cl = sortedClients[i];
 			cl_ent = g_edicts + 1 + (cl - game.clients);
 
-			ping = min( 9999, cl->ping );
-			time = min( 9999, (level.framenum - cl->resp.enterframe) / (60 * HZ) );
+			snprintf( team_buf,   6, " %c%c%c ", (cl->resp.team ? (cl->resp.team + '0') : ' '), (IS_CAPTAIN(cl_ent) ? 'C' : ' '), (cl->resp.subteam ? 'S' : ' ') );
+			snprintf( time_buf,   6, " %4i", min( 9999, (level.framenum - cl->resp.enterframe) / (60 * HZ) ) );
+			snprintf( ping_buf,   6, " %4i", min( 9999, cl->ping ) );
+			snprintf( caps_buf,   6, " %4i", min( 9999, cl->resp.ctf_caps ) );
+			snprintf( score_buf,  7, " %5i", min( 99999, cl->resp.score) );
+			snprintf( kills_buf,  7, " %5i", min( 99999, cl->resp.kills) );
+			snprintf( deaths_buf, 8, " %6i", min( 999999, cl->resp.deaths) );
+			snprintf( damage_buf, 8, " %6i", min( 999999, cl->resp.damage_dealt) );
+			snprintf( acc_buf   , 5, " %3.f", cl->resp.shotsTotal ? (double) cl->resp.hitsTotal * 100.0 / (double) cl->resp.shotsTotal : 0. );
 
-			// Raptor007: This has a string buffer so the bots branch can say "BOT" here.
-			snprintf( ping_buf, 5, "%4d", ping );
-
-			if (noscore->value)
-			{
-				sprintf( string + strlen(string), "yv %d string \"%-15s %4d %4s\" ",
-					line_y, cl->pers.netname, time, ping_buf );
-			}
-			else
-			{
-				sprintf( string + strlen(string), "yv %d string \" %c%c%c %-15s %4d %4s %5i %6i\"",
-					line_y,
-					cl->resp.team ? (cl->resp.team + '0') : ' ',
-					IS_CAPTAIN(cl_ent) ? 'C' : ' ',
-					cl->resp.subteam ? 'S' : ' ',
-					cl->pers.netname,
-					time,
-					ping_buf,
-					min(99999, cl->resp.score),
-					min(999999, cl->resp.deaths) );
-			}
+			sprintf( string + strlen(string), "yv %d string \"%s%-15s%s%s%s%s%s%s%s%s\"",
+				line_y,
+				((s2f & SCORES2_TEAM)   ? team_buf   : ""),
+				cl->pers.netname,
+				((s2f & SCORES2_TIME)   ? time_buf   : ""),
+				((s2f & SCORES2_PING)   ? ping_buf   : ""),
+				((s2f & SCORES2_CAPS)   ? caps_buf   : ""),
+				((s2f & SCORES2_SCORE)  ? score_buf  : ""),
+				((s2f & SCORES2_KILLS)  ? kills_buf  : ""),
+				((s2f & SCORES2_DEATHS) ? deaths_buf : ""),
+				((s2f & SCORES2_DAMAGE) ? damage_buf : ""),
+				((s2f & SCORES2_ACC)    ? acc_buf    : "")
+			);
 			
 			line_y += 8;
 			if (strlen(string) > (maxsize - 100) && i < (totalClients - 2))

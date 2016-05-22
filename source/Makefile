@@ -18,13 +18,8 @@ MACHINE=$(shell uname -m)
 SYSTEM=$(shell uname -s)
 ARCH=i386
 
-# this will fix raspberry pi dualcore gameARCH.so on build.
-ifeq ($(MACHINE),armv6l)
-ARCH=arm
-endif
-
-# this will fix raspberry pi quadcore gameARCH.so on build.
-ifeq ($(MACHINE),armv7l)
+# If machine starts with arm (any type of Raspberry Pi) make gamearm.so.
+ifneq (,$(findstring __arm,__$(MACHINE)))
 ARCH=arm
 endif
 
@@ -44,11 +39,12 @@ ifdef DEBUG
 	CFLAGS=$(BASE_CFLAGS) -g
 else
 	CFLAGS=$(BASE_CFLAGS) -O2
+endif
 
-	# If it's not for release, allow machine-specific optimizations.
-	ifneq ($(RELEASE),yes)
-		CFLAGS+=-march=native -mtune=native
-	endif
+ifdef NATIVE
+# Allow machine-specific optimizations.
+# This is no longer default because some build environments don't like it.
+CFLAGS+=-march=native -mtune=native
 endif
 
 ifdef X86

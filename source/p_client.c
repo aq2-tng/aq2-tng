@@ -396,7 +396,7 @@ void Add_Frag(edict_t * ent, int mod)
 				ent->client->resp.streakKillsHighest = ent->client->resp.streakKills;
 		}
 
-		if (ent->client->resp.streakKills < 4)
+		if (ent->client->resp.streakKills < 4 || ! use_rewards->value)
 			frags = 1;
 		else if (ent->client->resp.streakKills < 8)
 			frags = 2;
@@ -455,6 +455,7 @@ void Add_Frag(edict_t * ent, int mod)
 
 void Subtract_Frag(edict_t * ent)
 {
+	ent->client->resp.kills--;
 	ent->client->resp.score--;
 	ent->client->resp.streakKills = 0;
 	if(teamdm->value)
