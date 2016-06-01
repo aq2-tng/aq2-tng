@@ -1,0 +1,17 @@
+[ctf]
+type=offdef
+offence=red
+author=hifi
+comment=country off/def CTF. Enjoy!
+
+[respawn]
+red=4
+blue=8
+
+[flags]
+red=<1607 -2445 -878>
+blue=<308 -394 -337>
+
+[spawns]
+red=<900 -2666 -504 180>,<1782 -1493 -593 90> 
+blue=<91 -425 -493 0>,<72 -53 -401 -90>
