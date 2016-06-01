@@ -1134,7 +1134,10 @@ void Cmd_Ghost_f(edict_t * ent)
 	ent->client->resp.enterframe = ghost->enterframe + frames_since;
 	ent->client->resp.score = ghost->score;
 	ent->client->resp.kills = ghost->kills;
+	ent->client->resp.deaths = ghost->deaths;
 	ent->client->resp.damage_dealt = ghost->damage_dealt;
+	ent->client->resp.ctf_caps = ghost->ctf_caps;
+
 	if (teamplay->value && ghost->team && ghost->team != ent->client->resp.team)
 			JoinTeam( ent, ghost->team, 1 );
 

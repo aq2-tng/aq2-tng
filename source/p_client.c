@@ -2904,6 +2904,8 @@ void CreateGhost(edict_t * ent)
 	ghost->score = ent->client->resp.score;
 	ghost->damage_dealt = ent->client->resp.damage_dealt;
 	ghost->kills = ent->client->resp.kills;
+	ghost->deaths = ent->client->resp.deaths;
+	ghost->ctf_caps = ent->client->resp.ctf_caps;
 
 	// Teamplay variables
 	if (teamplay->value) {
