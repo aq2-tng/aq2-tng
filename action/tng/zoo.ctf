@@ -1,0 +1,16 @@
+[ctf]
+type=balanced
+author=dudemcpek
+grapple=no
+
+[respawn]
+red=5
+blue=5
+
+[flags]
+red=<-101 880 206>
+blue=<-1533 -1725 110>
+
+[spawns]
+red=<152 881 206 -131>,<-181 375 39 91>,<731 -222 214 111>
+blue=<-1714 -1494 112 -1>,<-982 -1287 110 123>,<-2127 -979 270 -2>
