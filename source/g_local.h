@@ -1837,13 +1837,14 @@ typedef struct
 	char netname[16];
 	char ip[64];
 	int enterframe;
-        int disconnect_frame;
+	int disconnect_frame;
 	int score;
 	int kills;
+	int deaths;
 	int damage_dealt;
+	int ctf_caps;
 	int shotsTotal;
 	int hitsTotal;
-
 	int hitsLocations[LOC_MAX];
 	gunStats_t gunstats[MAX_GUNSTAT];
 	int team;
