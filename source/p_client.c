@@ -3298,12 +3298,12 @@ void ClientBeginServerFrame(edict_t * ent)
 		}
 		client->punch_desired = false;
 
-		if (ppl_idletime->value > 0 && client->resp.idletime && ent->deadflag != DEAD_DEAD) {
-			if (level.framenum >= client->resp.idletime + (int)(ppl_idletime->value * HZ)) {
-				//plays a random sound/insane sound, insane1-9.wav
-				gi.sound(ent, CHAN_VOICE, gi.soundindex(va("insane/insane%i.wav", rand() % 9 + 1)), 1, ATTN_NORM, 0);
-				client->resp.idletime = 0;
-			}
+		int idleframes = ppl_idletime->value * HZ;
+		if( (idleframes > 0) && client->resp.idletime && IS_ALIVE(ent) && (level.framenum >= client->resp.idletime + idleframes) )
+		{
+			//plays a random sound/insane sound, insane1-9.wav
+			gi.sound( ent, CHAN_VOICE, gi.soundindex(va( "insane/insane%i.wav", rand() % 9 + 1 )), 1, ATTN_NORM, 0 );
+			client->resp.idletime = 0;
 		}
 
 		if (client->autoreloading && (client->weaponstate == WEAPON_END_MAG)
