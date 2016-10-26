@@ -173,7 +173,11 @@ void BOTCOM_BasicAttack (edict_t *bot, usercmd_t *cmd, vec3_t vTarget)
 	{
 		// Only shoot if the weapon is ready and we can hit the target!
 		if( BOTCOL_CheckShot( bot ))
-			cmd->buttons = BUTTON_ATTACK;
+		{
+			// Raptor007: If bot skill is negative, don't fire.
+			if( ltk_skill->value >= 0 )
+				cmd->buttons = BUTTON_ATTACK;
+		}
 		else
 			cmd->upmove = 200;
 	}
@@ -198,8 +202,13 @@ void BOTCOM_BasicAttack (edict_t *bot, usercmd_t *cmd, vec3_t vTarget)
 		// Unless we have a sniper rifle!
 		if(bot->client->weapon == FindItem(SNIPER_NAME))
 			iFactor = 1;
-		vTarget[0] += ( right * (((iFactor*(10 - ltk_skill->value)) *random())) );
-		vTarget[2] += ( up * (((iFactor*(10 - ltk_skill->value)) *random())) );
+
+		// Raptor007: Only jiggle for skill >= 0 because negative skill doesn't fire.
+		if( ltk_skill->value >= 0 )
+		{
+			vTarget[0] += ( right * (((iFactor*(10 - ltk_skill->value)) *random())) );
+			vTarget[2] += ( up * (((iFactor*(10 - ltk_skill->value)) *random())) );
+		}
 	}
 
 	// Check the scope use for the snipers

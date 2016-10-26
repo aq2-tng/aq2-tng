@@ -1241,7 +1241,9 @@ void ACEMV_Attack (edict_t *self, usercmd_t *ucmd)
 		//Reenabled by Werewolf
 		if( ACEAI_CheckShot( self ))
 		{
-			ucmd->buttons = BUTTON_ATTACK;
+			// Raptor007: If bot skill is negative, don't fire.
+			if( ltk_skill->value >= 0 )
+				ucmd->buttons = BUTTON_ATTACK;
 			if(self->client->weapon == FindItem(GRENADE_NAME))
 			{
 				self->grenadewait = level.framenum + 2.0 * HZ;
@@ -1308,9 +1310,13 @@ void ACEMV_Attack (edict_t *self, usercmd_t *ucmd)
 			yaw_diff += 360.f;
 		iFactor += abs( yaw_diff / 80.f ) * abs( dist / 700.f );
 
-		target[0] += sign[0] * (10 - ltk_skill->value + ( (  iFactor*(10 - ltk_skill->value)  ) * random() )) * 0.7f;
-		target[1] += sign[1] * (10 - ltk_skill->value + ( (  iFactor*(10 - ltk_skill->value)  ) * random() )) * 0.7f;
-		target[2] += sign[2] * (10 - ltk_skill->value + ( (  iFactor*(10 - ltk_skill->value)  ) * random() ));
+		// Raptor007: Only jiggle for skill >= 0 because negative skill doesn't fire.
+		if( ltk_skill->value >= 0 )
+		{
+			target[0] += sign[0] * (10 - ltk_skill->value + ( (  iFactor*(10 - ltk_skill->value)  ) * random() )) * 0.7f;
+			target[1] += sign[1] * (10 - ltk_skill->value + ( (  iFactor*(10 - ltk_skill->value)  ) * random() )) * 0.7f;
+			target[2] += sign[2] * (10 - ltk_skill->value + ( (  iFactor*(10 - ltk_skill->value)  ) * random() ));
+		}
 	}
 	//Werewolf: Snipers of skill 10 are complete lethal, so I don't use that code down there
 /*	else if (ltk_skill->value == 11)
