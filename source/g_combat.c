@@ -773,6 +773,10 @@ T_Damage (edict_t * targ, edict_t * inflictor, edict_t * attacker, vec3_t dir,
 					mass = 500.0f * (float)knockback / mass;
 
 				VectorMA(targ->velocity, mass, flydir, targ->velocity);
+
+				// Raptor007: Don't consider knockback part of falling damage (instant kick death).
+				if( client )
+					VectorMA( client->oldvelocity, mass, flydir, client->oldvelocity );
 			}
 			break;
 		}
