@@ -1112,14 +1112,17 @@ void Do_Bleeding (edict_t * ent)
 		{
 			ent->client->bleeddelay = level.framenum + 2 * HZ;  // 2 seconds
 			
-			vec3_t fwd, right, up, pos;
+			vec3_t fwd, right, up, pos, vel;
 			AngleVectors( ent->s.angles, fwd, right, up );
-			pos[0] = ent->s.origin[0] + fwd[0] * ent->client->bleedloc_offset[0] + right[0] * ent->client->bleedloc_offset[1] + up[0] * ent->client->bleedloc_offset[2];
-			pos[1] = ent->s.origin[1] + fwd[1] * ent->client->bleedloc_offset[0] + right[1] * ent->client->bleedloc_offset[1] + up[1] * ent->client->bleedloc_offset[2];
-			pos[2] = ent->s.origin[2] + fwd[2] * ent->client->bleedloc_offset[0] + right[2] * ent->client->bleedloc_offset[1] + up[2] * ent->client->bleedloc_offset[2];
+			vel[0] = fwd[0] * ent->client->bleedloc_offset[0] + right[0] * ent->client->bleedloc_offset[1] + up[0] * ent->client->bleedloc_offset[2];
+			vel[1] = fwd[1] * ent->client->bleedloc_offset[0] + right[1] * ent->client->bleedloc_offset[1] + up[1] * ent->client->bleedloc_offset[2];
+			vel[2] = fwd[2] * ent->client->bleedloc_offset[0] + right[2] * ent->client->bleedloc_offset[1] + up[2] * ent->client->bleedloc_offset[2];
+			VectorAdd( ent->s.origin, vel, pos );
+			if( vel[2] < 0. )
+				vel[2] = 0;
 			
 			//gi.cprintf(ent, PRINT_HIGH, "Bleeding now.\n");
-			EjectBlooder (ent, pos, pos);
+			EjectBlooder( ent, pos, vel );
 		}
 	}
 
