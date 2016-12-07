@@ -878,38 +878,16 @@ T_Damage (edict_t * targ, edict_t * inflictor, edict_t * attacker, vec3_t dir,
 		client->damage_blood += take;
 		client->damage_knockback += knockback;
 		//zucc handle adding bleeding here
-		if (damage_type && bleeding)	// one of the hit location weapons
+		if (bleeding)
 		{
-			/* zucc add in partial bleeding, changed
-			if ( client->bleeding < 4*damage*BLEED_TIME )
-			{
-			client->bleeding = 4*damage*BLEED_TIME + client->bleeding/2;
-
-			}
-			else
-			{
-			client->bleeding += damage*BLEED_TIME*2;
-
-			} */
 			client->bleeding += damage * BLEED_TIME;
 			
-			VectorSubtract (point, targ->absmax, targ->client->bleedloc_offset);
-			//VectorSubtract(point, targ->s.origin,  client->bleedloc_offset);
-			
-			client->bleeddelay = level.framenum + 2 * HZ;  // 2 seconds
-		}
-		else if (bleeding)
-		{
-			/*
-			if ( client->bleeding < damage*BLEED_TIME )
-			{
-			client->bleeding = damage*BLEED_TIME;
-			//client->bleedcount = 0;
-			} */
-			client->bleeding += damage * BLEED_TIME;
-			
-			VectorSubtract (point, targ->absmax, targ->client->bleedloc_offset);
-			//VectorSubtract(point, targ->s.origin,  client->bleedloc_offset);
+			vec3_t fwd, right, up, offset;
+			AngleVectors( targ->s.angles, fwd, right, up );
+			VectorSubtract( point, targ->s.origin, offset );
+			targ->client->bleedloc_offset[0] = DotProduct( offset, fwd );
+			targ->client->bleedloc_offset[1] = DotProduct( offset, right );
+			targ->client->bleedloc_offset[2] = DotProduct( offset, up );
 			
 			client->bleeddelay = level.framenum + 2 * HZ;  // 2 seconds
 		}
