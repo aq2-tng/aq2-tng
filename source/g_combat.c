@@ -278,7 +278,7 @@ void BloodSprayThink(edict_t *self)
 
 void blood_spray_touch(edict_t *ent, edict_t *other, cplane_t *plane, csurface_t *surf)
 {
-	if (other == ent->owner)
+	if( (other == ent->owner) || other->client )  // Don't stop on players.
 		return;
 	ent->think = G_FreeEdict;
 	ent->nextthink = level.framenum + 1;
@@ -333,7 +333,7 @@ void spray_blood(edict_t *self, vec3_t start, vec3_t dir, int damage, int mod)
 	VectorClear(blood->maxs);
 	blood->s.modelindex = gi.modelindex("sprites/null.sp2");
 	blood->owner = self;
-	blood->nextthink = level.framenum + speed * HZ / 1000;	//3.2;
+	blood->nextthink = level.framenum + min( speed, 1000 ) * HZ / 1000;	//3.2;
 	blood->touch = blood_spray_touch;
 	blood->think = BloodSprayThink;
 	blood->dmg = damage;

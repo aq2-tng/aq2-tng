@@ -589,7 +589,10 @@ void BlooderDie(edict_t * self)
 
 void BlooderTouch(edict_t * self, edict_t * other, cplane_t * plane, csurface_t * surf)
 {
-	G_FreeEdict(self);
+	if( (other == self->owner) || other->client )  // Don't stop on players.
+		return;
+	self->think = G_FreeEdict;
+	self->nextthink = level.framenum + 1;
 }
 
 void EjectBlooder(edict_t * self, vec3_t start, vec3_t veloc)
@@ -605,7 +608,7 @@ void EjectBlooder(edict_t * self, vec3_t start, vec3_t veloc)
 	spd = 0;
 	VectorScale(forward, spd, blooder->velocity);
 	blooder->solid = SOLID_NOT;
-	blooder->movetype = MOVETYPE_TOSS;
+	blooder->movetype = MOVETYPE_BLOOD;  // Allow dripping blood to make a splat.
 	blooder->s.modelindex = gi.modelindex("sprites/null.sp2");
 	blooder->s.effects |= EF_GIB;
 	blooder->owner = self;
