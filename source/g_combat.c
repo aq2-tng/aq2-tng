@@ -892,9 +892,11 @@ T_Damage (edict_t * targ, edict_t * inflictor, edict_t * attacker, vec3_t dir,
 
 			} */
 			client->bleeding += damage * BLEED_TIME;
+			
 			VectorSubtract (point, targ->absmax, targ->client->bleedloc_offset);
 			//VectorSubtract(point, targ->s.origin,  client->bleedloc_offset);
-
+			
+			client->bleeddelay = level.framenum + 2 * HZ;  // 2 seconds
 		}
 		else if (bleeding)
 		{
@@ -905,9 +907,11 @@ T_Damage (edict_t * targ, edict_t * inflictor, edict_t * attacker, vec3_t dir,
 			//client->bleedcount = 0;
 			} */
 			client->bleeding += damage * BLEED_TIME;
+			
 			VectorSubtract (point, targ->absmax, targ->client->bleedloc_offset);
 			//VectorSubtract(point, targ->s.origin,  client->bleedloc_offset);
-
+			
+			client->bleeddelay = level.framenum + 2 * HZ;  // 2 seconds
 		}
 		if (attacker->client)
 		{
