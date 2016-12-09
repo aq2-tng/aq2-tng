@@ -333,7 +333,7 @@ void spray_blood(edict_t *self, vec3_t start, vec3_t dir, int damage, int mod)
 	VectorClear(blood->maxs);
 	blood->s.modelindex = gi.modelindex("sprites/null.sp2");
 	blood->owner = self;
-	blood->nextthink = level.framenum + min( speed, 1000 ) * HZ / 1000;	//3.2;
+	blood->nextthink = level.framenum + max( speed, 500 ) * HZ / 1000;  //3.2;
 	blood->touch = blood_spray_touch;
 	blood->think = BloodSprayThink;
 	blood->dmg = damage;
