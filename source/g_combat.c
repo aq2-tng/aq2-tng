@@ -753,30 +753,22 @@ T_Damage (edict_t * targ, edict_t * inflictor, edict_t * attacker, vec3_t dir,
 		case MOVETYPE_STOP:
 			break;
 		default:
+			if( mod != MOD_FALLING )
 			{
-				float mass;
-				vec3_t flydir;
+				float mass = max( targ->mass, 50 );
+				vec3_t flydir = {0.f,0.f,0.f}, kvel = {0.f,0.f,0.f};
 
-				if (mod != MOD_FALLING) {
-					VectorNormalize2(dir, flydir);
-					flydir[2] += 0.4f;
-				}
-				else {
-					VectorClear(flydir);
-				}
+				VectorNormalize2( dir, flydir );
+				flydir[2] += 0.4f;
 
-				mass = (targ->mass < 50) ? 50 : targ->mass;
+				float accel_scale = (client && (attacker == targ)) ? 1600.f : 500.f; // the rocket jump hack...
+				VectorScale( flydir, accel_scale * (float) knockback / mass, kvel );
 
-				if (client && attacker == targ)
-					mass = 1600.0f * (float)knockback / mass;	// the rocket jump hack...
-				else
-					mass = 500.0f * (float)knockback / mass;
-
-				VectorMA(targ->velocity, mass, flydir, targ->velocity);
+				VectorAdd( targ->velocity, kvel, targ->velocity );
 
 				// Raptor007: Don't consider knockback part of falling damage (instant kick death).
 				if( client )
-					VectorMA( client->oldvelocity, mass, flydir, client->oldvelocity );
+					VectorAdd( client->oldvelocity, kvel, client->oldvelocity );
 			}
 			break;
 		}
