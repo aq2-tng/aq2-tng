@@ -1307,6 +1307,11 @@ void CleanLevel ()
 			case SNIPER_ANUM:
 				G_FreeEdict( ent );
 				break;
+			default:
+				if((strcmp( ent->classname, "decal" ) == 0)
+				|| (strcmp( ent->classname, "splat" ) == 0)
+				|| (strcmp( ent->classname, "shell" ) == 0))
+					G_FreeEdict( ent );
 		}
 	}
 	
