@@ -699,7 +699,7 @@ void ClientObituary(edict_t * self, edict_t * inflictor, edict_t * attacker)
 	if (!message) {
 		switch (mod) {
 		case MOD_BREAKINGGLASS:
-			if( self->client->push_timeout > 25 )
+			if( self->client->push_timeout > 40 )
 				special_message = "was thrown through a window by";
 			message = "ate too much glass";
 			break;
