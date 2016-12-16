@@ -648,7 +648,7 @@ void ClientObituary(edict_t * self, edict_t * inflictor, edict_t * attacker)
 	char *message2;
 	char death_msg[1024];	// enough in all situations? -FB
 	qboolean friendlyFire;
-	int special = 0;
+	char *special_message = NULL;
 	int n;
 
 	self->client->resp.ctf_capstreak = 0;
@@ -695,15 +695,16 @@ void ClientObituary(edict_t * self, edict_t * inflictor, edict_t * attacker)
 	if (!message) {
 		switch (mod) {
 		case MOD_BREAKINGGLASS:
+			if( self->client->push_timeout > 40 )
+				special_message = "was thrown through a window by";
 			message = "ate too much glass";
 			break;
 		case MOD_SUICIDE:
 			message = "is done with the world";
 			break;
 		case MOD_FALLING:
-			// moved falling to the end
-			if (self->client->push_timeout)
-				special = 1;
+			if( self->client->push_timeout )
+				special_message = "was taught how to fly by";
 			//message = "hit the ground hard, real hard";
 			if (self->client->pers.gender == GENDER_MALE)
 				message = "plummets to his death";
@@ -719,9 +720,13 @@ void ClientObituary(edict_t * self, edict_t * inflictor, edict_t * attacker)
 			message = "sank like a rock";
 			break;
 		case MOD_SLIME:
+			if( self->client->push_timeout )
+				special_message = "melted thanks to";
 			message = "melted";
 			break;
 		case MOD_LAVA:
+			if( self->client->push_timeout )
+				special_message = "was drop-kicked into the lava by";
 			message = "does a back flip into the lava";
 			break;
 		case MOD_EXPLOSIVE:
@@ -740,6 +745,8 @@ void ClientObituary(edict_t * self, edict_t * inflictor, edict_t * attacker)
 		case MOD_BOMB:
 		case MOD_SPLASH:
 		case MOD_TRIGGER_HURT:
+			if( self->client->push_timeout )
+				special_message = "was shoved off the edge by";
 			message = "was in the wrong place";
 			break;
 		}
@@ -748,11 +755,11 @@ void ClientObituary(edict_t * self, edict_t * inflictor, edict_t * attacker)
 	if (message)
 	{
 		// handle falling with an attacker set
-		if (special && self->client->attacker && self->client->attacker->client
+		if (special_message && self->client->attacker && self->client->attacker->client
 		&& (self->client->attacker->client != self->client))
 		{
-			sprintf(death_msg, "%s was taught how to fly by %s\n",
-				self->client->pers.netname, self->client->attacker->client->pers.netname);
+			sprintf(death_msg, "%s %s %s\n",
+				self->client->pers.netname, special_message, self->client->attacker->client->pers.netname);
 			PrintDeathMessage(death_msg, self);
 			IRC_printf(IRC_T_KILL, death_msg);
 			AddKilledPlayer(self->client->attacker, self);

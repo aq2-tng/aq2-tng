@@ -479,7 +479,7 @@ void hurt_touch (edict_t * self, edict_t * other, cplane_t * plane, csurface_t *
 
 	if (!(self->spawnflags & 4))
 	{
-		if ((level.framenum % 10) == 0)
+		if ((level.framenum % HZ) == 0)
 			gi.sound(other, CHAN_AUTO, self->noise_index, 1, ATTN_NORM, 0);
 	}
 
