@@ -179,7 +179,7 @@ void G_UseTargets (edict_t * ent, edict_t * activator)
 		// create a temp object to fire at a later time
 		t = G_Spawn ();
 		t->classname = "DelayedUse";
-		t->nextthink = level.framenum + ent->delay * HZ;
+		t->nextthink = level.framenum + ceil( ent->delay * HZ );
 		t->think = Think_Delay;
 		t->activator = activator;
 		if (!activator)
