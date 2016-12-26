@@ -479,13 +479,28 @@ void SVCmd_Map_restart_f (void)
 
 void SVCmd_ResetScores_f (void)
 {
-	if(!matchmode->value)
+	ResetScores(true);
+	gi.bprintf(PRINT_HIGH, "Scores and time were reset by console.\n");
+}
+
+void SVCmd_SetTeamScore_f( int team )
+{
+	if( ! teamplay->value )
 	{
-		gi.cprintf(NULL, PRINT_HIGH, "This command works only in matchmode\n");
+		gi.cprintf( NULL, PRINT_HIGH, "Scores can only be set for teamplay.\n" );
 		return;
 	}
-	ResetScores(true);
-	gi.bprintf(PRINT_HIGH, "Scores and time was resetted by console\n");
+
+	if( gi.argc() < 3 )
+	{
+		gi.cprintf( NULL, PRINT_HIGH, "Usage: sv %s <score>\n", gi.argv(1) );
+		return;
+	}
+
+	teams[team].score = atoi(gi.argv(2));
+	gi.cvar_forceset( teams[team].teamscore->name, va( "%i", teams[team].score ) );
+
+	gi.bprintf( PRINT_HIGH, "Team %i score set to %i by console.\n", team, teams[team].score );
 }
 
 void SVCmd_SoftQuit_f (void)
@@ -598,6 +613,12 @@ void ServerCommand (void)
 		SVCmd_Map_restart_f ();
 	else if (Q_stricmp (cmd, "resetscores") == 0)
 		SVCmd_ResetScores_f ();
+	else if (Q_stricmp (cmd, "t1score") == 0)
+		SVCmd_SetTeamScore_f( 1 );
+	else if (Q_stricmp (cmd, "t2score") == 0)
+		SVCmd_SetTeamScore_f( 2 );
+	else if (Q_stricmp (cmd, "t3score") == 0)
+		SVCmd_SetTeamScore_f( 3 );
 	else if (Q_stricmp (cmd, "softquit") == 0)
 		SVCmd_SoftQuit_f ();
 	else if (Q_stricmp (cmd, "slap") == 0)

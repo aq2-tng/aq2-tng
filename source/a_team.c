@@ -1336,7 +1336,8 @@ void ResetScores (qboolean playerScores)
 	level.matchTime = 0;
 	num_ghost_players = 0;
 
-	MakeAllLivePlayersObservers();
+	if( gameSettings & GS_ROUNDBASED )
+		MakeAllLivePlayersObservers();
 
 	for(i = TEAM1; i < TEAM_TOP; i++)
 	{
