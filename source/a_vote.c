@@ -1987,6 +1987,9 @@ qboolean ScrambleTeams(void)
 			teams[newteam].captain = ent;
 
 		ent->client->resp.team = newteam;
+
+		const char *s = Info_ValueForKey( ent->client->pers.userinfo, "skin" );
+		AssignSkin( ent, s, false );
 	}
 
 	CenterPrintAll("The teams have been scrambled!");
