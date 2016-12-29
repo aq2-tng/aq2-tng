@@ -855,7 +855,6 @@ void SpawnEntities (char *mapname, char *entities, char *spawnpoint)
 	edict_t *ent = NULL;
 	gclient_t   *client;
 	client_persistant_t pers;
-	client_respawn_t resp;
 	int i, inhibit = 0;
 	char *com_token;
 
