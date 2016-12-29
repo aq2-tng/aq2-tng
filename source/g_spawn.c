@@ -1020,6 +1020,8 @@ void SpawnEntities (char *mapname, char *entities, char *spawnpoint)
 	Q_strncpyz(level.mapname, mapname, sizeof(level.mapname));
 	Q_strncpyz(game.spawnpoint, spawnpoint, sizeof(game.spawnpoint));
 
+	InitTransparentList();
+
 	// set client fields on player ents
 	for (i = 0, ent = &g_edicts[1]; i < game.maxclients; i++, ent++)
 	{
