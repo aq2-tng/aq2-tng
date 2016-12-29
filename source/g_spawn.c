@@ -1015,20 +1015,17 @@ void SpawnEntities (char *mapname, char *entities, char *spawnpoint)
 		client = &game.clients[i];
 		ent->client = client;
 
-		if (!client->pers.connected)
-			continue;
-
 		// clear everything but the persistant data
 		pers = client->pers;
-		resp = client->resp;
 		memset(client, 0, sizeof(*client));
 		client->pers = pers;
-		client->resp = resp;
-		client->clientNum = i;
-		client->pers.connected = true;
+		if( pers.connected )
+		{
+			client->clientNum = i;
 
-		// combine name and skin into a configstring
-		AssignSkin(ent, Info_ValueForKey(client->pers.userinfo, "skin"), false);
+			// combine name and skin into a configstring
+			AssignSkin( ent, Info_ValueForKey( client->pers.userinfo, "skin" ), false );
+		}
 	}
 
 	ent = NULL;
