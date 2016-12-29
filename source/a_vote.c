@@ -331,7 +331,8 @@ void _MapExitLevel (char *NextMap)
 	char buf[MAX_STR_LEN];
 	//Igor[Rock] END
 
-	if (_iCheckMapVotes ())
+	// Because the current level has ended, ignore minimums required for mapvote.
+	if( _iCheckMapVotes() || (map_num_votes > 0) )
 	{
 		votemap = MapWithMostVotes (NULL);
 		Q_strncpyz (NextMap, votemap->mapname, MAX_QPATH);
