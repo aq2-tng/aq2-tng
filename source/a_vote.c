@@ -1971,6 +1971,7 @@ qboolean ScrambleTeams(void)
 	}
 
 	MakeAllLivePlayersObservers();
+	team_round_going = 0;
 
 	if (matchmode->value) {
 		for (i = TEAM1; i <= teamCount; i++) {
