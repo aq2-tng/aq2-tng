@@ -1330,7 +1330,7 @@ void GetChaseTarget (edict_t * ent);
 //
 void ChangePlayerSpawns();
 void ED_CallSpawn( edict_t *ent );
-void G_UpdateSpectarorStatusbar( void );
+void G_UpdateSpectatorStatusbar( void );
 void G_UpdatePlayerStatusbar( edict_t *ent, int force );
 
 //p_weapon.c

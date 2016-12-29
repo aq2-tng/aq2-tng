@@ -1256,7 +1256,7 @@ void G_SetupStatusbar( void )
 	level.spec_statusbar_lastupdate = 0;
 }
 
-void G_UpdateSpectarorStatusbar( void )
+void G_UpdateSpectatorStatusbar( void )
 {
 	char buffer[2048];
 	int i, count, isAlive;
@@ -1350,7 +1350,7 @@ void G_UpdatePlayerStatusbar( edict_t * ent, int force )
 	if (!ent->client->resp.team)
 	{
 		if (level.spec_statusbar_lastupdate < level.realFramenum - 3 * HZ) {
-			G_UpdateSpectarorStatusbar();
+			G_UpdateSpectatorStatusbar();
 			if (level.spec_statusbar_lastupdate < level.realFramenum - 3 * HZ && !force)
 				return;
 		}
