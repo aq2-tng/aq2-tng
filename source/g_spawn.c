@@ -1016,11 +1016,15 @@ void SpawnEntities (char *mapname, char *entities, char *spawnpoint)
 
 		// clear everything but the persistant data
 		pers = client->pers;
+		int saved_team = client->resp.team;
 		memset(client, 0, sizeof(*client));
 		client->pers = pers;
 		if( pers.connected )
 		{
 			client->clientNum = i;
+
+			if( auto_join->value )
+				client->resp.team = saved_team;
 
 			// combine name and skin into a configstring
 			AssignSkin( ent, Info_ValueForKey( client->pers.userinfo, "skin" ), false );
