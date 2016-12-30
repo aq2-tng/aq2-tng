@@ -335,7 +335,8 @@ void _MapExitLevel (char *NextMap)
 	char buf[MAX_STR_LEN];
 	//Igor[Rock] END
 
-	if (_iCheckMapVotes ())
+	// Because the current level has ended, ignore minimums required for mapvote.
+	if( _iCheckMapVotes() || (map_num_votes > 0) )
 	{
 		votemap = MapWithMostVotes (NULL);
 		Q_strncpyz (NextMap, votemap->mapname, MAX_QPATH);
@@ -1971,6 +1972,7 @@ qboolean ScrambleTeams(void)
 	}
 
 	MakeAllLivePlayersObservers();
+	team_round_going = 0;
 
 	if (matchmode->value) {
 		for (i = TEAM1; i <= teamCount; i++) {
@@ -1987,6 +1989,9 @@ qboolean ScrambleTeams(void)
 			teams[newteam].captain = ent;
 
 		ent->client->resp.team = newteam;
+
+		const char *s = Info_ValueForKey( ent->client->pers.userinfo, "skin" );
+		AssignSkin( ent, s, false );
 	}
 
 	CenterPrintAll("The teams have been scrambled!");

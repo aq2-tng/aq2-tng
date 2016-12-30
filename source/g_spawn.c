@@ -855,7 +855,6 @@ void SpawnEntities (char *mapname, char *entities, char *spawnpoint)
 	edict_t *ent = NULL;
 	gclient_t   *client;
 	client_persistant_t pers;
-	client_respawn_t resp;
 	int i, inhibit = 0;
 	char *com_token;
 
@@ -1021,26 +1020,29 @@ void SpawnEntities (char *mapname, char *entities, char *spawnpoint)
 	Q_strncpyz(level.mapname, mapname, sizeof(level.mapname));
 	Q_strncpyz(game.spawnpoint, spawnpoint, sizeof(game.spawnpoint));
 
+	InitTransparentList();
+
 	// set client fields on player ents
 	for (i = 0, ent = &g_edicts[1]; i < game.maxclients; i++, ent++)
 	{
 		client = &game.clients[i];
 		ent->client = client;
 
-		if (!client->pers.connected)
-			continue;
-
 		// clear everything but the persistant data
 		pers = client->pers;
-		resp = client->resp;
+		int saved_team = client->resp.team;
 		memset(client, 0, sizeof(*client));
 		client->pers = pers;
-		client->resp = resp;
-		client->clientNum = i;
-		client->pers.connected = true;
+		if( pers.connected )
+		{
+			client->clientNum = i;
 
-		// combine name and skin into a configstring
-		AssignSkin(ent, Info_ValueForKey(client->pers.userinfo, "skin"), false);
+			if( auto_join->value )
+				client->resp.team = saved_team;
+
+			// combine name and skin into a configstring
+			AssignSkin( ent, Info_ValueForKey( client->pers.userinfo, "skin" ), false );
+		}
 	}
 
 	ent = NULL;
@@ -1260,7 +1262,7 @@ void G_SetupStatusbar( void )
 	level.spec_statusbar_lastupdate = 0;
 }
 
-void G_UpdateSpectarorStatusbar( void )
+void G_UpdateSpectatorStatusbar( void )
 {
 	char buffer[2048];
 	int i, count, isAlive;
@@ -1354,7 +1356,7 @@ void G_UpdatePlayerStatusbar( edict_t * ent, int force )
 	if (!ent->client->resp.team)
 	{
 		if (level.spec_statusbar_lastupdate < level.realFramenum - 3 * HZ) {
-			G_UpdateSpectarorStatusbar();
+			G_UpdateSpectatorStatusbar();
 			if (level.spec_statusbar_lastupdate < level.realFramenum - 3 * HZ && !force)
 				return;
 		}

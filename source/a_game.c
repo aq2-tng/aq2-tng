@@ -884,9 +884,7 @@ edict_t *FindEdictByClassnum(char *classname, int classnum)
 
 /********* Bulletholes/wall stuff ***********/
 
-void DoNothing( edict_t *self )
-{
-}
+void PlaceHolder( edict_t * ent );  // p_weapon.c
 
 // Decal/splat attached to some moving entity.
 void DecalOrSplatThink( edict_t *self )
@@ -972,7 +970,7 @@ void AddDecal(edict_t * self, trace_t * tr)
 	decal->owner = self;
 	decal->touch = NULL;
 	decal->nextthink = level.framenum + bholelife->value * HZ;
-	decal->think = bholelife->value ? DecalDie : DoNothing;
+	decal->think = bholelife->value ? DecalDie : PlaceHolder;
 	decal->classname = "decal";
 	decal->classnum = decals;
 
@@ -1054,7 +1052,7 @@ void AddSplat(edict_t * self, vec3_t point, trace_t * tr)
 	splat->owner = self;
 	splat->touch = NULL;
 	splat->nextthink = level.framenum + splatlife->value * HZ; // - (splats * .05);
-	splat->think = splatlife->value ? SplatDie : DoNothing;
+	splat->think = splatlife->value ? SplatDie : PlaceHolder;
 	splat->classname = "splat";
 	splat->classnum = splats;
 

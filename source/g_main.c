@@ -623,7 +623,7 @@ void ClientEndServerFrames (void)
 	}
 
 	if (updateLayout && spectators && spectator_hud->value) {
-		G_UpdateSpectarorStatusbar();
+		G_UpdateSpectatorStatusbar();
 		if (level.spec_statusbar_lastupdate >= level.realFramenum - 3 * HZ)
 		{
 			for (i = 0, ent = g_edicts + 1; i < game.maxclients; i++, ent++)
