@@ -87,6 +87,7 @@ void AddToTransparentList (edict_t *);
 void RemoveFromTransparentList (edict_t *);
 void PrintTransparentList ();
 void CenterPrintAll (const char *msg);
+int TeamHasPlayers( int team );
 
 //TNG:Freud - new spawning system
 void NS_GetSpawnPoints ();

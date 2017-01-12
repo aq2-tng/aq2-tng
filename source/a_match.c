@@ -167,15 +167,19 @@ void MM_LeftTeam( edict_t *ent )
 	ent->client->resp.subteam = 0;
 }
 
-int TeamsReady(void)
+qboolean TeamsReady( void )
 {
-	int i;
-	
-	for(i = TEAM1; i <= teamCount; i++) {
-		if(!teams[i].ready)
-			return 0;
+	int i, ready = 0;
+
+	for( i = TEAM1; i <= teamCount; i++ )
+	{
+		if( teams[i].ready )
+			ready ++;
+		else if( TeamHasPlayers(i) )
+			return false;
 	}
-	return 1;
+
+	return (ready >= 2);
 }
 
 void Cmd_Captain_f(edict_t * ent)
