@@ -1429,7 +1429,7 @@ qboolean BothTeamsHavePlayers()
 		}
 	}
 
-	return (teamsWithPlayers == teamCount);
+	return (teamsWithPlayers >= 2);
 }
 
 // CheckForWinner: Checks for a winner (or not).
