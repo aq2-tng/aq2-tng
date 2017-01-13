@@ -26,7 +26,7 @@
 #define	HAVE_CAPTAIN(teamNum) (teams[(teamNum)].captain)
 
 void SendScores (void);
-int TeamsReady(void);
+qboolean TeamsReady( void );
 void MM_LeftTeam( edict_t * ent );
 void Cmd_Captain_f (edict_t * ent);
 void Cmd_Ready_f (edict_t * ent);
