@@ -582,7 +582,7 @@ void ACEMV_MoveToGoal(edict_t *self, usercmd_t *ucmd)
 			debug_printf("%s: Oh crap a rocket!\n",self->client->pers.netname);
 		
 		// strafe left/right
-		if(rand()%1 && ACEMV_CanMove(self, MOVE_LEFT))
+		if(ACEMV_CanMove(self, MOVE_LEFT))
 				ucmd->sidemove = -SPEED_RUN;
 		else if(ACEMV_CanMove(self, MOVE_RIGHT))
 				ucmd->sidemove = SPEED_RUN;
@@ -1087,6 +1087,7 @@ void ACEMV_Wander(edict_t *self, usercmd_t *ucmd)
 			return;
 
 		self->s.angles[YAW] += random() * 180 - 90; 
+		self->s.angles[PITCH] = 0;
 
 		if(!M_CheckBottom(self) && !self->groundentity) // if there is ground continue otherwise wait for next move
 			ucmd->forwardmove = 0;
