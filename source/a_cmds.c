@@ -205,7 +205,8 @@ void LaserSightThink(edict_t * self)
 	int height = 0;
 
 	// zucc compensate for weapon ride up
-	VectorAdd(self->owner->client->v_angle, self->owner->client->kick_angles, angles);
+	float *kick_angles = (FRAMEDIV == 1) ? self->owner->client->kick_angles : self->owner->client->ps.kick_angles;
+	VectorAdd(self->owner->client->v_angle, kick_angles, angles);
 	AngleVectors(angles, forward, right, up);
 
 	if (self->owner->client->lasersight != self) {
