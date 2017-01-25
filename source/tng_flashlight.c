@@ -76,11 +76,10 @@ void FL_think (edict_t * self)
      vec3_t forward,right,up;
      trace_t tr; */
 
-  //AngleVectors (self->owner->client->v_angle, forward, right, up);
-  VectorAdd (self->owner->client->v_angle, self->owner->client->kick_angles,
-	     angles);
-  AngleVectors ( /*self->owner->client->v_angle */ angles, forward, right,
-		up);
+	//AngleVectors (self->owner->client->v_angle, forward, right, up);
+	float *kick_angles = (FRAMEDIV == 1) ? self->owner->client->kick_angles : self->owner->client->ps.kick_angles;
+	VectorAdd( self->owner->client->v_angle, kick_angles, angles );
+	AngleVectors( /*self->owner->client->v_angle */ angles, forward, right, up );
 
 /*	VectorSet(offset,24 , 6, self->owner->viewheight-7);
 	G_ProjectSource (self->owner->s.origin, offset, forward, right, start);
