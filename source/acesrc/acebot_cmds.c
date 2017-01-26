@@ -61,7 +61,7 @@ qboolean ACECM_Commands(edict_t *ent)
 
 	else if(Q_stricmp (cmd, "findnode") == 0 && debug_mode)
 	{
-		node = ACEND_FindClosestReachableNode(ent,NODE_DENSITY, NODE_ALL);
+		node = (gi.argc() >= 2) ? atoi(gi.argv(1)) : ACEND_FindClosestReachableNode(ent,NODE_DENSITY, NODE_ALL);
 		safe_bprintf(PRINT_MEDIUM,"node: %d type: %d x: %f y: %f z %f\n",node,nodes[node].type,nodes[node].origin[0],nodes[node].origin[1],nodes[node].origin[2]);
 	}
 
