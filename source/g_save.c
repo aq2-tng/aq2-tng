@@ -530,6 +530,7 @@ void InitGame( void )
 	flood_threshold = gi.cvar( "flood_threshold", "4", 0 );
 
 	warmup = gi.cvar( "warmup", "0", CVAR_LATCH );
+	round_begin = gi.cvar( "round_begin", "20", 0 );
 	spectator_hud = gi.cvar( "spectator_hud", "0", CVAR_LATCH );
 
 	use_mvd2 = gi.cvar( "use_mvd2", "0", 0 );	// JBravo: q2pro MVD2 recording. 0 = off, 1 = on
