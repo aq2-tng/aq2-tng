@@ -353,7 +353,7 @@ qboolean ACEND_FollowPath(edict_t *self)
 	//////////////////////////////////////////
 
 	// Try again?
-	if(self->node_timeout ++ > 3*BOT_FPS)
+	if(self->node_timeout ++ > 5*BOT_FPS)
 	{
 		if(self->tries++ > 3)
 			return false;

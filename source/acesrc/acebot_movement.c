@@ -891,6 +891,19 @@ void ACEMV_Move(edict_t *self, usercmd_t *ucmd)
 	// Get the absolute length
 	distance = VectorLength(dist);
 
+	if( (next_node_type == NODE_LADDER) && ! self->groundentity )
+	{
+		// FIXME: Dirty hack so the bots can actually use ladders.
+		VectorSubtract( nodes[self->next_node].origin, self->s.origin, dist );
+		VectorNormalize( dist );
+		VectorScale( dist, SPEED_RUN, self->velocity );
+		if( dist[2] >= 0 )
+			self->velocity[2] = min( SPEED_RUN * 3/4, self->velocity[2] );
+		else
+			self->velocity[2] = max( SPEED_RUN / -2, self->velocity[2] );
+		ACEMV_ChangeBotAngle(self);
+		return;
+	}
 	if(next_node_type == NODE_LADDER && //(gi.pointcontents(self->s.origin) & CONTENTS_LADDER) &&
 		nodes[self->next_node].origin[2] > self->s.origin[2] &&
 		distance < NODE_DENSITY)
