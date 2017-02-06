@@ -3020,10 +3020,13 @@ void ClientThink(edict_t * ent, usercmd_t * ucmd)
 		if( client->leg_damage && client->leghits && ent->groundentity
 		&& ((level.framenum / game.framediv) % 6 <= 2) )
 		{
-			pm.cmd.forwardmove /= 4 * client->leghits;
-			pm.cmd.sidemove    /= 4 * client->leghits;
-			if( pm.cmd.upmove > 0 )
-				pm.cmd.upmove  /= 4 * client->leghits;
+			int slowdown = 4 * client->leghits;
+			if( pm.cmd.upmove >= 0 )
+				pm.cmd.upmove /= slowdown;
+			else
+				slowdown *= 2; // Reduce crouch walk input even more.
+			pm.cmd.forwardmove /= slowdown;
+			pm.cmd.sidemove    /= slowdown;
 		}
 
 		pm.trace = PM_trace;	// adds default parms
