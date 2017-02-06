@@ -2084,27 +2084,23 @@ int CheckTeamRules (void)
 				}
 				else
 				{
-					if (warmup->value) {
-						char buf[64];
-						int warmup_length = max(warmup->value, 20);
-						sprintf (buf, "The round will begin in %d seconds!", warmup_length);
-						CenterPrintAll (buf);
-						team_round_countdown = warmup_length * 10 + 1;
-					} else {
-						CenterPrintAll ("The round will begin in 20 seconds!");
-						team_round_countdown = 201;
-						// JBravo: Autostart q2pro MVD2 recording on the server
-						if( use_mvd2->value )
-						{
-							tnow = time(NULL);
-							now = localtime(&tnow);
-							strftime( ltm, 64, "%Y%m%d-%H%M%S", now );
-							Com_sprintf( mvdstring, sizeof(mvdstring), "mvdrecord %s-%s\n", ltm, level.mapname );
-							gi.AddCommandString( mvdstring );
-							gi.bprintf( PRINT_HIGH, "Starting MVD recording to file %s-%s.mvd2\n", ltm, level.mapname );
-						}
-						// JBravo: End MVD2
+					int warmup_length = max( warmup->value, round_begin->value );
+					char buf[64] = "";
+					sprintf( buf, "The round will begin in %d seconds!", warmup_length );
+					CenterPrintAll( buf );
+					team_round_countdown = warmup_length * 10 + 2;
+
+					// JBravo: Autostart q2pro MVD2 recording on the server
+					if( use_mvd2->value )
+					{
+						tnow = time(NULL);
+						now = localtime(&tnow);
+						strftime( ltm, 64, "%Y%m%d-%H%M%S", now );
+						Com_sprintf( mvdstring, sizeof(mvdstring), "mvdrecord %s-%s\n", ltm, level.mapname );
+						gi.AddCommandString( mvdstring );
+						gi.bprintf( PRINT_HIGH, "Starting MVD recording to file %s-%s.mvd2\n", ltm, level.mapname );
 					}
+					// JBravo: End MVD2
 				}
 			}
 		}
