@@ -2871,7 +2871,8 @@ void ClientThink(edict_t * ent, usercmd_t * ucmd)
 		{
 			pm.cmd.forwardmove /= 4 * client->leghits;
 			pm.cmd.sidemove    /= 4 * client->leghits;
-			pm.cmd.upmove      /= 4 * client->leghits;
+			if( pm.cmd.upmove > 0 )
+				pm.cmd.upmove  /= 4 * client->leghits;
 		}
 
 		pm.trace = PM_trace;	// adds default parms
