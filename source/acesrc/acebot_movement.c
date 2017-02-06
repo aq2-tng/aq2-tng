@@ -582,7 +582,7 @@ void ACEMV_MoveToGoal(edict_t *self, usercmd_t *ucmd)
 			debug_printf("%s: Oh crap a rocket!\n",self->client->pers.netname);
 		
 		// strafe left/right
-		if(rand()%1 && ACEMV_CanMove(self, MOVE_LEFT))
+		if(ACEMV_CanMove(self, MOVE_LEFT))
 				ucmd->sidemove = -SPEED_RUN;
 		else if(ACEMV_CanMove(self, MOVE_RIGHT))
 				ucmd->sidemove = SPEED_RUN;
@@ -891,6 +891,19 @@ void ACEMV_Move(edict_t *self, usercmd_t *ucmd)
 	// Get the absolute length
 	distance = VectorLength(dist);
 
+	if( (next_node_type == NODE_LADDER) && ! self->groundentity )
+	{
+		// FIXME: Dirty hack so the bots can actually use ladders.
+		VectorSubtract( nodes[self->next_node].origin, self->s.origin, dist );
+		VectorNormalize( dist );
+		VectorScale( dist, SPEED_RUN, self->velocity );
+		if( dist[2] >= 0 )
+			self->velocity[2] = min( SPEED_RUN * 3/4, self->velocity[2] );
+		else
+			self->velocity[2] = max( SPEED_RUN / -2, self->velocity[2] );
+		ACEMV_ChangeBotAngle(self);
+		return;
+	}
 	if(next_node_type == NODE_LADDER && //(gi.pointcontents(self->s.origin) & CONTENTS_LADDER) &&
 		nodes[self->next_node].origin[2] > self->s.origin[2] &&
 		distance < NODE_DENSITY)
@@ -1087,6 +1100,7 @@ void ACEMV_Wander(edict_t *self, usercmd_t *ucmd)
 			return;
 
 		self->s.angles[YAW] += random() * 180 - 90; 
+		self->s.angles[PITCH] = 0;
 
 		if(!M_CheckBottom(self) && !self->groundentity) // if there is ground continue otherwise wait for next move
 			ucmd->forwardmove = 0;
@@ -1241,7 +1255,9 @@ void ACEMV_Attack (edict_t *self, usercmd_t *ucmd)
 		//Reenabled by Werewolf
 		if( ACEAI_CheckShot( self ))
 		{
-			ucmd->buttons = BUTTON_ATTACK;
+			// Raptor007: If bot skill is negative, don't fire.
+			if( ltk_skill->value >= 0 )
+				ucmd->buttons = BUTTON_ATTACK;
 			if(self->client->weapon == FindItem(GRENADE_NAME))
 			{
 				self->grenadewait = level.framenum + 2.0 * HZ;
@@ -1308,9 +1324,13 @@ void ACEMV_Attack (edict_t *self, usercmd_t *ucmd)
 			yaw_diff += 360.f;
 		iFactor += abs( yaw_diff / 80.f ) * abs( dist / 700.f );
 
-		target[0] += sign[0] * (10 - ltk_skill->value + ( (  iFactor*(10 - ltk_skill->value)  ) * random() )) * 0.7f;
-		target[1] += sign[1] * (10 - ltk_skill->value + ( (  iFactor*(10 - ltk_skill->value)  ) * random() )) * 0.7f;
-		target[2] += sign[2] * (10 - ltk_skill->value + ( (  iFactor*(10 - ltk_skill->value)  ) * random() ));
+		// Raptor007: Only jiggle for skill >= 0 because negative skill doesn't fire.
+		if( ltk_skill->value >= 0 )
+		{
+			target[0] += sign[0] * (10 - ltk_skill->value + ( (  iFactor*(10 - ltk_skill->value)  ) * random() )) * 0.7f;
+			target[1] += sign[1] * (10 - ltk_skill->value + ( (  iFactor*(10 - ltk_skill->value)  ) * random() )) * 0.7f;
+			target[2] += sign[2] * (10 - ltk_skill->value + ( (  iFactor*(10 - ltk_skill->value)  ) * random() ));
+		}
 	}
 	//Werewolf: Snipers of skill 10 are complete lethal, so I don't use that code down there
 /*	else if (ltk_skill->value == 11)

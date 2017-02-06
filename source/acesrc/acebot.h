@@ -53,13 +53,10 @@
 #ifndef _ACEBOT_H
 #define _ACEBOT_H
 
-// We could run the bots at the server framerate, but they're designed
-// to do certain things with a random chance per frame, so it seems
-// best to just run them at 10fps.
-//#define BOT_FPS (game.framerate)
-#define BOT_FPS (10)
+// Bots think at the server framerate to make sure they move smoothly.
+#define BOT_FPS (game.framerate)
 
-// Only 100 allowed for now (probably never be enough edicts for 'em
+// Only 100 allowed for now (probably never be enough edicts for 'em)
 #define MAX_BOTS 100
 
 // Platform states

@@ -52,7 +52,7 @@ void FL_make (edict_t * self)
 	flashlight->s.skinnum = 0;
 	flashlight->s.effects |= EF_HYPERBLASTER; // Other effects can be used here, such as flag1, but these look corney and dull. Try stuff and tell me if you find anything cool (EF_HYPERBLASTER)
 	flashlight->think = FL_think;
-	flashlight->nextthink = level.framenum + FRAMEDIV;
+	flashlight->nextthink = level.framenum + 1;
 
 	self->client->flashlight = flashlight;
 }
@@ -76,11 +76,10 @@ void FL_think (edict_t * self)
      vec3_t forward,right,up;
      trace_t tr; */
 
-  //AngleVectors (self->owner->client->v_angle, forward, right, up);
-  VectorAdd (self->owner->client->v_angle, self->owner->client->kick_angles,
-	     angles);
-  AngleVectors ( /*self->owner->client->v_angle */ angles, forward, right,
-		up);
+	//AngleVectors (self->owner->client->v_angle, forward, right, up);
+	float *kick_angles = (FRAMEDIV == 1) ? self->owner->client->kick_angles : self->owner->client->ps.kick_angles;
+	VectorAdd( self->owner->client->v_angle, kick_angles, angles );
+	AngleVectors( /*self->owner->client->v_angle */ angles, forward, right, up );
 
 /*	VectorSet(offset,24 , 6, self->owner->viewheight-7);
 	G_ProjectSource (self->owner->s.origin, offset, forward, right, start);
@@ -108,7 +107,7 @@ void FL_think (edict_t * self)
 	VectorCopy(tr.endpos,self->s.origin);
 
 	gi.linkentity (self);
-	self->nextthink = level.framenum + FRAMEDIV; */
+	self->nextthink = level.framenum + 1; */
 
 	if (self->owner->client->pers.firing_style == ACTION_FIRING_CLASSIC)
 		height = 8;
@@ -134,6 +133,6 @@ void FL_think (edict_t * self)
 	VectorCopy (tr.endpos, self->s.origin);
 
 	gi.linkentity (self);
-	self->nextthink = level.framenum + FRAMEDIV;
+	self->nextthink = level.framenum + 1;
 
 }

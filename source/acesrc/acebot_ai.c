@@ -282,8 +282,7 @@ void ACEAI_Think (edict_t *self)
 
 	// set approximate ping
 	ucmd.msec = 1000 / BOT_FPS;
-
-	// show random ping values in scoreboard
+	self->client->ps.pmove.pm_time = ucmd.msec / 8;
 	self->client->ping = ucmd.msec;
 
 	// set bot's view angle
