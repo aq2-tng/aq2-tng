@@ -3017,16 +3017,16 @@ void ClientThink(edict_t * ent, usercmd_t * ucmd)
 		pm.cmd = *ucmd;
 
 		// Stumbling movement with leg damage.
-		if( client->leg_damage && client->leghits && ent->groundentity
-		&& ((level.framenum / game.framediv) % 6 <= 2) )
+		if( client->leg_damage && client->leghits && ent->groundentity )
 		{
-			int slowdown = 4 * client->leghits;
-			if( pm.cmd.upmove >= 0 )
-				pm.cmd.upmove /= slowdown;
-			else
-				slowdown *= 2; // Reduce crouch walk input even more.
-			pm.cmd.forwardmove /= slowdown;
-			pm.cmd.sidemove    /= slowdown;
+			if( (level.framenum / game.framediv) % 6 <= 2 )
+			{
+				pm.cmd.forwardmove = 0;
+				pm.cmd.sidemove = 0;
+			}
+
+			// Prevent jumping with leg damage.
+			pm.s.pm_flags |= PMF_JUMP_HELD;
 		}
 
 		pm.trace = PM_trace;	// adds default parms
@@ -3052,18 +3052,8 @@ void ClientThink(edict_t * ent, usercmd_t * ucmd)
 			ent->velocity[i] = pm.s.velocity[i] * 0.125;
 		}
 
-		if (client->leg_damage)
-		{
-			// really stopping jumping with leg damage
-			if (ent->groundentity && pm.s.velocity[2] > 10) {
-				ent->velocity[2] = 0.0;
-			}
-		} else {
-			// don't play sounds if they have leg damage, they can't jump anyway
-			if (ent->groundentity && !pm.groundentity && pm.cmd.upmove >= 10 && pm.waterlevel == 0) {
-				ent->client->jumping = 1;
-			}
-		}
+		if( ! client->leg_damage && ent->groundentity && ! pm.groundentity && pm.cmd.upmove >= 10 && pm.waterlevel == 0 )
+			ent->client->jumping = 1;
 
 		VectorCopy(pm.mins, ent->mins);
 		VectorCopy(pm.maxs, ent->maxs);
