@@ -1,0 +1,16 @@
+[ctf]
+type=balanced
+author=Raptor007
+grapple=no
+
+[respawn]
+red=5
+blue=5
+
+[flags]
+red=<366 640 289>
+blue=<-1152 -64 417>
+
+[spawns]
+red=<-670 -87 33 0>,<432 -336 233 90>,<-128 -300 417 180>
+blue=<-1536 1120 33 270>,<-1184 1440 161 180>,<-1664 1280 417 270>
