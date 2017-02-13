@@ -3017,12 +3017,18 @@ void ClientThink(edict_t * ent, usercmd_t * ucmd)
 		pm.cmd = *ucmd;
 
 		// Stumbling movement with leg damage.
-		if( client->leg_damage && client->leghits && ent->groundentity )
+		if( client->leg_damage && ent->groundentity )
 		{
-			if( (level.framenum / game.framediv) % 6 <= 2 )
+			int frame_mod_6 = (level.framenum / game.framediv) % 6;
+			if( frame_mod_6 <= 2 )
 			{
 				pm.cmd.forwardmove = 0;
 				pm.cmd.sidemove = 0;
+			}
+			else if( frame_mod_6 == 3 )
+			{
+				pm.cmd.forwardmove /= client->leghits + 1;
+				pm.cmd.sidemove /= client->leghits + 1;
 			}
 
 			// Prevent jumping with leg damage.
