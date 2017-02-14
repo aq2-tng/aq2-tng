@@ -325,6 +325,7 @@ cvar_t *vrot;			// Vote Rotation
 cvar_t *rrot;			// Random Rotation
 cvar_t *strtwpn;		// Start DM Weapon
 cvar_t *llsound;
+cvar_t *loud_guns;
 cvar_t *use_cvote;
 cvar_t *new_irvision;
 cvar_t *use_rewards;

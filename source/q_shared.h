@@ -1206,6 +1206,7 @@ temp_event_t;
 
 // sound attenuation values
 #define ATTN_NONE               0	// full volume the entire level
+#define ATTN_LOUD (loud_guns->value ? 0.4 : 1)
 #define ATTN_NORM               1
 #define ATTN_IDLE               2
 #define ATTN_STATIC             3	// diminish very rapidly with distance
