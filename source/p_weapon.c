@@ -2236,7 +2236,7 @@ void Pistol_Fire (edict_t * ent)
 	}
 	else
 	{
-		gi.sound (ent, CHAN_WEAPON, gi.soundindex ("weapons/mk23fire.wav"), 1, ATTN_NORM, 0);
+		gi.sound (ent, CHAN_WEAPON, gi.soundindex ("weapons/mk23fire.wav"), 1, ATTN_LOUD, 0);
 		//Display the yellow muzzleflash light effect
 		gi.WriteByte (svc_muzzleflash);
 		gi.WriteShort (ent - g_edicts);
@@ -2376,7 +2376,7 @@ void MP5_Fire (edict_t * ent)
 
 	if (llsound->value == 0)
 	{
-		gi.sound (ent, CHAN_WEAPON, gi.soundindex ("weapons/mp5fire1.wav"), 1, ATTN_NORM, 0);
+		gi.sound (ent, CHAN_WEAPON, gi.soundindex ("weapons/mp5fire1.wav"), 1, ATTN_LOUD, 0);
 	}
 
 	//Display the yellow muzzleflash light effect
@@ -2536,8 +2536,7 @@ void M4_Fire (edict_t * ent)
 	else
 	{
 		//If not silenced, play a shot sound for everyone else
-		gi.sound (ent, CHAN_WEAPON, gi.soundindex ("weapons/m4a1fire.wav"), 1,
-		ATTN_NORM, 0);
+		gi.sound (ent, CHAN_WEAPON, gi.soundindex ("weapons/m4a1fire.wav"), 1, ATTN_LOUD, 0);
 		//Display the yellow muzzleflash light effect
 		gi.WriteByte (svc_muzzleflash);
 		gi.WriteShort (ent - g_edicts);
@@ -2625,7 +2624,7 @@ void M3_Fire (edict_t * ent)
 
 	if (llsound->value == 0)
 	{
-		gi.sound (ent, CHAN_WEAPON, gi.soundindex ("weapons/shotgf1b.wav"), 1, ATTN_NORM, 0);
+		gi.sound (ent, CHAN_WEAPON, gi.soundindex ("weapons/shotgf1b.wav"), 1, ATTN_LOUD, 0);
 	}
 
 	// send muzzle flash
@@ -2713,7 +2712,7 @@ void HC_Fire (edict_t * ent)
 
 		if (llsound->value == 0)
 		{
-			gi.sound (ent, CHAN_WEAPON, gi.soundindex ("weapons/cannon_fire.wav"), 1, ATTN_NORM, 0);
+			gi.sound (ent, CHAN_WEAPON, gi.soundindex ("weapons/cannon_fire.wav"), 1, ATTN_LOUD, 0);
 		}
 		// send muzzle flash
 		gi.WriteByte (svc_muzzleflash);
@@ -2732,7 +2731,7 @@ void HC_Fire (edict_t * ent)
 		{
 			if (llsound->value == 0)
 			{
-				gi.sound (ent, CHAN_WEAPON, gi.soundindex ("weapons/cannon_fire.wav"), 1, ATTN_NORM, 0);
+				gi.sound (ent, CHAN_WEAPON, gi.soundindex ("weapons/cannon_fire.wav"), 1, ATTN_LOUD, 0);
 			}
 		}
 		// send muzzle flash
@@ -2745,7 +2744,7 @@ void HC_Fire (edict_t * ent)
 		fire_shotgun (ent, start, forward, damage, kick, DEFAULT_SHOTGUN_HSPREAD * 4, DEFAULT_SHOTGUN_VSPREAD * 4, 34 / 2, MOD_HC);
 		if (llsound->value == 0)
 		{
-			gi.sound (ent, CHAN_WEAPON, gi.soundindex ("weapons/cannon_fire.wav"), 1, ATTN_NORM, 0);
+			gi.sound (ent, CHAN_WEAPON, gi.soundindex ("weapons/cannon_fire.wav"), 1, ATTN_LOUD, 0);
 		}
 		// send muzzle flash
 		gi.WriteByte (svc_muzzleflash);
@@ -2781,7 +2780,7 @@ void HC_Fire (edict_t * ent)
 
 	if (llsound->value == 0)
 	  {
-	    gi.sound(ent, CHAN_WEAPON, gi.soundindex("weapons/cannon_fire.wav"), 1, ATTN_NORM, 0);
+	    gi.sound(ent, CHAN_WEAPON, gi.soundindex("weapons/cannon_fire.wav"), 1, ATTN_LOUD, 0);
 	  }
         // send muzzle flash
         gi.WriteByte (svc_muzzleflash);
@@ -2929,8 +2928,7 @@ void Sniper_Fire (edict_t * ent)
 	else
 	{
 		//If not silenced, play a shot sound for everyone else
-		gi.sound (ent, CHAN_WEAPON, gi.soundindex ("weapons/ssgfire.wav"),
-		1, ATTN_NORM, 0);
+		gi.sound (ent, CHAN_WEAPON, gi.soundindex ("weapons/ssgfire.wav"), 1, ATTN_LOUD, 0);
 		//Display the yellow muzzleflash light effect
 		gi.WriteByte (svc_muzzleflash);
 		gi.WriteShort (ent - g_edicts);
@@ -2988,7 +2986,7 @@ void Dual_Fire (edict_t * ent)
 	//If the user isn't pressing the attack button, advance the frame and go away....
 	if (ent->client->ps.gunframe == 8)
 	{
-		//gi.sound(ent, CHAN_WEAPON, gi.soundindex("weapons/mk23fire.wav"), 1, ATTN_NORM, 0);
+		//gi.sound(ent, CHAN_WEAPON, gi.soundindex("weapons/mk23fire.wav"), 1, ATTN_LOUD, 0);
 		ent->client->ps.gunframe++;
 
 		VectorAdd (ent->client->v_angle, ent->client->kick_angles, angles);
@@ -3023,8 +3021,7 @@ void Dual_Fire (edict_t * ent)
 				ent->client->dual_rds -= 2;
 				ent->client->mk23_rds -= 2;
 			}
-			gi.sound (ent, CHAN_WEAPON, gi.soundindex ("weapons/mk23fire.wav"),
-				1, ATTN_NORM, 0);
+			gi.sound (ent, CHAN_WEAPON, gi.soundindex ("weapons/mk23fire.wav"), 1, ATTN_LOUD, 0);
 
 			if (ent->client->dual_rds == 0)
 			{
@@ -3112,7 +3109,7 @@ void Dual_Fire (edict_t * ent)
 	else
 	{
 		//If not silenced, play a shot sound for everyone else
-		gi.sound (ent, CHAN_WEAPON, gi.soundindex ("weapons/mk23fire.wav"), 1, ATTN_NORM, 0);
+		gi.sound (ent, CHAN_WEAPON, gi.soundindex ("weapons/mk23fire.wav"), 1, ATTN_LOUD, 0);
 		//Display the yellow muzzleflash light effect
 		gi.WriteByte (svc_muzzleflash);
 		gi.WriteShort (ent - g_edicts);
