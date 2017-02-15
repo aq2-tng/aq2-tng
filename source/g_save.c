@@ -425,7 +425,7 @@ void InitGame( void )
 	sv_crlf = gi.cvar( "sv_crlf", "0", CVAR_LATCH ); // 0 == DONT ALLOW IT
 	vrot = gi.cvar( "vrot", "0", 0 );
 	rrot = gi.cvar( "rrot", "0", 0 );
-	llsound = gi.cvar( "llsound", "0", CVAR_LATCH );
+	llsound = gi.cvar( "llsound", "0", 0 );
 	loud_guns = gi.cvar( "loud_guns", "1", 0 );
 	use_cvote = gi.cvar( "use_cvote", "0", 0 );	// Removed it from Serverinfo
 	new_irvision = gi.cvar( "new_irvision", "0", 0 );
