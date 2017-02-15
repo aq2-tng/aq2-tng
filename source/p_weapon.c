@@ -1735,7 +1735,7 @@ Weapon_Generic (edict_t * ent, int FRAME_ACTIVATE_LAST, int FRAME_FIRE_LAST,
 			&& ent->client->fired == 0 && ent->client->burst == 0)
 		      {
 			ent->client->fired = 1;
-			ent->client->ps.gunframe = 70;
+			ent->client->ps.gunframe = 71;
 			ent->client->burst = 1;
 			ent->client->weaponstate = WEAPON_BURSTING;
 
@@ -1770,7 +1770,7 @@ Weapon_Generic (edict_t * ent, int FRAME_ACTIVATE_LAST, int FRAME_FIRE_LAST,
 			&& ent->client->fired == 0 && ent->client->burst == 0)
 		      {
 			ent->client->fired = 1;
-			ent->client->ps.gunframe = 64;
+			ent->client->ps.gunframe = 65;
 			ent->client->burst = 1;
 			ent->client->weaponstate = WEAPON_BURSTING;
 
