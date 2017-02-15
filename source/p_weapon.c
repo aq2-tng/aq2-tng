@@ -1735,7 +1735,7 @@ Weapon_Generic (edict_t * ent, int FRAME_ACTIVATE_LAST, int FRAME_FIRE_LAST,
 			&& ent->client->fired == 0 && ent->client->burst == 0)
 		      {
 			ent->client->fired = 1;
-			ent->client->ps.gunframe = 70;
+			ent->client->ps.gunframe = 71;
 			ent->client->burst = 1;
 			ent->client->weaponstate = WEAPON_BURSTING;
 
@@ -1770,7 +1770,7 @@ Weapon_Generic (edict_t * ent, int FRAME_ACTIVATE_LAST, int FRAME_FIRE_LAST,
 			&& ent->client->fired == 0 && ent->client->burst == 0)
 		      {
 			ent->client->fired = 1;
-			ent->client->ps.gunframe = 64;
+			ent->client->ps.gunframe = 65;
 			ent->client->burst = 1;
 			ent->client->weaponstate = WEAPON_BURSTING;
 
@@ -2236,7 +2236,7 @@ void Pistol_Fire (edict_t * ent)
 	}
 	else
 	{
-		gi.sound (ent, CHAN_WEAPON, gi.soundindex ("weapons/mk23fire.wav"), 1, ATTN_NORM, 0);
+		gi.sound (ent, CHAN_WEAPON, gi.soundindex ("weapons/mk23fire.wav"), 1, ATTN_LOUD, 0);
 		//Display the yellow muzzleflash light effect
 		gi.WriteByte (svc_muzzleflash);
 		gi.WriteShort (ent - g_edicts);
@@ -2376,7 +2376,7 @@ void MP5_Fire (edict_t * ent)
 
 	if (llsound->value == 0)
 	{
-		gi.sound (ent, CHAN_WEAPON, gi.soundindex ("weapons/mp5fire1.wav"), 1, ATTN_NORM, 0);
+		gi.sound (ent, CHAN_WEAPON, gi.soundindex ("weapons/mp5fire1.wav"), 1, ATTN_LOUD, 0);
 	}
 
 	//Display the yellow muzzleflash light effect
@@ -2536,8 +2536,7 @@ void M4_Fire (edict_t * ent)
 	else
 	{
 		//If not silenced, play a shot sound for everyone else
-		gi.sound (ent, CHAN_WEAPON, gi.soundindex ("weapons/m4a1fire.wav"), 1,
-		ATTN_NORM, 0);
+		gi.sound (ent, CHAN_WEAPON, gi.soundindex ("weapons/m4a1fire.wav"), 1, ATTN_LOUD, 0);
 		//Display the yellow muzzleflash light effect
 		gi.WriteByte (svc_muzzleflash);
 		gi.WriteShort (ent - g_edicts);
@@ -2625,7 +2624,7 @@ void M3_Fire (edict_t * ent)
 
 	if (llsound->value == 0)
 	{
-		gi.sound (ent, CHAN_WEAPON, gi.soundindex ("weapons/shotgf1b.wav"), 1, ATTN_NORM, 0);
+		gi.sound (ent, CHAN_WEAPON, gi.soundindex ("weapons/shotgf1b.wav"), 1, ATTN_LOUD, 0);
 	}
 
 	// send muzzle flash
@@ -2686,20 +2685,7 @@ void HC_Fire (edict_t * ent)
 	}
 
 	v[PITCH] = ent->client->v_angle[PITCH];
-
-	// DW: Single Barreled HC
-	if (ent->client->pers.hc_mode)
-	{
-		if (ent->client->cannon_rds == 2)
-			v[YAW] = ent->client->v_angle[YAW] - ((0.5) / 2);
-		else
-			v[YAW] = ent->client->v_angle[YAW] + ((0.5) / 2);
-	}
-	else
-		v[YAW] = ent->client->v_angle[YAW] - 0.5;	//        v[YAW]   = ent->client->v_angle[YAW] - 5;
-
 	v[ROLL] = ent->client->v_angle[ROLL];
-	AngleVectors (v, forward, NULL, NULL);
 
 	// default hspread is 1k and default vspread is 500
 	setFFState(ent);
@@ -2707,52 +2693,53 @@ void HC_Fire (edict_t * ent)
 
 	if (ent->client->pers.hc_mode)
 	{
+		// Single barrel.
+
+		if (ent->client->cannon_rds == 2)
+			v[YAW] = ent->client->v_angle[YAW] - ((0.5) / 2);
+		else
+			v[YAW] = ent->client->v_angle[YAW] + ((0.5) / 2);
+		AngleVectors (v, forward, NULL, NULL);
+
 		//half the spread, half the pellets?
 		fire_shotgun (ent, start, forward, sngl_damage, sngl_kick, DEFAULT_SHOTGUN_HSPREAD * 2.5, DEFAULT_SHOTGUN_VSPREAD * 2.5, 34 / 2, MOD_HC);
-		Stats_AddShot(ent, MOD_HC);
+
+		ent->client->cannon_rds --;
 
 		if (llsound->value == 0)
 		{
-			gi.sound (ent, CHAN_WEAPON, gi.soundindex ("weapons/cannon_fire.wav"), 1, ATTN_NORM, 0);
+			gi.sound (ent, CHAN_WEAPON, gi.soundindex ("weapons/cannon_fire.wav"), 1, ATTN_LOUD, 0);
 		}
-		// send muzzle flash
-		gi.WriteByte (svc_muzzleflash);
-		gi.WriteShort (ent - g_edicts);
-		gi.WriteByte (MZ_SSHOTGUN | is_silenced);
-		gi.multicast (ent->s.origin, MULTICAST_PVS);
 	}
 	else
 	{
-		//sound on both WEAPON and ITEM to produce a louder 'boom'
-		fire_shotgun (ent, start, forward, damage, kick, DEFAULT_SHOTGUN_HSPREAD * 4, DEFAULT_SHOTGUN_VSPREAD * 4, 34 / 2, MOD_HC);
-		Stats_AddShot(ent, MOD_HC);
+		// Both barrels.
 
-		//only produce this extra sound if single shot is available
-		if (hc_single->value)
-		{
-			if (llsound->value == 0)
-			{
-				gi.sound (ent, CHAN_WEAPON, gi.soundindex ("weapons/cannon_fire.wav"), 1, ATTN_NORM, 0);
-			}
-		}
-		// send muzzle flash
-		gi.WriteByte (svc_muzzleflash);
-		gi.WriteShort (ent - g_edicts);
-		gi.WriteByte (MZ_SSHOTGUN | is_silenced);
-		gi.multicast (ent->s.origin, MULTICAST_PVS);
-		v[YAW] = ent->client->v_angle[YAW] + 5;
-		AngleVectors (v, forward, NULL, NULL);	//was *5 here?
+		v[YAW] = ent->client->v_angle[YAW] - 5;
+		AngleVectors (v, forward, NULL, NULL);
 		fire_shotgun (ent, start, forward, damage, kick, DEFAULT_SHOTGUN_HSPREAD * 4, DEFAULT_SHOTGUN_VSPREAD * 4, 34 / 2, MOD_HC);
+
+		v[YAW] = ent->client->v_angle[YAW] + 5;
+		AngleVectors (v, forward, NULL, NULL);
+		fire_shotgun (ent, start, forward, damage, kick, DEFAULT_SHOTGUN_HSPREAD * 4, DEFAULT_SHOTGUN_VSPREAD * 4 /* was *5 here */, 34 / 2, MOD_HC);
+
+		ent->client->cannon_rds -= 2;
+
 		if (llsound->value == 0)
 		{
-			gi.sound (ent, CHAN_WEAPON, gi.soundindex ("weapons/cannon_fire.wav"), 1, ATTN_NORM, 0);
+			//sound on both WEAPON and ITEM to produce a louder 'boom'
+			gi.sound (ent, CHAN_ITEM,   gi.soundindex ("weapons/cannon_fire.wav"), 1, ATTN_NORM, 0);
+			gi.sound (ent, CHAN_WEAPON, gi.soundindex ("weapons/cannon_fire.wav"), 1, ATTN_LOUD, 0);
 		}
-		// send muzzle flash
-		gi.WriteByte (svc_muzzleflash);
-		gi.WriteShort (ent - g_edicts);
-		gi.WriteByte (MZ_SSHOTGUN | is_silenced);
-		gi.multicast (ent->s.origin, MULTICAST_PVS);
 	}
+
+	// send muzzle flash
+	gi.WriteByte (svc_muzzleflash);
+	gi.WriteShort (ent - g_edicts);
+	gi.WriteByte (MZ_SSHOTGUN | is_silenced);
+	gi.multicast (ent->s.origin, MULTICAST_PVS);
+
+	Stats_AddShot(ent, MOD_HC);
 	ProduceShotgunDamageReport (ent);	//FB 6/3/99
 
 	ent->client->ps.gunframe++;
@@ -2760,11 +2747,6 @@ void HC_Fire (edict_t * ent)
 
 	//      if (!DMFLAGS(DF_INFINITE_AMMO))
 	//              ent->client->inventory[ent->client->ammo_index] -= 2;
-
-	if (ent->client->pers.hc_mode)
-		ent->client->cannon_rds -= 1;
-	else
-		ent->client->cannon_rds -= 2;
 }
 
 /*
@@ -2781,7 +2763,7 @@ void HC_Fire (edict_t * ent)
 
 	if (llsound->value == 0)
 	  {
-	    gi.sound(ent, CHAN_WEAPON, gi.soundindex("weapons/cannon_fire.wav"), 1, ATTN_NORM, 0);
+	    gi.sound(ent, CHAN_WEAPON, gi.soundindex("weapons/cannon_fire.wav"), 1, ATTN_LOUD, 0);
 	  }
         // send muzzle flash
         gi.WriteByte (svc_muzzleflash);
@@ -2929,8 +2911,7 @@ void Sniper_Fire (edict_t * ent)
 	else
 	{
 		//If not silenced, play a shot sound for everyone else
-		gi.sound (ent, CHAN_WEAPON, gi.soundindex ("weapons/ssgfire.wav"),
-		1, ATTN_NORM, 0);
+		gi.sound (ent, CHAN_WEAPON, gi.soundindex ("weapons/ssgfire.wav"), 1, ATTN_LOUD, 0);
 		//Display the yellow muzzleflash light effect
 		gi.WriteByte (svc_muzzleflash);
 		gi.WriteShort (ent - g_edicts);
@@ -2988,7 +2969,7 @@ void Dual_Fire (edict_t * ent)
 	//If the user isn't pressing the attack button, advance the frame and go away....
 	if (ent->client->ps.gunframe == 8)
 	{
-		//gi.sound(ent, CHAN_WEAPON, gi.soundindex("weapons/mk23fire.wav"), 1, ATTN_NORM, 0);
+		//gi.sound(ent, CHAN_WEAPON, gi.soundindex("weapons/mk23fire.wav"), 1, ATTN_LOUD, 0);
 		ent->client->ps.gunframe++;
 
 		VectorAdd (ent->client->v_angle, ent->client->kick_angles, angles);
@@ -3023,8 +3004,7 @@ void Dual_Fire (edict_t * ent)
 				ent->client->dual_rds -= 2;
 				ent->client->mk23_rds -= 2;
 			}
-			gi.sound (ent, CHAN_WEAPON, gi.soundindex ("weapons/mk23fire.wav"),
-				1, ATTN_NORM, 0);
+			gi.sound (ent, CHAN_WEAPON, gi.soundindex ("weapons/mk23fire.wav"), 1, ATTN_LOUD, 0);
 
 			if (ent->client->dual_rds == 0)
 			{
@@ -3112,7 +3092,7 @@ void Dual_Fire (edict_t * ent)
 	else
 	{
 		//If not silenced, play a shot sound for everyone else
-		gi.sound (ent, CHAN_WEAPON, gi.soundindex ("weapons/mk23fire.wav"), 1, ATTN_NORM, 0);
+		gi.sound (ent, CHAN_WEAPON, gi.soundindex ("weapons/mk23fire.wav"), 1, ATTN_LOUD, 0);
 		//Display the yellow muzzleflash light effect
 		gi.WriteByte (svc_muzzleflash);
 		gi.WriteShort (ent - g_edicts);
