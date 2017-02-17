@@ -2757,10 +2757,6 @@ void A_ScoreboardMessage (edict_t * ent, edict_t * killer)
 		else
 			totalClients = G_SortedClients(sortedClients);
 
-		line_x = 0;
-		line_y = 48;
-		strcpy( string, "xv 0 " );
-
 		int s2f = ctf->value ? scores2ctf->value : scores2teamplay->value;
 		if( noscore->value )
 			s2f &= ~(SCORES2_CAPS | SCORES2_SCORE | SCORES2_KILLS | SCORES2_DEATHS | SCORES2_DAMAGE | SCORES2_ACC);
@@ -2771,8 +2767,22 @@ void A_ScoreboardMessage (edict_t * ent, edict_t * killer)
 				s2f = (s2f & ~SCORES2_SCORE) | SCORES2_KILLS;
 		}
 
+		int chars = 15
+			+ ((s2f & SCORES2_TEAM)   ? 5 : 0)
+			+ ((s2f & SCORES2_TIME)   ? 5 : 0)
+			+ ((s2f & SCORES2_PING)   ? 5 : 0)
+			+ ((s2f & SCORES2_CAPS)   ? 5 : 0)
+			+ ((s2f & SCORES2_SCORE)  ? 6 : 0)
+			+ ((s2f & SCORES2_KILLS)  ? 6 : 0)
+			+ ((s2f & SCORES2_DEATHS) ? 7 : 0)
+			+ ((s2f & SCORES2_DAMAGE) ? 7 : 0)
+			+ ((s2f & SCORES2_ACC)    ? 4 : 0);
+
+		line_x = 160 - (chars * 4);
+		sprintf( string, "xv %i ", line_x );
+
 		sprintf( string + strlen(string),
-			"xv 0 yv 32 string2 \"%sPlayer         %s%s%s%s%s%s%s%s\" ",
+			"yv 32 string2 \"%sPlayer         %s%s%s%s%s%s%s%s\" ",
 			((s2f & SCORES2_TEAM)   ? "Team "   : ""),
 			((s2f & SCORES2_TIME)   ? " Time"   : ""),
 			((s2f & SCORES2_PING)   ? " Ping"   : ""),
@@ -2784,7 +2794,7 @@ void A_ScoreboardMessage (edict_t * ent, edict_t * killer)
 			((s2f & SCORES2_ACC)    ? " Acc"    : "")
 		);
 		sprintf( string + strlen(string),
-			"xv 0 yv 40 string2 \"%sùûûûûûûûûûûûûûü%s%s%s%s%s%s%s%s\" ",
+			"yv 40 string2 \"%sùûûûûûûûûûûûûûü%s%s%s%s%s%s%s%s\" ",
 			((s2f & SCORES2_TEAM)   ? "ùûûü "   : ""),
 			((s2f & SCORES2_TIME)   ? " ùûûü"   : ""),
 			((s2f & SCORES2_PING)   ? " ùûûü"   : ""),
@@ -2795,6 +2805,8 @@ void A_ScoreboardMessage (edict_t * ent, edict_t * killer)
 			((s2f & SCORES2_DAMAGE) ? " ùûûûûü" : ""),
 			((s2f & SCORES2_ACC)    ? " ùûü"   : "")
 		);
+
+		line_y = 48;
 
 		for (i = 0; i < totalClients; i++)
 		{
