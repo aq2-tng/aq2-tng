@@ -47,7 +47,8 @@ void FL_make (edict_t * self)
 	flashlight->s.effects |= EF_HYPERBLASTER; // Other effects can be used here, such as flag1, but these look corney and dull. Try stuff and tell me if you find anything cool (EF_HYPERBLASTER)
 	flashlight->think = FL_think;
 	flashlight->nextthink = level.framenum + 1;
-	FL_think( flashlight );
+	VectorCopy( self->s.origin, flashlight->s.origin );
+	//FL_think( flashlight );
 
 	self->client->flashlight = flashlight;
 }
