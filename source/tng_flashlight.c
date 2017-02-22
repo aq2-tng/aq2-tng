@@ -9,7 +9,6 @@ make the flashlight
 
 void FL_make (edict_t * self)
 {
-	vec3_t start, forward, right, end;
 	edict_t *flashlight = self->client->flashlight;
 
 	// Always remove a dead person's flashlight.
@@ -38,12 +37,8 @@ void FL_make (edict_t * self)
 
 	gi.sound( self, CHAN_VOICE, gi.soundindex("misc/flashlight.wav"), 1, ATTN_NORM, 0 );
 
-	AngleVectors(self->client->v_angle, forward, right, NULL);
-
-	VectorSet(end, 100, 0, 0);
-	G_ProjectSource(self->s.origin, end, forward, right, start);
-
 	flashlight = G_Spawn();
+	self->client->flashlight = flashlight;
 	flashlight->owner = self;
 	flashlight->movetype = MOVETYPE_NOCLIP;
 	flashlight->solid = SOLID_NOT;
@@ -53,10 +48,9 @@ void FL_make (edict_t * self)
 	flashlight->s.effects |= EF_HYPERBLASTER; // Other effects can be used here, such as flag1, but these look corney and dull. Try stuff and tell me if you find anything cool (EF_HYPERBLASTER)
 	flashlight->think = FL_think;
 	flashlight->nextthink = level.framenum + 1;
-	VectorCopy( start, flashlight->s.origin );
-	//FL_think( flashlight );
-
-	self->client->flashlight = flashlight;
+	FL_think( flashlight );
+	VectorCopy( flashlight->s.origin, flashlight->s.old_origin );
+	VectorCopy( flashlight->s.origin, flashlight->old_origin );
 }
 
 /*
