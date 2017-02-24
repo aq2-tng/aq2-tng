@@ -509,6 +509,13 @@ void ACEMV_ChangeBotAngle (edict_t *ent)
 	ideal_yaw = anglemod(ideal_angle[YAW]);
 	ideal_pitch = anglemod(ideal_angle[PITCH]);
 
+	// Raptor007: Compensate for M4 climb.
+	if( (ent->client->weaponstate == WEAPON_FIRING) && (ent->client->weapon == FindItem(M4_NAME)) )
+	{
+		float kick_pitch = FRAMESYNC ? ent->client->kick_angles[PITCH] : ent->client->ps.kick_angles[PITCH];
+		ideal_pitch -= kick_pitch;
+	}
+
 	// Yaw
 	if (current_yaw != ideal_yaw)
 	{	
@@ -1294,9 +1301,9 @@ void ACEMV_Attack (edict_t *self, usercmd_t *ucmd)
 
 	//AQ2 ADD - RiEvEr
 	// Alter aiming based on skill level
-	// Modified by Werewolf
+	// Modified by Werewolf and Raptor007
 	if( 
-		(ltk_skill->value < 10 )
+		( (ltk_skill->value >= 0) && (ltk_skill->value < 10) )
 		&& ( bHasWeapon )	// Kick attacks must be accurate
 		&& (!(self->client->weapon == FindItem(KNIFE_NAME))) // Knives accurate
 		)
@@ -1324,13 +1331,9 @@ void ACEMV_Attack (edict_t *self, usercmd_t *ucmd)
 			yaw_diff += 360.f;
 		iFactor += abs( yaw_diff / 80.f ) * abs( dist / 700.f );
 
-		// Raptor007: Only jiggle for skill >= 0 because negative skill doesn't fire.
-		if( ltk_skill->value >= 0 )
-		{
-			target[0] += sign[0] * (10 - ltk_skill->value + ( (  iFactor*(10 - ltk_skill->value)  ) * random() )) * 0.7f;
-			target[1] += sign[1] * (10 - ltk_skill->value + ( (  iFactor*(10 - ltk_skill->value)  ) * random() )) * 0.7f;
-			target[2] += sign[2] * (10 - ltk_skill->value + ( (  iFactor*(10 - ltk_skill->value)  ) * random() ));
-		}
+		target[0] += sign[0] * (10 - ltk_skill->value + ( (  iFactor*(10 - ltk_skill->value)  ) * random() )) * 0.7f;
+		target[1] += sign[1] * (10 - ltk_skill->value + ( (  iFactor*(10 - ltk_skill->value)  ) * random() )) * 0.7f;
+		target[2] += sign[2] * (10 - ltk_skill->value + ( (  iFactor*(10 - ltk_skill->value)  ) * random() ));
 	}
 	//Werewolf: Snipers of skill 10 are complete lethal, so I don't use that code down there
 /*	else if (ltk_skill->value == 11)
