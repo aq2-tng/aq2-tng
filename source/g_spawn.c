@@ -1364,6 +1364,10 @@ void G_UpdatePlayerStatusbar( edict_t * ent, int force )
 		playerStatusbar = level.spec_statusbar;
 	}
 
+#ifndef NO_BOTS
+	if( ent->is_bot )
+		return;
+#endif
 	gi.WriteByte( svc_configstring );
 	gi.WriteShort( CS_STATUSBAR );
 	gi.WriteString( playerStatusbar );
