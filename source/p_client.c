@@ -2367,61 +2367,49 @@ void PutClientInServer(edict_t * ent)
 		ent->bot_speed = 0;
 		VectorClear( ent->lastPosition );
 		
-		int counter = 0;
-		
 		// Choose Teamplay weapon
-		if( ent->weaponchoice == 0 )
-			counter = rand() % 5;
-		else
-			counter = ent->weaponchoice - 1; // Range is 1..5
-		
-		switch( counter )
+		switch( ent->weaponchoice - 1 )  // Range is 1..5
 		{
 		case 0:
-			ACEAI_Cmd_Choose( ent, MP5_NAME );
+			ACEAI_Cmd_Choose_Weapon_Num( ent, MP5_NUM );
 			break;
 		case 1:
-			ACEAI_Cmd_Choose( ent, M4_NAME );
+			ACEAI_Cmd_Choose_Weapon_Num( ent, M4_NUM );
 			break;
 		case 2:
-			ACEAI_Cmd_Choose( ent, M3_NAME );
+			ACEAI_Cmd_Choose_Weapon_Num( ent, M3_NUM );
 			break;
 		case 3:
-			ACEAI_Cmd_Choose( ent, HC_NAME );
+			ACEAI_Cmd_Choose_Weapon_Num( ent, HC_NUM );
 			break;
 		case 4:
-			ACEAI_Cmd_Choose( ent, SNIPER_NAME );
+			ACEAI_Cmd_Choose_Weapon_Num( ent, SNIPER_NUM );
 			break;
 		default:
-			ACEAI_Cmd_Choose( ent, M3_NAME );
+			ACEAI_Cmd_Choose_Weapon_Num( ent, 0 );  // Random allowed.
 			break;
 		}
 		
 		// Choose Teamplay equipment
-		if( ent->equipchoice == 0 )
-			counter = rand() % 5;
-		else
-			counter = ent->equipchoice - 1; // Range is 1..5
-
-		switch( counter )
+		switch( ent->equipchoice - 1 )  // Range is 1..5
 		{
 		case 0:
-			ACEAI_Cmd_Choose( ent, SIL_NAME );
+			ACEAI_Cmd_Choose_Item_Num( ent, SIL_NUM );
 			break;
 		case 1:
-			ACEAI_Cmd_Choose( ent, SLIP_NAME );
+			ACEAI_Cmd_Choose_Item_Num( ent, SLIP_NUM );
 			break;
 		case 2:
-			ACEAI_Cmd_Choose( ent, BAND_NAME );
+			ACEAI_Cmd_Choose_Item_Num( ent, BAND_NUM );
 			break;
 		case 3:
-			ACEAI_Cmd_Choose( ent, KEV_NAME );
+			ACEAI_Cmd_Choose_Item_Num( ent, KEV_NUM );
 			break;
 		case 4:
-			ACEAI_Cmd_Choose( ent, LASER_NAME );
+			ACEAI_Cmd_Choose_Item_Num( ent, LASER_NUM );
 			break;
 		default:
-			ACEAI_Cmd_Choose( ent, KEV_NAME );
+			ACEAI_Cmd_Choose_Item_Num( ent, 0 );  // Random allowed.
 			break;
 		}
 		
