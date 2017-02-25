@@ -511,10 +511,7 @@ void ACEMV_ChangeBotAngle (edict_t *ent)
 
 	// Raptor007: Compensate for M4 climb.
 	if( (ent->client->weaponstate == WEAPON_FIRING) && (ent->client->weapon == FindItem(M4_NAME)) )
-	{
-		float kick_pitch = FRAMESYNC ? ent->client->kick_angles[PITCH] : ent->client->ps.kick_angles[PITCH];
-		ideal_pitch -= kick_pitch;
-	}
+		ideal_pitch -= ent->client->kick_angles[PITCH];
 
 	// Yaw
 	if (current_yaw != ideal_yaw)
