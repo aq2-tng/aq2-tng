@@ -142,7 +142,6 @@
 
 void SP_LaserSight(edict_t * self, gitem_t * item)
 {
-	vec3_t start, forward, right, end;
 	edict_t *lasersight = self->client->lasersight;
 
 	if (!INV_AMMO(self, LASER_NUM) || !self->client->weapon) {
@@ -172,12 +171,8 @@ void SP_LaserSight(edict_t * self, gitem_t * item)
 		return;
 	}
 
-	AngleVectors(self->client->v_angle, forward, right, NULL);
-	VectorSet(end, 100, 0, 0);
-	G_ProjectSource(self->s.origin, end, forward, right, start);
-	VectorCopy(self->s.origin, self->s.old_origin);
-	VectorCopy(self->s.origin, self->old_origin);
 	lasersight = G_Spawn();
+	self->client->lasersight = lasersight;
 	lasersight->owner = self;
 	lasersight->movetype = MOVETYPE_NOCLIP;
 	lasersight->solid = SOLID_NOT;
@@ -186,8 +181,9 @@ void SP_LaserSight(edict_t * self, gitem_t * item)
 	lasersight->s.renderfx = RF_TRANSLUCENT;
 	lasersight->think = LaserSightThink;
 	lasersight->nextthink = level.framenum + 1;
-
-	self->client->lasersight = lasersight;
+	LaserSightThink( lasersight );
+	VectorCopy( lasersight->s.origin, lasersight->s.old_origin );
+	VectorCopy( lasersight->s.origin, lasersight->old_origin );
 }
 
 /*---------------------------------------------
@@ -205,8 +201,7 @@ void LaserSightThink(edict_t * self)
 	int height = 0;
 
 	// zucc compensate for weapon ride up
-	float *kick_angles = (FRAMEDIV == 1) ? self->owner->client->kick_angles : self->owner->client->ps.kick_angles;
-	VectorAdd(self->owner->client->v_angle, kick_angles, angles);
+	VectorAdd(self->owner->client->v_angle, self->owner->client->kick_angles, angles);
 	AngleVectors(angles, forward, right, up);
 
 	if (self->owner->client->lasersight != self) {

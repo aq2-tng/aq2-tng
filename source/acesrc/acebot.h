@@ -310,6 +310,8 @@ void	 ACEAI_PickSafeGoal(edict_t *self);
 qboolean ACEAI_FindEnemy(edict_t *self, int *total);
 qboolean ACEAI_ChooseWeapon(edict_t *self);
 void ACEAI_Cmd_Choose( edict_t *ent, char *s );
+void ACEAI_Cmd_Choose_Weapon_Num( edict_t *ent, int num );
+void ACEAI_Cmd_Choose_Item_Num( edict_t *ent, int num );
 
 // acebot_cmds.c protos
 qboolean ACECM_Commands(edict_t *ent);

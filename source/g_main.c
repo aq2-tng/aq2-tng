@@ -619,6 +619,9 @@ void ClientEndServerFrames (void)
 			else
 				DeathmatchScoreboardMessage(ent, ent->enemy);
 
+#ifndef NO_BOTS
+			if( ! ent->is_bot )
+#endif
 			gi.unicast(ent, false);
 		}
 		if (teamplay->value && !ent->client->resp.team)

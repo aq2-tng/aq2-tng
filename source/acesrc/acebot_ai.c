@@ -980,3 +980,98 @@ void ACEAI_Cmd_Choose (edict_t *ent, char *s)
     else if ( Q_stricmp(s, BAND_NAME) == 0 )
             ent->client->pers.chosenItem = FindItem(BAND_NAME);
 }
+
+void ACEAI_Cmd_Choose_Weapon_Num( edict_t *ent, int num )
+{
+	if( !( num && WPF_ALLOWED(num) ) )
+	{
+		int list[ WEAPON_COUNT ] = {0};
+		int total = 0;
+
+		// Preferred primary weapons.
+		if( WPF_ALLOWED(MP5_NUM) )
+		{
+			list[ total ] = MP5_NUM;
+			total ++;
+		}
+		if( WPF_ALLOWED(M4_NUM) )
+		{
+			list[ total ] = M4_NUM;
+			total ++;
+		}
+		if( WPF_ALLOWED(SNIPER_NUM) )
+		{
+			list[ total ] = SNIPER_NUM;
+			total ++;
+		}
+		if( WPF_ALLOWED(M3_NUM) )
+		{
+			list[ total ] = M3_NUM;
+			total ++;
+		}
+		if( WPF_ALLOWED(HC_NUM) )
+		{
+			list[ total ] = HC_NUM;
+			total ++;
+		}
+
+		if( total )
+			num = list[ rand() % total ];
+		// Last resorts if nothing else is allowed.
+		else if( WPF_ALLOWED(DUAL_NUM) )
+			num = DUAL_NUM;
+		else if( WPF_ALLOWED(KNIFE_NUM) )
+			num = KNIFE_NUM;
+		else if( WPF_ALLOWED(MK23_NUM) )
+			num = MK23_NUM;
+	}
+
+	if( num )
+		ent->client->pers.chosenWeapon = FindItemByNum(num);
+}
+
+void ACEAI_Cmd_Choose_Item_Num( edict_t *ent, int num )
+{
+	if( !( num && ITF_ALLOWED(num) ) )
+	{
+		int list[ ITEM_COUNT ] = {0};
+		int total = 0;
+
+		if( ITF_ALLOWED(KEV_NUM) )
+		{
+			list[ total ] = KEV_NUM;
+			total ++;
+		}
+		if( ITF_ALLOWED(BAND_NUM) )
+		{
+			list[ total ] = BAND_NUM;
+			total ++;
+		}
+		if( ITF_ALLOWED(LASER_NUM) )
+		{
+			list[ total ] = LASER_NUM;
+			total ++;
+		}
+		if( ITF_ALLOWED(SIL_NUM) )
+		{
+			list[ total ] = SIL_NUM;
+			total ++;
+		}
+		if( ITF_ALLOWED(SLIP_NUM) )
+		{
+			list[ total ] = SLIP_NUM;
+			total ++;
+		}
+		if( ITF_ALLOWED(HELM_NUM) )
+		{
+			list[ total ] = HELM_NUM;
+			total ++;
+		}
+
+		if( total )
+			num = list[ rand() % total ];
+	}
+
+	if( num )
+		ent->client->pers.chosenItem = FindItemByNum(num);
+}
