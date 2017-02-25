@@ -3022,6 +3022,12 @@ void ClientBeginServerFrame(edict_t * ent)
 	if (level.intermission_framenum)
 		return;
 
+	if( FRAMESYNC )
+	{
+		// Clear weapon kicks.
+		VectorClear( client->kick_origin );
+		VectorClear( client->kick_angles );
+	}
 
 	if ((int)motd_time->value > client->resp.motd_refreshes * 2 && ent->client->layout != LAYOUT_MENU) {
 		if (client->resp.last_motd_refresh + 2 * HZ < level.realFramenum) {

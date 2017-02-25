@@ -1420,11 +1420,6 @@ void ClientEndServerFrame (edict_t * ent)
 	VectorCopy (ent->velocity, ent->client->oldvelocity);
 	VectorCopy (ent->client->ps.viewangles, ent->client->oldviewangles);
 
-	// clear weapon kicks
-	VectorClear (ent->client->kick_origin);
-	VectorClear (ent->client->kick_angles);
-
-
 	// zucc - clear the open door command
 	ent->client->doortoggle = 0;
 
