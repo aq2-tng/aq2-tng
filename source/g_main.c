@@ -1091,11 +1091,12 @@ void G_RunFrame (void)
 		level.framenum++;
 		level.time = level.framenum * FRAMETIME;
 
+		// Raptor007: So we can always use level.matchTime for timelimit / halftime.
+		if( ! matchmode->value )
+			level.matchTime += FRAMETIME;
+
 		if (level.framenum % (5 * HZ) == 0) {
-			unsigned int gametime;
-
-			gametime = (matchmode->value) ? level.matchTime : level.time;
-
+			unsigned int gametime = level.matchTime;
 			gi.cvar_forceset(maptime->name, va("%d:%02d", gametime / 60, gametime % 60));
 		}
 	}
