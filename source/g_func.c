@@ -172,9 +172,14 @@ static void Move_Begin(edict_t *ent)
 	traveltime = HZ / frames;
 	VectorScale(destdelta, traveltime, ent->velocity);
 
+#ifndef NO_FPS
+	// Recalculate frequently to avoid compound position error from velocity rounding.
+	NEXT_FRAME( ent, Move_Begin );
+#else
 	// set nextthink to trigger a think when dest is reached
 	ent->nextthink = level.framenum + (int)frames;
 	ent->think = Move_Final;
+#endif
 }
 
 static void AccelMove_Think( edict_t *ent );
@@ -257,9 +262,14 @@ static void AngleMove_Begin(edict_t *ent)
 	traveltime = HZ / frames;
 	VectorScale(destdelta, traveltime, ent->avelocity);
 
+#ifndef NO_FPS
+	// Recalculate frequently to avoid compound position error from velocity rounding.
+	NEXT_FRAME( ent, AngleMove_Begin );
+#else
 	// set nextthink to trigger a think when dest is reached
 	ent->nextthink = level.framenum + (int)frames;
 	ent->think = AngleMove_Final;
+#endif
 }
 
 static void AngleMove_Calc(edict_t *ent, void (*func) (edict_t *))
