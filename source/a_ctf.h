@@ -39,7 +39,7 @@ typedef struct ctfgame_s {
 	int total1, total2;	// these are only set when going into intermission!
 	int last_flag_capture;
 	int last_capture_team;
-	qboolean halftime;
+	int halftime;
 
 	/* CTF configuration from .ctf */
 	int type;		// 0 = normal, 1 = off/def

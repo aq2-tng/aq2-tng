@@ -1346,6 +1346,15 @@ void ResetScores (qboolean playerScores)
 		gi.cvar_forceset(teams[i].teamscore->name, "0");
 	}
 
+	ctfgame.team1 = 0;
+	ctfgame.team2 = 0;
+	ctfgame.total1 = 0;
+	ctfgame.total2 = 0;
+	ctfgame.last_flag_capture = 0;
+	ctfgame.last_capture_team = 0;
+	if( matchmode->value )
+		ctfgame.halftime = 0;
+
 	if(!playerScores)
 		return;
 

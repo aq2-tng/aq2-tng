@@ -480,7 +480,7 @@ void SVCmd_Map_restart_f (void)
 void SVCmd_ResetScores_f (void)
 {
 	ResetScores(true);
-	gi.bprintf(PRINT_HIGH, "Scores and time were reset by console.\n");
+	gi.bprintf(PRINT_HIGH, "Scores%s were reset by console.\n", matchmode->value ? " and time" : "");
 }
 
 void SVCmd_SetTeamScore_f( int team )
