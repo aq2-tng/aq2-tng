@@ -2792,7 +2792,7 @@ trace_t q_gameabi PM_trace(vec3_t start, vec3_t mins, vec3_t maxs, vec3_t end)
 }
 
 // Raptor007: Allow weapon actions to start happening on any frame.
-static void ClientThinkWeaponIfReady( edict_t *ent )
+static void ClientThinkWeaponIfReady( edict_t *ent, qboolean update_idle )
 {
 	// If it's too soon since the last non-idle think, keep waiting.
 	if( level.framenum < ent->client->weapon_last_activity + game.framediv )
@@ -2812,7 +2812,7 @@ static void ClientThinkWeaponIfReady( edict_t *ent )
 		ent->client->weapon_last_activity = level.framenum;
 
 	// Only allow the idle animation to update if it's been enough time.
-	else if( level.framenum % game.framediv != ent->client->weapon_last_activity % game.framediv )
+	else if( ! update_idle || level.framenum % game.framediv != ent->client->weapon_last_activity % game.framediv )
 		ent->client->ps.gunframe = old_gunframe;
 }
 
@@ -2999,7 +2999,7 @@ void ClientThink(edict_t * ent, usercmd_t * ucmd)
 			client->latched_buttons = 0;
 			NextChaseMode( ent );
 		} else {
-			ClientThinkWeaponIfReady( ent );
+			ClientThinkWeaponIfReady( ent, false );
 		}
 	}
 
@@ -3094,7 +3094,7 @@ void ClientBeginServerFrame(edict_t * ent)
 	}
 
 	// run weapon animations if it hasn't been done by a ucmd_t
-	ClientThinkWeaponIfReady( ent );
+	ClientThinkWeaponIfReady( ent, true );
 
 	if (ent->deadflag) {
 		// wait for any button just going down
