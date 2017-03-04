@@ -1522,7 +1522,7 @@ struct gclient_s
 	int			oldbuttons;
 	int			latched_buttons;
 
-	qboolean	weapon_thunk;
+	int			weapon_last_activity;
 
 	gitem_t		*newweapon;
 
