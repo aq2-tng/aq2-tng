@@ -640,7 +640,7 @@ qboolean ACEAI_FindEnemy(edict_t *self, int *total)
 	for(i=0;i<=num_players;i++)
 	{
 		if(players[i] == NULL || players[i] == self || 
-		   players[i]->solid == SOLID_NOT)
+		   players[i]->solid == SOLID_NOT || (players[i]->flags & FL_NOTARGET) )
 		   continue;
 	
 		// If it's dark and he's not already our enemy, ignore him
@@ -706,12 +706,12 @@ qboolean ACEAI_FindEnemy(edict_t *self, int *total)
 		return true;
 	}
 	// Check if we've been shot from behind or out of view
-	if( self->client->attacker )
+	if( self->client->attacker && self->client->attacker->inuse )
 	{
 		// Check if it was recent
 		if( self->client->push_timeout > 0)
 		{
-			if(!self->client->attacker->deadflag && ai_visible(self, self->client->attacker) && 
+			if( (self->client->attacker->solid != SOLID_NOT) && ai_visible(self, self->client->attacker) &&
 				gi.inPVS(self->s.origin, self->client->attacker->s.origin)	)
 			{
 				self->enemy = self->client->attacker;

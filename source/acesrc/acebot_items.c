@@ -64,7 +64,10 @@ edict_t *players[MAX_CLIENTS];		// pointers to all players in the game
 ///////////////////////////////////////////////////////////////////////
 void ACEIT_PlayerAdded(edict_t *ent)
 {
-	players[num_players++] = ent;
+	if( num_players < MAX_CLIENTS )
+		players[num_players++] = ent;
+	else
+		gi.dprintf( "ACEIT_PlayerAdded: More players than maxclients!\n" );
 }
 
 ///////////////////////////////////////////////////////////////////////
