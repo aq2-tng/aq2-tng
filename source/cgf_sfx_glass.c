@@ -599,6 +599,7 @@ CGF_SFX_HideBreakableGlass (edict_t * aGlassPane)
       if (decal->owner == aGlassPane)
 	{
 	  // make it goaway in the next frame
+	  decal->think = G_FreeEdict;
 	  decal->nextthink = level.framenum + 1;
 	}
     }
@@ -608,6 +609,7 @@ CGF_SFX_HideBreakableGlass (edict_t * aGlassPane)
       if (decal->owner == aGlassPane)
 	{
 	  // make it goaway in the next frame
+	  decal->think = G_FreeEdict;
 	  decal->nextthink = level.framenum + 1;
 	}
     }

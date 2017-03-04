@@ -572,11 +572,6 @@ int splats = 0;
 
 //blooder used for bleeding
 
-void BlooderDie(edict_t * self)
-{
-	G_FreeEdict(self);
-}
-
 void BlooderTouch(edict_t * self, edict_t * other, cplane_t * plane, csurface_t * surf)
 {
 	if( (other == self->owner) || other->client )  // Don't stop on players.
@@ -604,7 +599,7 @@ void EjectBlooder(edict_t * self, vec3_t start, vec3_t veloc)
 	blooder->owner = self;
 	blooder->touch = BlooderTouch;
 	blooder->nextthink = level.framenum + 3.2 * HZ;
-	blooder->think = BlooderDie;
+	blooder->think = G_FreeEdict;
 	blooder->classname = "blooder";
 
 	gi.linkentity(blooder);
@@ -879,7 +874,7 @@ void PlaceHolder( edict_t * ent );  // p_weapon.c
 // Decal/splat attached to some moving entity.
 void DecalOrSplatThink( edict_t *self )
 {
-	if( level.framenum >= self->wait )
+	if( (self->wait && (level.framenum >= self->wait)) || ! self->movetarget->inuse )
 	{
 		G_FreeEdict(self);
 		return;
@@ -912,11 +907,6 @@ void DecalOrSplatThink( edict_t *self )
 	VectorCopy( self->movetarget->avelocity, self->avelocity );
 }
 
-void DecalDie(edict_t * self)
-{
-	G_FreeEdict(self);
-}
-
 void AddDecal(edict_t * self, trace_t * tr)
 {
 	edict_t *decal, *dec;
@@ -945,7 +935,7 @@ void AddDecal(edict_t * self, trace_t * tr)
 
 	if( dec )
 	{
-		dec->think = DecalDie;
+		dec->think = G_FreeEdict;
 		dec->nextthink = level.framenum + FRAMEDIV;
 	}
 
@@ -959,12 +949,11 @@ void AddDecal(edict_t * self, trace_t * tr)
 
 	decal->owner = self;
 	decal->touch = NULL;
-	decal->nextthink = level.framenum + bholelife->value * HZ;
-	decal->think = bholelife->value ? DecalDie : PlaceHolder;
+	decal->nextthink = bholelife->value ? (level.framenum + bholelife->value * HZ) : 0;
+	decal->think = bholelife->value ? G_FreeEdict : PlaceHolder;
 	decal->classname = "decal";
 	decal->classnum = decals;
 
-	gi.linkentity(decal);
 	if ((tr->ent) && (0 == Q_stricmp("func_explosive", tr->ent->classname))) {
 		CGF_SFX_AttachDecalToGlass(tr->ent, decal);
 	}
@@ -982,11 +971,8 @@ void AddDecal(edict_t * self, trace_t * tr)
 		VectorSubtract( decal->s.angles, tr->ent->s.angles, decal->move_angles );
 		DecalOrSplatThink( decal );
 	}
-}
 
-void SplatDie(edict_t * self)
-{
-	G_FreeEdict(self);
+	gi.linkentity(decal);
 }
 
 void AddSplat(edict_t * self, vec3_t point, trace_t * tr)
@@ -1018,7 +1004,7 @@ void AddSplat(edict_t * self, vec3_t point, trace_t * tr)
 
 	if( spt )
 	{
-		spt->think = SplatDie;
+		spt->think = G_FreeEdict;
 		spt->nextthink = level.framenum + FRAMEDIV;
 	}
 
@@ -1042,11 +1028,10 @@ void AddSplat(edict_t * self, vec3_t point, trace_t * tr)
 	splat->owner = self;
 	splat->touch = NULL;
 	splat->nextthink = level.framenum + splatlife->value * HZ; // - (splats * .05);
-	splat->think = splatlife->value ? SplatDie : PlaceHolder;
+	splat->think = splatlife->value ? G_FreeEdict : PlaceHolder;
 	splat->classname = "splat";
 	splat->classnum = splats;
 
-	gi.linkentity(splat);
 	if ((tr->ent) && (0 == Q_stricmp("func_explosive", tr->ent->classname))) {
 		CGF_SFX_AttachDecalToGlass(tr->ent, splat);
 	}
@@ -1064,6 +1049,8 @@ void AddSplat(edict_t * self, vec3_t point, trace_t * tr)
 		VectorSubtract( splat->s.angles, tr->ent->s.angles, splat->move_angles );
 		DecalOrSplatThink( splat );
 	}
+
+	gi.linkentity(splat);
 }
 
 /* %-variables for chat msgs */
