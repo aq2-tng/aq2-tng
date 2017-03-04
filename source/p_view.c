@@ -1414,6 +1414,10 @@ void ClientEndServerFrame (edict_t * ent)
 
 	G_SetClientFrame (ent);
 
+	// Raptor007: Fix scooting on platforms if ClientThink didn't happen this frame.
+	if( ent->groundentity && (ent->groundentity->linkcount == ent->groundentity_linkcount + 1) )
+		ent->groundentity_linkcount = ent->groundentity->linkcount;
+
 	if (!FRAMESYNC)
 		return;
 
