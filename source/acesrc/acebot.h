@@ -167,90 +167,6 @@ extern int lights_camera_action;
 
 #define VEC_ORIGIN tv(0,0,0)
 
-// Item defines (got this list from somewhere??....so thanks to whoever created it)
-#define ITEMLIST_NULLINDEX			0
-#define ITEMLIST_BODYARMOR			1
-#define ITEMLIST_COMBATARMOR		2
-#define ITEMLIST_JACKETARMOR		3
-#define ITEMLIST_ARMORSHARD			4
-#define ITEMLIST_POWERSCREEN		5
-#define ITEMLIST_POWERSHIELD		6
-
-#define ITEMLIST_BLASTER			8
-#define ITEMLIST_SHOTGUN			9
-#define ITEMLIST_SUPERSHOTGUN		10
-#define ITEMLIST_MACHINEGUN			11
-#define ITEMLIST_CHAINGUN			12
-#define ITEMLIST_GRENADES			13
-#define ITEMLIST_GRENADELAUNCHER	14
-#define ITEMLIST_ROCKETLAUNCHER		15
-#define ITEMLIST_HYPERBLASTER		16
-#define ITEMLIST_RAILGUN			17
-#define ITEMLIST_BFG10K				18
-
-//AQ2 ADD
-#define ITEMLIST_MK23				19	//"MK23 Pistol"
-#define ITEMLIST_MP5				20	//"MP5/10 Submachinegun"
-#define ITEMLIST_M4					21	//"M4 Assault Rifle"
-#define ITEMLIST_M3					22	//"M3 Super 90 Assault Shotgun"
-#define ITEMLIST_HC					23	// "Handcannon"
-#define ITEMLIST_SNIPER				24	// "Sniper Rifle"
-#define ITEMLIST_DUAL				25	// "Dual MK23 Pistols"
-#define ITEMLIST_KNIFE				26	// "Combat Knife"
-#define ITEMLIST_GRENADE			27	// "M26 Fragmentation Grenade"
-
-//AQ2 END
-#define ITEMLIST_SHELLS				28
-#define ITEMLIST_BULLETS			29
-#define ITEMLIST_CELLS				30
-#define ITEMLIST_ROCKETS			31
-#define ITEMLIST_SLUGS				32
-
-#define ITEMLIST_AMMO_CLIP			33
-#define ITEMLIST_AMMO_MAG			34
-#define ITEMLIST_AMMO_M4			35
-#define ITEMLIST_AMMO_M3			36
-#define ITEMLIST_AMMO_SNIPER		37
-
-
-#define ITEMLIST_SIL				38	// "Silencer"
-#define ITEMLIST_SLIP				39	// "Stealth Slippers"
-#define ITEMLIST_BAND				40	// "Bandolier"
-#define ITEMLIST_KEV				41	// "Kevlar Vest"
-#define ITEMLIST_LASER				42	// "Lasersight"
-
-
-#define ITEMLIST_QUADDAMAGE			43
-#define ITEMLIST_INVULNERABILITY	44
-#define ITEMLIST_SILENCER			45
-#define ITEMLIST_REBREATHER			46
-#define ITEMLIST_ENVIRONMENTSUIT	47
-#define ITEMLIST_ANCIENTHEAD		48
-#define ITEMLIST_ADRENALINE			49
-#define ITEMLIST_BANDOLIER			50
-#define ITEMLIST_AMMOPACK			51
-#define ITEMLIST_DATACD				52
-#define ITEMLIST_POWERCUBE			53
-#define ITEMLIST_PYRAMIDKEY			54
-#define ITEMLIST_DATASPINNER		55
-#define ITEMLIST_SECURITYPASS		56
-#define ITEMLIST_BLUEKEY			57
-#define ITEMLIST_REDKEY				58
-#define ITEMLIST_COMMANDERSHEAD		59
-#define ITEMLIST_AIRSTRIKEMARKER	60
-#define ITEMLIST_HEALTH				61
-
-
-// my additions
-#define ITEMLIST_HEALTH_SMALL		62
-#define ITEMLIST_HEALTH_MEDIUM		63
-#define ITEMLIST_HEALTH_LARGE		64
-#define ITEMLIST_BOT				65
-#define ITEMLIST_PLAYER				66
-#define ITEMLIST_HEALTH_MEGA        67
-
-
-//AQ2 END
 
 typedef struct nodelink_s
 {
@@ -333,8 +249,8 @@ qboolean ACEIT_ChangeMP5SpecialWeapon (edict_t *ent, gitem_t *item);
 qboolean ACEIT_ChangeDualSpecialWeapon (edict_t *ent, gitem_t *item);
 //AQ2 END
 qboolean ACEIT_CanUseArmor (gitem_t *item, edict_t *other);
-float	 ACEIT_ItemNeed(edict_t *self, int item);
-int		 ACEIT_ClassnameToIndex(char *classname);
+float    ACEIT_ItemNeed( edict_t *self, edict_t *item_ent );
+int      ACEIT_ClassnameToIndex( char *classname );
 void     ACEIT_BuildItemNodeTable (qboolean rebuild);
 
 // acebot_movement.c protos

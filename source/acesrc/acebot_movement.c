@@ -232,11 +232,11 @@ qboolean ACEMV_CanMove(edict_t *self, int direction)
 	
 	if(tr.fraction == 1.0 || tr.contents & (CONTENTS_LAVA|CONTENTS_SLIME))
 	{
+		if( debug_mode && (self->last_door_time < level.framenum) )
+			debug_printf( "%s: move blocked (ACEMV_CanMove)\n", self->client->pers.netname );
 
 		Cmd_OpenDoor_f ( self );	// Open the door
-		self->last_door_time = level.framenum + random() * HZ; // wait!
-		if(debug_mode)
-			debug_printf("%s: move blocked\n",self->client->pers.netname);
+		self->last_door_time = level.framenum + 3 * HZ; // wait!
 		return false;	
 	}
 	
@@ -279,11 +279,11 @@ qboolean ACEMV_CanJumpInternal(edict_t *self, int direction)
 	
 	if(tr.fraction == 1.0 || tr.contents & (CONTENTS_LAVA|CONTENTS_SLIME))
 	{
+		if( debug_mode && (self->last_door_time < level.framenum) )
+			debug_printf( "%s: move blocked (ACEMV_CanJumpInternal)\n", self->client->pers.netname );
 
 		Cmd_OpenDoor_f ( self );	// Open the door
-		self->last_door_time = level.framenum + random() * HZ; // wait!
-		if(debug_mode)
-			debug_printf("%s: move blocked\n",self->client->pers.netname);
+		self->last_door_time = level.framenum + 3 * HZ; // wait!
 		return false;	
 	}
 	

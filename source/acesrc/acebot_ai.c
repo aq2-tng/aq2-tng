@@ -80,7 +80,20 @@ void ACEAI_Think (edict_t *self)
 	memset (&ucmd, 0, sizeof (ucmd));
 	self->enemy = NULL;
 	self->movetarget = NULL;
-	
+
+	// Stop trying to think if the bot can't respawn.
+	if( ! IS_ALIVE(self) && ((gameSettings & GS_ROUNDBASED) || (self->client->respawn_framenum > level.framenum)) )
+	{
+		ucmd.msec = 1000 / BOT_FPS;
+		self->client->ping = ucmd.msec;
+		ucmd.angles[PITCH] = ANGLE2SHORT(self->s.angles[PITCH]);
+		ucmd.angles[YAW] = ANGLE2SHORT(self->s.angles[YAW]);
+		ucmd.angles[ROLL] = ANGLE2SHORT(self->s.angles[ROLL]);
+		ClientThink( self, &ucmd );
+		self->nextthink = level.framenum + (game.framerate / BOT_FPS);
+		return;
+	}
+
 	// Force respawn 
 	if (self->deadflag == DEAD_DEAD)
 	{
@@ -376,8 +389,10 @@ void ACEAI_PickLongRangeGoal(edict_t *self)
 		if(cost == INVALID || cost < 2) // ignore invalid and very short hops
 			continue;
 	
-		weight = ACEIT_ItemNeed(self, item_table[i].item);
+		weight = ACEIT_ItemNeed( self, item_table[i].ent );
 
+		if( weight <= 0 )  // Ignore items we can't pick up.
+			continue;
 
 		weight *= ( (rand()%5) +1 ); // Allow random variations
 		weight /= cost; // Check against cost of getting there
@@ -503,7 +518,6 @@ void ACEAI_PickShortRangeGoal(edict_t *self)
 	edict_t *target = NULL;
 	float weight = 0.f, best_weight = 0.0;
 	edict_t *best = NULL;
-	int index = 0;
 	
 	// look for a target (should make more efficient later)
 	target = findradius(NULL, self->s.origin, 200);
@@ -528,8 +542,7 @@ void ACEAI_PickShortRangeGoal(edict_t *self)
 		{
 			if (infront(self, target))
 			{
-				index = ACEIT_ClassnameToIndex(target->classname);
-				weight = ACEIT_ItemNeed(self, index);
+				weight = ACEIT_ItemNeed( self, target );
 				
 				if(weight > best_weight)
 				{
@@ -548,7 +561,7 @@ void ACEAI_PickShortRangeGoal(edict_t *self)
 		self->movetarget = best;
 		
 		if(debug_mode && self->goalentity != self->movetarget)
-			debug_printf("%s selected a %s for SR goal.\n",self->client->pers.netname, self->movetarget->classname);
+			debug_printf("%s selected a %s for SR goal (weight %.1f).\n",self->client->pers.netname, self->movetarget->classname, best_weight);
 		
 		self->goalentity = best;
 
@@ -690,6 +703,11 @@ qboolean ACEAI_FindEnemy(edict_t *self, int *total)
 			if( infront( self, players[i] ) || weapon_loud || ((weight < 300) && !INV_AMMO( players[i], SLIP_NUM )) )
 			{
 				total+=1;
+
+				// If we can see the enemy flag carrier, always shoot at them.
+				if( INV_AMMO( players[i], FLAG_T1_NUM ) || INV_AMMO( players[i], FLAG_T2_NUM ) )
+					weight = 0;
+
 				// See if it's better than what we have already
 				if (weight < bestweight)
 				{
