@@ -1560,6 +1560,7 @@ struct gclient_s
 	int			anim_priority;
 	qboolean	anim_duck;
 	qboolean	anim_run;
+	int			anim_framesync;
 
 	// powerup timers
 	int			quad_framenum;
