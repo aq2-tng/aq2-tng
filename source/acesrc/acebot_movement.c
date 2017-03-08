@@ -1245,6 +1245,16 @@ void ACEMV_Attack (edict_t *self, usercmd_t *ucmd)
 				(self->client->weapon == FindItem(MK23_NAME)) )
 			{
 				ucmd->upmove = -SPEED_RUN;
+
+				// Raptor007: If not already crouched, make sure it doesn't put the enemy out of view.
+				if( ! self->client->ps.pmove.pm_flags & PMF_DUCKED )
+				{
+					float old_z = self->s.origin[2];
+					self->s.origin[2] -= 8;
+					if( ! ACEAI_CheckShot(self) )
+						ucmd->upmove = 0;
+					self->s.origin[2] = old_z;
+				}
 			}
 	}
 	
