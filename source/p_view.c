@@ -150,7 +150,12 @@ void P_DamageFeedback (edict_t * player)
 	// total points of damage shot at the player this frame
 	count =	client->damage_blood + client->damage_armor + client->damage_parmor;
 	if (count == 0)
+	{
+		if( FRAMESYNC )
+			client->damage_knockback = 0;
+
 		return;			// didn't take any damage
+	}
 
 	// start a pain animation if still in the player model
 	if (client->anim_priority < ANIM_PAIN && player->s.modelindex == 255)
@@ -227,7 +232,6 @@ void P_DamageFeedback (edict_t * player)
 		VectorMA (v, (float) client->damage_blood / realcount, bcolor, v);
 	VectorCopy (v, client->damage_blend);
 
-
 	//
 	// calculate view angle kicks
 	//
@@ -259,7 +263,9 @@ void P_DamageFeedback (edict_t * player)
 	client->damage_blood = 0;
 	client->damage_armor = 0;
 	client->damage_parmor = 0;
-	client->damage_knockback = 0;
+
+	if( FRAMESYNC )
+		client->damage_knockback = 0;
 }
 
 
@@ -465,7 +471,6 @@ void SV_CalcBlend (edict_t * ent)
 	int contents;
 	vec3_t vieworg;
 	int remaining;
-
 
 	// enable ir vision if appropriate
 	if (ir->value)
