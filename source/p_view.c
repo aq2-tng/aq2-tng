@@ -404,6 +404,7 @@ void SV_CalcGunOffset (edict_t * ent)
 	for (i = 0; i < 3; i++)
 	{
 		delta = ent->client->oldviewangles[i] - ent->client->ps.viewangles[i];
+		//delta *= game.framediv;
 		if (delta > 180)
 			delta -= 360;
 		if (delta < -180)
@@ -575,6 +576,9 @@ void P_FallingDamage (edict_t * ent)
 	float delta;
 	int damage;
 	vec3_t dir, oldvelocity;
+
+	//if (!FRAMESYNC)
+	//	return;
 
 	VectorCopy( ent->client->oldvelocity, oldvelocity );
 	VectorCopy( ent->velocity, ent->client->oldvelocity );
@@ -1425,20 +1429,9 @@ void ClientEndServerFrame (edict_t * ent)
 	if( ent->groundentity && (ent->groundentity->linkcount == ent->groundentity_linkcount + 1) )
 		ent->groundentity_linkcount = ent->groundentity->linkcount;
 
-	if (!FRAMESYNC)
-		return;
-
 	// zucc - clear the open door command
 	ent->client->doortoggle = 0;
 
-	if (ent->client->push_timeout > 0)
-		ent->client->push_timeout--;
-  /*              else
-	 {
-	 ent->client->attacker = NULL;
-	 ent->client->attacker_mod = MOD_BLEEDING;
-	 }
-   */
 	if (ent->client->reload_attempts > 0)
 	{
 		if (((ent->client->latched_buttons | ent->client->buttons) & BUTTON_ATTACK)
@@ -1451,8 +1444,24 @@ void ClientEndServerFrame (edict_t * ent)
 			Cmd_Reload_f (ent);
 		}
 	}
+
 	if (ent->client->weapon_attempts > 0)
 		Cmd_Weapon_f (ent);
+
+
+	if (!FRAMESYNC)
+		return;
+
+	if (ent->client->push_timeout > 0)
+		ent->client->push_timeout--;
+	/*
+	else
+	{
+		// Really old code that would prevent kill credits from long-term bleedout.
+		ent->client->attacker = NULL;
+		ent->client->attacker_mod = MOD_BLEEDING;
+	}
+	*/
 
 	RadioThink(ent);
 }

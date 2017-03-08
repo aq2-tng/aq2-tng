@@ -3191,7 +3191,11 @@ void ClientBeginServerFrame(edict_t * ent)
 	if (level.intermission_framenum)
 		return;
 
-	if ((int)motd_time->value > client->resp.motd_refreshes * 2 && ent->client->layout != LAYOUT_MENU) {
+	if( team_round_going && IS_ALIVE(ent) )
+		client->resp.motd_refreshes = motd_time->value;  // Stop showing motd if we're playing.
+	else if( lights_camera_action )
+		client->resp.last_motd_refresh = level.realFramenum;  // Don't interrupt LCA with motd.
+	else if ((int)motd_time->value > client->resp.motd_refreshes * 2 && ent->client->layout != LAYOUT_MENU) {
 		if (client->resp.last_motd_refresh + 2 * HZ < level.realFramenum) {
 			client->resp.last_motd_refresh = level.realFramenum;
 			client->resp.motd_refreshes++;
