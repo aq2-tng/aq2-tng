@@ -1437,20 +1437,18 @@ void ClientEndServerFrame (edict_t * ent)
 	// zucc - clear the open door command
 	ent->client->doortoggle = 0;
 
+
+	qboolean weapon_framesync = (level.framenum % game.framediv == ent->client->weapon_last_activity % game.framediv);
+
 	if (ent->client->reload_attempts > 0)
 	{
-		if (((ent->client->latched_buttons | ent->client->buttons) & BUTTON_ATTACK)
-		&& canFire(ent))
-		{
+		if( ((ent->client->latched_buttons | ent->client->buttons) & BUTTON_ATTACK) && canFire(ent) )
 			ent->client->reload_attempts = 0;
-		}
-		else
-		{
+		else if( weapon_framesync )
 			Cmd_Reload_f (ent);
-		}
 	}
 
-	if (ent->client->weapon_attempts > 0)
+	if( (ent->client->weapon_attempts > 0) && weapon_framesync )
 		Cmd_Weapon_f (ent);
 
 
