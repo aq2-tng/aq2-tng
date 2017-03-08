@@ -3107,7 +3107,10 @@ void ClientThink(edict_t * ent, usercmd_t * ucmd)
 		client->doortoggle = 0;
 
 		if( client->jumping && (ent->solid != SOLID_NOT) && ! lights_camera_action && ! client->uvTime )
+		{
 			kick_attack( ent );
+			client->punch_desired = false;
+		}
 
 		// touch other objects
 		for (i = 0; i < pm.numtouch; i++) {
