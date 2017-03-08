@@ -2261,7 +2261,7 @@ void PutClientInServer(edict_t * ent)
 	client->knife_max = 10;
 	client->grenade_max = 2;
 	client->desired_fov = 90;
-	client->weapon_last_activity = max( 0, level.framenum - 2 * game.framediv );
+
 
 	// clear entity values
 	ent->groundentity = NULL;
@@ -2794,8 +2794,10 @@ trace_t q_gameabi PM_trace(vec3_t start, vec3_t mins, vec3_t maxs, vec3_t end)
 // Raptor007: Allow weapon actions to start happening on any frame.
 static void ClientThinkWeaponIfReady( edict_t *ent, qboolean update_idle )
 {
+	if( ! ent->client->weapon_last_activity )
+		ent->client->weapon_last_activity = level.framenum;
 	// If it's too soon since the last non-idle think, keep waiting.
-	if( level.framenum < ent->client->weapon_last_activity + game.framediv )
+	else if( level.framenum < ent->client->weapon_last_activity + game.framediv )
 		return;
 
 	// Clear weapon kicks.
