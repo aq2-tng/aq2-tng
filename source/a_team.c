@@ -2831,7 +2831,13 @@ void A_ScoreboardMessage (edict_t * ent, edict_t * killer)
 			cl_ent = g_edicts + 1 + (cl - game.clients);
 
 			snprintf( team_buf,   6, " %c%c%c ", (cl->resp.team ? (cl->resp.team + '0') : ' '), (IS_CAPTAIN(cl_ent) ? 'C' : ' '), (cl->resp.subteam ? 'S' : ' ') );
-			snprintf( time_buf,   6, " %4i", min( 9999, (level.framenum - cl->resp.enterframe) / (60 * HZ) ) );
+			int minutes = (level.framenum - cl->resp.enterframe) / (60 * HZ);
+			if( minutes < 60 )
+				snprintf( time_buf, 6, " %4i", minutes );
+			else if( minutes < 600 )
+				snprintf( time_buf, 6, " %1i:%02i", minutes / 60, minutes % 60 );
+			else
+				snprintf( time_buf, 6, " %3ih", min( 999, minutes / 60 ) );
 			snprintf( ping_buf,   6, " %4i", min( 9999, cl->ping ) );
 #ifndef NO_BOTS
 			if( cl_ent->is_bot )

@@ -2265,7 +2265,7 @@ void PutClientInServer(edict_t * ent)
 	client->knife_max = 10;
 	client->grenade_max = 2;
 	client->desired_fov = 90;
-
+	client->weapon_last_activity = max( 0, level.framenum - 2 * game.framediv );
 
 	// clear entity values
 	ent->groundentity = NULL;
@@ -3163,11 +3163,11 @@ void ClientThink(edict_t * ent, usercmd_t * ucmd)
 		}
 	}
 
-	if (ucmd->forwardmove || ucmd->sidemove || client->oldbuttons != client->buttons) {
+	if( ucmd->forwardmove || ucmd->sidemove || client->oldbuttons != client->buttons
+		|| (ent->solid == SOLID_NOT && ent->deadflag != DEAD_DEAD) )  // No idle noises at round start.
 		client->resp.idletime = 0;
-	} else if (!client->resp.idletime) {
+	else if( ! client->resp.idletime )
 		client->resp.idletime = level.framenum;
-	}
 }
 
 /*
