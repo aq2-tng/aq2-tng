@@ -2933,8 +2933,10 @@ trace_t q_gameabi PM_trace(vec3_t start, vec3_t mins, vec3_t maxs, vec3_t end)
 // Raptor007: Allow weapon actions to start happening on any frame.
 static void ClientThinkWeaponIfReady( edict_t *ent, qboolean update_idle )
 {
+	// If they just spawned, sync up the weapon animation with that.
 	if( ! ent->client->weapon_last_activity )
 		ent->client->weapon_last_activity = level.framenum;
+
 	// If it's too soon since the last non-idle think, keep waiting.
 	else if( level.framenum < ent->client->weapon_last_activity + game.framediv )
 		return;
