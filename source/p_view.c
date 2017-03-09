@@ -1438,6 +1438,10 @@ void ClientEndServerFrame (edict_t * ent)
 	ent->client->doortoggle = 0;
 
 
+	// If they just spawned, sync up the weapon animation with that.
+	if( ! ent->client->weapon_last_activity )
+		ent->client->weapon_last_activity = level.framenum;
+
 	qboolean weapon_framesync = (level.framenum % game.framediv == ent->client->weapon_last_activity % game.framediv);
 
 	if (ent->client->reload_attempts > 0)
