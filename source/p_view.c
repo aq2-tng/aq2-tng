@@ -134,8 +134,8 @@ void P_DamageFeedback (edict_t * player)
 	static const vec3_t acolor = { 1.0, 1.0, 1.0 };
 	static const vec3_t bcolor = { 1.0, 0.0, 0.0 };
 
-	if (!FRAMESYNC)
-		return;
+	//if (!FRAMESYNC)
+	//	return;
 
 	client = player->client;
 
@@ -150,7 +150,12 @@ void P_DamageFeedback (edict_t * player)
 	// total points of damage shot at the player this frame
 	count =	client->damage_blood + client->damage_armor + client->damage_parmor;
 	if (count == 0)
+	{
+		if( FRAMESYNC )
+			client->damage_knockback = 0;
+
 		return;			// didn't take any damage
+	}
 
 	// start a pain animation if still in the player model
 	if (client->anim_priority < ANIM_PAIN && player->s.modelindex == 255)
@@ -212,8 +217,9 @@ void P_DamageFeedback (edict_t * player)
 	client->damage_alpha += count * 0.01f;
 	if (client->damage_alpha < 0.2f)
 		client->damage_alpha = 0.2f;
-	if (client->damage_alpha > 0.6f)
-		client->damage_alpha = 0.6f;	// don't go too saturated
+	float max_damage_alpha = 0.6f + (game.framediv - level.framenum % game.framediv - 1) * 0.6f * FRAMETIME;  // stay solid red in lava
+	if (client->damage_alpha > max_damage_alpha)
+		client->damage_alpha = max_damage_alpha;  // don't go too saturated
 
 	// the color of the blend will vary based on how much was absorbed
 	// by different armors
@@ -225,7 +231,6 @@ void P_DamageFeedback (edict_t * player)
 	if (client->damage_blood)
 		VectorMA (v, (float) client->damage_blood / realcount, bcolor, v);
 	VectorCopy (v, client->damage_blend);
-
 
 	//
 	// calculate view angle kicks
@@ -258,7 +263,9 @@ void P_DamageFeedback (edict_t * player)
 	client->damage_blood = 0;
 	client->damage_armor = 0;
 	client->damage_parmor = 0;
-	client->damage_knockback = 0;
+
+	if( FRAMESYNC )
+		client->damage_knockback = 0;
 }
 
 
@@ -288,10 +295,8 @@ void SV_CalcViewOffset (edict_t * ent)
 	float delta;
 	vec3_t v = {0, 0, 0};
 
-	if (!FRAMESYNC)
-		return;
-
-	//===================================
+	//if (!FRAMESYNC)
+	//	return;
 
 	// base angles
 	angles = ent->client->ps.kick_angles;
@@ -405,6 +410,7 @@ void SV_CalcGunOffset (edict_t * ent)
 	for (i = 0; i < 3; i++)
 	{
 		delta = ent->client->oldviewangles[i] - ent->client->ps.viewangles[i];
+		//delta *= game.framediv;
 		if (delta > 180)
 			delta -= 360;
 		if (delta < -180)
@@ -429,6 +435,8 @@ void SV_CalcGunOffset (edict_t * ent)
 		ent->client->ps.gunoffset[i] += right[i] * gun_x->value;
 		ent->client->ps.gunoffset[i] += up[i] * (-gun_z->value);
 	}
+
+	VectorCopy( ent->client->ps.viewangles, ent->client->oldviewangles );
 }
 
 
@@ -463,7 +471,6 @@ void SV_CalcBlend (edict_t * ent)
 	int contents;
 	vec3_t vieworg;
 	int remaining;
-
 
 	// enable ir vision if appropriate
 	if (ir->value)
@@ -545,7 +552,7 @@ void SV_CalcBlend (edict_t * ent)
 	// add for damage
 	if (ent->client->damage_alpha > 0)
 		SV_AddBlend (ent->client->damage_blend[0], ent->client->damage_blend[1],
-	ent->client->damage_blend[2], ent->client->damage_alpha,
+	ent->client->damage_blend[2], min( 0.6f, ent->client->damage_alpha ),
 	ent->client->ps.blend);
 
 	if (ent->client->bonus_alpha > 0)
@@ -573,7 +580,13 @@ void P_FallingDamage (edict_t * ent)
 {
 	float delta;
 	int damage;
-	vec3_t dir;
+	vec3_t dir, oldvelocity;
+
+	//if (!FRAMESYNC)
+	//	return;
+
+	VectorCopy( ent->client->oldvelocity, oldvelocity );
+	VectorCopy( ent->velocity, ent->client->oldvelocity );
 
 	if (lights_camera_action || ent->client->uvTime > 0)
 		return;
@@ -584,20 +597,17 @@ void P_FallingDamage (edict_t * ent)
 	if (ent->movetype == MOVETYPE_NOCLIP)
 		return;
 
-	if (!FRAMESYNC)
-		return;
-
-	if ((ent->client->oldvelocity[2] < 0)
-		&& (ent->velocity[2] > ent->client->oldvelocity[2])
+	if ((oldvelocity[2] < 0)
+		&& (ent->velocity[2] > oldvelocity[2])
 		&& (!ent->groundentity))
 	{
-		delta = ent->client->oldvelocity[2];
+		delta = oldvelocity[2];
 	}
 	else
 	{
 		if (!ent->groundentity)
 			return;
-		delta = ent->velocity[2] - ent->client->oldvelocity[2];
+		delta = ent->velocity[2] - oldvelocity[2];
 		ent->client->jumping = 0;
 	}
 	delta = delta * delta * 0.0001;
@@ -936,8 +946,8 @@ void G_SetClientEvent (edict_t * ent)
 	if (ent->s.event)
 		return;
 
-	if (!FRAMESYNC)
-		return;
+	//if (!FRAMESYNC)
+	//	return;
 
 	if (ent->groundentity && xyspeed > 225)
 	{
@@ -975,8 +985,8 @@ void G_SetClientFrame (edict_t * ent)
 	if (ent->s.modelindex != 255)
 		return;			// not in the player model
 
-	if (!FRAMESYNC)
-		return;
+	//if (!FRAMESYNC)
+	//	return;
 
 	client = ent->client;
 
@@ -997,6 +1007,8 @@ void G_SetClientFrame (edict_t * ent)
 	if (!ent->groundentity && client->anim_priority <= ANIM_WAVE)
 		goto newanim;
 
+	if( level.framenum % game.framediv != client->anim_framesync )
+		return;
 
 	// zucc vwep
 	if (client->anim_priority == ANIM_REVERSE)
@@ -1026,6 +1038,8 @@ void G_SetClientFrame (edict_t * ent)
 	}
 
 newanim:
+	client->anim_framesync = level.framenum % game.framediv;
+
 	// return to either a running or standing frame
 	client->anim_priority = ANIM_BASIC;
 	client->anim_duck = duck;
@@ -1181,7 +1195,6 @@ and right after spawning
 */
 void ClientEndServerFrame (edict_t * ent)
 {
-	float bobtime;
 	int i;
 	//char player_name[30];
 	//char temp[40];
@@ -1304,7 +1317,7 @@ void ClientEndServerFrame (edict_t * ent)
 	// calculate speed and cycle to be used for
 	// all cyclic walking effects
 	//
-	if (FRAMESYNC)
+	//if (FRAMESYNC)
 	{
 		xyspeed = sqrt(ent->velocity[0]*ent->velocity[0] + ent->velocity[1]*ent->velocity[1]);
 
@@ -1322,14 +1335,17 @@ void ClientEndServerFrame (edict_t * ent)
 			else
 				bobmove = 0.0625;
 		}
+		else
+			bobmove = 0;
 
-		bobtime = (current_client->bobtime += bobmove);
-
+		bobmove /= game.framediv;
 		if (current_client->ps.pmove.pm_flags & PMF_DUCKED)
-			bobtime *= 4;
+			bobmove *= 4;
 
-		bobcycle = (int) bobtime;
-		bobfracsin = fabs (sin (bobtime * M_PI));
+		current_client->bobtime += bobmove;
+
+		bobcycle = (int) current_client->bobtime;
+		bobfracsin = fabs (sin (current_client->bobtime * M_PI));
 	}
 
 	// detect hitting the floor
@@ -1414,37 +1430,45 @@ void ClientEndServerFrame (edict_t * ent)
 
 	G_SetClientFrame (ent);
 
-	if (!FRAMESYNC)
-		return;
-
-	VectorCopy (ent->velocity, ent->client->oldvelocity);
-	VectorCopy (ent->client->ps.viewangles, ent->client->oldviewangles);
+	// Raptor007: Fix scooting on platforms if ClientThink didn't happen this frame.
+	if( ent->groundentity && (ent->groundentity->linkcount == ent->groundentity_linkcount + 1) )
+		ent->groundentity_linkcount = ent->groundentity->linkcount;
 
 	// zucc - clear the open door command
 	ent->client->doortoggle = 0;
 
-	if (ent->client->push_timeout > 0)
-		ent->client->push_timeout--;
-  /*              else
-	 {
-	 ent->client->attacker = NULL;
-	 ent->client->attacker_mod = MOD_BLEEDING;
-	 }
-   */
+
+	// If they just spawned, sync up the weapon animation with that.
+	if( ! ent->client->weapon_last_activity )
+		ent->client->weapon_last_activity = level.framenum;
+
+	qboolean weapon_framesync = (level.framenum % game.framediv == ent->client->weapon_last_activity % game.framediv);
+
 	if (ent->client->reload_attempts > 0)
 	{
-		if (((ent->client->latched_buttons | ent->client->buttons) & BUTTON_ATTACK)
-		&& canFire(ent))
-		{
+		if( ((ent->client->latched_buttons | ent->client->buttons) & BUTTON_ATTACK) && canFire(ent) )
 			ent->client->reload_attempts = 0;
-		}
-		else
-		{
+		else if( weapon_framesync )
 			Cmd_Reload_f (ent);
-		}
 	}
-	if (ent->client->weapon_attempts > 0)
+
+	if( (ent->client->weapon_attempts > 0) && weapon_framesync )
 		Cmd_Weapon_f (ent);
+
+
+	if (!FRAMESYNC)
+		return;
+
+	if (ent->client->push_timeout > 0)
+		ent->client->push_timeout--;
+	/*
+	else
+	{
+		// Really old code that would prevent kill credits from long-term bleedout.
+		ent->client->attacker = NULL;
+		ent->client->attacker_mod = MOD_BLEEDING;
+	}
+	*/
 
 	RadioThink(ent);
 }

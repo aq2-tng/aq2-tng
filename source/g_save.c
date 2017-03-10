@@ -514,8 +514,8 @@ void InitGame( void )
 	splatlife = gi.cvar( "splatlife", "25", 0 );
 	darkmatch = gi.cvar( "darkmatch", "0", CVAR_LATCH ); // Darkmatch
 	day_cycle = gi.cvar( "day_cycle", "10", 0 ); // Darkmatch cycle time.
-	use_flashlight = gi.cvar( "use_flashlight", "0", CVAR_SERVERINFO );
-	use_classic = gi.cvar( "use_classic", "0", CVAR_SERVERINFO ); // Reset Grenade Strength to 1.52
+	use_flashlight = gi.cvar( "use_flashlight", "0", 0 );
+	use_classic = gi.cvar( "use_classic", "0", 0 ); // Reset Grenade Strength to 1.52
 
 	CGF_SFX_InstallGlassSupport();	// william for CGF (glass fx)
 
@@ -584,7 +584,7 @@ void InitGame( void )
 	{
 		gi.dprintf ("...server supports GMF_VARIABLE_FPS\n");
 		
-		cv = gi.cvar("sv_fps", NULL, 0);
+		cv = gi.cvar( "sv_fps", NULL, CVAR_SERVERINFO );
 		if( cv )
 		{
 			int framediv = (int) cv->value / BASE_FRAMERATE;

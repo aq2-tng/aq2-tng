@@ -1017,10 +1017,7 @@ void Cmd_Time(edict_t * ent)
 		return;
 	}
 
-	if (matchmode->value)
-		gametime = level.matchTime;
-	else
-		gametime = level.time;
+	gametime = level.matchTime;
 
 	mins = gametime / 60;
 	secs = gametime % 60;
