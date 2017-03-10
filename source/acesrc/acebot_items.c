@@ -836,15 +836,15 @@ float ACEIT_ItemNeed( edict_t *self, edict_t *item_ent )
 			// If we're carrying it already, ignore it.
 			if( INV_AMMO(self,item->typeNum) )
 				return 0.0;
-			// If we have the other flag, we want to capture it!
+			// If we have the other flag, we really want to capture it!
 			else if( INV_AMMO(self,FLAG_T1_NUM) || INV_AMMO(self,FLAG_T2_NUM) )
-				return 1.0;
-			// Always go for dropped flags.
+				return 1000.0;
+			// Dropped flags are a very high priority.
 			else if( item_ent->spawnflags & DROPPED_ITEM )
-				return 1.0;
-			// Go for the enemy flag if we feel like it.
+				return 100.0;
+			// Go for the enemy flag at a fairly high priority.
 			else if( self->client->resp.team != item->typeNum + 1 - FLAG_T1_NUM )
-				return 0.5;
+				return 2.0;
 			else
 				return 0.0;
 
