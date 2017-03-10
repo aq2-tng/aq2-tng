@@ -140,7 +140,8 @@ void P_DamageFeedback (edict_t * player)
 	client = player->client;
 
 	// flash the backgrounds behind the status numbers
-	client->ps.stats[STAT_FLASHES] = 0;
+	if( FRAMESYNC )
+		client->ps.stats[STAT_FLASHES] = 0;
 	if (client->damage_blood)
 		client->ps.stats[STAT_FLASHES] |= 1;
 	if (client->damage_armor && !(player->flags & FL_GODMODE)
