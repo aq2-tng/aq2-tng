@@ -232,11 +232,11 @@ qboolean ACEMV_CanMove(edict_t *self, int direction)
 	
 	if(tr.fraction == 1.0 || tr.contents & (CONTENTS_LAVA|CONTENTS_SLIME))
 	{
+		if( debug_mode && (self->last_door_time < level.framenum) )
+			debug_printf( "%s: move blocked (ACEMV_CanMove)\n", self->client->pers.netname );
 
 		Cmd_OpenDoor_f ( self );	// Open the door
-		self->last_door_time = level.framenum + random() * HZ; // wait!
-		if(debug_mode)
-			debug_printf("%s: move blocked\n",self->client->pers.netname);
+		self->last_door_time = level.framenum + 3 * HZ; // wait!
 		return false;	
 	}
 	
@@ -279,11 +279,11 @@ qboolean ACEMV_CanJumpInternal(edict_t *self, int direction)
 	
 	if(tr.fraction == 1.0 || tr.contents & (CONTENTS_LAVA|CONTENTS_SLIME))
 	{
+		if( debug_mode && (self->last_door_time < level.framenum) )
+			debug_printf( "%s: move blocked (ACEMV_CanJumpInternal)\n", self->client->pers.netname );
 
 		Cmd_OpenDoor_f ( self );	// Open the door
-		self->last_door_time = level.framenum + random() * HZ; // wait!
-		if(debug_mode)
-			debug_printf("%s: move blocked\n",self->client->pers.netname);
+		self->last_door_time = level.framenum + 3 * HZ; // wait!
 		return false;	
 	}
 	
@@ -1245,6 +1245,16 @@ void ACEMV_Attack (edict_t *self, usercmd_t *ucmd)
 				(self->client->weapon == FindItem(MK23_NAME)) )
 			{
 				ucmd->upmove = -SPEED_RUN;
+
+				// Raptor007: If not already crouched, make sure it doesn't put the enemy out of view.
+				if( ! self->client->ps.pmove.pm_flags & PMF_DUCKED )
+				{
+					float old_z = self->s.origin[2];
+					self->s.origin[2] -= 8;
+					if( ! ACEAI_CheckShot(self) )
+						ucmd->upmove = 0;
+					self->s.origin[2] = old_z;
+				}
 			}
 	}
 	

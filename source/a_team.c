@@ -1346,6 +1346,14 @@ void ResetScores (qboolean playerScores)
 		gi.cvar_forceset(teams[i].teamscore->name, "0");
 	}
 
+	ctfgame.team1 = 0;
+	ctfgame.team2 = 0;
+	ctfgame.total1 = 0;
+	ctfgame.total2 = 0;
+	ctfgame.last_flag_capture = 0;
+	ctfgame.last_capture_team = 0;
+	ctfgame.halftime = 0;
+
 	if(!playerScores)
 		return;
 
@@ -1595,7 +1603,7 @@ void RunWarmup ()
 	int i, dead;
 	edict_t *ent;
 
-	if (!warmup->value || level.matchTime > 0 || team_round_going || lights_camera_action || (team_round_countdown > 0 && team_round_countdown <= 101))
+	if (!warmup->value || (matchmode->value && level.matchTime > 0) || team_round_going || lights_camera_action || (team_round_countdown > 0 && team_round_countdown <= 101))
 		return;
 
 	if (!in_warmup)
@@ -1746,9 +1754,7 @@ qboolean CheckTimelimit( void )
 {
 	if (timelimit->value > 0)
 	{
-		float gametime = matchmode->value ? level.matchTime : level.time;
-
-		if (gametime >= timelimit->value * 60)
+		if (level.matchTime >= timelimit->value * 60)
 		{
 			int i;
 
@@ -1780,18 +1786,18 @@ qboolean CheckTimelimit( void )
 		// Otherwise, use_warnings should warn about 3 minutes and 1 minute left, but only if there aren't round ending warnings.
 		if( use_warnings->value && (ctf->value || ! roundtimelimit->value) )
 		{
-			if( timewarning < 3 && ctf->value && gametime >= timelimit->value * 60 - 10 )
+			if( timewarning < 3 && ctf->value && level.matchTime >= timelimit->value * 60 - 10 )
 			{
 				gi.sound( &g_edicts[0], CHAN_VOICE | CHAN_NO_PHS_ADD, gi.soundindex("world/10_0.wav"), 1.0, ATTN_NONE, 0.0 );
 				timewarning = 3;
 			}
-			else if( timewarning < 2 && gametime >= (timelimit->value - 1) * 60 )
+			else if( timewarning < 2 && level.matchTime >= (timelimit->value - 1) * 60 )
 			{
 				CenterPrintAll( "1 MINUTE LEFT..." );
 				gi.sound( &g_edicts[0], CHAN_VOICE | CHAN_NO_PHS_ADD, gi.soundindex("tng/1_minute.wav"), 1.0, ATTN_NONE, 0.0 );
 				timewarning = 2;
 			}
-			else if( timewarning < 1 && (! ctf->value) && timelimit->value > 3 && gametime >= (timelimit->value - 3) * 60 )
+			else if( timewarning < 1 && (! ctf->value) && timelimit->value > 3 && level.matchTime >= (timelimit->value - 3) * 60 )
 			{
 				CenterPrintAll( "3 MINUTES LEFT..." );
 				gi.sound( &g_edicts[0], CHAN_VOICE | CHAN_NO_PHS_ADD, gi.soundindex("tng/3_minutes.wav"), 1.0, ATTN_NONE, 0.0 );
@@ -1953,7 +1959,7 @@ int WonGame (int winner)
 	}
 	vNewRound ();
 
-	if (teamplay->value && (!timelimit->value || level.time <= ((timelimit->value * 60) - 5)))
+	if (teamplay->value && (!timelimit->value || level.matchTime <= ((timelimit->value * 60) - 5)))
 	{
 		arg[0] = '\0';
 		for (i = 0; i < game.maxclients; i++)
@@ -2825,7 +2831,13 @@ void A_ScoreboardMessage (edict_t * ent, edict_t * killer)
 			cl_ent = g_edicts + 1 + (cl - game.clients);
 
 			snprintf( team_buf,   6, " %c%c%c ", (cl->resp.team ? (cl->resp.team + '0') : ' '), (IS_CAPTAIN(cl_ent) ? 'C' : ' '), (cl->resp.subteam ? 'S' : ' ') );
-			snprintf( time_buf,   6, " %4i", min( 9999, (level.framenum - cl->resp.enterframe) / (60 * HZ) ) );
+			int minutes = (level.framenum - cl->resp.enterframe) / (60 * HZ);
+			if( minutes < 60 )
+				snprintf( time_buf, 6, " %4i", minutes );
+			else if( minutes < 600 )
+				snprintf( time_buf, 6, " %1i:%02i", minutes / 60, minutes % 60 );
+			else
+				snprintf( time_buf, 6, " %3ih", min( 999, minutes / 60 ) );
 			snprintf( ping_buf,   6, " %4i", min( 9999, cl->ping ) );
 #ifndef NO_BOTS
 			if( cl_ent->is_bot )

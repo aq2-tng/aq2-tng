@@ -2930,6 +2930,35 @@ trace_t q_gameabi PM_trace(vec3_t start, vec3_t mins, vec3_t maxs, vec3_t end)
 		return gi.trace(start, mins, maxs, end, pm_passent, MASK_DEADSOLID);
 }
 
+// Raptor007: Allow weapon actions to start happening on any frame.
+static void ClientThinkWeaponIfReady( edict_t *ent, qboolean update_idle )
+{
+	// If they just spawned, sync up the weapon animation with that.
+	if( ! ent->client->weapon_last_activity )
+		ent->client->weapon_last_activity = level.framenum;
+
+	// If it's too soon since the last non-idle think, keep waiting.
+	else if( level.framenum < ent->client->weapon_last_activity + game.framediv )
+		return;
+
+	// Clear weapon kicks.
+	VectorClear( ent->client->kick_origin );
+	VectorClear( ent->client->kick_angles );
+
+	int old_weaponstate = ent->client->weaponstate;
+	int old_gunframe = ent->client->ps.gunframe;
+
+	Think_Weapon( ent );
+
+	// If the weapon is or was in any state other than ready, wait before thinking again.
+	if( (ent->client->weaponstate != WEAPON_READY) || (old_weaponstate != WEAPON_READY) )
+		ent->client->weapon_last_activity = level.framenum;
+
+	// Only allow the idle animation to update if it's been enough time.
+	else if( ! update_idle || level.framenum % game.framediv != ent->client->weapon_last_activity % game.framediv )
+		ent->client->ps.gunframe = old_gunframe;
+}
+
 /*
 ==============
 ClientThink
@@ -3081,6 +3110,12 @@ void ClientThink(edict_t * ent, usercmd_t * ucmd)
 		// stop manipulating doors
 		client->doortoggle = 0;
 
+		if( client->jumping && (ent->solid != SOLID_NOT) && ! lights_camera_action && ! client->uvTime )
+		{
+			kick_attack( ent );
+			client->punch_desired = false;
+		}
+
 		// touch other objects
 		for (i = 0; i < pm.numtouch; i++) {
 			other = pm.touchents[i];
@@ -3112,9 +3147,8 @@ void ClientThink(edict_t * ent, usercmd_t * ucmd)
 		if (ent->solid == SOLID_NOT && ent->deadflag != DEAD_DEAD && !in_warmup) {
 			client->latched_buttons = 0;
 			NextChaseMode( ent );
-		} else if (!client->weapon_thunk && FRAMESYNC) {
-			client->weapon_thunk = true;
-			Think_Weapon(ent);
+		} else {
+			ClientThinkWeaponIfReady( ent, false );
 		}
 	}
 
@@ -3133,11 +3167,11 @@ void ClientThink(edict_t * ent, usercmd_t * ucmd)
 		}
 	}
 
-	if (ucmd->forwardmove || ucmd->sidemove || client->oldbuttons != client->buttons) {
+	if( ucmd->forwardmove || ucmd->sidemove || client->oldbuttons != client->buttons
+		|| (ent->solid == SOLID_NOT && ent->deadflag != DEAD_DEAD) )  // No idle noises at round start.
 		client->resp.idletime = 0;
-	} else if (!client->resp.idletime) {
+	else if( ! client->resp.idletime )
 		client->resp.idletime = level.framenum;
-	}
 }
 
 /*
@@ -3161,14 +3195,11 @@ void ClientBeginServerFrame(edict_t * ent)
 	if (level.intermission_framenum)
 		return;
 
-	if( FRAMESYNC )
-	{
-		// Clear weapon kicks.
-		VectorClear( client->kick_origin );
-		VectorClear( client->kick_angles );
-	}
-
-	if ((int)motd_time->value > client->resp.motd_refreshes * 2 && ent->client->layout != LAYOUT_MENU) {
+	if( team_round_going && IS_ALIVE(ent) )
+		client->resp.motd_refreshes = motd_time->value;  // Stop showing motd if we're playing.
+	else if( lights_camera_action )
+		client->resp.last_motd_refresh = level.realFramenum;  // Don't interrupt LCA with motd.
+	else if ((int)motd_time->value > client->resp.motd_refreshes * 2 && ent->client->layout != LAYOUT_MENU) {
 		if (client->resp.last_motd_refresh + 2 * HZ < level.realFramenum) {
 			client->resp.last_motd_refresh = level.realFramenum;
 			client->resp.motd_refreshes++;
@@ -3216,12 +3247,7 @@ void ClientBeginServerFrame(edict_t * ent)
 	}
 
 	// run weapon animations if it hasn't been done by a ucmd_t
-	if (FRAMESYNC) {
-		if (!client->weapon_thunk)
-			Think_Weapon(ent);
-		else
-			client->weapon_thunk = false;
-	}
+	ClientThinkWeaponIfReady( ent, true );
 
 	if (ent->deadflag) {
 		// wait for any button just going down
@@ -3278,12 +3304,8 @@ void ClientBeginServerFrame(edict_t * ent)
 
 	if (ent->solid != SOLID_NOT)
 	{
-		if (!lights_camera_action && !client->uvTime) {
-			if (client->jumping)
-				kick_attack( ent );
-			else if (client->punch_desired)
-				punch_attack( ent );
-		}
+		if( client->punch_desired && ! client->jumping && ! lights_camera_action && ! client->uvTime )
+			punch_attack( ent );
 		client->punch_desired = false;
 
 		int idleframes = ppl_idletime->value * HZ;

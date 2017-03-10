@@ -64,7 +64,10 @@ edict_t *players[MAX_CLIENTS];		// pointers to all players in the game
 ///////////////////////////////////////////////////////////////////////
 void ACEIT_PlayerAdded(edict_t *ent)
 {
-	players[num_players++] = ent;
+	if( num_players < MAX_CLIENTS )
+		players[num_players++] = ent;
+	else
+		gi.dprintf( "ACEIT_PlayerAdded: More players than maxclients!\n" );
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -816,205 +819,98 @@ qboolean ACEIT_CanUseArmor (gitem_t *item, edict_t *other)
 // Any other logic that needs to be added for custom decision making
 // can be added here. For now it is very simple.
 ///////////////////////////////////////////////////////////////////////
-float ACEIT_ItemNeed(edict_t *self, int item)
+float ACEIT_ItemNeed( edict_t *self, edict_t *item_ent )
 {
-        gitem_t         *haveband;
-		int	band;
-	
-	// Make sure item is at least close to being valid
-	if(item < 0 || item > 100)
-		return 0.0;
-//AQ2 ADD
-        // find out if they have a bandolier
-        haveband = FindItem(BAND_NAME);
-        if ( self->client->inventory[ITEM_INDEX(haveband)] )
-                band = 1;
-        else
-                band = 0;
-//AQ2 END
-        
+	if( ! item_ent )
+		return 0;
+	gitem_t *item = FindItemByClassname( item_ent->classname );
+	if( ! item )
+		return 0;
 
-	switch(item)
+	int band = INV_AMMO(self,BAND_NUM) ? 1 : 0;
+
+	switch( item->typeNum )
 	{
-		// Health
-		case ITEMLIST_HEALTH_SMALL:	
-		case ITEMLIST_HEALTH_MEDIUM:
-		case ITEMLIST_HEALTH_LARGE:	
-		case ITEMLIST_HEALTH_MEGA:	
-			if(self->health < 100)
-				return 1.0 - (float)self->health/100.0f; // worse off, higher priority
+		case FLAG_T1_NUM:
+		case FLAG_T2_NUM:
+			// If we're carrying it already, ignore it.
+			if( INV_AMMO(self,item->typeNum) )
+				return 0.0;
+			// If we have the other flag, we really want to capture it!
+			else if( INV_AMMO(self,FLAG_T1_NUM) || INV_AMMO(self,FLAG_T2_NUM) )
+				return 1000.0;
+			// Dropped flags are a very high priority.
+			else if( item_ent->spawnflags & DROPPED_ITEM )
+				return 100.0;
+			// Go for the enemy flag at a fairly high priority.
+			else if( self->client->resp.team != item->typeNum + 1 - FLAG_T1_NUM )
+				return 2.0;
 			else
 				return 0.0;
 
-		case ITEMLIST_AMMOPACK:
-		case ITEMLIST_QUADDAMAGE:
-		case ITEMLIST_INVULNERABILITY:
-		case ITEMLIST_SILENCER:			
-	//	case ITEMLIST_REBREATHER
-	//	case ITEMLIST_ENVIRONMENTSUIT
-		case ITEMLIST_ADRENALINE:		
-		case ITEMLIST_BANDOLIER:			
-			return 0.5;
-/*		
-		// Weapons
-		case ITEMLIST_ROCKETLAUNCHER:
-		case ITEMLIST_RAILGUN:
-		case ITEMLIST_MACHINEGUN:
-		case ITEMLIST_CHAINGUN:
-		case ITEMLIST_SHOTGUN:
-		case ITEMLIST_SUPERSHOTGUN:
-		case ITEMLIST_BFG10K:
-		case ITEMLIST_GRENADELAUNCHER:
-		case ITEMLIST_HYPERBLASTER:
-			if(!self->client->inventory[item])
-				return 0.7;
-			else
-				return 0.0;*/
-
-		// Ammo
-		case ITEMLIST_SLUGS:			
-			//if(self->client->inventory[ITEMLIST_SLUGS] < self->client->max_slugs)
-				return 0.3;  
-			//else
-			//	return 0.0;
-	
-		case ITEMLIST_BULLETS:
-			//if(self->client->inventory[ITEMLIST_BULLETS] < self->client->max_bullets)
-				return 0.3;  
-			//else
-			//	return 0.0;
-	
-		case ITEMLIST_SHELLS:
-			//if(self->client->inventory[ITEMLIST_SHELLS] < self->client->max_shells)
-				return 0.3;  
-			//else
-			//	return 0.0;
-	
-		case ITEMLIST_CELLS:
-			//if(self->client->inventory[ITEMLIST_CELLS] <	self->client->max_cells)
-				return 0.3;  
-			//else
-			//	return 0.0;
-	
-		case ITEMLIST_ROCKETS:
-			//if(self->client->inventory[ITEMLIST_ROCKETS] < self->client->max_rockets)
-				return 0.3;  
-			//else
-			//	return 0.0;
-	
-		case ITEMLIST_GRENADES:
-			//if(self->client->inventory[ITEMLIST_GRENADES] < self->client->max_grenades)
-				return 0.3;  
-			//else
-			//	return 0.0;
-	
-		case ITEMLIST_BODYARMOR:
-			if(ACEIT_CanUseArmor (FindItem("Body Armor"), self))
-				return 0.6;  
-			else
-				return 0.0;
-/*
-		case ITEMLIST_COMBATARMOR:
-			if(ACEIT_CanUseArmor (FindItem("Combat Armor"), self))
-				return 0.6;  
-			else
-				return 0.0;
-	
-		case ITEMLIST_JACKETARMOR:
-			if(ACEIT_CanUseArmor (FindItem("Jacket Armor"), self))
-				return 0.6;  
-			else
-				return 0.0;
-	
-		case ITEMLIST_POWERSCREEN:
-		case ITEMLIST_POWERSHIELD:
-			return 0.5;  
-*/
-/*		case ITEMLIST_FLAG1:
-			// If I am on team one, I want team two's flag
-			if(!self->client->inventory[item] && self->client->resp.ctf_team == CTF_TEAM2)
-				return 10.0;  
-			else 
-				return 0.0;
-
-		case ITEMLIST_FLAG2:
-			if(!self->client->inventory[item] && self->client->resp.ctf_team == CTF_TEAM1)
-				return 10.0;  
-			else
-				return 0.0;
-		
-		case ITEMLIST_RESISTANCETECH:
-		case ITEMLIST_STRENGTHTECH:
-		case ITEMLIST_HASTETECH:			
-		case ITEMLIST_REGENERATIONTECH:
-			// Check for other tech
-			if(!self->client->inventory[ITEMLIST_RESISTANCETECH] &&
-			   !self->client->inventory[ITEMLIST_STRENGTHTECH] &&
-			   !self->client->inventory[ITEMLIST_HASTETECH] &&
-			   !self->client->inventory[ITEMLIST_REGENERATIONTECH])
-			    return 0.4;  
-			else
-				return 0.0;*/
-//AQ2 ADD
 		case MP5_NUM:
 		case M4_NUM:
 		case M3_NUM:
 		case HC_NUM:
 		case SNIPER_NUM:
 		case DUAL_NUM:
-                if(
-					( self->client->unique_weapon_total < unique_weapons->value + band )
-					&& 	(!self->client->inventory[item])
-					)
-					return 0.7;
-				else
-					return 0.0;
+			if( (self->client->unique_weapon_total < unique_weapons->value + band) && ! INV_AMMO(self,item->typeNum) )
+				return 0.7;
+			else
+				return 0.0;
+
+		case SIL_NUM:
+		case SLIP_NUM:
+		case BAND_NUM:
+		case KEV_NUM:
+		case LASER_NUM:
+		case HELM_NUM:
+			if( (self->client->unique_item_total < unique_items->value) && ! INV_AMMO(self,item->typeNum) )
+				return 0.6;
+			else
+				return 0.0;
 
 		case MK23_ANUM:
-			if(self->client->inventory[MK23_ANUM] < self->client->max_pistolmags)
-				return 0.3;  
+			if( INV_AMMO(self,item->typeNum) < self->client->max_pistolmags )
+				return 0.3;
 			else
 				return 0.0;
 
 		case M4_ANUM:
-			if(self->client->inventory[M4_ANUM] < self->client->max_m4mags)
-				return 0.3;  
+			if( INV_AMMO(self,item->typeNum) < self->client->max_m4mags )
+				return 0.3;
 			else
 				return 0.0;
 
 		case MP5_ANUM:
-			if(self->client->inventory[MP5_ANUM] < self->client->max_mp5mags)
-				return 0.3;  
+			if( INV_AMMO(self,item->typeNum) < self->client->max_mp5mags )
+				return 0.3;
 			else
 				return 0.0;
 
 		case SNIPER_ANUM:
-			if(self->client->inventory[SNIPER_ANUM] < self->client->max_sniper_rnds)
-				return 0.3;  
+			if( INV_AMMO(self,item->typeNum) < self->client->max_sniper_rnds )
+				return 0.3;
 			else
 				return 0.0;
 
 		case SHELL_ANUM:
-			if(self->client->inventory[SHELL_ANUM] < self->client->max_shells)
-				return 0.3;  
+			if( INV_AMMO(self,item->typeNum) < self->client->max_shells )
+				return 0.3;
 			else
 				return 0.0;
 
-		case ITEMLIST_KNIFE:
-			if(self->client->inventory[ITEM_INDEX(FindItem(KNIFE_NAME))] < self->client->knife_max)
-				return 0.3;  
+		case KNIFE_NUM:
+			if( INV_AMMO(self,item->typeNum) < self->client->knife_max )
+				return 0.3;
 			else
 				return 0.0;
 
-
-//AQ2 END
-				
 		default:
 			return 0.0;
-			
 	}
-		
 }
+
 
 ///////////////////////////////////////////////////////////////////////
 // Convert a classname to its index value
@@ -1023,205 +919,11 @@ float ACEIT_ItemNeed(edict_t *self, int item)
 // can lead to some slowdowns I guess, but makes the rest of the code
 // easier to deal with.
 ///////////////////////////////////////////////////////////////////////
-int ACEIT_ClassnameToIndex(char *classname)
+int ACEIT_ClassnameToIndex( char *classname )
 {
-
-	if(strcmp(classname,"weapon_Mk23")==0) 
-		return ITEMLIST_MK23;
-
-	if(strcmp(classname,"weapon_MP5")==0) 
-		return ITEMLIST_MP5;
-
-	if(strcmp(classname,"weapon_M4")==0) 
-		return ITEMLIST_M4;
-
-	if(strcmp(classname,"weapon_M3")==0) 
-		return ITEMLIST_M3;
-
-	if(strcmp(classname,"weapon_HC")==0) 
-		return ITEMLIST_HC;
-
-	if(strcmp(classname,"weapon_Sniper")==0) 
-		return ITEMLIST_SNIPER;
-
-	if(strcmp(classname,"weapon_Dual")==0) 
-		return ITEMLIST_DUAL;
-
-	if(strcmp(classname,"weapon_Knife")==0) 
-		return ITEMLIST_KNIFE;
-
-	if(strcmp(classname,"weapon_Grenade")==0) 
-		return ITEMLIST_GRENADE;
-
-	if(strcmp(classname,"item_quiet")==0) 
-		return ITEMLIST_SIL;
-
-	if(strcmp(classname,"item_slippers")==0) 
-		return ITEMLIST_SLIP;
-
-	if(strcmp(classname,"item_band")==0) 
-		return ITEMLIST_BAND;
-
-	if(strcmp(classname,"item_vest")==0) 
-		return ITEMLIST_KEV;
-
-	if(strcmp(classname,"item_lasersight")==0) 
-		return ITEMLIST_LASER;
-
-	if(strcmp(classname,"ammo_clip")==0) 
-		return ITEMLIST_AMMO_CLIP;
-
-	if(strcmp(classname,"ammo_m4")==0) 
-		return ITEMLIST_AMMO_M4;
-
-	if(strcmp(classname,"ammo_mag")==0) 
-		return ITEMLIST_AMMO_MAG;
-
-	if(strcmp(classname,"ammo_sniper")==0) 
-		return ITEMLIST_AMMO_SNIPER;
-
-	if(strcmp(classname,"ammo_m3")==0) 
-		return ITEMLIST_AMMO_M3;
-
-	// Normal quake stuff:
-	if(strcmp(classname,"item_armor_body")==0) 
-		return ITEMLIST_BODYARMOR;
-	
-	if(strcmp(classname,"item_armor_combat")==0)
-		return ITEMLIST_COMBATARMOR;
-
-	if(strcmp(classname,"item_armor_jacket")==0)
-		return ITEMLIST_JACKETARMOR;
-	
-	if(strcmp(classname,"item_armor_shard")==0)
-		return ITEMLIST_ARMORSHARD;
-
-	if(strcmp(classname,"item_power_screen")==0)
-		return ITEMLIST_POWERSCREEN;
-
-	if(strcmp(classname,"item_power_shield")==0)
-		return ITEMLIST_POWERSHIELD;
-
-	if(strcmp(classname,"weapon_blaster")==0)
-		return ITEMLIST_BLASTER;
-
-	if(strcmp(classname,"weapon_shotgun")==0)
-		return ITEMLIST_SHOTGUN;
-	
-	if(strcmp(classname,"weapon_supershotgun")==0)
-		return ITEMLIST_SUPERSHOTGUN;
-	
-	if(strcmp(classname,"weapon_machinegun")==0)
-		return ITEMLIST_MACHINEGUN;
-	
-	if(strcmp(classname,"weapon_chaingun")==0)
-		return ITEMLIST_CHAINGUN;
-
-	if(strcmp(classname,"weapon_chaingun")==0)
-		return ITEMLIST_CHAINGUN;
-	
-	if(strcmp(classname,"ammo_grenades")==0)
-		return ITEMLIST_GRENADES;
-
-	if(strcmp(classname,"weapon_grenadelauncher")==0)
-		return ITEMLIST_GRENADELAUNCHER;
-
-	if(strcmp(classname,"weapon_rocketlauncher")==0)
-		return ITEMLIST_ROCKETLAUNCHER;
-
-	if(strcmp(classname,"weapon_hyperblaster")==0)
-		return ITEMLIST_HYPERBLASTER;
-
-	if(strcmp(classname,"weapon_railgun")==0)
-		return ITEMLIST_RAILGUN;
-
-	if(strcmp(classname,"weapon_bfg10k")==0)
-		return ITEMLIST_BFG10K;
-
-	if(strcmp(classname,"ammo_shells")==0)
-		return ITEMLIST_SHELLS;
-	
-	if(strcmp(classname,"ammo_bullets")==0)
-		return ITEMLIST_BULLETS;
-
-	if(strcmp(classname,"ammo_cells")==0)
-		return ITEMLIST_CELLS;
-
-	if(strcmp(classname,"ammo_rockets")==0)
-		return ITEMLIST_ROCKETS;
-
-	if(strcmp(classname,"ammo_slugs")==0)
-		return ITEMLIST_SLUGS;
-	
-	if(strcmp(classname,"item_quad")==0)
-		return ITEMLIST_QUADDAMAGE;
-
-	if(strcmp(classname,"item_invunerability")==0)
-		return ITEMLIST_INVULNERABILITY;
-
-	if(strcmp(classname,"item_silencer")==0)
-		return ITEMLIST_SILENCER;
-
-	if(strcmp(classname,"item_rebreather")==0)
-		return ITEMLIST_REBREATHER;
-
-	if(strcmp(classname,"item_enviornmentsuit")==0)
-		return ITEMLIST_ENVIRONMENTSUIT;
-
-	if(strcmp(classname,"item_ancienthead")==0)
-		return ITEMLIST_ANCIENTHEAD;
-
-	if(strcmp(classname,"item_adrenaline")==0)
-		return ITEMLIST_ADRENALINE;
-
-	if(strcmp(classname,"item_bandolier")==0)
-		return ITEMLIST_BANDOLIER;
-
-	if(strcmp(classname,"item_pack")==0)
-		return ITEMLIST_AMMOPACK;
-
-	if(strcmp(classname,"item_datacd")==0)
-		return ITEMLIST_DATACD;
-
-	if(strcmp(classname,"item_powercube")==0)
-		return ITEMLIST_POWERCUBE;
-
-	if(strcmp(classname,"item_pyramidkey")==0)
-		return ITEMLIST_PYRAMIDKEY;
-
-	if(strcmp(classname,"item_dataspinner")==0)
-		return ITEMLIST_DATASPINNER;
-
-	if(strcmp(classname,"item_securitypass")==0)
-		return ITEMLIST_SECURITYPASS;
-
-	if(strcmp(classname,"item_bluekey")==0)
-		return ITEMLIST_BLUEKEY;
-
-	if(strcmp(classname,"item_redkey")==0)
-		return ITEMLIST_REDKEY;
-
-	if(strcmp(classname,"item_commandershead")==0)
-		return ITEMLIST_COMMANDERSHEAD;
-
-	if(strcmp(classname,"item_airstrikemarker")==0)
-		return ITEMLIST_AIRSTRIKEMARKER;
-
-	if(strcmp(classname,"item_health")==0) // ??
-		return ITEMLIST_HEALTH;
-
-	if(strcmp(classname,"item_health_small")==0)
-		return ITEMLIST_HEALTH_SMALL;
-
-	if(strcmp(classname,"item_health_medium")==0)
-		return ITEMLIST_HEALTH_MEDIUM;
-
-	if(strcmp(classname,"item_health_large")==0)
-		return ITEMLIST_HEALTH_LARGE;
-	
-	if(strcmp(classname,"item_health_mega")==0)
-		return ITEMLIST_HEALTH_MEGA;
-
+	gitem_t *item = FindItemByClassname( classname );
+	if( item )
+		return items[item->typeNum].index;
 	return INVALID;
 }
 

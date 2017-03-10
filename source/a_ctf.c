@@ -1100,8 +1100,7 @@ qboolean CTFCheckRules(void)
 
 	if( timelimit->value > 0 && ctfgame.type > 0 )
 	{
-		float gametime = matchmode->value ? level.matchTime : level.time;
-		if( ctfgame.halftime == 0 && gametime >= (timelimit->value * 60) / 2 - 60 )
+		if( ctfgame.halftime == 0 && level.matchTime >= (timelimit->value * 60) / 2 - 60 )
 		{
 			if( use_warnings->value )
 			{
@@ -1110,13 +1109,13 @@ qboolean CTFCheckRules(void)
 			}
 			ctfgame.halftime = 1;
 		}
-		else if( ctfgame.halftime == 1 && gametime >= (timelimit->value * 60) / 2 - 10 )
+		else if( ctfgame.halftime == 1 && level.matchTime >= (timelimit->value * 60) / 2 - 10 )
 		{
 			if( use_warnings->value )
 				gi.sound( &g_edicts[0], CHAN_VOICE | CHAN_NO_PHS_ADD, gi.soundindex("world/10_0.wav"), 1.0, ATTN_NONE, 0.0 );
 			ctfgame.halftime = 2;
 		}
-		else if( ctfgame.halftime < 3 && gametime >= (timelimit->value * 60) / 2 + 1 )
+		else if( ctfgame.halftime < 3 && level.matchTime >= (timelimit->value * 60) / 2 + 1 )
 		{
 			team_round_going = team_round_countdown = team_game_going = 0;
 			MakeAllLivePlayersObservers ();

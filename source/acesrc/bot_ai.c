@@ -50,7 +50,6 @@ void BOTAI_PickShortRangeGoal(edict_t *bot)
 	edict_t *pTarget = NULL;
 	float fWeight = 0.f, fBestWeight = 0.0;
 	edict_t *pBest = NULL;
-	int index = 0;
 	
 	// look for a target (should make more efficient later)
 	pTarget = findradius(NULL, bot->s.origin, 200);
@@ -79,8 +78,7 @@ void BOTAI_PickShortRangeGoal(edict_t *bot)
 		{
 			if (infront(bot, pTarget))
 			{
-				index = ACEIT_ClassnameToIndex(pTarget->classname);
-				fWeight = ACEIT_ItemNeed(bot, index);
+				fWeight = ACEIT_ItemNeed( bot, pTarget );
 				
 				if(fWeight > fBestWeight)
 				{
@@ -188,8 +186,10 @@ void BOTAI_PickLongRangeGoal(edict_t *bot, int	iType)
 			if(fCost == INVALID || fCost < 2) // ignore invalid and very short hops
 				continue;
 		
-			fWeight = ACEIT_ItemNeed(bot, item_table[i].item);
+			fWeight = ACEIT_ItemNeed( bot, item_table[i].ent );
 
+			if( fWeight <= 0 )  // Ignore items we can't pick up.
+				continue;
 
 			fWeight *= ( (rand()%5) +1 ); // Allow random variations
 	//		weight /= cost; // Check against cost of getting there
@@ -368,6 +368,10 @@ void BOTAI_Think(edict_t *bot)
 	VectorCopy(bot->client->ps.viewangles,bot->s.angles);
     VectorSet (bot->client->ps.pmove.delta_angles, 0, 0, 0);
     memset (&cmd, 0, sizeof(usercmd_t));
+
+	// Stop trying to think if the bot can't respawn.
+	if( ! IS_ALIVE(bot) && ((gameSettings & GS_ROUNDBASED) || (bot->client->respawn_framenum > level.framenum)) )
+		goto LeaveThink;
 
     bs = bot->botState;
     new_bs = bot->nextState;
