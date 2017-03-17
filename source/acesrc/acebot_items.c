@@ -59,15 +59,41 @@ int num_items = 0;
 item_table_t item_table[MAX_EDICTS];
 edict_t *players[MAX_CLIENTS];		// pointers to all players in the game
 
+static void RebuildBotPlayerList( void )
+{
+	size_t i;
+
+	num_players = 0;
+
+	for( i = 1; i <= game.maxclients; i ++ )
+	{
+		edict_t *ent = &g_edicts[i];
+		if( ent->client && ent->client->pers.connected )
+		{
+			players[ num_players ] = ent;
+			num_players ++;
+		}
+	}
+}
+
 ///////////////////////////////////////////////////////////////////////
 // Add the player to our list
 ///////////////////////////////////////////////////////////////////////
 void ACEIT_PlayerAdded(edict_t *ent)
 {
+	/*
 	if( num_players < MAX_CLIENTS )
 		players[num_players++] = ent;
 	else
 		gi.dprintf( "ACEIT_PlayerAdded: More players than maxclients!\n" );
+	*/
+
+	if( ent && ent->client && ! ent->client->pers.connected )
+		gi.dprintf( "ACEIT_PlayerAdded: Client %i is not connected!\n", ent->client->clientNum );
+	else if( ent && ! ent->client )
+		gi.dprintf( "ACEIT_PlayerAdded: Tried to add player with null client!\n" );
+
+	RebuildBotPlayerList();
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -75,6 +101,7 @@ void ACEIT_PlayerAdded(edict_t *ent)
 ///////////////////////////////////////////////////////////////////////
 void ACEIT_PlayerRemoved(edict_t *ent)
 {
+	/*
 	int i = 0;
 	int pos = 0;
 
@@ -99,6 +126,16 @@ void ACEIT_PlayerRemoved(edict_t *ent)
 		players[i] = players[i+1];
 
 	num_players--;
+	*/
+
+	qboolean prev_connected = false;
+	if( ent && ent->client )
+		prev_connected = ent->client->pers.connected;
+
+	RebuildBotPlayerList();
+
+	if( ent && ent->client )
+		ent->client->pers.connected = prev_connected;
 }
 
 ///////////////////////////////////////////////////////////////////////
