@@ -130,7 +130,10 @@ void ACEIT_PlayerRemoved(edict_t *ent)
 
 	qboolean prev_connected = false;
 	if( ent && ent->client )
+	{
 		prev_connected = ent->client->pers.connected;
+		ent->client->pers.connected = false;
+	}
 
 	RebuildBotPlayerList();
 
