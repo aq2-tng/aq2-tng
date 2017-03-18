@@ -2560,7 +2560,7 @@ void ClientBeginDeathmatch(edict_t * ent)
 	vInitClient(ent);
 
 #ifndef NO_BOTS
-	ACEIT_PlayerAdded(ent);
+	ACEIT_RebuildPlayerList();
 #endif
 
 	// locate ent at a spawn point
@@ -2822,10 +2822,6 @@ void ClientDisconnect(edict_t * ent)
 	if( use_ghosts->value )
 		CreateGhost( ent );
 
-#ifndef NO_BOTS
-	ACEIT_PlayerRemoved( ent );
-#endif
-
 	// go clear any clients that have this guy as their attacker
 	for (i = 1, etemp = g_edicts + 1; i <= game.maxclients; i++, etemp++) {
 		if (etemp->inuse) {
@@ -2862,6 +2858,7 @@ void ClientDisconnect(edict_t * ent)
 #ifndef NO_BOTS
 	ent->is_bot = false;
 	ent->think = NULL;
+	ACEIT_RebuildPlayerList();
 #endif
 }
 

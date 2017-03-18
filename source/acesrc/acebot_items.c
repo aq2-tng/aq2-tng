@@ -59,7 +59,10 @@ int num_items = 0;
 item_table_t item_table[MAX_EDICTS];
 edict_t *players[MAX_CLIENTS];		// pointers to all players in the game
 
-static void RebuildBotPlayerList( void )
+///////////////////////////////////////////////////////////////////////
+// Add/Remove player from our list
+///////////////////////////////////////////////////////////////////////
+void ACEIT_RebuildPlayerList( void )
 {
 	size_t i;
 
@@ -74,71 +77,6 @@ static void RebuildBotPlayerList( void )
 			num_players ++;
 		}
 	}
-}
-
-///////////////////////////////////////////////////////////////////////
-// Add the player to our list
-///////////////////////////////////////////////////////////////////////
-void ACEIT_PlayerAdded(edict_t *ent)
-{
-	/*
-	if( num_players < MAX_CLIENTS )
-		players[num_players++] = ent;
-	else
-		gi.dprintf( "ACEIT_PlayerAdded: More players than maxclients!\n" );
-	*/
-
-	if( ent && ent->client && ! ent->client->pers.connected )
-		gi.dprintf( "ACEIT_PlayerAdded: Client %i is not connected!\n", ent->client->clientNum );
-	else if( ent && ! ent->client )
-		gi.dprintf( "ACEIT_PlayerAdded: Tried to add player with null client!\n" );
-
-	RebuildBotPlayerList();
-}
-
-///////////////////////////////////////////////////////////////////////
-// Remove player from list
-///////////////////////////////////////////////////////////////////////
-void ACEIT_PlayerRemoved(edict_t *ent)
-{
-	/*
-	int i = 0;
-	int pos = 0;
-
-	// watch for 0 players
-	if(num_players == 0)
-		return;
-
-	// special cas for only one player
-	if(num_players == 1)
-	{	
-		num_players = 0;
-		return;
-	}
-
-	// Find the player
-	for(i=0;i<num_players;i++)
-		if(ent == players[i])
-			pos = i;
-
-	// decrement
-	for(i=pos;i<num_players-1;i++)
-		players[i] = players[i+1];
-
-	num_players--;
-	*/
-
-	qboolean prev_connected = false;
-	if( ent && ent->client )
-	{
-		prev_connected = ent->client->pers.connected;
-		ent->client->pers.connected = false;
-	}
-
-	RebuildBotPlayerList();
-
-	if( ent && ent->client )
-		ent->client->pers.connected = prev_connected;
 }
 
 ///////////////////////////////////////////////////////////////////////
