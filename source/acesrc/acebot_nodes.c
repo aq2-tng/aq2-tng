@@ -535,11 +535,11 @@ qboolean	ACEND_LadderForward( edict_t *self )//, vec3_t angles )
 	if (trace.fraction == 1.0)
 		return (false);
 
-//	safe_bprintf(PRINT_HIGH,"Contents forward are %d\n", trace.contents);
+//	gi.bprintf(PRINT_HIGH,"Contents forward are %d\n", trace.contents);
 	if (trace.contents & CONTENTS_LADDER || trace.contents &CONTENTS_DETAIL)
 	{
 		// Debug print
-//		safe_bprintf(PRINT_HIGH,"contents: %x\n",trace.contents);
+//		gi.bprintf(PRINT_HIGH,"contents: %x\n",trace.contents);
 
 		closest_node = ACEND_FindClosestReachableNode(self,NODE_DENSITY,NODE_LADDER); 
 		if(closest_node == -1)
@@ -582,7 +582,7 @@ void ACEND_PathMap(edict_t *self)
 	
 	// Just checking lightlevels - uncomment to use
 //	if( debug_mode && !self->is_bot)
-//		safe_bprintf(PRINT_HIGH,"LightLevel = %d\n", self->light_level);
+//		gi.bprintf(PRINT_HIGH,"LightLevel = %d\n", self->light_level);
 
 	////////////////////////////////////////////////////////
 	// Special check for ladder nodes
@@ -1207,7 +1207,7 @@ void ACEND_ResolveAllPaths()
 
 //	return;	// RiEvEr - disabled since it will interfere with the optimiser
 
-	safe_bprintf(PRINT_HIGH,"Resolving all paths...");
+	gi.bprintf(PRINT_HIGH,"Resolving all paths...");
 
 	for(from=0;from<numnodes;from++)
 	{
@@ -1232,7 +1232,7 @@ void ACEND_ResolveAllPaths()
 		}
 	}
 
-	safe_bprintf(PRINT_MEDIUM,"done (%d updated)\n",num);
+	gi.bprintf(PRINT_MEDIUM,"done (%d updated)\n",num);
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -1273,7 +1273,7 @@ void ACEND_SaveNodes()
 	// Resolve paths
 	ACEND_ResolveAllPaths();
 
-	safe_bprintf(PRINT_MEDIUM,"Saving node table...");
+	gi.bprintf(PRINT_MEDIUM,"Saving node table...");
 
 /*	strcpy(filename,"action\\nav\\");
 	strcat(filename,level.mapname);
@@ -1296,7 +1296,7 @@ void ACEND_SaveNodes()
 
 	fclose(pOut);
 	
-	safe_bprintf(PRINT_MEDIUM,"done.\n");
+	gi.bprintf(PRINT_MEDIUM,"done.\n");
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -1333,9 +1333,9 @@ void ACEND_LoadNodes(void)
 	if((pIn = fopen(filename, "rb" )) == NULL)
     {
 		// Create item table
-		safe_bprintf(PRINT_MEDIUM, "ACE: No node file found, creating new one...");
+		gi.bprintf(PRINT_MEDIUM, "ACE: No node file found, creating new one...");
 		ACEIT_BuildItemNodeTable(false);
-		safe_bprintf(PRINT_MEDIUM, "done.\n");
+		gi.bprintf(PRINT_MEDIUM, "done.\n");
 		return; 
 	}
 
@@ -1344,7 +1344,7 @@ void ACEND_LoadNodes(void)
 	
 	if(version == LTK_NODEVERSION) 
 	{
-		safe_bprintf(PRINT_MEDIUM,"ACE: Loading node table...");
+		gi.bprintf(PRINT_MEDIUM,"ACE: Loading node table...");
 
 		fread(&numnodes,sizeof(int),1,pIn); // read count
 		fread(&num_items,sizeof(int),1,pIn); // read facts count
@@ -1361,13 +1361,13 @@ void ACEND_LoadNodes(void)
 	else
 	{
 		// Create item table
-		safe_bprintf(PRINT_MEDIUM, "ACE: No node file found, creating new one...");
+		gi.bprintf(PRINT_MEDIUM, "ACE: No node file found, creating new one...");
 		ACEIT_BuildItemNodeTable(false);
-		safe_bprintf(PRINT_MEDIUM, "done.\n");
+		gi.bprintf(PRINT_MEDIUM, "done.\n");
 		return; // bail
 	}
 	
-	safe_bprintf(PRINT_MEDIUM, "done.\n");
+	gi.bprintf(PRINT_MEDIUM, "done.\n");
 	
 	ACEIT_BuildItemNodeTable(true);
 

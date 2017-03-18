@@ -368,7 +368,7 @@ void		SLLpop_front( ltklist_t *thelist )
 	}
 	else
 	{
-		safe_bprintf( PRINT_HIGH, "Attempting to POP an empty list!\n");
+		gi.bprintf( PRINT_HIGH, "Attempting to POP an empty list!\n");
 	}
 }
 

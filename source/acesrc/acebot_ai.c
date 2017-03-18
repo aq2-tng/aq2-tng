@@ -962,7 +962,7 @@ qboolean ACEAI_ChooseWeapon(edict_t *self)
 	
 	// We have no weapon available for use.
 	if(debug_mode)
-		safe_bprintf(PRINT_HIGH,"%s: No weapon available...\n",self->client->pers.netname);
+		gi.bprintf(PRINT_HIGH,"%s: No weapon available...\n",self->client->pers.netname);
 	return (false);
 
 }

@@ -62,7 +62,7 @@ qboolean ACECM_Commands(edict_t *ent)
 	else if(Q_stricmp (cmd, "findnode") == 0 && debug_mode)
 	{
 		node = (gi.argc() >= 2) ? atoi(gi.argv(1)) : ACEND_FindClosestReachableNode(ent,NODE_DENSITY, NODE_ALL);
-		safe_bprintf(PRINT_MEDIUM,"node: %d type: %d x: %f y: %f z %f\n",node,nodes[node].type,nodes[node].origin[0],nodes[node].origin[1],nodes[node].origin[2]);
+		gi.bprintf(PRINT_MEDIUM,"node: %d type: %d x: %f y: %f z %f\n",node,nodes[node].type,nodes[node].origin[0],nodes[node].origin[1],nodes[node].origin[2]);
 	}
 
 	else if(Q_stricmp (cmd, "movenode") == 0 && debug_mode)
@@ -81,7 +81,7 @@ qboolean ACECM_Commands(edict_t *ent)
 			nodes[node].origin[2] += 8;
 		}
 
-		safe_bprintf(PRINT_MEDIUM,"node: %d moved to x: %f y: %f z %f\n",node, nodes[node].origin[0],nodes[node].origin[1],nodes[node].origin[2]);
+		gi.bprintf(PRINT_MEDIUM,"node: %d moved to x: %f y: %f z %f\n",node, nodes[node].origin[0],nodes[node].origin[1],nodes[node].origin[2]);
 	}
 
 	else if(Q_stricmp (cmd, "nodetype") == 0 && debug_mode)
@@ -91,7 +91,7 @@ qboolean ACECM_Commands(edict_t *ent)
 		if( gi.argc() >= 3 )
 			nodes[node].type = atoi(gi.argv(2));
 
-		safe_bprintf(PRINT_MEDIUM,"node %d type %d\n", node, nodes[node].type);
+		gi.bprintf(PRINT_MEDIUM,"node %d type %d\n", node, nodes[node].type);
 	}
 
 	else
@@ -121,7 +121,6 @@ void ACECM_Store()
 // (Got the basic idea from Ridah)
 //	
 //  change: gi.cprintf to safe_cprintf
-//  change: gi.bprintf to safe_bprintf
 //  change: gi.centerprintf to safe_centerprintf
 // 
 ///////////////////////////////////////////////////////////////////////
@@ -197,33 +196,3 @@ void safe_centerprintf (edict_t *ent, char *fmt, ...)
 	real_centerprintf(ent, "%s", bigbuffer);
 	
 }
-
-///////////////////////////////////////////////////////////////////////
-// botsafe bprintf
-///////////////////////////////////////////////////////////////////////
-void safe_bprintf (int printlevel, char *fmt, ...)
-{
-	int i;
-	char	bigbuffer[0x10000];
-	//int	len;
-	va_list	argptr;
-	edict_t	*cl_ent;
-
-	va_start (argptr,fmt);
-	//len = vsprintf (bigbuffer,fmt,argptr);
-	vsprintf (bigbuffer,fmt,argptr);
-	va_end (argptr);
-
-	if (dedicated->value)
-		gi.cprintf(NULL, printlevel, "%s", bigbuffer);
-
-	for (i=0 ; i<maxclients->value ; i++)
-	{
-		cl_ent = g_edicts + 1 + i;
-		if (!cl_ent->inuse || cl_ent->is_bot)
-			continue;
-
-		real_cprintf(cl_ent, printlevel, "%s", bigbuffer);
-	}
-}
-

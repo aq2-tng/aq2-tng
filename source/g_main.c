@@ -516,12 +516,10 @@ game_export_t *GetGameAPI (game_import_t * import)
 {
 	gi = *import;
 #ifndef NO_BOTS
-	/* proxy all calls trough the bot safe functions */
+	/* proxy ent printf calls trough the bot safe functions */
 	real_cprintf = gi.cprintf;
-	real_bprintf = gi.bprintf;
 	real_centerprintf = gi.centerprintf;
 	gi.cprintf = safe_cprintf;
-	gi.bprintf = safe_bprintf;
 	gi.centerprintf = safe_centerprintf;
 #endif
 	globals.apiversion = GAME_API_VERSION;
