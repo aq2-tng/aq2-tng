@@ -54,6 +54,8 @@ typedef struct ctfgame_s {
 
 extern ctfgame_t ctfgame;
 
+extern gitem_t *team_flag[TEAM_TOP];
+
 extern cvar_t *ctf;
 extern cvar_t *ctf_forcejoin;
 extern cvar_t *ctf_mode;
@@ -131,6 +133,3 @@ void SP_info_teleport_destination (edict_t * ent);
 void ResetPlayers ();
 void GetCTFScores(int *t1score, int *t2score);
 void CTFCapReward(edict_t *);
-
-gitem_t *team_flag[TEAM_TOP];
-
