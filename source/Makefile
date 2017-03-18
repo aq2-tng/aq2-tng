@@ -6,10 +6,15 @@
 GIT_REV=$(shell git rev-parse --short HEAD)
 ifeq ($(GIT_REV),)
 GIT_REV=git
+else
+GIT_DATE=$(shell git show -s --format='%cd' --date=short)
+ifneq ($(GIT_DATE),)
+GIT_REV:=$(GIT_DATE) $(GIT_REV)
+endif
 endif
 PACKAGE=aq2-tng
 REL_VERSION=2.81
-VERSION=$(REL_VERSION)~$(GIT_REV)
+VERSION=$(REL_VERSION) $(GIT_REV)
 
 # remember to update this for every release commit
 RELEASE=no
@@ -32,7 +37,7 @@ VERSION=$(REL_VERSION)
 endif
 
 CC?=gcc
-BASE_CFLAGS=-DC_ONLY -DVERSION=\"$(VERSION)\" -Wall -fno-strict-aliasing
+BASE_CFLAGS=-DC_ONLY -DVERSION="\"$(VERSION)\"" -Wall -fno-strict-aliasing
 
 #use these cflags to optimize it
 ifdef DEBUG
@@ -77,7 +82,7 @@ endif
 # GAME
 #############################################################################
 
-.c.o:
+.c.o: $(wildcard *.h */*.h)
 	$(DO_CC)
 
 GAME_OBJS = \
@@ -91,7 +96,7 @@ GAME_OBJS = \
 	tng_stats.o tng_flashlight.o tng_irc.o tng_ini.o tng_balancer.o \
 	g_grapple.o
 
-game$(ARCH).$(SHLIBEXT) : $(GAME_OBJS)
+game$(ARCH).$(SHLIBEXT): $(wildcard *.h */*.h) $(GAME_OBJS)
 	$(DO_LINK)
 
 

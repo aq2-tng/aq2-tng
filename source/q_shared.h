@@ -165,10 +165,9 @@
 //==============================================
 
 typedef unsigned char byte;
-typedef enum
-{
-  false, true
-} qboolean;
+typedef enum { qfalse = 0, qtrue } qboolean;
+#define true qtrue
+#define false qfalse
 
 
 #ifndef NULL
