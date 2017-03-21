@@ -317,6 +317,7 @@ int holding_on_tie_check = 0;	// when a team "wins", countdown for a bit and wai
 int current_round_length = 0;	// frames that the current team round has lasted
 int round_delay_time = 0;	// time gap between round end and new round
 int in_warmup = 0;		// if warmup is currently on
+qboolean teams_changed = false;  // Need to update the join menu.
 
 team_t teams[TEAM_TOP];
 int	teamCount = 2;
@@ -657,7 +658,7 @@ pmenu_t creditsmenu[] = {
   {"Return to main menu", PMENU_ALIGN_LEFT, NULL, CreditsReturnToMain},
   {"TAB to exit menu", PMENU_ALIGN_LEFT, NULL, NULL},
   {NULL, PMENU_ALIGN_LEFT, NULL, NULL},
-  {"v" ACTION_VERSION, PMENU_ALIGN_RIGHT, NULL, NULL},
+  {"v" VERSION, PMENU_ALIGN_RIGHT, NULL, NULL},
 //PG BUND END
 };
 
@@ -685,7 +686,7 @@ pmenu_t weapmenu[] = {
   {"ENTER to select", PMENU_ALIGN_LEFT, NULL, NULL},
   {"TAB to exit menu", PMENU_ALIGN_LEFT, NULL, NULL},
   {NULL, PMENU_ALIGN_LEFT, NULL, NULL},
-  {"v" ACTION_VERSION, PMENU_ALIGN_RIGHT, NULL, NULL},
+  {"v" VERSION, PMENU_ALIGN_RIGHT, NULL, NULL},
 };
 
 pmenu_t itemmenu[] = {
@@ -706,7 +707,7 @@ pmenu_t itemmenu[] = {
   {"ENTER to select", PMENU_ALIGN_LEFT, NULL, NULL},
   {"TAB to exit menu", PMENU_ALIGN_LEFT, NULL, NULL},
   {NULL, PMENU_ALIGN_LEFT, NULL, NULL},
-  {"v" ACTION_VERSION, PMENU_ALIGN_RIGHT, NULL, NULL},
+  {"v" VERSION, PMENU_ALIGN_RIGHT, NULL, NULL},
 };
 
 //AQ2:TNG - slicer
@@ -740,7 +741,8 @@ pmenu_t joinmenu[] = {
   {"Use [ and ] to move cursor", PMENU_ALIGN_LEFT, NULL, NULL},
   {"ENTER to select", PMENU_ALIGN_LEFT, NULL, NULL},
   {"TAB to exit menu", PMENU_ALIGN_LEFT, NULL, NULL},
-  {"v" ACTION_VERSION, PMENU_ALIGN_RIGHT, NULL, NULL},
+  {NULL, PMENU_ALIGN_LEFT, NULL, NULL},
+  {"v" VERSION, PMENU_ALIGN_RIGHT, NULL, NULL},
 };
 // AQ2:TNG End
 
@@ -1023,6 +1025,8 @@ void JoinTeam (edict_t * ent, int desired_team, int skip_menuclose)
 	//AQ2:TNG END
 	if (!skip_menuclose && (gameSettings & GS_WEAPONCHOOSE))
 		OpenWeaponMenu(ent);
+
+	teams_changed = true;
 }
 
 void LeaveTeam (edict_t * ent)
@@ -1044,6 +1048,8 @@ void LeaveTeam (edict_t * ent)
 	ent->client->resp.joined_team = 0;
 	ent->client->resp.team = NOTEAM;
 	G_UpdatePlayerStatusbar(ent, 1);
+
+	teams_changed = true;
 }
 
 void ReturnToMain (edict_t * ent, pmenu_t * p)
@@ -1163,7 +1169,7 @@ void OpenWeaponMenu (edict_t * ent)
 }
 
 // AQ2:TNG Deathwatch - Updated this for the new menu
-static void UpdateJoinMenu (edict_t * ent)
+void UpdateJoinMenu( void )
 {
 	static char levelname[28];
 	static char team1players[28];
@@ -1262,7 +1268,7 @@ void OpenJoinMenu (edict_t * ent)
 	}
 	//PG BUND - END (Tourney extension)
 
-	UpdateJoinMenu (ent);
+	UpdateJoinMenu();
 
 	PMenu_Open (ent, joinmenu, 11 /* magic for Auto-join menu item */, sizeof (joinmenu) / sizeof (pmenu_t));
 }
