@@ -1994,6 +1994,8 @@ qboolean ScrambleTeams(void)
 		AssignSkin( ent, s, false );
 	}
 
+	teams_changed = true;
+
 	CenterPrintAll("The teams have been scrambled!");
 
 	//Clear voting

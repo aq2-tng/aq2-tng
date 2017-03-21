@@ -177,7 +177,7 @@ void SP_LaserSight(edict_t * self, gitem_t * item)
 	lasersight->movetype = MOVETYPE_NOCLIP;
 	lasersight->solid = SOLID_NOT;
 	lasersight->classname = "lasersight";
-	lasersight->s.modelindex = gi.modelindex("sprites/lsight.sp2");
+	lasersight->s.modelindex = level.model_lsight;
 	lasersight->s.renderfx = RF_TRANSLUCENT;
 	lasersight->think = LaserSightThink;
 	lasersight->nextthink = level.framenum + 1;
@@ -227,7 +227,7 @@ void LaserSightThink(edict_t * self)
 	vectoangles(tr.plane.normal, self->s.angles);
 	VectorCopy(tr.endpos, self->s.origin);
 
-	self->s.modelindex = (tr.surface && (tr.surface->flags & SURF_SKY)) ? gi.modelindex("sprites/null.sp2") : gi.modelindex("sprites/lsight.sp2");
+	self->s.modelindex = (tr.surface && (tr.surface->flags & SURF_SKY)) ? level.model_null : level.model_lsight;
 
 	gi.linkentity(self);
 	self->nextthink = level.framenum + 1;

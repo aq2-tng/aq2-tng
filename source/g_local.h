@@ -771,6 +771,8 @@ typedef struct
   int snd_kick;
   int snd_noammo;
 
+  int model_null;
+  int model_lsight;
 
   edict_t *current_entity;	// entity running from G_RunFrame
 

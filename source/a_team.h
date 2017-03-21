@@ -65,6 +65,7 @@
 edict_t *SelectTeamplaySpawnPoint (edict_t *);
 qboolean FallingDamageAmnesty (edict_t * targ);
 char * TeamName (int team);
+void UpdateJoinMenu( void );
 void OpenJoinMenu (edict_t *);
 void OpenWeaponMenu (edict_t *);
 void OpenItemMenu (edict_t * ent);
@@ -122,3 +123,4 @@ extern int current_round_length; // For RoundTimeLeft
 extern int day_cycle_at;
 extern int teamCount;
 extern int in_warmup;
+extern qboolean teams_changed;
