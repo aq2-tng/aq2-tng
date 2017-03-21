@@ -594,7 +594,7 @@ void EjectBlooder(edict_t * self, vec3_t start, vec3_t veloc)
 	VectorScale(forward, spd, blooder->velocity);
 	blooder->solid = SOLID_NOT;
 	blooder->movetype = MOVETYPE_BLOOD;  // Allow dripping blood to make a splat.
-	blooder->s.modelindex = gi.modelindex("sprites/null.sp2");
+	blooder->s.modelindex = level.model_null;
 	blooder->s.effects |= EF_GIB;
 	blooder->owner = self;
 	blooder->touch = BlooderTouch;
