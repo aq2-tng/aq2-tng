@@ -3,21 +3,24 @@
 # Tested platforms: Linux x86, Linux x86_64, MinGW x86
 #
 
-GIT_REV=$(shell git rev-parse --short HEAD)
-ifeq ($(GIT_REV),)
-GIT_REV=git
-else
-GIT_DATE=$(shell git show -s --format='%cd' --date=short)
-ifneq ($(GIT_DATE),)
-GIT_REV:=$(GIT_DATE) $(GIT_REV)
-endif
-endif
 PACKAGE=aq2-tng
 REL_VERSION=2.81
-VERSION=$(REL_VERSION) $(GIT_REV)
+VERSION=$(REL_VERSION)
+FILE_VERSION=$(REL_VERSION)
 
-# remember to update this for every release commit
-RELEASE=no
+ifndef RELEASE
+# Non-release builds append git information to version string.
+GIT_DATE=$(shell git show -s --format='%cd' --date=short)
+ifneq ($(GIT_DATE),)
+	VERSION += $(GIT_DATE)
+endif
+GIT_REV=$(shell git rev-parse --short HEAD)
+ifeq ($(GIT_REV),)
+	GIT_REV=git
+endif
+VERSION += $(GIT_REV)
+FILE_VERSION:=$(REL_VERSION)~$(GIT_REV)
+endif
 
 MACHINE=$(shell uname -m)
 SYSTEM=$(shell uname -s)
@@ -30,10 +33,6 @@ endif
 
 ifeq ($(MACHINE),x86_64)
 ARCH=x86_64
-endif
-
-ifeq ($(RELEASE),yes)
-VERSION=$(REL_VERSION)
 endif
 
 CC?=gcc
@@ -82,7 +81,7 @@ endif
 # GAME
 #############################################################################
 
-.c.o: $(wildcard *.h */*.h)
+%.o: %.c $(wildcard *.h */*.h)
 	$(DO_CC)
 
 GAME_OBJS = \
@@ -96,7 +95,7 @@ GAME_OBJS = \
 	tng_stats.o tng_flashlight.o tng_irc.o tng_ini.o tng_balancer.o \
 	g_grapple.o
 
-game$(ARCH).$(SHLIBEXT): $(wildcard *.h */*.h) $(GAME_OBJS)
+game$(ARCH).$(SHLIBEXT): $(GAME_OBJS)
 	$(DO_LINK)
 
 
@@ -108,17 +107,17 @@ clean:
 	-rm -f $(GAME_OBJS) game$(ARCH).$(SHLIBEXT)
 
 install:
-	cp gamei386.so ../action/
-	strip ../action/gamei386.so
+	cp game$(ARCH).$(SHLIBEXT) ../action/
+	strip ../action/game$(ARCH).$(SHLIBEXT)
 
 bindist: game$(ARCH).$(SHLIBEXT)
 	strip -s game$(ARCH).$(SHLIBEXT)
-	tar -zcvf ../$(PACKAGE)-$(VERSION)-$(SYSTEM)-$(MACHINE).tar.gz \
+	tar -zcvf ../$(PACKAGE)-$(FILE_VERSION)-$(SYSTEM)-$(MACHINE).tar.gz \
             game$(ARCH).$(SHLIBEXT) ../TNG-manual.txt ../change.txt
 
 distclean: clean
 	-rm -f ../$(PACKAGE)-*.{tar.gz,zip}
 
 dist:
-	git archive --format=tar --prefix=$(PACKAGE)-$(VERSION)-src/ HEAD | gzip -9 > ../$(PACKAGE)-$(VERSION)-src.tar.gz
+	git archive --format=tar --prefix=$(PACKAGE)-$(FILE_VERSION)-src/ HEAD | gzip -9 > ../$(PACKAGE)-$(FILE_VERSION)-src.tar.gz
 
