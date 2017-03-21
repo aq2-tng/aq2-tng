@@ -2724,6 +2724,8 @@ void ClientDisconnect(edict_t * ent)
 	ent->classname = "disconnected";
 	ent->svflags = SVF_NOCLIENT;
 	ent->client->pers.connected = false;
+
+	teams_changed = true;
 }
 
 void CreateGhost(edict_t * ent)

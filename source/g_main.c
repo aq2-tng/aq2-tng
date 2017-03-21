@@ -582,12 +582,14 @@ void ClientEndServerFrames (void)
 		return;
 	}
 
-	if( (teams_changed && FRAMESYNC) || !(level.realFramenum % (3 * HZ)) )
+	if( teams_changed && FRAMESYNC )
 	{
 		updateLayout = 1;
 		teams_changed = false;
 		UpdateJoinMenu();
 	}
+	else if( !(level.realFramenum % (3 * HZ)) )
+		updateLayout = 1;
 
 	// calc the player views now that all pushing
 	// and damage has been added
