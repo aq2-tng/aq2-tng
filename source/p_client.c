@@ -2855,6 +2855,8 @@ void ClientDisconnect(edict_t * ent)
 	ent->svflags = SVF_NOCLIENT;
 	ent->client->pers.connected = false;
 
+	teams_changed = true;
+
 #ifndef NO_BOTS
 	ent->is_bot = false;
 	ent->think = NULL;
