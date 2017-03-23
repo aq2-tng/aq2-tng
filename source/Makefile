@@ -18,7 +18,7 @@ ifeq ($(GIT_REV),)
 	GIT_REV=git
 endif
 VERSION += $(GIT_REV)
-FILE_VERSION:=$(FILE_VERSION)~$(GIT_REV)
+FILE_VERSION:=$(VERSION)~$(GIT_REV)
 endif
 
 CC?=gcc
