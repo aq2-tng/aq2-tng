@@ -633,7 +633,7 @@ void QuakeNigguhz (edict_t * ent, pmenu_t * p)
 
 // AQ2:TNG Deathwatch - Editing all menus to show the correct credits, version, names, locations, urls, etc
 pmenu_t creditsmenu[] = {
-  {"*" TNG_VERSION, PMENU_ALIGN_CENTER, NULL, NULL},
+  {"*" TNG_TITLE, PMENU_ALIGN_CENTER, NULL, NULL},
   {"žžžžžžžžžžžžžžžžžžžžžžžžžŸ", PMENU_ALIGN_CENTER, NULL, NULL},
   {"*Design Team", PMENU_ALIGN_LEFT, NULL, NULL},
   {NULL, PMENU_ALIGN_LEFT, NULL, NULL},
@@ -658,12 +658,12 @@ pmenu_t creditsmenu[] = {
   {"Return to main menu", PMENU_ALIGN_LEFT, NULL, CreditsReturnToMain},
   {"TAB to exit menu", PMENU_ALIGN_LEFT, NULL, NULL},
   {NULL, PMENU_ALIGN_LEFT, NULL, NULL},
-  {"v" VERSION, PMENU_ALIGN_RIGHT, NULL, NULL},
+  {"v" FULL_VERSION, PMENU_ALIGN_RIGHT, NULL, NULL},
 //PG BUND END
 };
 
 pmenu_t weapmenu[] = {
-  {"*" TNG_VERSION, PMENU_ALIGN_CENTER, NULL, NULL},
+  {"*" TNG_TITLE, PMENU_ALIGN_CENTER, NULL, NULL},
   {"žžžžžžžžžžžžžžžžžžžžžžžžžŸ", PMENU_ALIGN_CENTER, NULL, NULL},
   {"Select your Weapon", PMENU_ALIGN_CENTER, NULL, NULL},
   {NULL, PMENU_ALIGN_LEFT, NULL, NULL},
@@ -686,11 +686,11 @@ pmenu_t weapmenu[] = {
   {"ENTER to select", PMENU_ALIGN_LEFT, NULL, NULL},
   {"TAB to exit menu", PMENU_ALIGN_LEFT, NULL, NULL},
   {NULL, PMENU_ALIGN_LEFT, NULL, NULL},
-  {"v" VERSION, PMENU_ALIGN_RIGHT, NULL, NULL},
+  {"v" FULL_VERSION, PMENU_ALIGN_RIGHT, NULL, NULL},
 };
 
 pmenu_t itemmenu[] = {
-  {"*" TNG_VERSION, PMENU_ALIGN_CENTER, NULL, NULL},
+  {"*" TNG_TITLE, PMENU_ALIGN_CENTER, NULL, NULL},
   {"žžžžžžžžžžžžžžžžžžžžžžžžžŸ", PMENU_ALIGN_CENTER, NULL, NULL},
   {"Select your Item", PMENU_ALIGN_CENTER, NULL, NULL},
   {NULL, PMENU_ALIGN_LEFT, NULL, NULL},
@@ -707,7 +707,7 @@ pmenu_t itemmenu[] = {
   {"ENTER to select", PMENU_ALIGN_LEFT, NULL, NULL},
   {"TAB to exit menu", PMENU_ALIGN_LEFT, NULL, NULL},
   {NULL, PMENU_ALIGN_LEFT, NULL, NULL},
-  {"v" VERSION, PMENU_ALIGN_RIGHT, NULL, NULL},
+  {"v" FULL_VERSION, PMENU_ALIGN_RIGHT, NULL, NULL},
 };
 
 //AQ2:TNG - slicer
@@ -719,7 +719,7 @@ void VotingMenu (edict_t * ent, pmenu_t * p)
 //AQ2:TNG END
 
 pmenu_t joinmenu[] = {
-  {"*" TNG_VERSION, PMENU_ALIGN_CENTER, NULL, NULL},
+  {"*" TNG_TITLE, PMENU_ALIGN_CENTER, NULL, NULL},
   {"žžžžžžžžžžžžžžžžžžžžžžžžžŸ", PMENU_ALIGN_CENTER, NULL, NULL},
   {NULL /* lvl name */ , PMENU_ALIGN_CENTER, NULL, NULL},
   {NULL, PMENU_ALIGN_CENTER, NULL, NULL},
@@ -742,7 +742,7 @@ pmenu_t joinmenu[] = {
   {"ENTER to select", PMENU_ALIGN_LEFT, NULL, NULL},
   {"TAB to exit menu", PMENU_ALIGN_LEFT, NULL, NULL},
   {NULL, PMENU_ALIGN_LEFT, NULL, NULL},
-  {"v" VERSION, PMENU_ALIGN_RIGHT, NULL, NULL},
+  {"v" FULL_VERSION, PMENU_ALIGN_RIGHT, NULL, NULL},
 };
 // AQ2:TNG End
 

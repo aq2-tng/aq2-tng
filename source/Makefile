@@ -4,22 +4,37 @@
 #
 
 PACKAGE=aq2-tng
-REL_VERSION=2.81
-VERSION=$(REL_VERSION)
-FILE_VERSION=$(REL_VERSION)
+VERSION=2.81
+FILE_VERSION=$(VERSION)
+
+SRC_DATE=$(shell git show -s --format='%cd' --date=short)
+ifeq ($(SRC_DATE),)
+	SRC_DATE=$(shell date +'%Y-%m-%d')
+endif
+
+CC?=gcc
+BASE_CFLAGS=-Wall -fno-strict-aliasing -DC_ONLY -DVERSION=\"$(VERSION)\" -DSRC_DATE=\"$(SRC_DATE)\"
 
 ifndef RELEASE
-# Non-release builds append git information to version string.
-GIT_DATE=$(shell git show -s --format='%cd' --date=short)
-ifneq ($(GIT_DATE),)
-	VERSION += $(GIT_DATE)
+SRC_REV=$(shell git rev-parse --short HEAD)
+ifeq ($(SRC_REV),)
+	SRC_REV=git
 endif
-GIT_REV=$(shell git rev-parse --short HEAD)
-ifeq ($(GIT_REV),)
-	GIT_REV=git
+BASE_CFLAGS += -DSRC_REV=\"$(SRC_REV)\"
+FILE_VERSION=$(VERSION)~$(SRC_REV)
 endif
-VERSION += $(GIT_REV)
-FILE_VERSION:=$(REL_VERSION)~$(GIT_REV)
+
+#use these cflags to optimize it
+ifdef DEBUG
+	CFLAGS=$(BASE_CFLAGS) -g
+else
+	CFLAGS=$(BASE_CFLAGS) -O2
+endif
+
+ifdef NATIVE
+# Allow machine-specific optimizations.
+# This is no longer default because some build environments don't like it.
+CFLAGS+=-march=native -mtune=native
 endif
 
 MACHINE=$(shell uname -m)
@@ -33,22 +48,6 @@ endif
 
 ifeq ($(MACHINE),x86_64)
 ARCH=x86_64
-endif
-
-CC?=gcc
-BASE_CFLAGS=-DC_ONLY -DVERSION="\"$(VERSION)\"" -Wall -fno-strict-aliasing
-
-#use these cflags to optimize it
-ifdef DEBUG
-	CFLAGS=$(BASE_CFLAGS) -g
-else
-	CFLAGS=$(BASE_CFLAGS) -O2
-endif
-
-ifdef NATIVE
-# Allow machine-specific optimizations.
-# This is no longer default because some build environments don't like it.
-CFLAGS+=-march=native -mtune=native
 endif
 
 ifdef X86
