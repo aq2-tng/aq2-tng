@@ -343,9 +343,9 @@ void InitGame( void )
 
 	sv_cheats = gi.cvar( "cheats", "0", CVAR_SERVERINFO | CVAR_LATCH );
 	gi.cvar( "gamename", GAMEVERSION, CVAR_SERVERINFO | CVAR_NOSET );
-	gi.cvar( "gamedate", SRC_DATE, CVAR_SERVERINFO | CVAR_NOSET );
-	actionversion = gi.cvar( "actionversion", "TNG " FULL_VERSION, CVAR_SERVERINFO | CVAR_NOSET );
-	gi.cvar_set( "actionversion", "TNG " FULL_VERSION );
+	gi.cvar( "gamedate", __DATE__, CVAR_SERVERINFO | CVAR_NOSET );
+	actionversion = gi.cvar( "actionversion", "TNG " VERSION, CVAR_SERVERINFO | CVAR_NOSET );
+	gi.cvar_set( "actionversion", "TNG " VERSION );
 
 	maxclients = gi.cvar( "maxclients", "8", CVAR_SERVERINFO | CVAR_LATCH );
 	maxentities = gi.cvar( "maxentities", "1024", CVAR_LATCH );

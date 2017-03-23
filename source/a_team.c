@@ -658,7 +658,7 @@ pmenu_t creditsmenu[] = {
   {"Return to main menu", PMENU_ALIGN_LEFT, NULL, CreditsReturnToMain},
   {"TAB to exit menu", PMENU_ALIGN_LEFT, NULL, NULL},
   {NULL, PMENU_ALIGN_LEFT, NULL, NULL},
-  {"v" FULL_VERSION, PMENU_ALIGN_RIGHT, NULL, NULL},
+  {"v" VERSION, PMENU_ALIGN_RIGHT, NULL, NULL},
 //PG BUND END
 };
 
@@ -686,7 +686,7 @@ pmenu_t weapmenu[] = {
   {"ENTER to select", PMENU_ALIGN_LEFT, NULL, NULL},
   {"TAB to exit menu", PMENU_ALIGN_LEFT, NULL, NULL},
   {NULL, PMENU_ALIGN_LEFT, NULL, NULL},
-  {"v" FULL_VERSION, PMENU_ALIGN_RIGHT, NULL, NULL},
+  {"v" VERSION, PMENU_ALIGN_RIGHT, NULL, NULL},
 };
 
 pmenu_t itemmenu[] = {
@@ -707,7 +707,7 @@ pmenu_t itemmenu[] = {
   {"ENTER to select", PMENU_ALIGN_LEFT, NULL, NULL},
   {"TAB to exit menu", PMENU_ALIGN_LEFT, NULL, NULL},
   {NULL, PMENU_ALIGN_LEFT, NULL, NULL},
-  {"v" FULL_VERSION, PMENU_ALIGN_RIGHT, NULL, NULL},
+  {"v" VERSION, PMENU_ALIGN_RIGHT, NULL, NULL},
 };
 
 //AQ2:TNG - slicer
@@ -742,7 +742,7 @@ pmenu_t joinmenu[] = {
   {"ENTER to select", PMENU_ALIGN_LEFT, NULL, NULL},
   {"TAB to exit menu", PMENU_ALIGN_LEFT, NULL, NULL},
   {NULL, PMENU_ALIGN_LEFT, NULL, NULL},
-  {"v" FULL_VERSION, PMENU_ALIGN_RIGHT, NULL, NULL},
+  {"v" VERSION, PMENU_ALIGN_RIGHT, NULL, NULL},
 };
 // AQ2:TNG End
 

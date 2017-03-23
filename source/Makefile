@@ -5,24 +5,24 @@
 
 PACKAGE=aq2-tng
 VERSION=2.81
-FILE_VERSION=$(VERSION)
+FILE_VERSION:=$(VERSION)
 
-SRC_DATE=$(shell git show -s --format='%cd' --date=short)
-ifeq ($(SRC_DATE),)
-	SRC_DATE=$(shell date +'%Y-%m-%d')
+ifndef RELEASE
+GIT_DATE=$(shell git show -s --format='%cd' --date=short)
+ifeq ($(GIT_DATE),)
+	GIT_DATE=$(shell date +'%Y-%m-%d')
+endif
+VERSION += $(GIT_DATE)
+GIT_REV=$(shell git rev-parse --short HEAD)
+ifeq ($(GIT_REV),)
+	GIT_REV=git
+endif
+VERSION += $(GIT_REV)
+FILE_VERSION:=$(VERSION)~$(GIT_REV)
 endif
 
 CC?=gcc
-BASE_CFLAGS=-Wall -fno-strict-aliasing -DC_ONLY -DVERSION=\"$(VERSION)\" -DSRC_DATE=\"$(SRC_DATE)\"
-
-ifndef RELEASE
-SRC_REV=$(shell git rev-parse --short HEAD)
-ifeq ($(SRC_REV),)
-	SRC_REV=git
-endif
-BASE_CFLAGS += -DSRC_REV=\"$(SRC_REV)\"
-FILE_VERSION=$(VERSION)~$(SRC_REV)
-endif
+BASE_CFLAGS=-Wall -fno-strict-aliasing -DC_ONLY -DVERSION="\"$(VERSION)\""
 
 #use these cflags to optimize it
 ifdef DEBUG
