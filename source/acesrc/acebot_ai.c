@@ -681,7 +681,7 @@ qboolean ACEAI_FindEnemy(edict_t *self, int *total)
 
 			// Can we hear their weapon firing?
 			qboolean weapon_loud = false;
-			if( players[i]->client->weaponstate == WEAPON_FIRING )
+			if( players[i]->client->weaponstate == WEAPON_FIRING || players[i]->client->weaponstate == WEAPON_BURSTING )
 			{
 				switch( players[i]->client->weapon->typeNum )
 				{
