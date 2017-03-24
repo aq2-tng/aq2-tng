@@ -53,6 +53,8 @@
 //maximum amount of location points on a map
 #define LOC_MAX_POINTS 300
 
+qboolean GetPlayerLocation( edict_t *self, char *buf );
+
 void ParseSayText(edict_t *ent, char *text, size_t size);
 
 void Cmd_SetFlag1_f(edict_t *self);

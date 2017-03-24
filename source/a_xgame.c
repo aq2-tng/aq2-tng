@@ -238,7 +238,7 @@ static qboolean GetLocation(int xo, int yo, int zo, int mod, char *buf)
 
 // Get the player location
 //
-static qboolean GetPlayerLocation(edict_t *self, char *buf)
+qboolean GetPlayerLocation(edict_t *self, char *buf)
 {
 	if (GetLocation((int)self->s.origin[0], (int)self->s.origin[1], (int)self->s.origin[2], 0, buf))
 		return true;
