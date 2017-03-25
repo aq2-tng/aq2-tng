@@ -3,36 +3,26 @@
 # Tested platforms: Linux x86, Linux x86_64, MinGW x86
 #
 
+PACKAGE=aq2-tng
+VERSION=2.81
+FILE_VERSION:=$(VERSION)
+
+ifndef RELEASE
+GIT_DATE=$(shell git show -s --format='%cd' --date=short)
+ifeq ($(GIT_DATE),)
+	GIT_DATE=$(shell date +'%Y-%m-%d')
+endif
+VERSION += $(GIT_DATE)
 GIT_REV=$(shell git rev-parse --short HEAD)
 ifeq ($(GIT_REV),)
-GIT_REV=git
+	GIT_REV=git
 endif
-PACKAGE=aq2-tng
-REL_VERSION=2.81
-VERSION=$(REL_VERSION)~$(GIT_REV)
-
-# remember to update this for every release commit
-RELEASE=no
-
-MACHINE=$(shell uname -m)
-SYSTEM=$(shell uname -s)
-ARCH=i386
-
-# If machine starts with arm (any type of Raspberry Pi) make gamearm.so.
-ifneq (,$(findstring __arm,__$(MACHINE)))
-ARCH=arm
-endif
-
-ifeq ($(MACHINE),x86_64)
-ARCH=x86_64
-endif
-
-ifeq ($(RELEASE),yes)
-VERSION=$(REL_VERSION)
+VERSION += $(GIT_REV)
+FILE_VERSION:=$(FILE_VERSION)~$(GIT_REV)
 endif
 
 CC?=gcc
-BASE_CFLAGS=-DC_ONLY -DVERSION=\"$(VERSION)\" -Wall -fno-strict-aliasing
+BASE_CFLAGS=-Wall -fno-strict-aliasing -DC_ONLY -DVERSION="\"$(VERSION)\""
 
 #use these cflags to optimize it
 ifdef DEBUG
@@ -45,6 +35,19 @@ ifdef NATIVE
 # Allow machine-specific optimizations.
 # This is no longer default because some build environments don't like it.
 CFLAGS+=-march=native -mtune=native
+endif
+
+MACHINE=$(shell uname -m)
+SYSTEM=$(shell uname -s)
+ARCH=i386
+
+# If machine starts with arm (any type of Raspberry Pi) make gamearm.so.
+ifneq (,$(findstring __arm,__$(MACHINE)))
+ARCH=arm
+endif
+
+ifeq ($(MACHINE),x86_64)
+ARCH=x86_64
 endif
 
 ifdef X86
@@ -77,7 +80,7 @@ endif
 # GAME
 #############################################################################
 
-.c.o:
+%.o: %.c $(wildcard *.h */*.h)
 	$(DO_CC)
 
 GAME_OBJS = \
@@ -91,7 +94,7 @@ GAME_OBJS = \
 	tng_stats.o tng_flashlight.o tng_irc.o tng_ini.o tng_balancer.o \
 	g_grapple.o
 
-game$(ARCH).$(SHLIBEXT) : $(GAME_OBJS)
+game$(ARCH).$(SHLIBEXT): $(GAME_OBJS)
 	$(DO_LINK)
 
 
@@ -103,17 +106,17 @@ clean:
 	-rm -f $(GAME_OBJS) game$(ARCH).$(SHLIBEXT)
 
 install:
-	cp gamei386.so ../action/
-	strip ../action/gamei386.so
+	cp game$(ARCH).$(SHLIBEXT) ../action/
+	strip ../action/game$(ARCH).$(SHLIBEXT)
 
 bindist: game$(ARCH).$(SHLIBEXT)
 	strip -s game$(ARCH).$(SHLIBEXT)
-	tar -zcvf ../$(PACKAGE)-$(VERSION)-$(SYSTEM)-$(MACHINE).tar.gz \
+	tar -zcvf ../$(PACKAGE)-$(FILE_VERSION)-$(SYSTEM)-$(MACHINE).tar.gz \
             game$(ARCH).$(SHLIBEXT) ../TNG-manual.txt ../change.txt
 
 distclean: clean
 	-rm -f ../$(PACKAGE)-*.{tar.gz,zip}
 
 dist:
-	git archive --format=tar --prefix=$(PACKAGE)-$(VERSION)-src/ HEAD | gzip -9 > ../$(PACKAGE)-$(VERSION)-src.tar.gz
+	git archive --format=tar --prefix=$(PACKAGE)-$(FILE_VERSION)-src/ HEAD | gzip -9 > ../$(PACKAGE)-$(FILE_VERSION)-src.tar.gz
 

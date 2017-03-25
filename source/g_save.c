@@ -334,23 +334,21 @@ void InitGame( void )
 	gun_y = gi.cvar( "gun_y", "0", 0 );
 	gun_z = gi.cvar( "gun_z", "0", 0 );
 
-	//FIXME: sv_ prefix is wrong for these
 	sv_rollspeed = gi.cvar( "sv_rollspeed", "200", 0 );
 	sv_rollangle = gi.cvar( "sv_rollangle", "2", 0 );
 	sv_maxvelocity = gi.cvar( "sv_maxvelocity", "2000", 0 );
 	sv_gravity = gi.cvar( "sv_gravity", "800", 0 );
 
-	// noset vars
 	dedicated = gi.cvar( "dedicated", "0", CVAR_NOSET );
 
-	// latched vars
 	sv_cheats = gi.cvar( "cheats", "0", CVAR_SERVERINFO | CVAR_LATCH );
-	gi.cvar( "gamename", GAMEVERSION, CVAR_SERVERINFO | CVAR_LATCH );
-	gi.cvar( "gamedate", __DATE__, CVAR_SERVERINFO | CVAR_LATCH );
+	gi.cvar( "gamename", GAMEVERSION, CVAR_SERVERINFO | CVAR_NOSET );
+	gi.cvar( "gamedate", __DATE__, CVAR_SERVERINFO | CVAR_NOSET );
+	actionversion = gi.cvar( "actionversion", "TNG " VERSION, CVAR_SERVERINFO | CVAR_NOSET );
+	gi.cvar_set( "actionversion", "TNG " VERSION );
 
 	maxclients = gi.cvar( "maxclients", "8", CVAR_SERVERINFO | CVAR_LATCH );
 	maxentities = gi.cvar( "maxentities", "1024", CVAR_LATCH );
-
 
 	deathmatch = gi.cvar( "deathmatch", "1", CVAR_LATCH );
 	if (!deathmatch->value) {
@@ -363,7 +361,6 @@ void InitGame( void )
 		gi.cvar_forceset( "coop", "0" );
 	}
 
-	// change anytime vars
 	dmflags = gi.cvar( "dmflags", "0", CVAR_SERVERINFO );
 	fraglimit = gi.cvar( "fraglimit", "0", CVAR_SERVERINFO );
 	timelimit = gi.cvar( "timelimit", "0", CVAR_SERVERINFO );
@@ -398,8 +395,6 @@ void InitGame( void )
 	use_newscore = gi.cvar( "use_newscore", "0", 0 );
 	scores2teamplay = gi.cvar( "scores2teamplay", "487", 0 ); // Flags: T+t+P+K+D+d+A
 	scores2ctf = gi.cvar( "scores2ctf", "31", 0 );            // Flags: T+t+P+C+S
-	actionversion = gi.cvar( "actionversion", "none set", CVAR_SERVERINFO | CVAR_LATCH );
-	gi.cvar_set( "actionversion", ACTION_VERSION );
 	use_voice = gi.cvar( "use_voice", "1", 0 );	//slicer
 	ppl_idletime = gi.cvar( "ppl_idletime", "15", 0 );
 	use_buggy_bandolier = gi.cvar( "use_buggy_bandolier", "0", 0 );

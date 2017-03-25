@@ -1404,18 +1404,12 @@ void SP_worldspawn (edict_t * ent)
 		gi.configstring(CS_SKY, "unit1_");
 
 	gi.configstring(CS_SKYROTATE, va("%f", st.skyrotate));
-
 	gi.configstring(CS_SKYAXIS, va("%f %f %f", st.skyaxis[0], st.skyaxis[1], st.skyaxis[2]));
-
 	gi.configstring(CS_CDTRACK, va("%i", ent->sounds));
-
 	gi.configstring(CS_MAXCLIENTS, va("%i", game.maxclients));
 
-
 	G_SetupStatusbar();
-
 	gi.configstring(CS_STATUSBAR, level.statusbar);
-
 
 	level.pic_health = gi.imageindex("i_health");
 	gi.imageindex("field_3");
@@ -1501,7 +1495,6 @@ void SP_worldspawn (edict_t * ent)
 	gi.soundindex("tng/enabled.wav");
 	gi.soundindex("misc/flashlight.wav"); // Caching Flashlight
 
-
 	gi.soundindex("world/10_0.wav");	// countdown
 	gi.soundindex("world/xian1.wav");	// intermission music
 	gi.soundindex("misc/secret.wav");	// used for ctf swap sound
@@ -1566,8 +1559,8 @@ void SP_worldspawn (edict_t * ent)
 	gi.modelindex("#w_knife.md2");
 	gi.modelindex("#a_m61frag.md2");
 
-	gi.modelindex("sprites/null.sp2");	// null sprite
-	gi.modelindex("sprites/lsight.sp2");	// laser sight dot sprite
+	level.model_null = gi.modelindex("sprites/null.sp2");      // null sprite
+	level.model_lsight = gi.modelindex("sprites/lsight.sp2");  // laser sight dot sprite
 
 	gi.soundindex("player/gasp1.wav");	// gasping for air
 	gi.soundindex("player/gasp2.wav");	// head breaking surface, not gasping

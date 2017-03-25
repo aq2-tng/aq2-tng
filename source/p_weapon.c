@@ -2067,15 +2067,12 @@ void weapon_grenade_fire (edict_t * ent, qboolean held)
 	AngleVectors (ent->client->v_angle, forward, right, NULL);
 	P_ProjectSource (ent->client, ent->s.origin, offset, forward, right, start);
 
-
 	timer = ent->client->grenade_framenum - level.framenum;
 	speed = GRENADE_MINSPEED + (GRENADE_TIMER -	timer) * ((GRENADE_MAXSPEED - GRENADE_MINSPEED) / GRENADE_TIMER);
 
 	// Reset Grenade Damage to 1.52 when requested:
-	if (use_classic->value)
-		fire_grenade2 (ent, start, forward, 170, speed, timer, 170 * 2, held);
-	else
-		fire_grenade2 (ent, start, forward, GRENADE_DAMRAD, speed, timer, GRENADE_DAMRAD * 2, held);
+	int damrad = use_classic->value ? GRENADE_DAMRAD_CLASSIC : GRENADE_DAMRAD;
+	fire_grenade2( ent, start, forward, damrad, speed, timer, damrad * 2, held );
 
 	if (!DMFLAGS(DF_INFINITE_AMMO))
 		ent->client->inventory[ent->client->ammo_index]--;
