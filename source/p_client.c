@@ -626,7 +626,7 @@ void PrintDeathMessage(char *msg, edict_t * gibee)
 	int j;
 	edict_t *other;
 
-	if (!teamplay->value) {
+	if (!teamplay->value || in_warmup) {
 		gi.bprintf(PRINT_MEDIUM, "%s", msg);
 		return;
 	}
