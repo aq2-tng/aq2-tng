@@ -2348,7 +2348,7 @@ void PutClientInServer(edict_t * ent)
 	gi.linkentity( ent );
 
 	if ((int)uvtime->value > 0) {
-		if (teamplay->value) {
+		if (teamplay->value && ! in_warmup) {
 			if (!(gameSettings & GS_ROUNDBASED) && team_round_going && !lights_camera_action) {
 				client->uvTime = uvtime->value;
 			}
