@@ -455,11 +455,24 @@ void Add_Frag(edict_t * ent, int mod)
 
 void Subtract_Frag(edict_t * ent)
 {
+	if( in_warmup )
+		return;
+
 	ent->client->resp.kills--;
 	ent->client->resp.score--;
 	ent->client->resp.streakKills = 0;
 	if(teamdm->value)
 		teams[ent->client->resp.team].score--;
+}
+
+void Add_Death( edict_t *ent, qboolean end_streak )
+{
+	if( in_warmup )
+		return;
+
+	ent->client->resp.deaths ++;
+	if( end_streak )
+		ent->client->resp.streakKills = 0;
 }
 
 // FRIENDLY FIRE functions
@@ -613,7 +626,7 @@ void PrintDeathMessage(char *msg, edict_t * gibee)
 	int j;
 	edict_t *other;
 
-	if (!teamplay->value) {
+	if (!teamplay->value || in_warmup) {
 		gi.bprintf(PRINT_MEDIUM, "%s", msg);
 		return;
 	}
@@ -776,14 +789,13 @@ void ClientObituary(edict_t * self, edict_t * inflictor, edict_t * attacker)
 					self->enemy = self->client->attacker;
 					Add_TeamKill(self->client->attacker);
 					Subtract_Frag(self->client->attacker);	//attacker->client->resp.score--;
-					self->client->resp.deaths++;
+					Add_Death( self, false );
 				}
 			}
 			else
 			{
-				self->client->resp.streakKills = 0;
 				Add_Frag(self->client->attacker, MOD_UNKNOWN);
-				self->client->resp.deaths++;
+				Add_Death( self, true );
 			}
 
 		}
@@ -795,7 +807,7 @@ void ClientObituary(edict_t * self, edict_t * inflictor, edict_t * attacker)
 
 			if (!teamplay->value || team_round_going || !ff_afterround->value)  {
 				Subtract_Frag( self );
-				self->client->resp.deaths++;
+				Add_Death( self, true );
 			}
 
 			self->enemy = NULL;
@@ -1138,14 +1150,13 @@ void ClientObituary(edict_t * self, edict_t * inflictor, edict_t * attacker)
 					self->enemy = attacker; //tkok
 					Add_TeamKill(attacker);
 					Subtract_Frag(attacker);	//attacker->client->resp.score--;
-					self->client->resp.deaths++;
+					Add_Death( self, false );
 				}
 			} else {
 				if (!teamplay->value || mod != MOD_TELEFRAG) {
 					Add_Frag(attacker, mod);
 					attacker->client->radio_num_kills++;
-					self->client->resp.streakKills = 0;
-					self->client->resp.deaths++;
+					Add_Death( self, true );
 				}
 			}
 
@@ -1158,7 +1169,7 @@ void ClientObituary(edict_t * self, edict_t * inflictor, edict_t * attacker)
 	IRC_printf(IRC_T_DEATH, death_msg);
 
 	Subtract_Frag(self);	//self->client->resp.score--;
-	self->client->resp.deaths++;
+	Add_Death( self, true );
 }
 
 void Touch_Item(edict_t * ent, edict_t * other, cplane_t * plane, csurface_t * surf);
@@ -1429,11 +1440,8 @@ void player_die(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage
 		    && self->client->ps.gunframe <= GRENADE_THROW_LAST))) {
 		self->client->ps.gunframe = 0;
 		// Reset Grenade Damage to 1.52 when requested:
-		if (use_classic->value)
-			fire_grenade2(self, self->s.origin, vec3_origin, 170, 0, 2 * HZ, 170 * 2, false);
-		else
-			fire_grenade2(self, self->s.origin, vec3_origin, GRENADE_DAMRAD, 0,
-				      2 * HZ, GRENADE_DAMRAD * 2, false);
+		int damrad = use_classic->value ? GRENADE_DAMRAD_CLASSIC : GRENADE_DAMRAD;
+		fire_grenade2( self, self->s.origin, vec3_origin, damrad, 0, 2 * HZ, damrad * 2, false );
 	}
 
 	mod = meansOfDeath & ~MOD_FRIENDLY_FIRE;
@@ -2474,7 +2482,7 @@ void PutClientInServer(edict_t * ent)
 	gi.linkentity( ent );
 
 	if ((int)uvtime->value > 0) {
-		if (teamplay->value) {
+		if (teamplay->value && ! in_warmup) {
 			if (!(gameSettings & GS_ROUNDBASED) && team_round_going && !lights_camera_action) {
 				client->uvTime = uvtime->value;
 			}
@@ -2560,7 +2568,7 @@ void ClientBeginDeathmatch(edict_t * ent)
 	vInitClient(ent);
 
 #ifndef NO_BOTS
-	ACEIT_PlayerAdded(ent);
+	ACEIT_RebuildPlayerList();
 #endif
 
 	// locate ent at a spawn point
@@ -2822,10 +2830,6 @@ void ClientDisconnect(edict_t * ent)
 	if( use_ghosts->value )
 		CreateGhost( ent );
 
-#ifndef NO_BOTS
-	ACEIT_PlayerRemoved( ent );
-#endif
-
 	// go clear any clients that have this guy as their attacker
 	for (i = 1, etemp = g_edicts + 1; i <= game.maxclients; i++, etemp++) {
 		if (etemp->inuse) {
@@ -2859,9 +2863,12 @@ void ClientDisconnect(edict_t * ent)
 	ent->svflags = SVF_NOCLIENT;
 	ent->client->pers.connected = false;
 
+	teams_changed = true;
+
 #ifndef NO_BOTS
 	ent->is_bot = false;
 	ent->think = NULL;
+	ACEIT_RebuildPlayerList();
 #endif
 }
 

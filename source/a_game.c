@@ -221,7 +221,7 @@ void PrintMOTD(edict_t * ent)
 
 
 	//Welcome Message. This shows the Version Number and website URL, followed by an empty line
-	strcpy(msg_buf, TNG_VERSION2 "\n" "http://aq2-tng.sourceforge.net/\n" "\n");
+	strcpy(msg_buf, TNG_TITLE " v" VERSION "\n" "http://aq2-tng.sourceforge.net/" "\n\n");
 	lines = 3;
 
 	/*
@@ -604,7 +604,7 @@ void EjectBlooder(edict_t * self, vec3_t start, vec3_t veloc)
 	VectorScale(forward, spd, blooder->velocity);
 	blooder->solid = SOLID_NOT;
 	blooder->movetype = MOVETYPE_BLOOD;  // Allow dripping blood to make a splat.
-	blooder->s.modelindex = gi.modelindex("sprites/null.sp2");
+	blooder->s.modelindex = level.model_null;
 	blooder->s.effects |= EF_GIB;
 	blooder->owner = self;
 	blooder->touch = BlooderTouch;

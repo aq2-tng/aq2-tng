@@ -516,12 +516,10 @@ game_export_t *GetGameAPI (game_import_t * import)
 {
 	gi = *import;
 #ifndef NO_BOTS
-	/* proxy all calls trough the bot safe functions */
+	/* proxy ent printf calls trough the bot safe functions */
 	real_cprintf = gi.cprintf;
-	real_bprintf = gi.bprintf;
 	real_centerprintf = gi.centerprintf;
 	gi.cprintf = safe_cprintf;
-	gi.bprintf = safe_bprintf;
 	gi.centerprintf = safe_centerprintf;
 #endif
 	globals.apiversion = GAME_API_VERSION;
@@ -601,7 +599,13 @@ void ClientEndServerFrames (void)
 		return;
 	}
 
-	if (!(level.realFramenum % (3 * HZ)))
+	if( teams_changed && FRAMESYNC )
+	{
+		updateLayout = 1;
+		teams_changed = false;
+		UpdateJoinMenu();
+	}
+	else if( !(level.realFramenum % (3 * HZ)) )
 		updateLayout = 1;
 
 	// calc the player views now that all pushing

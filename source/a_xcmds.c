@@ -362,6 +362,24 @@ Cmd_PrintCubeState_f (edict_t * self)
 */
 //AQ2:TNG END
 
+// Show your location name, plus position and heading if cheats are enabled.
+void Cmd_WhereAmI_f( edict_t * self )
+{
+	char location[ 128 ] = "";
+	qboolean found = GetPlayerLocation( self, location );
+
+	if( found )
+		gi.cprintf( self, PRINT_MEDIUM, "Location: %s\n", location );
+	else if( ! sv_cheats->value )
+		gi.cprintf( self, PRINT_MEDIUM, "Location unknown.\n" );
+
+	if( sv_cheats->value )
+	{
+		gi.cprintf( self, PRINT_MEDIUM, "Origin: %5.0f,%5.0f,%5.0f  Facing: %3.0f\n",
+			self->s.origin[0], self->s.origin[1], self->s.origin[2], self->s.angles[1] );
+	}
+}
+
 // Variables for new flags
 
 static char flagpos1[64] = { 0 };

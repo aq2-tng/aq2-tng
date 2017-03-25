@@ -224,7 +224,7 @@ qboolean	BOTWP_ChooseWeapon(edict_t *bot)
 	
 	// We have no weapon available for use.
 	if(debug_mode)
-		safe_bprintf(PRINT_HIGH,"%s: No weapon available...\n",bot->client->pers.netname);
+		gi.bprintf(PRINT_HIGH,"%s: No weapon available...\n",bot->client->pers.netname);
 	return (false);
 
 }

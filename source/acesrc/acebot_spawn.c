@@ -187,7 +187,7 @@ void ACESP_LoadBotConfig()
 		if( fileVersion != CONFIG_FILE_VERSION )
 		{
 			// ERROR!
-			safe_bprintf(PRINT_HIGH, "Bot Config file is out of date!\n");
+			gi.bprintf(PRINT_HIGH, "Bot Config file is out of date!\n");
 			fclose(pIn);
 			return;
 		}
@@ -352,10 +352,10 @@ void ACESP_HoldSpawn(edict_t *self)
 	gi.multicast (self->s.origin, MULTICAST_PVS);
 
 /*	if(ctf->value)
-	safe_bprintf(PRINT_MEDIUM, "%s joined the %s team.\n",
+	gi.bprintf(PRINT_MEDIUM, "%s joined the %s team.\n",
 		self->client->pers.netname, CTFTeamName(self->client->resp.ctf_team));
 	else*/
-		safe_bprintf (PRINT_MEDIUM, "%s entered the game\n", self->client->pers.netname);
+		gi.bprintf (PRINT_MEDIUM, "%s entered the game\n", self->client->pers.netname);
 
 }
 
@@ -564,7 +564,7 @@ edict_t *ACESP_SpawnBot( char *team_str, char *name, char *skin, char *userinfo 
 	edict_t	*bot = ACESP_FindFreeClient();
 	if( ! bot )
 	{
-		safe_bprintf( PRINT_MEDIUM, "Server is full, increase Maxclients.\n" );
+		gi.bprintf( PRINT_MEDIUM, "Server is full, increase Maxclients.\n" );
 		return NULL;
 	}
 	
@@ -652,7 +652,7 @@ void ACESP_RemoveBot(char *name)
 				freed = true;
 				ClientDisconnect( bot );
 //				ACEIT_PlayerRemoved (bot);
-//				safe_bprintf (PRINT_MEDIUM, "%s removed\n", bot->client->pers.netname);
+//				gi.bprintf (PRINT_MEDIUM, "%s removed\n", bot->client->pers.netname);
 				if( ! remove_all )
 					break;
 			}
@@ -662,7 +662,7 @@ void ACESP_RemoveBot(char *name)
 /*
 	//Werewolf: Remove a random bot if no name given
 	if(!freed)	
-//		safe_bprintf (PRINT_MEDIUM, "%s not found\n", name);
+//		gi.bprintf (PRINT_MEDIUM, "%s not found\n", name);
 	{
 		do
 		{
@@ -676,7 +676,7 @@ void ACESP_RemoveBot(char *name)
 	}
 */
 	if(!freed)	
-		safe_bprintf (PRINT_MEDIUM, "No bot removed\n", name);
+		gi.bprintf (PRINT_MEDIUM, "No bot removed\n", name);
 
 //	ACESP_SaveBots(); // Save them again
 }

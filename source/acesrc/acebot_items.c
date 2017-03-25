@@ -60,45 +60,23 @@ item_table_t item_table[MAX_EDICTS];
 edict_t *players[MAX_CLIENTS];		// pointers to all players in the game
 
 ///////////////////////////////////////////////////////////////////////
-// Add the player to our list
+// Add/Remove player from our list
 ///////////////////////////////////////////////////////////////////////
-void ACEIT_PlayerAdded(edict_t *ent)
+void ACEIT_RebuildPlayerList( void )
 {
-	if( num_players < MAX_CLIENTS )
-		players[num_players++] = ent;
-	else
-		gi.dprintf( "ACEIT_PlayerAdded: More players than maxclients!\n" );
-}
+	size_t i;
 
-///////////////////////////////////////////////////////////////////////
-// Remove player from list
-///////////////////////////////////////////////////////////////////////
-void ACEIT_PlayerRemoved(edict_t *ent)
-{
-	int i = 0;
-	int pos = 0;
+	num_players = 0;
 
-	// watch for 0 players
-	if(num_players == 0)
-		return;
-
-	// special cas for only one player
-	if(num_players == 1)
-	{	
-		num_players = 0;
-		return;
+	for( i = 1; i <= game.maxclients; i ++ )
+	{
+		edict_t *ent = &g_edicts[i];
+		if( ent->client && ent->client->pers.connected )
+		{
+			players[ num_players ] = ent;
+			num_players ++;
+		}
 	}
-
-	// Find the player
-	for(i=0;i<num_players;i++)
-		if(ent == players[i])
-			pos = i;
-
-	// decrement
-	for(i=pos;i<num_players-1;i++)
-		players[i] = players[i+1];
-
-	num_players--;
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -206,7 +184,7 @@ qboolean ACEIT_ChangeMK23SpecialWeapon (edict_t *ent, gitem_t *item)
 	// Has not picked up weapon yet
 	if(!ent->client->inventory[ITEM_INDEX(item)])
 	{
-//		safe_bprintf(PRINT_HIGH,"Not got MP23\n");
+//		gi.bprintf(PRINT_HIGH,"Not got MP23\n");
 		return false;
 	}
 
@@ -231,13 +209,13 @@ qboolean ACEIT_ChangeMK23SpecialWeapon (edict_t *ent, gitem_t *item)
 		// No ammo - forget it!
 		if(!loaded && !clips)
 		{
-//			safe_bprintf(PRINT_HIGH,"Not got MK23 Ammo\n");
+//			gi.bprintf(PRINT_HIGH,"Not got MK23 Ammo\n");
 			return false;
 		}
 		// If it's not loaded - use a new clip
 		else if( !loaded )
 		{
-//			safe_bprintf(PRINT_HIGH,"Need to reload MK23\n");
+//			gi.bprintf(PRINT_HIGH,"Need to reload MK23\n");
 			Cmd_New_Reload_f ( ent );
 		}
 		return true;
@@ -246,12 +224,12 @@ qboolean ACEIT_ChangeMK23SpecialWeapon (edict_t *ent, gitem_t *item)
 	// Not current weapon, check ammo
 	if( (ent->client->mk23_rds < 1) && !clips )
 	{
-//		safe_bprintf(PRINT_HIGH,"No change - No MK23 Ammo\n");
+//		gi.bprintf(PRINT_HIGH,"No change - No MK23 Ammo\n");
 		return false;
 	}
 
 	// Change to this weapon
-//	safe_bprintf(PRINT_HIGH,"Changing to MK23\n");
+//	gi.bprintf(PRINT_HIGH,"Changing to MK23\n");
 	ent->client->newweapon = item;
 	ChangeWeapon ( ent );
 	return true;
@@ -270,7 +248,7 @@ qboolean ACEIT_ChangeHCSpecialWeapon (edict_t *ent, gitem_t *item)
 	// Has not picked up weapon yet
 	if(!ent->client->inventory[ITEM_INDEX(item)])
 	{
-//		safe_bprintf(PRINT_HIGH,"Not got HC\n");
+//		gi.bprintf(PRINT_HIGH,"Not got HC\n");
 		return false;
 	}
 
@@ -287,7 +265,7 @@ qboolean ACEIT_ChangeHCSpecialWeapon (edict_t *ent, gitem_t *item)
 	// Check ammo
 	if( (ent->client->cannon_rds < 2) )
 	{
-//		safe_bprintf(PRINT_HIGH,"No change - No HC Ammo\n");
+//		gi.bprintf(PRINT_HIGH,"No change - No HC Ammo\n");
 		loaded = false;
 	}
 	// see if we're already using it
@@ -301,14 +279,14 @@ qboolean ACEIT_ChangeHCSpecialWeapon (edict_t *ent, gitem_t *item)
 		// No ammo - forget it!
 		if(!loaded && !clips)
 		{
-//			safe_bprintf(PRINT_HIGH,"Not got HC Ammo\n");
+//			gi.bprintf(PRINT_HIGH,"Not got HC Ammo\n");
 			DropSpecialWeapon ( ent );
 			return false;
 		}
 		// If it's not loaded - use a new clip
 		else if( !loaded )
 		{
-//			safe_bprintf(PRINT_HIGH,"Need to reload HC\n");
+//			gi.bprintf(PRINT_HIGH,"Need to reload HC\n");
 			Cmd_New_Reload_f ( ent );
 		}
 		return true;
@@ -317,12 +295,12 @@ qboolean ACEIT_ChangeHCSpecialWeapon (edict_t *ent, gitem_t *item)
 	// Not current weapon, check ammo
 	if( !loaded && !clips )
 	{
-//		safe_bprintf(PRINT_HIGH,"No change - No HC Ammo\n");
+//		gi.bprintf(PRINT_HIGH,"No change - No HC Ammo\n");
 		return false;
 	}
 
 	// Change to this weapon
-//	safe_bprintf(PRINT_HIGH,"Changing to HandCannon\n");
+//	gi.bprintf(PRINT_HIGH,"Changing to HandCannon\n");
 	ent->client->newweapon = item;
 	ChangeWeapon ( ent );
 	return true;
@@ -341,7 +319,7 @@ qboolean ACEIT_ChangeSniperSpecialWeapon (edict_t *ent, gitem_t *item)
 	// Has not picked up weapon yet
 	if(!ent->client->inventory[ITEM_INDEX(item)])
 	{
-//		safe_bprintf(PRINT_HIGH,"Not got Sniper Rifle\n");
+//		gi.bprintf(PRINT_HIGH,"Not got Sniper Rifle\n");
 		return false;
 	}
 
@@ -358,7 +336,7 @@ qboolean ACEIT_ChangeSniperSpecialWeapon (edict_t *ent, gitem_t *item)
 	// Check ammo
 	if( (ent->client->sniper_rds < 1) )
 	{
-//		safe_bprintf(PRINT_HIGH,"No change - No Sniper Ammo\n");
+//		gi.bprintf(PRINT_HIGH,"No change - No Sniper Ammo\n");
 		loaded = false;
 	}
 	// see if we're already using it
@@ -372,14 +350,14 @@ qboolean ACEIT_ChangeSniperSpecialWeapon (edict_t *ent, gitem_t *item)
 		// No ammo - forget it!
 		if(!loaded && !clips)
 		{
-//			safe_bprintf(PRINT_HIGH,"Not got Sniper Ammo\n");
+//			gi.bprintf(PRINT_HIGH,"Not got Sniper Ammo\n");
 			DropSpecialWeapon ( ent );
 			return false;
 		}
 		// If it's not loaded - use a new clip
 		else if( !loaded )
 		{
-//			safe_bprintf(PRINT_HIGH,"Need to reload Sniper Rifle\n");
+//			gi.bprintf(PRINT_HIGH,"Need to reload Sniper Rifle\n");
 			Cmd_New_Reload_f ( ent );
 		}
 		return true;
@@ -388,12 +366,12 @@ qboolean ACEIT_ChangeSniperSpecialWeapon (edict_t *ent, gitem_t *item)
 	// No ammo
 	if( !loaded && !clips )
 	{
-//		safe_bprintf(PRINT_HIGH,"No change - No Sniper Ammo\n");
+//		gi.bprintf(PRINT_HIGH,"No change - No Sniper Ammo\n");
 		return false;
 	}
 
 	// Change to this weapon
-//	safe_bprintf(PRINT_HIGH,"Changing to Sniper Rifle\n");
+//	gi.bprintf(PRINT_HIGH,"Changing to Sniper Rifle\n");
 	ent->client->newweapon = item;
 	ChangeWeapon ( ent );
 	return true;
@@ -411,7 +389,7 @@ qboolean ACEIT_ChangeM3SpecialWeapon (edict_t *ent, gitem_t *item)
 	// Has not picked up weapon yet
 	if(!ent->client->inventory[ITEM_INDEX(item)])
 	{
-//		safe_bprintf(PRINT_HIGH,"Not got M3\n");
+//		gi.bprintf(PRINT_HIGH,"Not got M3\n");
 		return false;
 	}
 
@@ -428,7 +406,7 @@ qboolean ACEIT_ChangeM3SpecialWeapon (edict_t *ent, gitem_t *item)
 	// Check ammo
 	if( (ent->client->shot_rds < 1) )
 	{
-//		safe_bprintf(PRINT_HIGH,"No change - No M3 Ammo\n");
+//		gi.bprintf(PRINT_HIGH,"No change - No M3 Ammo\n");
 		loaded = false;
 	}
 	// see if we're already using it
@@ -442,14 +420,14 @@ qboolean ACEIT_ChangeM3SpecialWeapon (edict_t *ent, gitem_t *item)
 		// No ammo - forget it!
 		if(!loaded && !clips)
 		{
-//			safe_bprintf(PRINT_HIGH,"Not got M3 Ammo\n");
+//			gi.bprintf(PRINT_HIGH,"Not got M3 Ammo\n");
 			DropSpecialWeapon ( ent );
 			return false;
 		}
 		// If it's not loaded - use a new clip
 		else if( !loaded )
 		{
-//			safe_bprintf(PRINT_HIGH,"Need to reload M3\n");
+//			gi.bprintf(PRINT_HIGH,"Need to reload M3\n");
 			Cmd_New_Reload_f ( ent );
 		}
 		return true;
@@ -458,12 +436,12 @@ qboolean ACEIT_ChangeM3SpecialWeapon (edict_t *ent, gitem_t *item)
 	// No ammo
 	if( !loaded && !clips )
 	{
-//		safe_bprintf(PRINT_HIGH,"No change - No M3 Ammo\n");
+//		gi.bprintf(PRINT_HIGH,"No change - No M3 Ammo\n");
 		return false;
 	}
 
 	// Change to this weapon
-//	safe_bprintf(PRINT_HIGH,"Changing to M3\n");
+//	gi.bprintf(PRINT_HIGH,"Changing to M3\n");
 	ent->client->newweapon = item;
 	ChangeWeapon ( ent );
 	return true;
@@ -481,7 +459,7 @@ qboolean ACEIT_ChangeM4SpecialWeapon (edict_t *ent, gitem_t *item)
 	// Has not picked up weapon yet
 	if(!ent->client->inventory[ITEM_INDEX(item)])
 	{
-//		safe_bprintf(PRINT_HIGH,"Not got MP4\n");
+//		gi.bprintf(PRINT_HIGH,"Not got MP4\n");
 		return false;
 	}
 
@@ -498,7 +476,7 @@ qboolean ACEIT_ChangeM4SpecialWeapon (edict_t *ent, gitem_t *item)
 	// Check ammo
 	if( (ent->client->m4_rds < 1) )
 	{
-//		safe_bprintf(PRINT_HIGH,"No change - No M4 Ammo\n");
+//		gi.bprintf(PRINT_HIGH,"No change - No M4 Ammo\n");
 		loaded = false;
 	}
 	// see if we're already using it
@@ -512,14 +490,14 @@ qboolean ACEIT_ChangeM4SpecialWeapon (edict_t *ent, gitem_t *item)
 		// No ammo - forget it!
 		if(!loaded && !clips)
 		{
-//			safe_bprintf(PRINT_HIGH,"Not got M4 Ammo\n");
+//			gi.bprintf(PRINT_HIGH,"Not got M4 Ammo\n");
 			DropSpecialWeapon ( ent );
 			return false;
 		}
 		// If it's not loaded - use a new clip
 		else if( !loaded )
 		{
-//			safe_bprintf(PRINT_HIGH,"Need to reload M4\n");
+//			gi.bprintf(PRINT_HIGH,"Need to reload M4\n");
 			Cmd_New_Reload_f ( ent );
 		}
 		return true;
@@ -528,12 +506,12 @@ qboolean ACEIT_ChangeM4SpecialWeapon (edict_t *ent, gitem_t *item)
 	// No ammo
 	if( !loaded && !clips )
 	{
-//		safe_bprintf(PRINT_HIGH,"No change - No M4 Ammo\n");
+//		gi.bprintf(PRINT_HIGH,"No change - No M4 Ammo\n");
 		return false;
 	}
 
 	// Change to this weapon
-//	safe_bprintf(PRINT_HIGH,"Changing to M4\n");
+//	gi.bprintf(PRINT_HIGH,"Changing to M4\n");
 	ent->client->newweapon = item;
 	ChangeWeapon ( ent );
 	return true;
@@ -551,7 +529,7 @@ qboolean ACEIT_ChangeMP5SpecialWeapon (edict_t *ent, gitem_t *item)
 	// Has not picked up weapon yet
 	if(!ent->client->inventory[ITEM_INDEX(item)])
 	{
-//		safe_bprintf(PRINT_HIGH,"Not got MP5\n");
+//		gi.bprintf(PRINT_HIGH,"Not got MP5\n");
 		return false;
 	}
 
@@ -563,7 +541,7 @@ qboolean ACEIT_ChangeMP5SpecialWeapon (edict_t *ent, gitem_t *item)
 		ammo_index = ITEM_INDEX(ammo_item);
 		if (ent->client->inventory[ammo_index] < 1)
 		{
-//			safe_bprintf(PRINT_HIGH,"Out of MP5 Mags\n");
+//			gi.bprintf(PRINT_HIGH,"Out of MP5 Mags\n");
 			clips = false;
 		}
 		else
@@ -572,7 +550,7 @@ qboolean ACEIT_ChangeMP5SpecialWeapon (edict_t *ent, gitem_t *item)
 	// check ammo
 	if( (ent->client->mp5_rds < 1) )
 	{
-//		safe_bprintf(PRINT_HIGH,"No MP5 Ammo\n");
+//		gi.bprintf(PRINT_HIGH,"No MP5 Ammo\n");
 		loaded = false;
 	}
 	// see if we're already using it
@@ -581,14 +559,14 @@ qboolean ACEIT_ChangeMP5SpecialWeapon (edict_t *ent, gitem_t *item)
 		// No ammo - forget it!
 		if(!loaded && !clips)
 		{
-//			safe_bprintf(PRINT_HIGH,"Stopping MP5 use - no ammo\n");
+//			gi.bprintf(PRINT_HIGH,"Stopping MP5 use - no ammo\n");
 			DropSpecialWeapon ( ent );
 			return false;
 		}
 		// If it's not loaded - use a new clip
 		else if( !loaded  && clips)
 		{
-//			safe_bprintf(PRINT_HIGH,"Need to reload MP5\n");
+//			gi.bprintf(PRINT_HIGH,"Need to reload MP5\n");
 			Cmd_New_Reload_f ( ent );
 		}
 		return true;
@@ -597,12 +575,12 @@ qboolean ACEIT_ChangeMP5SpecialWeapon (edict_t *ent, gitem_t *item)
 	// Not current weapon, check ammo
 	if( !loaded && !clips )
 	{
-//		safe_bprintf(PRINT_HIGH,"No change - No MP5 Ammo\n");
+//		gi.bprintf(PRINT_HIGH,"No change - No MP5 Ammo\n");
 		return false;
 	}
 
 	// Change to this weapon
-//	safe_bprintf(PRINT_HIGH,"Changing to MP5\n");
+//	gi.bprintf(PRINT_HIGH,"Changing to MP5\n");
 	ent->client->newweapon = item;
 	ChangeWeapon ( ent );
 	return true;
@@ -621,7 +599,7 @@ qboolean ACEIT_ChangeDualSpecialWeapon (edict_t *ent, gitem_t *item)
 	// Has not picked up weapon yet
 	if(!ent->client->inventory[ITEM_INDEX(item)])
 	{
-//		safe_bprintf(PRINT_HIGH,"Not got Dual Pistols\n");
+//		gi.bprintf(PRINT_HIGH,"Not got Dual Pistols\n");
 		return false;
 	}
 
@@ -638,7 +616,7 @@ qboolean ACEIT_ChangeDualSpecialWeapon (edict_t *ent, gitem_t *item)
 	// Not current weapon, check ammo
 	if( (ent->client->dual_rds < 2) )
 	{
-//		safe_bprintf(PRINT_HIGH,"No change - No Dual Ammo\n");
+//		gi.bprintf(PRINT_HIGH,"No change - No Dual Ammo\n");
 		loaded = false;
 	}
 
@@ -653,14 +631,14 @@ qboolean ACEIT_ChangeDualSpecialWeapon (edict_t *ent, gitem_t *item)
 		// No ammo - forget it!
 		if(!loaded && !clips)
 		{
-//			safe_bprintf(PRINT_HIGH,"Not got Dual Ammo\n");
+//			gi.bprintf(PRINT_HIGH,"Not got Dual Ammo\n");
 			DropSpecialWeapon ( ent );
 			return false;
 		}
 		// If it's not loaded - use a new clip
 		else if( !loaded )
 		{
-//			safe_bprintf(PRINT_HIGH,"Need to reload Dual\n");
+//			gi.bprintf(PRINT_HIGH,"Need to reload Dual\n");
 			Cmd_New_Reload_f ( ent );
 		}
 		return true;
@@ -669,12 +647,12 @@ qboolean ACEIT_ChangeDualSpecialWeapon (edict_t *ent, gitem_t *item)
 	// Not current weapon, check ammo
 	if( !loaded && !clips )
 	{
-//		safe_bprintf(PRINT_HIGH,"No change - No Dual Ammo\n");
+//		gi.bprintf(PRINT_HIGH,"No change - No Dual Ammo\n");
 		return false;
 	}
 
 	// Change to this weapon
-//	safe_bprintf(PRINT_HIGH,"Changing to Dual\n");
+//	gi.bprintf(PRINT_HIGH,"Changing to Dual\n");
 	ent->client->newweapon = item;
 	ChangeWeapon ( ent );
 	return true;
@@ -694,7 +672,7 @@ qboolean ACEIT_ChangeGrenSpecialWeapon (edict_t *ent, gitem_t *item)
 	// Has not picked up weapon yet
 	if(!ent->client->inventory[ITEM_INDEX(item)])
 	{
-//		safe_bprintf(PRINT_HIGH,"Not got Grenades\n");
+//		gi.bprintf(PRINT_HIGH,"Not got Grenades\n");
 		return false;
 	}
 
@@ -711,7 +689,7 @@ qboolean ACEIT_ChangeGrenSpecialWeapon (edict_t *ent, gitem_t *item)
 	// Check ammo
 	if( (ent->client->shot_rds < 1) )
 	{
-//		safe_bprintf(PRINT_HIGH,"No change - No Grenades\n");
+//		gi.bprintf(PRINT_HIGH,"No change - No Grenades\n");
 		loaded = false;
 	}
 	// see if we're already using it
@@ -725,14 +703,14 @@ qboolean ACEIT_ChangeGrenSpecialWeapon (edict_t *ent, gitem_t *item)
 		// No ammo - forget it!
 		if(!loaded && !clips)
 		{
-//			safe_bprintf(PRINT_HIGH,"Not got Grenades\n");
+//			gi.bprintf(PRINT_HIGH,"Not got Grenades\n");
 			DropSpecialWeapon ( ent );
 			return false;
 		}
 		// If it's not loaded - use a new clip
 /*		else if( !loaded )
 		{
-//			safe_bprintf(PRINT_HIGH,"Need to reload \n");
+//			gi.bprintf(PRINT_HIGH,"Need to reload \n");
 			Cmd_New_Reload_f ( ent );
 		}
 */		return true;
@@ -741,12 +719,12 @@ qboolean ACEIT_ChangeGrenSpecialWeapon (edict_t *ent, gitem_t *item)
 	// No ammo
 	if( !loaded && !clips )
 	{
-//		safe_bprintf(PRINT_HIGH,"No change - No Grenades\n");
+//		gi.bprintf(PRINT_HIGH,"No change - No Grenades\n");
 		return false;
 	}
 
 	// Change to this weapon
-//	safe_bprintf(PRINT_HIGH,"Changing to Grenades\n");
+//	gi.bprintf(PRINT_HIGH,"Changing to Grenades\n");
 	ent->client->newweapon = item;
 	ChangeWeapon ( ent );
 	return true;
@@ -1069,7 +1047,7 @@ void ACEIT_BuildItemNodeTable (qboolean rebuild)
 						position[2] = items->absmin[2] + 32;
 						// Set location
 						VectorCopy(position, v);
-						safe_bprintf(PRINT_HIGH, "%d ",items->s.angles[0]);
+						gi.bprintf(PRINT_HIGH, "%d ",items->s.angles[0]);
 					}*/
 
 					if(nodes[i].type == NODE_PLATFORM)

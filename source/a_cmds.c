@@ -177,7 +177,7 @@ void SP_LaserSight(edict_t * self, gitem_t * item)
 	lasersight->movetype = MOVETYPE_NOCLIP;
 	lasersight->solid = SOLID_NOT;
 	lasersight->classname = "lasersight";
-	lasersight->s.modelindex = gi.modelindex("sprites/lsight.sp2");
+	lasersight->s.modelindex = level.model_lsight;
 	lasersight->s.renderfx = RF_TRANSLUCENT;
 	lasersight->think = LaserSightThink;
 	lasersight->nextthink = level.framenum + 1;
@@ -227,7 +227,7 @@ void LaserSightThink(edict_t * self)
 	vectoangles(tr.plane.normal, self->s.angles);
 	VectorCopy(tr.endpos, self->s.origin);
 
-	self->s.modelindex = (tr.surface && (tr.surface->flags & SURF_SKY)) ? gi.modelindex("sprites/null.sp2") : gi.modelindex("sprites/lsight.sp2");
+	self->s.modelindex = (tr.surface && (tr.surface->flags & SURF_SKY)) ? level.model_null : level.model_lsight;
 
 	gi.linkentity(self);
 	self->nextthink = level.framenum + 1;
@@ -1006,6 +1006,14 @@ void Cmd_TKOk(edict_t * ent)
 	}
 	ent->enemy = NULL;
 	return;
+}
+
+void Cmd_FF_f( edict_t *ent )
+{
+	if( teamplay->value )
+		gi.cprintf( ent, PRINT_MEDIUM, "Friendly Fire %s\n", DMFLAGS(DF_NO_FRIENDLY_FIRE) ? "OFF": "ON" );
+	else
+		gi.cprintf( ent, PRINT_MEDIUM, "FF only applies to teamplay.\n" );
 }
 
 void Cmd_Time(edict_t * ent)

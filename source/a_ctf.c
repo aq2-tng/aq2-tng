@@ -355,6 +355,8 @@ void CTFSwapTeams()
 	i = ctfgame.team1;
 	ctfgame.team1 = ctfgame.team2;
 	ctfgame.team2 = i;
+
+	teams_changed = true;
 }
 
 void CTFAssignTeam(gclient_t * who)
@@ -389,6 +391,8 @@ void CTFAssignTeam(gclient_t * who)
 		who->resp.team = TEAM1;
 	else
 		who->resp.team = TEAM2;
+
+	teams_changed = true;
 }
 
 /*

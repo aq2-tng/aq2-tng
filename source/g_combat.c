@@ -331,7 +331,7 @@ void spray_blood(edict_t *self, vec3_t start, vec3_t dir, int damage, int mod)
 	blood->s.effects |= EF_GIB;
 	VectorClear(blood->mins);
 	VectorClear(blood->maxs);
-	blood->s.modelindex = gi.modelindex("sprites/null.sp2");
+	blood->s.modelindex = level.model_null;
 	blood->owner = self;
 	blood->nextthink = level.framenum + speed * HZ / 1000;  //3.2;
 	blood->touch = blood_spray_touch;

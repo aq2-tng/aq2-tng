@@ -234,8 +234,7 @@ qboolean ACECM_Commands(edict_t *ent);
 void     ACECM_Store();
 
 // acebot_items.c protos
-void     ACEIT_PlayerAdded(edict_t *ent);
-void     ACEIT_PlayerRemoved(edict_t *ent);
+void     ACEIT_RebuildPlayerList( void );
 qboolean ACEIT_IsVisible(edict_t *self, vec3_t goal);
 qboolean ACEIT_IsReachable(edict_t *self,vec3_t goal);
 qboolean ACEIT_ChangeWeapon (edict_t *ent, gitem_t *item);
@@ -295,7 +294,6 @@ void     ACESP_ReAddBots();
 void     ACESP_RemoveBot(char *name);
 void	 safe_cprintf (edict_t *ent, int printlevel, char *fmt, ...);
 void     safe_centerprintf (edict_t *ent, char *fmt, ...);
-void     safe_bprintf (int printlevel, char *fmt, ...);
 void     debug_printf (char *fmt, ...);
 
 // bot_ai.c protos

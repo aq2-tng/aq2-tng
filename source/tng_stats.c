@@ -89,6 +89,9 @@ void ResetStats(edict_t *ent)
 
 void Stats_AddShot( edict_t *ent, int gun )
 {
+	if( in_warmup )
+		return;
+
 	if ((unsigned)gun >= MAX_GUNSTAT) {
 		gi.dprintf( "Stats_AddShot: Bad gun number!\n" );
 		return;
@@ -102,6 +105,9 @@ void Stats_AddShot( edict_t *ent, int gun )
 
 void Stats_AddHit( edict_t *ent, int gun, int hitPart )
 {
+	if( in_warmup )
+		return;
+
 	int headShot = (hitPart == LOC_HDAM || hitPart == LOC_KVLR_HELMET) ? 1 : 0;
 
 	if ((unsigned)gun >= MAX_GUNSTAT) {

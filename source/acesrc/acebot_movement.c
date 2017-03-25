@@ -1087,7 +1087,7 @@ void ACEMV_Wander(edict_t *self, usercmd_t *ucmd)
 	temp[2]-=48;	
 	if(gi.pointcontents(temp) & (CONTENTS_LAVA|CONTENTS_SLIME))
 	{
-		//	safe_bprintf(PRINT_MEDIUM,"lava jump\n");
+		//	gi.bprintf(PRINT_MEDIUM,"lava jump\n");
 		self->s.angles[YAW] += random() * 360 - 180; 
 		ucmd->forwardmove = SPEED_RUN;
 		ucmd->upmove = SPEED_RUN;

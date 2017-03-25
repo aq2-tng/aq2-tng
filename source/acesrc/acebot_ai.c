@@ -681,7 +681,7 @@ qboolean ACEAI_FindEnemy(edict_t *self, int *total)
 
 			// Can we hear their weapon firing?
 			qboolean weapon_loud = false;
-			if( players[i]->client->weaponstate == WEAPON_FIRING )
+			if( players[i]->client->weaponstate == WEAPON_FIRING || players[i]->client->weaponstate == WEAPON_BURSTING )
 			{
 				switch( players[i]->client->weapon->typeNum )
 				{
@@ -962,7 +962,7 @@ qboolean ACEAI_ChooseWeapon(edict_t *self)
 	
 	// We have no weapon available for use.
 	if(debug_mode)
-		safe_bprintf(PRINT_HIGH,"%s: No weapon available...\n",self->client->pers.netname);
+		gi.bprintf(PRINT_HIGH,"%s: No weapon available...\n",self->client->pers.netname);
 	return (false);
 
 }
