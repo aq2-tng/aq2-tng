@@ -1880,6 +1880,7 @@ int GetWeaponNumFromArg(const char *s);
 int GetItemNumFromArg(const char *s);
 void Cmd_Choose_f (edict_t * ent);
 void Cmd_TKOk (edict_t * ent);	// AQ:TNG - JBravo adding tkok
+void Cmd_FF_f( edict_t *ent );
 void Cmd_Time (edict_t * ent);	// AQ:TNG - JBravo adding time
 void Cmd_Roundtimeleft_f(edict_t *ent); // AQ:TNG - DW added roundtimeleft
 void DropSpecialWeapon (edict_t * ent);

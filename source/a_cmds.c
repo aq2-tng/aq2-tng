@@ -1008,6 +1008,14 @@ void Cmd_TKOk(edict_t * ent)
 	return;
 }
 
+void Cmd_FF_f( edict_t *ent )
+{
+	if( teamplay->value )
+		gi.cprintf( ent, PRINT_MEDIUM, "Friendly Fire %s\n", DMFLAGS(DF_NO_FRIENDLY_FIRE) ? "OFF": "ON" );
+	else
+		gi.cprintf( ent, PRINT_MEDIUM, "FF only applies to teamplay.\n" );
+}
+
 void Cmd_Time(edict_t * ent)
 {
 	unsigned int mins, secs, remaining, rmins, rsecs, gametime;
