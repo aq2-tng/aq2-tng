@@ -1843,6 +1843,8 @@ static cmdList_t commandList[] =
 	{ "deny", Cmd_Deny_f, 0 },
 	{ "choose", Cmd_Choose_f, 0 },
 	{ "tkok", Cmd_TKOk, 0 },
+	{ "forgive", Cmd_TKOk, 0 },
+	{ "ff", Cmd_FF_f, 0 },
 	{ "time", Cmd_Time, 0 },
 	{ "voice", Cmd_Voice_f, CMDF_PAUSE },
 	{ "whereami", Cmd_WhereAmI_f, 0 },
