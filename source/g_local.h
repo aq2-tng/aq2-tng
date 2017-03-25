@@ -1915,6 +1915,7 @@ void Killed (edict_t * targ, edict_t * inflictor, edict_t * attacker,
 
 void Add_Frag(edict_t * ent, int mod);
 void Subtract_Frag (edict_t * ent);
+void Add_Death( edict_t *ent, qboolean end_streak );
 
 void PrintDeathMessage(char *msg, edict_t * gibee);
 

@@ -773,7 +773,7 @@ void killPlayer( edict_t *ent, qboolean suicidePunish )
 			if (team_round_going || !OnSameTeam( ent, ent->client->attacker )) {
 				Add_Frag( ent->client->attacker, MOD_SUICIDE );
 				Subtract_Frag( ent );
-				ent->client->resp.deaths++;
+				Add_Death( ent, true );
 			}
 		}
 	}
