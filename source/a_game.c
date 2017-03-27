@@ -650,7 +650,10 @@ void EjectShell(edict_t * self, vec3_t start, int toggle)
 	if (sv_shelloff->value)
 		return;
 
-	shell = G_Spawn();
+	shell = G_Spawn_Unimportant();
+	if( ! shell )
+		return;
+
 	++shells;
 
 	AngleVectors(self->client->v_angle, forward, right, up);
@@ -935,7 +938,10 @@ void AddDecal(edict_t * self, trace_t * tr)
 		attached = true;
 	}
 
-	decal = G_Spawn();
+	decal = G_Spawn_Unimportant();
+	if( ! decal )
+		return;
+
 	++decals;
 
 	if (decals > bholelimit->value)
@@ -1004,7 +1010,10 @@ void AddSplat(edict_t * self, vec3_t point, trace_t * tr)
 		attached = true;
 	}
 
-	splat = G_Spawn();
+	splat = G_Spawn_Unimportant();
+	if( ! splat )
+		return;
+
 	++splats;
 
 	if (splats > splatlimit->value)
