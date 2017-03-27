@@ -463,8 +463,9 @@ edict_t *G_Spawn (void)
 }
 
 // Like G_Spawn, but start at the end and return NULL if nothing is available.
-// Keeps splats/bholes/shells at the end so important entities are always visible.
-edict_t *G_Spawn_Unimportant( void )
+// This is only used for persistent decals, to ensure that if there are too many
+// visible entities, the oldest decals are what get omitted from the packet.
+edict_t *G_Spawn_Decal( void )
 {
 	int i;
 	edict_t *e;
