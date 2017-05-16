@@ -110,6 +110,9 @@ int KickDoor (trace_t * tr_old, edict_t * ent, vec3_t forward);
 qboolean loc_CanSee (edict_t *, edict_t *);
 void ParseSayText (edict_t *, char *, size_t size);
 
+void AttachToEntity( edict_t *self, edict_t *onto );
+qboolean CanBeAttachedTo( const edict_t *ent );
+
 //PG BUND - BEGIN
 //void ParseSayText(edict_t *, char *);
 void GetWeaponName (edict_t * ent, char *buf);
