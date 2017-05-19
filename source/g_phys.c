@@ -470,6 +470,7 @@ SV_Push (edict_t * pusher, vec3_t move, vec3_t amove)
       if (check->movetype == MOVETYPE_PUSH
 	  || check->movetype == MOVETYPE_STOP
 	  || check->movetype == MOVETYPE_NONE
+	  || check->movetype == MOVETYPE_TOSS_NOPUSH
 	  || check->movetype == MOVETYPE_NOCLIP)
 	continue;
 
@@ -971,6 +972,7 @@ void G_RunEntity(edict_t *ent)
       SV_Physics_Bounce (ent);	// provided by siris
       break;
     case MOVETYPE_TOSS:
+    case MOVETYPE_TOSS_NOPUSH:
     case MOVETYPE_FLY:
       // zucc added for blood splatting
     case MOVETYPE_BLOOD:

@@ -94,9 +94,9 @@ static void DestroyItem( edict_t *ent, qboolean by_door )
 	if( ent->item )
 	{
 		// Don't despawn items that a door tried to squish.
-		if( by_door )
+		if( by_door && (ent->movetype == MOVETYPE_TOSS) )
 		{
-			ent->movetype = MOVETYPE_NONE;
+			ent->movetype = MOVETYPE_TOSS_NOPUSH;
 			return;
 		}
 

@@ -505,6 +505,7 @@ typedef enum
   MOVETYPE_STEP,		// gravity, special edge handling
   MOVETYPE_FLY,
   MOVETYPE_TOSS,		// gravity
+  MOVETYPE_TOSS_NOPUSH,	// gravity, don't get pushed by doors/plats
   MOVETYPE_FLYMISSILE,		// extra size to monsters
   MOVETYPE_BOUNCE,
   MOVETYPE_BLOOD
