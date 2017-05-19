@@ -208,8 +208,8 @@ void P_DamageFeedback (edict_t * player)
 			l = 75;
 		else
 			l = 100;
-			gi.sound (player, CHAN_VOICE,
-			gi.soundindex (va ("*pain%i_%i.wav", l, r)), 1, ATTN_NORM, 0);
+		gi.sound (player, CHAN_VOICE,
+		gi.soundindex (va ("*pain%i_%i.wav", l, r)), 1, ATTN_NORM, 0);
 	}
 
 	// the total alpha of the blend is always proportional to count

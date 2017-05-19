@@ -94,9 +94,9 @@ static void DestroyItem( edict_t *ent, qboolean by_door )
 	if( ent->item )
 	{
 		// Don't despawn items that a door tried to squish.
-		if( by_door )
+		if( by_door && (ent->movetype == MOVETYPE_TOSS) )
 		{
-			ent->movetype = MOVETYPE_NONE;
+			ent->movetype = MOVETYPE_TOSS_NOPUSH;
 			return;
 		}
 
@@ -621,14 +621,14 @@ void SP_func_plat(edict_t *ent)
 
 	ent->blocked = plat_blocked;
 
-    if (!ent->speed)
-        ent->speed = 200;
+	if (!ent->speed)
+		ent->speed = 200;
 
-    if (!ent->accel)
-        ent->accel = 50;
+	if (!ent->accel)
+		ent->accel = 50;
 
-    if (!ent->decel)
-        ent->decel = 50;
+	if (!ent->decel)
+		ent->decel = 50;
 
 	if (!ent->dmg)
 		ent->dmg = 2;
