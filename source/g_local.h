@@ -505,6 +505,7 @@ typedef enum
   MOVETYPE_STEP,		// gravity, special edge handling
   MOVETYPE_FLY,
   MOVETYPE_TOSS,		// gravity
+  MOVETYPE_TOSS_NOPUSH,	// gravity, don't get pushed by doors/plats
   MOVETYPE_FLYMISSILE,		// extra size to monsters
   MOVETYPE_BOUNCE,
   MOVETYPE_BLOOD
@@ -1179,6 +1180,7 @@ void	G_SetMovedir(vec3_t angles, vec3_t movedir);
 
 void	G_InitEdict(edict_t *e);
 edict_t *G_Spawn(void);
+edict_t *G_Spawn_Decal( void );
 void	G_FreeEdict(edict_t *e);
 
 void	G_TouchTriggers(edict_t *ent);

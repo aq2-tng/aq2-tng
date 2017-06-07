@@ -2823,7 +2823,10 @@ static void ClientThinkWeaponIfReady( edict_t *ent, qboolean update_idle )
 
 	// If the weapon is or was in any state other than ready, wait before thinking again.
 	if( (ent->client->weaponstate != WEAPON_READY) || (old_weaponstate != WEAPON_READY) )
+	{
 		ent->client->weapon_last_activity = level.framenum;
+		ent->client->anim_framesync = ent->client->weapon_last_activity % game.framediv;
+	}
 
 	// Only allow the idle animation to update if it's been enough time.
 	else if( ! update_idle || level.framenum % game.framediv != ent->client->weapon_last_activity % game.framediv )

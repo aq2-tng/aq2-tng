@@ -78,29 +78,50 @@
 #define DOOR_Y_AXIS             128
 
 
-// zucc function to deal with special items that might get destroyed
-void Handle_Unique_Items(edict_t *ent)
+// zucc function to deal with special items that might get destroyed (Handle_Unique_Items)
+// Modified by Raptor007 to clean up blocked functions and avoid doors squishing items.
+static void DestroyItem( edict_t *ent, qboolean by_door )
 {
-	if (!ent->item)
+	if( ! (ent && ent->inuse) )
 		return;
 
-	switch(ent->item->typeNum) {
-	case MP5_NUM:
-	case M4_NUM:
-	case M3_NUM:
-	case HC_NUM:
-	case SNIPER_NUM:
-		ThinkSpecWeap(ent);
-		break;
-	case SIL_NUM:
-	case SLIP_NUM:
-	case BAND_NUM:
-	case KEV_NUM:
-	case HELM_NUM:
-	case LASER_NUM:
-		RespawnSpec(ent);
-		break;
+	if( ctf->value && (strncmp( ent->classname, "item_flag_team", strlen("item_flag_team") ) == 0) )
+	{
+		CTFDestroyFlag( ent );
+		return;
 	}
+
+	if( ent->item )
+	{
+		// Don't despawn items that a door tried to squish.
+		if( by_door && (ent->movetype == MOVETYPE_TOSS) )
+		{
+			ent->movetype = MOVETYPE_TOSS_NOPUSH;
+			return;
+		}
+
+		switch( ent->item->typeNum )
+		{
+			case MP5_NUM:
+			case M4_NUM:
+			case M3_NUM:
+			case HC_NUM:
+			case SNIPER_NUM:
+				ThinkSpecWeap( ent );
+				break;
+			case SIL_NUM:
+			case SLIP_NUM:
+			case BAND_NUM:
+			case KEV_NUM:
+			case HELM_NUM:
+			case LASER_NUM:
+				RespawnSpec( ent );
+				break;
+		}
+	}
+
+	if( ent->inuse )
+		G_FreeEdict( ent );
 }
 
 
@@ -494,13 +515,7 @@ static void plat_blocked(edict_t *self, edict_t *other)
 		// give it a chance to go away on it's own terms (like gibs)
 		T_Damage(other, self, self, vec3_origin, other->s.origin, vec3_origin, 100000, 1, 0, MOD_CRUSH);
 		// if it's still there, nuke it
-		if (other)
-		{
-			// DestroyFlag frees items other than flags
-			Handle_Unique_Items (other);
-			if (other)
-				CTFDestroyFlag (other);
-		}
+		DestroyItem( other, false );
 		return;
 	}
 
@@ -606,14 +621,14 @@ void SP_func_plat(edict_t *ent)
 
 	ent->blocked = plat_blocked;
 
-    if (!ent->speed)
-        ent->speed = 200;
+	if (!ent->speed)
+		ent->speed = 200;
 
-    if (!ent->accel)
-        ent->accel = 50;
+	if (!ent->accel)
+		ent->accel = 50;
 
-    if (!ent->decel)
-        ent->decel = 50;
+	if (!ent->decel)
+		ent->decel = 50;
 
 	if (!ent->dmg)
 		ent->dmg = 2;
@@ -1184,13 +1199,7 @@ static void door_blocked(edict_t *self, edict_t *other)
 		// give it a chance to go away on it's own terms (like gibs)
 		T_Damage(other, self, self, vec3_origin, other->s.origin, vec3_origin, 100000, 1, 0, MOD_CRUSH);
 		// if it's still there, nuke it
-		if (other)
-		{
-			// DestroyFlag frees items other than flags
-			Handle_Unique_Items(other);
-			if (other)
-				CTFDestroyFlag(other);
-		}
+		DestroyItem( other, true );
 		return;
 	}
 
@@ -1571,13 +1580,7 @@ static void train_blocked(edict_t *self, edict_t *other)
 		// give it a chance to go away on it's own terms (like gibs)
 		T_Damage(other, self, self, vec3_origin, other->s.origin, vec3_origin, 100000, 1, 0, MOD_CRUSH);
 		// if it's still there, nuke it
-		if (other)
-		{
-			// DestroyFlag frees items other than flags
-			Handle_Unique_Items (other);
-			if (other)
-				CTFDestroyFlag (other);
-		}
+		DestroyItem( other, false );
 		return;
 	}
 
@@ -2020,13 +2023,7 @@ static void door_secret_blocked(edict_t *self, edict_t *other)
 		// give it a chance to go away on it's own terms (like gibs)
 		T_Damage(other, self, self, vec3_origin, other->s.origin, vec3_origin, 100000, 1, 0, MOD_CRUSH);
 		// if it's still there, nuke it
-		if (other)
-		{
-			// DestroyFlag frees items other than flags
-			Handle_Unique_Items (other);
-			if (other)
-				CTFDestroyFlag (other);
-		}
+		DestroyItem( other, true );
 		return;
 	}
 

@@ -410,6 +410,7 @@ void G_InitEdict (edict_t * e)
 	e->gravity = 1.0;
 	e->s.number = e - g_edicts;
 	e->typeNum = NO_NUM;
+	e->svflags = 0;
 }
 
 /*
@@ -441,11 +442,60 @@ edict_t *G_Spawn (void)
 	}
 
 	if (i == game.maxentities)
+	{
+		// Try again without respecting freetime restrictions.
+		e = &g_edicts[ game.maxclients + 1 ];
+		for( i = game.maxclients + 1; i < game.maxentities; i ++, e ++ )
+		{
+			if( ! e->inuse )
+			{
+				G_InitEdict( e );
+				return e;
+			}
+		}
+
 		gi.error ("ED_Alloc: no free edicts");
+	}
 
 	globals.num_edicts++;
 	G_InitEdict (e);
 	return e;
+}
+
+// Like G_Spawn, but start at the end and return NULL if nothing is available.
+// This is only used for persistent decals, to ensure that if there are too many
+// visible entities, the oldest decals are what get omitted from the packet.
+edict_t *G_Spawn_Decal( void )
+{
+	int i;
+	edict_t *e;
+
+	// Expand num_edicts to maximum.
+	// This is okay because the unused middle entities won't be transmitted.
+	while( globals.num_edicts < game.maxentities )
+	{
+		e = &g_edicts[ globals.num_edicts ];
+		if( (e - g_edicts) > (game.maxclients + BODY_QUEUE_SIZE) )
+		{
+			e->inuse = false;
+			e->svflags = SVF_NOCLIENT;
+		}
+		globals.num_edicts ++;
+	}
+
+	e = &g_edicts[ globals.num_edicts - 1 ];
+	for( i = globals.num_edicts - 1; i > game.maxclients; i --, e -- )
+	{
+		// the first couple seconds of server time can involve a lot of
+		// freeing and allocating, so relax the replacement policy
+		if( !e->inuse && (e->freetime < 2 || level.time - e->freetime > 0.5) )
+		{
+			G_InitEdict( e );
+			return e;
+		}
+	}
+
+	return NULL;
 }
 
 /*

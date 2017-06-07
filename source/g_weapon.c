@@ -1097,6 +1097,10 @@ void knife_touch(edict_t *ent, edict_t *other, cplane_t *plane, csurface_t *surf
 		dropped->nextthink = level.framenum + 120 * HZ;
 		dropped->think = G_FreeEdict;
 
+		// Stick to moving doors, platforms, etc.
+		if( CanBeAttachedTo(other) )
+			AttachToEntity( dropped, other );
+
 		gi.linkentity(dropped);
 
 		if (!(ent->waterlevel))

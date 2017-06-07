@@ -398,7 +398,7 @@ typedef struct
   edict_t *ent;
   vec3_t origin;
   vec3_t angles;
-  float deltayaw;
+  //float deltayaw;
 }
 pushed_t;
 pushed_t pushed[MAX_EDICTS], *pushed_p;
@@ -450,8 +450,10 @@ SV_Push (edict_t * pusher, vec3_t move, vec3_t amove)
   pushed_p->ent = pusher;
   VectorCopy (pusher->s.origin, pushed_p->origin);
   VectorCopy (pusher->s.angles, pushed_p->angles);
+  /*
   if (pusher->client)
     pushed_p->deltayaw = pusher->client->ps.pmove.delta_angles[YAW];
+  */
   pushed_p++;
 
 // move the pusher to it's final position
@@ -468,6 +470,7 @@ SV_Push (edict_t * pusher, vec3_t move, vec3_t amove)
       if (check->movetype == MOVETYPE_PUSH
 	  || check->movetype == MOVETYPE_STOP
 	  || check->movetype == MOVETYPE_NONE
+	  || check->movetype == MOVETYPE_TOSS_NOPUSH
 	  || check->movetype == MOVETYPE_NOCLIP)
 	continue;
 
@@ -501,10 +504,15 @@ SV_Push (edict_t * pusher, vec3_t move, vec3_t amove)
 
 	  // try moving the contacted entity 
 	  VectorAdd (check->s.origin, move, check->s.origin);
+	  /*
 	  if (check->client)
-	    {			// FIXME: doesn't rotate monsters?
-	      check->client->ps.pmove.delta_angles[YAW] += amove[YAW];
+	    {
+		  // Raptor007: The line below now correctly rotates players on top of spinning platforms.
+		  //            However, this was broken since baseq2, and all it seemed to do was screw up
+		  //            the view angles when a door hits you, so I commented-out deltayaw entirely.
+	      check->client->ps.pmove.delta_angles[YAW] = ANGLE2SHORT( SHORT2ANGLE(check->client->ps.pmove.delta_angles[YAW]) + amove[YAW] );
 	    }
+	  */
 
 	  // figure movement due to the pusher's amove
 	  VectorSubtract (check->s.origin, pusher->s.origin, org);
@@ -548,10 +556,12 @@ SV_Push (edict_t * pusher, vec3_t move, vec3_t amove)
 	{
 	  VectorCopy (p->origin, p->ent->s.origin);
 	  VectorCopy (p->angles, p->ent->s.angles);
+	  /*
 	  if (p->ent->client)
 	    {
 	      p->ent->client->ps.pmove.delta_angles[YAW] = p->deltayaw;
 	    }
+	  */
 	  gi.linkentity (p->ent);
 	}
       return false;
@@ -962,6 +972,7 @@ void G_RunEntity(edict_t *ent)
       SV_Physics_Bounce (ent);	// provided by siris
       break;
     case MOVETYPE_TOSS:
+    case MOVETYPE_TOSS_NOPUSH:
     case MOVETYPE_FLY:
       // zucc added for blood splatting
     case MOVETYPE_BLOOD:
