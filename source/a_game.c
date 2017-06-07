@@ -634,6 +634,25 @@ void ShellDie(edict_t * self)
 	--shells;
 }
 
+static void RemoveOldestShell( void )
+{
+	int i = 0;
+	edict_t *it = NULL, *found = NULL;
+
+	for( i = 0; i < globals.num_edicts; i ++ )
+	{
+		it = &g_edicts[i];
+		if( it->inuse && it->classname && (strcasecmp( it->classname, "shell" ) == 0) )
+		{
+			if( (! found) || (it->freetime < found->freetime) )
+				found = it;
+		}
+	}
+
+	if( found )
+		ShellDie( found );
+}
+
 // zucc fixed this so it works with the sniper rifle and checks handedness
 // had to add the toggle feature to handle the akimbos correctly, if 1
 // it sets up for ejecting the shell from the left akimbo weapon, if 2
@@ -649,6 +668,9 @@ void EjectShell(edict_t * self, vec3_t start, int toggle)
 
 	if (sv_shelloff->value)
 		return;
+
+	if( (shelllimit->value > 0) && (shells >= shelllimit->value) )
+		RemoveOldestShell();
 
 	shell = G_Spawn();
 	++shells;
@@ -848,10 +870,10 @@ void EjectShell(edict_t * self, vec3_t start, int toggle)
 
 	shell->owner = self;
 	shell->touch = ShellTouch;
-	float shell_subtract = shelllimit->value ? (1. / shelllimit->value) : 0.;
-	shell->nextthink = level.framenum + shelllife->value * (1.0 - (shells * shell_subtract)) * HZ;
+	shell->nextthink = level.framenum + (shelllife->value - (shells * 0.05)) * HZ;
 	shell->think = ShellDie;
 	shell->classname = "shell";
+	shell->freetime = level.time;  // Used to determine oldest spawned shell.
 
 	gi.linkentity(shell);
 }
@@ -1050,7 +1072,7 @@ void AddSplat(edict_t * self, vec3_t point, trace_t * tr)
 
 	splat->owner = self;
 	splat->touch = NULL;
-	splat->nextthink = level.framenum + splatlife->value * HZ; // - (splats * .05);
+	splat->nextthink = level.framenum + splatlife->value * HZ;
 	splat->think = splatlife->value ? G_FreeEdict : PlaceHolder;
 	splat->classname = "splat";
 	splat->classnum = splats;
