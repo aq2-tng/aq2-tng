@@ -922,7 +922,8 @@ void Team_f (edict_t * ent)
 		return;
 	}
 
-	if (level.realFramenum - ent->client->resp.joined_team < 5 * HZ) {
+	if( (ent->client->resp.joined_team > 0) && (level.realFramenum - ent->client->resp.joined_team < 5 * HZ) )
+	{
 		gi.cprintf(ent, PRINT_HIGH, "You must wait 5 seconds before changing teams again.\n");
 		return;
 	}
