@@ -126,86 +126,79 @@ void BOTUT_ShowNodes (edict_t *ent)
 
 void BOTUT_Cmd_Say_f (edict_t *ent, char *pMsg)
 {
-    int     j, /*i,*/ offset_of_text;
-    edict_t *other;
-    char    text[2048];
-    //gclient_t *cl;
+	int     j, /*i,*/ offset_of_text;
+	edict_t *other;
+	char    text[2048];
+	//gclient_t *cl;
 
 
-    if (!teamplay->value)
-    {
+	if (!teamplay->value)
 		return;
-    }
 
 	if (ent->client->resp.team == NOTEAM)
-	{
 		return;
-	}
 
-    Com_sprintf (text, sizeof(text), "%s%s: ", 
-            (teamplay->value && (ent->solid == SOLID_NOT || ent->deadflag == DEAD_DEAD)) ? "[DEAD] " : "",
-            ent->client->pers.netname);
+	Com_sprintf (text, sizeof(text), "%s%s: ", 
+		(teamplay->value && (ent->solid == SOLID_NOT || ent->deadflag == DEAD_DEAD)) ? "[DEAD] " : "",
+		ent->client->pers.netname);
 
-    offset_of_text = strlen(text);  //FB 5/31/99
-        
+	offset_of_text = strlen(text);  //FB 5/31/99
+
 	strcat (text, pMsg);
 
-    // don't let text be too long for malicious reasons
-    // ...doubled this limit for Axshun -FB
-    if (strlen(text) > 300)
-            text[300] = 0;
+	// don't let text be too long for malicious reasons
+	// ...doubled this limit for Axshun -FB
+	if (strlen(text) > 300)
+		text[300] = 0;
 
-    if (ent->solid != SOLID_NOT && ent->deadflag != DEAD_DEAD)
-            ParseSayText(ent, text + offset_of_text, strlen(text));  //FB 5/31/99 - offset change
+	if (ent->solid != SOLID_NOT && ent->deadflag != DEAD_DEAD)
+		ParseSayText(ent, text + offset_of_text, strlen(text));  //FB 5/31/99 - offset change
                             // this will parse the % variables, 
                             // and again check 300 limit afterwards -FB
                             // (although it checks it without the name in front, oh well)
 
-    strcat(text, "\n");
+	strcat(text, "\n");
 
 /*
-    if (flood_msgs->value)
-    {
-        cl = ent->client;
+	if (flood_msgs->value)
+	{
+		cl = ent->client;
 
         if (level.time < cl->flood_locktill) 
-        {
 			return;
-        }
-        i = cl->flood_whenhead - flood_msgs->value + 1;
-        if (i < 0)
-                i = (sizeof(cl->flood_when)/sizeof(cl->flood_when[0])) + i;
-        if (cl->flood_when[i] && 
-                level.time - cl->flood_when[i] < flood_persecond->value) 
-        {
-            cl->flood_locktill = level.time + flood_waitdelay->value;
-            return;
-        }
-        cl->flood_whenhead = (cl->flood_whenhead + 1) %
-                        (sizeof(cl->flood_when)/sizeof(cl->flood_when[0]));
-        cl->flood_when[cl->flood_whenhead] = level.time;
-    }
+
+		i = cl->flood_whenhead - flood_msgs->value + 1;
+		if (i < 0)
+			i = (sizeof(cl->flood_when)/sizeof(cl->flood_when[0])) + i;
+		if (cl->flood_when[i] && level.time - cl->flood_when[i] < flood_persecond->value) 
+		{
+			cl->flood_locktill = level.time + flood_waitdelay->value;
+			return;
+		}
+		cl->flood_whenhead = (cl->flood_whenhead + 1) % (sizeof(cl->flood_when)/sizeof(cl->flood_when[0]));
+		cl->flood_when[cl->flood_whenhead] = level.time;
+	}
 */
 
-    if (dedicated->value)
-            safe_cprintf(NULL, PRINT_CHAT, "%s", text);
+	if (dedicated->value)
+		safe_cprintf(NULL, PRINT_CHAT, "%s", text);
 
-    for (j = 1; j <= game.maxclients; j++)
-    {
-        other = &g_edicts[j];
-        if (!other->inuse)
-                continue;
-        if (!other->client)
-                continue;
-        if (!OnSameTeam(ent, other))
-                continue;
+	for (j = 1; j <= game.maxclients; j++)
+	{
+		other = &g_edicts[j];
+		if (!other->inuse)
+			continue;
+		if (!other->client)
+			continue;
+		if (!OnSameTeam(ent, other))
+			continue;
 		if (teamplay->value && team_round_going)
 		{
-				if ((ent->solid == SOLID_NOT || ent->deadflag == DEAD_DEAD) && 
-						(other->solid != SOLID_NOT && other->deadflag != DEAD_DEAD))
-						continue;
+			if ((ent->solid == SOLID_NOT || ent->deadflag == DEAD_DEAD)
+			&&  (other->solid != SOLID_NOT && other->deadflag != DEAD_DEAD))
+				continue;
 		} 
-		
+
 		safe_cprintf(other, PRINT_CHAT, "%s", text);
 	}
 }

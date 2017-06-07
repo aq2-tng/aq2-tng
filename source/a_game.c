@@ -881,9 +881,10 @@ edict_t *FindEdictByClassnum(char *classname, int classnum)
 
 void PlaceHolder( edict_t * ent );  // p_weapon.c
 
-// Decal/splat attached to some moving entity.
-void DecalOrSplatThink( edict_t *self )
+void UpdateAttachedPos( edict_t *self )
 {
+	vec3_t fwd, right, up;
+
 	if( (self->wait && (level.framenum >= self->wait)) || ! self->movetarget->inuse )
 	{
 		G_FreeEdict(self);
@@ -907,7 +908,6 @@ void DecalOrSplatThink( edict_t *self )
 		VectorCopy( self->movetarget->s.angles, self->s.angles );
 	}
 
-	vec3_t fwd, right, up;
 	AngleVectors( self->s.angles, fwd, right, up ); // At this point, this is the angles of the entity we attached to.
 	self->s.origin[0] += fwd[0] * self->move_origin[0] + right[0] * self->move_origin[1] + up[0] * self->move_origin[2];
 	self->s.origin[1] += fwd[1] * self->move_origin[0] + right[1] * self->move_origin[1] + up[1] * self->move_origin[2];
@@ -917,6 +917,43 @@ void DecalOrSplatThink( edict_t *self )
 	VectorCopy( self->movetarget->avelocity, self->avelocity );
 }
 
+// Decal/splat/knife attached to some moving entity.
+void AttachedThink( edict_t *self )
+{
+	UpdateAttachedPos( self );
+	gi.linkentity( self );
+}
+
+// Attach a splat/decal/knife to a moving entity.
+void AttachToEntity( edict_t *self, edict_t *onto )
+{
+	vec3_t fwd, right, up, offset;
+
+	self->wait = self->nextthink;  // Use old nextthink as despawn framenum (0 is never).
+	self->movetype = MOVETYPE_NONE;
+
+	self->movetarget = onto;
+	AngleVectors( onto->s.angles, fwd, right, up );
+	VectorSubtract( self->s.origin, onto->s.origin, offset );
+	self->move_origin[0] = DotProduct( offset, fwd );
+	self->move_origin[1] = DotProduct( offset, right );
+	self->move_origin[2] = DotProduct( offset, up );
+	VectorSubtract( self->s.angles, onto->s.angles, self->move_angles );
+
+	self->think = AttachedThink;
+
+	UpdateAttachedPos( self );
+}
+
+qboolean CanBeAttachedTo( const edict_t *ent )
+{
+	return (ent && ( (strncasecmp( ent->classname, "func_door", 9 ) == 0)
+	               || (strcasecmp( ent->classname, "func_plat" ) == 0)
+	               || (strcasecmp( ent->classname, "func_rotating" ) == 0)
+	               || (strcasecmp( ent->classname, "func_train" ) == 0)
+	               || (strcasecmp( ent->classname, "func_button" ) == 0) ));
+}
+
 void AddDecal(edict_t * self, trace_t * tr)
 {
 	edict_t *decal, *dec;
@@ -924,18 +961,12 @@ void AddDecal(edict_t * self, trace_t * tr)
 	if (bholelimit->value < 1)
 		return;
 
-	qboolean attached = false;
+	qboolean attached = CanBeAttachedTo(tr->ent);
 
-	if (tr->ent && ( (strncasecmp( tr->ent->classname, "func_door", 9 ) == 0)
-	               || (strcasecmp( tr->ent->classname, "func_plat" ) == 0)
-	               || (strcasecmp( tr->ent->classname, "func_rotating" ) == 0)
-	               || (strcasecmp( tr->ent->classname, "func_train" ) == 0)
-	               || (strcasecmp( tr->ent->classname, "func_button" ) == 0) ))
-	{
-		attached = true;
-	}
+	decal = bholelife->value ? G_Spawn() : G_Spawn_Decal();
+	if( ! decal )
+		return;
 
-	decal = G_Spawn();
 	++decals;
 
 	if (decals > bholelimit->value)
@@ -968,19 +999,7 @@ void AddDecal(edict_t * self, trace_t * tr)
 		CGF_SFX_AttachDecalToGlass(tr->ent, decal);
 	}
 	else if( attached )
-	{
-		decal->think = DecalOrSplatThink;
-		decal->wait = decal->nextthink;
-		decal->movetarget = tr->ent;
-		vec3_t fwd, right, up, offset;
-		AngleVectors( tr->ent->s.angles, fwd, right, up );
-		VectorSubtract( decal->s.origin, tr->ent->s.origin, offset );
-		decal->move_origin[0] = DotProduct( offset, fwd );
-		decal->move_origin[1] = DotProduct( offset, right );
-		decal->move_origin[2] = DotProduct( offset, up );
-		VectorSubtract( decal->s.angles, tr->ent->s.angles, decal->move_angles );
-		DecalOrSplatThink( decal );
-	}
+		AttachToEntity( decal, tr->ent );
 
 	gi.linkentity(decal);
 }
@@ -993,18 +1012,12 @@ void AddSplat(edict_t * self, vec3_t point, trace_t * tr)
 	if (splatlimit->value < 1)
 		return;
 
-	qboolean attached = false;
+	qboolean attached = CanBeAttachedTo(tr->ent);
 
-	if (tr->ent && ( (strncasecmp( tr->ent->classname, "func_door", 9 ) == 0)
-	               || (strcasecmp( tr->ent->classname, "func_plat" ) == 0)
-	               || (strcasecmp( tr->ent->classname, "func_rotating" ) == 0)
-	               || (strcasecmp( tr->ent->classname, "func_train" ) == 0)
-	               || (strcasecmp( tr->ent->classname, "func_button" ) == 0) ))
-	{
-		attached = true;
-	}
+	splat = splatlife->value ? G_Spawn() : G_Spawn_Decal();
+	if( ! splat )
+		return;
 
-	splat = G_Spawn();
 	++splats;
 
 	if (splats > splatlimit->value)
@@ -1046,19 +1059,7 @@ void AddSplat(edict_t * self, vec3_t point, trace_t * tr)
 		CGF_SFX_AttachDecalToGlass(tr->ent, splat);
 	}
 	else if( attached )
-	{
-		splat->think = DecalOrSplatThink;
-		splat->wait = splat->nextthink;
-		splat->movetarget = tr->ent;
-		vec3_t fwd, right, up, offset;
-		AngleVectors( tr->ent->s.angles, fwd, right, up );
-		VectorSubtract( splat->s.origin, tr->ent->s.origin, offset );
-		splat->move_origin[0] = DotProduct( offset, fwd );
-		splat->move_origin[1] = DotProduct( offset, right );
-		splat->move_origin[2] = DotProduct( offset, up );
-		VectorSubtract( splat->s.angles, tr->ent->s.angles, splat->move_angles );
-		DecalOrSplatThink( splat );
-	}
+		AttachToEntity( splat, tr->ent );
 
 	gi.linkentity(splat);
 }

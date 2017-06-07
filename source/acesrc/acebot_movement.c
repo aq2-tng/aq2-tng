@@ -1250,7 +1250,7 @@ void ACEMV_Attack (edict_t *self, usercmd_t *ucmd)
 				if( ! self->client->ps.pmove.pm_flags & PMF_DUCKED )
 				{
 					float old_z = self->s.origin[2];
-					self->s.origin[2] -= 8;
+					self->s.origin[2] -= 14;
 					if( ! ACEAI_CheckShot(self) )
 						ucmd->upmove = 0;
 					self->s.origin[2] = old_z;
