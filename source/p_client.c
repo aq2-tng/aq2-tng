@@ -2532,7 +2532,18 @@ void ClientUserinfoChanged(edict_t *ent, char *userinfo)
 		// on the initial update, we won't broadcast the message.
 		if (!client->pers.mvdspec && client->pers.netname[0])
 		{
-			gi.bprintf(PRINT_MEDIUM, "%s is now known as %s.\n", client->pers.netname, tnick);	//TempFile
+			size_t i = 1;
+			for( ; i <= game.maxclients; i ++ )
+			{
+				edict_t *other = &g_edicts[i];
+				if( ! other->inuse || ! other->client )
+					continue;
+				if( team_round_going && (gameSettings & GS_ROUNDBASED) && ! deadtalk->value && ! IS_ALIVE(ent) && IS_ALIVE(other) )
+					continue;
+				if( IsInIgnoreList( other, ent ) )
+					continue;
+				gi.cprintf( other, PRINT_MEDIUM, "%s is now known as %s.\n", client->pers.netname, tnick ); //TempFile
+			}
 			IRC_printf(IRC_T_SERVER, "%n is now known as %n.", client->pers.netname, tnick);
 			nickChanged = true;
 		}

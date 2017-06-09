@@ -240,8 +240,11 @@ void RadioThink (edict_t * ent)
 			}
 		}
 
-		unicastSound( ent, radio->queue[0].sndIndex, 1.0 );
-		radio->delay = radio->queue[0].length;
+		if( ! IsInIgnoreList( ent, from ) )
+		{
+			unicastSound( ent, radio->queue[0].sndIndex, 1.0 );
+			radio->delay = radio->queue[0].length;
+		}
 		DeleteRadioQueueEntry( radio, 0 ); //We can remove it here?
 	}
 }
