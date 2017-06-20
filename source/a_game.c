@@ -608,6 +608,8 @@ void EjectBlooder(edict_t * self, vec3_t start, vec3_t veloc)
 // zucc - Adding EjectShell code from action quake, modified for Axshun.
 /********* SHELL EJECTION **************/
 
+void PlaceHolder( edict_t * ent );  // p_weapon.c
+
 void ShellTouch(edict_t * self, edict_t * other, cplane_t * plane, csurface_t * surf)
 {
 	if (self->owner->client->curr_weap == M3_NUM)
@@ -861,7 +863,7 @@ void EjectShell(edict_t * self, vec3_t start, int toggle)
 	shell->owner = self;
 	shell->touch = ShellTouch;
 	shell->nextthink = level.framenum + (shelllife->value - (shells * 0.05)) * HZ;
-	shell->think = ShellDie;
+	shell->think = shelllife->value ? ShellDie : PlaceHolder;
 	shell->classname = "shell";
 	shell->freetime = level.time;  // Used to determine oldest spawned shell.
 
@@ -890,8 +892,6 @@ edict_t *FindEdictByClassnum(char *classname, int classnum)
 }
 
 /********* Bulletholes/wall stuff ***********/
-
-void PlaceHolder( edict_t * ent );  // p_weapon.c
 
 void UpdateAttachedPos( edict_t *self )
 {

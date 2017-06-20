@@ -501,7 +501,7 @@ void InitGame( void )
 	flashtime = gi.cvar ("flashtime", "100", 0);*/
 	//SLIC2
 	sv_shelloff = gi.cvar( "shelloff", "1", 0 );
-	shelllimit = gi.cvar( "shelllimit", "24", 0 );
+	shelllimit = gi.cvar( "shelllimit", "30", 0 );
 	shelllife = gi.cvar( "shelllife", "1.2", 0 );
 	bholelimit = gi.cvar( "bholelimit", "0", 0 );
 	splatlimit = gi.cvar( "splatlimit", "0", 0 );
@@ -526,7 +526,7 @@ void InitGame( void )
 	flood_threshold = gi.cvar( "flood_threshold", "4", 0 );
 
 	warmup = gi.cvar( "warmup", "0", CVAR_LATCH );
-	round_begin = gi.cvar( "round_begin", "20", 0 );
+	round_begin = gi.cvar( "round_begin", "15", 0 );
 	spectator_hud = gi.cvar( "spectator_hud", "0", CVAR_LATCH );
 
 	use_mvd2 = gi.cvar( "use_mvd2", "0", 0 );	// JBravo: q2pro MVD2 recording. 0 = off, 1 = on

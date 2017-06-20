@@ -1685,8 +1685,8 @@ void _AddOrDelIgnoreSubject (edict_t * source, edict_t * subject, qboolean silen
 
 		//Maybe this has to be taken out :)
 
-		if (!silent)
-			gi.cprintf (subject, PRINT_MEDIUM, "\n%s listen to your words.\n",
+		if( ! silent && ! IsInIgnoreList( subject, source ) )
+			gi.cprintf (subject, PRINT_MEDIUM, "\n%s listens to your words.\n",
 				source->client->pers.netname);
 
 		source->client->resp.ignore_time = level.realFramenum;
@@ -1711,7 +1711,7 @@ void _AddOrDelIgnoreSubject (edict_t * source, edict_t * subject, qboolean silen
 
 			//Maybe this has to be taken out :)
 
-			if (!silent)
+			if( ! silent && ! IsInIgnoreList( subject, source ) )
 				gi.cprintf (subject, PRINT_MEDIUM, "\n%s ignores you.\n",
 				source->client->pers.netname);
 		}
