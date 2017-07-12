@@ -781,6 +781,7 @@ typedef struct
   int realFramenum; //when game paused, framenum stays the same
   int pauseFrames;
   float matchTime;
+  int weapon_sound_framenum;
 }
 level_locals_t;
 
@@ -969,6 +970,7 @@ extern cvar_t *rrot;
 extern cvar_t *strtwpn;
 extern cvar_t *llsound;
 extern cvar_t *loud_guns;
+extern cvar_t *sync_guns;
 extern cvar_t *use_cvote;
 extern cvar_t *new_irvision;
 extern cvar_t *use_rewards;

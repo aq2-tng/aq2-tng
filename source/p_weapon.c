@@ -2144,8 +2144,10 @@ void PlayWeaponSound( edict_t *ent )
 	if( ! ent->client->weapon_sound )
 		return;
 
-	// FIXME: Add sync guns cvar and use level.weapon_sync or something like that.
-	if( ! FRAMESYNC )
+	// Synchronize weapon sounds so any framerate sounds like 10fps.
+	if( sync_guns->value
+	&& (level.framenum > level.weapon_sound_framenum)
+	&& (level.framenum < level.weapon_sound_framenum + game.framediv) )
 		return;
 
 
@@ -2195,6 +2197,7 @@ void PlayWeaponSound( edict_t *ent )
 	}
 
 	ent->client->weapon_sound = 0;
+	level.weapon_sound_framenum = level.framenum;
 }
 
 
