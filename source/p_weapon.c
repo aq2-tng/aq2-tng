@@ -2145,6 +2145,8 @@ void PlayWeaponSound( edict_t *ent )
 		return;
 
 	// Synchronize weapon sounds so any framerate sounds like 10fps.
+	if( (sync_guns->value == 2) && ! FRAMESYNC )
+		return;
 	if( sync_guns->value
 	&& (level.framenum > level.weapon_sound_framenum)
 	&& (level.framenum < level.weapon_sound_framenum + game.framediv) )
