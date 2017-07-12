@@ -175,6 +175,7 @@ PlayerNoise
 */
 void PlayerNoise (edict_t * who, vec3_t where, int type)
 {
+	/*
 	if (type == PNOISE_WEAPON)
 	{
 		if (who->client->silencer_shots)
@@ -183,6 +184,7 @@ void PlayerNoise (edict_t * who, vec3_t where, int type)
 			return;
 		}
 	}
+	*/
 }
 
 
