@@ -658,7 +658,10 @@ void Use_Silencer (edict_t * ent, gitem_t * item)
 {
 	ent->client->inventory[ITEM_INDEX (item)]--;
 	ValidateSelectedItem (ent);
-	ent->client->silencer_shots += 30;
+	ent->client->silencer_shots += 30;  // For grappling hook?
+
+	// Turn Q2 silencer into AQ2 silencer.
+	AddItem( ent, GET_ITEM(SIL_NUM) );
 
 //      gi.sound(ent, CHAN_ITEM, gi.soundindex("items/damage.wav"), 1, ATTN_NORM, 0);
 }

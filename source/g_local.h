@@ -1346,6 +1346,7 @@ void Weapon_Generic( edict_t * ent, int FRAME_ACTIVATE_LAST, int FRAME_FIRE_LAST
 	int FRAME_RELOAD_LAST, int FRAME_LASTRD_LAST,
 	int *pause_frames, int *fire_frames,
 	void( *fire ) (edict_t * ent) );
+void PlayWeaponSound( edict_t *ent );
 
 void P_ProjectSource(gclient_t *client, vec3_t point, vec3_t distance, vec3_t forward, vec3_t right, vec3_t result);
 
