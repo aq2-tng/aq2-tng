@@ -99,7 +99,6 @@
 
 
 static qboolean is_quad;
-static byte is_silenced;
 
 void setFFState (edict_t * ent);
 void weapon_grenade_fire (edict_t * ent, qboolean held);
@@ -176,6 +175,7 @@ PlayerNoise
 */
 void PlayerNoise (edict_t * who, vec3_t where, int type)
 {
+	/*
 	if (type == PNOISE_WEAPON)
 	{
 		if (who->client->silencer_shots)
@@ -184,6 +184,7 @@ void PlayerNoise (edict_t * who, vec3_t where, int type)
 			return;
 		}
 	}
+	*/
 }
 
 
@@ -490,7 +491,6 @@ void ChangeWeapon (edict_t * ent)
 	if (ent->client->grenade_framenum)
 	{
 		ent->client->grenade_framenum = level.framenum;
-		ent->client->weapon_sound = 0;
 		weapon_grenade_fire (ent, false);
 		ent->client->grenade_framenum = 0;
 	}
@@ -574,10 +574,6 @@ void Think_Weapon (edict_t * ent)
 	if (ent->client->weapon && ent->client->weapon->weaponthink)
 	{
 		is_quad = (ent->client->quad_framenum > level.framenum);
-		if (ent->client->silencer_shots)
-			is_silenced = MZ_SILENCED;
-		else
-			is_silenced = 0;
 		ent->client->weapon->weaponthink (ent);
 	}
 }
@@ -2134,6 +2130,81 @@ int AdjustSpread (edict_t * ent, int spread)
 //======================================================================
 
 
+void MuzzleFlash( edict_t *ent, int mz )
+{
+	gi.WriteByte( svc_muzzleflash );
+	gi.WriteShort( ent - g_edicts );
+	gi.WriteByte( mz );
+	gi.multicast( ent->s.origin, MULTICAST_PVS );
+
+	PlayerNoise( ent, ent->s.origin, PNOISE_WEAPON );
+}
+
+
+void PlayWeaponSound( edict_t *ent )
+{
+	if( ! ent->client->weapon_sound )
+		return;
+
+	// Synchronize weapon sounds so any framerate sounds like 10fps.
+	if( (sync_guns->value == 2) && ! FRAMESYNC )
+		return;
+	if( sync_guns->value
+	&& (level.framenum > level.weapon_sound_framenum)
+	&& (level.framenum < level.weapon_sound_framenum + game.framediv) )
+		return;
+
+
+	// Because MZ_BLASTER is 0, use this stupid workaround.
+	if( (ent->client->weapon_sound & ~MZ_SILENCED) == MZ_BLASTER2 )
+		ent->client->weapon_sound &= ~MZ_BLASTER2;
+
+
+	if( ent->client->weapon_sound & MZ_SILENCED )
+		// Silencer suppresses both sound and muzzle flash.
+		gi.sound( ent, CHAN_WEAPON, level.snd_silencer, 1, ATTN_NORM, 0 );
+
+	else if( llsound->value )
+		MuzzleFlash( ent, ent->client->weapon_sound );
+
+	else switch( ent->client->weapon_sound )
+	{
+		case MZ_BLASTER:
+			gi.sound( ent, CHAN_WEAPON, gi.soundindex("weapons/mk23fire.wav"), 1, ATTN_LOUD, 0 );
+			MuzzleFlash( ent, MZ_MACHINEGUN );
+			break;
+		case MZ_MACHINEGUN:
+			gi.sound( ent, CHAN_WEAPON, gi.soundindex("weapons/mp5fire1.wav"), 1, ATTN_LOUD, 0 );
+			MuzzleFlash( ent, MZ_MACHINEGUN );
+			break;
+		case MZ_ROCKET:
+			gi.sound( ent, CHAN_WEAPON, gi.soundindex("weapons/m4a1fire.wav"), 1, ATTN_LOUD, 0 );
+			MuzzleFlash( ent, MZ_MACHINEGUN );
+			break;
+		case MZ_SHOTGUN:
+			gi.sound( ent, CHAN_WEAPON, gi.soundindex("weapons/shotgf1b.wav"), 1, ATTN_LOUD, 0 );
+			MuzzleFlash( ent, MZ_SHOTGUN );
+			break;
+		case MZ_SSHOTGUN:
+			if( ! ent->client->pers.hc_mode )
+				// Both barrels: sound on both WEAPON and ITEM to produce a louder boom.
+				gi.sound( ent, CHAN_ITEM, gi.soundindex("weapons/cannon_fire.wav"), 1, ATTN_NORM, 0 );
+			gi.sound( ent, CHAN_WEAPON, gi.soundindex("weapons/cannon_fire.wav"), 1, ATTN_LOUD, 0 );
+			MuzzleFlash( ent, MZ_SSHOTGUN );
+			break;
+		case MZ_HYPERBLASTER:
+			gi.sound( ent, CHAN_WEAPON, gi.soundindex("weapons/ssgfire.wav"), 1, ATTN_LOUD, 0 );
+			MuzzleFlash( ent, MZ_MACHINEGUN );
+			break;
+		default:
+			MuzzleFlash( ent, ent->client->weapon_sound );
+	}
+
+	ent->client->weapon_sound = 0;
+	level.weapon_sound_framenum = level.framenum;
+}
+
+
 //======================================================================
 // mk23 derived from tutorial by GreyBear
 
@@ -2218,31 +2289,11 @@ void Pistol_Fire (edict_t * ent)
 	ent->client->mk23_rds--;
 	ent->client->dual_rds--;
 
-	// silencer suppresses both sound and muzzle flash 
-	if (INV_AMMO(ent, SIL_NUM)) {
-		gi.sound(ent, CHAN_WEAPON, level.snd_silencer, 1, ATTN_NORM, 0);
-		return;
-	}
 
-	if (llsound->value)
-	{
-		//Display the yellow muzzleflash light effect
-		gi.WriteByte (svc_muzzleflash);
-		gi.WriteShort (ent - g_edicts);
-		gi.WriteByte (MZ_BLASTER | is_silenced);
-	}
-	else
-	{
-		gi.sound (ent, CHAN_WEAPON, gi.soundindex ("weapons/mk23fire.wav"), 1, ATTN_LOUD, 0);
-		//Display the yellow muzzleflash light effect
-		gi.WriteByte (svc_muzzleflash);
-		gi.WriteShort (ent - g_edicts);
-		//If not silenced, play a shot sound for everyone else
-		gi.WriteByte (MZ_MACHINEGUN | is_silenced);
-	}
-
-	gi.multicast (ent->s.origin, MULTICAST_PVS);
-	PlayerNoise (ent, start, PNOISE_WEAPON);
+	ent->client->weapon_sound = MZ_BLASTER2;  // Becomes MZ_BLASTER.
+	if( INV_AMMO( ent, SIL_NUM ) )
+		ent->client->weapon_sound |= MZ_SILENCED;
+	PlayWeaponSound( ent );
 }
 
 void Weapon_MK23 (edict_t * ent)
@@ -2365,24 +2416,11 @@ void MP5_Fire (edict_t * ent)
 
 	// zucc vwep done
 
-	// silencer suppresses both sound and muzzle flash 
-	if (INV_AMMO(ent, SIL_NUM)) {
-		gi.sound(ent, CHAN_WEAPON, level.snd_silencer, 1, ATTN_NORM, 0);
-		return;
-	}
 
-	if (llsound->value == 0)
-	{
-		gi.sound (ent, CHAN_WEAPON, gi.soundindex ("weapons/mp5fire1.wav"), 1, ATTN_LOUD, 0);
-	}
-
-	//Display the yellow muzzleflash light effect
-	gi.WriteByte (svc_muzzleflash);
-	gi.WriteShort (ent - g_edicts);
-	//If not silenced, play a shot sound for everyone else
-	gi.WriteByte (MZ_MACHINEGUN | is_silenced);
-	gi.multicast (ent->s.origin, MULTICAST_PVS);
-	PlayerNoise (ent, start, PNOISE_WEAPON);
+	ent->client->weapon_sound = MZ_MACHINEGUN;
+	if( INV_AMMO( ent, SIL_NUM ) )
+		ent->client->weapon_sound |= MZ_SILENCED;
+	PlayWeaponSound( ent );
 }
 
 void Weapon_MP5 (edict_t * ent)
@@ -2523,25 +2561,8 @@ void M4_Fire (edict_t * ent)
 	// zucc vwep done
 
 
-	if (llsound->value)
-	{
-		//Display the yellow muzzleflash light effect
-		gi.WriteByte (svc_muzzleflash);
-		gi.WriteShort (ent - g_edicts);
-		gi.WriteByte (MZ_ROCKET | is_silenced);
-	}
-	else
-	{
-		//If not silenced, play a shot sound for everyone else
-		gi.sound (ent, CHAN_WEAPON, gi.soundindex ("weapons/m4a1fire.wav"), 1, ATTN_LOUD, 0);
-		//Display the yellow muzzleflash light effect
-		gi.WriteByte (svc_muzzleflash);
-		gi.WriteShort (ent - g_edicts);
-		gi.WriteByte (MZ_MACHINEGUN | is_silenced);
-	}
-
-	gi.multicast (ent->s.origin, MULTICAST_PVS);
-	PlayerNoise (ent, start, PNOISE_WEAPON);
+	ent->client->weapon_sound = MZ_ROCKET;
+	PlayWeaponSound( ent );
 }
 
 void Weapon_M4 (edict_t * ent)
@@ -2619,26 +2640,17 @@ void M3_Fire (edict_t * ent)
 
 	Stats_AddShot(ent, MOD_M3);
 
-	if (llsound->value == 0)
-	{
-		gi.sound (ent, CHAN_WEAPON, gi.soundindex ("weapons/shotgf1b.wav"), 1, ATTN_LOUD, 0);
-	}
-
-	// send muzzle flash
-	gi.WriteByte (svc_muzzleflash);
-	gi.WriteShort (ent - g_edicts);
-	gi.WriteByte (MZ_SHOTGUN | is_silenced);
-	gi.multicast (ent->s.origin, MULTICAST_PVS);
-
 	ProduceShotgunDamageReport (ent);	//FB 6/3/99
 
 	ent->client->ps.gunframe++;
-	PlayerNoise (ent, start, PNOISE_WEAPON);
 
 	//if (!DMFLAGS(DF_INFINITE_AMMO))
 	//      ent->client->inventory[ent->client->ammo_index]--;
 	ent->client->shot_rds--;
 
+
+	ent->client->weapon_sound = MZ_SHOTGUN;
+	PlayWeaponSound( ent );
 }
 
 void Weapon_M3 (edict_t * ent)
@@ -2702,11 +2714,6 @@ void HC_Fire (edict_t * ent)
 		fire_shotgun (ent, start, forward, sngl_damage, sngl_kick, DEFAULT_SHOTGUN_HSPREAD * 2.5, DEFAULT_SHOTGUN_VSPREAD * 2.5, 34 / 2, MOD_HC);
 
 		ent->client->cannon_rds --;
-
-		if (llsound->value == 0)
-		{
-			gi.sound (ent, CHAN_WEAPON, gi.soundindex ("weapons/cannon_fire.wav"), 1, ATTN_LOUD, 0);
-		}
 	}
 	else
 	{
@@ -2721,26 +2728,17 @@ void HC_Fire (edict_t * ent)
 		fire_shotgun (ent, start, forward, damage, kick, DEFAULT_SHOTGUN_HSPREAD * 4, DEFAULT_SHOTGUN_VSPREAD * 4 /* was *5 here */, 34 / 2, MOD_HC);
 
 		ent->client->cannon_rds -= 2;
-
-		if (llsound->value == 0)
-		{
-			//sound on both WEAPON and ITEM to produce a louder 'boom'
-			gi.sound (ent, CHAN_ITEM,   gi.soundindex ("weapons/cannon_fire.wav"), 1, ATTN_NORM, 0);
-			gi.sound (ent, CHAN_WEAPON, gi.soundindex ("weapons/cannon_fire.wav"), 1, ATTN_LOUD, 0);
-		}
 	}
-
-	// send muzzle flash
-	gi.WriteByte (svc_muzzleflash);
-	gi.WriteShort (ent - g_edicts);
-	gi.WriteByte (MZ_SSHOTGUN | is_silenced);
-	gi.multicast (ent->s.origin, MULTICAST_PVS);
 
 	Stats_AddShot(ent, MOD_HC);
 	ProduceShotgunDamageReport (ent);	//FB 6/3/99
 
 	ent->client->ps.gunframe++;
-	PlayerNoise (ent, start, PNOISE_WEAPON);
+
+
+	ent->client->weapon_sound = MZ_SSHOTGUN;
+	PlayWeaponSound( ent );
+
 
 	//      if (!DMFLAGS(DF_INFINITE_AMMO))
 	//              ent->client->inventory[ent->client->ammo_index] -= 2;
@@ -2892,31 +2890,10 @@ void Sniper_Fire (edict_t * ent)
 	ent->client->no_sniper_display = 1;
 
 
-	// silencer suppresses both sound and muzzle flash 
-	if (INV_AMMO(ent, SIL_NUM)) {
-		gi.sound(ent, CHAN_WEAPON, level.snd_silencer, 1, ATTN_NORM, 0);
-		return;
-	}
-
-	if (llsound->value)
-	{
-		//Display the yellow muzzleflash light effect
-		gi.WriteByte (svc_muzzleflash);
-		gi.WriteShort (ent - g_edicts);
-		gi.WriteByte (MZ_HYPERBLASTER | is_silenced);
-	}
-	else
-	{
-		//If not silenced, play a shot sound for everyone else
-		gi.sound (ent, CHAN_WEAPON, gi.soundindex ("weapons/ssgfire.wav"), 1, ATTN_LOUD, 0);
-		//Display the yellow muzzleflash light effect
-		gi.WriteByte (svc_muzzleflash);
-		gi.WriteShort (ent - g_edicts);
-		gi.WriteByte (MZ_MACHINEGUN | is_silenced);
-	}
-
-	gi.multicast (ent->s.origin, MULTICAST_PVS);
-	PlayerNoise (ent, start, PNOISE_WEAPON);
+	ent->client->weapon_sound = MZ_HYPERBLASTER;
+	if( INV_AMMO( ent, SIL_NUM ) )
+		ent->client->weapon_sound |= MZ_SILENCED;
+	PlayWeaponSound( ent );
 }
 
 void Weapon_Sniper (edict_t * ent)
@@ -3001,7 +2978,6 @@ void Dual_Fire (edict_t * ent)
 				ent->client->dual_rds -= 2;
 				ent->client->mk23_rds -= 2;
 			}
-			gi.sound (ent, CHAN_WEAPON, gi.soundindex ("weapons/mk23fire.wav"), 1, ATTN_LOUD, 0);
 
 			if (ent->client->dual_rds == 0)
 			{
@@ -3010,6 +2986,8 @@ void Dual_Fire (edict_t * ent)
 			}
 
 
+			ent->client->weapon_sound = MZ_BLASTER2;  // Becomes MZ_BLASTER.
+			PlayWeaponSound( ent );
 		}
 		else
 		{
@@ -3079,25 +3057,9 @@ void Dual_Fire (edict_t * ent)
 	fire_bullet (ent, start, forward, damage, kick, spread, spread, MOD_DUAL);
 	Stats_AddShot(ent, MOD_DUAL);
 
-	if (llsound->value)
-	{
-		//Display the yellow muzzleflash light effect
-		gi.WriteByte (svc_muzzleflash);
-		gi.WriteShort (ent - g_edicts);
-		gi.WriteByte (MZ_BLASTER | is_silenced);
-	}
-	else
-	{
-		//If not silenced, play a shot sound for everyone else
-		gi.sound (ent, CHAN_WEAPON, gi.soundindex ("weapons/mk23fire.wav"), 1, ATTN_LOUD, 0);
-		//Display the yellow muzzleflash light effect
-		gi.WriteByte (svc_muzzleflash);
-		gi.WriteShort (ent - g_edicts);
-		gi.WriteByte (MZ_MACHINEGUN | is_silenced);
-	}
 
-	gi.multicast (ent->s.origin, MULTICAST_PVS);
-	PlayerNoise (ent, start, PNOISE_WEAPON);
+	ent->client->weapon_sound = MZ_BLASTER2;  // Becomes MZ_BLASTER.
+	PlayWeaponSound( ent );
 }
 
 void Weapon_Dual (edict_t * ent)

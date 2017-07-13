@@ -146,6 +146,7 @@ qboolean map_need_to_check_votes;
 cvar_t *mapvote_min;
 cvar_t *mapvote_need;
 cvar_t *mapvote_pass;
+cvar_t *mapvote_next = NULL;
 
 //Igor[Rock] BEGIN
 // moved here from the func ReadMapListFile because I need it global
@@ -331,8 +332,8 @@ void _MapExitLevel (char *NextMap)
 	char buf[MAX_STR_LEN];
 	//Igor[Rock] END
 
-	// Because the current level has ended, ignore minimums required for mapvote.
-	if( _iCheckMapVotes() || (map_num_votes > 0) )
+	// If mapvote_next=1 and level has ended, ignore minimums required for mapvote.
+	if( _iCheckMapVotes() || ((map_num_votes > 0) && mapvote_next && mapvote_next->value) )
 	{
 		votemap = MapWithMostVotes (NULL);
 		Q_strncpyz (NextMap, votemap->mapname, MAX_QPATH);
@@ -480,6 +481,7 @@ cvar_t *_InitMapVotelist (ini_t * ini)
 		ReadIniStr (ini, MAPVOTESECTION, "mapvote_need", buf, "0"), CVAR_LATCH);
 	mapvote_pass = gi.cvar ("mapvote_pass",
 		ReadIniStr (ini, MAPVOTESECTION, "mapvote_pass", buf, "51"), CVAR_LATCH);
+	mapvote_next = gi.cvar( "mapvote_next", "1", 0 );
 
 	return (use_mapvote);
 }

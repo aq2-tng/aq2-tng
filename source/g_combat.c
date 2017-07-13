@@ -830,7 +830,7 @@ T_Damage (edict_t * targ, edict_t * inflictor, edict_t * attacker, vec3_t dir,
 		{
 			if (client && attacker->client)
 			{
-				if (!friendlyFire) {
+				if (!friendlyFire && !in_warmup) {
 					attacker->client->resp.damage_dealt += damage;
 					if (mod > 0 && mod < MAX_GUNSTAT) {
 						attacker->client->resp.gunstats[mod].damage += damage;
@@ -885,7 +885,7 @@ T_Damage (edict_t * targ, edict_t * inflictor, edict_t * attacker, vec3_t dir,
 		}
 		if (attacker->client)
 		{
-			if (!friendlyFire) {
+			if (!friendlyFire && !in_warmup) {
 				attacker->client->resp.damage_dealt += damage;
 				if (mod > 0 && mod < MAX_GUNSTAT) {
 					attacker->client->resp.gunstats[mod].damage += damage;

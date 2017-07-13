@@ -967,8 +967,6 @@ void G_SetClientSound (edict_t * ent)
 {
 	if (ent->waterlevel && (ent->watertype & (CONTENTS_LAVA | CONTENTS_SLIME)))
 		ent->s.sound = level.snd_fry;
-	else if (ent->client->weapon_sound)
-		ent->s.sound = ent->client->weapon_sound;
 	else
 		ent->s.sound = 0;
 }

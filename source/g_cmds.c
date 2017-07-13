@@ -1446,7 +1446,9 @@ void Cmd_Say_f (edict_t * ent, qboolean team, qboolean arg0, qboolean partner_ms
 	// don't let text be too long for malicious reasons
 	if (strlen(text) >= 254)
 		text[254] = 0;
-	
+
+	qboolean show_info = ! strncmp( text + offset_of_text, "!actionversion", 14 );
+
 	//if( IS_ALIVE(ent) )  // Disabled so we parse dead chat too.
 	{
 		s = strchr(text + offset_of_text, '%');
@@ -1498,6 +1500,9 @@ void Cmd_Say_f (edict_t * ent, qboolean team, qboolean arg0, qboolean partner_ms
 		}
 
 		gi.cprintf(other, PRINT_CHAT, "%s", text);
+
+		if( show_info )
+			gi.cprintf( other, PRINT_CHAT, "console: AQ2:TNG %s (%i fps)\n", VERSION, game.framerate );
 	}
 
 }
