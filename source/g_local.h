@@ -784,6 +784,7 @@ typedef struct
   int realFramenum; //when game paused, framenum stays the same
   int pauseFrames;
   float matchTime;
+  int weapon_sound_framenum;
 }
 level_locals_t;
 
@@ -975,6 +976,7 @@ extern cvar_t *rrot;
 extern cvar_t *strtwpn;
 extern cvar_t *llsound;
 extern cvar_t *loud_guns;
+extern cvar_t *sync_guns;
 extern cvar_t *use_cvote;
 extern cvar_t *new_irvision;
 extern cvar_t *use_rewards;
@@ -1346,6 +1348,7 @@ void Weapon_Generic( edict_t * ent, int FRAME_ACTIVATE_LAST, int FRAME_FIRE_LAST
 	int FRAME_RELOAD_LAST, int FRAME_LASTRD_LAST,
 	int *pause_frames, int *fire_frames,
 	void( *fire ) (edict_t * ent) );
+void PlayWeaponSound( edict_t *ent );
 
 void P_ProjectSource(gclient_t *client, vec3_t point, vec3_t distance, vec3_t forward, vec3_t right, vec3_t result);
 

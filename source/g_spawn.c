@@ -1406,6 +1406,7 @@ void SP_worldspawn (edict_t * ent)
 	level.realFramenum = 0;
 	level.pauseFrames = 0;
 	level.matchTime = 0;
+	level.weapon_sound_framenum = 0;
 
 	if (st.nextmap)
 		strcpy(level.nextmap, st.nextmap);

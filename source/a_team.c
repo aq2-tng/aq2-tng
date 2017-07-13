@@ -532,7 +532,7 @@ void SelectWeapon0(edict_t *ent, pmenu_t *p)
 	ent->client->pers.chosenWeapon = GET_ITEM(KNIFE_NUM);
 	PMenu_Close(ent);
 	OpenItemMenu(ent);
-	unicastSound(ent, gi.soundindex("weapons/stab.wav"), 1.0);
+	unicastSound(ent, gi.soundindex("weapons/swish.wav"), 1.0);
 }
 
 void SelectWeapon9(edict_t *ent, pmenu_t *p)

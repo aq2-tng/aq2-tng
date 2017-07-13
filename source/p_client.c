@@ -1364,7 +1364,6 @@ void player_die(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage
 	self->s.angles[2] = 0;
 
 	self->s.sound = 0;
-	self->client->weapon_sound = 0;
 
 	self->maxs[2] = -8;
 
@@ -3269,6 +3268,7 @@ void ClientBeginServerFrame(edict_t * ent)
 
 	// run weapon animations if it hasn't been done by a ucmd_t
 	ClientThinkWeaponIfReady( ent, true );
+	PlayWeaponSound( ent );
 
 	if (ent->deadflag) {
 		// wait for any button just going down
