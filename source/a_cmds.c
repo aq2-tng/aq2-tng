@@ -1018,22 +1018,23 @@ void Cmd_FF_f( edict_t *ent )
 
 void Cmd_Time(edict_t * ent)
 {
-	unsigned int mins, secs, remaining, rmins, rsecs, gametime;
-
-	if (!timelimit->value) {
-		gi.cprintf(ent, PRINT_HIGH, "Timelimit disabled\n");
-		return;
-	}
+	int mins = 0, secs = 0, remaining = 0, rmins = 0, rsecs = 0, gametime = 0;
 
 	gametime = level.matchTime;
 
 	mins = gametime / 60;
 	secs = gametime % 60;
 	remaining = (timelimit->value * 60) - gametime;
-	rmins = remaining / 60;
-	rsecs = remaining % 60;
+	if( remaining >= 0 )
+	{
+		rmins = remaining / 60;
+		rsecs = remaining % 60;
+	}
 
-	gi.cprintf(ent, PRINT_HIGH, "Elapsed time: %d:%02d. Remaining time: %d:%02d\n", mins, secs, rmins, rsecs);
+	if( timelimit->value )
+		gi.cprintf( ent, PRINT_HIGH, "Elapsed time: %d:%02d. Remaining time: %d:%02d\n", mins, secs, rmins, rsecs );
+	else
+		gi.cprintf( ent, PRINT_HIGH, "Elapsed time: %d:%02d\n", mins, secs );
 }
 
 void Cmd_Roundtimeleft_f(edict_t * ent)
