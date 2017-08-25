@@ -105,6 +105,8 @@ void Stats_AddShot( edict_t *ent, int gun )
 
 void Stats_AddHit( edict_t *ent, int gun, int hitPart )
 {
+	ent->client->last_damaged_part = hitPart;
+
 	if( in_warmup )
 		return;
 
@@ -115,7 +117,6 @@ void Stats_AddHit( edict_t *ent, int gun, int hitPart )
 		return;
 	}
 
-	ent->client->last_damaged_part = hitPart;
 	if (!teamplay->value || team_round_going || stats_afterround->value) {
 		ent->client->resp.hitsTotal++;
 		ent->client->resp.gunstats[gun].hits++;
