@@ -528,6 +528,7 @@ T_Damage (edict_t * targ, edict_t * inflictor, edict_t * attacker, vec3_t dir,
 
 				if (attacker->client)
 				{
+					strcpy( attacker->client->last_damaged_players, client->pers.netname );
 					Stats_AddHit( attacker, mod, (gotArmor) ? LOC_KVLR_HELMET : LOC_HDAM );
 
 					//AQ2:TNG END
@@ -596,6 +597,7 @@ T_Damage (edict_t * targ, edict_t * inflictor, edict_t * attacker, vec3_t dir,
 				damage = damage * .25;
 				if (attacker->client)
 				{
+					strcpy( attacker->client->last_damaged_players, client->pers.netname );
 					Stats_AddHit( attacker, mod, LOC_LDAM );
 					gi.cprintf(attacker, PRINT_HIGH, "You hit %s in the legs\n",
 						client->pers.netname);
@@ -612,6 +614,7 @@ T_Damage (edict_t * targ, edict_t * inflictor, edict_t * attacker, vec3_t dir,
 				gi.cprintf(targ, PRINT_HIGH, "Stomach damage\n");
 				if (attacker->client)
 				{
+					strcpy( attacker->client->last_damaged_players, client->pers.netname );
 					Stats_AddHit(attacker, mod, LOC_SDAM);
 					gi.cprintf(attacker, PRINT_HIGH, "You hit %s in the stomach\n",
 						client->pers.netname);
@@ -628,6 +631,7 @@ T_Damage (edict_t * targ, edict_t * inflictor, edict_t * attacker, vec3_t dir,
 					gotArmor = INV_AMMO( targ, KEV_NUM );
 
 				if (attacker->client) {
+					strcpy( attacker->client->last_damaged_players, client->pers.netname );
 					Stats_AddHit(attacker, mod, (gotArmor) ? LOC_KVLR_VEST : LOC_CDAM);
 				}
 
