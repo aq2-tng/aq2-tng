@@ -1280,6 +1280,8 @@ void OpenJoinMenu (edict_t * ent)
 	PMenu_Open (ent, joinmenu, 11 /* magic for Auto-join menu item */, sizeof (joinmenu) / sizeof (pmenu_t));
 }
 
+void gib_die( edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, vec3_t point );  // g_misc
+
 void CleanLevel ()
 {
 	int i, base;
@@ -1315,7 +1317,8 @@ void CleanLevel ()
 				G_FreeEdict( ent );
 				break;
 			default:
-				if((strcmp( ent->classname, "decal" ) == 0)
+				if((ent->die == gib_die)
+				|| (strcmp( ent->classname, "decal" ) == 0)
 				|| (strcmp( ent->classname, "splat" ) == 0)
 				|| (strcmp( ent->classname, "shell" ) == 0))
 					G_FreeEdict( ent );
