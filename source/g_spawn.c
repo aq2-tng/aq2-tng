@@ -928,10 +928,10 @@ void SpawnEntities (char *mapname, char *entities, char *spawnpoint)
 			gi.dprintf ("Team Deathmatch Enabled - Forcing teamplay on\n");
 			gi.cvar_forceset(teamplay->name, "1");
 		}
-		if (use_3teams->value)
+		if (use_3teams->value && !use_oldspawns->value)
 		{
-			gi.dprintf ("Team Deathmatch Enabled - Forcing 3Teams off\n");
-			gi.cvar_forceset(use_3teams->name, "0");
+			gi.dprintf ("3 Teams Enabled - Forcing use_oldspawns on\n");
+			gi.cvar_forceset(use_oldspawns->name, "1");
 		}
 		if (use_tourney->value)
 		{

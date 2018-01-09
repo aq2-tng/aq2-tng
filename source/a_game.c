@@ -245,6 +245,8 @@ void PrintMOTD(edict_t * ent)
 		{
 			if (ctf->value) // Is it CTF?
 				server_type = "Capture the Flag";
+			else if (teamdm->value && use_3teams->value) // Is it 3 Team DM?
+				server_type = "3 Team Deathmatch";
 			else if (use_3teams->value) // Is it 3 Teams?
 				server_type = "3 Team Teamplay";
 			else if (teamdm->value) // Is it TeamDM?
