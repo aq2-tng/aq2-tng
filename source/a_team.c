@@ -304,7 +304,7 @@
 
 #include "g_local.h"
 #include "cgf_sfx_glass.h"
-#include "a_dom.h"
+
 
 qboolean team_game_going = false;	// is a team game going right now?
 qboolean team_round_going = false;	// is an actual round of a team game going right now?
