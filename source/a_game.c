@@ -245,6 +245,13 @@ void PrintMOTD(edict_t * ent)
 		{
 			if (ctf->value) // Is it CTF?
 				server_type = "Capture the Flag";
+			else if (dom->value) // Is it Domination?
+			{
+				if (teamCount == 3)
+					server_type = "3 Team Domination";
+				else
+					server_type = "Team Domination";
+			}
 			else if (teamdm->value) // Is it TeamDM?
 			{
 				if (teamCount == 3)

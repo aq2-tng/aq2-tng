@@ -172,12 +172,9 @@ void DomMakeFlag( edict_t *flag )
 	dest[2] -= 128;
 	tr = gi.trace( flag->s.origin, flag->mins, flag->maxs, dest, flag, MASK_SOLID );
 	if( ! tr.startsolid )
-	{
 		VectorCopy( tr.endpos, flag->s.origin );
-		VectorCopy( tr.endpos, flag->old_origin );
-	}
-	else
-		VectorCopy( flag->s.origin, flag->old_origin );
+
+	VectorCopy( flag->s.origin, flag->old_origin );
 
 	flag->solid = SOLID_TRIGGER;
 	flag->movetype = MOVETYPE_NONE;
