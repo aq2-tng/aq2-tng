@@ -341,7 +341,7 @@ void A_ScoreboardEndLevel (edict_t * ent, edict_t * killer)
 	}
 
 
-	if (use_3teams->value)
+	if (teamCount == 3)
 	{
 		sprintf(string,
 			// TEAM1
