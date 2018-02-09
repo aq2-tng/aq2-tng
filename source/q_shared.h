@@ -744,23 +744,6 @@ pmove_t;
 
 // FOLLOWING FROM 3.20 CODE -FB
 // RAFAEL
-#define EF_IONRIPPER                  0x00100000
-#define EF_GREENGIB                   0x00200000
-#define EF_BLUEHYPERBLASTER           0x00400000
-#define EF_SPINNINGLIGHTS             0x00800000
-#define EF_PLASMA                     0x01000000
-#define EF_TRAP                       0x02000000
-
-//ROGUE
-#define EF_TRACKER                    0x04000000
-#define EF_DOUBLE                     0x08000000
-#define EF_SPHERETRANS                0x10000000
-#define EF_TAGTRAIL                   0x20000000
-#define EF_HALF_DAMAGE                0x40000000
-#define EF_TRACKERTRAIL               0x80000000
-//ROGUE
-
-// RAFAEL
 #define EF_IONRIPPER                    0x00100000
 #define EF_GREENGIB                     0x00200000
 #define EF_BLUEHYPERBLASTER             0x00400000
@@ -798,6 +781,8 @@ pmove_t;
 #define EF_FLYG          0x60507800	// A few flies with a light, greenish yello crust
 #define EF_YELLOW_CRUST  0x10300070	// Yellow crust with a of smoke & yellow particles
 #define EF_BACKRED       0x90900900	// The Usual is black fly maham, but with a red light peeking through.
+
+#define EF_GREEN_LIGHT   0x04000040
 
 // entity_state_t->renderfx flags
 #define RF_MINLIGHT             1	// allways have some light (viewmodel)

@@ -245,16 +245,22 @@ void PrintMOTD(edict_t * ent)
 		{
 			if (ctf->value) // Is it CTF?
 				server_type = "Capture the Flag";
-			else if (teamdm->value && use_3teams->value) // Is it 3 Team DM?
-				server_type = "3 Team Deathmatch";
-			else if (use_3teams->value) // Is it 3 Teams?
-				server_type = "3 Team Teamplay";
 			else if (teamdm->value) // Is it TeamDM?
-				server_type = "Team Deathmatch";
+			{
+				if (teamCount == 3)
+					server_type = "3 Team Deathmatch";
+				else
+					server_type = "Team Deathmatch";
+			}
 			else if (use_tourney->value) // Is it Tourney?
 				server_type = "Tourney";
 			else // No? Then it must be Teamplay
-				server_type = "Teamplay";
+			{
+				if (teamCount == 3)
+					server_type = "3 Team Teamplay";
+				else
+					server_type = "Teamplay";
+			}
 
 			if (matchmode->value)
 				sprintf(msg_buf + strlen(msg_buf), "Matchmode: %s\n", server_type);

@@ -254,6 +254,7 @@
 
 #include "g_local.h"
 #include "cgf_sfx_glass.h"
+#include "a_dom.h"
 
 void InitCommandList( void );
 
@@ -409,6 +410,7 @@ void InitGame( void )
 	ctf_dropflag = gi.cvar( "ctf_dropflag", "1", 0 );
 	ctf_respawn = gi.cvar( "ctf_respawn", "4", 0 );
 	ctf_model = gi.cvar( "ctf_model", "male", CVAR_LATCH );
+	dom = gi.cvar( "dom", "0", CVAR_SERVERINFO | CVAR_LATCH );
 	use_grapple = gi.cvar( "use_grapple", "0", 0 );
 	mv_public = gi.cvar( "mv_public", "0", 0 );	//slicer 
 	vk_public = gi.cvar( "vk_public", "0", 0 );	//slicer

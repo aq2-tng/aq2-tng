@@ -319,6 +319,7 @@
 #include "g_local.h"
 #include "m_player.h"
 #include "cgf_sfx_glass.h"
+#include "a_dom.h"
 
 void ClientUserinfoChanged(edict_t * ent, char *userinfo);
 void ClientDisconnect(edict_t * ent);
@@ -1672,6 +1673,8 @@ void SelectSpawnPoint(edict_t * ent, vec3_t origin, vec3_t angles)
 	//FIREBLADE
 	if (ctf->value)
 		spot = SelectCTFSpawnPoint(ent);
+	else if (dom->value)
+		spot = SelectDeathmatchSpawnPoint();
 	else if (!(gameSettings & GS_DEATHMATCH) && ent->client->resp.team && !in_warmup) {
 		spot = SelectTeamplaySpawnPoint(ent);
 	} else {
