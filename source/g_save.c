@@ -254,7 +254,7 @@
 
 #include "g_local.h"
 #include "cgf_sfx_glass.h"
-#include "a_dom.h"
+
 
 void InitCommandList( void );
 

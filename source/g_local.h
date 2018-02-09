@@ -2008,5 +2008,5 @@ extern team_t teams[TEAM_TOP];
 
 extern int gameSettings;
 
-
 #include "a_ctf.h"
+#include "a_dom.h"

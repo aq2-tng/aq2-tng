@@ -319,7 +319,7 @@
 #include "g_local.h"
 #include "m_player.h"
 #include "cgf_sfx_glass.h"
-#include "a_dom.h"
+
 
 void ClientUserinfoChanged(edict_t * ent, char *userinfo);
 void ClientDisconnect(edict_t * ent);
