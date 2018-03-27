@@ -258,7 +258,7 @@ qboolean DomLoadConfig( const char *mapname )
 			}
 
 			DomMakeFlag( flag );
-			ptr = strchr( end ? end : ptr + 1, '>' );
+			ptr = strchr( (end ? end : ptr) + 1, '<' );
 		}
 
 		fclose( fh );
