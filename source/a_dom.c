@@ -104,7 +104,7 @@ void DomTouchFlag( edict_t *flag, edict_t *player, cplane_t *plane, csurface_t *
 		return;
 	if( (player->health < 1) || ! IS_ALIVE(player) )
 		return;
-	if( lights_camera_action )
+	if( lights_camera_action || in_warmup )
 		return;
 	if( player->client->uvTime )
 		return;
