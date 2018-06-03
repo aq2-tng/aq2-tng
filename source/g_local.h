@@ -991,6 +991,7 @@ extern cvar_t *use_flashlight;  // Allow flashlight when not darkmatch?
 
 extern cvar_t *hearall;		// used in match mode
 extern cvar_t *deadtalk;
+extern cvar_t *force_skin;
 extern cvar_t *mm_forceteamtalk;
 extern cvar_t *mm_adminpwd;
 extern cvar_t *mm_allowlock;

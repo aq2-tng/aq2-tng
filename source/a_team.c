@@ -829,6 +829,16 @@ void AssignSkin (edict_t * ent, const char *s, qboolean nickChanged)
 			break;
 		}
 	}
+	if (force_skin->value)
+	{
+		switch (ent->client->resp.team)
+		{
+			
+		default:
+			Com_sprintf(skin, sizeof(skin), "%s\\%s", ent->client->pers.netname, "male/ctf_r");
+			break;
+		}
+	}
 	else
 	{
 		switch (ent->client->resp.team)
