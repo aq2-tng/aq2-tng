@@ -444,6 +444,7 @@ void InitGame( void )
 	matchmode = gi.cvar( "matchmode", "0", CVAR_SERVERINFO | CVAR_LATCH );
 	hearall = gi.cvar( "hearall", "0", 0 );	// used in matchmode
 	deadtalk = gi.cvar( "deadtalk", "0", 0 );
+	force_skin = gi.cvar( "force_skin", "", 0 );
 
 	teamdm = gi.cvar( "teamdm", "0", CVAR_LATCH );
 	teamdm_respawn = gi.cvar( "teamdm_respawn", "2", 0 );
