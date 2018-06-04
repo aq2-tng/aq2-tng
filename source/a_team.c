@@ -799,12 +799,12 @@ void AssignSkin (edict_t * ent, const char *s, qboolean nickChanged)
 	int playernum = ent - g_edicts - 1;
 	char *p;
 	char t[MAX_SKINLEN], skin[64] = "\0";
-	char default_skin[32] = "male/grunt";
+	const char *default_skin = "male/grunt";
 
 	if( force_skin->string[0] )
 	{
 		s = force_skin->string;
-		snprintf( default_skin, 32, "%s", force_skin->string );
+		default_skin = force_skin->string;
 	}
 
 	if (ctf->value && !matchmode->value)
