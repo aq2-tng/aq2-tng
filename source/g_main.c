@@ -397,6 +397,7 @@ cvar_t *day_cycle;		// If darkmatch is on, this value is the nr of seconds betwe
 cvar_t *use_flashlight;         // Allow flashlight when not darkmatch?
 cvar_t *hearall;		// used for matchmode
 cvar_t *deadtalk;
+cvar_t *force_skin;
 
 cvar_t *mm_forceteamtalk;
 cvar_t *mm_adminpwd;
