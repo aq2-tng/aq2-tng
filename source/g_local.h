@@ -1556,6 +1556,7 @@ struct gclient_s
 	float		bobtime;			// so off-ground doesn't change it
 	vec3_t		oldviewangles;
 	vec3_t		oldvelocity;
+	qboolean	ladder, old_ladder;
 
 	int			next_drown_framenum;
 	int			old_waterlevel;
