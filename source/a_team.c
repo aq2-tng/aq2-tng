@@ -807,7 +807,7 @@ void AssignSkin (edict_t * ent, const char *s, qboolean nickChanged)
 		default_skin = force_skin->string;
 	}
 
-	if (ctf->value && !matchmode->value)
+	if( (ctf->value || dom->value) && ! matchmode->value )
 	{
 		// forcing CTF model
 		if(ctf_model->string[0]) {
