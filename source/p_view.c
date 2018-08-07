@@ -983,7 +983,8 @@ void G_SetClientEvent (edict_t * ent)
 	//if (!FRAMESYNC)
 	//	return;
 
-	if (ent->groundentity && xyspeed > 225)
+	int footstep_speed = silentwalk->value ? 285 : 225;
+	if (ent->groundentity && (xyspeed > footstep_speed))
 	{
 		//zucc added item check to see if they have slippers
 		if ((int)(current_client->bobtime + bobmove) != bobcycle && !INV_AMMO(ent, SLIP_NUM))
