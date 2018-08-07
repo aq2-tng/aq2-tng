@@ -977,6 +977,7 @@ extern cvar_t *strtwpn;
 extern cvar_t *llsound;
 extern cvar_t *loud_guns;
 extern cvar_t *sync_guns;
+extern cvar_t *silentwalk;
 extern cvar_t *use_cvote;
 extern cvar_t *new_irvision;
 extern cvar_t *use_rewards;
