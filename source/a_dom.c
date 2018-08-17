@@ -1,6 +1,7 @@
 // Domination Mode by Raptor007
 
 #include "g_local.h"
+#include "q_shared.h"
 
 cvar_t *dom = NULL;
 
@@ -55,24 +56,56 @@ qboolean DomCheckRules( void )
 	if( max_score <= 0 )
 		return true;
 
+	int winning_teams = 0;
+
 	if( teams[ TEAM1 ].score >= max_score )
 	{
 		dom_winner = TEAM1;
-		max_score = teams[ TEAM1 ].score;
+		winning_teams ++;
 	}
-
-	if( (dom_winner != NOTEAM) && (teams[ TEAM2 ].score == max_score) )
-		dom_winner = NOTEAM;
-	else if( teams[ TEAM2 ].score > max_score )
+	if( teams[ TEAM2 ].score >= max_score )
 	{
 		dom_winner = TEAM2;
-		max_score = teams[ TEAM2 ].score;
+		winning_teams ++;
+	}
+	if( teams[ TEAM3 ].score >= max_score )
+	{
+		dom_winner = TEAM3;
+		winning_teams ++;
 	}
 
-	if( (dom_winner != NOTEAM) && (teams[ TEAM3 ].score == max_score) )
-		dom_winner = NOTEAM;
-	else if( teams[ TEAM3 ].score > max_score )
-		dom_winner = TEAM3;
+	if( winning_teams == 1 )
+	{
+		// Winner: just show that they hit the score limit, not how far beyond they went.
+		teams[ dom_winner ].score = max_score;
+	}
+	else if( winning_teams > 1 )
+	{
+		// Overtime: multiple teams hit the score limit.
+
+		max_score = max(max( teams[ TEAM1 ].score, teams[ TEAM2 ].score ), teams[ TEAM3 ].score );
+		winning_teams = 0;
+
+		if( teams[ TEAM1 ].score == max_score )
+		{
+			dom_winner = TEAM1;
+			winning_teams ++;
+		}
+		if( teams[ TEAM2 ].score == max_score )
+		{
+			dom_winner = TEAM2;
+			winning_teams ++;
+		}
+		if( teams[ TEAM3 ].score == max_score )
+		{
+			dom_winner = TEAM3;
+			winning_teams ++;
+		}
+
+		// Don't allow a tie.
+		if( winning_teams > 1 )
+			dom_winner = NOTEAM;
+	}
 
 	if( dom_winner != NOTEAM )
 	{
