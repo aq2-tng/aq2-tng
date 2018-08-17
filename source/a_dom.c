@@ -86,6 +86,61 @@ qboolean DomCheckRules( void )
 
 void DomFlagThink( edict_t *flag )
 {
+	// If the flag was touched this frame, make it owned by that team.
+	if( flag->owner && flag->owner->client && flag->owner->client->resp.team )
+	{
+		unsigned int effect = dom_team_effect[ flag->owner->client->resp.team ];
+		if( flag->s.effects != effect )
+		{
+			edict_t *ent = NULL;
+			int prev_owner = DomFlagOwner( flag );
+			if( prev_owner != NOTEAM )
+				dom_team_flags[ prev_owner ] --;
+
+			flag->s.effects = effect;
+			flag->s.renderfx = dom_team_fx[ flag->owner->client->resp.team ];
+			dom_team_flags[ flag->owner->client->resp.team ] ++;
+
+			if( flag->owner->client->resp.team == TEAM1 )
+				flag->s.modelindex = dom_red_flag;
+			else
+				flag->s.modelindex = dom_blue_flag;
+
+			// Get flag location if possible.
+			char location[ 128 ] = "(";
+			qboolean has_loc = GetPlayerLocation( flag, location + 1 );
+			if( has_loc )
+				strcat( location, ") " );
+			else
+				location[0] = '\0';
+
+			gi.bprintf( PRINT_HIGH, "%s secured %s flag %sfor %s!\n",
+				flag->owner->client->pers.netname,
+				(dom_flag_count == 1) ? "the" : "a",
+				location,
+				teams[ flag->owner->client->resp.team ].name );
+
+			if( (dom_team_flags[ flag->owner->client->resp.team ] == dom_flag_count) && (dom_flag_count > 1) )
+				gi.bprintf( PRINT_HIGH, "%s TEAM IS DOMINATING!\n",
+				teams[ flag->owner->client->resp.team ].name );
+
+			gi.sound( flag, CHAN_ITEM, gi.soundindex("tng/flagret.wav"), 0.75, 0.125, 0 );
+
+			for( ent = g_edicts + 1; ent <= g_edicts + game.maxclients; ent ++ )
+			{
+				if( ! (ent->inuse && ent->client && ent->client->resp.team) )
+					continue;
+				else if( ent == flag->owner )
+					unicastSound( ent, gi.soundindex("tng/flagcap.wav"), 0.75 );
+				else if( ent->client->resp.team != flag->owner->client->resp.team )
+					unicastSound( ent, gi.soundindex("tng/flagtk.wav"), 0.75 );
+			}
+		}
+	}
+
+	// Reset so the flag can be touched again.
+	flag->owner = NULL;
+
 	// Animate the flag waving.
 	int prev = flag->s.frame;
 	flag->s.frame = 173 + (((flag->s.frame - 173) + 1) % 16);
@@ -102,6 +157,8 @@ void DomTouchFlag( edict_t *flag, edict_t *player, cplane_t *plane, csurface_t *
 {
 	if( ! player->client )
 		return;
+	if( ! player->client->resp.team )
+		return;
 	if( (player->health < 1) || ! IS_ALIVE(player) )
 		return;
 	if( lights_camera_action || in_warmup )
@@ -109,53 +166,12 @@ void DomTouchFlag( edict_t *flag, edict_t *player, cplane_t *plane, csurface_t *
 	if( player->client->uvTime )
 		return;
 
-	unsigned int effect = dom_team_effect[ player->client->resp.team ];
-	if( flag->s.effects != effect )
-	{
-		edict_t *ent = NULL;
-		int prev_owner = DomFlagOwner( flag );
-		if( prev_owner != NOTEAM )
-			dom_team_flags[ prev_owner ] --;
-
-		flag->s.effects = effect;
-		flag->s.renderfx = dom_team_fx[ player->client->resp.team ];
-		dom_team_flags[ player->client->resp.team ] ++;
-
-		if( player->client->resp.team == TEAM1 )
-			flag->s.modelindex = dom_red_flag;
-		else
-			flag->s.modelindex = dom_blue_flag;
-
-		// Get flag location if possible.
-		char location[ 128 ] = "(";
-		qboolean has_loc = GetPlayerLocation( flag, location + 1 );
-		if( has_loc )
-			strcat( location, ") " );
-		else
-			location[0] = '\0';
-
-		gi.bprintf( PRINT_HIGH, "%s secured %s flag %sfor %s!\n",
-			player->client->pers.netname,
-			(dom_flag_count == 1) ? "the" : "a",
-			location,
-			teams[ player->client->resp.team ].name );
-
-		if( (dom_team_flags[ player->client->resp.team ] == dom_flag_count) && (dom_flag_count > 1) )
-			gi.bprintf( PRINT_HIGH, "%s TEAM IS DOMINATING!\n",
-			teams[ player->client->resp.team ].name );
-
-		gi.sound( flag, CHAN_ITEM, gi.soundindex("tng/flagret.wav"), 0.75, 0.125, 0 );
-
-		for( ent = g_edicts + 1; ent <= g_edicts + game.maxclients; ent ++ )
-		{
-			if( ! (ent->inuse && ent->client && ent->client->resp.team) )
-				continue;
-			else if( ent == player )
-				unicastSound( ent, gi.soundindex("tng/flagcap.wav"), 0.75 );
-			else if( ent->client->resp.team != player->client->resp.team )
-				unicastSound( ent, gi.soundindex("tng/flagtk.wav"), 0.75 );
-		}
-	}
+	// If the flag hasn't been touched this frame, the player will take it.
+	if( ! flag->owner )
+		flag->owner = player;
+	// If somebody on another team also touched the flag this frame, nobody takes it.
+	else if( flag->owner->client && (flag->owner->client->resp.team != player->client->resp.team) )
+		flag->owner = flag;
 }
 
 
@@ -182,6 +198,7 @@ void DomMakeFlag( edict_t *flag )
 	flag->s.skinnum = 0;
 	flag->s.effects = dom_team_effect[ NOTEAM ];
 	flag->s.renderfx = dom_team_fx[ NOTEAM ];
+	flag->owner = NULL;
 	flag->touch = DomTouchFlag;
 	NEXT_KEYFRAME( flag, DomFlagThink );
 	flag->classname = "item_flag";
