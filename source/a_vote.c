@@ -173,7 +173,7 @@ static void Votemap(edict_t *ent, const char *mapname)
 	}
 
 	if (!*mapname) {
-		gi.cprintf(ent, PRINT_HIGH, "You need an argument to the vote command (name of map).\n");
+		MapVoteMenu( ent, NULL );
 		return;
 	}
 

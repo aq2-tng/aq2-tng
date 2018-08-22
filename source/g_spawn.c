@@ -154,6 +154,7 @@
 
 #include "g_local.h"
 
+
 typedef struct
 {
   const char *name;
@@ -904,6 +905,11 @@ void SpawnEntities (char *mapname, char *entities, char *spawnpoint)
 			gi.dprintf ("CTF Enabled - Forcing Tourney off\n");
 			gi.cvar_forceset(use_tourney->name, "0");
 		}
+		if (dom->value)
+		{
+			gi.dprintf ("CTF Enabled - Forcing Domination off\n");
+			gi.cvar_forceset(dom->name, "0");
+		}
 		if (!DMFLAGS(DF_NO_FRIENDLY_FIRE))
 		{
 			gi.dprintf ("CTF Enabled - Forcing Friendly Fire off\n");
@@ -913,8 +919,37 @@ void SpawnEntities (char *mapname, char *entities, char *spawnpoint)
 		strcpy(teams[TEAM2].name, "BLUE");
 		strcpy(teams[TEAM1].skin, "male/ctf_r");
 		strcpy(teams[TEAM2].skin, "male/ctf_b");
-		strcpy(teams[TEAM1].skin_index, "../players/male/ctf_r_i");
-		strcpy(teams[TEAM2].skin_index, "../players/male/ctf_b_i");
+		strcpy(teams[TEAM1].skin_index, "i_ctf1");
+		strcpy(teams[TEAM2].skin_index, "i_ctf2");
+	}
+	else if (dom->value)
+	{
+		gameSettings |= GS_WEAPONCHOOSE;
+
+		if (!teamplay->value)
+		{
+			gi.dprintf ("Domination Enabled - Forcing teamplay on\n");
+			gi.cvar_forceset(teamplay->name, "1");
+		}
+		if (teamdm->value)
+		{
+			gi.dprintf ("Domination Enabled - Forcing Team DM off\n");
+			gi.cvar_forceset(teamdm->name, "0");
+		}
+		if (use_tourney->value)
+		{
+			gi.dprintf ("Domination Enabled - Forcing Tourney off\n");
+			gi.cvar_forceset(use_tourney->name, "0");
+		}
+		strcpy(teams[TEAM1].name, "RED");
+		strcpy(teams[TEAM2].name, "BLUE");
+		strcpy(teams[TEAM3].name, "GREEN");
+		strcpy(teams[TEAM1].skin, "male/ctf_r");
+		strcpy(teams[TEAM2].skin, "male/ctf_b");
+		strcpy(teams[TEAM3].skin, "male/commando");
+		strcpy(teams[TEAM1].skin_index, "i_ctf1");
+		strcpy(teams[TEAM2].skin_index, "i_ctf2");
+		strcpy(teams[TEAM3].skin_index, "i_pack");
 	}
 	else if(teamdm->value)
 	{
@@ -928,11 +963,6 @@ void SpawnEntities (char *mapname, char *entities, char *spawnpoint)
 			gi.dprintf ("Team Deathmatch Enabled - Forcing teamplay on\n");
 			gi.cvar_forceset(teamplay->name, "1");
 		}
-		if (use_3teams->value)
-		{
-			gi.dprintf ("Team Deathmatch Enabled - Forcing 3Teams off\n");
-			gi.cvar_forceset(use_3teams->name, "0");
-		}
 		if (use_tourney->value)
 		{
 			gi.dprintf ("Team Deathmatch Enabled - Forcing Tourney off\n");
@@ -942,7 +972,6 @@ void SpawnEntities (char *mapname, char *entities, char *spawnpoint)
 	else if (use_3teams->value)
 	{
 		gameSettings |= (GS_ROUNDBASED | GS_WEAPONCHOOSE);
-		teamCount = 3;
 		if (!teamplay->value)
 		{
 			gi.dprintf ("3 Teams Enabled - Forcing teamplay on\n");
@@ -952,11 +981,6 @@ void SpawnEntities (char *mapname, char *entities, char *spawnpoint)
 		{
 			gi.dprintf ("3 Teams Enabled - Forcing Tourney off\n");
 			gi.cvar_forceset(use_tourney->name, "0");
-		}
-		if (!use_oldspawns->value)
-		{
-			gi.dprintf ("3 Teams Enabled - Forcing use_oldspawns on\n");
-			gi.cvar_forceset(use_oldspawns->name, "1");
 		}
 	}
 	else if (matchmode->value)
@@ -996,6 +1020,15 @@ void SpawnEntities (char *mapname, char *entities, char *spawnpoint)
 		gameSettings |= GS_TEAMPLAY;
 	if (matchmode->value)
 		gameSettings |= GS_MATCHMODE;
+	if (use_3teams->value)
+	{
+		teamCount = 3;
+		if (!use_oldspawns->value)
+		{
+			gi.dprintf ("3 Teams Enabled - Forcing use_oldspawns on\n");
+			gi.cvar_forceset(use_oldspawns->name, "1");
+		}
+	}
 
 
 	gi.cvar_forceset(maptime->name, "0:00");
@@ -1093,6 +1126,8 @@ void SpawnEntities (char *mapname, char *entities, char *spawnpoint)
 			}
 		}
 	}
+	else if( dom->value )
+		DomLoadConfig( level.mapname );
 
 	G_FindTeams();
 
@@ -1237,6 +1272,8 @@ void G_SetupStatusbar( void )
 				"if 23 " "yt 26 " "xr -24 " "pic 23 " "endif ",
 				sizeof(level.statusbar) );
 		}
+		else if( dom->value )
+			DomSetupStatusbar();
 	}
 
 	Q_strncpyz(level.spec_statusbar, level.statusbar, sizeof(level.spec_statusbar));
@@ -1456,15 +1493,15 @@ void SP_worldspawn (edict_t * ent)
 			level.pic_ctf_flagdropped[TEAM2] = gi.imageindex("i_ctf2d");
 			gi.imageindex("sbfctf1");
 			gi.imageindex("sbfctf2");
-		} else {
-			for(i = TEAM1; i <= teamCount; i++)
-			{
-				if (teams[i].skin_index[0] == 0) {
-					gi.dprintf("No skin was specified for team %i in config file. Exiting.\n", i);
-					exit(1);
-				}
-				level.pic_teamskin[i] = gi.imageindex(teams[i].skin_index);
+		}
+
+		for(i = TEAM1; i <= teamCount; i++)
+		{
+			if (teams[i].skin_index[0] == 0) {
+				gi.dprintf("No skin was specified for team %i in config file. Exiting.\n", i);
+				exit(1);
 			}
+			level.pic_teamskin[i] = gi.imageindex(teams[i].skin_index);
 		}
 
 		level.snd_lights = gi.soundindex("atl/lights.wav");

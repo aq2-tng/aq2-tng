@@ -573,6 +573,32 @@ void SV_CalcBlend (edict_t * ent)
 
 
 /*
+========
+OnLadder
+========
+*/
+qboolean OnLadder( edict_t *ent )
+{
+	float yaw_rad = 0;
+	vec3_t fwd = {0}, end = {0};
+	trace_t tr;
+
+	if( ! IS_ALIVE(ent) )
+		return false;
+
+	yaw_rad = DEG2RAD(ent->s.angles[YAW]);
+	fwd[0] = cos(yaw_rad);
+	fwd[1] = sin(yaw_rad);
+
+	VectorMA( ent->s.origin, 1, fwd, end );
+
+	tr = gi.trace( ent->s.origin, ent->mins, ent->maxs, end, ent, MASK_PLAYERSOLID );
+
+	return ((tr.fraction < 1) && (tr.contents & CONTENTS_LADDER));
+}
+
+
+/*
 =================
 P_FallingDamage
 =================
@@ -588,6 +614,9 @@ void P_FallingDamage (edict_t * ent)
 
 	VectorCopy( ent->client->oldvelocity, oldvelocity );
 	VectorCopy( ent->velocity, ent->client->oldvelocity );
+
+	ent->client->old_ladder = ent->client->ladder;
+	ent->client->ladder = OnLadder(ent);
 
 	if (lights_camera_action || ent->client->uvTime > 0)
 		return;
@@ -632,6 +661,10 @@ void P_FallingDamage (edict_t * ent)
 
 	if (delta < 15)
 	{
+		// Raptor007: Don't make footsteps when climbing down ladders.
+		if( ent->client->old_ladder )
+			return;
+
 		// zucc look for slippers to avoid noise
 		if(!INV_AMMO(ent, SLIP_NUM))
 			ent->s.event = EV_FOOTSTEP;
@@ -950,7 +983,8 @@ void G_SetClientEvent (edict_t * ent)
 	//if (!FRAMESYNC)
 	//	return;
 
-	if (ent->groundentity && xyspeed > 225)
+	int footstep_speed = silentwalk->value ? 290 : 225;
+	if (ent->groundentity && (xyspeed > footstep_speed))
 	{
 		//zucc added item check to see if they have slippers
 		if ((int)(current_client->bobtime + bobmove) != bobcycle && !INV_AMMO(ent, SLIP_NUM))

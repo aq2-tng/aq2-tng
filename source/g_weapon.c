@@ -1048,6 +1048,10 @@ void knife_touch(edict_t *ent, edict_t *other, cplane_t *plane, csurface_t *surf
 
 	if (other->takedamage)
 	{
+		// Players hit by throwing knives add it to their inventory.
+		if( other->client && (INV_AMMO(other,KNIFE_NUM) < other->client->knife_max) )
+			INV_AMMO(other,KNIFE_NUM) ++;
+
 		T_Damage(other, ent, ent->owner, ent->velocity, ent->s.origin, plane->normal, ent->dmg, 0, 0, MOD_KNIFE_THROWN);
 	}
 	else

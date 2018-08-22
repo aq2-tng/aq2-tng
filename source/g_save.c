@@ -255,6 +255,7 @@
 #include "g_local.h"
 #include "cgf_sfx_glass.h"
 
+
 void InitCommandList( void );
 
 field_t fields[] = {
@@ -409,6 +410,7 @@ void InitGame( void )
 	ctf_dropflag = gi.cvar( "ctf_dropflag", "1", 0 );
 	ctf_respawn = gi.cvar( "ctf_respawn", "4", 0 );
 	ctf_model = gi.cvar( "ctf_model", "male", CVAR_LATCH );
+	dom = gi.cvar( "dom", "0", CVAR_SERVERINFO | CVAR_LATCH );
 	use_grapple = gi.cvar( "use_grapple", "0", 0 );
 	mv_public = gi.cvar( "mv_public", "0", 0 );	//slicer 
 	vk_public = gi.cvar( "vk_public", "0", 0 );	//slicer
@@ -423,6 +425,7 @@ void InitGame( void )
 	llsound = gi.cvar( "llsound", "0", 0 );
 	loud_guns = gi.cvar( "loud_guns", "1", 0 );
 	sync_guns = gi.cvar( "sync_guns", "1", 0 );
+	silentwalk = gi.cvar( "silentwalk", "0", 0 );
 	use_cvote = gi.cvar( "use_cvote", "0", 0 );	// Removed it from Serverinfo
 	new_irvision = gi.cvar( "new_irvision", "0", 0 );
 	use_rewards = gi.cvar( "use_rewards", "1", 0 );
@@ -442,6 +445,7 @@ void InitGame( void )
 	matchmode = gi.cvar( "matchmode", "0", CVAR_SERVERINFO | CVAR_LATCH );
 	hearall = gi.cvar( "hearall", "0", 0 );	// used in matchmode
 	deadtalk = gi.cvar( "deadtalk", "0", 0 );
+	force_skin = gi.cvar( "force_skin", "", 0 );
 
 	teamdm = gi.cvar( "teamdm", "0", CVAR_LATCH );
 	teamdm_respawn = gi.cvar( "teamdm_respawn", "2", 0 );
