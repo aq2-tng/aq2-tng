@@ -977,6 +977,7 @@ extern cvar_t *strtwpn;
 extern cvar_t *llsound;
 extern cvar_t *loud_guns;
 extern cvar_t *sync_guns;
+extern cvar_t *silentwalk;
 extern cvar_t *use_cvote;
 extern cvar_t *new_irvision;
 extern cvar_t *use_rewards;
@@ -997,6 +998,7 @@ extern cvar_t *use_flashlight;  // Allow flashlight when not darkmatch?
 
 extern cvar_t *hearall;		// used in match mode
 extern cvar_t *deadtalk;
+extern cvar_t *force_skin;
 extern cvar_t *mm_forceteamtalk;
 extern cvar_t *mm_adminpwd;
 extern cvar_t *mm_allowlock;
@@ -1566,6 +1568,7 @@ struct gclient_s
 	float		bobtime;			// so off-ground doesn't change it
 	vec3_t		oldviewangles;
 	vec3_t		oldvelocity;
+	qboolean	ladder, old_ladder;
 
 	int			next_drown_framenum;
 	int			old_waterlevel;
@@ -2081,8 +2084,9 @@ extern team_t teams[TEAM_TOP];
 
 extern int gameSettings;
 
-
 #include "a_ctf.h"
+#include "a_dom.h"
+
 #ifndef NO_BOTS
 #include "acesrc/acebot.h"
 #endif

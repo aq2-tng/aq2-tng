@@ -457,6 +457,34 @@ void ACEAI_PickLongRangeGoal(edict_t *self)
 		}	
 	}
 
+	///////////////////////////////////////////////////////
+	// Domination Flags
+	///////////////////////////////////////////////////////
+	if( dom->value )
+	{
+		edict_t *flag = NULL;
+		while(( flag = G_Find( flag, FOFS(classname), "item_flag" ) ))
+		{
+			// Only chase flags we don't already control.
+			if( DomFlagOwner(flag) == self->client->resp.team )
+				continue;
+
+			node = ACEND_FindClosestReachableNode( flag, NODE_DENSITY, NODE_ALL );
+			if( node == INVALID )
+				continue;
+
+			// Always prioritize flags we don't own, so only use cost to differentiate them.
+			cost = ACEND_FindCost( current_node, node );
+			weight = 10000 - cost;
+
+			if( weight > best_weight )
+			{		
+				best_weight = weight;
+				goal_node = node;
+				goal_ent = flag;
+			}
+		}
+	}
 	
 //Added by Werewolf
 //-------------------------------

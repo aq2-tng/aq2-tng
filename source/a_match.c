@@ -62,7 +62,7 @@ void SendScores(void)
 
 	mins = gametime / 60;
 	secs = gametime % 60;
-	if(use_3teams->value) {
+	if(teamCount == 3) {
 		gi.bprintf(PRINT_HIGH, "Ÿ\n");
 		gi.bprintf(PRINT_HIGH, " Team 1 Score - Team 2 Score - Team 3 Score\n");
 		gi.bprintf(PRINT_HIGH, "    [%d]           [%d]           [%d]\n", teams[TEAM1].score, teams[TEAM2].score, teams[TEAM3].score);

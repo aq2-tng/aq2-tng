@@ -1086,7 +1086,7 @@ void Cmd_AutoRecord_f(edict_t * ent)
 
 	if (matchmode->value)
 	{
-		if(use_3teams->value)
+		if(teamCount == 3)
 			Com_sprintf(recstr, sizeof(recstr), "%s-%s_vs_%s_vs_%s-%s", rec_date, teams[TEAM1].name, teams[TEAM2].name, teams[TEAM3].name, level.mapname);
 		else
 			Com_sprintf(recstr, sizeof(recstr), "%s-%s_vs_%s-%s", rec_date, teams[TEAM1].name, teams[TEAM2].name, level.mapname);

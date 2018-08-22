@@ -52,7 +52,6 @@
 #include "g_local.h"
 
 
-
 /*
   ======================================================================
   
@@ -568,7 +567,7 @@ void G_SetStats (edict_t * ent)
 		
 		// Team icon.
 		if( teamplay->value && hud_team_icon->value && (ent->client->resp.team != NOTEAM) && IS_ALIVE(ent) )
-			ent->client->ps.stats[STAT_TEAM_ICON] = gi.imageindex(teams[ent->client->resp.team].skin_index);
+			ent->client->ps.stats[STAT_TEAM_ICON] = level.pic_teamskin[ent->client->resp.team];
 		else
 			ent->client->ps.stats[STAT_TEAM_ICON] = 0;
 	}
@@ -608,6 +607,8 @@ void G_SetStats (edict_t * ent)
 	//FIREBLADE
 	if (ctf->value)
 		SetCTFStats (ent);
+	else if (dom->value)
+		SetDomStats (ent);
 	else if (teamplay->value)
 		A_Scoreboard (ent);
 	//FIREBLADE

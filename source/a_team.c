@@ -305,6 +305,7 @@
 #include "g_local.h"
 #include "cgf_sfx_glass.h"
 
+
 qboolean team_game_going = false;	// is a team game going right now?
 qboolean team_round_going = false;	// is an actual round of a team game going right now?
 
@@ -447,7 +448,7 @@ void JoinTeamAuto (edict_t * ent, pmenu_t * p)
 	if (num1 > num2 || (num1 == num2 && score1 > score2))
 		team = TEAM2;
 
-	if (use_3teams->value)
+	if (teamCount == 3)
 	{
 		if (team == TEAM1)
 		{
@@ -476,7 +477,7 @@ void JoinTeam2 (edict_t * ent, pmenu_t * p)
 
 void JoinTeam3 (edict_t * ent, pmenu_t * p)
 {
-	if (use_3teams->value)
+	if (teamCount == 3)
 		JoinTeam(ent, TEAM3, 0);
 }
 
@@ -798,8 +799,15 @@ void AssignSkin (edict_t * ent, const char *s, qboolean nickChanged)
 	int playernum = ent - g_edicts - 1;
 	char *p;
 	char t[MAX_SKINLEN], skin[64] = "\0";
+	const char *default_skin = "male/grunt";
 
-	if (ctf->value && !matchmode->value)
+	if( force_skin->string[0] )
+	{
+		s = force_skin->string;
+		default_skin = force_skin->string;
+	}
+
+	if( (ctf->value || dom->value) && ! matchmode->value )
 	{
 		// forcing CTF model
 		if(ctf_model->string[0]) {
@@ -824,7 +832,7 @@ void AssignSkin (edict_t * ent, const char *s, qboolean nickChanged)
 			Com_sprintf(skin, sizeof(skin), "%s\\%s%s", ent->client->pers.netname, t, CTF_TEAM2_SKIN);
 			break;
 		default:
-			Com_sprintf(skin, sizeof(skin), "%s\\%s", ent->client->pers.netname, "male/grunt");
+			Com_sprintf(skin, sizeof(skin), "%s\\%s", ent->client->pers.netname, default_skin);
 			break;
 		}
 	}
@@ -838,7 +846,7 @@ void AssignSkin (edict_t * ent, const char *s, qboolean nickChanged)
 			Com_sprintf(skin, sizeof(skin), "%s\\%s", ent->client->pers.netname, teams[ent->client->resp.team].skin);
 			break;
 		default:
-			Com_sprintf(skin, sizeof(skin), "%s\\%s", ent->client->pers.netname, (teamplay->value ? "male/grunt" : s));
+			Com_sprintf(skin, sizeof(skin), "%s\\%s", ent->client->pers.netname, (teamplay->value ? default_skin : s));
 			break;
 		}
 	}
@@ -1212,7 +1220,7 @@ void UpdateJoinMenu( void )
 		joinmenu[4].SelectFunc = JoinTeam1;
 		joinmenu[6].text = teams[TEAM2].name;
 		joinmenu[6].SelectFunc = JoinTeam2;
-		if (use_3teams->value)
+		if (teamCount == 3)
 		{
 			joinmenu[8].text = teams[TEAM3].name;
 			joinmenu[8].SelectFunc = JoinTeam3;
@@ -1257,7 +1265,7 @@ void UpdateJoinMenu( void )
 		joinmenu[7].text = team2players;
 	else
 		joinmenu[7].text = NULL;
-	if (joinmenu[8].text && use_3teams->value)
+	if (joinmenu[8].text && (teamCount == 3))
 		joinmenu[9].text = team3players;
 	else
 		joinmenu[9].text = NULL;
@@ -1279,6 +1287,8 @@ void OpenJoinMenu (edict_t * ent)
 
 	PMenu_Open (ent, joinmenu, 11 /* magic for Auto-join menu item */, sizeof (joinmenu) / sizeof (pmenu_t));
 }
+
+void gib_die( edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, vec3_t point );  // g_misc
 
 void CleanLevel ()
 {
@@ -1315,7 +1325,8 @@ void CleanLevel ()
 				G_FreeEdict( ent );
 				break;
 			default:
-				if((strcmp( ent->classname, "decal" ) == 0)
+				if((ent->die == gib_die)
+				|| (strcmp( ent->classname, "decal" ) == 0)
 				|| (strcmp( ent->classname, "splat" ) == 0)
 				|| (strcmp( ent->classname, "shell" ) == 0))
 					G_FreeEdict( ent );
@@ -1748,7 +1759,7 @@ void MakeAllLivePlayersObservers (void)
 // PrintScores: Prints the current score on the console
 void PrintScores (void)
 {
-	if (use_3teams->value) {
+	if (teamCount == 3) {
 		gi.bprintf (PRINT_HIGH, "Current score is %s: %d to %s: %d to %s: %d\n", TeamName (TEAM1), teams[TEAM1].score, TeamName (TEAM2), teams[TEAM2].score, TeamName (TEAM3), teams[TEAM3].score);
 		IRC_printf (IRC_T_TOPIC, "Current score on map %n is %n: %k to %n: %k to %n: %k", level.mapname, TeamName (TEAM1), teams[TEAM1].score, TeamName (TEAM2), teams[TEAM2].score, TeamName (TEAM3), teams[TEAM3].score);
 	} else {
@@ -2145,6 +2156,13 @@ int CheckTeamRules (void)
 				return 1;
 			}
 
+			if (dom->value && DomCheckRules())
+			{
+				EndDMLevel();
+				team_round_going = team_round_countdown = team_game_going = 0;
+				return 1;
+			}
+
 			if (vCheckVote()) {
 				EndDMLevel ();
 				team_round_going = team_round_countdown = team_game_going = 0;
@@ -2216,7 +2234,7 @@ void A_Scoreboard (edict_t * ent)
 			else if (teams[TEAM2].total > teams[TEAM1].total)
 				wteam = TEAM2;
 
-			if(use_3teams->value)
+			if(teamCount == 3)
 			{
 				if(wteam) {
 					if (teams[TEAM3].score > teams[wteam].score)
@@ -2239,13 +2257,13 @@ void A_Scoreboard (edict_t * ent)
 				ent->client->ps.stats[STAT_TEAM1_PIC] = 0;
 			else if (wteam == 2)
 				ent->client->ps.stats[STAT_TEAM2_PIC] = 0;
-			else if (wteam == 3 && use_3teams->value)
+			else if (wteam == 3 && (teamCount == 3))
 				ent->client->ps.stats[STAT_TEAM3_PIC] = 0;
 			else // tie game!
 			{
 				ent->client->ps.stats[STAT_TEAM1_PIC] = 0;
 				ent->client->ps.stats[STAT_TEAM2_PIC] = 0;
-				if(use_3teams->value)
+				if(teamCount == 3)
 					ent->client->ps.stats[STAT_TEAM3_PIC] = 0;
 			}
 		}
@@ -2253,13 +2271,13 @@ void A_Scoreboard (edict_t * ent)
 		{
 			ent->client->ps.stats[STAT_TEAM1_PIC] = level.pic_teamskin[TEAM1];
 			ent->client->ps.stats[STAT_TEAM2_PIC] = level.pic_teamskin[TEAM2];
-			if (use_3teams->value)
+			if (teamCount == 3)
 				ent->client->ps.stats[STAT_TEAM3_PIC] = level.pic_teamskin[TEAM3];
 		}
 
 		ent->client->ps.stats[STAT_TEAM1_SCORE] = teams[TEAM1].score;
 		ent->client->ps.stats[STAT_TEAM2_SCORE] = teams[TEAM2].score;
-		if (use_3teams->value)
+		if (teamCount == 3)
 			ent->client->ps.stats[STAT_TEAM3_SCORE] = teams[TEAM3].score;
 	}
 }
@@ -2354,7 +2372,7 @@ void A_NewScoreboardMessage(edict_t * ent)
 	}
 
 	// print teams
-	for (i = TEAM1; i <= (use_3teams->value ? TEAM3 : TEAM2); i++)
+	for (i = TEAM1; i <= teamCount; i++)
 	{
 		Com_sprintf( buf, sizeof( buf ), "xv 44 yv %d string2 \"%3d %-11.11s Frg Tim Png\"", line++ * lineh, teams[i].score, teams[i].name );
 		Q_strncatz( string, buf, sizeof( string ) );
