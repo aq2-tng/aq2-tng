@@ -91,6 +91,8 @@ Features
 
   To prevent spawn camping, there is an invunerability/shield mode to give some ppl some protection.
 
+  Flag locations and CTF player spawns should be specified in tng/mapname.ctf files.
+
   Commands:
   ctf [0/1] - This will turn CTF on (1) or off (0). It will automatically turn Teamplay on (1).
   capturelimit [#] - The maximum number of captures before a map will change. Set to 0 to ignore that.
@@ -98,6 +100,20 @@ Features
   ctf_dropflag [0/1] - Allow clients to drop the flag or not.
   drop flag - Drop the flag if you're holding it. (client side)
   uvtime [#] - The nr of seconds *10 of the duration of the 'shield' effect. (for example 40 is 4 secs)
+
+* Domination
+  This is most closely related to Unreal Tournament's domination mode, but is also similar to king of the hill
+  and conquest modes in general.  There are fixed flags (typically 3) scattered around the map, and touching a
+  flag will claim it for your team.  Keep control of flags to score points; your team gains 1 point per flag
+  controlled every second.  The score limit is 200 per flag in 2-team mode, or 150 per flag in 3-team mode,
+  which means a typical 2-team game with 3 flags has a score limit of 600.
+
+  Flag locations can be specified in tng/mapname.dom files.  If not found, the server will attempt to generate
+  them automatically from player spawn locations.
+
+  dom [0/1] - This will turn Domination mode on (1) or off (0), and also turns Teamplay on (1).
+  use_3teams [0/1] - This will turn 3 Teams on (1) or off (0).
+  uvtime [#] - The number of seconds * 10 of the duration of the 'shield' effect (ex: 40 = 4 secs).
 
 * Matchmode
   Matchmode is a special form of Teamplay, made for clanmatches. It has several features which can be usefull
@@ -509,10 +525,12 @@ Features
 
 * Variable Framerate Support
   Although Quake 2 typically runs the server at a fixed 10 frames per second, some advanced Quake 2 servers can
-  be built with variable framerate support to allow faster updating.  AQ2-TNG now supports this.
+  be built with variable framerate support to allow faster updating.  AQ2-TNG now supports this.  At higher fps,
+  lag is reduced: the server responds more quickly to shooting and other client commands.
 
   Commands:
   sv_fps [10/20/30/40/50/60] - set server framerate (default is 10)
+  sync_guns [0/1/2] - sync shot sounds: 0 removes lag, 1 syncs when multiple are shooting, 2 forces 10fps (default 1)
 
 * Q2pro MVD server demo support
   When AQ2TNG is running under a q2pro Quake2 executable that is properly configured (built with CONFIG_MVD_SERVER
