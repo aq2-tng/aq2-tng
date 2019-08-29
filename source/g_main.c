@@ -323,6 +323,7 @@ cvar_t *sv_gib;
 cvar_t *sv_crlf;		// Allow Control Char
 cvar_t *vrot;			// Vote Rotation
 cvar_t *rrot;			// Random Rotation
+cvar_t *empty_rotate;   // Minutes of empty server to automatically rotate map.
 cvar_t *strtwpn;		// Start DM Weapon
 cvar_t *llsound;
 cvar_t *loud_guns;
@@ -827,6 +828,9 @@ void EndDMLevel (void)
 	BeginIntermission(ent);
 }
 
+
+int _numclients( void );  // a_vote.c
+
 /*
   =================
   CheckDMRules
@@ -882,6 +886,21 @@ void CheckDMRules (void)
 				EndDMLevel ();
 				return;
 			}
+		}
+	}
+
+	if( _numclients() )
+		level.emptyTime = 0.f;
+	else
+	{
+		level.emptyTime += FRAMETIME;
+
+		// If the server is empty for empty_rotate minutes, rotate the map.
+		if( empty_rotate->value && (level.emptyTime >= (empty_rotate->value * 60.f)) )
+		{
+			level.emptyTime = 0.f;
+			EndDMLevel();
+			return;
 		}
 	}
 }
@@ -984,6 +1003,9 @@ void G_RunFrame (void)
 	// IRC poll
 	IRC_poll ();
 
+	// If the server is empty, don't wait at intermission.
+	if( level.intermission_framenum && ! _numclients() )
+		level.intermission_exit = 1;
 
 	// exit intermissions
 	if (level.intermission_exit)
