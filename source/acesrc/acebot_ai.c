@@ -727,8 +727,17 @@ qboolean ACEAI_FindEnemy(edict_t *self, int *total)
 				}
 			}
 
-			// Can we see this enemy, or are they making noise that we shouldn't ignore?
-			if( infront( self, players[i] ) || weapon_loud || ((weight < 300) && !INV_AMMO( players[i], SLIP_NUM )) )
+			// Can we see their flashlight?
+			edict_t *fl = players[i]->client->flashlight;
+			qboolean flashlight_vis = fl && infront( self, fl );
+			if( fl && ! flashlight_vis )
+			{
+				VectorSubtract( self->s.origin, fl->s.origin, dist );
+				flashlight_vis = (VectorLength(dist) < 100);
+			}
+
+			// Can we see this enemy, or are they calling attention to themselves?
+			if( infront( self, players[i] ) || flashlight_vis || weapon_loud || ((weight < 300) && !INV_AMMO( players[i], SLIP_NUM )) )
 			{
 				total+=1;
 
