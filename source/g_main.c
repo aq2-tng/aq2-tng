@@ -324,6 +324,7 @@ cvar_t *sv_crlf;		// Allow Control Char
 cvar_t *vrot;			// Vote Rotation
 cvar_t *rrot;			// Random Rotation
 cvar_t *empty_rotate;   // Minutes of empty server to automatically rotate map.
+cvar_t *empty_exec;     // Config to exec when empty rotation occurs.
 cvar_t *strtwpn;		// Start DM Weapon
 cvar_t *llsound;
 cvar_t *loud_guns;
@@ -899,6 +900,16 @@ void CheckDMRules (void)
 		if( empty_rotate->value && (level.emptyTime >= (empty_rotate->value * 60.f)) )
 		{
 			level.emptyTime = 0.f;
+
+			// Optional empty_exec to revert to default settings, such as after configvote.
+			// If you only want this to happen once, the file you exec should clear this cvar.
+			if( empty_exec->string && empty_exec->string[0] )
+			{
+				char buf[ 1000 ] = "";
+				Com_sprintf( buf, sizeof(buf), "exec \"%s\"\n", empty_exec->string );
+				gi.AddCommandString( buf );
+			}
+
 			EndDMLevel();
 			return;
 		}
