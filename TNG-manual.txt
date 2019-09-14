@@ -324,10 +324,12 @@ Features
 
 * Empty Rotate
   Prevent unpopular maps from keeping your server empty.  This feature will rotate the map after the server
-  has been empty for some number of minutes.
+  has been empty for some number of minutes.  You can also specify a config file to execute, which can be
+  used to reset the server to default settings after configvote or rotate between multiple mode configs.
 
   Commands:
   empty_rotate [#] - Number of minutes before rotating empty server.  Default 0 disables this feature.
+  empty_exec "file.cfg" - Optional config to exec with empty rotate.  Default blank disables this.
 
 * Bandage Text
   When a client starts bandagine, a message ("You've started bandaging") will appear. Also the Health icon
