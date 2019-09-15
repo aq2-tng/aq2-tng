@@ -1946,6 +1946,12 @@ void EquipClient(edict_t * ent)
 	if(use_grapple->value)
 		client->inventory[ITEM_INDEX(FindItem("Grapple"))] = 1;
 
+	// Honor changes to wp_flags and itm_flags.
+	if( client->pers.chosenWeapon && ! WPF_ALLOWED(client->pers.chosenWeapon->typeNum) )
+		client->pers.chosenWeapon = NULL;
+	if( client->pers.chosenItem && ! ITF_ALLOWED(client->pers.chosenItem->typeNum) )
+		client->pers.chosenItem = NULL;
+
 	if (client->pers.chosenItem) {
 		if (client->pers.chosenItem->typeNum == BAND_NUM) {
 			band = 1;
