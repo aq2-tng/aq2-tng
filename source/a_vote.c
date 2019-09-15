@@ -1153,7 +1153,7 @@ static void Voteconfig(edict_t *ent, const char *config)
 	}
 
 	if (!*config) {
-		gi.cprintf(ent, PRINT_HIGH, "You need an argument to the vote command (name of config).\n");
+		ConfigVoteMenu( ent, NULL );
 		return;
 	}
 
