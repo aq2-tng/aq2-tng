@@ -840,28 +840,40 @@ qboolean ACEAI_ChooseWeapon(edict_t *self)
 	range = VectorLength(v);
 		
 
-	// Longest range 
-	if(range > 1000)
+	// Extreme range
+	if( range > 1300 )
 	{
 		if(ACEIT_ChangeSniperSpecialWeapon(self,FindItem(SNIPER_NAME)))
 		{
-			if (self->client->resp.sniper_mode!=SNIPER_2X)
+			if (self->client->resp.sniper_mode<SNIPER_2X)
 			{
 			gi.sound(self, CHAN_ITEM, gi.soundindex("misc/lensflik.wav"), 1, ATTN_NORM, 0);
 			self->client->resp.sniper_mode = SNIPER_2X;
-			self->client->desired_fov = 45;
+			self->client->desired_fov = SNIPER_FOV2;
+			}
+			return (true);
+		}
+	}
+
+	// Longest range 
+	if(range > 1000)
+	{
+		if(ACEIT_ChangeMP5SpecialWeapon(self,FindItem(MP5_NAME)))
+			return (true);
+
+		if(ACEIT_ChangeSniperSpecialWeapon(self,FindItem(SNIPER_NAME)))
+		{
+			if (self->client->resp.sniper_mode<SNIPER_2X)
+			{
+			gi.sound(self, CHAN_ITEM, gi.soundindex("misc/lensflik.wav"), 1, ATTN_NORM, 0);
+			self->client->resp.sniper_mode = SNIPER_2X;
+			self->client->desired_fov = SNIPER_FOV2;
 			}
 			return (true);
 		}
 		
-		if(ACEIT_ChangeM3SpecialWeapon(self,FindItem(M3_NAME)))
-			return (true);
-		
 		if(ACEIT_ChangeM4SpecialWeapon(self,FindItem(M4_NAME)))
 			return (true);
-		
-		if(ACEIT_ChangeMP5SpecialWeapon(self,FindItem(MP5_NAME)))
-   		   return (true);
 
 		if(ACEIT_ChangeMK23SpecialWeapon(self,FindItem(MK23_NAME)))
    		   return (true);
@@ -870,13 +882,13 @@ qboolean ACEAI_ChooseWeapon(edict_t *self)
 	// Longer range 
 	if(range > 700)
 	{		
-		if(ACEIT_ChangeM3SpecialWeapon(self,FindItem(M3_NAME)))
-			return (true);
-		
 		if(ACEIT_ChangeM4SpecialWeapon(self,FindItem(M4_NAME)))
 			return (true);
 		
 		if(ACEIT_ChangeMP5SpecialWeapon(self,FindItem(MP5_NAME)))
+			return (true);
+
+		if(ACEIT_ChangeM3SpecialWeapon(self,FindItem(M3_NAME)))
    		   return (true);
 
 		if(ACEIT_ChangeSniperSpecialWeapon(self,FindItem(SNIPER_NAME)))
@@ -885,7 +897,7 @@ qboolean ACEAI_ChooseWeapon(edict_t *self)
 			{
 			gi.sound(self, CHAN_ITEM, gi.soundindex("misc/lensflik.wav"), 1, ATTN_NORM, 0);
 			self->client->resp.sniper_mode = SNIPER_2X;
-			self->client->desired_fov = 45;
+			self->client->desired_fov = SNIPER_FOV2;
 			}
 			return (true);
 		}
@@ -893,27 +905,32 @@ qboolean ACEAI_ChooseWeapon(edict_t *self)
 		if(ACEIT_ChangeMK23SpecialWeapon(self,FindItem(MK23_NAME)))
    		   return (true);
 
+		if(ACEIT_ChangeWeapon(self,FindItem(GRENADE_NAME)))
+		{
+			self->client->pers.grenade_mode = 2;
+			return (true);
+		}
 	}
 	
 	// Long range 
 	if(range > 500)
 	{		
-		if(ACEIT_ChangeMP5SpecialWeapon(self,FindItem(MP5_NAME)))
-   		   return (true);
-
 		if(ACEIT_ChangeM3SpecialWeapon(self,FindItem(M3_NAME)))
 			return (true);
 		
 		if(ACEIT_ChangeM4SpecialWeapon(self,FindItem(M4_NAME)))
 			return (true);
 		
+		if(ACEIT_ChangeMP5SpecialWeapon(self,FindItem(MP5_NAME)))
+			return (true);
+
 		if(ACEIT_ChangeSniperSpecialWeapon(self,FindItem(SNIPER_NAME)))
 		{
 			if (self->client->resp.sniper_mode>SNIPER_2X)
 			{
 			gi.sound(self, CHAN_ITEM, gi.soundindex("misc/lensflik.wav"), 1, ATTN_NORM, 0);
 			self->client->resp.sniper_mode = SNIPER_1X;
-			self->client->desired_fov = 90;
+			self->client->desired_fov = SNIPER_FOV1;
 			}
 			return (true);
 		}
@@ -922,23 +939,29 @@ qboolean ACEAI_ChooseWeapon(edict_t *self)
    		   return (true);
 
 		if(ACEIT_ChangeWeapon(self,FindItem(GRENADE_NAME)))
+		{
+			self->client->pers.grenade_mode = 1;
 			return (true);
+		}
 	}
 	
 	// Medium range 
 	if(range > 200)
 	{		
-		if(ACEIT_ChangeM4SpecialWeapon(self,FindItem(M4_NAME)))
-			return (true);
-		
-		if(ACEIT_ChangeMP5SpecialWeapon(self,FindItem(MP5_NAME)))
-   		   return (true);
-
 		if(ACEIT_ChangeM3SpecialWeapon(self,FindItem(M3_NAME)))
 			return (true);
 		
-		if(ACEIT_ChangeWeapon(self,FindItem(GRENADE_NAME)))
+		if(ACEIT_ChangeM4SpecialWeapon(self,FindItem(M4_NAME)))
+   		   return (true);
+
+		if(ACEIT_ChangeMP5SpecialWeapon(self,FindItem(MP5_NAME)))
 			return (true);
+		
+		if(ACEIT_ChangeWeapon(self,FindItem(GRENADE_NAME)))
+		{
+			self->client->pers.grenade_mode = 1;
+			return (true);
+		}
 
 		if(ACEIT_ChangeDualSpecialWeapon(self,FindItem(DUAL_NAME)))
 			return (true);
@@ -952,7 +975,7 @@ qboolean ACEAI_ChooseWeapon(edict_t *self)
 			{
 			gi.sound(self, CHAN_ITEM, gi.soundindex("misc/lensflik.wav"), 1, ATTN_NORM, 0);
 			self->client->resp.sniper_mode = SNIPER_1X;
-			self->client->desired_fov = 90;
+			self->client->desired_fov = SNIPER_FOV1;
 			}
 			return (true);
 		}
@@ -963,10 +986,10 @@ qboolean ACEAI_ChooseWeapon(edict_t *self)
 	if(ACEIT_ChangeHCSpecialWeapon(self,FindItem(HC_NAME)))
 		return (true);
 	
-	if(ACEIT_ChangeDualSpecialWeapon(self,FindItem(DUAL_NAME)))
+	if(ACEIT_ChangeM3SpecialWeapon(self,FindItem(M3_NAME)))
 		return (true);
 
-	if(ACEIT_ChangeM3SpecialWeapon(self,FindItem(M3_NAME)))
+	if(ACEIT_ChangeDualSpecialWeapon(self,FindItem(DUAL_NAME)))
 		return (true);
 	
 	if(ACEIT_ChangeM4SpecialWeapon(self,FindItem(M4_NAME)))
@@ -976,7 +999,10 @@ qboolean ACEAI_ChooseWeapon(edict_t *self)
    	   return (true);
 	
 	if(ACEIT_ChangeWeapon(self,FindItem(GRENADE_NAME)))
+	{
+		self->client->pers.grenade_mode = 0;
    	   return (true);
+	}
 
 	if(ACEIT_ChangeMK23SpecialWeapon(self,FindItem(MK23_NAME)))
    	   return (true);
@@ -990,7 +1016,7 @@ qboolean ACEAI_ChooseWeapon(edict_t *self)
 			{
 			gi.sound(self, CHAN_ITEM, gi.soundindex("misc/lensflik.wav"), 1, ATTN_NORM, 0);
 			self->client->resp.sniper_mode = SNIPER_1X;
-			self->client->desired_fov = 90;
+			self->client->desired_fov = SNIPER_FOV1;
 			}
 			return (true);
 		}
