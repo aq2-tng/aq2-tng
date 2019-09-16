@@ -909,7 +909,7 @@ qboolean ACEAI_ChooseWeapon(edict_t *self)
 		
 		if(ACEIT_ChangeSniperSpecialWeapon(self,FindItem(SNIPER_NAME)))
 		{
-			if (self->client->resp.sniper_mode!=SNIPER_1X)
+			if (self->client->resp.sniper_mode>SNIPER_2X)
 			{
 			gi.sound(self, CHAN_ITEM, gi.soundindex("misc/lensflik.wav"), 1, ATTN_NORM, 0);
 			self->client->resp.sniper_mode = SNIPER_1X;
