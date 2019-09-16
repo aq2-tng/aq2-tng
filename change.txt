@@ -98,6 +98,9 @@ From 2.81
 + Added 'loud_guns' to make non-silenced shots heard from farther away.  Default 1 is on, set to 0 for classic sound attenuation.
 + New domination game mode (set 'dom 1') where teams claim flags by touching them and gain points for maintaining control.
 + Can combine use_3team with teamdm or dom mode.
+- When not using maplist.ini, votes are now saved as action.ini-votes instead of maplist.ini-votes.  This fixes vote storage with 'ininame' cvar.
++ Added 'empty_rotate' to rotate maps when empty for that many minutes, to prevent being stuck on an unpopular map.  Default 0 means disabled.
++ Added 'empty_exec' to optionally execute config with empty_rotate.  Useful to revert to default settings on servers with configvote.
 + Added bot support.  Use 'sv addbot' to spawn them on demand, or 'botdata.cfg' to spawn them every map.
 * Bots branch no longer messes up multiplayer view models (player_state_t was not the expected size).
 - Tweaked bot aiming so they're not such ridiculous crack shots in certain circumstances.

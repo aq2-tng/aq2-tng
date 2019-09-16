@@ -594,7 +594,7 @@ edict_t *ACESP_SpawnBot( char *team_str, char *name, char *skin, char *userinfo 
 	{
 		if( team_str )
 			team = atoi( team_str );
-		if( ! team )
+		if( (team < TEAM1) || (team > teamCount) )
 			team = GetNextTeamNumber();
 		team_str = LocalTeamNames[ team ];
 	}

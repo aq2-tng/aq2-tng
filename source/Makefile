@@ -70,7 +70,7 @@ WIN32=yes
 endif
 
 ifdef WIN32
-#CC=i686-w64-mingw32-gcc
+CC=gcc
 CFLAGS+=-DWIN32
 ARCH=x86
 SHLIBEXT=dll

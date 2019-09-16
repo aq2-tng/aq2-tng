@@ -660,6 +660,17 @@ void ServerCommand (void)
 		else // name, skin
 			ACESP_SpawnBot (NULL, gi.argv(2), gi.argv(3), NULL);
 	}
+	else if (Q_stricmp (cmd, "addbots") == 0)
+	{
+		if( gi.argc() >= 3 )
+		{
+			int count = atoi(gi.argv(2)), i = 0;
+			for( i = 0; i < count; i ++ )
+				ACESP_SpawnBot( gi.argv(3), NULL, NULL, NULL );
+		}
+		else
+			gi.cprintf( NULL, PRINT_HIGH, "Usage: sv addbots <count> [<team>]\n" );
+	}
 	// removebot
 	else if(Q_stricmp (cmd, "removebot") == 0)
 		ACESP_RemoveBot(gi.argv(2));

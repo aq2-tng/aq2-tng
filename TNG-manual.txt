@@ -315,6 +315,22 @@ Features
   Commands:
   vrot [0/1] - Turn on (1), to use voterotation.
 
+* MapVote Next
+  Basically, this is a simplified and immediate form of Vote Rotation.  When the current map ends, if there
+  are any active map votes, the server moves to the most voted map instead of the next in rotation.
+
+  Commands:
+  mapvote_next [0/1] - Default on (1), set to 0 to disable this feature.
+
+* Empty Rotate
+  Prevent unpopular maps from keeping your server empty.  This feature will rotate the map after the server
+  has been empty for some number of minutes.  You can also specify a config file to execute, which can be
+  used to reset the server to default settings after configvote or rotate between multiple mode configs.
+
+  Commands:
+  empty_rotate [#] - Number of minutes before rotating empty server.  Default 0 disables this feature.
+  empty_exec "file.cfg" - Optional config to exec with empty rotate.  Default blank disables this.
+
 * Bandage Text
   When a client starts bandagine, a message ("You've started bandaging") will appear. Also the Health icon
   will appear on the bottom of the screen.
@@ -530,7 +546,7 @@ Features
 
   Commands:
   sv_fps [10/20/30/40/50/60] - set server framerate (default is 10)
-  sync_guns [0/1/2] - sync shot sounds: 0 removes lag, 1 syncs when multiple are shooting, 2 forces 10fps (default 1)
+  sync_guns [0/1/2] - 0 plays gun sounds on any frame, 1 syncs with recent shots, 2 delays all to 10fps (default 1)
 
 * Q2pro MVD server demo support
   When AQ2TNG is running under a q2pro Quake2 executable that is properly configured (built with CONFIG_MVD_SERVER
