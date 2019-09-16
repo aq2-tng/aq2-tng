@@ -1235,29 +1235,20 @@ void ACEMV_Attack (edict_t *self, usercmd_t *ucmd)
   }	//The rest applies even for fleeing bots
 
 	// Werewolf: Crouch if no laser light
-	if (ltk_skill->value >= 5 )
+	if( (ltk_skill->value >= 5)
+	&& ! INV_AMMO( self, LASER_NUM )
+	&& (  (self->client->m4_rds   && (self->client->weapon == FindItem(M4_NAME)))
+	   || (self->client->mp5_rds  && (self->client->weapon == FindItem(MP5_NAME)))
+	   || (self->client->mk23_rds && (self->client->weapon == FindItem(MK23_NAME)))
+	   || (self->client->dual_rds && (self->client->weapon == FindItem(DUAL_NAME))) ) )
 	{
-//		c = random();
-//		if(c < 0.50)	//Only crouch at 50% probability
-		if (!self->client->inventory[ITEM_INDEX(FindItem(LASER_NAME))])
-			if( (self->client->weapon == FindItem(M4_NAME)) ||
-				(self->client->weapon == FindItem(MP5_NAME)) ||
-				(self->client->weapon == FindItem(MK23_NAME)) )
-			{
-				ucmd->upmove = -SPEED_RUN;
-
-				// Raptor007: If not already crouched, make sure it doesn't put the enemy out of view.
-				if( ! self->client->ps.pmove.pm_flags & PMF_DUCKED )
-				{
-					float old_z = self->s.origin[2];
-					self->s.origin[2] -= 14;
-					if( ! ACEAI_CheckShot(self) )
-						ucmd->upmove = 0;
-					self->s.origin[2] = old_z;
-				}
-			}
+		// Raptor007: Don't crouch if it blocks the shot.
+		float old_z = self->s.origin[2];
+		self->s.origin[2] -= 14;
+		if( ACEAI_CheckShot(self) )
+			ucmd->upmove = -SPEED_RUN;
+		self->s.origin[2] = old_z;
 	}
-	
 
 	// Set the attack 
 	//@@ Check this doesn't break grenades!
