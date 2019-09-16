@@ -532,7 +532,7 @@ T_Damage (edict_t * targ, edict_t * inflictor, edict_t * attacker, vec3_t dir,
 					Stats_AddHit( attacker, mod, (gotArmor) ? LOC_KVLR_HELMET : LOC_HDAM );
 
 					//AQ2:TNG END
-					if (!friendlyFire)
+					if (!friendlyFire && !in_warmup)
 					{
 						attacker->client->resp.streakHS++;
 						if (attacker->client->resp.streakHS > attacker->client->resp.streakHSHighest)
