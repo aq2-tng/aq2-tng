@@ -1176,26 +1176,23 @@ void ACEMV_Attack (edict_t *self, usercmd_t *ucmd)
 			return;
 		}
 
-		if( dist < 200)
+		// Raptor007: Attempt longer knife throws when carrying many knives.
+		self->client->pers.knife_mode = 0;
+		if( (dist < 2000) && (dist < 400 + 300 * INV_AMMO(self,KNIFE_NUM)) )
 		{
 			// See if we want to throw the knife
-			if( random() < 0.3 && bHasWeapon)
+			if( bHasWeapon && (dist > 100) )
 			{
 				// Yes we do.
 				self->client->pers.knife_mode = 1;
 			}
-			else
+			else if( dist < 200 )
 			{
 				if( dist < 64 )	// Too close
 					ucmd->forwardmove = -SPEED_WALK;
 				// Kick Attack needed!
 				ucmd->upmove = SPEED_RUN;
 			}
-		}
-		else
-		{
-			// Outside desired throwing range
-			self->client->pers.knife_mode = 0;
 		}
 	}
 	else //if(!(self->client->weapon == FindItem(SNIPER_NAME))) // Stop moving with sniper rifle

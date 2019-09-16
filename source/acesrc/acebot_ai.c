@@ -969,6 +969,10 @@ qboolean ACEAI_ChooseWeapon(edict_t *self)
 		if(ACEIT_ChangeMK23SpecialWeapon(self,FindItem(MK23_NAME)))
    		   return (true);
 
+		// Raptor007: Throw knives at medium range if we have extras.
+		if( (INV_AMMO(self,KNIFE_NUM) >= 2) && ACEIT_ChangeWeapon(self,FindItem(KNIFE_NAME)) )
+			return (true);
+
 		if(ACEIT_ChangeSniperSpecialWeapon(self,FindItem(SNIPER_NAME)))
 		{
 			if (self->client->resp.sniper_mode!=SNIPER_1X)
