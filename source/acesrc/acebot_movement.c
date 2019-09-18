@@ -1233,6 +1233,7 @@ void ACEMV_Attack (edict_t *self, usercmd_t *ucmd)
 
 	// Werewolf: Crouch if no laser light
 	if( (ltk_skill->value >= 5)
+	&& self->groundentity
 	&& ! INV_AMMO( self, LASER_NUM )
 	&& (  (self->client->m4_rds   && (self->client->weapon == FindItem(M4_NAME)))
 	   || (self->client->mp5_rds  && (self->client->weapon == FindItem(MP5_NAME)))
