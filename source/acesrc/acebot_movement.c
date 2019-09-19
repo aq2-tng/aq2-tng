@@ -993,7 +993,7 @@ void ACEMV_Move(edict_t *self, usercmd_t *ucmd)
 	// Check to see if stuck, and if so try to free us
 	// Also handles crouching
 	VectorSubtract( self->s.origin, self->lastPosition, dist );
-	if( (VectorLength(self->velocity) < 37) || (VectorLength(dist) < 0.1) )
+	if( (VectorLength(self->velocity) < 37) || (VectorLength(dist) < FRAMETIME) )
 	{
 		// Keep a random factor just in case....
 		if(random() > 0.5 && ACEMV_SpecialMove(self, ucmd))
@@ -1062,25 +1062,33 @@ void ACEMV_Wander(edict_t *self, usercmd_t *ucmd)
 	// Swimming?
 	////////////////////////////////
 	VectorCopy(self->s.origin,temp);
-	temp[2]+=24;
+	temp[2]+=23;
 
 	if(gi.pointcontents (temp) & MASK_WATER)
 	{
 		// If drowning and no node, move up
 		if(self->client->next_drown_framenum > 0)
 		{
-//			ucmd->upmove = 1;
 			ucmd->upmove = SPEED_RUN;
+			ucmd->forwardmove = SPEED_RUN;
 			self->s.angles[PITCH] = -45;
 		}
 		else
-//			ucmd->upmove = 15;
+		{
 			ucmd->upmove = SPEED_WALK;
-
-		ucmd->forwardmove = SPEED_RUN * 3 / 4;
+			ucmd->forwardmove = SPEED_RUN * 3 / 4;
+		}
 	}
-//	else
-//		self->client->next_drown_time = 0; // probably shound not be messing with this, but
+
+	// See if we're jumping out of the water.
+	temp[2] = self->s.origin[2] - 8;
+	if( ! self->groundentity
+	&& (gi.pointcontents(temp) & MASK_WATER)
+	&& ACEMV_SpecialMove( self, ucmd ) )
+	{
+		self->velocity[2] = 270;  // FIXME: Is there a cleaner way?
+		return;
+	}
 	
 	////////////////////////////////
 	// Lava?
@@ -1089,7 +1097,6 @@ void ACEMV_Wander(edict_t *self, usercmd_t *ucmd)
 	if(gi.pointcontents(temp) & (CONTENTS_LAVA|CONTENTS_SLIME))
 	{
 		//	gi.bprintf(PRINT_MEDIUM,"lava jump\n");
-		self->s.angles[YAW] += random() * 360 - 180; 
 		ucmd->forwardmove = SPEED_RUN;
 		ucmd->upmove = SPEED_RUN;
 		return;
@@ -1100,7 +1107,7 @@ void ACEMV_Wander(edict_t *self, usercmd_t *ucmd)
 	
 	// Check for special movement if we have a normal move (have to test)
 	VectorSubtract( self->s.origin, self->lastPosition, temp );
-	if( (VectorLength(self->velocity) < 37) || (VectorLength(temp) < 0.1) )
+	if( (VectorLength(self->velocity) < 37) || (VectorLength(temp) < FRAMETIME) )
 	{
 		if(random() > 0.1 && ACEMV_SpecialMove(self,ucmd))
 			return;
