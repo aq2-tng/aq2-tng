@@ -992,7 +992,8 @@ void ACEMV_Move(edict_t *self, usercmd_t *ucmd)
 		
 	// Check to see if stuck, and if so try to free us
 	// Also handles crouching
- 	if( VectorLength(self->velocity) < 37 )
+	VectorSubtract( self->s.origin, self->lastPosition, dist );
+	if( (VectorLength(self->velocity) < 37) || (VectorLength(dist) < 0.1) )
 	{
 		// Keep a random factor just in case....
 		if(random() > 0.5 && ACEMV_SpecialMove(self, ucmd))
@@ -1098,7 +1099,8 @@ void ACEMV_Wander(edict_t *self, usercmd_t *ucmd)
 //		return;
 	
 	// Check for special movement if we have a normal move (have to test)
- 	if( VectorLength(self->velocity) < 37 )
+	VectorSubtract( self->s.origin, self->lastPosition, temp );
+	if( (VectorLength(self->velocity) < 37) || (VectorLength(temp) < 0.1) )
 	{
 		if(random() > 0.1 && ACEMV_SpecialMove(self,ucmd))
 			return;

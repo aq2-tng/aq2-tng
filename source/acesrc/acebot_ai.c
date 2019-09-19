@@ -293,6 +293,9 @@ void ACEAI_Think (edict_t *self)
 
 	//debug_printf("State: %d\n",self->state);
 
+	// Remember where we were, to check if we got stuck.
+	VectorCopy( self->s.origin, self->lastPosition );
+
 	// set approximate ping
 	ucmd.msec = 1000 / BOT_FPS;
 	self->client->ps.pmove.pm_time = ucmd.msec / 8;
