@@ -904,9 +904,9 @@ void ACEMV_Move(edict_t *self, usercmd_t *ucmd)
 		VectorNormalize( dist );
 		VectorScale( dist, SPEED_RUN, self->velocity );
 		if( dist[2] >= 0 )
-			self->velocity[2] = min( SPEED_RUN * 3/4, self->velocity[2] );
+			self->velocity[2] = min( 200, self->velocity[2] );
 		else
-			self->velocity[2] = max( SPEED_RUN / -2, self->velocity[2] );
+			self->velocity[2] = max( -200, self->velocity[2] );
 		ACEMV_ChangeBotAngle(self);
 		return;
 	}
@@ -932,8 +932,8 @@ void ACEMV_Move(edict_t *self, usercmd_t *ucmd)
 	   )
 	{
 		ucmd->forwardmove = SPEED_WALK; // Reduced from SPEED_RUN
-		ucmd->upmove = SPEED_WALK;
-//		self->velocity[2] = SPEED_WALK;
+		ucmd->upmove = SPEED_RUN;
+		self->velocity[2] = 200;
 		ACEMV_ChangeBotAngle(self);
 		return;
 	}
@@ -1079,7 +1079,7 @@ void ACEMV_Wander(edict_t *self, usercmd_t *ucmd)
 		// FIXME: Dirty hack so the bots can actually use ladders.
 		self->velocity[0] = 0;
 		self->velocity[1] = 0;
-		self->velocity[2] = SPEED_RUN * 3/4;
+		self->velocity[2] = 200;
 
 		if( moved >= FRAMETIME )
 			return;
