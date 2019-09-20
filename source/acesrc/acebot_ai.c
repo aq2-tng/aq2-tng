@@ -136,12 +136,8 @@ void ACEAI_Think (edict_t *self)
 	if(VectorLength(self->velocity) > 37) //
 		self->suicide_timeout = level.framenum + 10.0 * HZ;
 
-
 	if( self->suicide_timeout < level.framenum && !teamplay->value )
-	{
-		self->health = 0;
-		player_die (self, self, self, 100000, vec3_origin);
-	}
+		killPlayer( self, true );
 
 	// Find any short range goal
 	ACEAI_PickShortRangeGoal(self);
