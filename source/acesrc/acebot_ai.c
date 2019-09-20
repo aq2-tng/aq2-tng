@@ -136,12 +136,8 @@ void ACEAI_Think (edict_t *self)
 	if(VectorLength(self->velocity) > 37) //
 		self->suicide_timeout = level.framenum + 10.0 * HZ;
 
-
 	if( self->suicide_timeout < level.framenum && !teamplay->value )
-	{
-		self->health = 0;
-		player_die (self, self, self, 100000, vec3_origin);
-	}
+		killPlayer( self, true );
 
 	// Find any short range goal
 	ACEAI_PickShortRangeGoal(self);
@@ -292,6 +288,9 @@ void ACEAI_Think (edict_t *self)
 //AQ2 END
 
 	//debug_printf("State: %d\n",self->state);
+
+	// Remember where we were, to check if we got stuck.
+	VectorCopy( self->s.origin, self->lastPosition );
 
 	// set approximate ping
 	ucmd.msec = 1000 / BOT_FPS;
@@ -816,6 +815,19 @@ qboolean ACEAI_CheckShot(edict_t *self)
 }
 
 ///////////////////////////////////////////////////////////////////////
+// Choose the sniper zoom when allowed
+///////////////////////////////////////////////////////////////////////
+void _SetSniper( edict_t *ent, int zoom );
+void ACEAI_SetSniper( edict_t *self, int zoom )
+{
+	if( (self->client->weaponstate != WEAPON_FIRING)
+	&&  (self->client->weaponstate != WEAPON_BUSY)
+	&& ! self->client->bandaging
+	&& ! self->client->bandage_stopped )
+		_SetSniper( self, zoom );
+}
+
+///////////////////////////////////////////////////////////////////////
 // Choose the best weapon for bot (simplified)
 // Modified by Werewolf to use sniper zoom
 ///////////////////////////////////////////////////////////////////////
@@ -845,12 +857,7 @@ qboolean ACEAI_ChooseWeapon(edict_t *self)
 	{
 		if(ACEIT_ChangeSniperSpecialWeapon(self,FindItem(SNIPER_NAME)))
 		{
-			if (self->client->resp.sniper_mode<SNIPER_2X)
-			{
-			gi.sound(self, CHAN_ITEM, gi.soundindex("misc/lensflik.wav"), 1, ATTN_NORM, 0);
-			self->client->resp.sniper_mode = SNIPER_2X;
-			self->client->desired_fov = SNIPER_FOV2;
-			}
+			ACEAI_SetSniper( self, 2 );
 			return (true);
 		}
 	}
@@ -863,12 +870,7 @@ qboolean ACEAI_ChooseWeapon(edict_t *self)
 
 		if(ACEIT_ChangeSniperSpecialWeapon(self,FindItem(SNIPER_NAME)))
 		{
-			if (self->client->resp.sniper_mode<SNIPER_2X)
-			{
-			gi.sound(self, CHAN_ITEM, gi.soundindex("misc/lensflik.wav"), 1, ATTN_NORM, 0);
-			self->client->resp.sniper_mode = SNIPER_2X;
-			self->client->desired_fov = SNIPER_FOV2;
-			}
+			ACEAI_SetSniper( self, 2 );
 			return (true);
 		}
 		
@@ -893,12 +895,7 @@ qboolean ACEAI_ChooseWeapon(edict_t *self)
 
 		if(ACEIT_ChangeSniperSpecialWeapon(self,FindItem(SNIPER_NAME)))
 		{
-			if (self->client->resp.sniper_mode!=SNIPER_2X)
-			{
-			gi.sound(self, CHAN_ITEM, gi.soundindex("misc/lensflik.wav"), 1, ATTN_NORM, 0);
-			self->client->resp.sniper_mode = SNIPER_2X;
-			self->client->desired_fov = SNIPER_FOV2;
-			}
+			ACEAI_SetSniper( self, 2 );
 			return (true);
 		}
 	
@@ -926,12 +923,7 @@ qboolean ACEAI_ChooseWeapon(edict_t *self)
 
 		if(ACEIT_ChangeSniperSpecialWeapon(self,FindItem(SNIPER_NAME)))
 		{
-			if (self->client->resp.sniper_mode>SNIPER_2X)
-			{
-			gi.sound(self, CHAN_ITEM, gi.soundindex("misc/lensflik.wav"), 1, ATTN_NORM, 0);
-			self->client->resp.sniper_mode = SNIPER_1X;
-			self->client->desired_fov = SNIPER_FOV1;
-			}
+			ACEAI_SetSniper( self, 2 );
 			return (true);
 		}
 	
@@ -975,12 +967,7 @@ qboolean ACEAI_ChooseWeapon(edict_t *self)
 
 		if(ACEIT_ChangeSniperSpecialWeapon(self,FindItem(SNIPER_NAME)))
 		{
-			if (self->client->resp.sniper_mode!=SNIPER_1X)
-			{
-			gi.sound(self, CHAN_ITEM, gi.soundindex("misc/lensflik.wav"), 1, ATTN_NORM, 0);
-			self->client->resp.sniper_mode = SNIPER_1X;
-			self->client->desired_fov = SNIPER_FOV1;
-			}
+			ACEAI_SetSniper( self, 1 );
 			return (true);
 		}
 	
@@ -1015,15 +1002,10 @@ qboolean ACEAI_ChooseWeapon(edict_t *self)
    	   return (true);
 
 	if(ACEIT_ChangeSniperSpecialWeapon(self,FindItem(SNIPER_NAME)))
-		{
-			if (self->client->resp.sniper_mode!=SNIPER_1X)
-			{
-			gi.sound(self, CHAN_ITEM, gi.soundindex("misc/lensflik.wav"), 1, ATTN_NORM, 0);
-			self->client->resp.sniper_mode = SNIPER_1X;
-			self->client->desired_fov = SNIPER_FOV1;
-			}
-			return (true);
-		}
+	{
+		ACEAI_SetSniper( self, 1 );
+		return (true);
+	}
 
 
 	
