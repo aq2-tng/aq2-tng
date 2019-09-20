@@ -56,6 +56,8 @@ void ACEMV_ChangeBotAngle (edict_t *ent);
 qboolean	ACEND_LadderForward( edict_t *self );
 qboolean ACEMV_CanJump(edict_t *self);
 
+qboolean OnLadder( edict_t *ent );  // p_view.c
+
 /*
 =============
 M_CheckBottom
@@ -1036,6 +1038,8 @@ void ACEMV_Move(edict_t *self, usercmd_t *ucmd)
 void ACEMV_Wander(edict_t *self, usercmd_t *ucmd)
 {
 	vec3_t  temp;
+	int content_head = 0, content_feet = 0;
+	float moved = 0;
 	
 	// Do not move
 	if(self->next_move_time > level.framenum)
@@ -1058,56 +1062,71 @@ void ACEMV_Wander(edict_t *self, usercmd_t *ucmd)
 	if (self->movetarget)
 		ACEMV_MoveToGoal(self,ucmd);
 		
+	VectorSubtract( self->s.origin, self->lastPosition, temp );
+	moved = VectorLength(temp);
+
+	////////////////////////////////
+	// Ladder?
+	////////////////////////////////
+	// To avoid unnecessary falls, don't use ladders when on solid ground.
+	if( (! self->groundentity) && OnLadder(self) )
+	{
+		ucmd->upmove = SPEED_RUN;
+		ucmd->forwardmove = 0;
+		ucmd->sidemove = 0;
+		self->s.angles[PITCH] = -15;
+
+		// FIXME: Dirty hack so the bots can actually use ladders.
+		self->velocity[0] = 0;
+		self->velocity[1] = 0;
+		self->velocity[2] = SPEED_RUN * 3/4;
+
+		if( moved >= FRAMETIME )
+			return;
+	}
+
 	////////////////////////////////
 	// Swimming?
 	////////////////////////////////
 	VectorCopy(self->s.origin,temp);
-	temp[2]+=23;
+	temp[2] += 22;
+	content_head = gi.pointcontents(temp);
+	temp[2] = self->s.origin[2] - 8;
+	content_feet = gi.pointcontents(temp);
 
-	if(gi.pointcontents (temp) & MASK_WATER)
+	// Just try to keep our head above water.
+	if( content_head & MASK_WATER )
 	{
 		// If drowning and no node, move up
 		if(self->client->next_drown_framenum > 0)
 		{
 			ucmd->upmove = SPEED_RUN;
-			ucmd->forwardmove = SPEED_RUN;
 			self->s.angles[PITCH] = -45;
 		}
 		else
-		{
 			ucmd->upmove = SPEED_WALK;
-			ucmd->forwardmove = SPEED_RUN * 3 / 4;
-		}
 	}
 
+	// Don't wade in lava, try to get out!
+	if( content_feet & (CONTENTS_LAVA|CONTENTS_SLIME) )
+		ucmd->upmove = SPEED_RUN;
+
 	// See if we're jumping out of the water.
-	temp[2] = self->s.origin[2] - 8;
 	if( ! self->groundentity
-	&& (gi.pointcontents(temp) & MASK_WATER)
+	&& (content_feet & MASK_WATER)
 	&& ACEMV_SpecialMove( self, ucmd ) )
 	{
-		self->velocity[2] = 270;  // FIXME: Is there a cleaner way?
-		return;
-	}
-	
-	////////////////////////////////
-	// Lava?
-	////////////////////////////////
-	temp[2]-=48;	
-	if(gi.pointcontents(temp) & (CONTENTS_LAVA|CONTENTS_SLIME))
-	{
-		//	gi.bprintf(PRINT_MEDIUM,"lava jump\n");
-		ucmd->forwardmove = SPEED_RUN;
-		ucmd->upmove = SPEED_RUN;
-		return;
+		if( ucmd->upmove > 0 )
+			self->velocity[2] = 270;  // FIXME: Is there a cleaner way?
+		if( moved >= FRAMETIME )
+			return;
 	}
 
 //@@	if(ACEMV_CheckEyes(self,ucmd))
 //		return;
 	
 	// Check for special movement if we have a normal move (have to test)
-	VectorSubtract( self->s.origin, self->lastPosition, temp );
-	if( (VectorLength(self->velocity) < 37) || (VectorLength(temp) < FRAMETIME) )
+	if( (VectorLength(self->velocity) < 37) || (moved < FRAMETIME) )
 	{
 		if(random() > 0.1 && ACEMV_SpecialMove(self,ucmd))
 			return;
@@ -1115,7 +1134,9 @@ void ACEMV_Wander(edict_t *self, usercmd_t *ucmd)
 		self->s.angles[YAW] += random() * 180 - 90; 
 		self->s.angles[PITCH] = 0;
 
-		if(!M_CheckBottom(self) && !self->groundentity) // if there is ground continue otherwise wait for next move
+		if( content_feet & MASK_WATER )  // Just keep swimming.
+			ucmd->forwardmove = SPEED_RUN;
+		else if(!M_CheckBottom(self) && !self->groundentity) // if there is ground continue otherwise wait for next move
 			ucmd->forwardmove = 0;
 		else if( ACEMV_CanMove( self, MOVE_FORWARD))
 			ucmd->forwardmove = SPEED_WALK;
@@ -1125,7 +1146,8 @@ void ACEMV_Wander(edict_t *self, usercmd_t *ucmd)
 	
 	// Otherwise move as fast as we can
 	// If it's safe to move forward (I can't believe ACE didn't check this!
-	if( ACEMV_CanMove( self, MOVE_FORWARD))
+	if( ACEMV_CanMove( self, MOVE_FORWARD )
+	|| (content_feet & MASK_WATER) )
 	{
 		ucmd->forwardmove = SPEED_RUN;
 	}
