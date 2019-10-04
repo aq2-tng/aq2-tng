@@ -760,7 +760,7 @@ qboolean ACEAI_FindEnemy(edict_t *self, int *total)
 		return true;
 	}
 	// Check if we've been shot from behind or out of view
-	if( self->client->attacker && self->client->attacker->inuse )
+	if( self->client->attacker && self->client->attacker->inuse && (self->client->attacker != self) )
 	{
 		// Check if it was recent
 		if( self->client->push_timeout > 0)
