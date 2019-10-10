@@ -1015,7 +1015,8 @@ void G_RunFrame (void)
 	IRC_poll ();
 
 	// If the server is empty, don't wait at intermission.
-	if( level.intermission_framenum && ! _numclients() )
+	qboolean empty = ! _numclients();
+	if( level.intermission_framenum && empty )
 		level.intermission_exit = 1;
 
 	// exit intermissions
@@ -1104,7 +1105,7 @@ void G_RunFrame (void)
 		level.time = level.framenum * FRAMETIME;
 
 		// Raptor007: So we can always use level.matchTime for timelimit / halftime.
-		if( ! matchmode->value )
+		if( ! matchmode->value && ! empty )
 			level.matchTime += FRAMETIME;
 
 		if (level.framenum % (5 * HZ) == 0) {
