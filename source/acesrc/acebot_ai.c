@@ -893,6 +893,9 @@ qboolean ACEAI_ChooseWeapon(edict_t *self)
 			return (true);
 		}
 		
+		if( INV_AMMO(self,SIL_NUM) && ACEIT_ChangeMK23SpecialWeapon(self,FindItem(MK23_NAME)) )
+			return (true);
+
 		if(ACEIT_ChangeM4SpecialWeapon(self,FindItem(M4_NAME)))
 			return (true);
 
@@ -903,6 +906,15 @@ qboolean ACEAI_ChooseWeapon(edict_t *self)
 	// Longer range 
 	if(range > 700)
 	{		
+		if( INV_AMMO(self,SIL_NUM) )
+		{
+			if(ACEIT_ChangeMP5SpecialWeapon(self,FindItem(MP5_NAME)))
+				return (true);
+
+			if(ACEIT_ChangeMK23SpecialWeapon(self,FindItem(MK23_NAME)))
+				return (true);
+		}
+
 		if(ACEIT_ChangeM4SpecialWeapon(self,FindItem(M4_NAME)))
 			return (true);
 		
@@ -931,6 +943,15 @@ qboolean ACEAI_ChooseWeapon(edict_t *self)
 	// Long range 
 	if(range > 500)
 	{		
+		if( INV_AMMO(self,LASER_NUM) )
+		{
+			if(ACEIT_ChangeM4SpecialWeapon(self,FindItem(M4_NAME)))
+				return (true);
+
+			if(ACEIT_ChangeMP5SpecialWeapon(self,FindItem(MP5_NAME)))
+				return (true);
+		}
+
 		if(ACEIT_ChangeM3SpecialWeapon(self,FindItem(M3_NAME)))
 			return (true);
 		
@@ -959,6 +980,18 @@ qboolean ACEAI_ChooseWeapon(edict_t *self)
 	// Medium range 
 	if(range > 200)
 	{		
+		if( INV_AMMO(self,SLIP_NUM) && ACEIT_ChangeHCSpecialWeapon(self,FindItem(HC_NAME)) )
+			return (true);
+
+		if( INV_AMMO(self,LASER_NUM) )
+		{
+			if(ACEIT_ChangeM4SpecialWeapon(self,FindItem(M4_NAME)))
+				return (true);
+
+			if(ACEIT_ChangeMP5SpecialWeapon(self,FindItem(MP5_NAME)))
+				return (true);
+		}
+
 		if(ACEIT_ChangeM3SpecialWeapon(self,FindItem(M3_NAME)))
 			return (true);
 		
@@ -996,6 +1029,15 @@ qboolean ACEAI_ChooseWeapon(edict_t *self)
 	if(ACEIT_ChangeHCSpecialWeapon(self,FindItem(HC_NAME)))
 		return (true);
 	
+	if( INV_AMMO(self,LASER_NUM) )
+	{
+		if(ACEIT_ChangeM4SpecialWeapon(self,FindItem(M4_NAME)))
+			return (true);
+
+		if(ACEIT_ChangeMP5SpecialWeapon(self,FindItem(MP5_NAME)))
+			return (true);
+	}
+
 	if(ACEIT_ChangeM3SpecialWeapon(self,FindItem(M3_NAME)))
 		return (true);
 
