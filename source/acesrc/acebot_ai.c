@@ -751,7 +751,7 @@ qboolean ACEAI_FindEnemy(edict_t *self, int *total)
 			{
 				// Can we see their laser sight?
 				edict_t *laser = players[i]->client->lasersight;
-				visible = laser && infront( self, laser ) && ai_visible( self, laser );
+				visible = laser && (laser->s.modelindex != level.model_null) && infront( self, laser ) && ai_visible( self, laser );
 			}
 
 			// Can we see this enemy, or are they calling attention to themselves?
