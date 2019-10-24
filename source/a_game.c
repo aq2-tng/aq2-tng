@@ -848,9 +848,9 @@ void EjectShell(edict_t * self, vec3_t start, int toggle)
 	shell->movetype = MOVETYPE_BOUNCE;
 	shell->solid = SOLID_BBOX;
 
-	if (self->client->curr_weap == M3_NUM)
+	if( (self->client->curr_weap == M3_NUM) || (self->client->curr_weap == HC_NUM) )
 		shell->s.modelindex = gi.modelindex("models/weapons/shell/tris2.md2");
-	else if (self->client->curr_weap == SNIPER_NUM)
+	else if( (self->client->curr_weap == SNIPER_NUM) || (self->client->curr_weap == M4_NUM) )
 		shell->s.modelindex = gi.modelindex("models/weapons/shell/tris3.md2");
 	else
 		shell->s.modelindex = gi.modelindex("models/weapons/shell/tris.md2");
