@@ -703,40 +703,59 @@ qboolean ACEAI_FindEnemy(edict_t *self, int *total)
 		{
 // RiEvEr
 			// Now we assess this enemy
+			qboolean visible = infront( self, players[i] );
 			VectorSubtract(self->s.origin, players[i]->s.origin, dist);
 			weight = VectorLength( dist );
 
-			// Can we hear their weapon firing?
-			qboolean weapon_loud = false;
-			if( players[i]->client->weaponstate == WEAPON_FIRING || players[i]->client->weaponstate == WEAPON_BURSTING )
+			if( ! visible )
 			{
-				switch( players[i]->client->weapon->typeNum )
+				// Can we hear their footsteps?
+				visible = (weight < 300) && !INV_AMMO( players[i], SLIP_NUM );
+			}
+
+			if( ! visible )
+			{
+				// Can we hear their weapon firing?
+				if( players[i]->client->weaponstate == WEAPON_FIRING || players[i]->client->weaponstate == WEAPON_BURSTING )
 				{
-					case DUAL_NUM:
-					case M4_NUM:
-					case M3_NUM:
-					case HC_NUM:
-						weapon_loud = true;
-						break;
-					case KNIFE_NUM:
-					case GRENADE_NUM:
-						break;
-					default:
-						weapon_loud = !INV_AMMO( players[i], SIL_NUM );
+					switch( players[i]->client->weapon->typeNum )
+					{
+						case DUAL_NUM:
+						case M4_NUM:
+						case M3_NUM:
+						case HC_NUM:
+							visible = true;
+							break;
+						case KNIFE_NUM:
+						case GRENADE_NUM:
+							break;
+						default:
+							visible = !INV_AMMO( players[i], SIL_NUM );
+					}
 				}
 			}
 
-			// Can we see their flashlight?
-			edict_t *fl = players[i]->client->flashlight;
-			qboolean flashlight_vis = fl && infront( self, fl );
-			if( fl && ! flashlight_vis )
+			if( ! visible )
 			{
-				VectorSubtract( self->s.origin, fl->s.origin, dist );
-				flashlight_vis = (VectorLength(dist) < 100);
+				// Can we see their flashlight?
+				edict_t *fl = players[i]->client->flashlight;
+				visible = fl && infront( self, fl );
+				if( fl && ! visible )
+				{
+					VectorSubtract( self->s.origin, fl->s.origin, dist );
+					visible = (VectorLength(dist) < 100);
+				}
+			}
+
+			if( ! visible )
+			{
+				// Can we see their laser sight?
+				edict_t *laser = players[i]->client->lasersight;
+				visible = laser && (laser->s.modelindex != level.model_null) && infront( self, laser ) && ai_visible( self, laser );
 			}
 
 			// Can we see this enemy, or are they calling attention to themselves?
-			if( infront( self, players[i] ) || flashlight_vis || weapon_loud || ((weight < 300) && !INV_AMMO( players[i], SLIP_NUM )) )
+			if( visible )
 			{
 				total+=1;
 
@@ -760,7 +779,7 @@ qboolean ACEAI_FindEnemy(edict_t *self, int *total)
 		return true;
 	}
 	// Check if we've been shot from behind or out of view
-	if( self->client->attacker && self->client->attacker->inuse )
+	if( self->client->attacker && self->client->attacker->inuse && (self->client->attacker != self) )
 	{
 		// Check if it was recent
 		if( self->client->push_timeout > 0)
@@ -874,6 +893,9 @@ qboolean ACEAI_ChooseWeapon(edict_t *self)
 			return (true);
 		}
 		
+		if( INV_AMMO(self,SIL_NUM) && ACEIT_ChangeMK23SpecialWeapon(self,FindItem(MK23_NAME)) )
+			return (true);
+
 		if(ACEIT_ChangeM4SpecialWeapon(self,FindItem(M4_NAME)))
 			return (true);
 
@@ -884,6 +906,15 @@ qboolean ACEAI_ChooseWeapon(edict_t *self)
 	// Longer range 
 	if(range > 700)
 	{		
+		if( INV_AMMO(self,SIL_NUM) )
+		{
+			if(ACEIT_ChangeMP5SpecialWeapon(self,FindItem(MP5_NAME)))
+				return (true);
+
+			if(ACEIT_ChangeMK23SpecialWeapon(self,FindItem(MK23_NAME)))
+				return (true);
+		}
+
 		if(ACEIT_ChangeM4SpecialWeapon(self,FindItem(M4_NAME)))
 			return (true);
 		
@@ -912,6 +943,15 @@ qboolean ACEAI_ChooseWeapon(edict_t *self)
 	// Long range 
 	if(range > 500)
 	{		
+		if( INV_AMMO(self,LASER_NUM) )
+		{
+			if(ACEIT_ChangeM4SpecialWeapon(self,FindItem(M4_NAME)))
+				return (true);
+
+			if(ACEIT_ChangeMP5SpecialWeapon(self,FindItem(MP5_NAME)))
+				return (true);
+		}
+
 		if(ACEIT_ChangeM3SpecialWeapon(self,FindItem(M3_NAME)))
 			return (true);
 		
@@ -940,6 +980,18 @@ qboolean ACEAI_ChooseWeapon(edict_t *self)
 	// Medium range 
 	if(range > 200)
 	{		
+		if( INV_AMMO(self,SLIP_NUM) && ACEIT_ChangeHCSpecialWeapon(self,FindItem(HC_NAME)) )
+			return (true);
+
+		if( INV_AMMO(self,LASER_NUM) )
+		{
+			if(ACEIT_ChangeM4SpecialWeapon(self,FindItem(M4_NAME)))
+				return (true);
+
+			if(ACEIT_ChangeMP5SpecialWeapon(self,FindItem(MP5_NAME)))
+				return (true);
+		}
+
 		if(ACEIT_ChangeM3SpecialWeapon(self,FindItem(M3_NAME)))
 			return (true);
 		
@@ -977,6 +1029,15 @@ qboolean ACEAI_ChooseWeapon(edict_t *self)
 	if(ACEIT_ChangeHCSpecialWeapon(self,FindItem(HC_NAME)))
 		return (true);
 	
+	if( INV_AMMO(self,LASER_NUM) )
+	{
+		if(ACEIT_ChangeM4SpecialWeapon(self,FindItem(M4_NAME)))
+			return (true);
+
+		if(ACEIT_ChangeMP5SpecialWeapon(self,FindItem(MP5_NAME)))
+			return (true);
+	}
+
 	if(ACEIT_ChangeM3SpecialWeapon(self,FindItem(M3_NAME)))
 		return (true);
 

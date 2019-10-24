@@ -1431,6 +1431,8 @@ int TeamHasPlayers (int team)
 	return players;
 }
 
+int _numclients( void );  // a_vote.c
+
 qboolean BothTeamsHavePlayers()
 {
 	int players[TEAM_TOP] = { 0 }, i, teamsWithPlayers;
@@ -1443,6 +1445,9 @@ qboolean BothTeamsHavePlayers()
 
 	if (use_tourney->value)
 		return (LastOpponent > 1);
+
+	if( ! _numclients() )
+		return false;
 
 	for (i = 0; i < game.maxclients; i++)
 	{

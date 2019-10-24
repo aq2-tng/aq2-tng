@@ -851,7 +851,7 @@ static void Cmd_Use_f (edict_t * ent)
 	}
 
 	if (!ent->client->inventory[ITEM_INDEX(it)]) {
-		gi.cprintf (ent, PRINT_HIGH, "Out of item: %s\n", s);
+		//gi.cprintf (ent, PRINT_HIGH, "Out of item: %s\n", s);
 		return;
 	}
 
