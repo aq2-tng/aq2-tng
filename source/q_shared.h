@@ -136,6 +136,8 @@
 # ifndef Q_strnicmp 
 #  define Q_strnicmp(s1, s2, n) _strnicmp((s1), (s2), (n))
 # endif
+#define strcasecmp Q_stricmp    //QwazyWabbit for WIN32 compatibility
+#define strncasecmp Q_strnicmp
 #endif
 
 #ifdef HAVE_STRCASECMP
