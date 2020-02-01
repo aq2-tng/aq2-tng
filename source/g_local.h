@@ -554,8 +554,14 @@ bind 6 "use Sniper Rifle"
 #define KNIFE_NAME   "Combat Knife"
 #define GRENADE_NAME "M26 Fragmentation Grenade"
 
+#define MK23_AMMO_NAME    "Pistol Magazine"
+#define MP5_AMMO_NAME     "MP5 Magazine"
+#define M4_AMMO_NAME      "M4 Magazine"
+#define SHOTGUN_AMMO_NAME "12 Gauge Shells"
+#define SNIPER_AMMO_NAME  "AP Sniper Ammo"
+
 #define SIL_NAME     "Silencer"
-#define SLIP_NAME    "Stealth Slippers"
+#define SLIP_NAME    "Stealth Slippers & Greaves"
 #define BAND_NAME    "Bandolier"
 #define KEV_NAME     "Kevlar Vest"
 #define HELM_NAME    "Kevlar Helmet"
@@ -1942,29 +1948,6 @@ void EjectBlooder (edict_t * self, vec3_t start, vec3_t veloc);
 void EjectShell (edict_t * self, vec3_t start, int toggle);
 void AddDecal (edict_t * self, trace_t * tr);
 void AddSplat (edict_t * self, vec3_t point, trace_t * tr);
-
-#define MK23_NAME    "MK23 Pistol"
-#define MP5_NAME     "MP5/10 Submachinegun"
-#define M4_NAME      "M4 Assault Rifle"
-#define M3_NAME      "M3 Super 90 Assault Shotgun"
-#define HC_NAME      "Handcannon"
-#define SNIPER_NAME  "Sniper Rifle"
-#define DUAL_NAME    "Dual MK23 Pistols"
-#define KNIFE_NAME   "Combat Knife"
-#define GRENADE_NAME "M26 Fragmentation Grenade"
-
-#define MK23_AMMO_NAME    "Pistol Magazine"
-#define MP5_AMMO_NAME     "MP5 Magazine"
-#define M4_AMMO_NAME      "M4 Magazine"
-#define SHOTGUN_AMMO_NAME "12 Gauge Shells"
-#define SNIPER_AMMO_NAME  "AP Sniper Ammo"
-
-#define SIL_NAME     "Silencer"
-#define SLIP_NAME    "Stealth Slippers"
-#define BAND_NAME    "Bandolier"
-#define KEV_NAME     "Kevlar Vest"
-#define HELM_NAME    "Kevlar Helmet"
-#define LASER_NAME   "Lasersight"
 
 //AQ2:TNG - Slicer New location support
 #define MAX_LOCATIONS_IN_BASE		256	// Max amount of locations
