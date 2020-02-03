@@ -77,6 +77,7 @@
 #pragma warning(disable : 4018)	// signed/unsigned mismatch
 #pragma warning(disable : 4305)	// truncation from const double to float
 #pragma warning(disable : 4996)	// deprecated functions
+#pragma warning(disable : 4100)	// unreferenced formal parameter
 #endif
 
 # define HAVE___INLINE

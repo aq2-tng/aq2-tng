@@ -324,19 +324,19 @@ qboolean DomLoadConfig( const char *mapname )
 		edict_t *spawns[ 32 ] = {0}, *spot = NULL;
 		int spawn_count = 0, need = 3;
 
-		if(( spot = G_Find( NULL, FOFS(classname), "item_flag_team1" ) ))
+		if(( spot = G_Find( NULL, FOFS(classname), "item_flag_team1" )) != NULL)
 		{
 			DomMakeFlag( spot );
 			need --;
 		}
-		if(( spot = G_Find( NULL, FOFS(classname), "item_flag_team2" ) ))
+		if(( spot = G_Find( NULL, FOFS(classname), "item_flag_team2" )) != NULL)
 		{
 			DomMakeFlag( spot );
 			need --;
 		}
 
 		spot = NULL;
-		while( ((spot = G_Find( spot, FOFS(classname), "info_player_deathmatch" ))) && (spawn_count < 32) )
+		while( ((spot = G_Find( spot, FOFS(classname), "info_player_deathmatch" )) != NULL) && (spawn_count < 32) )
 		{
 			spawns[ spawn_count ] = spot;
 			spawn_count ++;
