@@ -1,3 +1,5 @@
+./Debug/
+./Release/
 *.so
 *.o
 *.tar.gz
