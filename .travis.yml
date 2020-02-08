@@ -3,5 +3,5 @@ language: c
 compiler: gcc
 
 script:
-  - make all -C ./
+  - make all -C ./source
 
