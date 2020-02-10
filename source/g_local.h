@@ -325,8 +325,8 @@
 #define MASK_TIMEOFS		16
 
 // view pitching times
-#define DAMAGE_TIME             0.5
-#define FALL_TIME               0.3
+#define DAMAGE_TIME             0.5f
+#define FALL_TIME               0.3f
 
 // edict->spawnflags
 // these are set with checkboxes on each entity in the map editor
@@ -1245,6 +1245,7 @@ void ThrowHead (edict_t * self, char *gibname, int damage, int type);
 void ThrowClientHead (edict_t * self, int damage);
 void ThrowGib (edict_t * self, char *gibname, int damage, int type);
 void BecomeExplosion1 (edict_t * self);
+void SP_misc_teleporter_dest(edict_t* ent);
 
 //
 // g_weapon.c
@@ -1266,8 +1267,10 @@ void kick_attack(edict_t *ent);
 void punch_attack(edict_t *ent);
 int knife_attack(edict_t *self, vec3_t start, vec3_t aimdir, int damage, int kick);
 void knife_throw(edict_t *self, vec3_t start, vec3_t dir, int damage, int speed);
+void knife_touch(edict_t* ent, edict_t* other, cplane_t* plane, csurface_t* surf);
 void fire_bullet_sparks(edict_t *self, vec3_t start, vec3_t aimdir, int damage, int kick, int hspread, int vspread, int mod);
 void fire_bullet_sniper(edict_t *self, vec3_t start, vec3_t aimdir, int damage, int kick, int hspread, int vspread, int mod);
+void setFFState(edict_t* ent);
 
 //
 // g_client.c
@@ -1305,6 +1308,7 @@ void MoveClientToIntermission (edict_t * client);
 void G_SetStats (edict_t * ent);
 void G_CheckChaseStats (edict_t * ent);
 void ValidateSelectedItem (edict_t * ent);
+void DeathmatchScoreboard(edict_t* ent);
 void DeathmatchScoreboardMessage (edict_t * client, edict_t * killer);
 
 //
@@ -1339,8 +1343,19 @@ void GetChaseTarget (edict_t * ent);
 //
 void ChangePlayerSpawns();
 void ED_CallSpawn( edict_t *ent );
+char* ED_NewString(char* string);
 void G_UpdateSpectatorStatusbar( void );
 void G_UpdatePlayerStatusbar( edict_t *ent, int force );
+
+//
+// p_client.c
+//
+edict_t* SelectRandomDeathmatchSpawnPoint(void);
+edict_t* SelectFarthestDeathmatchSpawnPoint(void);
+float PlayersRangeFromSpot(edict_t* spot);
+void ClientUserinfoChanged(edict_t* ent, char* userinfo);
+void ClientDisconnect(edict_t* ent);
+void CopyToBodyQue(edict_t* ent);
 
 //p_weapon.c
 void Weapon_Generic( edict_t * ent, int FRAME_ACTIVATE_LAST, int FRAME_FIRE_LAST,
@@ -1351,6 +1366,10 @@ void Weapon_Generic( edict_t * ent, int FRAME_ACTIVATE_LAST, int FRAME_FIRE_LAST
 void PlayWeaponSound( edict_t *ent );
 
 void P_ProjectSource(gclient_t *client, vec3_t point, vec3_t distance, vec3_t forward, vec3_t right, vec3_t result);
+void weapon_grenade_fire(edict_t* ent, qboolean held);
+void InitTookDamage(void);
+void ProduceShotgunDamageReport(edict_t*);
+
 
 //============================================================================
 

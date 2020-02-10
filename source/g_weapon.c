@@ -74,11 +74,6 @@
 #include "m_player.h"
 
 
-void knife_touch (edict_t *ent, edict_t *other, cplane_t *plane, csurface_t *surf);
-void Zylon_Grenade (edict_t *ent);
-void setFFState (edict_t *ent);
-
-
 void InitTookDamage(void)
 {
 	int i;

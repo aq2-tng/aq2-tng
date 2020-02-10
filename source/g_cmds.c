@@ -214,8 +214,6 @@
 #include "g_local.h"
 #include "m_player.h"
 
-void Cmd_NextMap_f( edict_t *ent );
-
 qboolean FloodCheck (edict_t *ent)
 {
 	if (flood_threshold->value)
