@@ -1,7 +1,6 @@
 // Domination Mode by Raptor007
 
 #include "g_local.h"
-#include "q_shared.h"
 
 cvar_t *dom = NULL;
 
@@ -273,7 +272,7 @@ qboolean DomLoadConfig( const char *mapname )
 		dom_team_fx[ TEAM2 ] |= RF_SHELL_BLUE;
 	}
 
-	snprintf( buf, 1024, "%s/tng/%s.dom", GAMEVERSION, mapname );
+	Com_sprintf( buf, sizeof buf, "%s/tng/%s.dom", GAMEVERSION, mapname );
 	fh = fopen( buf, "rt" );
 	if( fh )
 	{
