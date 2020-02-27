@@ -88,7 +88,7 @@
 
 #endif
 //==============================================
-#if defined(__linux__) || defined(__FreeBSD__)
+#if defined(__linux__) || defined(__FreeBSD__) || defined(__GNUC__)
 
 # define HAVE_INLINE
 # define HAVE_STRCASECMP
@@ -136,8 +136,10 @@
 # ifndef Q_strnicmp 
 #  define Q_strnicmp(s1, s2, n) _strnicmp((s1), (s2), (n))
 # endif
-#define strcasecmp Q_stricmp    //QwazyWabbit for WIN32 compatibility
-#define strncasecmp Q_strnicmp
+# ifndef HAVE_STRCASECMP
+#  define strcasecmp Q_stricmp    //QwazyWabbit for MSVC compatibility
+#  define strncasecmp Q_strnicmp
+# endif
 #endif
 
 #ifdef HAVE_STRCASECMP

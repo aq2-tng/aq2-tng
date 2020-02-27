@@ -13,6 +13,8 @@
 *.opensdf
 *.exp
 *.suo
+*.ncb
+*.user
 *.sdf
 *.bsc
 *.idb
