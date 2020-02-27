@@ -14,9 +14,7 @@
 *.exp
 *.suo
 *.sdf
-*.vcxproj*
 *.bsc
-*.sln
 *.idb
 *.htm
 *.html
