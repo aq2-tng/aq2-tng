@@ -13,10 +13,10 @@
 *.opensdf
 *.exp
 *.suo
+*.ncb
+*.user
 *.sdf
-*.vcxproj*
 *.bsc
-*.sln
 *.idb
 *.htm
 *.html
