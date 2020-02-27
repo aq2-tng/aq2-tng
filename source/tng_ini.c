@@ -58,7 +58,7 @@ char *INI_Find( FILE *fh, const char *section, const char *key )
 					*value = '\0'; // Null the delimeter; now line points to key and value+1 to value.
 					value ++;
 
-					if( (strcasecmp( section, cur_section ) == 0) && (strcasecmp( line, key ) == 0) )
+					if( (Q_stricmp( section, cur_section ) == 0) && (Q_stricmp( line, key ) == 0) )
 					{
 						Q_strncpyz( _ini_ret, value, MAX_INI_STR_LEN );
 						return _ini_ret;
