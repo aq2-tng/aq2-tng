@@ -561,7 +561,7 @@ bind 6 "use Sniper Rifle"
 #define SNIPER_AMMO_NAME  "AP Sniper Ammo"
 
 #define SIL_NAME     "Silencer"
-#define SLIP_NAME    "Stealth Slippers & Greaves"
+#define SLIP_NAME    "Stealth Slippers"
 #define BAND_NAME    "Bandolier"
 #define KEV_NAME     "Kevlar Vest"
 #define HELM_NAME    "Kevlar Helmet"
