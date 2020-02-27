@@ -642,7 +642,7 @@ void ACESP_RemoveBot(char *name)
 	int i;
 	qboolean freed=false;
 	edict_t *bot;
-	qboolean remove_all = (strcasecmp(name,"all")==0) ? true : false;
+	qboolean remove_all = (Q_stricmp(name,"all")==0) ? true : false;
 	int find_team = (strlen(name)==1) ? atoi(name) : 0;
 
 //	if (name!=NULL)
@@ -651,7 +651,7 @@ void ACESP_RemoveBot(char *name)
 		bot = g_edicts + i + 1;
 		if(bot->inuse)
 		{
-			if( bot->is_bot && (remove_all || !strlen(name) || strcasecmp(bot->client->pers.netname,name)==0 || (find_team && bot->client->resp.team==find_team)) )
+			if( bot->is_bot && (remove_all || !strlen(name) || Q_stricmp(bot->client->pers.netname,name)==0 || (find_team && bot->client->resp.team==find_team)) )
 			{
 				bot->health = 0;
 				player_die (bot, bot, bot, 100000, vec3_origin);

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="9,00"
+	Version="9.00"
 	Name="game"
 	ProjectGUID="{51481E49-77D6-4431-B0EE-1E5F292D5FD7}"
 	TargetFrameworkVersion="131072"
@@ -1308,6 +1308,78 @@
 						BrowseInformation="1"
 					/>
 				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\acesrc\acebot_ai.c"
+				>
+			</File>
+			<File
+				RelativePath=".\acesrc\acebot_cmds.c"
+				>
+			</File>
+			<File
+				RelativePath=".\acesrc\acebot_compress.c"
+				>
+			</File>
+			<File
+				RelativePath=".\acesrc\acebot_items.c"
+				>
+			</File>
+			<File
+				RelativePath=".\acesrc\acebot_movement.c"
+				>
+			</File>
+			<File
+				RelativePath=".\acesrc\acebot_nodes.c"
+				>
+			</File>
+			<File
+				RelativePath=".\acesrc\acebot_spawn.c"
+				>
+			</File>
+			<File
+				RelativePath=".\acesrc\bot_ai.c"
+				>
+			</File>
+			<File
+				RelativePath=".\acesrc\bot_collision.c"
+				>
+			</File>
+			<File
+				RelativePath=".\acesrc\bot_combat.c"
+				>
+			</File>
+			<File
+				RelativePath=".\acesrc\bot_env_doors.c"
+				>
+			</File>
+			<File
+				RelativePath=".\acesrc\bot_movement.c"
+				>
+			</File>
+			<File
+				RelativePath=".\acesrc\bot_states.c"
+				>
+			</File>
+			<File
+				RelativePath=".\acesrc\bot_utility.c"
+				>
+			</File>
+			<File
+				RelativePath=".\acesrc\bot_weapon.c"
+				>
+			</File>
+			<File
+				RelativePath=".\acesrc\botchat.c"
+				>
+			</File>
+			<File
+				RelativePath=".\acesrc\botnav.c"
+				>
+			</File>
+			<File
+				RelativePath=".\acesrc\botscan.c"
+				>
 			</File>
 			<File
 				RelativePath="cgf_sfx_glass.c"
@@ -2984,6 +3056,22 @@
 			</File>
 			<File
 				RelativePath="a_xvote.h"
+				>
+			</File>
+			<File
+				RelativePath=".\acesrc\acebot.h"
+				>
+			</File>
+			<File
+				RelativePath=".\acesrc\botchat.h"
+				>
+			</File>
+			<File
+				RelativePath=".\acesrc\botnav.h"
+				>
+			</File>
+			<File
+				RelativePath=".\acesrc\botscan.h"
 				>
 			</File>
 			<File
