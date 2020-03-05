@@ -24,6 +24,10 @@ endif
 CC?=gcc
 BASE_CFLAGS=-Wall -fno-strict-aliasing -DC_ONLY -DVERSION="\"$(VERSION)\""
 
+ifdef WEXTRA
+BASE_CFLAGS += -Wextra
+endif
+
 #use these cflags to optimize it
 ifdef DEBUG
 	CFLAGS=$(BASE_CFLAGS) -g
