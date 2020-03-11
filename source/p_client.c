@@ -2366,19 +2366,23 @@ void PutClientInServer(edict_t * ent)
 		}
 	}
 
-	// items up here so that the bandolier will change equipclient below
-	if (allitem->value) {
-		AllItems(ent);
+	if( jump->value )
+	{
+		Jmp_EquipClient(ent);
+		return;
 	}
+
+	// items up here so that the bandolier will change equipclient below
+	if (allitem->value)
+		AllItems(ent);
 
 	if (gameSettings & GS_WEAPONCHOOSE)
 		EquipClient(ent);
 	else
 		EquipClientDM(ent);
 
-	if (allweapon->value) {
+	if (allweapon->value)
 		AllWeapons(ent);
-	}
 
 	// force the current weapon up
 	client->newweapon = client->weapon;
@@ -2996,7 +3000,7 @@ void ClientThink(edict_t * ent, usercmd_t * ucmd)
 		// stop manipulating doors
 		client->doortoggle = 0;
 
-		if( client->jumping && (ent->solid != SOLID_NOT) && ! lights_camera_action && ! client->uvTime )
+		if( client->jumping && (ent->solid != SOLID_NOT) && ! lights_camera_action && ! client->uvTime && ! jump->value )
 		{
 			kick_attack( ent );
 			client->punch_desired = false;

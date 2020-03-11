@@ -963,9 +963,7 @@ void Drop_Weapon(edict_t* ent, gitem_t* item)
 //zucc drop special weapon (only 1 of them)
 void DropSpecialWeapon(edict_t* ent)
 {
-	int itemNum;
-
-	itemNum = ent->client->weapon ? ent->client->weapon->typeNum : 0;
+	int itemNum = ent->client->weapon ? ent->client->weapon->typeNum : 0;
 
 	// first check if their current weapon is a special weapon, if so, drop it.
 	if (itemNum >= MP5_NUM && itemNum <= SNIPER_NUM)

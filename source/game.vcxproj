@@ -121,9 +121,7 @@
     <ClCompile Include="a_cmds.c" />
     <ClCompile Include="a_ctf.c" />
     <ClCompile Include="a_dom.c" />
-    <ClCompile Include="a_doorkick.c">
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</BrowseInformation>
-    </ClCompile>
+    <ClCompile Include="a_doorkick.c" />
     <ClCompile Include="a_game.c" />
     <ClCompile Include="a_items.c" />
     <ClCompile Include="a_match.c" />
@@ -163,6 +161,7 @@
     <ClCompile Include="tng_flashlight.c" />
     <ClCompile Include="tng_ini.c" />
     <ClCompile Include="tng_irc.c" />
+    <ClCompile Include="tng_jump.c" />
     <ClCompile Include="tng_stats.c" />
   </ItemGroup>
   <ItemGroup>
@@ -188,6 +187,7 @@
     <ClInclude Include="tng_balancer.h" />
     <ClInclude Include="tng_ini.h" />
     <ClInclude Include="tng_irc.h" />
+    <ClInclude Include="tng_jump.h" />
     <ClInclude Include="tng_stats.h" />
   </ItemGroup>
   <ItemGroup>

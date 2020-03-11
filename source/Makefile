@@ -96,7 +96,7 @@ GAME_OBJS = \
 	g_utils.o g_weapon.o \
 	p_client.o p_hud.o p_view.o p_weapon.o q_shared.o \
 	tng_stats.o tng_flashlight.o tng_irc.o tng_ini.o tng_balancer.o \
-	g_grapple.o a_dom.o
+	g_grapple.o a_dom.o tng_jump.o
 
 game$(ARCH).$(SHLIBEXT): $(GAME_OBJS)
 	$(DO_LINK)
