@@ -311,7 +311,7 @@ extern long Q_ftol (float f);
 #define VectorAvg(a,b,c)		((c)[0]=((a)[0]+(b)[0])*0.5f,(c)[1]=((a)[1]+(b)[1])*0.5f, (c)[2]=((a)[2]+(b)[2])*0.5f)
 #define VectorMA(a,b,c,d)		((d)[0]=(a)[0]+(b)*(c)[0],(d)[1]=(a)[1]+(b)*(c)[1],(d)[2]=(a)[2]+(b)*(c)[2])
 #define VectorCompare(v1,v2)	((v1)[0]==(v2)[0] && (v1)[1]==(v2)[1] && (v1)[2]==(v2)[2])
-#define VectorLength(v)			(sqrt(DotProduct((v),(v))))
+#define VectorLength(v)			(sqrtf(DotProduct((v),(v))))
 #define VectorInverse(v)		((v)[0]=-(v)[0],(v)[1]=-(v)[1],(v)[2]=-(v)[2])
 #define VectorScale(in,s,out)	((out)[0]=(in)[0]*(s),(out)[1]=(in)[1]*(s),(out)[2]=(in)[2]*(s))
 
@@ -319,7 +319,7 @@ extern long Q_ftol (float f);
 #define VectorCopyMaxs(a,b,c)	((c)[0]=max((a)[0],(b)[0]),(c)[0]=max((a)[1],(b)[1]),(c)[2]=max((a)[2],(b)[2]))
 
 #define DistanceSquared(v1,v2)	(((v1)[0]-(v2)[0])*((v1)[0]-(v2)[0])+((v1)[1]-(v2)[1])*((v1)[1]-(v2)[1])+((v1)[2]-(v2)[2])*((v1)[2]-(v2)[2]))
-#define Distance(v1,v2)			(sqrt(DistanceSquared(v1,v2)))
+#define Distance(v1,v2)			(sqrtf(DistanceSquared(v1,v2)))
 
 #define ClearBounds(mins,maxs)	((mins)[0]=(mins)[1]=(mins)[2]=99999,(maxs)[0]=(maxs)[1]=(maxs)[2]=-99999)
 

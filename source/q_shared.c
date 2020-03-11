@@ -629,7 +629,7 @@ vec_t VectorNormalize (vec3_t v)
 
 	if (length)
 	{
-		length = sqrt (length);		// FIXME
+		length = sqrtf(length);		// FIXME
 		ilength = 1/length;
 		v[0] *= ilength;
 		v[1] *= ilength;
@@ -648,7 +648,7 @@ vec_t VectorNormalize2 (const vec3_t v, vec3_t out)
 
 	if (length)
 	{
-		length = sqrt (length);		// FIXME
+		length = sqrtf(length);		// FIXME
 		ilength = 1/length;
 		out[0] = v[0]*ilength;
 		out[1] = v[1]*ilength;
