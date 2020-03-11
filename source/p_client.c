@@ -321,11 +321,6 @@
 #include "cgf_sfx_glass.h"
 
 
-void ClientUserinfoChanged(edict_t * ent, char *userinfo);
-void ClientDisconnect(edict_t * ent);
-void SP_misc_teleporter_dest(edict_t * ent);
-void CopyToBodyQue(edict_t * ent);
-
 static void FreeClientEdicts(gclient_t *client)
 {
 	//remove lasersight
@@ -1172,8 +1167,6 @@ void ClientObituary(edict_t * self, edict_t * inflictor, edict_t * attacker)
 	Subtract_Frag(self);	//self->client->resp.score--;
 	Add_Death( self, true );
 }
-
-void Touch_Item(edict_t * ent, edict_t * other, cplane_t * plane, csurface_t * surf);
 
 // zucc used to toss an item on death
 void EjectItem(edict_t * ent, gitem_t * item)
@@ -2499,19 +2492,23 @@ void PutClientInServer(edict_t * ent)
 		}
 	}
 
-	// items up here so that the bandolier will change equipclient below
-	if (allitem->value) {
-		AllItems(ent);
+	if( jump->value )
+	{
+		Jmp_EquipClient(ent);
+		return;
 	}
+
+	// items up here so that the bandolier will change equipclient below
+	if (allitem->value)
+		AllItems(ent);
 
 	if (gameSettings & GS_WEAPONCHOOSE)
 		EquipClient(ent);
 	else
 		EquipClientDM(ent);
 
-	if (allweapon->value) {
+	if (allweapon->value)
 		AllWeapons(ent);
-	}
 
 	// force the current weapon up
 	client->newweapon = client->weapon;
@@ -3139,7 +3136,7 @@ void ClientThink(edict_t * ent, usercmd_t * ucmd)
 		// stop manipulating doors
 		client->doortoggle = 0;
 
-		if( client->jumping && (ent->solid != SOLID_NOT) && ! lights_camera_action && ! client->uvTime )
+		if( client->jumping && (ent->solid != SOLID_NOT) && ! lights_camera_action && ! client->uvTime && ! jump->value )
 		{
 			kick_attack( ent );
 			client->punch_desired = false;

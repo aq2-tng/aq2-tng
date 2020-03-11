@@ -532,6 +532,8 @@ void InitGame( void )
 	// flood control
 	flood_threshold = gi.cvar( "flood_threshold", "4", 0 );
 
+	jump = gi.cvar ("jump", "0", CVAR_SERVERINFO|CVAR_LATCH); // jumping mod
+
 	warmup = gi.cvar( "warmup", "0", CVAR_LATCH );
 	round_begin = gi.cvar( "round_begin", "15", 0 );
 	spectator_hud = gi.cvar( "spectator_hud", "0", CVAR_LATCH );

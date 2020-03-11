@@ -629,7 +629,7 @@ vec_t VectorNormalize (vec3_t v)
 
 	if (length)
 	{
-		length = sqrt (length);		// FIXME
+		length = sqrtf(length);		// FIXME
 		ilength = 1/length;
 		v[0] *= ilength;
 		v[1] *= ilength;
@@ -648,7 +648,7 @@ vec_t VectorNormalize2 (const vec3_t v, vec3_t out)
 
 	if (length)
 	{
-		length = sqrt (length);		// FIXME
+		length = sqrtf(length);		// FIXME
 		ilength = 1/length;
 		out[0] = v[0]*ilength;
 		out[1] = v[1]*ilength;
@@ -1058,6 +1058,7 @@ void Q_strncatz( char *dest, const char *src, size_t size )
 	}
 }
 
+#ifndef HAVE_SNPRINTF
 void Com_sprintf (char *dest, size_t size, const char *fmt, ...)
 {
 	va_list		argptr;
@@ -1066,6 +1067,7 @@ void Com_sprintf (char *dest, size_t size, const char *fmt, ...)
 	vsnprintf( dest, size, fmt, argptr );
 	va_end( argptr );
 }
+#endif
 
 /*
 =====================================================================

@@ -298,9 +298,7 @@ CGF_SFX_ShootBreakableGlass (edict_t * aGlassPane, edict_t * anAttacker,
 
       // remove corresponding trigger
       trigger = 0;
-      while (
-	     (trigger =
-	      G_Find (trigger, FOFS (classname), "breakableglass_trigger")))
+      while ((trigger = G_Find (trigger, FOFS (classname), "breakableglass_trigger")) != NULL)
 	{
 	  if (trigger->owner == aGlassPane)
 	    {
@@ -594,7 +592,7 @@ CGF_SFX_HideBreakableGlass (edict_t * aGlassPane)
   // remove all attached decals
   edict_t *decal;
   decal = 0;
-  while ((decal = G_Find (decal, FOFS (classname), "decal")))
+  while ((decal = G_Find (decal, FOFS (classname), "decal")) != NULL)
     {
       if (decal->owner == aGlassPane)
 	{
@@ -604,7 +602,7 @@ CGF_SFX_HideBreakableGlass (edict_t * aGlassPane)
 	}
     }
 
-  while ((decal = G_Find (decal, FOFS (classname), "splat")))
+  while ((decal = G_Find (decal, FOFS (classname), "splat")) != NULL)
     {
       if (decal->owner == aGlassPane)
 	{
@@ -638,7 +636,7 @@ CGF_SFX_RebuildAllBrokenGlass ()
   // iterate over all func_explosives
   edict_t *glass;
   glass = 0;
-  while ((glass = G_Find (glass, FOFS (classname), "func_explosive")))
+  while ((glass = G_Find (glass, FOFS (classname), "func_explosive")) != NULL)
     {
       // glass is broken if solid != SOLID_BSP
       if (glass->solid != SOLID_BSP)

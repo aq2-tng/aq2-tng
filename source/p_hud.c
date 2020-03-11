@@ -349,6 +349,12 @@ void G_SetStats (edict_t * ent)
 {
 	gitem_t *item;
 
+	if (jump->value)
+	{
+		Jmp_SetStats(ent);
+		return;
+	}
+
 	if (!ent->client->chase_mode)
 	{
 		//

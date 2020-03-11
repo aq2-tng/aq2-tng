@@ -74,7 +74,7 @@ static qboolean _tourneyset (parse_t parse, int clevel, int cevent)
 
   toknr = 0;
   ti.taction = A_SET;
-  while (toknr < 3 && (mytok = ParseNextToken (&parse, STDSEPERATOR)))
+  while (toknr < 3 && (mytok = ParseNextToken (&parse, STDSEPERATOR)) != NULL)
     {
       switch (toknr)
 	{
@@ -150,7 +150,7 @@ qboolean _tourneyplay (parse_t parse, int clevel, int cevent)
   ti.taction = A_PLAY;
   _tourneysetsection (&ti, clevel);
 
-  while (toknr < 3 && (mytok = ParseNextToken (&parse, STDSEPERATOR)))
+  while (toknr < 3 && (mytok = ParseNextToken (&parse, STDSEPERATOR)) != NULL)
     {
       switch (toknr)
 	{
@@ -203,7 +203,7 @@ qboolean _tourneyprint (parse_t parse, int clevel, int cevent)
   strcpy (ti.info, mytok);
   strcat (ti.info, "\n");
 
-  while (toknr < 2 && (mytok = ParseNextToken (&parse, STDSEPERATOR)))
+  while (toknr < 2 && (mytok = ParseNextToken (&parse, STDSEPERATOR)) != NULL)
     {
       switch (toknr)
 	{
@@ -300,7 +300,7 @@ TourneyReadIni (void)
   //inevent = false;  // FIXME: This was never used.
   if (ParseStartFile (GAMEVERSION "/" TOURNEYINI, &parse) == true)
     {
-      while ((mytok = ParseNextToken (&parse, STDSEPERATOR)))
+      while ((mytok = ParseNextToken (&parse, STDSEPERATOR)) != NULL)
 	{
 	  switch (clevel)
 	    {

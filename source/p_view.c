@@ -362,7 +362,7 @@ void SV_CalcViewOffset (edict_t * ent)
 	ratio = (ent->client->fall_time - level.time) / FALL_TIME;
 	if (ratio < 0)
 		ratio = 0;
-	v[2] -= ratio * ent->client->fall_value * 0.4;
+	v[2] -= ratio * ent->client->fall_value * 0.4f;
 
 	// add bob height
 	bob = bobfracsin * xyspeed * bob_up->value;
@@ -712,8 +712,15 @@ void P_FallingDamage (edict_t * ent)
 		// zucc scale this up
 		damage *= 10;
 		VectorSet (dir, 0, 0, 1);
+
+		if (jump->value)
+		{
+			gi.cprintf(ent, PRINT_HIGH, "Fall Damage: %d\n", damage);
+			ent->client->resp.jmp_falldmglast = damage;
+		} else {
 		T_Damage (ent, world, world, dir, ent->s.origin, vec3_origin,
 			damage, 0, 0, MOD_FALLING);
+		}
 	}
 }
 
@@ -1305,7 +1312,7 @@ void ClientEndServerFrame (edict_t * ent)
 	}
 
 	//FIREBLADE - Unstick avoidance stuff.
-	if (ent->solid == SOLID_TRIGGER && !lights_camera_action)
+	if (ent->solid == SOLID_TRIGGER && !lights_camera_action && !jump->value)
 	{
 		edict_t *overlap;
 		if ((overlap = FindOverlap(ent, NULL)) == NULL)
@@ -1352,7 +1359,7 @@ void ClientEndServerFrame (edict_t * ent)
 	//
 	//if (FRAMESYNC)
 	{
-		xyspeed = sqrt(ent->velocity[0]*ent->velocity[0] + ent->velocity[1]*ent->velocity[1]);
+		xyspeed = sqrtf(ent->velocity[0]*ent->velocity[0] + ent->velocity[1]*ent->velocity[1]);
 
 		if (xyspeed < 5 || ent->solid == SOLID_NOT)
 		{
@@ -1378,7 +1385,7 @@ void ClientEndServerFrame (edict_t * ent)
 		current_client->bobtime += bobmove;
 
 		bobcycle = (int) current_client->bobtime;
-		bobfracsin = fabs (sin (current_client->bobtime * M_PI));
+		bobfracsin = fabsf (sinf (current_client->bobtime * M_PI));
 	}
 
 	// detect hitting the floor

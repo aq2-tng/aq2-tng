@@ -1520,7 +1520,7 @@ static void Cmd_PlayerList_f (edict_t * ent)
 {
 	int i;
 	char st[64];
-	char text[1024] = "\0";
+	char text[1024] = { 0 };
 	edict_t *e2;
 
 	// connect time, ping, score, name
@@ -1900,7 +1900,9 @@ static cmdList_t commandList[] =
 	{ "ignorepart", Cmd_IgnorePart_f, 0 },
 	{ "voteconfig", Cmd_Voteconfig_f, 0 },
 	{ "configlist", Cmd_Configlist_f, 0 },
-	{ "votescramble", Cmd_Votescramble_f, 0 }
+	{ "votescramble", Cmd_Votescramble_f, 0 },
+	// JumpMod
+	{ "jmod", Cmd_Jmod_f, 0 }
 };
 
 #define MAX_COMMAND_HASH 64
