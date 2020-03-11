@@ -321,11 +321,6 @@
 #include "cgf_sfx_glass.h"
 
 
-void ClientUserinfoChanged(edict_t * ent, char *userinfo);
-void ClientDisconnect(edict_t * ent);
-void SP_misc_teleporter_dest(edict_t * ent);
-void CopyToBodyQue(edict_t * ent);
-
 static void FreeClientEdicts(gclient_t *client)
 {
 	//remove lasersight
@@ -1168,8 +1163,6 @@ void ClientObituary(edict_t * self, edict_t * inflictor, edict_t * attacker)
 	Subtract_Frag(self);	//self->client->resp.score--;
 	Add_Death( self, true );
 }
-
-void Touch_Item(edict_t * ent, edict_t * other, cplane_t * plane, csurface_t * surf);
 
 // zucc used to toss an item on death
 void EjectItem(edict_t * ent, gitem_t * item)

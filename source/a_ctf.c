@@ -60,9 +60,6 @@ cvar_t *ctf_model = NULL;
 
 //-----------------------------------------------------------------------------
 
-void ChangePlayerSpawns();
-void MakeAllLivePlayersObservers();
-void ED_CallSpawn( edict_t *ent );
 
 /*--------------------------------------------------------------------------*/
 
@@ -188,8 +185,6 @@ qboolean CTFLoadConfig(char *mapname)
 	return true;
 }
 
-/* taken from g_spawn */
-char *ED_NewString (char *string);
 void CTFSetFlag(int team, char *str)
 {
 	char *flag_name;
@@ -319,10 +314,6 @@ int CTFOtherTeam(int team)
 }
 
 /*--------------------------------------------------------------------------*/
-
-edict_t *SelectRandomDeathmatchSpawnPoint(void);
-edict_t *SelectFarthestDeathmatchSpawnPoint(void);
-float PlayersRangeFromSpot(edict_t * spot);
 
 void ResetPlayers()
 {
@@ -1078,10 +1069,6 @@ void SP_misc_ctf_small_banner(edict_t * ent)
 }
 
 /*-----------------------------------------------------------------------*/
-
-void CTFCredits(edict_t * ent, pmenu_t * p);
-
-void DeathmatchScoreboard(edict_t * ent);
 
 void CTFShowScores(edict_t * ent, pmenu_t * p)
 {

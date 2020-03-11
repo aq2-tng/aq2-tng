@@ -6,9 +6,9 @@
 char *INI_Find( FILE *fh, const char *section, const char *key )
 {
 	char _ini_file[MAX_INI_SIZE] = "";
-	static char _ini_ret[MAX_INI_STR_LEN] = "";
+	static char _ini_ret[MAX_INI_STR_LEN] = { 0 };
 	char *line = NULL, *value = NULL;
-	char cur_section[MAX_INI_STR_LEN] = "";
+	char cur_section[MAX_INI_STR_LEN] = { 0 };
 	size_t length = 0;
 
 	if( ! fh )

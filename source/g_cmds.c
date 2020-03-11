@@ -214,8 +214,6 @@
 #include "g_local.h"
 #include "m_player.h"
 
-void Cmd_NextMap_f( edict_t *ent );
-
 qboolean FloodCheck (edict_t *ent)
 {
 	if (flood_threshold->value)
@@ -1511,7 +1509,7 @@ static void Cmd_PlayerList_f (edict_t * ent)
 {
 	int i;
 	char st[64];
-	char text[1024] = "\0";
+	char text[1024] = { 0 };
 	edict_t *e2;
 
 	// connect time, ping, score, name
