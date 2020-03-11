@@ -211,7 +211,8 @@ qboolean	AntFindPath( edict_t *ent, int from, int to)
 		atNode = SLLfront(&openList);
 
 		// Safety check
-		assert( atNode > INVALID);
+		if( atNode <= INVALID )
+			return false;
 
 		// Get a pointer to all the node information
 		tempNode = &nodes[atNode];
