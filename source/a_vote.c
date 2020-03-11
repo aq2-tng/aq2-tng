@@ -738,8 +738,6 @@ void ReadMaplistFile (void)
 		fclose(maplist_file);
 	}
 
-	assert(map_votes != NULL);
-
 	//Igor[Rock] BEGIN
 	//load the saved values from the last run of the server
 	Q_strncatz(maplistpath, "-votes", sizeof(maplistpath));
@@ -761,7 +759,7 @@ void ReadMaplistFile (void)
 			{
 				num_allvotes = atoi(buf);
 			}
-			else
+			else if (map_votes)
 			{
 				if (bs < 3)
 					continue;

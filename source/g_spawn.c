@@ -1127,8 +1127,7 @@ void SpawnEntities (char *mapname, char *entities, char *spawnpoint)
 			ent = g_edicts;
 		else
 			ent = G_Spawn();
-		
-		assert(ent != NULL); // G_Spawn never returns null
+
 		entities = ED_ParseEdict(entities, ent);
 
 		// yet another map hack
