@@ -1058,6 +1058,7 @@ void Q_strncatz( char *dest, const char *src, size_t size )
 	}
 }
 
+#ifndef HAVE_SNPRINTF
 void Com_sprintf (char *dest, size_t size, const char *fmt, ...)
 {
 	va_list		argptr;
@@ -1066,6 +1067,7 @@ void Com_sprintf (char *dest, size_t size, const char *fmt, ...)
 	vsnprintf( dest, size, fmt, argptr );
 	va_end( argptr );
 }
+#endif
 
 /*
 =====================================================================

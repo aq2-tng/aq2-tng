@@ -272,7 +272,7 @@ qboolean DomLoadConfig( const char *mapname )
 		dom_team_fx[ TEAM2 ] |= RF_SHELL_BLUE;
 	}
 
-	Com_sprintf( buf, sizeof buf, "%s/tng/%s.dom", GAMEVERSION, mapname );
+	Com_sprintf( buf, sizeof(buf), "%s/tng/%s.dom", GAMEVERSION, mapname );
 	fh = fopen( buf, "rt" );
 	if( fh )
 	{

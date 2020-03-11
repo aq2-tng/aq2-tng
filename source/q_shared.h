@@ -93,6 +93,7 @@
 
 # define HAVE_INLINE
 # define HAVE_STRCASECMP
+# define HAVE_SNPRINTF
 
 #endif
 //==============================================
@@ -396,7 +397,11 @@ char *Q_strupr( char *s );
 // buffer safe operations
 void Q_strncpyz (char *dest, const char *src, size_t size );
 void Q_strncatz (char *dest, const char *src, size_t size );
-void Com_sprintf(char *dest, size_t size, const char *fmt, ...);
+#ifdef HAVE_SNPRINTF
+# define Com_sprintf snprintf
+#else
+ void Com_sprintf(char *dest, size_t size, const char *fmt, ...);
+#endif
 
 //=============================================
 
