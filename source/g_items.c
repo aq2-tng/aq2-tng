@@ -161,8 +161,9 @@ gitem_t *FindItem (char *pickup_name)
 
 void DoRespawn (edict_t * ent)
 {
-	assert(ent != NULL);
-	if (ent && ent->team)
+	if( ! ent )
+		return;
+	if( ent->team )
 	{
 		edict_t *master;
 		int count;
@@ -180,16 +181,13 @@ void DoRespawn (edict_t * ent)
 			for (count = 0, ent = master; ent; ent = ent->chain, count++)
 				;
 
-			assert(count != 0);
-			choice = rand () % count;
+			choice = count ? (rand() % count) : 0;
 
-			assert(ent != NULL);
 			for (count = 0, ent = master; count < choice; ent = ent->chain, count++)
 				;
 		//}
 	}
 
-	assert(ent != NULL);
 	ent->svflags &= ~SVF_NOCLIENT;
 	ent->solid = SOLID_TRIGGER;
 	gi.linkentity(ent);
