@@ -354,9 +354,7 @@ int BoxOnPlaneSide(const vec3_t emins, const vec3_t emaxs, const struct cplane_s
 		dist2 = p->normal[0] * emaxs[0] + p->normal[1] * emaxs[1] + p->normal[2] * emaxs[2];
 		break;
 	default:
-		dist1 = dist2 = 0;	// shut up compiler
-		assert(0);
-		break;
+		return 0;  // Should never happen.
 	}
 
 	sides = 0;
@@ -364,8 +362,6 @@ int BoxOnPlaneSide(const vec3_t emins, const vec3_t emaxs, const struct cplane_s
 		sides = 1;
 	if (dist2 < p->dist)
 		sides |= 2;
-
-	assert(sides != 0);
 
 	return sides;
 }
