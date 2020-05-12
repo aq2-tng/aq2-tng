@@ -957,9 +957,7 @@ void punch_attack(edict_t * ent)
 	if (ent->client->anim_priority >= ANIM_WAVE)
 		return;
 
-	ent->client->anim_priority = ANIM_WAVE;
-	ent->s.frame = FRAME_flip01 - 1;
-	ent->client->anim_end = FRAME_flip03;
+	SetAnimation( ent, FRAME_flip01 - 1, FRAME_flip03, ANIM_WAVE );
 }
 
 // zucc
