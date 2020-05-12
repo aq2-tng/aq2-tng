@@ -1301,6 +1301,7 @@ qboolean Ban_TeamKiller (edict_t * ent, int rounds);
 // p_view.c
 //
 void ClientEndServerFrame (edict_t * ent);
+void SetAnimation( edict_t *ent, int frame, int anim_end, int anim_priority );
 
 //
 // p_hud.c
@@ -1606,7 +1607,7 @@ struct gclient_s
 	int			anim_priority;
 	qboolean	anim_duck;
 	qboolean	anim_run;
-	int			anim_framesync;
+	int			anim_started;
 
 	// powerup timers
 	int			quad_framenum;

@@ -163,28 +163,21 @@ void P_DamageFeedback (edict_t * player)
 	{
 		static int i;
 
-		client->anim_priority = ANIM_PAIN;
 		if (client->ps.pmove.pm_flags & PMF_DUCKED)
-		{
-			player->s.frame = FRAME_crpain1 - 1;
-			client->anim_end = FRAME_crpain4;
-		}
+			SetAnimation( player, FRAME_crpain1 - 1, FRAME_crpain4, ANIM_PAIN );
 		else
 		{
 			i = (i + 1) % 3;
 			switch (i)
 			{
 			case 0:
-				player->s.frame = FRAME_pain101 - 1;
-				client->anim_end = FRAME_pain104;
+				SetAnimation( player, FRAME_pain101 - 1, FRAME_pain104, ANIM_PAIN );
 				break;
 			case 1:
-				player->s.frame = FRAME_pain201 - 1;
-				client->anim_end = FRAME_pain204;
+				SetAnimation( player, FRAME_pain201 - 1, FRAME_pain204, ANIM_PAIN );
 				break;
 			case 2:
-				player->s.frame = FRAME_pain301 - 1;
-				client->anim_end = FRAME_pain304;
+				SetAnimation( player, FRAME_pain301 - 1, FRAME_pain304, ANIM_PAIN );
 				break;
 			}
 		}
@@ -1012,6 +1005,15 @@ void G_SetClientSound (edict_t * ent)
 		ent->s.sound = 0;
 }
 
+
+void SetAnimation( edict_t *ent, int frame, int anim_end, int anim_priority )
+{
+	ent->s.frame = frame;
+	ent->client->anim_end = anim_end;
+	ent->client->anim_priority = anim_priority;
+	ent->client->anim_started = level.framenum;
+}
+
 /*
 ===============
 G_SetClientFrame
@@ -1039,15 +1041,20 @@ void G_SetClientFrame (edict_t * ent)
 	else
 		run = false;
 
-	// check for stand/duck and stop/go transitions
-	if (duck != client->anim_duck && client->anim_priority < ANIM_DEATH)
-		goto newanim;
-	if (run != client->anim_run && client->anim_priority == ANIM_BASIC)
-		goto newanim;
-	if (!ent->groundentity && client->anim_priority <= ANIM_WAVE)
-		goto newanim;
+	qboolean anim_framesync = level.framenum % game.framediv == client->anim_started % game.framediv;
 
-	if( level.framenum % game.framediv != client->anim_framesync )
+	// check for stand/duck and stop/go transitions
+	if( anim_framesync || (level.framenum >= client->anim_started + game.framediv) )
+	{
+		if (duck != client->anim_duck && client->anim_priority < ANIM_DEATH)
+			goto newanim;
+		if (run != client->anim_run && client->anim_priority == ANIM_BASIC)
+			goto newanim;
+		if (!ent->groundentity && client->anim_priority <= ANIM_WAVE)
+			goto newanim;
+	}
+
+	if( ! anim_framesync )
 		return;
 
 	// zucc vwep
@@ -1078,7 +1085,7 @@ void G_SetClientFrame (edict_t * ent)
 	}
 
 newanim:
-	client->anim_framesync = level.framenum % game.framediv;
+	client->anim_started = level.framenum;
 
 	// return to either a running or standing frame
 	client->anim_priority = ANIM_BASIC;

@@ -1450,23 +1450,18 @@ void player_die(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage
 
 			i = (i + 1) % 3;
 			// start a death animation
-			self->client->anim_priority = ANIM_DEATH;
-			if (self->client->ps.pmove.pm_flags & PMF_DUCKED) {
-				self->s.frame = FRAME_crdeath1 - 1;
-				self->client->anim_end = FRAME_crdeath5;
-			} else
+			if (self->client->ps.pmove.pm_flags & PMF_DUCKED)
+				SetAnimation( self, FRAME_crdeath1 - 1, FRAME_crdeath5, ANIM_DEATH );
+			else
 				switch (i) {
 				case 0:
-					self->s.frame = FRAME_death101 - 1;
-					self->client->anim_end = FRAME_death106;
+					SetAnimation( self, FRAME_death101 - 1, FRAME_death106, ANIM_DEATH );
 					break;
 				case 1:
-					self->s.frame = FRAME_death201 - 1;
-					self->client->anim_end = FRAME_death206;
+					SetAnimation( self, FRAME_death201 - 1, FRAME_death206, ANIM_DEATH );
 					break;
 				case 2:
-					self->s.frame = FRAME_death301 - 1;
-					self->client->anim_end = FRAME_death308;
+					SetAnimation( self, FRAME_death301 - 1, FRAME_death308, ANIM_DEATH );
 					break;
 				}
 			if ((mod == MOD_SNIPER) || (mod == MOD_KNIFE)
@@ -2841,7 +2836,7 @@ static void ClientThinkWeaponIfReady( edict_t *ent, qboolean update_idle )
 	if( (ent->client->weaponstate != WEAPON_READY) || (old_weaponstate != WEAPON_READY) )
 	{
 		ent->client->weapon_last_activity = level.framenum;
-		ent->client->anim_framesync = ent->client->weapon_last_activity % game.framediv;
+		ent->client->anim_started = ent->client->weapon_last_activity;
 	}
 
 	// Only allow the idle animation to update if it's been enough time.

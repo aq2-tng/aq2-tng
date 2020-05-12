@@ -1229,36 +1229,30 @@ static void Cmd_Wave_f (edict_t * ent)
 		ent->client->resp.lastWave = level.framenum;
 	}
 
-	ent->client->anim_priority = ANIM_WAVE;
 	i = atoi (gi.argv (1));
 
 	switch (i)
 	{
 	case 0:
 		gi.cprintf (ent, PRINT_HIGH, "flipoff\n");
-		ent->s.frame = FRAME_flip01 - 1;
-		ent->client->anim_end = FRAME_flip12;
+		SetAnimation( ent, FRAME_flip01 - 1, FRAME_flip12, ANIM_WAVE );
 		break;
 	case 1:
 		gi.cprintf (ent, PRINT_HIGH, "salute\n");
-		ent->s.frame = FRAME_salute01 - 1;
-		ent->client->anim_end = FRAME_salute11;
+		SetAnimation( ent, FRAME_salute01 - 1, FRAME_salute11, ANIM_WAVE );
 		break;
 	case 2:
 		gi.cprintf (ent, PRINT_HIGH, "taunt\n");
-		ent->s.frame = FRAME_taunt01 - 1;
-		ent->client->anim_end = FRAME_taunt17;
+		SetAnimation( ent, FRAME_taunt01 - 1, FRAME_taunt17, ANIM_WAVE );
 		break;
 	case 3:
 		gi.cprintf (ent, PRINT_HIGH, "wave\n");
-		ent->s.frame = FRAME_wave01 - 1;
-		ent->client->anim_end = FRAME_wave11;
+		SetAnimation( ent, FRAME_wave01 - 1, FRAME_wave11, ANIM_WAVE );
 		break;
 	case 4:
 	default:
 		gi.cprintf (ent, PRINT_HIGH, "point\n");
-		ent->s.frame = FRAME_point01 - 1;
-		ent->client->anim_end = FRAME_point12;
+		SetAnimation( ent, FRAME_point01 - 1, FRAME_point12, ANIM_WAVE );
 		break;
 	}
 }

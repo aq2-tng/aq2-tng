@@ -526,17 +526,10 @@ void ChangeWeapon(edict_t* ent)
 	ent->client->ps.gunindex = gi.modelindex(ent->client->weapon->view_model);
 
 	// zucc hentai's animation for vwep
-	ent->client->anim_priority = ANIM_PAIN;
 	if (ent->client->ps.pmove.pm_flags & PMF_DUCKED)
-	{
-		ent->s.frame = FRAME_crpain1;
-		ent->client->anim_end = FRAME_crpain4;
-	}
+		SetAnimation( ent, FRAME_crpain1, FRAME_crpain4, ANIM_PAIN );
 	else
-	{
-		ent->s.frame = FRAME_pain301;
-		ent->client->anim_end = FRAME_pain304;
-	}
+		SetAnimation( ent, FRAME_pain301, FRAME_pain304, ANIM_PAIN );
 
 	ShowGun(ent);
 	// zucc done
@@ -1440,18 +1433,10 @@ Weapon_Generic(edict_t* ent, int FRAME_ACTIVATE_LAST, int FRAME_FIRE_LAST,
 		// zucc for vwep
 		else if ((FRAME_DEACTIVATE_LAST - ent->client->ps.gunframe) == 4)
 		{
-			ent->client->anim_priority = ANIM_REVERSE;
 			if (ent->client->ps.pmove.pm_flags & PMF_DUCKED)
-			{
-				ent->s.frame = FRAME_crpain4 + 1;
-				ent->client->anim_end = FRAME_crpain1;
-			}
+				SetAnimation( ent, FRAME_crpain4 + 1, FRAME_crpain1, ANIM_REVERSE );
 			else
-			{
-				ent->s.frame = FRAME_pain304 + 1;
-				ent->client->anim_end = FRAME_pain301;
-
-			}
+				SetAnimation( ent, FRAME_pain304 + 1, FRAME_pain301, ANIM_REVERSE );
 		}
 
 
@@ -1655,18 +1640,10 @@ Weapon_Generic(edict_t* ent, int FRAME_ACTIVATE_LAST, int FRAME_FIRE_LAST,
 		// zucc more vwep stuff
 		if ((FRAME_DEACTIVATE_LAST - FRAME_DEACTIVATE_FIRST) < 4)
 		{
-			ent->client->anim_priority = ANIM_REVERSE;
 			if (ent->client->ps.pmove.pm_flags & PMF_DUCKED)
-			{
-				ent->s.frame = FRAME_crpain4 + 1;
-				ent->client->anim_end = FRAME_crpain1;
-			}
+				SetAnimation( ent, FRAME_crpain4 + 1, FRAME_crpain1, ANIM_REVERSE );
 			else
-			{
-				ent->s.frame = FRAME_pain304 + 1;
-				ent->client->anim_end = FRAME_pain301;
-
-			}
+				SetAnimation( ent, FRAME_pain304 + 1, FRAME_pain301, ANIM_REVERSE );
 		}
 		return;
 	}
@@ -1731,17 +1708,10 @@ Weapon_Generic(edict_t* ent, int FRAME_ACTIVATE_LAST, int FRAME_FIRE_LAST,
 						ent->client->weaponstate = WEAPON_BURSTING;
 
 						// start the animation
-						ent->client->anim_priority = ANIM_ATTACK;
 						if (ent->client->ps.pmove.pm_flags & PMF_DUCKED)
-						{
-							ent->s.frame = FRAME_crattak1 - 1;
-							ent->client->anim_end = FRAME_crattak9;
-						}
+							SetAnimation( ent, FRAME_crattak1 - 1, FRAME_crattak9, ANIM_ATTACK );
 						else
-						{
-							ent->s.frame = FRAME_attack1 - 1;
-							ent->client->anim_end = FRAME_attack8;
-						}
+							SetAnimation( ent, FRAME_attack1 - 1, FRAME_attack8, ANIM_ATTACK );
 					}
 					else if (ent->client->pers.mp5_mode == 0
 						&& ent->client->fired == 0)
@@ -1766,17 +1736,10 @@ Weapon_Generic(edict_t* ent, int FRAME_ACTIVATE_LAST, int FRAME_FIRE_LAST,
 						ent->client->weaponstate = WEAPON_BURSTING;
 
 						// start the animation
-						ent->client->anim_priority = ANIM_ATTACK;
 						if (ent->client->ps.pmove.pm_flags & PMF_DUCKED)
-						{
-							ent->s.frame = FRAME_crattak1 - 1;
-							ent->client->anim_end = FRAME_crattak9;
-						}
+							SetAnimation( ent, FRAME_crattak1 - 1, FRAME_crattak9, ANIM_ATTACK );
 						else
-						{
-							ent->s.frame = FRAME_attack1 - 1;
-							ent->client->anim_end = FRAME_attack8;
-						}
+							SetAnimation( ent, FRAME_attack1 - 1, FRAME_attack8, ANIM_ATTACK );
 					}
 					else if (ent->client->pers.m4_mode == 0
 						&& ent->client->fired == 0)
@@ -1896,17 +1859,10 @@ Weapon_Generic(edict_t* ent, int FRAME_ACTIVATE_LAST, int FRAME_FIRE_LAST,
 				ent->client->weaponstate = WEAPON_FIRING;
 
 				// start the animation
-				ent->client->anim_priority = ANIM_ATTACK;
 				if (ent->client->ps.pmove.pm_flags & PMF_DUCKED)
-				{
-					ent->s.frame = FRAME_crattak1 - 1;
-					ent->client->anim_end = FRAME_crattak9;
-				}
+					SetAnimation( ent, FRAME_crattak1 - 1, FRAME_crattak9, ANIM_ATTACK );
 				else
-				{
-					ent->s.frame = FRAME_attack1 - 1;
-					ent->client->anim_end = FRAME_attack8;
-				}
+					SetAnimation( ent, FRAME_attack1 - 1, FRAME_attack8, ANIM_ATTACK );
 			}
 			else if (bOut)	// out of ammo
 			{
@@ -2396,19 +2352,10 @@ void MP5_Fire(edict_t* ent)
 
 
 	// zucc vwep
-
-	ent->client->anim_priority = ANIM_ATTACK;
 	if (ent->client->ps.pmove.pm_flags & PMF_DUCKED)
-	{
-		ent->s.frame = FRAME_crattak1 - (int)(random() + 0.25);
-		ent->client->anim_end = FRAME_crattak9;
-	}
+		SetAnimation( ent, FRAME_crattak1 - (int)(random() + 0.25), FRAME_crattak9, ANIM_ATTACK );
 	else
-	{
-		ent->s.frame = FRAME_attack1 - (int)(random() + 0.25);
-		ent->client->anim_end = FRAME_attack8;
-	}
-
+		SetAnimation( ent, FRAME_attack1 - (int)(random() + 0.25), FRAME_attack8, ANIM_ATTACK );
 	// zucc vwep done
 
 
@@ -2540,19 +2487,10 @@ void M4_Fire(edict_t* ent)
 
 
 	// zucc vwep
-
-	ent->client->anim_priority = ANIM_ATTACK;
 	if (ent->client->ps.pmove.pm_flags & PMF_DUCKED)
-	{
-		ent->s.frame = FRAME_crattak1 - (int)(random() + 0.25);
-		ent->client->anim_end = FRAME_crattak9;
-	}
+		SetAnimation( ent, FRAME_crattak1 - (int)(random() + 0.25), FRAME_crattak9, ANIM_ATTACK );
 	else
-	{
-		ent->s.frame = FRAME_attack1 - (int)(random() + 0.25);
-		ent->client->anim_end = FRAME_attack8;
-	}
-
+		SetAnimation( ent, FRAME_attack1 - (int)(random() + 0.25), FRAME_attack8, ANIM_ATTACK );
 	// zucc vwep done
 
 
@@ -3124,18 +3062,10 @@ Weapon_Generic_Knife(edict_t* ent, int FRAME_ACTIVATE_LAST,
 				// of the way I roll gunframes backwards for the thrownknife position
 				if ((ent->client->ps.gunframe - FRAME_NEWKNIFE_FIRST) == 4)
 				{
-					ent->client->anim_priority = ANIM_REVERSE;
 					if (ent->client->ps.pmove.pm_flags & PMF_DUCKED)
-					{
-						ent->s.frame = FRAME_crpain4 + 1;
-						ent->client->anim_end = FRAME_crpain1;
-					}
+						SetAnimation( ent, FRAME_crpain4 + 1, FRAME_crpain1, ANIM_REVERSE );
 					else
-					{
-						ent->s.frame = FRAME_pain304 + 1;
-						ent->client->anim_end = FRAME_pain301;
-
-					}
+						SetAnimation( ent, FRAME_pain304 + 1, FRAME_pain301, ANIM_REVERSE );
 				}
 				ent->client->ps.gunframe--;
 			}
@@ -3150,18 +3080,10 @@ Weapon_Generic_Knife(edict_t* ent, int FRAME_ACTIVATE_LAST,
 			}
 			else if ((FRAME_DEACTIVATE_LAST - ent->client->ps.gunframe) == 4)
 			{
-				ent->client->anim_priority = ANIM_REVERSE;
 				if (ent->client->ps.pmove.pm_flags & PMF_DUCKED)
-				{
-					ent->s.frame = FRAME_crpain4 + 1;
-					ent->client->anim_end = FRAME_crpain1;
-				}
+					SetAnimation( ent, FRAME_crpain4 + 1, FRAME_crpain1, ANIM_REVERSE );
 				else
-				{
-					ent->s.frame = FRAME_pain304 + 1;
-					ent->client->anim_end = FRAME_pain301;
-
-				}
+					SetAnimation( ent, FRAME_pain304 + 1, FRAME_pain301, ANIM_REVERSE );
 			}
 
 
@@ -3281,18 +3203,10 @@ Weapon_Generic_Knife(edict_t* ent, int FRAME_ACTIVATE_LAST,
 			// zucc more vwep stuff
 			if ((FRAME_NEWKNIFE_LAST - FRAME_NEWKNIFE_FIRST) < 4)
 			{
-				ent->client->anim_priority = ANIM_REVERSE;
 				if (ent->client->ps.pmove.pm_flags & PMF_DUCKED)
-				{
-					ent->s.frame = FRAME_crpain4 + 1;
-					ent->client->anim_end = FRAME_crpain1;
-				}
+					SetAnimation( ent, FRAME_crpain4 + 1, FRAME_crpain1, ANIM_REVERSE );
 				else
-				{
-					ent->s.frame = FRAME_pain304 + 1;
-					ent->client->anim_end = FRAME_pain301;
-
-				}
+					SetAnimation( ent, FRAME_pain304 + 1, FRAME_pain301, ANIM_REVERSE );
 			}
 		}
 		else			// not in throwing mode
@@ -3301,18 +3215,10 @@ Weapon_Generic_Knife(edict_t* ent, int FRAME_ACTIVATE_LAST,
 			// zucc more vwep stuff
 			if ((FRAME_DEACTIVATE_LAST - FRAME_DEACTIVATE_FIRST) < 4)
 			{
-				ent->client->anim_priority = ANIM_REVERSE;
 				if (ent->client->ps.pmove.pm_flags & PMF_DUCKED)
-				{
-					ent->s.frame = FRAME_crpain4 + 1;
-					ent->client->anim_end = FRAME_crpain1;
-				}
+					SetAnimation( ent, FRAME_crpain4 + 1, FRAME_crpain1, ANIM_REVERSE );
 				else
-				{
-					ent->s.frame = FRAME_pain304 + 1;
-					ent->client->anim_end = FRAME_pain301;
-
-				}
+					SetAnimation( ent, FRAME_pain304 + 1, FRAME_pain301, ANIM_REVERSE );
 			}
 		}
 		ent->client->weaponstate = WEAPON_DROPPING;
@@ -3339,17 +3245,10 @@ Weapon_Generic_Knife(edict_t* ent, int FRAME_ACTIVATE_LAST,
 			ent->client->weaponstate = WEAPON_FIRING;
 
 			// start the animation
-			ent->client->anim_priority = ANIM_ATTACK;
 			if (ent->client->ps.pmove.pm_flags & PMF_DUCKED)
-			{
-				ent->s.frame = FRAME_crattak1 - 1;
-				ent->client->anim_end = FRAME_crattak9;
-			}
+				SetAnimation( ent, FRAME_crattak1 - 1, FRAME_attack8, ANIM_ATTACK );
 			else
-			{
-				ent->s.frame = FRAME_attack1 - 1;
-				ent->client->anim_end = FRAME_attack8;
-			}
+				SetAnimation( ent, FRAME_attack1 - 1, FRAME_attack8, ANIM_ATTACK );
 			return;
 		}
 		if (ent->client->ps.gunframe == FRAME_IDLE_LAST)
@@ -3683,18 +3582,10 @@ void Weapon_Gas(edict_t* ent)
 			// of the way I roll gunframes backwards for the thrownknife position
 			if ((ent->client->ps.gunframe) == 3)
 			{
-				ent->client->anim_priority = ANIM_REVERSE;
 				if (ent->client->ps.pmove.pm_flags & PMF_DUCKED)
-				{
-					ent->s.frame = FRAME_crpain4 + 1;
-					ent->client->anim_end = FRAME_crpain1;
-				}
+					SetAnimation( ent, FRAME_crpain4 + 1, FRAME_crpain1, ANIM_REVERSE );
 				else
-				{
-					ent->s.frame = FRAME_pain304 + 1;
-					ent->client->anim_end = FRAME_pain301;
-
-				}
+					SetAnimation( ent, FRAME_pain304 + 1, FRAME_pain301, ANIM_REVERSE );
 			}
 			ent->client->ps.gunframe--;
 			return;
@@ -3836,17 +3727,10 @@ void Weapon_Gas(edict_t* ent)
 		// zucc more vwep stuff
 		if ((GRENADE_ACTIVATE_LAST) < 4)
 		{
-			ent->client->anim_priority = ANIM_REVERSE;
 			if (ent->client->ps.pmove.pm_flags & PMF_DUCKED)
-			{
-				ent->s.frame = FRAME_crpain4 + 1;
-				ent->client->anim_end = FRAME_crpain1;
-			}
+				SetAnimation( ent, FRAME_crpain4 + 1, FRAME_crpain1, ANIM_REVERSE );
 			else
-			{
-				ent->s.frame = FRAME_pain304 + 1;
-				ent->client->anim_end = FRAME_pain301;
-			}
+				SetAnimation( ent, FRAME_pain304 + 1, FRAME_pain301, ANIM_REVERSE );
 		}
 
 		ent->client->weaponstate = WEAPON_DROPPING;
@@ -3884,17 +3768,10 @@ void Weapon_Gas(edict_t* ent)
 			ent->client->ps.gunframe <= GRENADE_IDLE_LAST)
 		{
 			ent->client->ps.gunframe = GRENADE_THROW_FIRST;
-			ent->client->anim_priority = ANIM_ATTACK;
 			if (ent->client->ps.pmove.pm_flags & PMF_DUCKED)
-			{
-				ent->s.frame = FRAME_crattak1 - 1;
-				ent->client->anim_end = FRAME_crattak9;
-			}
+				SetAnimation( ent, FRAME_crattak1 - 1, FRAME_crattak9, ANIM_ATTACK );
 			else
-			{
-				ent->s.frame = FRAME_attack1 - 1;
-				ent->client->anim_end = FRAME_attack8;
-			}
+				SetAnimation( ent, FRAME_attack1 - 1, FRAME_attack8, ANIM_ATTACK );
 			ent->client->weaponstate = WEAPON_FIRING;
 			return;
 
