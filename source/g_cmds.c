@@ -1659,7 +1659,7 @@ static void Cmd_PrintSettings_f( edict_t * ent )
 	char text[1024] = "\0";
 	size_t length = 0;
 
-	if (game.serverfeatures & GMF_CLIENTNUM) {
+	if (game.serverfeatures & GMF_VARIABLE_FPS) {
 		Com_sprintf( text, sizeof( text ), "Server fps = %d\n", game.framerate );
 		length = strlen( text );
 	}
