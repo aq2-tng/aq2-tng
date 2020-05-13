@@ -246,6 +246,9 @@ void UpdateChaseCam( edict_t * ent )
 			i = client->ps.pmove.pm_flags & PMF_JUMP_HELD;
 			client->ps = targ->client->ps;
 
+			for (i = 0; i < 3; i++)
+				client->ps.pmove.delta_angles[i] = ANGLE2SHORT(angles[i] - client->resp.cmd_angles[i]);
+
 			VectorCopy(client->ps.viewangles, ent->s.angles);
 			VectorCopy(client->ps.viewangles, client->v_angle);
 			VectorScale(client->ps.pmove.origin, 0.125f, ent->s.origin);
