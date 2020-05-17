@@ -823,11 +823,16 @@ qboolean ACEAI_CheckShot(edict_t *self)
 
 //	tr = gi.trace (self->s.origin, vec3_origin, vec3_origin, self->enemy->s.origin, self, MASK_SOLID|MASK_OPAQUE); // Check for Hard stuff
 	tr = gi.trace (self->s.origin, tv(-8,-8,-8), tv(8,8,8), self->enemy->s.origin, self, MASK_SOLID|MASK_OPAQUE);
-	if (tr.fraction < 0.9)
-		if (tr.ent->solid==SOLID_BSP)
+	if( (tr.fraction < 0.9) && (tr.ent->solid==SOLID_BSP) )
+	{
+		// If we'd hit something solid, see if that's also true aiming for the head.
+		vec3_t enemy_head;
+		VectorCopy( self->enemy->s.origin, enemy_head );
+		enemy_head[2] += 12.f;  // g_combat.c HEAD_HEIGHT
+		tr = gi.trace( self->s.origin, tv(-2,-2,-2), tv(2,2,2), enemy_head, self, MASK_SOLID|MASK_OPAQUE );
+		if( (tr.fraction < 0.9) && (tr.ent->solid==SOLID_BSP) )
 			return false;
-
-
+	}
 
 	//else shoot
 	return true;
