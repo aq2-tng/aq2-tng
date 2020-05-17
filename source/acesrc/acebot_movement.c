@@ -492,20 +492,22 @@ qboolean ACEMV_CheckEyes(edict_t *self, usercmd_t *ucmd)
 ///////////////////////////////////////////////////////////////////////
 void ACEMV_ChangeBotAngle (edict_t *ent)
 {
-	float	ideal_yaw;
+	float   ideal_yaw;
 	float   ideal_pitch;
-	float	current_yaw;
+	float   current_yaw;
 	float   current_pitch;
-	float	move;
-	float	speed;
+	float   speed;
 	vec3_t  ideal_angle;
-	
+	float   yaw_move = 0.f;
+	float   pitch_move = 0.f;
+	float   move_ratio = 1.f;
+
 	// Normalize the move angle first
 	VectorNormalize(ent->move_vector);
 
 	current_yaw = anglemod(ent->s.angles[YAW]);
 	current_pitch = anglemod(ent->s.angles[PITCH]);
-	
+
 	vectoangles (ent->move_vector, ideal_angle);
 
 	ideal_yaw = anglemod(ideal_angle[YAW]);
@@ -518,58 +520,66 @@ void ACEMV_ChangeBotAngle (edict_t *ent)
 	// Yaw
 	if (current_yaw != ideal_yaw)
 	{	
-		move = ideal_yaw - current_yaw;
-		speed = ent->yaw_speed / BOT_FPS;
+		yaw_move = ideal_yaw - current_yaw;
+		speed = ent->yaw_speed / (float) BASE_FRAMERATE;
 		if (ideal_yaw > current_yaw)
 		{
-			if (move >= 180)
-				move = move - 360;
+			if (yaw_move >= 180)
+				yaw_move = yaw_move - 360;
 		}
 		else
 		{
-			if (move <= -180)
-				move = move + 360;
+			if (yaw_move <= -180)
+				yaw_move = yaw_move + 360;
 		}
-		if (move > 0)
+		if (yaw_move > 0)
 		{
-			if (move > speed)
-				move = speed;
+			if (yaw_move > speed)
+				yaw_move = speed;
 		}
 		else
 		{
-			if (move < -speed)
-				move = -speed;
+			if (yaw_move < -speed)
+				yaw_move = -speed;
 		}
-		ent->s.angles[YAW] = anglemod (current_yaw + move);	
 	}
 
 	// Pitch
 	if (current_pitch != ideal_pitch)
 	{	
-		move = ideal_pitch - current_pitch;
-		speed = ent->yaw_speed / BOT_FPS;
+		pitch_move = ideal_pitch - current_pitch;
+		speed = ent->yaw_speed / (float) BASE_FRAMERATE;
 		if (ideal_pitch > current_pitch)
 		{
-			if (move >= 180)
-				move = move - 360;
+			if (pitch_move >= 180)
+				pitch_move = pitch_move - 360;
 		}
 		else
 		{
-			if (move <= -180)
-				move = move + 360;
+			if (pitch_move <= -180)
+				pitch_move = pitch_move + 360;
 		}
-		if (move > 0)
+		if (pitch_move > 0)
 		{
-			if (move > speed)
-				move = speed;
+			if (pitch_move > speed)
+				pitch_move = speed;
 		}
 		else
 		{
-			if (move < -speed)
-				move = -speed;
+			if (pitch_move < -speed)
+				pitch_move = -speed;
 		}
-		ent->s.angles[PITCH] = anglemod (current_pitch + move);	
 	}
+
+	// Raptor007: Interpolate towards desired changes at higher fps.
+	if( ! FRAMESYNC )
+	{
+		int frames_until_sync = FRAMEDIV - (level.framenum - 1) % FRAMEDIV;
+		move_ratio = 1.f / (float) frames_until_sync;
+	}
+
+	ent->s.angles[YAW] = anglemod( current_yaw + yaw_move * move_ratio );
+	ent->s.angles[PITCH] = anglemod( current_pitch + pitch_move * move_ratio );
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -1385,12 +1395,11 @@ void ACEMV_Attack (edict_t *self, usercmd_t *ucmd)
 	if( level.framenum >= self->grenadewait )
 	{
 		self->grenadewait = 0;
-		// Set direction
-		VectorSubtract (target, self->s.origin, self->move_vector);
-		// Raptor007: Limit bot rotation speed in combat too.
-		//vectoangles (self->move_vector, angles);
-		//VectorCopy(angles,self->s.angles);
+
+		// Raptor007: Interpolate angle changes, and set new desired direction at 10fps.
 		ACEMV_ChangeBotAngle( self );
+		if( FRAMESYNC )
+			VectorSubtract( target, self->s.origin, self->move_vector );
 	}
 
 	// Store time we last saw an enemy
