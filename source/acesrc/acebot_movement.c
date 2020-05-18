@@ -1016,7 +1016,10 @@ void ACEMV_Move(edict_t *self, usercmd_t *ucmd)
 		ACEMV_ChangeBotAngle(self);
 
 		ucmd->forwardmove = SPEED_RUN;
-		ucmd->upmove = SPEED_RUN;
+
+		// Raptor007: Only jump when trying to gain altitude, not down ledges.
+		if( nodes[self->next_node].origin[2] > self->s.origin[2] + 16 )
+			ucmd->upmove = SPEED_RUN;
 		
 		return;
 	}
@@ -1031,6 +1034,13 @@ void ACEMV_Move(edict_t *self, usercmd_t *ucmd)
 	}
 	else
 	{
+		// Raptor007: Reached a ledge, attempt to jump with momentum.
+		if( nodes[self->next_node].origin[2] > self->s.origin[2] )
+		{
+			ucmd->upmove = SPEED_RUN;
+			ucmd->forwardmove = SPEED_RUN;
+		}
+
 		// Forget about this route!
 //		ucmd->forwardmove = -SPEED_WALK / 2;
 //		self->movetarget = NULL;
@@ -1275,7 +1285,7 @@ void ACEMV_Attack (edict_t *self, usercmd_t *ucmd)
   }	//The rest applies even for fleeing bots
 
 	// Werewolf: Crouch if no laser light
-	if( (ltk_skill->value >= 5)
+	if( (ltk_skill->value >= 3)
 	&& self->groundentity
 	&& ! INV_AMMO( self, LASER_NUM )
 	&& (  (self->client->m4_rds   && (self->client->weapon == FindItem(M4_NAME)))
@@ -1306,12 +1316,16 @@ void ACEMV_Attack (edict_t *self, usercmd_t *ucmd)
 			&&  enemy_front
 			&&  (FRAMESYNC || (self->client->weaponstate != WEAPON_READY))
 			&&  (self->teamPauseTime == level.framenum - 1) )
+			{
 				ucmd->buttons = BUTTON_ATTACK;
 
-			if(self->client->weapon == FindItem(GRENADE_NAME))
-			{
-				self->grenadewait = level.framenum + 2.0 * HZ;
-				ucmd->forwardmove= -SPEED_RUN; //Stalk back, behold of the holy Grenade!
+				if(self->client->weapon == FindItem(GRENADE_NAME))
+				{
+					self->grenadewait = level.framenum + 2 * HZ;
+					ucmd->forwardmove = -SPEED_RUN; //Stalk back, behold of the holy Grenade!
+				}
+				else
+					self->grenadewait = 0;
 			}
 		}
 		else if (self->state != STATE_FLEE)
@@ -1401,7 +1415,7 @@ void ACEMV_Attack (edict_t *self, usercmd_t *ucmd)
 		ucmd->buttons = 0;
 	}
 
-	//Werewolf: Wait 3 seconds for grenade to launch before facing elsewhere
+	//Werewolf: Wait for grenade to launch before facing elsewhere
 	if( level.framenum >= self->grenadewait )
 	{
 		self->grenadewait = 0;
