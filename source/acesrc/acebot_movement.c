@@ -1186,11 +1186,13 @@ void ACEMV_Attack (edict_t *self, usercmd_t *ucmd)
 	float	dist;
 	qboolean	bHasWeapon;	// Needed to allow knife throwing and kick attacks
 
-	bHasWeapon = ACEAI_ChooseWeapon(self);
+	bHasWeapon = self->grenadewait || ACEAI_ChooseWeapon(self);
 
 	// Check distance to enemy
 	VectorSubtract( self->s.origin, self->enemy->s.origin, attackvector);
 	dist = VectorLength( attackvector);
+
+	qboolean enemy_front = infront( self, self->enemy );
 
   //If we're fleeing, don't bother moving randomly around the enemy and stuff...
 //  if (self->state != STATE_FLEE)
@@ -1299,9 +1301,13 @@ void ACEMV_Attack (edict_t *self, usercmd_t *ucmd)
 		//Reenabled by Werewolf
 		if( ACEAI_CheckShot( self ))
 		{
-			// Raptor007: If bot skill is negative, don't fire.
-			if( ltk_skill->value >= 0 )
+			// Raptor007: Only start firing on framesync and if we saw them last frame.
+			if( (ltk_skill->value >= 0)
+			&&  enemy_front
+			&&  (FRAMESYNC || (self->client->weaponstate != WEAPON_READY))
+			&&  (self->teamPauseTime == level.framenum - 1) )
 				ucmd->buttons = BUTTON_ATTACK;
+
 			if(self->client->weapon == FindItem(GRENADE_NAME))
 			{
 				self->grenadewait = level.framenum + 2.0 * HZ;
@@ -1335,7 +1341,6 @@ void ACEMV_Attack (edict_t *self, usercmd_t *ucmd)
 	if(self->client->weapon == FindItem(GRENADE_NAME))
 		target[2] += 35;
 
-
 	//AQ2 ADD - RiEvEr
 	// Alter aiming based on skill level
 	// Modified by Werewolf and Raptor007
@@ -1343,6 +1348,7 @@ void ACEMV_Attack (edict_t *self, usercmd_t *ucmd)
 		( (ltk_skill->value >= 0) && (ltk_skill->value < 10) )
 		&& ( bHasWeapon )	// Kick attacks must be accurate
 		&& (!(self->client->weapon == FindItem(KNIFE_NAME))) // Knives accurate
+		&& (!(self->client->weapon == FindItem(GRENADE_NAME))) // Grenades accurate
 		)
 	{
 		short int sign[3], iFactor = 7;
@@ -1367,6 +1373,10 @@ void ACEMV_Attack (edict_t *self, usercmd_t *ucmd)
 		else if( yaw_diff < -180.f )
 			yaw_diff += 360.f;
 		iFactor += abs( yaw_diff / 80.f ) * abs( dist / 700.f );
+
+		// Really make sure we aim less accurately when turning around.
+		if( ! enemy_front )
+			iFactor += 3;
 
 		target[0] += sign[0] * (10 - ltk_skill->value + ( (  iFactor*(10 - ltk_skill->value)  ) * random() )) * 0.7f;
 		target[1] += sign[1] * (10 - ltk_skill->value + ( (  iFactor*(10 - ltk_skill->value)  ) * random() )) * 0.7f;
@@ -1397,8 +1407,9 @@ void ACEMV_Attack (edict_t *self, usercmd_t *ucmd)
 		self->grenadewait = 0;
 
 		// Raptor007: Interpolate angle changes, and set new desired direction at 10fps.
+		// Make sure imperfect angles are calculated when first spotting an enemy, too.
 		ACEMV_ChangeBotAngle( self );
-		if( FRAMESYNC )
+		if( FRAMESYNC || ! enemy_front || (level.framenum - self->teamPauseTime >= FRAMEDIV) )
 			VectorSubtract( target, self->s.origin, self->move_vector );
 	}
 

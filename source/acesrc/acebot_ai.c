@@ -188,11 +188,16 @@ void ACEAI_Think (edict_t *self)
 */
 
 	// Look for enemies
-	if( (see_enemies) && 
-		(self->client->weaponstate != WEAPON_RELOADING) && 
-                (((teamplay->value) && (lights_camera_action <= 1)) || !teamplay->value))
+	if( (see_enemies) &&
+		(self->client->weaponstate != WEAPON_RELOADING) &&
+		(! self->client->bandaging) &&
+		(((teamplay->value) && (lights_camera_action <= 1)) || !teamplay->value))
 		//&& (self->state != STATE_FLEE) )
 	{
+		// Raptor007: Always use ACEMV_Attack to aim with inaccuracy.
+		ACEMV_Attack( self, &ucmd );
+		self->movetarget = self->enemy;
+/*
 		// Moved to the attack function
 //		ACEAI_ChooseWeapon(self);
 		// Stop the "spin 180 degrees and shoot" attack :)
@@ -210,7 +215,7 @@ void ACEAI_Think (edict_t *self)
 			//self->s.angles[YAW] += 90;
 			ACEMV_ChangeBotAngle ( self );
 		}
-
+*/
 //		if( self->health < self->old_health)
 //		{
 //			if (self->state != STATE_FLEE)
