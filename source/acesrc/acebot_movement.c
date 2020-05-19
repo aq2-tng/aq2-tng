@@ -1348,6 +1348,27 @@ void ACEMV_Attack (edict_t *self, usercmd_t *ucmd)
 		}
 	}
 
+	// Raptor007: Don't immediately shoot friendlies after round.
+	if( (team_round_countdown > 40) && ! self->grenadewait )
+	{
+		if( self->client->weapon == FindItem(KNIFE_NAME) )
+			self->client->pers.knife_mode = 1;  // Throwing knives are honorable.
+		else
+			ucmd->buttons &= ~BUTTON_ATTACK;
+
+		if( dist < 128 )
+		{
+			if( self->groundentity && (self->s.origin <= self->enemy->s.origin) )
+				ucmd->upmove = SPEED_RUN;  // Kicking is the most honorable form of combat.
+		}
+		else
+		{
+			ucmd->upmove = 0;
+			if( ACEMV_CanMove( self, MOVE_FORWARD ) )
+				ucmd->forwardmove = SPEED_RUN;  // We need to get closer to kick.
+		}
+	}
+
 	// Aim
 	VectorCopy(self->enemy->s.origin,target);
 

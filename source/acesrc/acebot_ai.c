@@ -699,7 +699,7 @@ qboolean ACEAI_FindEnemy(edict_t *self, int *total)
 		   self->client->resp.ctf_team == players[i]->client->resp.ctf_team)
 		   continue;*/
 // AQ2 ADD
-		if(teamplay->value && OnSameTeam( self, players[i]) )
+		if(teamplay->value && (team_round_going || lights_camera_action || ! ff_afterround->value) && OnSameTeam( self, players[i]) )
 		   continue;
 // AQ2 END
 
@@ -820,7 +820,7 @@ qboolean ACEAI_CheckShot(edict_t *self)
 	//We would hit something
 	if (tr.fraction < 0.9)
 		//If we're in teamplay the the accidentally hit player is a teammate, hold fire
-		if( (teamplay->value) && (OnSameTeam( self, tr.ent)) )
+		if( (teamplay->value) && team_round_going && (OnSameTeam( self, tr.ent)) )
 			return false;
 		//In deathmatch, don't shoot through glass and stuff
 //		else if ((!teamplay->value) && (tr.ent->solid==SOLID_BSP))
@@ -880,6 +880,17 @@ qboolean ACEAI_ChooseWeapon(edict_t *self)
 	VectorSubtract (self->s.origin, self->enemy->s.origin, v);
 	range = VectorLength(v);
 		
+	// Friendy fire after round should be fought with honor.
+	if( team_round_countdown && ff_afterround->value )
+	{
+		if( ACEIT_ChangeWeapon(self,FindItem(GRENADE_NAME)) )
+		{
+			self->client->pers.grenade_mode = (range > 700) ? 2 : 1;
+			return true;
+		}
+		if( ACEIT_ChangeWeapon(self,FindItem(KNIFE_NAME)) )
+			return true;
+	}
 
 	// Extreme range
 	if( range > 1300 )
