@@ -347,6 +347,11 @@ void CTFSwapTeams()
 	ctfgame.team1 = ctfgame.team2;
 	ctfgame.team2 = i;
 
+	// Swap matchmode team captains.
+	ent = teams[TEAM1].captain;
+	teams[TEAM1].captain = teams[TEAM2].captain;
+	teams[TEAM2].captain = ent;
+
 	teams_changed = true;
 }
 
