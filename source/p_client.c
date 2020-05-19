@@ -2315,15 +2315,15 @@ void PutClientInServer(edict_t * ent)
 	client->ps.pmove.origin[1] = ent->s.origin[1] * 8;
 	client->ps.pmove.origin[2] = ent->s.origin[2] * 8;
 
-	// set the delta angle
-	for (i = 0; i < 3; i++)
-		client->ps.pmove.delta_angles[i] = ANGLE2SHORT(spawn_angles[i] - client->resp.cmd_angles[i]);
-
 	ent->s.angles[PITCH] = 0;
 	ent->s.angles[YAW] = spawn_angles[YAW];
 	ent->s.angles[ROLL] = 0;
 	VectorCopy(ent->s.angles, client->ps.viewangles);
 	VectorCopy(ent->s.angles, client->v_angle);
+
+	// set the delta angle
+	for (i = 0; i < 3; i++)
+		client->ps.pmove.delta_angles[i] = ANGLE2SHORT(ent->s.angles[i] - client->resp.cmd_angles[i]);
 
 	if (teamplay->value) {
 		going_observer = (!ent->client->resp.team || ent->client->resp.subteam);

@@ -365,8 +365,10 @@ void vectoangles (vec3_t value1, vec3_t angles)
 		yaw = 0;
 		if (value1[2] > 0)
 			pitch = 90;
-		else
+		else if (value1[2] < 0)
 			pitch = 270;
+		else
+			pitch = 180;
 	}
 	else
 	{
@@ -388,7 +390,7 @@ void vectoangles (vec3_t value1, vec3_t angles)
 			pitch += 360;
 	}
 
-	angles[PITCH] = -pitch;
+	angles[PITCH] = 360 - pitch;
 	angles[YAW] = yaw;
 	angles[ROLL] = 0;
 }
