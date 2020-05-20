@@ -652,7 +652,7 @@ void MapVoteMenu (edict_t * ent, pmenu_t * p)
 votelist_t *VotelistInsert( votelist_t *start, votelist_t *insert )
 {
 	// If this is the first element or goes before the first, it's the new start point.
-	if( (! start) || (strcasecmp( insert->mapname, start->mapname ) < 0) )
+	if( (! start) || (Q_stricmp( insert->mapname, start->mapname ) < 0) )
 	{
 		insert->next = start;
 		return insert;
@@ -660,7 +660,7 @@ votelist_t *VotelistInsert( votelist_t *start, votelist_t *insert )
 	
 	// Loop until we find a place to insert the new element into the list.
 	votelist_t *tmp;
-	for( tmp = start; tmp->next && (strcasecmp( insert->mapname, tmp->next->mapname ) >= 0); tmp = tmp->next ){}
+	for( tmp = start; tmp->next && (Q_stricmp( insert->mapname, tmp->next->mapname ) >= 0); tmp = tmp->next ){}
 	
 	// Insert the new element.
 	votelist_t *after = tmp->next;
@@ -755,7 +755,7 @@ void ReadMaplistFile (void)
 			{
 				num_allvotes = atoi(buf);
 			}
-			else
+			else if (map_votes)
 			{
 				if (bs < 3)
 					continue;

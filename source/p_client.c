@@ -321,11 +321,6 @@
 #include "cgf_sfx_glass.h"
 
 
-void ClientUserinfoChanged(edict_t * ent, char *userinfo);
-void ClientDisconnect(edict_t * ent);
-void SP_misc_teleporter_dest(edict_t * ent);
-void CopyToBodyQue(edict_t * ent);
-
 static void FreeClientEdicts(gclient_t *client)
 {
 	//remove lasersight
@@ -1169,8 +1164,6 @@ void ClientObituary(edict_t * self, edict_t * inflictor, edict_t * attacker)
 	Add_Death( self, true );
 }
 
-void Touch_Item(edict_t * ent, edict_t * other, cplane_t * plane, csurface_t * surf);
-
 // zucc used to toss an item on death
 void EjectItem(edict_t * ent, gitem_t * item)
 {
@@ -1457,23 +1450,18 @@ void player_die(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage
 
 			i = (i + 1) % 3;
 			// start a death animation
-			self->client->anim_priority = ANIM_DEATH;
-			if (self->client->ps.pmove.pm_flags & PMF_DUCKED) {
-				self->s.frame = FRAME_crdeath1 - 1;
-				self->client->anim_end = FRAME_crdeath5;
-			} else
+			if (self->client->ps.pmove.pm_flags & PMF_DUCKED)
+				SetAnimation( self, FRAME_crdeath1 - 1, FRAME_crdeath5, ANIM_DEATH );
+			else
 				switch (i) {
 				case 0:
-					self->s.frame = FRAME_death101 - 1;
-					self->client->anim_end = FRAME_death106;
+					SetAnimation( self, FRAME_death101 - 1, FRAME_death106, ANIM_DEATH );
 					break;
 				case 1:
-					self->s.frame = FRAME_death201 - 1;
-					self->client->anim_end = FRAME_death206;
+					SetAnimation( self, FRAME_death201 - 1, FRAME_death206, ANIM_DEATH );
 					break;
 				case 2:
-					self->s.frame = FRAME_death301 - 1;
-					self->client->anim_end = FRAME_death308;
+					SetAnimation( self, FRAME_death301 - 1, FRAME_death308, ANIM_DEATH );
 					break;
 				}
 			if ((mod == MOD_SNIPER) || (mod == MOD_KNIFE)
@@ -2327,15 +2315,15 @@ void PutClientInServer(edict_t * ent)
 	client->ps.pmove.origin[1] = ent->s.origin[1] * 8;
 	client->ps.pmove.origin[2] = ent->s.origin[2] * 8;
 
-	// set the delta angle
-	for (i = 0; i < 3; i++)
-		client->ps.pmove.delta_angles[i] = ANGLE2SHORT(spawn_angles[i] - client->resp.cmd_angles[i]);
-
 	ent->s.angles[PITCH] = 0;
 	ent->s.angles[YAW] = spawn_angles[YAW];
 	ent->s.angles[ROLL] = 0;
 	VectorCopy(ent->s.angles, client->ps.viewangles);
 	VectorCopy(ent->s.angles, client->v_angle);
+
+	// set the delta angle
+	for (i = 0; i < 3; i++)
+		client->ps.pmove.delta_angles[i] = ANGLE2SHORT(ent->s.angles[i] - client->resp.cmd_angles[i]);
 
 	if (teamplay->value) {
 		going_observer = (!ent->client->resp.team || ent->client->resp.subteam);
@@ -2373,19 +2361,23 @@ void PutClientInServer(edict_t * ent)
 		}
 	}
 
-	// items up here so that the bandolier will change equipclient below
-	if (allitem->value) {
-		AllItems(ent);
+	if( jump->value )
+	{
+		Jmp_EquipClient(ent);
+		return;
 	}
+
+	// items up here so that the bandolier will change equipclient below
+	if (allitem->value)
+		AllItems(ent);
 
 	if (gameSettings & GS_WEAPONCHOOSE)
 		EquipClient(ent);
 	else
 		EquipClientDM(ent);
 
-	if (allweapon->value) {
+	if (allweapon->value)
 		AllWeapons(ent);
-	}
 
 	// force the current weapon up
 	client->newweapon = client->weapon;
@@ -2844,7 +2836,7 @@ static void ClientThinkWeaponIfReady( edict_t *ent, qboolean update_idle )
 	if( (ent->client->weaponstate != WEAPON_READY) || (old_weaponstate != WEAPON_READY) )
 	{
 		ent->client->weapon_last_activity = level.framenum;
-		ent->client->anim_framesync = ent->client->weapon_last_activity % game.framediv;
+		ent->client->anim_started = ent->client->weapon_last_activity;
 	}
 
 	// Only allow the idle animation to update if it's been enough time.
@@ -3003,7 +2995,7 @@ void ClientThink(edict_t * ent, usercmd_t * ucmd)
 		// stop manipulating doors
 		client->doortoggle = 0;
 
-		if( client->jumping && (ent->solid != SOLID_NOT) && ! lights_camera_action && ! client->uvTime )
+		if( client->jumping && (ent->solid != SOLID_NOT) && ! lights_camera_action && ! client->uvTime && ! jump->value )
 		{
 			kick_attack( ent );
 			client->punch_desired = false;

@@ -456,6 +456,8 @@ cvar_t *warmup;
 cvar_t *round_begin;
 cvar_t *spectator_hud;
 
+cvar_t *jump;			// jumping mod
+
 void SpawnEntities (char *mapname, char *entities, char *spawnpoint);
 void ClientThink (edict_t * ent, usercmd_t * cmd);
 qboolean ClientConnect (edict_t * ent, char *userinfo);

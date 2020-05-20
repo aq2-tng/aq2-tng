@@ -243,8 +243,11 @@ void UpdateChaseCam( edict_t * ent )
 		}
 		else
 		{
-			i = client->ps.pmove.pm_flags & PMF_JUMP_HELD;
+			byte jump_held = client->ps.pmove.pm_flags & PMF_JUMP_HELD;
 			client->ps = targ->client->ps;
+
+			for (i = 0; i < 3; i++)
+				client->ps.pmove.delta_angles[i] = ANGLE2SHORT(angles[i] - client->resp.cmd_angles[i]);
 
 			VectorCopy(client->ps.viewangles, ent->s.angles);
 			VectorCopy(client->ps.viewangles, client->v_angle);
@@ -252,7 +255,7 @@ void UpdateChaseCam( edict_t * ent )
 			ent->viewheight = targ->viewheight;
 
 			client->ps.pmove.pm_flags &= ~PMF_JUMP_HELD;
-			client->ps.pmove.pm_flags |= i;
+			client->ps.pmove.pm_flags |= jump_held;
 			client->ps.pmove.pm_type = PM_FREEZE;
 		}
 

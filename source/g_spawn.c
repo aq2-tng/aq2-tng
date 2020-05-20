@@ -877,7 +877,40 @@ void SpawnEntities (char *mapname, char *entities, char *spawnpoint)
 	teamCount = 2;
 	gameSettings = 0;
 
-	if (ctf->value)
+	if (jump->value)
+	{
+		if (teamplay->value)
+		{
+			gi.dprintf ("Jump Enabled - Forcing teamplay ff\n");
+			gi.cvar_forceset(teamplay->name, "0");
+		}
+		if (use_3teams->value)
+		{
+			gi.dprintf ("Jump Enabled - Forcing 3Teams off\n");
+			gi.cvar_forceset(use_3teams->name, "0");
+		}
+		if (teamdm->value)
+		{
+			gi.dprintf ("Jump Enabled - Forcing Team DM off\n");
+			gi.cvar_forceset(teamdm->name, "0");
+		}
+		if (use_tourney->value)
+		{
+			gi.dprintf ("Jump Enabled - Forcing Tourney off\n");
+			gi.cvar_forceset(use_tourney->name, "0");
+		}
+		if (ctf->value)
+		{
+			gi.dprintf ("Jump Enabled - Forcing CTF off\n");
+			gi.cvar_forceset(ctf->name, "0");
+		}
+		if (dom->value)
+		{
+			gi.dprintf ("Jump Enabled - Forcing Domination off\n");
+			gi.cvar_forceset(dom->name, "0");
+		}
+	}
+	else if (ctf->value)
 	{
 		if (ctf->value == 2)
 			gi.cvar_forceset(ctf->name, "1"); //for now
@@ -1082,6 +1115,7 @@ void SpawnEntities (char *mapname, char *entities, char *spawnpoint)
 			ent = g_edicts;
 		else
 			ent = G_Spawn();
+
 		entities = ED_ParseEdict(entities, ent);
 
 		// yet another map hack
@@ -1134,7 +1168,7 @@ void SpawnEntities (char *mapname, char *entities, char *spawnpoint)
 	// TNG:Freud - Ghosts
 	num_ghost_players = 0;
 
-	if (!(gameSettings & GS_WEAPONCHOOSE))
+	if (!(gameSettings & GS_WEAPONCHOOSE) && !jump->value)
 	{
 		//zucc for special items
 		SetupSpecSpawn();
@@ -1274,6 +1308,8 @@ void G_SetupStatusbar( void )
 		}
 		else if( dom->value )
 			DomSetupStatusbar();
+		else if( jump->value )
+			strcpy( level.statusbar, jump_statusbar );
 	}
 
 	Q_strncpyz(level.spec_statusbar, level.statusbar, sizeof(level.spec_statusbar));

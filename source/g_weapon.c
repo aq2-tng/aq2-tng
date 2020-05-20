@@ -74,11 +74,6 @@
 #include "m_player.h"
 
 
-void knife_touch (edict_t *ent, edict_t *other, cplane_t *plane, csurface_t *surf);
-void Zylon_Grenade (edict_t *ent);
-void setFFState (edict_t *ent);
-
-
 void InitTookDamage(void)
 {
 	int i;
@@ -962,9 +957,7 @@ void punch_attack(edict_t * ent)
 	if (ent->client->anim_priority >= ANIM_WAVE)
 		return;
 
-	ent->client->anim_priority = ANIM_WAVE;
-	ent->s.frame = FRAME_flip01 - 1;
-	ent->client->anim_end = FRAME_flip03;
+	SetAnimation( ent, FRAME_flip01 - 1, FRAME_flip03, ANIM_WAVE );
 }
 
 // zucc

@@ -24,6 +24,10 @@ endif
 CC?=gcc
 BASE_CFLAGS=-Wall -fno-strict-aliasing -DC_ONLY -DVERSION="\"$(VERSION)\""
 
+ifdef WEXTRA
+BASE_CFLAGS += -Wextra
+endif
+
 #use these cflags to optimize it
 ifdef DEBUG
 	CFLAGS=$(BASE_CFLAGS) -g
@@ -92,7 +96,7 @@ GAME_OBJS = \
 	g_utils.o g_weapon.o \
 	p_client.o p_hud.o p_view.o p_weapon.o q_shared.o \
 	tng_stats.o tng_flashlight.o tng_irc.o tng_ini.o tng_balancer.o \
-	g_grapple.o a_dom.o
+	g_grapple.o a_dom.o tng_jump.o
 
 game$(ARCH).$(SHLIBEXT): $(GAME_OBJS)
 	$(DO_LINK)
