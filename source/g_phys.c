@@ -773,7 +773,7 @@ SV_Physics_Bounce (edict_t * ent)
 	      temp[2] = 0;
 	      if ((VectorLength (temp) < 20)
 		  && (ent->velocity[2] <
-		      ent->gravity * sv_gravity->value * FRAMETIME * 1.5))
+		      ent->gravity * sv_gravity->value * FRAMETIME * 1.5f))
 		{
 		  ent->groundentity = trace.ent;
 		  ent->groundentity_linkcount = trace.ent->linkcount;

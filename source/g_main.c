@@ -464,6 +464,8 @@ cvar_t *ltk_chat;
 cvar_t *ltk_routing;
 #endif
 
+cvar_t *jump;			// jumping mod
+
 void SpawnEntities (char *mapname, char *entities, char *spawnpoint);
 void ClientThink (edict_t * ent, usercmd_t * cmd);
 qboolean ClientConnect (edict_t * ent, char *userinfo);

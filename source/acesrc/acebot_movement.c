@@ -492,20 +492,22 @@ qboolean ACEMV_CheckEyes(edict_t *self, usercmd_t *ucmd)
 ///////////////////////////////////////////////////////////////////////
 void ACEMV_ChangeBotAngle (edict_t *ent)
 {
-	float	ideal_yaw;
+	float   ideal_yaw;
 	float   ideal_pitch;
-	float	current_yaw;
+	float   current_yaw;
 	float   current_pitch;
-	float	move;
-	float	speed;
+	float   speed;
 	vec3_t  ideal_angle;
-	
+	float   yaw_move = 0.f;
+	float   pitch_move = 0.f;
+	float   move_ratio = 1.f;
+
 	// Normalize the move angle first
 	VectorNormalize(ent->move_vector);
 
 	current_yaw = anglemod(ent->s.angles[YAW]);
 	current_pitch = anglemod(ent->s.angles[PITCH]);
-	
+
 	vectoangles (ent->move_vector, ideal_angle);
 
 	ideal_yaw = anglemod(ideal_angle[YAW]);
@@ -518,58 +520,66 @@ void ACEMV_ChangeBotAngle (edict_t *ent)
 	// Yaw
 	if (current_yaw != ideal_yaw)
 	{	
-		move = ideal_yaw - current_yaw;
-		speed = ent->yaw_speed / BOT_FPS;
+		yaw_move = ideal_yaw - current_yaw;
+		speed = ent->yaw_speed / (float) BASE_FRAMERATE;
 		if (ideal_yaw > current_yaw)
 		{
-			if (move >= 180)
-				move = move - 360;
+			if (yaw_move >= 180)
+				yaw_move = yaw_move - 360;
 		}
 		else
 		{
-			if (move <= -180)
-				move = move + 360;
+			if (yaw_move <= -180)
+				yaw_move = yaw_move + 360;
 		}
-		if (move > 0)
+		if (yaw_move > 0)
 		{
-			if (move > speed)
-				move = speed;
+			if (yaw_move > speed)
+				yaw_move = speed;
 		}
 		else
 		{
-			if (move < -speed)
-				move = -speed;
+			if (yaw_move < -speed)
+				yaw_move = -speed;
 		}
-		ent->s.angles[YAW] = anglemod (current_yaw + move);	
 	}
 
 	// Pitch
 	if (current_pitch != ideal_pitch)
 	{	
-		move = ideal_pitch - current_pitch;
-		speed = ent->yaw_speed / BOT_FPS;
+		pitch_move = ideal_pitch - current_pitch;
+		speed = ent->yaw_speed / (float) BASE_FRAMERATE;
 		if (ideal_pitch > current_pitch)
 		{
-			if (move >= 180)
-				move = move - 360;
+			if (pitch_move >= 180)
+				pitch_move = pitch_move - 360;
 		}
 		else
 		{
-			if (move <= -180)
-				move = move + 360;
+			if (pitch_move <= -180)
+				pitch_move = pitch_move + 360;
 		}
-		if (move > 0)
+		if (pitch_move > 0)
 		{
-			if (move > speed)
-				move = speed;
+			if (pitch_move > speed)
+				pitch_move = speed;
 		}
 		else
 		{
-			if (move < -speed)
-				move = -speed;
+			if (pitch_move < -speed)
+				pitch_move = -speed;
 		}
-		ent->s.angles[PITCH] = anglemod (current_pitch + move);	
 	}
+
+	// Raptor007: Interpolate towards desired changes at higher fps.
+	if( ! FRAMESYNC )
+	{
+		int frames_until_sync = FRAMEDIV - (level.framenum - 1) % FRAMEDIV;
+		move_ratio = 1.f / (float) frames_until_sync;
+	}
+
+	ent->s.angles[YAW] = anglemod( current_yaw + yaw_move * move_ratio );
+	ent->s.angles[PITCH] = anglemod( current_pitch + pitch_move * move_ratio );
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -1006,7 +1016,10 @@ void ACEMV_Move(edict_t *self, usercmd_t *ucmd)
 		ACEMV_ChangeBotAngle(self);
 
 		ucmd->forwardmove = SPEED_RUN;
-		ucmd->upmove = SPEED_RUN;
+
+		// Raptor007: Only jump when trying to gain altitude, not down ledges.
+		if( nodes[self->next_node].origin[2] > self->s.origin[2] + 16 )
+			ucmd->upmove = SPEED_RUN;
 		
 		return;
 	}
@@ -1021,6 +1034,13 @@ void ACEMV_Move(edict_t *self, usercmd_t *ucmd)
 	}
 	else
 	{
+		// Raptor007: Reached a ledge, attempt to jump with momentum.
+		if( nodes[self->next_node].origin[2] > self->s.origin[2] )
+		{
+			ucmd->upmove = SPEED_RUN;
+			ucmd->forwardmove = SPEED_RUN;
+		}
+
 		// Forget about this route!
 //		ucmd->forwardmove = -SPEED_WALK / 2;
 //		self->movetarget = NULL;
@@ -1176,11 +1196,13 @@ void ACEMV_Attack (edict_t *self, usercmd_t *ucmd)
 	float	dist;
 	qboolean	bHasWeapon;	// Needed to allow knife throwing and kick attacks
 
-	bHasWeapon = ACEAI_ChooseWeapon(self);
+	bHasWeapon = self->grenadewait || ACEAI_ChooseWeapon(self);
 
 	// Check distance to enemy
 	VectorSubtract( self->s.origin, self->enemy->s.origin, attackvector);
 	dist = VectorLength( attackvector);
+
+	qboolean enemy_front = infront( self, self->enemy );
 
   //If we're fleeing, don't bother moving randomly around the enemy and stuff...
 //  if (self->state != STATE_FLEE)
@@ -1263,7 +1285,7 @@ void ACEMV_Attack (edict_t *self, usercmd_t *ucmd)
   }	//The rest applies even for fleeing bots
 
 	// Werewolf: Crouch if no laser light
-	if( (ltk_skill->value >= 5)
+	if( (ltk_skill->value >= 3)
 	&& self->groundentity
 	&& ! INV_AMMO( self, LASER_NUM )
 	&& (  (self->client->m4_rds   && (self->client->weapon == FindItem(M4_NAME)))
@@ -1289,13 +1311,21 @@ void ACEMV_Attack (edict_t *self, usercmd_t *ucmd)
 		//Reenabled by Werewolf
 		if( ACEAI_CheckShot( self ))
 		{
-			// Raptor007: If bot skill is negative, don't fire.
-			if( ltk_skill->value >= 0 )
-				ucmd->buttons = BUTTON_ATTACK;
-			if(self->client->weapon == FindItem(GRENADE_NAME))
+			// Raptor007: Only start firing on framesync and if we saw them last frame.
+			if( (ltk_skill->value >= 0)
+			&&  enemy_front
+			&&  (FRAMESYNC || (self->client->weaponstate != WEAPON_READY))
+			&&  (self->teamPauseTime == level.framenum - 1) )
 			{
-				self->grenadewait = level.framenum + 2.0 * HZ;
-				ucmd->forwardmove= -SPEED_RUN; //Stalk back, behold of the holy Grenade!
+				ucmd->buttons = BUTTON_ATTACK;
+
+				if(self->client->weapon == FindItem(GRENADE_NAME))
+				{
+					self->grenadewait = level.framenum + 2 * HZ;
+					ucmd->forwardmove = -SPEED_RUN; //Stalk back, behold of the holy Grenade!
+				}
+				else
+					self->grenadewait = 0;
 			}
 		}
 		else if (self->state != STATE_FLEE)
@@ -1318,13 +1348,33 @@ void ACEMV_Attack (edict_t *self, usercmd_t *ucmd)
 		}
 	}
 
+	// Raptor007: Don't immediately shoot friendlies after round.
+	if( (team_round_countdown > 40) && ! self->grenadewait )
+	{
+		if( self->client->weapon == FindItem(KNIFE_NAME) )
+			self->client->pers.knife_mode = 1;  // Throwing knives are honorable.
+		else
+			ucmd->buttons &= ~BUTTON_ATTACK;
+
+		if( dist < 128 )
+		{
+			if( self->groundentity && (self->s.origin <= self->enemy->s.origin) )
+				ucmd->upmove = SPEED_RUN;  // Kicking is the most honorable form of combat.
+		}
+		else
+		{
+			ucmd->upmove = 0;
+			if( ACEMV_CanMove( self, MOVE_FORWARD ) )
+				ucmd->forwardmove = SPEED_RUN;  // We need to get closer to kick.
+		}
+	}
+
 	// Aim
 	VectorCopy(self->enemy->s.origin,target);
 
 	// Werewolf: Aim higher if using grenades
 	if(self->client->weapon == FindItem(GRENADE_NAME))
 		target[2] += 35;
-
 
 	//AQ2 ADD - RiEvEr
 	// Alter aiming based on skill level
@@ -1333,6 +1383,7 @@ void ACEMV_Attack (edict_t *self, usercmd_t *ucmd)
 		( (ltk_skill->value >= 0) && (ltk_skill->value < 10) )
 		&& ( bHasWeapon )	// Kick attacks must be accurate
 		&& (!(self->client->weapon == FindItem(KNIFE_NAME))) // Knives accurate
+		&& (!(self->client->weapon == FindItem(GRENADE_NAME))) // Grenades accurate
 		)
 	{
 		short int sign[3], iFactor = 7;
@@ -1358,6 +1409,10 @@ void ACEMV_Attack (edict_t *self, usercmd_t *ucmd)
 			yaw_diff += 360.f;
 		iFactor += abs( yaw_diff / 80.f ) * abs( dist / 700.f );
 
+		// Really make sure we aim less accurately when turning around.
+		if( ! enemy_front )
+			iFactor += 3;
+
 		target[0] += sign[0] * (10 - ltk_skill->value + ( (  iFactor*(10 - ltk_skill->value)  ) * random() )) * 0.7f;
 		target[1] += sign[1] * (10 - ltk_skill->value + ( (  iFactor*(10 - ltk_skill->value)  ) * random() )) * 0.7f;
 		target[2] += sign[2] * (10 - ltk_skill->value + ( (  iFactor*(10 - ltk_skill->value)  ) * random() ));
@@ -1381,16 +1436,16 @@ void ACEMV_Attack (edict_t *self, usercmd_t *ucmd)
 		ucmd->buttons = 0;
 	}
 
-	//Werewolf: Wait 3 seconds for grenade to launch before facing elsewhere
+	//Werewolf: Wait for grenade to launch before facing elsewhere
 	if( level.framenum >= self->grenadewait )
 	{
 		self->grenadewait = 0;
-		// Set direction
-		VectorSubtract (target, self->s.origin, self->move_vector);
-		// Raptor007: Limit bot rotation speed in combat too.
-		//vectoangles (self->move_vector, angles);
-		//VectorCopy(angles,self->s.angles);
+
+		// Raptor007: Interpolate angle changes, and set new desired direction at 10fps.
+		// Make sure imperfect angles are calculated when first spotting an enemy, too.
 		ACEMV_ChangeBotAngle( self );
+		if( FRAMESYNC || ! enemy_front || (level.framenum - self->teamPauseTime >= FRAMEDIV) )
+			VectorSubtract( target, self->s.origin, self->move_vector );
 	}
 
 	// Store time we last saw an enemy

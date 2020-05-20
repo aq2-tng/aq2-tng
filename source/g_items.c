@@ -161,6 +161,12 @@ gitem_t *FindItem (char *pickup_name)
 
 void DoRespawn (edict_t * ent)
 {
+	if (!ent)
+	{
+		gi.dprintf("NULL ent passed to %s\n", __func__);
+		return;
+	}
+
 	if (ent->team)
 	{
 		edict_t *master;
@@ -169,21 +175,15 @@ void DoRespawn (edict_t * ent)
 
 		master = ent->teammaster;
 
-		//in ctf, when we are weapons stay, only the master of a team of weapons
-		//is spawned
-		// if (ctf->value &&
-		//    DMFLAGS(DF_WEAPONS_STAY) &&
-		//    master->item && (master->item->flags & IT_WEAPON))
-		//  ent = master;
-		//else {
-			for (count = 0, ent = master; ent; ent = ent->chain, count++)
-				;
+		count = 0;
+		for (ent = master; ent; ent = ent->chain)
+			count++;
 
-			choice = rand () % count;
+		choice = count ? (rand() % count) : 0;
 
-			for (count = 0, ent = master; count < choice; ent = ent->chain, count++)
-				;
-		//}
+		count = 0;
+		for (ent = master; count < choice; ent = ent->chain)
+			count++;
 	}
 
 	ent->svflags &= ~SVF_NOCLIENT;

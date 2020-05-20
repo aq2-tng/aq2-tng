@@ -188,11 +188,16 @@ void ACEAI_Think (edict_t *self)
 */
 
 	// Look for enemies
-	if( (see_enemies) && 
-		(self->client->weaponstate != WEAPON_RELOADING) && 
-                (((teamplay->value) && (lights_camera_action <= 1)) || !teamplay->value))
+	if( (see_enemies) &&
+		(self->client->weaponstate != WEAPON_RELOADING) &&
+		(! self->client->bandaging) &&
+		(((teamplay->value) && (lights_camera_action <= 1)) || !teamplay->value))
 		//&& (self->state != STATE_FLEE) )
 	{
+		// Raptor007: Always use ACEMV_Attack to aim with inaccuracy.
+		ACEMV_Attack( self, &ucmd );
+		self->movetarget = self->enemy;
+/*
 		// Moved to the attack function
 //		ACEAI_ChooseWeapon(self);
 		// Stop the "spin 180 degrees and shoot" attack :)
@@ -210,7 +215,7 @@ void ACEAI_Think (edict_t *self)
 			//self->s.angles[YAW] += 90;
 			ACEMV_ChangeBotAngle ( self );
 		}
-
+*/
 //		if( self->health < self->old_health)
 //		{
 //			if (self->state != STATE_FLEE)
@@ -694,7 +699,7 @@ qboolean ACEAI_FindEnemy(edict_t *self, int *total)
 		   self->client->resp.ctf_team == players[i]->client->resp.ctf_team)
 		   continue;*/
 // AQ2 ADD
-		if(teamplay->value && OnSameTeam( self, players[i]) )
+		if(teamplay->value && (team_round_going || lights_camera_action || ! ff_afterround->value) && OnSameTeam( self, players[i]) )
 		   continue;
 // AQ2 END
 
@@ -815,7 +820,7 @@ qboolean ACEAI_CheckShot(edict_t *self)
 	//We would hit something
 	if (tr.fraction < 0.9)
 		//If we're in teamplay the the accidentally hit player is a teammate, hold fire
-		if( (teamplay->value) && (OnSameTeam( self, tr.ent)) )
+		if( (teamplay->value) && team_round_going && (OnSameTeam( self, tr.ent)) )
 			return false;
 		//In deathmatch, don't shoot through glass and stuff
 //		else if ((!teamplay->value) && (tr.ent->solid==SOLID_BSP))
@@ -823,11 +828,16 @@ qboolean ACEAI_CheckShot(edict_t *self)
 
 //	tr = gi.trace (self->s.origin, vec3_origin, vec3_origin, self->enemy->s.origin, self, MASK_SOLID|MASK_OPAQUE); // Check for Hard stuff
 	tr = gi.trace (self->s.origin, tv(-8,-8,-8), tv(8,8,8), self->enemy->s.origin, self, MASK_SOLID|MASK_OPAQUE);
-	if (tr.fraction < 0.9)
-		if (tr.ent->solid==SOLID_BSP)
+	if( (tr.fraction < 0.9) && (tr.ent->solid==SOLID_BSP) )
+	{
+		// If we'd hit something solid, see if that's also true aiming for the head.
+		vec3_t enemy_head;
+		VectorCopy( self->enemy->s.origin, enemy_head );
+		enemy_head[2] += 12.f;  // g_combat.c HEAD_HEIGHT
+		tr = gi.trace( self->s.origin, tv(-2,-2,-2), tv(2,2,2), enemy_head, self, MASK_SOLID|MASK_OPAQUE );
+		if( (tr.fraction < 0.9) && (tr.ent->solid==SOLID_BSP) )
 			return false;
-
-
+	}
 
 	//else shoot
 	return true;
@@ -870,6 +880,17 @@ qboolean ACEAI_ChooseWeapon(edict_t *self)
 	VectorSubtract (self->s.origin, self->enemy->s.origin, v);
 	range = VectorLength(v);
 		
+	// Friendy fire after round should be fought with honor.
+	if( team_round_countdown && ff_afterround->value )
+	{
+		if( ACEIT_ChangeWeapon(self,FindItem(GRENADE_NAME)) )
+		{
+			self->client->pers.grenade_mode = (range > 700) ? 2 : 1;
+			return true;
+		}
+		if( ACEIT_ChangeWeapon(self,FindItem(KNIFE_NAME)) )
+			return true;
+	}
 
 	// Extreme range
 	if( range > 1300 )

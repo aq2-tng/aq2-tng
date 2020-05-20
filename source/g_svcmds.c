@@ -541,7 +541,7 @@ void SVCmd_Slap_f (void)
 	for( i = 0; i < maxclients->value ; i ++ )
 	{
 		edict_t *ent = g_edicts + i + 1;
-		if( ent->inuse && ( (user_id == i + 1) || ((! user_id) && (strncasecmp( ent->client->pers.netname, name, name_len ) == 0)) ) )
+		if( ent->inuse && ( (user_id == i + 1) || ((! user_id) && (Q_strnicmp( ent->client->pers.netname, name, name_len ) == 0)) ) )
 		{
 			found_victim = true;
 			if( IS_ALIVE(ent) )

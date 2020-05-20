@@ -49,7 +49,6 @@
 #ifndef __Q_SHARED_H
 #define __Q_SHARED_H
 
-#include <assert.h>
 #include <math.h>
 #include <stdio.h>
 #include <stdarg.h>
@@ -77,6 +76,7 @@
 #pragma warning(disable : 4018)	// signed/unsigned mismatch
 #pragma warning(disable : 4305)	// truncation from const double to float
 #pragma warning(disable : 4996)	// deprecated functions
+#pragma warning(disable : 4100)	// unreferenced formal parameter
 #endif
 
 # define HAVE___INLINE
@@ -88,10 +88,11 @@
 
 #endif
 //==============================================
-#if defined(__linux__) || defined(__FreeBSD__)
+#if defined(__linux__) || defined(__FreeBSD__) || defined(__GNUC__)
 
 # define HAVE_INLINE
 # define HAVE_STRCASECMP
+# define HAVE_SNPRINTF
 
 #endif
 //==============================================
@@ -135,6 +136,10 @@
 # endif
 # ifndef Q_strnicmp 
 #  define Q_strnicmp(s1, s2, n) _strnicmp((s1), (s2), (n))
+# endif
+# ifndef HAVE_STRCASECMP
+#  define strcasecmp Q_stricmp    //QwazyWabbit for MSVC compatibility
+#  define strncasecmp Q_strnicmp
 # endif
 #endif
 
@@ -305,7 +310,7 @@ extern long Q_ftol (float f);
 #define VectorAvg(a,b,c)		((c)[0]=((a)[0]+(b)[0])*0.5f,(c)[1]=((a)[1]+(b)[1])*0.5f, (c)[2]=((a)[2]+(b)[2])*0.5f)
 #define VectorMA(a,b,c,d)		((d)[0]=(a)[0]+(b)*(c)[0],(d)[1]=(a)[1]+(b)*(c)[1],(d)[2]=(a)[2]+(b)*(c)[2])
 #define VectorCompare(v1,v2)	((v1)[0]==(v2)[0] && (v1)[1]==(v2)[1] && (v1)[2]==(v2)[2])
-#define VectorLength(v)			(sqrt(DotProduct((v),(v))))
+#define VectorLength(v)			(sqrtf(DotProduct((v),(v))))
 #define VectorInverse(v)		((v)[0]=-(v)[0],(v)[1]=-(v)[1],(v)[2]=-(v)[2])
 #define VectorScale(in,s,out)	((out)[0]=(in)[0]*(s),(out)[1]=(in)[1]*(s),(out)[2]=(in)[2]*(s))
 
@@ -313,7 +318,7 @@ extern long Q_ftol (float f);
 #define VectorCopyMaxs(a,b,c)	((c)[0]=max((a)[0],(b)[0]),(c)[0]=max((a)[1],(b)[1]),(c)[2]=max((a)[2],(b)[2]))
 
 #define DistanceSquared(v1,v2)	(((v1)[0]-(v2)[0])*((v1)[0]-(v2)[0])+((v1)[1]-(v2)[1])*((v1)[1]-(v2)[1])+((v1)[2]-(v2)[2])*((v1)[2]-(v2)[2]))
-#define Distance(v1,v2)			(sqrt(DistanceSquared(v1,v2)))
+#define Distance(v1,v2)			(sqrtf(DistanceSquared(v1,v2)))
 
 #define ClearBounds(mins,maxs)	((mins)[0]=(mins)[1]=(mins)[2]=99999,(maxs)[0]=(maxs)[1]=(maxs)[2]=-99999)
 
@@ -391,7 +396,11 @@ char *Q_strupr( char *s );
 // buffer safe operations
 void Q_strncpyz (char *dest, const char *src, size_t size );
 void Q_strncatz (char *dest, const char *src, size_t size );
-void Com_sprintf(char *dest, size_t size, const char *fmt, ...);
+#ifdef HAVE_SNPRINTF
+# define Com_sprintf snprintf
+#else
+ void Com_sprintf(char *dest, size_t size, const char *fmt, ...);
+#endif
 
 //=============================================
 
@@ -1316,17 +1325,20 @@ temp_event_t;
 #define CS_MAXCLIENTS           30
 #define CS_MAPCHECKSUM          31	// for catching cheater maps
 
-#define CS_MODELS               32
-#define CS_SOUNDS               (CS_MODELS+MAX_MODELS)
-#define CS_IMAGES               (CS_SOUNDS+MAX_SOUNDS)
-#define CS_LIGHTS               (CS_IMAGES+MAX_IMAGES)
-#define CS_ITEMS                (CS_LIGHTS+MAX_LIGHTSTYLES)
-#define CS_PLAYERSKINS          (CS_ITEMS+MAX_ITEMS)
-// FROM 3.20 -FB
-#define CS_GENERAL              (CS_PLAYERSKINS+MAX_CLIENTS)
-#define MAX_CONFIGSTRINGS       (CS_GENERAL+MAX_GENERAL)
-// ^^^
+#define CS_MODELS           32
+#define CS_SOUNDS           (CS_MODELS + MAX_MODELS)
+#define CS_IMAGES           (CS_SOUNDS + MAX_SOUNDS)
+#define CS_LIGHTS           (CS_IMAGES + MAX_IMAGES)
+#define CS_ITEMS            (CS_LIGHTS + MAX_LIGHTSTYLES)
+#define CS_PLAYERSKINS      (CS_ITEMS + MAX_ITEMS)
+#define CS_GENERAL          (CS_PLAYERSKINS + MAX_CLIENTS)  //1568
+#define MAX_CONFIGSTRINGS   (CS_GENERAL + MAX_GENERAL)      //2080
 
+//QW// The 2080 magic number comes from q_shared.h of the original game.
+// No game mod can go over this 2080 limit.
+#if (MAX_CONFIGSTRINGS > 2080)
+#error MAX_CONFIGSTRINGS > 2080
+#endif
 
 //==============================================
 

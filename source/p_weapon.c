@@ -100,15 +100,13 @@
 
 static qboolean is_quad;
 
-void setFFState (edict_t * ent);
-void weapon_grenade_fire (edict_t * ent, qboolean held);
 
-void P_ProjectSource (gclient_t * client, vec3_t point, vec3_t distance,
-		 vec3_t forward, vec3_t right, vec3_t result)
+void P_ProjectSource(gclient_t* client, vec3_t point, vec3_t distance,
+	vec3_t forward, vec3_t right, vec3_t result)
 {
 	vec3_t _distance;
 
-	VectorCopy (distance, _distance);
+	VectorCopy(distance, _distance);
 
 	if (client->pers.firing_style == ACTION_FIRING_CLASSIC ||
 		client->pers.firing_style == ACTION_FIRING_CLASSIC_HIGH)
@@ -123,40 +121,40 @@ void P_ProjectSource (gclient_t * client, vec3_t point, vec3_t distance,
 		_distance[1] = 0;		// fire from center always
 	}
 
-	G_ProjectSource (point, _distance, forward, right, result);
+	G_ProjectSource(point, _distance, forward, right, result);
 }
 
 // used for setting up the positions of the guns in shell ejection
 void
-Old_ProjectSource (gclient_t * client, vec3_t point, vec3_t distance,
-		   vec3_t forward, vec3_t right, vec3_t result)
+Old_ProjectSource(gclient_t* client, vec3_t point, vec3_t distance,
+	vec3_t forward, vec3_t right, vec3_t result)
 {
-  vec3_t _distance;
+	vec3_t _distance;
 
-  VectorCopy (distance, _distance);
-  if (client->pers.hand == LEFT_HANDED)
-    _distance[1] = -1;		// changed from = to *=
-  // Fireblade 2/28/99
-  // zucc reversed, this is only used for setting up shell ejection and 
-  // since those look good this shouldn't be changed
-  else if (client->pers.hand == CENTER_HANDED)
-    _distance[1] = 0;
-  G_ProjectSource (point, _distance, forward, right, result);
+	VectorCopy(distance, _distance);
+	if (client->pers.hand == LEFT_HANDED)
+		_distance[1] = -1;		// changed from = to *=
+	  // Fireblade 2/28/99
+	  // zucc reversed, this is only used for setting up shell ejection and 
+	  // since those look good this shouldn't be changed
+	else if (client->pers.hand == CENTER_HANDED)
+		_distance[1] = 0;
+	G_ProjectSource(point, _distance, forward, right, result);
 }
 
 // this one is the real old project source
 void
-Knife_ProjectSource (gclient_t * client, vec3_t point, vec3_t distance,
-		     vec3_t forward, vec3_t right, vec3_t result)
+Knife_ProjectSource(gclient_t* client, vec3_t point, vec3_t distance,
+	vec3_t forward, vec3_t right, vec3_t result)
 {
-  vec3_t _distance;
+	vec3_t _distance;
 
-  VectorCopy (distance, _distance);
-  if (client->pers.hand == LEFT_HANDED)
-    _distance[1] *= -1;		// changed from = to *=                                         
-  else if (client->pers.hand == CENTER_HANDED)
-    _distance[1] = 0;
-  G_ProjectSource (point, _distance, forward, right, result);
+	VectorCopy(distance, _distance);
+	if (client->pers.hand == LEFT_HANDED)
+		_distance[1] *= -1;		// changed from = to *=                                         
+	else if (client->pers.hand == CENTER_HANDED)
+		_distance[1] = 0;
+	G_ProjectSource(point, _distance, forward, right, result);
 }
 
 
@@ -168,12 +166,12 @@ PlayerNoise
   Each player can have two noise objects associated with it:
   a personal noise (jumping, pain, weapon firing), and a weapon
   target noise (bullet wall impacts)
-  
-        Monsters that don't directly see the player can move
-        to a noise in hopes of seeing the player from there.
-        ===============
+
+		Monsters that don't directly see the player can move
+		to a noise in hopes of seeing the player from there.
+		===============
 */
-void PlayerNoise (edict_t * who, vec3_t where, int type)
+void PlayerNoise(edict_t* who, vec3_t where, int type)
 {
 	/*
 	if (type == PNOISE_WEAPON)
@@ -188,13 +186,13 @@ void PlayerNoise (edict_t * who, vec3_t where, int type)
 }
 
 
-void PlaceHolder (edict_t * ent)
+void PlaceHolder(edict_t* ent)
 {
 	ent->nextthink = level.framenum + 1000 * HZ;
 }
 
 // keep the entity around so we can find it later if we need to respawn the weapon there
-void SetSpecWeapHolder (edict_t * ent)
+void SetSpecWeapHolder(edict_t* ent)
 {
 	ent->flags |= FL_RESPAWN;
 	ent->svflags |= SVF_NOCLIENT;
@@ -203,15 +201,15 @@ void SetSpecWeapHolder (edict_t * ent)
 	gi.linkentity(ent);
 }
 
-qboolean Pickup_Weapon (edict_t * ent, edict_t * other)
+qboolean Pickup_Weapon(edict_t* ent, edict_t* other)
 {
 	int index, index2;
-	gitem_t *ammo;
+	gitem_t* ammo;
 	qboolean addAmmo;
 	int special = 0;
 	int band = 0;
 
-	index = ITEM_INDEX (ent->item);
+	index = ITEM_INDEX(ent->item);
 
 	if (DMFLAGS(DF_WEAPONS_STAY) && other->client->inventory[index])
 	{
@@ -238,10 +236,10 @@ qboolean Pickup_Weapon (edict_t * ent, edict_t * other)
 		{
 			if (!(ent->spawnflags & DROPPED_ITEM))
 			{
-				ammo = FindItem (ent->item->ammo);
-				addAmmo = Add_Ammo (other, ammo, ammo->quantity);
-				if(addAmmo && !(ent->spawnflags & DROPPED_PLAYER_ITEM))
-					SetRespawn (ent, weapon_respawn->value);
+				ammo = FindItem(ent->item->ammo);
+				addAmmo = Add_Ammo(other, ammo, ammo->quantity);
+				if (addAmmo && !(ent->spawnflags & DROPPED_PLAYER_ITEM))
+					SetRespawn(ent, weapon_respawn->value);
 
 				return addAmmo;
 			}
@@ -249,15 +247,15 @@ qboolean Pickup_Weapon (edict_t * ent, edict_t * other)
 		other->client->inventory[index]++;
 		if (!(ent->spawnflags & DROPPED_ITEM)) {
 			other->client->mk23_rds = other->client->mk23_max;
-			if(!(ent->spawnflags & DROPPED_PLAYER_ITEM))
-				SetRespawn (ent, weapon_respawn->value);
+			if (!(ent->spawnflags & DROPPED_PLAYER_ITEM))
+				SetRespawn(ent, weapon_respawn->value);
 		}
 		return true;
 
 	case MP5_NUM:
 		if (other->client->unique_weapon_total >= unique_weapons->value + band)
 			return false;		// we can't get it
-		if ((! allow_hoarding->value) && other->client->inventory[index])
+		if ((!allow_hoarding->value) && other->client->inventory[index])
 			return false;		// we already have one
 
 		other->client->inventory[index]++;
@@ -266,13 +264,13 @@ qboolean Pickup_Weapon (edict_t * ent, edict_t * other)
 			other->client->mp5_rds = other->client->mp5_max;
 		}
 		special = 1;
-		gi.cprintf (other, PRINT_HIGH, "%s - Unique Weapon\n", ent->item->pickup_name);
+		gi.cprintf(other, PRINT_HIGH, "%s - Unique Weapon\n", ent->item->pickup_name);
 		break;
 
 	case M4_NUM:
 		if (other->client->unique_weapon_total >= unique_weapons->value + band)
 			return false;		// we can't get it
-		if ((! allow_hoarding->value) && other->client->inventory[index])
+		if ((!allow_hoarding->value) && other->client->inventory[index])
 			return false;		// we already have one
 
 		other->client->inventory[index]++;
@@ -281,13 +279,13 @@ qboolean Pickup_Weapon (edict_t * ent, edict_t * other)
 			other->client->m4_rds = other->client->m4_max;
 		}
 		special = 1;
-		gi.cprintf (other, PRINT_HIGH, "%s - Unique Weapon\n", ent->item->pickup_name);   
+		gi.cprintf(other, PRINT_HIGH, "%s - Unique Weapon\n", ent->item->pickup_name);
 		break;
 
 	case M3_NUM:
 		if (other->client->unique_weapon_total >= unique_weapons->value + band)
 			return false;		// we can't get it
-		if ((! allow_hoarding->value) && other->client->inventory[index])
+		if ((!allow_hoarding->value) && other->client->inventory[index])
 			return false;		// we already have one
 
 		other->client->inventory[index]++;
@@ -310,13 +308,13 @@ qboolean Pickup_Weapon (edict_t * ent, edict_t * other)
 			}
 		}
 		special = 1;
-		gi.cprintf (other, PRINT_HIGH, "%s - Unique Weapon\n", ent->item->pickup_name);        
+		gi.cprintf(other, PRINT_HIGH, "%s - Unique Weapon\n", ent->item->pickup_name);
 		break;
 
 	case HC_NUM:
 		if (other->client->unique_weapon_total >= unique_weapons->value + band)
 			return false;		// we can't get it
-		if ((! allow_hoarding->value) && other->client->inventory[index])
+		if ((!allow_hoarding->value) && other->client->inventory[index])
 			return false;		// we already have one
 
 		other->client->inventory[index]++;
@@ -324,20 +322,20 @@ qboolean Pickup_Weapon (edict_t * ent, edict_t * other)
 		if (!(ent->spawnflags & DROPPED_ITEM))
 		{
 			other->client->cannon_rds = other->client->cannon_max;
-			index2 = ITEM_INDEX (FindItem (ent->item->ammo));
+			index2 = ITEM_INDEX(FindItem(ent->item->ammo));
 			if (other->client->inventory[index2] + 5 > other->client->max_shells)
 				other->client->inventory[index2] = other->client->max_shells;
 			else
 				other->client->inventory[index2] += 5;
 		}
-		gi.cprintf (other, PRINT_HIGH, "%s - Unique Weapon\n", ent->item->pickup_name);
+		gi.cprintf(other, PRINT_HIGH, "%s - Unique Weapon\n", ent->item->pickup_name);
 		special = 1;
 		break;
 
 	case SNIPER_NUM:
 		if (other->client->unique_weapon_total >= unique_weapons->value + band)
 			return false;		// we can't get it
-		if ((! allow_hoarding->value) && other->client->inventory[index])
+		if ((!allow_hoarding->value) && other->client->inventory[index])
 			return false;		// we already have one
 
 		other->client->inventory[index]++;
@@ -348,7 +346,7 @@ qboolean Pickup_Weapon (edict_t * ent, edict_t * other)
 				other->client->curr_weap == SNIPER_NUM)
 			{
 				if (other->client->fast_reload)
-					other->client->sniper_rds =	other->client->sniper_max - 2;
+					other->client->sniper_rds = other->client->sniper_max - 2;
 				else
 					other->client->sniper_rds = other->client->sniper_max - 1;
 			}
@@ -358,9 +356,9 @@ qboolean Pickup_Weapon (edict_t * ent, edict_t * other)
 			}
 		}
 		special = 1;
-		gi.cprintf (other, PRINT_HIGH, "%s - Unique Weapon\n", ent->item->pickup_name);
+		gi.cprintf(other, PRINT_HIGH, "%s - Unique Weapon\n", ent->item->pickup_name);
 		break;
-	
+
 	case DUAL_NUM:
 		if (!WPF_ALLOWED(MK23_NUM))
 			return false;
@@ -369,10 +367,10 @@ qboolean Pickup_Weapon (edict_t * ent, edict_t * other)
 		{
 			if (!(ent->spawnflags & DROPPED_ITEM))
 			{
-				ammo = FindItem (ent->item->ammo);
-				addAmmo = Add_Ammo (other, ammo, ammo->quantity);
-				if(addAmmo && !(ent->spawnflags & DROPPED_PLAYER_ITEM))
-					SetRespawn (ent, weapon_respawn->value);
+				ammo = FindItem(ent->item->ammo);
+				addAmmo = Add_Ammo(other, ammo, ammo->quantity);
+				if (addAmmo && !(ent->spawnflags & DROPPED_PLAYER_ITEM))
+					SetRespawn(ent, weapon_respawn->value);
 
 				return addAmmo;
 			}
@@ -383,11 +381,11 @@ qboolean Pickup_Weapon (edict_t * ent, edict_t * other)
 			other->client->dual_rds += other->client->mk23_max;
 			// assume the player uses the new (full) pistol
 			other->client->mk23_rds = other->client->mk23_max;
-			if(!(ent->spawnflags & DROPPED_PLAYER_ITEM))
-				SetRespawn (ent, weapon_respawn->value);
+			if (!(ent->spawnflags & DROPPED_PLAYER_ITEM))
+				SetRespawn(ent, weapon_respawn->value);
 		}
 		return true;
-	
+
 	case KNIFE_NUM:
 		if (other->client->inventory[index] < other->client->knife_max)
 		{
@@ -413,19 +411,19 @@ qboolean Pickup_Weapon (edict_t * ent, edict_t * other)
 				SetRespawn(ent, ammo_respawn->value);
 		}
 		return true;
-	
+
 	default:
 		other->client->inventory[index]++;
 
 		if (!(ent->spawnflags & DROPPED_ITEM))
 		{
 			// give them some ammo with it
-			ammo = FindItem (ent->item->ammo);
+			ammo = FindItem(ent->item->ammo);
 
 			if (DMFLAGS(DF_INFINITE_AMMO))
-				Add_Ammo (other, ammo, 1000);
+				Add_Ammo(other, ammo, 1000);
 			else
-				Add_Ammo (other, ammo, ammo->quantity);
+				Add_Ammo(other, ammo, ammo->quantity);
 
 			if (!(ent->spawnflags & DROPPED_PLAYER_ITEM))
 			{
@@ -442,9 +440,9 @@ qboolean Pickup_Weapon (edict_t * ent, edict_t * other)
 		&& (SPEC_WEAPON_RESPAWN) && special)
 	{
 		if (DMFLAGS(DF_WEAPON_RESPAWN) && ((gameSettings & GS_DEATHMATCH) || ctf->value == 2))
-			SetRespawn (ent, weapon_respawn->value);
+			SetRespawn(ent, weapon_respawn->value);
 		else
-			SetSpecWeapHolder (ent);
+			SetSpecWeapHolder(ent);
 	}
 
 	return true;
@@ -452,7 +450,7 @@ qboolean Pickup_Weapon (edict_t * ent, edict_t * other)
 
 
 // zucc vwep 3.17(?) vwep support
-void ShowGun (edict_t * ent)
+void ShowGun(edict_t* ent)
 {
 
 	int nIndex;
@@ -485,17 +483,17 @@ The old weapon has been dropped all the way, so make the new one
 current
 ===============
 */
-void ChangeWeapon (edict_t * ent)
+void ChangeWeapon(edict_t* ent)
 {
 
 	if (ent->client->grenade_framenum)
 	{
 		ent->client->grenade_framenum = level.framenum;
-		weapon_grenade_fire (ent, false);
+		weapon_grenade_fire(ent, false);
 		ent->client->grenade_framenum = 0;
 	}
-	
-	if(ent->client->ctf_grapple)
+
+	if (ent->client->ctf_grapple)
 		CTFPlayerResetGrapple(ent);
 
 	// zucc - prevent reloading queue for previous weapon from doing anything
@@ -525,33 +523,26 @@ void ChangeWeapon (edict_t * ent)
 		return;
 	//FIREBLADE
 
-	ent->client->ps.gunindex = gi.modelindex (ent->client->weapon->view_model);
+	ent->client->ps.gunindex = gi.modelindex(ent->client->weapon->view_model);
 
 	// zucc hentai's animation for vwep
-	ent->client->anim_priority = ANIM_PAIN;
 	if (ent->client->ps.pmove.pm_flags & PMF_DUCKED)
-	{
-		ent->s.frame = FRAME_crpain1;
-		ent->client->anim_end = FRAME_crpain4;
-	}
+		SetAnimation( ent, FRAME_crpain1, FRAME_crpain4, ANIM_PAIN );
 	else
-	{
-		ent->s.frame = FRAME_pain301;
-		ent->client->anim_end = FRAME_pain304;
-	}
+		SetAnimation( ent, FRAME_pain301, FRAME_pain304, ANIM_PAIN );
 
-	ShowGun (ent);
+	ShowGun(ent);
 	// zucc done
 
 	ent->client->curr_weap = ent->client->weapon->typeNum;
 	if (ent->client->curr_weap == GRENADE_NUM) {
 		// Fix the "use grenades;drop bandolier" bug, caused infinite grenades.
-		if (teamplay->value && INV_AMMO( ent, GRENADE_NUM ) == 0)
-			INV_AMMO( ent, GRENADE_NUM ) = 1;
+		if (teamplay->value && INV_AMMO(ent, GRENADE_NUM) == 0)
+			INV_AMMO(ent, GRENADE_NUM) = 1;
 	}
 
 	if (INV_AMMO(ent, LASER_NUM))
-		SP_LaserSight (ent, GET_ITEM(LASER_NUM));	//item->use(ent, item);
+		SP_LaserSight(ent, GET_ITEM(LASER_NUM));	//item->use(ent, item);
 }
 
 /*
@@ -561,20 +552,20 @@ Think_Weapon
 Called by ClientBeginServerFrame and ClientThink
 =================
 */
-void Think_Weapon (edict_t * ent)
+void Think_Weapon(edict_t* ent)
 {
 	// if just died, put the weapon away
 	if (ent->health < 1)
 	{
 		ent->client->newweapon = NULL;
-		ChangeWeapon (ent);
+		ChangeWeapon(ent);
 	}
 
 	// call active weapon think routine
 	if (ent->client->weapon && ent->client->weapon->weaponthink)
 	{
 		is_quad = (ent->client->quad_framenum > level.framenum);
-		ent->client->weapon->weaponthink (ent);
+		ent->client->weapon->weaponthink(ent);
 	}
 }
 
@@ -587,115 +578,112 @@ Make the weapon ready if there is ammo
 ================
 */
 void
-Use_Weapon (edict_t * ent, gitem_t * item)
+Use_Weapon(edict_t* ent, gitem_t* item)
 {
-  //int                   ammo_index;
-  //gitem_t               *ammo_item;
+	//int                   ammo_index;
+	//gitem_t               *ammo_item;
 
 
-//        if(ent->client->weaponstate == WEAPON_BANDAGING || ent->client->bandaging == 1 )
-  //                      return;
+  //        if(ent->client->weaponstate == WEAPON_BANDAGING || ent->client->bandaging == 1 )
+	//                      return;
 
 
 
 
-  // see if we're already using it
-  if (item == ent->client->weapon)
-    return;
+	// see if we're already using it
+	if (item == ent->client->weapon)
+		return;
 
-  // zucc - let them change if they want
-  /*if (item->ammo && !g_select_empty->value && !(item->flags & IT_AMMO))
-     {
-     ammo_item = FindItem(item->ammo);
-     ammo_index = ITEM_INDEX(ammo_item);
+	// zucc - let them change if they want
+	/*if (item->ammo && !g_select_empty->value && !(item->flags & IT_AMMO))
+	   {
+	   ammo_item = FindItem(item->ammo);
+	   ammo_index = ITEM_INDEX(ammo_item);
 
-     if (!ent->client->inventory[ammo_index])
-     {
-     gi.cprintf (ent, PRINT_HIGH, "No %s for %s.\n", ammo_item->pickup_name, item->pickup_name);
-     return;
-     }
+	   if (!ent->client->inventory[ammo_index])
+	   {
+	   gi.cprintf (ent, PRINT_HIGH, "No %s for %s.\n", ammo_item->pickup_name, item->pickup_name);
+	   return;
+	   }
 
-     if (ent->client->inventory[ammo_index] < item->quantity)
-     {
-     gi.cprintf (ent, PRINT_HIGH, "Not enough %s for %s.\n", ammo_item->pickup_name, item->pickup_name);
-     return;
-     }
-     } */
+	   if (ent->client->inventory[ammo_index] < item->quantity)
+	   {
+	   gi.cprintf (ent, PRINT_HIGH, "Not enough %s for %s.\n", ammo_item->pickup_name, item->pickup_name);
+	   return;
+	   }
+	   } */
 
-  // change to this weapon when down
-  ent->client->newweapon = item;
+	   // change to this weapon when down
+	ent->client->newweapon = item;
 }
 
 
 
 
-edict_t *
-FindSpecWeapSpawn (edict_t * ent)
+edict_t*
+FindSpecWeapSpawn(edict_t* ent)
 {
-  edict_t *spot = NULL;
+	edict_t* spot = NULL;
 
-  //gi.bprintf (PRINT_HIGH, "Calling the FindSpecWeapSpawn\n");
-  spot = G_Find (spot, FOFS (classname), ent->classname);
-  //gi.bprintf (PRINT_HIGH, "spot = %p and spot->think = %p and playerholder = %p, spot, (spot ? spot->think : 0), PlaceHolder\n");
-  while (spot && spot->think != PlaceHolder)	//(spot->spawnflags & DROPPED_ITEM ) && spot->think != PlaceHolder )//spot->solid == SOLID_NOT )        
-    {
-      //              gi.bprintf (PRINT_HIGH, "Calling inside the loop FindSpecWeapSpawn\n");
-      spot = G_Find (spot, FOFS (classname), ent->classname);
-    }
-/*      if (!spot)
-        {
-                gi.bprintf(PRINT_HIGH, "Failed to find a spawn spot for %s\n", ent->classname);
-        }
-        else
-                gi.bprintf(PRINT_HIGH, "Found a spawn spot for %s\n", ent->classname);
-*/
-  return spot;
+	//gi.bprintf (PRINT_HIGH, "Calling the FindSpecWeapSpawn\n");
+	spot = G_Find(spot, FOFS(classname), ent->classname);
+	//gi.bprintf (PRINT_HIGH, "spot = %p and spot->think = %p and playerholder = %p, spot, (spot ? spot->think : 0), PlaceHolder\n");
+	while (spot && spot->think != PlaceHolder)	//(spot->spawnflags & DROPPED_ITEM ) && spot->think != PlaceHolder )//spot->solid == SOLID_NOT )        
+	{
+		//              gi.bprintf (PRINT_HIGH, "Calling inside the loop FindSpecWeapSpawn\n");
+		spot = G_Find(spot, FOFS(classname), ent->classname);
+	}
+	/*      if (!spot)
+			{
+					gi.bprintf(PRINT_HIGH, "Failed to find a spawn spot for %s\n", ent->classname);
+			}
+			else
+					gi.bprintf(PRINT_HIGH, "Found a spawn spot for %s\n", ent->classname);
+	*/
+	return spot;
 }
-
-void ThinkSpecWeap (edict_t * ent);
-
 
 static void
-SpawnSpecWeap (gitem_t * item, edict_t * spot)
+SpawnSpecWeap(gitem_t* item, edict_t* spot)
 {
-/*        edict_t *ent;
-        vec3_t  forward, right;
-        vec3_t  angles;
+	/*        edict_t *ent;
+			vec3_t  forward, right;
+			vec3_t  angles;
 
-        ent = G_Spawn();
+			ent = G_Spawn();
 
-        ent->classname = item->classname;
-        ent->item = item;
-        ent->spawnflags = DROPPED_PLAYER_ITEM;//DROPPED_ITEM;
-        ent->s.effects = item->world_model_flags;
-        ent->s.renderfx = RF_GLOW;
-        VectorSet (ent->mins, -15, -15, -15);
-        VectorSet (ent->maxs, 15, 15, 15);
-        gi.setmodel (ent, ent->item->world_model);
-        ent->solid = SOLID_TRIGGER;
-        ent->movetype = MOVETYPE_TOSS;  
-        ent->touch = Touch_Item;
-        ent->owner = ent;
+			ent->classname = item->classname;
+			ent->item = item;
+			ent->spawnflags = DROPPED_PLAYER_ITEM;//DROPPED_ITEM;
+			ent->s.effects = item->world_model_flags;
+			ent->s.renderfx = RF_GLOW;
+			VectorSet (ent->mins, -15, -15, -15);
+			VectorSet (ent->maxs, 15, 15, 15);
+			gi.setmodel (ent, ent->item->world_model);
+			ent->solid = SOLID_TRIGGER;
+			ent->movetype = MOVETYPE_TOSS;
+			ent->touch = Touch_Item;
+			ent->owner = ent;
 
-        angles[0] = 0;
-        angles[1] = rand() % 360;
-        angles[2] = 0;
+			angles[0] = 0;
+			angles[1] = rand() % 360;
+			angles[2] = 0;
 
-        AngleVectors (angles, forward, right, NULL);
-        VectorCopy (spot->s.origin, ent->s.origin);
-        ent->s.origin[2] += 16;
-        VectorScale (forward, 100, ent->velocity);
-        ent->velocity[2] = 300;
+			AngleVectors (angles, forward, right, NULL);
+			VectorCopy (spot->s.origin, ent->s.origin);
+			ent->s.origin[2] += 16;
+			VectorScale (forward, 100, ent->velocity);
+			ent->velocity[2] = 300;
 
-        ent->think = NULL;
+			ent->think = NULL;
 
-        gi.linkentity (ent);
-                */
-  SetRespawn (spot, 1);
-  gi.linkentity (spot);
+			gi.linkentity (ent);
+					*/
+	SetRespawn(spot, 1);
+	gi.linkentity(spot);
 }
 
-void temp_think_specweap (edict_t * ent)
+void temp_think_specweap(edict_t* ent)
 {
 	ent->touch = Touch_Item;
 
@@ -714,10 +702,12 @@ void temp_think_specweap (edict_t * ent)
 	if (gameSettings & GS_WEAPONCHOOSE) {
 		ent->nextthink = level.framenum + 6 * HZ;
 		ent->think = ThinkSpecWeap;
-	} else if (DMFLAGS(DF_WEAPON_RESPAWN)) {
+	}
+	else if (DMFLAGS(DF_WEAPON_RESPAWN)) {
 		ent->nextthink = level.framenum + (weapon_respawn->value * 0.6f) * HZ;
 		ent->think = G_FreeEdict;
-	} else {
+	}
+	else {
 		ent->nextthink = level.framenum + weapon_respawn->value * HZ;
 		ent->think = ThinkSpecWeap;
 	}
@@ -727,20 +717,20 @@ void temp_think_specweap (edict_t * ent)
 
 // zucc make dropped weapons respawn elsewhere
 void
-ThinkSpecWeap (edict_t * ent)
+ThinkSpecWeap(edict_t* ent)
 {
-  edict_t *spot;
+	edict_t* spot;
 
-  if ((spot = FindSpecWeapSpawn (ent)) != NULL)
-    {
-      SpawnSpecWeap (ent->item, spot);
-      G_FreeEdict (ent);
-    }
-  else
-    {
-	  ent->nextthink = level.framenum + 1 * HZ;
-      ent->think = G_FreeEdict;
-    }
+	if ((spot = FindSpecWeapSpawn(ent)) != NULL)
+	{
+		SpawnSpecWeap(ent->item, spot);
+		G_FreeEdict(ent);
+	}
+	else
+	{
+		ent->nextthink = level.framenum + 1 * HZ;
+		ent->think = G_FreeEdict;
+	}
 }
 
 
@@ -752,11 +742,11 @@ ThinkSpecWeap (edict_t * ent)
 Drop_Weapon
 ================
 */
-void Drop_Weapon (edict_t * ent, gitem_t * item)
+void Drop_Weapon(edict_t* ent, gitem_t* item)
 {
 	int index;
-	gitem_t *replacement;
-	edict_t *temp = NULL;
+	gitem_t* replacement;
+	edict_t* temp = NULL;
 
 	if (DMFLAGS(DF_WEAPONS_STAY))
 		return;
@@ -770,20 +760,20 @@ void Drop_Weapon (edict_t * ent, gitem_t * item)
 	if (ent->client->weaponstate == WEAPON_BANDAGING ||
 		ent->client->bandaging == 1 || ent->client->bandage_stopped == 1)
 	{
-		gi.cprintf (ent, PRINT_HIGH,
-		"You are too busy bandaging right now...\n");
+		gi.cprintf(ent, PRINT_HIGH,
+			"You are too busy bandaging right now...\n");
 		return;
 	}
 	// don't let them drop this, causes duplication
 	if (ent->client->newweapon == item)
 		return;
 
-	index = ITEM_INDEX (item);
+	index = ITEM_INDEX(item);
 	// see if we're already using it
 	//zucc special cases for dropping       
 	if (item->typeNum == MK23_NUM)
 	{
-		gi.cprintf (ent, PRINT_HIGH, "Can't drop the %s.\n", MK23_NAME);
+		gi.cprintf(ent, PRINT_HIGH, "Can't drop the %s.\n", MK23_NAME);
 		return;
 	}
 	else if (item->typeNum == MP5_NUM)
@@ -799,7 +789,7 @@ void Drop_Weapon (edict_t * ent, gitem_t * item)
 			//ChangeWeapon( ent );
 		}
 		ent->client->unique_weapon_total--;	// dropping 1 unique weapon
-		temp = Drop_Item (ent, item);
+		temp = Drop_Item(ent, item);
 		temp->think = temp_think_specweap;
 		ent->client->inventory[index]--;
 	}
@@ -816,7 +806,7 @@ void Drop_Weapon (edict_t * ent, gitem_t * item)
 			//ChangeWeapon( ent );
 		}
 		ent->client->unique_weapon_total--;	// dropping 1 unique weapon
-		temp = Drop_Item (ent, item);
+		temp = Drop_Item(ent, item);
 		temp->think = temp_think_specweap;
 		ent->client->inventory[index]--;
 	}
@@ -832,7 +822,7 @@ void Drop_Weapon (edict_t * ent, gitem_t * item)
 			//ChangeWeapon( ent );
 		}
 		ent->client->unique_weapon_total--;	// dropping 1 unique weapon
-		temp = Drop_Item (ent, item);
+		temp = Drop_Item(ent, item);
 		temp->think = temp_think_specweap;
 		ent->client->inventory[index]--;
 	}
@@ -847,7 +837,7 @@ void Drop_Weapon (edict_t * ent, gitem_t * item)
 			//ChangeWeapon( ent );
 		}
 		ent->client->unique_weapon_total--;	// dropping 1 unique weapon
-		temp = Drop_Item (ent, item);
+		temp = Drop_Item(ent, item);
 		temp->think = temp_think_specweap;
 		ent->client->inventory[index]--;
 	}
@@ -865,7 +855,7 @@ void Drop_Weapon (edict_t * ent, gitem_t * item)
 			//ChangeWeapon( ent );
 		}
 		ent->client->unique_weapon_total--;	// dropping 1 unique weapon
-		temp = Drop_Item (ent, item);
+		temp = Drop_Item(ent, item);
 		temp->think = temp_think_specweap;
 		ent->client->inventory[index]--;
 	}
@@ -895,7 +885,7 @@ void Drop_Weapon (edict_t * ent, gitem_t * item)
 				ent->client->ps.gunframe = 111;
 			}
 			else
-				ChangeWeapon (ent);
+				ChangeWeapon(ent);
 			//      gi.cprintf(ent, PRINT_HIGH, "After change weap from knife drop frames = %d\n", ent->client->ps.gunframe);
 		}
 	}
@@ -904,9 +894,9 @@ void Drop_Weapon (edict_t * ent, gitem_t * item)
 		if (ent->client->weapon == item && ent->client->inventory[index] == 1)
 		{
 			if (((ent->client->ps.gunframe >= GRENADE_IDLE_FIRST)
-			  && (ent->client->ps.gunframe <= GRENADE_IDLE_LAST))
-			  || ((ent->client->ps.gunframe >= GRENADE_THROW_FIRST
-			    && ent->client->ps.gunframe <= GRENADE_THROW_LAST)))
+				&& (ent->client->ps.gunframe <= GRENADE_IDLE_LAST))
+				|| ((ent->client->ps.gunframe >= GRENADE_THROW_FIRST
+					&& ent->client->ps.gunframe <= GRENADE_THROW_LAST)))
 			{
 				int damage;
 
@@ -917,8 +907,8 @@ void Drop_Weapon (edict_t * ent, gitem_t * item)
 					damage = GRENADE_DAMRAD_CLASSIC;
 				else
 					damage = GRENADE_DAMRAD;
-				
-				if(ent->client->quad_framenum > level.framenum)
+
+				if (ent->client->quad_framenum > level.framenum)
 					damage *= 1.5f;
 
 				fire_grenade2(ent, ent->s.origin, vec3_origin, damage, 0, 2 * HZ, damage * 2, false);
@@ -938,9 +928,9 @@ void Drop_Weapon (edict_t * ent, gitem_t * item)
 		}
 	}
 	else if ((item == ent->client->weapon || item == ent->client->newweapon)
-			&& ent->client->inventory[index] == 1)
+		&& ent->client->inventory[index] == 1)
 	{
-		gi.cprintf (ent, PRINT_HIGH, "Can't drop current weapon\n");
+		gi.cprintf(ent, PRINT_HIGH, "Can't drop current weapon\n");
 		return;
 	}
 
@@ -953,7 +943,7 @@ void Drop_Weapon (edict_t * ent, gitem_t * item)
 
 	if (!temp)
 	{
-		temp = Drop_Item (ent, item);
+		temp = Drop_Item(ent, item);
 		ent->client->inventory[index]--;
 	}
 
@@ -964,25 +954,23 @@ void Drop_Weapon (edict_t * ent, gitem_t * item)
 
 
 //zucc drop special weapon (only 1 of them)
-void DropSpecialWeapon (edict_t * ent)
+void DropSpecialWeapon(edict_t* ent)
 {
-	int itemNum;
-
-	itemNum = ent->client->weapon ? ent->client->weapon->typeNum : 0;
+	int itemNum = ent->client->weapon ? ent->client->weapon->typeNum : 0;
 
 	// first check if their current weapon is a special weapon, if so, drop it.
 	if (itemNum >= MP5_NUM && itemNum <= SNIPER_NUM)
-		Drop_Weapon (ent, ent->client->weapon);
+		Drop_Weapon(ent, ent->client->weapon);
 	else if (INV_AMMO(ent, SNIPER_NUM) > 0)
-		Drop_Weapon (ent, GET_ITEM(SNIPER_NUM));
+		Drop_Weapon(ent, GET_ITEM(SNIPER_NUM));
 	else if (INV_AMMO(ent, HC_NUM) > 0)
-		Drop_Weapon (ent, GET_ITEM(HC_NUM));
+		Drop_Weapon(ent, GET_ITEM(HC_NUM));
 	else if (INV_AMMO(ent, M3_NUM) > 0)
-		Drop_Weapon (ent, GET_ITEM(M3_NUM));
+		Drop_Weapon(ent, GET_ITEM(M3_NUM));
 	else if (INV_AMMO(ent, MP5_NUM) > 0)
-		Drop_Weapon (ent, GET_ITEM(MP5_NUM));
+		Drop_Weapon(ent, GET_ITEM(MP5_NUM));
 	else if (INV_AMMO(ent, M4_NUM) > 0)
-		Drop_Weapon (ent, GET_ITEM(M4_NUM));
+		Drop_Weapon(ent, GET_ITEM(M4_NUM));
 	// special case, aq does this, guess I can support it
 	else if (itemNum == DUAL_NUM)
 		ent->client->newweapon = GET_ITEM(MK23_NUM);
@@ -991,7 +979,7 @@ void DropSpecialWeapon (edict_t * ent)
 
 // used for when we want to force a player to drop an extra special weapon
 // for when they drop the bandolier and they are over the weapon limit
-void DropExtraSpecial (edict_t * ent)
+void DropExtraSpecial(edict_t* ent)
 {
 	int itemNum;
 
@@ -1006,21 +994,21 @@ void DropExtraSpecial (edict_t * ent)
 	}
 	// otherwise drop some weapon they aren't using
 	if (INV_AMMO(ent, SNIPER_NUM) > 0 && SNIPER_NUM != itemNum)
-			Drop_Weapon (ent, GET_ITEM(SNIPER_NUM));
+		Drop_Weapon(ent, GET_ITEM(SNIPER_NUM));
 	else if (INV_AMMO(ent, HC_NUM) > 0 && HC_NUM != itemNum)
-		Drop_Weapon (ent, GET_ITEM(HC_NUM));
+		Drop_Weapon(ent, GET_ITEM(HC_NUM));
 	else if (INV_AMMO(ent, M3_NUM) > 0 && M3_NUM != itemNum)
-		Drop_Weapon (ent, GET_ITEM(M3_NUM));
-	else if (INV_AMMO(ent, MP5_NUM) > 0	&& MP5_NUM != itemNum)
-		Drop_Weapon (ent, GET_ITEM(MP5_NUM));
+		Drop_Weapon(ent, GET_ITEM(M3_NUM));
+	else if (INV_AMMO(ent, MP5_NUM) > 0 && MP5_NUM != itemNum)
+		Drop_Weapon(ent, GET_ITEM(MP5_NUM));
 	else if (INV_AMMO(ent, M4_NUM) > 0 && M4_NUM != itemNum)
-		Drop_Weapon (ent, GET_ITEM(M4_NUM));
+		Drop_Weapon(ent, GET_ITEM(M4_NUM));
 	else
-		gi.dprintf ("Couldn't find the appropriate weapon to drop.\n");
+		gi.dprintf("Couldn't find the appropriate weapon to drop.\n");
 }
 
 //zucc ready special weapon
-void ReadySpecialWeapon (edict_t * ent)
+void ReadySpecialWeapon(edict_t* ent)
 {
 	int weapons[5] = { MP5_NUM, M4_NUM, M3_NUM, HC_NUM, SNIPER_NUM };
 	int curr, i;
@@ -1079,957 +1067,920 @@ A generic function to handle the basics of weapon thinking
 #define DUALMAG 24
 
 void
-Weapon_Generic (edict_t * ent, int FRAME_ACTIVATE_LAST, int FRAME_FIRE_LAST,
-		int FRAME_IDLE_LAST, int FRAME_DEACTIVATE_LAST,
-		int FRAME_RELOAD_LAST, int FRAME_LASTRD_LAST,
-		int *pause_frames, int *fire_frames,
-		void (*fire) (edict_t * ent))
+Weapon_Generic(edict_t* ent, int FRAME_ACTIVATE_LAST, int FRAME_FIRE_LAST,
+	int FRAME_IDLE_LAST, int FRAME_DEACTIVATE_LAST,
+	int FRAME_RELOAD_LAST, int FRAME_LASTRD_LAST,
+	int* pause_frames, int* fire_frames,
+	void (*fire) (edict_t* ent))
 {
-  int n;
-  int bFire = 0;
-  int bOut = 0;
-/*        int                     bBursting = 0;*/
+	int n;
+	int bFire = 0;
+	int bOut = 0;
+	/*        int                     bBursting = 0;*/
 
 
-  // zucc vwep
-  if (ent->s.modelindex != 255)
-    return;			// not on client, so VWep animations could do wacky things
+	  // zucc vwep
+	if (ent->s.modelindex != 255)
+		return;			// not on client, so VWep animations could do wacky things
 
-  if (ent->client->ctf_grapple && ent->client->weapon) {
-	  if (Q_stricmp(ent->client->weapon->pickup_name, "Grapple") == 0 &&
-			  ent->client->weaponstate == WEAPON_FIRING)
-		  return;
-  }
-
-//FIREBLADE
-  if (ent->client->weaponstate == WEAPON_FIRING &&
-      ((ent->solid == SOLID_NOT && ent->deadflag != DEAD_DEAD) ||
-       lights_camera_action))
-    {
-      ent->client->weaponstate = WEAPON_READY;
-    }
-//FIREBLADE
-
-  //+BD - Added Reloading weapon, done manually via a cmd
-  if (ent->client->weaponstate == WEAPON_RELOADING)
-    {
-      if (ent->client->ps.gunframe < FRAME_RELOAD_FIRST
-	  || ent->client->ps.gunframe > FRAME_RELOAD_LAST)
-	ent->client->ps.gunframe = FRAME_RELOAD_FIRST;
-      else if (ent->client->ps.gunframe < FRAME_RELOAD_LAST)
-	{
-	  ent->client->ps.gunframe++;
-	  switch (ent->client->curr_weap)
-	    {
-	      //+BD - Check weapon to find out when to play reload sounds
-	    case MK23_NUM:
-	      {
-		if (ent->client->ps.gunframe == 46)
-		  gi.sound (ent, CHAN_WEAPON,
-			    gi.soundindex ("weapons/mk23out.wav"), 1,
-			    ATTN_NORM, 0);
-		else if (ent->client->ps.gunframe == 53)
-		  gi.sound (ent, CHAN_WEAPON,
-			    gi.soundindex ("weapons/mk23in.wav"), 1,
-			    ATTN_NORM, 0);
-		else if (ent->client->ps.gunframe == 59)	// 3
-		  gi.sound (ent, CHAN_WEAPON,
-			    gi.soundindex ("weapons/mk23slap.wav"), 1,
-			    ATTN_NORM, 0);
-		break;
-	      }
-	    case MP5_NUM:
-	      {
-		if (ent->client->ps.gunframe == 55)
-		  gi.sound (ent, CHAN_WEAPON,
-			    gi.soundindex ("weapons/mp5out.wav"), 1,
-			    ATTN_NORM, 0);
-		else if (ent->client->ps.gunframe == 59)
-		  gi.sound (ent, CHAN_WEAPON,
-			    gi.soundindex ("weapons/mp5in.wav"), 1, ATTN_NORM,
-			    0);
-		else if (ent->client->ps.gunframe == 63)	//61
-		  gi.sound (ent, CHAN_WEAPON,
-			    gi.soundindex ("weapons/mp5slap.wav"), 1,
-			    ATTN_NORM, 0);
-		break;
-	      }
-	    case M4_NUM:
-	      {
-		if (ent->client->ps.gunframe == 52)
-		  gi.sound (ent, CHAN_WEAPON,
-			    gi.soundindex ("weapons/m4a1out.wav"), 1,
-			    ATTN_NORM, 0);
-		else if (ent->client->ps.gunframe == 58)
-		  gi.sound (ent, CHAN_WEAPON,
-			    gi.soundindex ("weapons/m4a1in.wav"), 1,
-			    ATTN_NORM, 0);
-		break;
-	      }
-	    case M3_NUM:
-	      {
-		if (ent->client->shot_rds >= ent->client->shot_max)
-		  {
-		    ent->client->ps.gunframe = FRAME_IDLE_FIRST;
-		    ent->client->weaponstate = WEAPON_READY;
-		    return;
-		  }
-
-		if (ent->client->ps.gunframe == 48)
-		  {
-		    gi.sound (ent, CHAN_WEAPON,
-			      gi.soundindex ("weapons/m3in.wav"), 1,
-			      ATTN_NORM, 0);
-		  }
-		if (ent->client->ps.gunframe == 49)
-		  {
-		    if (ent->client->fast_reload == 1)
-		      {
-			ent->client->fast_reload = 0;
-			ent->client->shot_rds++;
-			ent->client->ps.gunframe = 44;
-		      }
-		  }
-		break;
-	      }
-	    case HC_NUM:
-	      {
-		if (ent->client->ps.gunframe == 64)
-		  gi.sound (ent, CHAN_WEAPON,
-			    gi.soundindex ("weapons/copen.wav"), 1, ATTN_NORM,
-			    0);
-		else if (ent->client->ps.gunframe == 67)
-		  gi.sound (ent, CHAN_WEAPON,
-			    gi.soundindex ("weapons/cout.wav"), 1, ATTN_NORM,
-			    0);
-		else if (ent->client->ps.gunframe == 76)	//61
-		  gi.sound (ent, CHAN_WEAPON,
-			    gi.soundindex ("weapons/cin.wav"), 1, ATTN_NORM,
-			    0);
-		else if (ent->client->ps.gunframe == 80)	// 3
-		  gi.sound (ent, CHAN_WEAPON,
-			    gi.soundindex ("weapons/cclose.wav"), 1,
-			    ATTN_NORM, 0);
-		break;
-	      }
-	    case SNIPER_NUM:
-	      {
-
-		if (ent->client->sniper_rds >= ent->client->sniper_max)
-		  {
-		    ent->client->ps.gunframe = FRAME_IDLE_FIRST;
-		    ent->client->weaponstate = WEAPON_READY;
-		    return;
-		  }
-
-		if (ent->client->ps.gunframe == 59)
-		  {
-		    gi.sound (ent, CHAN_WEAPON,
-			      gi.soundindex ("weapons/ssgbolt.wav"), 1,
-			      ATTN_NORM, 0);
-		  }
-		else if (ent->client->ps.gunframe == 71)
-		  {
-		    gi.sound (ent, CHAN_WEAPON,
-			      gi.soundindex ("weapons/ssgin.wav"), 1,
-			      ATTN_NORM, 0);
-		  }
-		else if (ent->client->ps.gunframe == 73)
-		  {
-		    if (ent->client->fast_reload == 1)
-		      {
-			ent->client->fast_reload = 0;
-			ent->client->sniper_rds++;
-			ent->client->ps.gunframe = 67;
-		      }
-		  }
-		else if (ent->client->ps.gunframe == 76)
-		  {
-		    gi.sound (ent, CHAN_WEAPON,
-			      gi.soundindex ("weapons/ssgbolt.wav"), 1,
-			      ATTN_NORM, 0);
-		  }
-		break;
-	      }
-	    case DUAL_NUM:
-	      {
-		if (ent->client->ps.gunframe == 45)
-		  gi.sound (ent, CHAN_WEAPON,
-			    gi.soundindex ("weapons/mk23out.wav"), 1,
-			    ATTN_NORM, 0);
-		else if (ent->client->ps.gunframe == 53)
-		  gi.sound (ent, CHAN_WEAPON,
-			    gi.soundindex ("weapons/mk23slap.wav"), 1,
-			    ATTN_NORM, 0);
-		else if (ent->client->ps.gunframe == 60)	// 3
-		  gi.sound (ent, CHAN_WEAPON,
-			    gi.soundindex ("weapons/mk23slap.wav"), 1,
-			    ATTN_NORM, 0);
-		break;
-	      }
-	    default:
-	      gi.dprintf ("No weapon choice for reloading (sounds).\n");
-	      break;
-
-	    }
+	if (ent->client->ctf_grapple && ent->client->weapon) {
+		if (Q_stricmp(ent->client->weapon->pickup_name, "Grapple") == 0 &&
+			ent->client->weaponstate == WEAPON_FIRING)
+			return;
 	}
-      else
+
+	//FIREBLADE
+	if (ent->client->weaponstate == WEAPON_FIRING &&
+		((ent->solid == SOLID_NOT && ent->deadflag != DEAD_DEAD) ||
+			lights_camera_action))
 	{
-	  ent->client->ps.gunframe = FRAME_IDLE_FIRST;
-	  ent->client->weaponstate = WEAPON_READY;
-	  switch (ent->client->curr_weap)
-	    {
-	    case MK23_NUM:
-	      {
-		ent->client->dual_rds -= ent->client->mk23_rds;
-		ent->client->mk23_rds = ent->client->mk23_max;
-		ent->client->dual_rds += ent->client->mk23_max;
-		(ent->client->inventory[ent->client->ammo_index])--;
-		if (ent->client->inventory[ent->client->ammo_index] < 0)
-		  {
-		    ent->client->inventory[ent->client->ammo_index] = 0;
-		  }
-		ent->client->fired = 0;	// reset any firing delays
-		break;
-		//else
-		//      ent->client->mk23_rds = ent->client->inventory[ent->client->ammo_index];
-	      }
-	    case MP5_NUM:
-	      {
+		ent->client->weaponstate = WEAPON_READY;
+	}
+	//FIREBLADE
 
-		ent->client->mp5_rds = ent->client->mp5_max;
-		(ent->client->inventory[ent->client->ammo_index])--;
-		if (ent->client->inventory[ent->client->ammo_index] < 0)
-		  {
-		    ent->client->inventory[ent->client->ammo_index] = 0;
-		  }
-		ent->client->fired = 0;	// reset any firing delays
-		ent->client->burst = 0;	// reset any bursting
-		break;
-	      }
-	    case M4_NUM:
-	      {
-
-		ent->client->m4_rds = ent->client->m4_max;
-		(ent->client->inventory[ent->client->ammo_index])--;
-		if (ent->client->inventory[ent->client->ammo_index] < 0)
-		  {
-		    ent->client->inventory[ent->client->ammo_index] = 0;
-		  }
-		ent->client->fired = 0;	// reset any firing delays
-		ent->client->burst = 0;	// reset any bursting                           
-		ent->client->machinegun_shots = 0;
-		break;
-	      }
-	    case M3_NUM:
-	      {
-		ent->client->shot_rds++;
-		(ent->client->inventory[ent->client->ammo_index])--;
-		if (ent->client->inventory[ent->client->ammo_index] < 0)
-		  {
-		    ent->client->inventory[ent->client->ammo_index] = 0;
-		  }
-		break;
-	      }
-	    case HC_NUM:
-	      {
-		if(hc_single->value)
+	  //+BD - Added Reloading weapon, done manually via a cmd
+	if (ent->client->weaponstate == WEAPON_RELOADING)
+	{
+		if (ent->client->ps.gunframe < FRAME_RELOAD_FIRST
+			|| ent->client->ps.gunframe > FRAME_RELOAD_LAST)
+			ent->client->ps.gunframe = FRAME_RELOAD_FIRST;
+		else if (ent->client->ps.gunframe < FRAME_RELOAD_LAST)
 		{
-			int count = 0;
+			ent->client->ps.gunframe++;
+			switch (ent->client->curr_weap)
+			{
+				//+BD - Check weapon to find out when to play reload sounds
+			case MK23_NUM:
+			{
+				if (ent->client->ps.gunframe == 46)
+					gi.sound(ent, CHAN_WEAPON,
+						gi.soundindex("weapons/mk23out.wav"), 1,
+						ATTN_NORM, 0);
+				else if (ent->client->ps.gunframe == 53)
+					gi.sound(ent, CHAN_WEAPON,
+						gi.soundindex("weapons/mk23in.wav"), 1,
+						ATTN_NORM, 0);
+				else if (ent->client->ps.gunframe == 59)	// 3
+					gi.sound(ent, CHAN_WEAPON,
+						gi.soundindex("weapons/mk23slap.wav"), 1,
+						ATTN_NORM, 0);
+				break;
+			}
+			case MP5_NUM:
+			{
+				if (ent->client->ps.gunframe == 55)
+					gi.sound(ent, CHAN_WEAPON,
+						gi.soundindex("weapons/mp5out.wav"), 1,
+						ATTN_NORM, 0);
+				else if (ent->client->ps.gunframe == 59)
+					gi.sound(ent, CHAN_WEAPON,
+						gi.soundindex("weapons/mp5in.wav"), 1, ATTN_NORM,
+						0);
+				else if (ent->client->ps.gunframe == 63)	//61
+					gi.sound(ent, CHAN_WEAPON,
+						gi.soundindex("weapons/mp5slap.wav"), 1,
+						ATTN_NORM, 0);
+				break;
+			}
+			case M4_NUM:
+			{
+				if (ent->client->ps.gunframe == 52)
+					gi.sound(ent, CHAN_WEAPON,
+						gi.soundindex("weapons/m4a1out.wav"), 1,
+						ATTN_NORM, 0);
+				else if (ent->client->ps.gunframe == 58)
+					gi.sound(ent, CHAN_WEAPON,
+						gi.soundindex("weapons/m4a1in.wav"), 1,
+						ATTN_NORM, 0);
+				break;
+			}
+			case M3_NUM:
+			{
+				if (ent->client->shot_rds >= ent->client->shot_max)
+				{
+					ent->client->ps.gunframe = FRAME_IDLE_FIRST;
+					ent->client->weaponstate = WEAPON_READY;
+					return;
+				}
 
-			if(ent->client->cannon_rds == 1)
-				count = 1;
-			else if ((ent->client->inventory[ent->client->ammo_index]) == 1)
-				count = 1;
+				if (ent->client->ps.gunframe == 48)
+				{
+					gi.sound(ent, CHAN_WEAPON,
+						gi.soundindex("weapons/m3in.wav"), 1,
+						ATTN_NORM, 0);
+				}
+				if (ent->client->ps.gunframe == 49)
+				{
+					if (ent->client->fast_reload == 1)
+					{
+						ent->client->fast_reload = 0;
+						ent->client->shot_rds++;
+						ent->client->ps.gunframe = 44;
+					}
+				}
+				break;
+			}
+			case HC_NUM:
+			{
+				if (ent->client->ps.gunframe == 64)
+					gi.sound(ent, CHAN_WEAPON,
+						gi.soundindex("weapons/copen.wav"), 1, ATTN_NORM,
+						0);
+				else if (ent->client->ps.gunframe == 67)
+					gi.sound(ent, CHAN_WEAPON,
+						gi.soundindex("weapons/cout.wav"), 1, ATTN_NORM,
+						0);
+				else if (ent->client->ps.gunframe == 76)	//61
+					gi.sound(ent, CHAN_WEAPON,
+						gi.soundindex("weapons/cin.wav"), 1, ATTN_NORM,
+						0);
+				else if (ent->client->ps.gunframe == 80)	// 3
+					gi.sound(ent, CHAN_WEAPON,
+						gi.soundindex("weapons/cclose.wav"), 1,
+						ATTN_NORM, 0);
+				break;
+			}
+			case SNIPER_NUM:
+			{
+
+				if (ent->client->sniper_rds >= ent->client->sniper_max)
+				{
+					ent->client->ps.gunframe = FRAME_IDLE_FIRST;
+					ent->client->weaponstate = WEAPON_READY;
+					return;
+				}
+
+				if (ent->client->ps.gunframe == 59)
+				{
+					gi.sound(ent, CHAN_WEAPON,
+						gi.soundindex("weapons/ssgbolt.wav"), 1,
+						ATTN_NORM, 0);
+				}
+				else if (ent->client->ps.gunframe == 71)
+				{
+					gi.sound(ent, CHAN_WEAPON,
+						gi.soundindex("weapons/ssgin.wav"), 1,
+						ATTN_NORM, 0);
+				}
+				else if (ent->client->ps.gunframe == 73)
+				{
+					if (ent->client->fast_reload == 1)
+					{
+						ent->client->fast_reload = 0;
+						ent->client->sniper_rds++;
+						ent->client->ps.gunframe = 67;
+					}
+				}
+				else if (ent->client->ps.gunframe == 76)
+				{
+					gi.sound(ent, CHAN_WEAPON,
+						gi.soundindex("weapons/ssgbolt.wav"), 1,
+						ATTN_NORM, 0);
+				}
+				break;
+			}
+			case DUAL_NUM:
+			{
+				if (ent->client->ps.gunframe == 45)
+					gi.sound(ent, CHAN_WEAPON,
+						gi.soundindex("weapons/mk23out.wav"), 1,
+						ATTN_NORM, 0);
+				else if (ent->client->ps.gunframe == 53)
+					gi.sound(ent, CHAN_WEAPON,
+						gi.soundindex("weapons/mk23slap.wav"), 1,
+						ATTN_NORM, 0);
+				else if (ent->client->ps.gunframe == 60)	// 3
+					gi.sound(ent, CHAN_WEAPON,
+						gi.soundindex("weapons/mk23slap.wav"), 1,
+						ATTN_NORM, 0);
+				break;
+			}
+			default:
+				gi.dprintf("No weapon choice for reloading (sounds).\n");
+				break;
+
+			}
+		}
+		else
+		{
+			ent->client->ps.gunframe = FRAME_IDLE_FIRST;
+			ent->client->weaponstate = WEAPON_READY;
+			switch (ent->client->curr_weap)
+			{
+			case MK23_NUM:
+			{
+				ent->client->dual_rds -= ent->client->mk23_rds;
+				ent->client->mk23_rds = ent->client->mk23_max;
+				ent->client->dual_rds += ent->client->mk23_max;
+				(ent->client->inventory[ent->client->ammo_index])--;
+				if (ent->client->inventory[ent->client->ammo_index] < 0)
+				{
+					ent->client->inventory[ent->client->ammo_index] = 0;
+				}
+				ent->client->fired = 0;	// reset any firing delays
+				break;
+				//else
+				//      ent->client->mk23_rds = ent->client->inventory[ent->client->ammo_index];
+			}
+			case MP5_NUM:
+			{
+
+				ent->client->mp5_rds = ent->client->mp5_max;
+				(ent->client->inventory[ent->client->ammo_index])--;
+				if (ent->client->inventory[ent->client->ammo_index] < 0)
+				{
+					ent->client->inventory[ent->client->ammo_index] = 0;
+				}
+				ent->client->fired = 0;	// reset any firing delays
+				ent->client->burst = 0;	// reset any bursting
+				break;
+			}
+			case M4_NUM:
+			{
+
+				ent->client->m4_rds = ent->client->m4_max;
+				(ent->client->inventory[ent->client->ammo_index])--;
+				if (ent->client->inventory[ent->client->ammo_index] < 0)
+				{
+					ent->client->inventory[ent->client->ammo_index] = 0;
+				}
+				ent->client->fired = 0;	// reset any firing delays
+				ent->client->burst = 0;	// reset any bursting                           
+				ent->client->machinegun_shots = 0;
+				break;
+			}
+			case M3_NUM:
+			{
+				ent->client->shot_rds++;
+				(ent->client->inventory[ent->client->ammo_index])--;
+				if (ent->client->inventory[ent->client->ammo_index] < 0)
+				{
+					ent->client->inventory[ent->client->ammo_index] = 0;
+				}
+				break;
+			}
+			case HC_NUM:
+			{
+				if (hc_single->value)
+				{
+					int count = 0;
+
+					if (ent->client->cannon_rds == 1)
+						count = 1;
+					else if ((ent->client->inventory[ent->client->ammo_index]) == 1)
+						count = 1;
+					else
+						count = ent->client->cannon_max;
+					ent->client->cannon_rds += count;
+					if (ent->client->cannon_rds > ent->client->cannon_max)
+						ent->client->cannon_rds = ent->client->cannon_max;
+
+					(ent->client->inventory[ent->client->ammo_index]) -= count;
+				}
+				else
+				{
+					ent->client->cannon_rds = ent->client->cannon_max;
+					(ent->client->inventory[ent->client->ammo_index]) -= 2;
+				}
+
+				if (ent->client->inventory[ent->client->ammo_index] < 0)
+				{
+					ent->client->inventory[ent->client->ammo_index] = 0;
+				}
+				break;
+			}
+			case SNIPER_NUM:
+			{
+				ent->client->sniper_rds++;
+				(ent->client->inventory[ent->client->ammo_index])--;
+				if (ent->client->inventory[ent->client->ammo_index] < 0)
+				{
+					ent->client->inventory[ent->client->ammo_index] = 0;
+				}
+				return;
+			}
+			case DUAL_NUM:
+			{
+				ent->client->dual_rds = ent->client->dual_max;
+				ent->client->mk23_rds = ent->client->mk23_max;
+				(ent->client->inventory[ent->client->ammo_index]) -= 2;
+				if (ent->client->inventory[ent->client->ammo_index] < 0)
+				{
+					ent->client->inventory[ent->client->ammo_index] = 0;
+				}
+				break;
+			}
+			default:
+				gi.dprintf("No weapon choice for reloading.\n");
+				break;
+			}
+
+
+		}
+	}
+
+	if (ent->client->weaponstate == WEAPON_END_MAG)
+	{
+		if (ent->client->ps.gunframe < FRAME_LASTRD_LAST)
+			ent->client->ps.gunframe++;
+		else
+			ent->client->ps.gunframe = FRAME_LASTRD_LAST;
+		// see if our weapon has ammo (from something other than reloading)
+		if (
+			((ent->client->curr_weap == MK23_NUM)
+				&& (ent->client->mk23_rds > 0))
+			|| ((ent->client->curr_weap == MP5_NUM)
+				&& (ent->client->mp5_rds > 0))
+			|| ((ent->client->curr_weap == M4_NUM) && (ent->client->m4_rds > 0))
+			|| ((ent->client->curr_weap == M3_NUM)
+				&& (ent->client->shot_rds > 0))
+			|| ((ent->client->curr_weap == HC_NUM)
+				&& (ent->client->cannon_rds > 0))
+			|| ((ent->client->curr_weap == SNIPER_NUM)
+				&& (ent->client->sniper_rds > 0))
+			|| ((ent->client->curr_weap == DUAL_NUM)
+				&& (ent->client->dual_rds > 0)))
+		{
+			ent->client->weaponstate = WEAPON_READY;
+			ent->client->ps.gunframe = FRAME_IDLE_FIRST;
+		}
+		if (((ent->client->latched_buttons | ent->client->buttons) & BUTTON_ATTACK)
+			&& (ent->solid != SOLID_NOT || ent->deadflag == DEAD_DEAD)
+			&& !lights_camera_action && !ent->client->uvTime)
+		{
+			ent->client->latched_buttons &= ~BUTTON_ATTACK;
+			{
+				if (level.framenum >= ent->pain_debounce_framenum)
+				{
+					gi.sound(ent, CHAN_VOICE, level.snd_noammo, 1, ATTN_NORM, 0);
+					ent->pain_debounce_framenum = level.framenum + 1 * HZ;
+				}
+
+
+			}
+
+		}
+	}
+
+	if (ent->client->weaponstate == WEAPON_DROPPING)
+	{
+		if (ent->client->ps.gunframe == FRAME_DEACTIVATE_LAST)
+		{
+
+			ChangeWeapon(ent);
+			return;
+		}
+		// zucc for vwep
+		else if ((FRAME_DEACTIVATE_LAST - ent->client->ps.gunframe) == 4)
+		{
+			if (ent->client->ps.pmove.pm_flags & PMF_DUCKED)
+				SetAnimation( ent, FRAME_crpain4 + 1, FRAME_crpain1, ANIM_REVERSE );
 			else
-				count = ent->client->cannon_max;
-			ent->client->cannon_rds += count;
-			if (ent->client->cannon_rds > ent->client->cannon_max)
-				ent->client->cannon_rds = ent->client->cannon_max;
-
-			(ent->client->inventory[ent->client->ammo_index]) -= count;
-		}
-		else
-		{
-			ent->client->cannon_rds = ent->client->cannon_max;
-			(ent->client->inventory[ent->client->ammo_index]) -= 2;
+				SetAnimation( ent, FRAME_pain304 + 1, FRAME_pain301, ANIM_REVERSE );
 		}
 
-		if (ent->client->inventory[ent->client->ammo_index] < 0)
-		  {
-		    ent->client->inventory[ent->client->ammo_index] = 0;
-		  }
-		break;
-	      }
-	    case SNIPER_NUM:
-	      {
-		ent->client->sniper_rds++;
-		(ent->client->inventory[ent->client->ammo_index])--;
-		if (ent->client->inventory[ent->client->ammo_index] < 0)
-		  {
-		    ent->client->inventory[ent->client->ammo_index] = 0;
-		  }
+
+		ent->client->ps.gunframe++;
 		return;
-	      }
-	    case DUAL_NUM:
-	      {
-		ent->client->dual_rds = ent->client->dual_max;
-		ent->client->mk23_rds = ent->client->mk23_max;
-		(ent->client->inventory[ent->client->ammo_index]) -= 2;
-		if (ent->client->inventory[ent->client->ammo_index] < 0)
-		  {
-		    ent->client->inventory[ent->client->ammo_index] = 0;
-		  }
-		break;
-	      }
-	    default:
-	      gi.dprintf ("No weapon choice for reloading.\n");
-	      break;
-	    }
-
-
 	}
-    }
 
-  if (ent->client->weaponstate == WEAPON_END_MAG)
-    {
-      if (ent->client->ps.gunframe < FRAME_LASTRD_LAST)
-	ent->client->ps.gunframe++;
-      else
-	ent->client->ps.gunframe = FRAME_LASTRD_LAST;
-      // see if our weapon has ammo (from something other than reloading)
-      if (
-	  ((ent->client->curr_weap == MK23_NUM)
-	   && (ent->client->mk23_rds > 0))
-	  || ((ent->client->curr_weap == MP5_NUM)
-	      && (ent->client->mp5_rds > 0))
-	  || ((ent->client->curr_weap == M4_NUM) && (ent->client->m4_rds > 0))
-	  || ((ent->client->curr_weap == M3_NUM)
-	      && (ent->client->shot_rds > 0))
-	  || ((ent->client->curr_weap == HC_NUM)
-	      && (ent->client->cannon_rds > 0))
-	  || ((ent->client->curr_weap == SNIPER_NUM)
-	      && (ent->client->sniper_rds > 0))
-	  || ((ent->client->curr_weap == DUAL_NUM)
-	      && (ent->client->dual_rds > 0)))
+	if (ent->client->weaponstate == WEAPON_BANDAGING)
 	{
-	  ent->client->weaponstate = WEAPON_READY;
-	  ent->client->ps.gunframe = FRAME_IDLE_FIRST;
-	}
-      if (((ent->client->latched_buttons | ent->client->buttons) & BUTTON_ATTACK)
-	  && (ent->solid != SOLID_NOT || ent->deadflag == DEAD_DEAD)
-	  && !lights_camera_action && !ent->client->uvTime)
-	{
-	  ent->client->latched_buttons &= ~BUTTON_ATTACK;
-	  {
-	    if (level.framenum >= ent->pain_debounce_framenum)
-	      {
-			gi.sound(ent, CHAN_VOICE, level.snd_noammo, 1, ATTN_NORM, 0);
-			ent->pain_debounce_framenum = level.framenum + 1 * HZ;
-	      }
-
-
-	  }
-
-	}
-    }
-
-  if (ent->client->weaponstate == WEAPON_DROPPING)
-    {
-      if (ent->client->ps.gunframe == FRAME_DEACTIVATE_LAST)
-	{
-
-	  ChangeWeapon (ent);
-	  return;
-	}
-      // zucc for vwep
-      else if ((FRAME_DEACTIVATE_LAST - ent->client->ps.gunframe) == 4)
-	{
-	  ent->client->anim_priority = ANIM_REVERSE;
-	  if (ent->client->ps.pmove.pm_flags & PMF_DUCKED)
-	    {
-	      ent->s.frame = FRAME_crpain4 + 1;
-	      ent->client->anim_end = FRAME_crpain1;
-	    }
-	  else
-	    {
-	      ent->s.frame = FRAME_pain304 + 1;
-	      ent->client->anim_end = FRAME_pain301;
-
-	    }
+		if (ent->client->ps.gunframe == FRAME_DEACTIVATE_LAST)
+		{
+			ent->client->weaponstate = WEAPON_BUSY;
+			ent->client->idle_weapon = BANDAGE_TIME;
+			return;
+		}
+		ent->client->ps.gunframe++;
+		return;
 	}
 
 
-      ent->client->ps.gunframe++;
-      return;
-    }
-
-  if (ent->client->weaponstate == WEAPON_BANDAGING)
-    {
-      if (ent->client->ps.gunframe == FRAME_DEACTIVATE_LAST)
+	if (ent->client->weaponstate == WEAPON_ACTIVATING)
 	{
-	  ent->client->weaponstate = WEAPON_BUSY;
-	  ent->client->idle_weapon = BANDAGE_TIME;
-	  return;
-	}
-      ent->client->ps.gunframe++;
-      return;
-    }
+		if (ent->client->ps.gunframe == FRAME_ACTIVATE_LAST)
+		{
+			ent->client->weaponstate = WEAPON_READY;
+			ent->client->ps.gunframe = FRAME_IDLE_FIRST;
+			return;
+		}
 
-
-  if (ent->client->weaponstate == WEAPON_ACTIVATING)
-    {
-      if (ent->client->ps.gunframe == FRAME_ACTIVATE_LAST)
-	{
-	  ent->client->weaponstate = WEAPON_READY;
-	  ent->client->ps.gunframe = FRAME_IDLE_FIRST;
-	  return;
-	}
-
-      // sounds for activation?
-      switch (ent->client->curr_weap)
-	{
-	case MK23_NUM:
-	  {
-	    if (ent->client->dual_rds >= ent->client->mk23_max)
-	      ent->client->mk23_rds = ent->client->mk23_max;
-	    else
-	      ent->client->mk23_rds = ent->client->dual_rds;
-	    if (ent->client->ps.gunframe == 3)	// 3
-	      {
-		if (ent->client->mk23_rds > 0)
-		  {
-		    gi.sound (ent, CHAN_WEAPON,
-			      gi.soundindex ("weapons/mk23slide.wav"), 1,
-			      ATTN_NORM, 0);
-		  }
-		else
-		  {
-		    gi.sound(ent, CHAN_WEAPON, level.snd_noammo, 1, ATTN_NORM, 0);
-		    //mk23slap
-		    ent->client->ps.gunframe = 62;
-		    ent->client->weaponstate = WEAPON_END_MAG;
-		  }
-	      }
-	    ent->client->fired = 0;	//reset any firing delays
-	    break;
-	  }
-	case MP5_NUM:
-	  {
-	    if (ent->client->ps.gunframe == 3)	// 3
-	      gi.sound (ent, CHAN_WEAPON,
-			gi.soundindex ("weapons/mp5slide.wav"), 1, ATTN_NORM,
-			0);
-	    ent->client->fired = 0;	//reset any firing delays
-	    ent->client->burst = 0;
-	    break;
-	  }
-	case M4_NUM:
-	  {
-	    if (ent->client->ps.gunframe == 3)	// 3
-	      gi.sound (ent, CHAN_WEAPON,
-			gi.soundindex ("weapons/m4a1slide.wav"), 1, ATTN_NORM,
-			0);
-	    ent->client->fired = 0;	//reset any firing delays
-	    ent->client->burst = 0;
-	    ent->client->machinegun_shots = 0;
-	    break;
-	  }
-	case M3_NUM:
-	  {
-	    ent->client->fired = 0;	//reset any firing delays
-	    ent->client->burst = 0;
-	    ent->client->fast_reload = 0;
-	    break;
-	  }
-	case HC_NUM:
-	  {
-	    ent->client->fired = 0;	//reset any firing delays
-	    ent->client->burst = 0;
-	    break;
-	  }
-	case SNIPER_NUM:
-	  {
-	    ent->client->fired = 0;	//reset any firing delays
-	    ent->client->burst = 0;
-	    ent->client->fast_reload = 0;
-	    break;
-	  }
-	case DUAL_NUM:
-	  {
-	    if (ent->client->dual_rds <= 0 && ent->client->ps.gunframe == 3)
-	      gi.sound(ent, CHAN_WEAPON, level.snd_noammo, 1, ATTN_NORM, 0);
-	    if (ent->client->dual_rds <= 0 && ent->client->ps.gunframe == 4)
-	      {
-			gi.sound(ent, CHAN_WEAPON, level.snd_noammo, 1, ATTN_NORM, 0);
-			ent->client->ps.gunframe = 68;
-			ent->client->weaponstate = WEAPON_END_MAG;
-			ent->client->resp.sniper_mode = 0;
-
-			ent->client->desired_fov = 90;
-			ent->client->ps.fov = 90;
+		// sounds for activation?
+		switch (ent->client->curr_weap)
+		{
+		case MK23_NUM:
+		{
+			if (ent->client->dual_rds >= ent->client->mk23_max)
+				ent->client->mk23_rds = ent->client->mk23_max;
+			else
+				ent->client->mk23_rds = ent->client->dual_rds;
+			if (ent->client->ps.gunframe == 3)	// 3
+			{
+				if (ent->client->mk23_rds > 0)
+				{
+					gi.sound(ent, CHAN_WEAPON,
+						gi.soundindex("weapons/mk23slide.wav"), 1,
+						ATTN_NORM, 0);
+				}
+				else
+				{
+					gi.sound(ent, CHAN_WEAPON, level.snd_noammo, 1, ATTN_NORM, 0);
+					//mk23slap
+					ent->client->ps.gunframe = 62;
+					ent->client->weaponstate = WEAPON_END_MAG;
+				}
+			}
+			ent->client->fired = 0;	//reset any firing delays
+			break;
+		}
+		case MP5_NUM:
+		{
+			if (ent->client->ps.gunframe == 3)	// 3
+				gi.sound(ent, CHAN_WEAPON,
+					gi.soundindex("weapons/mp5slide.wav"), 1, ATTN_NORM,
+					0);
 			ent->client->fired = 0;	//reset any firing delays
 			ent->client->burst = 0;
+			break;
+		}
+		case M4_NUM:
+		{
+			if (ent->client->ps.gunframe == 3)	// 3
+				gi.sound(ent, CHAN_WEAPON,
+					gi.soundindex("weapons/m4a1slide.wav"), 1, ATTN_NORM,
+					0);
+			ent->client->fired = 0;	//reset any firing delays
+			ent->client->burst = 0;
+			ent->client->machinegun_shots = 0;
+			break;
+		}
+		case M3_NUM:
+		{
+			ent->client->fired = 0;	//reset any firing delays
+			ent->client->burst = 0;
+			ent->client->fast_reload = 0;
+			break;
+		}
+		case HC_NUM:
+		{
+			ent->client->fired = 0;	//reset any firing delays
+			ent->client->burst = 0;
+			break;
+		}
+		case SNIPER_NUM:
+		{
+			ent->client->fired = 0;	//reset any firing delays
+			ent->client->burst = 0;
+			ent->client->fast_reload = 0;
+			break;
+		}
+		case DUAL_NUM:
+		{
+			if (ent->client->dual_rds <= 0 && ent->client->ps.gunframe == 3)
+				gi.sound(ent, CHAN_WEAPON, level.snd_noammo, 1, ATTN_NORM, 0);
+			if (ent->client->dual_rds <= 0 && ent->client->ps.gunframe == 4)
+			{
+				gi.sound(ent, CHAN_WEAPON, level.snd_noammo, 1, ATTN_NORM, 0);
+				ent->client->ps.gunframe = 68;
+				ent->client->weaponstate = WEAPON_END_MAG;
+				ent->client->resp.sniper_mode = 0;
 
+				ent->client->desired_fov = 90;
+				ent->client->ps.fov = 90;
+				ent->client->fired = 0;	//reset any firing delays
+				ent->client->burst = 0;
+
+				return;
+			}
+			ent->client->fired = 0;	//reset any firing delays
+			ent->client->burst = 0;
+			break;
+		}
+		case GRAPPLE_NUM:
+			break;
+
+		default:
+			gi.dprintf("Activated unknown weapon.\n");
+			break;
+		}
+
+		ent->client->resp.sniper_mode = 0;
+		// has to be here for dropping the sniper rifle, in the drop command didn't work...
+		ent->client->desired_fov = 90;
+		ent->client->ps.fov = 90;
+		ent->client->ps.gunframe++;
+		return;
+	}
+
+	if (ent->client->weaponstate == WEAPON_BUSY)
+	{
+		if (ent->client->bandaging == 1)
+		{
+			if (!(ent->client->idle_weapon))
+			{
+				Bandage(ent);
+				return;
+			}
+			else
+			{
+				(ent->client->idle_weapon)--;
+				return;
+			}
+		}
+
+		// for after bandaging delay
+		if (!(ent->client->idle_weapon) && ent->client->bandage_stopped)
+		{
+			ent->client->weaponstate = WEAPON_ACTIVATING;
+			ent->client->ps.gunframe = 0;
+			ent->client->bandage_stopped = 0;
 			return;
-	      }
-	    ent->client->fired = 0;	//reset any firing delays
-	    ent->client->burst = 0;
-	    break;
-	  }
-	case GRAPPLE_NUM:
-		break;
+		}
+		else if (ent->client->bandage_stopped)
+		{
+			(ent->client->idle_weapon)--;
+			return;
+		}
 
-	default:
-	  gi.dprintf ("Activated unknown weapon.\n");
-	  break;
-	}
-
-      ent->client->resp.sniper_mode = 0;
-      // has to be here for dropping the sniper rifle, in the drop command didn't work...
-      ent->client->desired_fov = 90;
-      ent->client->ps.fov = 90;
-      ent->client->ps.gunframe++;
-      return;
-    }
-
-  if (ent->client->weaponstate == WEAPON_BUSY)
-    {
-      if (ent->client->bandaging == 1)
-	{
-	  if (!(ent->client->idle_weapon))
-	    {
-	      Bandage (ent);
-	      return;
-	    }
-	  else
-	    {
-	      (ent->client->idle_weapon)--;
-	      return;
-	    }
-	}
-
-      // for after bandaging delay
-      if (!(ent->client->idle_weapon) && ent->client->bandage_stopped)
-	{
-	  ent->client->weaponstate = WEAPON_ACTIVATING;
-	  ent->client->ps.gunframe = 0;
-	  ent->client->bandage_stopped = 0;
-	  return;
-	}
-      else if (ent->client->bandage_stopped)
-	{
-	  (ent->client->idle_weapon)--;
-	  return;
-	}
-
-      if (ent->client->curr_weap == SNIPER_NUM)
-	{
-	  if (ent->client->desired_fov == 90)
-	    {
-	      ent->client->ps.fov = 90;
-	      ent->client->weaponstate = WEAPON_READY;
-	      ent->client->idle_weapon = 0;
-	    }
-	  if (!(ent->client->idle_weapon) && ent->client->desired_fov != 90)
-	    {
-	      ent->client->ps.fov = ent->client->desired_fov;
-	      ent->client->weaponstate = WEAPON_READY;
-	      ent->client->ps.gunindex = 0;
-	      return;
-	    }
-	  else
-	    (ent->client->idle_weapon)--;
-
-	}
-    }
-
-
-  if ((ent->client->newweapon) && (ent->client->weaponstate != WEAPON_FIRING)
-      && (ent->client->weaponstate != WEAPON_BURSTING)
-      && (ent->client->bandage_stopped == 0))
-    {
-      ent->client->weaponstate = WEAPON_DROPPING;
-      ent->client->ps.gunframe = FRAME_DEACTIVATE_FIRST;
-      ent->client->desired_fov = 90;
-      ent->client->ps.fov = 90;
-      ent->client->resp.sniper_mode = 0;
-      if (ent->client->weapon)
-		ent->client->ps.gunindex = gi.modelindex(ent->client->weapon->view_model);
-
-      // zucc more vwep stuff
-      if ((FRAME_DEACTIVATE_LAST - FRAME_DEACTIVATE_FIRST) < 4)
-	{
-	  ent->client->anim_priority = ANIM_REVERSE;
-	  if (ent->client->ps.pmove.pm_flags & PMF_DUCKED)
-	    {
-	      ent->s.frame = FRAME_crpain4 + 1;
-	      ent->client->anim_end = FRAME_crpain1;
-	    }
-	  else
-	    {
-	      ent->s.frame = FRAME_pain304 + 1;
-	      ent->client->anim_end = FRAME_pain301;
-
-	    }
-	}
-      return;
-    }
-
-  // bandaging case
-  if ((ent->client->bandaging)
-      && (ent->client->weaponstate != WEAPON_FIRING)
-      && (ent->client->weaponstate != WEAPON_BURSTING)
-      && (ent->client->weaponstate != WEAPON_BUSY)
-      && (ent->client->weaponstate != WEAPON_BANDAGING))
-    {
-      ent->client->weaponstate = WEAPON_BANDAGING;
-      ent->client->ps.gunframe = FRAME_DEACTIVATE_FIRST;
-      return;
-    }
-
-  if (ent->client->weaponstate == WEAPON_READY)
-    {
-      if (((ent->client->latched_buttons | ent->client->buttons) & BUTTON_ATTACK)
-	  && (ent->solid != SOLID_NOT || ent->deadflag == DEAD_DEAD)
-	  && !lights_camera_action && (!ent->client->uvTime || dm_shield->value > 1))
-	{
-	  if (ent->client->uvTime) {
-	    ent->client->uvTime = 0;
-	    gi.centerprintf(ent, "Shields are DOWN!");
-	  }
-	  ent->client->latched_buttons &= ~BUTTON_ATTACK;
-	  switch (ent->client->curr_weap)
-	    {
-	    case MK23_NUM:
-	      {
-		//      gi.cprintf (ent, PRINT_HIGH, "Calling ammo check %d\n", ent->client->mk23_rds);
-		if (ent->client->mk23_rds > 0)
-		  {
-		    //              gi.cprintf(ent, PRINT_HIGH, "Entered fire selection\n");
-		    if (ent->client->pers.mk23_mode != 0
-			&& ent->client->fired == 0)
-		      {
-			ent->client->fired = 1;
-			bFire = 1;
-		      }
-			else if (ent->client->pers.mk23_mode == 0)
-		      {
-			bFire = 1;
-		      }
-		  }
-		else
-		  bOut = 1;
-		break;
-
-	      }
-	    case MP5_NUM:
-	      {
-		if (ent->client->mp5_rds > 0)
-		  {
-		    if (ent->client->pers.mp5_mode != 0
-			&& ent->client->fired == 0 && ent->client->burst == 0)
-		      {
-			ent->client->fired = 1;
-			ent->client->ps.gunframe = 71;
-			ent->client->burst = 1;
-			ent->client->weaponstate = WEAPON_BURSTING;
-
-			// start the animation
-			ent->client->anim_priority = ANIM_ATTACK;
-			if (ent->client->ps.pmove.pm_flags & PMF_DUCKED)
-			  {
-			    ent->s.frame = FRAME_crattak1 - 1;
-			    ent->client->anim_end = FRAME_crattak9;
-			  }
+		if (ent->client->curr_weap == SNIPER_NUM)
+		{
+			if (ent->client->desired_fov == 90)
+			{
+				ent->client->ps.fov = 90;
+				ent->client->weaponstate = WEAPON_READY;
+				ent->client->idle_weapon = 0;
+			}
+			if (!(ent->client->idle_weapon) && ent->client->desired_fov != 90)
+			{
+				ent->client->ps.fov = ent->client->desired_fov;
+				ent->client->weaponstate = WEAPON_READY;
+				ent->client->ps.gunindex = 0;
+				return;
+			}
 			else
-			  {
-			    ent->s.frame = FRAME_attack1 - 1;
-			    ent->client->anim_end = FRAME_attack8;
-			  }
-		      }
-			else if (ent->client->pers.mp5_mode == 0
-			     && ent->client->fired == 0)
-		      {
-			bFire = 1;
-		      }
-		  }
-		else
-		  bOut = 1;
-		break;
-	      }
-	    case M4_NUM:
-	      {
-		if (ent->client->m4_rds > 0)
-		  {
-		    if (ent->client->pers.m4_mode != 0
-			&& ent->client->fired == 0 && ent->client->burst == 0)
-		      {
-			ent->client->fired = 1;
-			ent->client->ps.gunframe = 65;
-			ent->client->burst = 1;
-			ent->client->weaponstate = WEAPON_BURSTING;
+				(ent->client->idle_weapon)--;
 
-			// start the animation
-			ent->client->anim_priority = ANIM_ATTACK;
+		}
+	}
+
+
+	if ((ent->client->newweapon) && (ent->client->weaponstate != WEAPON_FIRING)
+		&& (ent->client->weaponstate != WEAPON_BURSTING)
+		&& (ent->client->bandage_stopped == 0))
+	{
+		ent->client->weaponstate = WEAPON_DROPPING;
+		ent->client->ps.gunframe = FRAME_DEACTIVATE_FIRST;
+		ent->client->desired_fov = 90;
+		ent->client->ps.fov = 90;
+		ent->client->resp.sniper_mode = 0;
+		if (ent->client->weapon)
+			ent->client->ps.gunindex = gi.modelindex(ent->client->weapon->view_model);
+
+		// zucc more vwep stuff
+		if ((FRAME_DEACTIVATE_LAST - FRAME_DEACTIVATE_FIRST) < 4)
+		{
 			if (ent->client->ps.pmove.pm_flags & PMF_DUCKED)
-			  {
-			    ent->s.frame = FRAME_crattak1 - 1;
-			    ent->client->anim_end = FRAME_crattak9;
-			  }
+				SetAnimation( ent, FRAME_crpain4 + 1, FRAME_crpain1, ANIM_REVERSE );
 			else
-			  {
-			    ent->s.frame = FRAME_attack1 - 1;
-			    ent->client->anim_end = FRAME_attack8;
-			  }
-		      }
-		    else if (ent->client->pers.m4_mode == 0
-			     && ent->client->fired == 0)
-		      {
-			bFire = 1;
-		      }
-		  }
-		else
-		  bOut = 1;
-		break;
-	      }
-	    case M3_NUM:
-	      {
-		if (ent->client->shot_rds > 0)
-		  {
-		    bFire = 1;
-		  }
-		else
-		  bOut = 1;
-		break;
-	      }
-// AQ2:TNG Deathwatch - Single Barreled HC
-// DW: SingleBarrel HC
-	    case HC_NUM:
-
-	      //if client is set to single shot mode, then allow
-	      //fire if only have 1 round left
-	      {
-		if (ent->client->pers.hc_mode)
-		  {
-		    if (ent->client->cannon_rds > 0)
-		      {
-			bFire = 1;
-		      }
-		    else
-		      bOut = 1;
-		  }
-		else
-		  {
-		    if (ent->client->cannon_rds == 2)
-		      {
-			bFire = 1;
-		      }
-		    else
-		      bOut = 1;
-		  }
-		break;
-	      }
-/*
-                        case HC_NUM:
-                                {
-                                        if ( ent->client->cannon_rds == 2 )
-                                        {
-                                                bFire = 1;
-                                        }
-                                        else
-                                                bOut = 1;
-                                        break;
-                                }
-*/
-// AQ2:TNG END
-	    case SNIPER_NUM:
-	      {
-		if (ent->client->ps.fov != ent->client->desired_fov)
-		  ent->client->ps.fov = ent->client->desired_fov;
-		// if they aren't at 90 then they must be zoomed, so remove their weapon from view
-		if (ent->client->ps.fov != 90)
-		  {
-		    ent->client->ps.gunindex = 0;
-		    ent->client->no_sniper_display = 0;
-		  }
-
-		if (ent->client->sniper_rds > 0)
-		  {
-		    bFire = 1;
-		  }
-		else
-		  bOut = 1;
-		break;
-	      }
-	    case DUAL_NUM:
-	      {
-		if (ent->client->dual_rds > 0)
-		  {
-		    bFire = 1;
-		  }
-		else
-		  bOut = 1;
-		break;
-	      }
-	    case GRAPPLE_NUM:
-		bFire = 1;
-		bOut = 0;
-		break;
-
-	    default:
-	      {
-		gi.cprintf (ent, PRINT_HIGH,
-			    "Calling non specific ammo code\n");
-		if ((!ent->client->ammo_index)
-		    || (ent->client->inventory[ent->client->ammo_index] >=
-			ent->client->weapon->quantity))
-		  {
-		    bFire = 1;
-		  }
-		else
-		  {
-		    bFire = 0;
-		    bOut = 1;
-		  }
-	      }
-
-	    }
-	  if (bFire)
-	    {
-	      ent->client->ps.gunframe = FRAME_FIRE_FIRST;
-	      ent->client->weaponstate = WEAPON_FIRING;
-
-	      // start the animation
-	      ent->client->anim_priority = ANIM_ATTACK;
-	      if (ent->client->ps.pmove.pm_flags & PMF_DUCKED)
-		{
-		  ent->s.frame = FRAME_crattak1 - 1;
-		  ent->client->anim_end = FRAME_crattak9;
+				SetAnimation( ent, FRAME_pain304 + 1, FRAME_pain301, ANIM_REVERSE );
 		}
-	      else
+		return;
+	}
+
+	// bandaging case
+	if ((ent->client->bandaging)
+		&& (ent->client->weaponstate != WEAPON_FIRING)
+		&& (ent->client->weaponstate != WEAPON_BURSTING)
+		&& (ent->client->weaponstate != WEAPON_BUSY)
+		&& (ent->client->weaponstate != WEAPON_BANDAGING))
+	{
+		ent->client->weaponstate = WEAPON_BANDAGING;
+		ent->client->ps.gunframe = FRAME_DEACTIVATE_FIRST;
+		return;
+	}
+
+	if (ent->client->weaponstate == WEAPON_READY)
+	{
+		if (((ent->client->latched_buttons | ent->client->buttons) & BUTTON_ATTACK)
+			&& (ent->solid != SOLID_NOT || ent->deadflag == DEAD_DEAD)
+			&& !lights_camera_action && (!ent->client->uvTime || dm_shield->value > 1))
 		{
-		  ent->s.frame = FRAME_attack1 - 1;
-		  ent->client->anim_end = FRAME_attack8;
+			if (ent->client->uvTime) {
+				ent->client->uvTime = 0;
+				gi.centerprintf(ent, "Shields are DOWN!");
+			}
+			ent->client->latched_buttons &= ~BUTTON_ATTACK;
+			switch (ent->client->curr_weap)
+			{
+			case MK23_NUM:
+			{
+				//      gi.cprintf (ent, PRINT_HIGH, "Calling ammo check %d\n", ent->client->mk23_rds);
+				if (ent->client->mk23_rds > 0)
+				{
+					//              gi.cprintf(ent, PRINT_HIGH, "Entered fire selection\n");
+					if (ent->client->pers.mk23_mode != 0
+						&& ent->client->fired == 0)
+					{
+						ent->client->fired = 1;
+						bFire = 1;
+					}
+					else if (ent->client->pers.mk23_mode == 0)
+					{
+						bFire = 1;
+					}
+				}
+				else
+					bOut = 1;
+				break;
+
+			}
+			case MP5_NUM:
+			{
+				if (ent->client->mp5_rds > 0)
+				{
+					if (ent->client->pers.mp5_mode != 0
+						&& ent->client->fired == 0 && ent->client->burst == 0)
+					{
+						ent->client->fired = 1;
+						ent->client->ps.gunframe = 71;
+						ent->client->burst = 1;
+						ent->client->weaponstate = WEAPON_BURSTING;
+
+						// start the animation
+						if (ent->client->ps.pmove.pm_flags & PMF_DUCKED)
+							SetAnimation( ent, FRAME_crattak1 - 1, FRAME_crattak9, ANIM_ATTACK );
+						else
+							SetAnimation( ent, FRAME_attack1 - 1, FRAME_attack8, ANIM_ATTACK );
+					}
+					else if (ent->client->pers.mp5_mode == 0
+						&& ent->client->fired == 0)
+					{
+						bFire = 1;
+					}
+				}
+				else
+					bOut = 1;
+				break;
+			}
+			case M4_NUM:
+			{
+				if (ent->client->m4_rds > 0)
+				{
+					if (ent->client->pers.m4_mode != 0
+						&& ent->client->fired == 0 && ent->client->burst == 0)
+					{
+						ent->client->fired = 1;
+						ent->client->ps.gunframe = 65;
+						ent->client->burst = 1;
+						ent->client->weaponstate = WEAPON_BURSTING;
+
+						// start the animation
+						if (ent->client->ps.pmove.pm_flags & PMF_DUCKED)
+							SetAnimation( ent, FRAME_crattak1 - 1, FRAME_crattak9, ANIM_ATTACK );
+						else
+							SetAnimation( ent, FRAME_attack1 - 1, FRAME_attack8, ANIM_ATTACK );
+					}
+					else if (ent->client->pers.m4_mode == 0
+						&& ent->client->fired == 0)
+					{
+						bFire = 1;
+					}
+				}
+				else
+					bOut = 1;
+				break;
+			}
+			case M3_NUM:
+			{
+				if (ent->client->shot_rds > 0)
+				{
+					bFire = 1;
+				}
+				else
+					bOut = 1;
+				break;
+			}
+			// AQ2:TNG Deathwatch - Single Barreled HC
+			// DW: SingleBarrel HC
+			case HC_NUM:
+
+				//if client is set to single shot mode, then allow
+				//fire if only have 1 round left
+			{
+				if (ent->client->pers.hc_mode)
+				{
+					if (ent->client->cannon_rds > 0)
+					{
+						bFire = 1;
+					}
+					else
+						bOut = 1;
+				}
+				else
+				{
+					if (ent->client->cannon_rds == 2)
+					{
+						bFire = 1;
+					}
+					else
+						bOut = 1;
+				}
+				break;
+			}
+			/*
+									case HC_NUM:
+											{
+													if ( ent->client->cannon_rds == 2 )
+													{
+															bFire = 1;
+													}
+													else
+															bOut = 1;
+													break;
+											}
+			*/
+			// AQ2:TNG END
+			case SNIPER_NUM:
+			{
+				if (ent->client->ps.fov != ent->client->desired_fov)
+					ent->client->ps.fov = ent->client->desired_fov;
+				// if they aren't at 90 then they must be zoomed, so remove their weapon from view
+				if (ent->client->ps.fov != 90)
+				{
+					ent->client->ps.gunindex = 0;
+					ent->client->no_sniper_display = 0;
+				}
+
+				if (ent->client->sniper_rds > 0)
+				{
+					bFire = 1;
+				}
+				else
+					bOut = 1;
+				break;
+			}
+			case DUAL_NUM:
+			{
+				if (ent->client->dual_rds > 0)
+				{
+					bFire = 1;
+				}
+				else
+					bOut = 1;
+				break;
+			}
+			case GRAPPLE_NUM:
+				bFire = 1;
+				bOut = 0;
+				break;
+
+			default:
+			{
+				gi.cprintf(ent, PRINT_HIGH,
+					"Calling non specific ammo code\n");
+				if ((!ent->client->ammo_index)
+					|| (ent->client->inventory[ent->client->ammo_index] >=
+						ent->client->weapon->quantity))
+				{
+					bFire = 1;
+				}
+				else
+				{
+					bFire = 0;
+					bOut = 1;
+				}
+			}
+
+			}
+			if (bFire)
+			{
+				ent->client->ps.gunframe = FRAME_FIRE_FIRST;
+				ent->client->weaponstate = WEAPON_FIRING;
+
+				// start the animation
+				if (ent->client->ps.pmove.pm_flags & PMF_DUCKED)
+					SetAnimation( ent, FRAME_crattak1 - 1, FRAME_crattak9, ANIM_ATTACK );
+				else
+					SetAnimation( ent, FRAME_attack1 - 1, FRAME_attack8, ANIM_ATTACK );
+			}
+			else if (bOut)	// out of ammo
+			{
+				if (level.framenum >= ent->pain_debounce_framenum)
+				{
+					gi.sound(ent, CHAN_VOICE, level.snd_noammo, 1, ATTN_NORM, 0);
+					ent->pain_debounce_framenum = level.framenum + 1 * HZ;
+				}
+			}
 		}
-	    }
-	  else if (bOut)	// out of ammo
-	    {
-	      if (level.framenum >= ent->pain_debounce_framenum)
+		else
 		{
-		  gi.sound(ent, CHAN_VOICE, level.snd_noammo, 1, ATTN_NORM, 0);
-		  ent->pain_debounce_framenum = level.framenum + 1 * HZ;
+
+			if (ent->client->ps.fov != ent->client->desired_fov)
+				ent->client->ps.fov = ent->client->desired_fov;
+			// if they aren't at 90 then they must be zoomed, so remove their weapon from view
+			if (ent->client->ps.fov != 90)
+			{
+				ent->client->ps.gunindex = 0;
+				ent->client->no_sniper_display = 0;
+			}
+
+			if (ent->client->ps.gunframe == FRAME_IDLE_LAST)
+			{
+				ent->client->ps.gunframe = FRAME_IDLE_FIRST;
+				return;
+			}
+
+			/*       if (pause_frames)
+			   {
+			   for (n = 0; pause_frames[n]; n++)
+			   {
+			   if (ent->client->ps.gunframe == pause_frames[n])
+			   {
+			   if (rand()&15)
+			   return;
+			   }
+			   }
+			   }
+			 */
+			ent->client->ps.gunframe++;
+			ent->client->fired = 0;	// weapon ready and button not down, now they can fire again
+			ent->client->burst = 0;
+			ent->client->machinegun_shots = 0;
+			return;
 		}
-	    }
 	}
-      else
+
+	if (ent->client->weaponstate == WEAPON_FIRING)
 	{
+		for (n = 0; fire_frames[n]; n++)
+		{
+			if (ent->client->ps.gunframe == fire_frames[n])
+			{
+				if (ent->client->quad_framenum > level.framenum)
+					gi.sound(ent, CHAN_ITEM, gi.soundindex("items/damage3.wav"),
+						1, ATTN_NORM, 0);
 
-	  if (ent->client->ps.fov != ent->client->desired_fov)
-	    ent->client->ps.fov = ent->client->desired_fov;
-	  // if they aren't at 90 then they must be zoomed, so remove their weapon from view
-	  if (ent->client->ps.fov != 90)
-	    {
-	      ent->client->ps.gunindex = 0;
-	      ent->client->no_sniper_display = 0;
-	    }
+				fire(ent);
+				break;
+			}
+		}
 
-	  if (ent->client->ps.gunframe == FRAME_IDLE_LAST)
-	    {
-	      ent->client->ps.gunframe = FRAME_IDLE_FIRST;
-	      return;
-	    }
+		if (!fire_frames[n])
+			ent->client->ps.gunframe++;
 
-	  /*       if (pause_frames)
-	     {
-	     for (n = 0; pause_frames[n]; n++)
-	     {
-	     if (ent->client->ps.gunframe == pause_frames[n])
-	     {
-	     if (rand()&15)
-	     return;
-	     }
-	     }
-	     }
-	   */
-	  ent->client->ps.gunframe++;
-	  ent->client->fired = 0;	// weapon ready and button not down, now they can fire again
-	  ent->client->burst = 0;
-	  ent->client->machinegun_shots = 0;
-	  return;
+		if (ent->client->ps.gunframe == FRAME_IDLE_FIRST + 1)
+			ent->client->weaponstate = WEAPON_READY;
 	}
-    }
-
-  if (ent->client->weaponstate == WEAPON_FIRING)
-    {
-      for (n = 0; fire_frames[n]; n++)
+	// player switched into 
+	if (ent->client->weaponstate == WEAPON_BURSTING)
 	{
-	  if (ent->client->ps.gunframe == fire_frames[n])
-	    {
-	      if (ent->client->quad_framenum > level.framenum)
-		gi.sound (ent, CHAN_ITEM, gi.soundindex ("items/damage3.wav"),
-			  1, ATTN_NORM, 0);
+		for (n = 0; fire_frames[n]; n++)
+		{
+			if (ent->client->ps.gunframe == fire_frames[n])
+			{
+				if (ent->client->quad_framenum > level.framenum)
+					gi.sound(ent, CHAN_ITEM, gi.soundindex("items/damage3.wav"),
+						1, ATTN_NORM, 0);
+				{
+					//                      gi.cprintf (ent, PRINT_HIGH, "Calling fire code, frame = %d.\n", ent->client->ps.gunframe);
+					fire(ent);
+				}
+				break;
+			}
+		}
 
-	      fire (ent);
-	      break;
-	    }
-	}
+		if (!fire_frames[n])
+			ent->client->ps.gunframe++;
 
-      if (!fire_frames[n])
-	ent->client->ps.gunframe++;
-
-      if (ent->client->ps.gunframe == FRAME_IDLE_FIRST + 1)
-	ent->client->weaponstate = WEAPON_READY;
-    }
-  // player switched into 
-  if (ent->client->weaponstate == WEAPON_BURSTING)
-    {
-      for (n = 0; fire_frames[n]; n++)
-	{
-	  if (ent->client->ps.gunframe == fire_frames[n])
-	    {
-	      if (ent->client->quad_framenum > level.framenum)
-		gi.sound (ent, CHAN_ITEM, gi.soundindex ("items/damage3.wav"),
-			  1, ATTN_NORM, 0);
-	      {
-		//                      gi.cprintf (ent, PRINT_HIGH, "Calling fire code, frame = %d.\n", ent->client->ps.gunframe);
-		fire (ent);
-	      }
-	      break;
-	    }
-	}
-
-      if (!fire_frames[n])
-	ent->client->ps.gunframe++;
-
-      //gi.cprintf (ent, PRINT_HIGH, "Calling Q_stricmp, frame = %d.\n", ent->client->ps.gunframe);
+		//gi.cprintf (ent, PRINT_HIGH, "Calling Q_stricmp, frame = %d.\n", ent->client->ps.gunframe);
 
 
-      if (ent->client->ps.gunframe == FRAME_IDLE_FIRST + 1)
-	ent->client->weaponstate = WEAPON_READY;
+		if (ent->client->ps.gunframe == FRAME_IDLE_FIRST + 1)
+			ent->client->weaponstate = WEAPON_READY;
 
-      if (ent->client->curr_weap == MP5_NUM)
-	{
-	  if (ent->client->ps.gunframe >= 76)
-	    {
-	      ent->client->weaponstate = WEAPON_READY;
-	      ent->client->ps.gunframe = FRAME_IDLE_FIRST + 1;
-	    }
-	  //      gi.cprintf (ent, PRINT_HIGH, "Succes Q_stricmp now: frame = %d.\n", ent->client->ps.gunframe);
+		if (ent->client->curr_weap == MP5_NUM)
+		{
+			if (ent->client->ps.gunframe >= 76)
+			{
+				ent->client->weaponstate = WEAPON_READY;
+				ent->client->ps.gunframe = FRAME_IDLE_FIRST + 1;
+			}
+			//      gi.cprintf (ent, PRINT_HIGH, "Succes Q_stricmp now: frame = %d.\n", ent->client->ps.gunframe);
+
+		}
+		if (ent->client->curr_weap == M4_NUM)
+		{
+			if (ent->client->ps.gunframe >= 69)
+			{
+				ent->client->weaponstate = WEAPON_READY;
+				ent->client->ps.gunframe = FRAME_IDLE_FIRST + 1;
+			}
+			//      gi.cprintf (ent, PRINT_HIGH, "Succes Q_stricmp now: frame = %d.\n", ent->client->ps.gunframe);
+
+		}
 
 	}
-      if (ent->client->curr_weap == M4_NUM)
-	{
-	  if (ent->client->ps.gunframe >= 69)
-	    {
-	      ent->client->weaponstate = WEAPON_READY;
-	      ent->client->ps.gunframe = FRAME_IDLE_FIRST + 1;
-	    }
-	  //      gi.cprintf (ent, PRINT_HIGH, "Succes Q_stricmp now: frame = %d.\n", ent->client->ps.gunframe);
-
-	}
-
-    }
 }
 
 
@@ -2047,7 +1998,7 @@ GRENADE
 #define GRENADE_MINSPEED        400
 #define GRENADE_MAXSPEED        800
 
-void weapon_grenade_fire (edict_t * ent, qboolean held)
+void weapon_grenade_fire(edict_t* ent, qboolean held)
 {
 	vec3_t offset;
 	vec3_t forward, right;
@@ -2055,20 +2006,20 @@ void weapon_grenade_fire (edict_t * ent, qboolean held)
 	int damage = 125;
 	int timer;
 	int speed;
-	
+
 	if (is_quad)
 		damage *= 4;
-	
-	VectorSet (offset, 8, 8, ent->viewheight - 8);
-	AngleVectors (ent->client->v_angle, forward, right, NULL);
-	P_ProjectSource (ent->client, ent->s.origin, offset, forward, right, start);
+
+	VectorSet(offset, 8, 8, ent->viewheight - 8);
+	AngleVectors(ent->client->v_angle, forward, right, NULL);
+	P_ProjectSource(ent->client, ent->s.origin, offset, forward, right, start);
 
 	timer = ent->client->grenade_framenum - level.framenum;
-	speed = GRENADE_MINSPEED + (GRENADE_TIMER -	timer) * ((GRENADE_MAXSPEED - GRENADE_MINSPEED) / GRENADE_TIMER);
+	speed = GRENADE_MINSPEED + (GRENADE_TIMER - timer) * ((GRENADE_MAXSPEED - GRENADE_MINSPEED) / GRENADE_TIMER);
 
 	// Reset Grenade Damage to 1.52 when requested:
 	int damrad = use_classic->value ? GRENADE_DAMRAD_CLASSIC : GRENADE_DAMRAD;
-	fire_grenade2( ent, start, forward, damrad, speed, timer, damrad * 2, held );
+	fire_grenade2(ent, start, forward, damrad, speed, timer, damrad * 2, held);
 
 	if (!DMFLAGS(DF_INFINITE_AMMO))
 		ent->client->inventory[ent->client->ammo_index]--;
@@ -2082,7 +2033,7 @@ void weapon_grenade_fire (edict_t * ent, qboolean held)
 #define SNIPER_SPREAD 425
 #define DUAL_SPREAD   300 // DW: Changed this back to original from Edition's 275
 
-int AdjustSpread (edict_t * ent, int spread)
+int AdjustSpread(edict_t* ent, int spread)
 {
 	int running = 225;		// minimum speed for running
 	int walking = 10;		// minimum speed for walking
@@ -2093,7 +2044,7 @@ int AdjustSpread (edict_t * ent, int spread)
 	// 225 is running
 	// < 10 will be standing
 	float xyspeed = (ent->velocity[0] * ent->velocity[0] +
-					 ent->velocity[1] * ent->velocity[1]);
+		ent->velocity[1] * ent->velocity[1]);
 
 	if (ent->client->ps.pmove.pm_flags & PMF_DUCKED)	// crouching
 		return (spread * .65);
@@ -2104,7 +2055,7 @@ int AdjustSpread (edict_t * ent, int spread)
 
 
 	// running
-	if (xyspeed > running * running)
+	if (xyspeed > running* running)
 		stage = 3;
 	// walking
 	else if (xyspeed >= walking * walking)
@@ -2122,7 +2073,7 @@ int AdjustSpread (edict_t * ent, int spread)
 			stage = 1;
 	}
 
-	return (int) (spread * factor[stage]);
+	return (int)(spread * factor[stage]);
 }
 
 
@@ -2130,74 +2081,74 @@ int AdjustSpread (edict_t * ent, int spread)
 //======================================================================
 
 
-void MuzzleFlash( edict_t *ent, int mz )
+void MuzzleFlash(edict_t* ent, int mz)
 {
-	gi.WriteByte( svc_muzzleflash );
-	gi.WriteShort( ent - g_edicts );
-	gi.WriteByte( mz );
-	gi.multicast( ent->s.origin, MULTICAST_PVS );
+	gi.WriteByte(svc_muzzleflash);
+	gi.WriteShort(ent - g_edicts);
+	gi.WriteByte(mz);
+	gi.multicast(ent->s.origin, MULTICAST_PVS);
 
-	PlayerNoise( ent, ent->s.origin, PNOISE_WEAPON );
+	PlayerNoise(ent, ent->s.origin, PNOISE_WEAPON);
 }
 
 
-void PlayWeaponSound( edict_t *ent )
+void PlayWeaponSound(edict_t* ent)
 {
-	if( ! ent->client->weapon_sound )
+	if (!ent->client->weapon_sound)
 		return;
 
 	// Synchronize weapon sounds so any framerate sounds like 10fps.
-	if( (sync_guns->value == 2) && ! FRAMESYNC )
+	if ((sync_guns->value == 2) && !FRAMESYNC)
 		return;
-	if( sync_guns->value
-	&& (level.framenum > level.weapon_sound_framenum)
-	&& (level.framenum < level.weapon_sound_framenum + game.framediv) )
+	if (sync_guns->value
+		&& (level.framenum > level.weapon_sound_framenum)
+		&& (level.framenum < level.weapon_sound_framenum + game.framediv))
 		return;
 
 
 	// Because MZ_BLASTER is 0, use this stupid workaround.
-	if( (ent->client->weapon_sound & ~MZ_SILENCED) == MZ_BLASTER2 )
+	if ((ent->client->weapon_sound & ~MZ_SILENCED) == MZ_BLASTER2)
 		ent->client->weapon_sound &= ~MZ_BLASTER2;
 
 
-	if( ent->client->weapon_sound & MZ_SILENCED )
+	if (ent->client->weapon_sound & MZ_SILENCED)
 		// Silencer suppresses both sound and muzzle flash.
-		gi.sound( ent, CHAN_WEAPON, level.snd_silencer, 1, ATTN_NORM, 0 );
+		gi.sound(ent, CHAN_WEAPON, level.snd_silencer, 1, ATTN_NORM, 0);
 
-	else if( llsound->value )
-		MuzzleFlash( ent, ent->client->weapon_sound );
+	else if (llsound->value)
+		MuzzleFlash(ent, ent->client->weapon_sound);
 
-	else switch( ent->client->weapon_sound )
+	else switch (ent->client->weapon_sound)
 	{
-		case MZ_BLASTER:
-			gi.sound( ent, CHAN_WEAPON, gi.soundindex("weapons/mk23fire.wav"), 1, ATTN_LOUD, 0 );
-			MuzzleFlash( ent, MZ_MACHINEGUN );
-			break;
-		case MZ_MACHINEGUN:
-			gi.sound( ent, CHAN_WEAPON, gi.soundindex("weapons/mp5fire1.wav"), 1, ATTN_LOUD, 0 );
-			MuzzleFlash( ent, MZ_MACHINEGUN );
-			break;
-		case MZ_ROCKET:
-			gi.sound( ent, CHAN_WEAPON, gi.soundindex("weapons/m4a1fire.wav"), 1, ATTN_LOUD, 0 );
-			MuzzleFlash( ent, MZ_MACHINEGUN );
-			break;
-		case MZ_SHOTGUN:
-			gi.sound( ent, CHAN_WEAPON, gi.soundindex("weapons/shotgf1b.wav"), 1, ATTN_LOUD, 0 );
-			MuzzleFlash( ent, MZ_SHOTGUN );
-			break;
-		case MZ_SSHOTGUN:
-			if( ! ent->client->pers.hc_mode )
-				// Both barrels: sound on both WEAPON and ITEM to produce a louder boom.
-				gi.sound( ent, CHAN_ITEM, gi.soundindex("weapons/cannon_fire.wav"), 1, ATTN_NORM, 0 );
-			gi.sound( ent, CHAN_WEAPON, gi.soundindex("weapons/cannon_fire.wav"), 1, ATTN_LOUD, 0 );
-			MuzzleFlash( ent, MZ_SSHOTGUN );
-			break;
-		case MZ_HYPERBLASTER:
-			gi.sound( ent, CHAN_WEAPON, gi.soundindex("weapons/ssgfire.wav"), 1, ATTN_LOUD, 0 );
-			MuzzleFlash( ent, MZ_MACHINEGUN );
-			break;
-		default:
-			MuzzleFlash( ent, ent->client->weapon_sound );
+	case MZ_BLASTER:
+		gi.sound(ent, CHAN_WEAPON, gi.soundindex("weapons/mk23fire.wav"), 1, ATTN_LOUD, 0);
+		MuzzleFlash(ent, MZ_MACHINEGUN);
+		break;
+	case MZ_MACHINEGUN:
+		gi.sound(ent, CHAN_WEAPON, gi.soundindex("weapons/mp5fire1.wav"), 1, ATTN_LOUD, 0);
+		MuzzleFlash(ent, MZ_MACHINEGUN);
+		break;
+	case MZ_ROCKET:
+		gi.sound(ent, CHAN_WEAPON, gi.soundindex("weapons/m4a1fire.wav"), 1, ATTN_LOUD, 0);
+		MuzzleFlash(ent, MZ_MACHINEGUN);
+		break;
+	case MZ_SHOTGUN:
+		gi.sound(ent, CHAN_WEAPON, gi.soundindex("weapons/shotgf1b.wav"), 1, ATTN_LOUD, 0);
+		MuzzleFlash(ent, MZ_SHOTGUN);
+		break;
+	case MZ_SSHOTGUN:
+		if (!ent->client->pers.hc_mode)
+			// Both barrels: sound on both WEAPON and ITEM to produce a louder boom.
+			gi.sound(ent, CHAN_ITEM, gi.soundindex("weapons/cannon_fire.wav"), 1, ATTN_NORM, 0);
+		gi.sound(ent, CHAN_WEAPON, gi.soundindex("weapons/cannon_fire.wav"), 1, ATTN_LOUD, 0);
+		MuzzleFlash(ent, MZ_SSHOTGUN);
+		break;
+	case MZ_HYPERBLASTER:
+		gi.sound(ent, CHAN_WEAPON, gi.soundindex("weapons/ssgfire.wav"), 1, ATTN_LOUD, 0);
+		MuzzleFlash(ent, MZ_MACHINEGUN);
+		break;
+	default:
+		MuzzleFlash(ent, ent->client->weapon_sound);
 	}
 
 	ent->client->weapon_sound = 0;
@@ -2208,7 +2159,7 @@ void PlayWeaponSound( edict_t *ent )
 //======================================================================
 // mk23 derived from tutorial by GreyBear
 
-void Pistol_Fire (edict_t * ent)
+void Pistol_Fire(edict_t* ent)
 {
 	int i;
 	vec3_t start;
@@ -2250,25 +2201,25 @@ void Pistol_Fire (edict_t * ent)
 	//Calculate the kick angles
 	for (i = 1; i < 3; i++)
 	{
-		ent->client->kick_origin[i] = crandom () * 0.35;
-		ent->client->kick_angles[i] = crandom () * 0.7;
+		ent->client->kick_origin[i] = crandom() * 0.35;
+		ent->client->kick_angles[i] = crandom() * 0.7;
 	}
-	ent->client->kick_origin[0] = crandom () * 0.35;
+	ent->client->kick_origin[0] = crandom() * 0.35;
 	ent->client->kick_angles[0] = ent->client->machinegun_shots * -1.5;
 
 	// get start / end positions
-	VectorAdd (ent->client->v_angle, ent->client->kick_angles, angles);
-	AngleVectors (angles, forward, right, NULL);
-	VectorSet (offset, 0, 8, ent->viewheight - height);
-	P_ProjectSource (ent->client, ent->s.origin, offset, forward, right, start);
+	VectorAdd(ent->client->v_angle, ent->client->kick_angles, angles);
+	AngleVectors(angles, forward, right, NULL);
+	VectorSet(offset, 0, 8, ent->viewheight - height);
+	P_ProjectSource(ent->client, ent->s.origin, offset, forward, right, start);
 	if (!sv_shelloff->value)
 	{
 		vec3_t result;
-		Old_ProjectSource (ent->client, ent->s.origin, offset, forward, right, result);
-		EjectShell (ent, result, 0);
+		Old_ProjectSource(ent->client, ent->s.origin, offset, forward, right, result);
+		EjectShell(ent, result, 0);
 	}
 
-	spread = AdjustSpread (ent, spread);
+	spread = AdjustSpread(ent, spread);
 
 	if (ent->client->pers.mk23_mode)
 		spread *= .7;
@@ -2282,8 +2233,8 @@ void Pistol_Fire (edict_t * ent)
 		ent->client->weaponstate = WEAPON_END_MAG;
 	}
 
-	fire_bullet (ent, start, forward, damage, kick, spread, spread, MOD_MK23);
-	
+	fire_bullet(ent, start, forward, damage, kick, spread, spread, MOD_MK23);
+
 	Stats_AddShot(ent, MOD_MK23);
 
 	ent->client->mk23_rds--;
@@ -2291,24 +2242,24 @@ void Pistol_Fire (edict_t * ent)
 
 
 	ent->client->weapon_sound = MZ_BLASTER2;  // Becomes MZ_BLASTER.
-	if( INV_AMMO( ent, SIL_NUM ) )
+	if (INV_AMMO(ent, SIL_NUM))
 		ent->client->weapon_sound |= MZ_SILENCED;
-	PlayWeaponSound( ent );
+	PlayWeaponSound(ent);
 }
 
-void Weapon_MK23 (edict_t * ent)
+void Weapon_MK23(edict_t* ent)
 {
-  //Idle animation entry points - These make the fidgeting look more random
-  static int pause_frames[] = { 13, 22, 40 };
-  //The frames at which the weapon will fire
-  static int fire_frames[] = { 10, 0 };
+	//Idle animation entry points - These make the fidgeting look more random
+	static int pause_frames[] = { 13, 22, 40 };
+	//The frames at which the weapon will fire
+	static int fire_frames[] = { 10, 0 };
 
-  //The call is made...
-  Weapon_Generic (ent, 9, 12, 37, 40, 61, 65, pause_frames, fire_frames, Pistol_Fire);
+	//The call is made...
+	Weapon_Generic(ent, 9, 12, 37, 40, 61, 65, pause_frames, fire_frames, Pistol_Fire);
 }
 
 
-void MP5_Fire (edict_t * ent)
+void MP5_Fire(edict_t* ent)
 {
 	int i;
 	vec3_t start;
@@ -2366,7 +2317,7 @@ void MP5_Fire (edict_t * ent)
 	}
 
 
-	spread = AdjustSpread (ent, spread);
+	spread = AdjustSpread(ent, spread);
 	if (ent->client->burst)
 		spread *= .7;
 
@@ -2374,19 +2325,19 @@ void MP5_Fire (edict_t * ent)
 	//Calculate the kick angles
 	for (i = 1; i < 3; i++)
 	{
-		ent->client->kick_origin[i] = crandom () * 0.25;
-		ent->client->kick_angles[i] = crandom () * 0.5;
+		ent->client->kick_origin[i] = crandom() * 0.25;
+		ent->client->kick_angles[i] = crandom() * 0.5;
 	}
-	ent->client->kick_origin[0] = crandom () * 0.35;
+	ent->client->kick_origin[0] = crandom() * 0.35;
 	ent->client->kick_angles[0] = ent->client->machinegun_shots * -1.5;
 
 	// get start / end positions
-	VectorAdd (ent->client->v_angle, ent->client->kick_angles, angles);
-	AngleVectors (angles, forward, right, NULL);
-	VectorSet (offset, 0, 8, ent->viewheight - height);
-	P_ProjectSource (ent->client, ent->s.origin, offset, forward, right, start);
+	VectorAdd(ent->client->v_angle, ent->client->kick_angles, angles);
+	AngleVectors(angles, forward, right, NULL);
+	VectorSet(offset, 0, 8, ent->viewheight - height);
+	P_ProjectSource(ent->client, ent->s.origin, offset, forward, right, start);
 
-	fire_bullet (ent, start, forward, damage, kick, spread, spread, MOD_MP5);
+	fire_bullet(ent, start, forward, damage, kick, spread, spread, MOD_MP5);
 	Stats_AddShot(ent, MOD_MP5);
 
 	ent->client->mp5_rds--;
@@ -2394,47 +2345,38 @@ void MP5_Fire (edict_t * ent)
 	if (!sv_shelloff->value)
 	{
 		vec3_t result;
-		Old_ProjectSource (ent->client, ent->s.origin, offset, forward, right, result);
-		EjectShell (ent, result, 0);
+		Old_ProjectSource(ent->client, ent->s.origin, offset, forward, right, result);
+		EjectShell(ent, result, 0);
 	}
 
 
 
 	// zucc vwep
-
-	ent->client->anim_priority = ANIM_ATTACK;
 	if (ent->client->ps.pmove.pm_flags & PMF_DUCKED)
-	{
-		ent->s.frame = FRAME_crattak1 - (int) (random () + 0.25);
-		ent->client->anim_end = FRAME_crattak9;
-	}
+		SetAnimation( ent, FRAME_crattak1 - (int)(random() + 0.25), FRAME_crattak9, ANIM_ATTACK );
 	else
-	{
-		ent->s.frame = FRAME_attack1 - (int) (random () + 0.25);
-		ent->client->anim_end = FRAME_attack8;
-	}
-
+		SetAnimation( ent, FRAME_attack1 - (int)(random() + 0.25), FRAME_attack8, ANIM_ATTACK );
 	// zucc vwep done
 
 
 	ent->client->weapon_sound = MZ_MACHINEGUN;
-	if( INV_AMMO( ent, SIL_NUM ) )
+	if (INV_AMMO(ent, SIL_NUM))
 		ent->client->weapon_sound |= MZ_SILENCED;
-	PlayWeaponSound( ent );
+	PlayWeaponSound(ent);
 }
 
-void Weapon_MP5 (edict_t * ent)
+void Weapon_MP5(edict_t* ent)
 {
-  //Idle animation entry points - These make the fidgeting look more random
-  static int pause_frames[] = { 13, 30, 47 };
-  //The frames at which the weapon will fire
-  static int fire_frames[] = { 11, 12, 71, 72, 73, 0 };
+	//Idle animation entry points - These make the fidgeting look more random
+	static int pause_frames[] = { 13, 30, 47 };
+	//The frames at which the weapon will fire
+	static int fire_frames[] = { 11, 12, 71, 72, 73, 0 };
 
-  //The call is made...
-  Weapon_Generic (ent, 10, 12, 47, 51, 69, 77, pause_frames, fire_frames, MP5_Fire);
+	//The call is made...
+	Weapon_Generic(ent, 10, 12, 47, 51, 69, 77, pause_frames, fire_frames, MP5_Fire);
 }
 
-void M4_Fire (edict_t * ent)
+void M4_Fire(edict_t* ent)
 {
 	int i;
 	vec3_t start;
@@ -2505,7 +2447,7 @@ void M4_Fire (edict_t * ent)
 	}
 
 
-	spread = AdjustSpread (ent, spread);
+	spread = AdjustSpread(ent, spread);
 	if (ent->client->burst)
 		spread *= .7;
 
@@ -2516,22 +2458,22 @@ void M4_Fire (edict_t * ent)
 	//Calculate the kick angles
 	for (i = 1; i < 3; i++)
 	{
-		ent->client->kick_origin[i] = crandom () * 0.25;
-		ent->client->kick_angles[i] = crandom () * 0.5;
+		ent->client->kick_origin[i] = crandom() * 0.25;
+		ent->client->kick_angles[i] = crandom() * 0.5;
 	}
-	ent->client->kick_origin[0] = crandom () * 0.35;
+	ent->client->kick_origin[0] = crandom() * 0.35;
 	ent->client->kick_angles[0] = ent->client->machinegun_shots * -.7;
 
 	// get start / end positions
-	VectorAdd (ent->client->v_angle, ent->client->kick_angles, angles);
-	AngleVectors (angles, forward, right, NULL);
-	VectorSet (offset, 0, 8, ent->viewheight - height);
-	P_ProjectSource (ent->client, ent->s.origin, offset, forward, right, start);
+	VectorAdd(ent->client->v_angle, ent->client->kick_angles, angles);
+	AngleVectors(angles, forward, right, NULL);
+	VectorSet(offset, 0, 8, ent->viewheight - height);
+	P_ProjectSource(ent->client, ent->s.origin, offset, forward, right, start);
 
 	if (is_quad)
 		damage *= 1.5f;
 
-	fire_bullet_sparks (ent, start, forward, damage, kick, spread, spread, MOD_M4);
+	fire_bullet_sparks(ent, start, forward, damage, kick, spread, spread, MOD_M4);
 	Stats_AddShot(ent, MOD_M4);
 
 	ent->client->m4_rds--;
@@ -2539,48 +2481,35 @@ void M4_Fire (edict_t * ent)
 	if (!sv_shelloff->value)
 	{
 		vec3_t result;
-		Old_ProjectSource (ent->client, ent->s.origin, offset, forward, right, result);
-		EjectShell (ent, result, 0);
+		Old_ProjectSource(ent->client, ent->s.origin, offset, forward, right, result);
+		EjectShell(ent, result, 0);
 	}
 
 
 	// zucc vwep
-
-	ent->client->anim_priority = ANIM_ATTACK;
 	if (ent->client->ps.pmove.pm_flags & PMF_DUCKED)
-	{
-		ent->s.frame = FRAME_crattak1 - (int) (random () + 0.25);
-		ent->client->anim_end = FRAME_crattak9;
-	}
+		SetAnimation( ent, FRAME_crattak1 - (int)(random() + 0.25), FRAME_crattak9, ANIM_ATTACK );
 	else
-	{
-		ent->s.frame = FRAME_attack1 - (int) (random () + 0.25);
-		ent->client->anim_end = FRAME_attack8;
-	}
-
+		SetAnimation( ent, FRAME_attack1 - (int)(random() + 0.25), FRAME_attack8, ANIM_ATTACK );
 	// zucc vwep done
 
 
 	ent->client->weapon_sound = MZ_ROCKET;
-	PlayWeaponSound( ent );
+	PlayWeaponSound(ent);
 }
 
-void Weapon_M4 (edict_t * ent)
+void Weapon_M4(edict_t* ent)
 {
-  //Idle animation entry points - These make the fidgeting look more random
-  static int pause_frames[] = { 13, 24, 39 };
-  //The frames at which the weapon will fire
-  static int fire_frames[] = { 11, 12, 65, 66, 67, 0 };
+	//Idle animation entry points - These make the fidgeting look more random
+	static int pause_frames[] = { 13, 24, 39 };
+	//The frames at which the weapon will fire
+	static int fire_frames[] = { 11, 12, 65, 66, 67, 0 };
 
-  //The call is made...
-  Weapon_Generic (ent, 10, 12, 39, 44, 63, 71, pause_frames, fire_frames, M4_Fire);
+	//The call is made...
+	Weapon_Generic(ent, 10, 12, 39, 44, 63, 71, pause_frames, fire_frames, M4_Fire);
 }
 
-
-void InitTookDamage(void);
-void ProduceShotgunDamageReport (edict_t *);
-
-void M3_Fire (edict_t * ent)
+void M3_Fire(edict_t* ent)
 {
 	vec3_t start;
 	vec3_t forward, right;
@@ -2601,12 +2530,12 @@ void M3_Fire (edict_t * ent)
 	}
 
 
-	AngleVectors (ent->client->v_angle, forward, right, NULL);
+	AngleVectors(ent->client->v_angle, forward, right, NULL);
 
-	VectorScale (forward, -2, ent->client->kick_origin);
+	VectorScale(forward, -2, ent->client->kick_origin);
 	ent->client->kick_angles[0] = -2;
 
-	VectorSet (offset, 0, 8, ent->viewheight - height);
+	VectorSet(offset, 0, 8, ent->viewheight - height);
 
 
 
@@ -2615,16 +2544,16 @@ void M3_Fire (edict_t * ent)
 		if (!sv_shelloff->value)
 		{
 			vec3_t result;
-			Old_ProjectSource (ent->client, ent->s.origin, offset, forward,
-			right, result);
-			EjectShell (ent, result, 0);
+			Old_ProjectSource(ent->client, ent->s.origin, offset, forward,
+				right, result);
+			EjectShell(ent, result, 0);
 		}
 		ent->client->ps.gunframe++;
 		return;
 	}
 
 
-	P_ProjectSource (ent->client, ent->s.origin, offset, forward, right, start);
+	P_ProjectSource(ent->client, ent->s.origin, offset, forward, right, start);
 
 	if (is_quad)
 	{
@@ -2632,15 +2561,15 @@ void M3_Fire (edict_t * ent)
 		kick *= 1.5f;
 	}
 
-	setFFState (ent);
+	setFFState(ent);
 	InitTookDamage();	//FB 6/3/99
 
-	fire_shotgun (ent, start, forward, damage, kick, 800, 800,
-		12 /*DEFAULT_DEATHMATCH_SHOTGUN_COUNT */ , MOD_M3);
+	fire_shotgun(ent, start, forward, damage, kick, 800, 800,
+		12 /*DEFAULT_DEATHMATCH_SHOTGUN_COUNT */, MOD_M3);
 
 	Stats_AddShot(ent, MOD_M3);
 
-	ProduceShotgunDamageReport (ent);	//FB 6/3/99
+	ProduceShotgunDamageReport(ent);	//FB 6/3/99
 
 	ent->client->ps.gunframe++;
 
@@ -2650,19 +2579,19 @@ void M3_Fire (edict_t * ent)
 
 
 	ent->client->weapon_sound = MZ_SHOTGUN;
-	PlayWeaponSound( ent );
+	PlayWeaponSound(ent);
 }
 
-void Weapon_M3 (edict_t * ent)
+void Weapon_M3(edict_t* ent)
 {
-  static int pause_frames[] = { 22, 28, 0 };
-  static int fire_frames[] = { 8, 9, 14, 0 };
+	static int pause_frames[] = { 22, 28, 0 };
+	static int fire_frames[] = { 8, 9, 14, 0 };
 
-  Weapon_Generic (ent, 7, 15, 35, 41, 52, 60, pause_frames, fire_frames, M3_Fire);
+	Weapon_Generic(ent, 7, 15, 35, 41, 52, 60, pause_frames, fire_frames, M3_Fire);
 }
 
 // AQ2:TNG Deathwatch - Modified to use Single Barreled HC Mode
-void HC_Fire (edict_t * ent)
+void HC_Fire(edict_t* ent)
 {
 	vec3_t start;
 	vec3_t forward, right;
@@ -2679,13 +2608,13 @@ void HC_Fire (edict_t * ent)
 	else
 		height = 0;
 
-	AngleVectors (ent->client->v_angle, forward, right, NULL);
+	AngleVectors(ent->client->v_angle, forward, right, NULL);
 
-	VectorScale (forward, -2, ent->client->kick_origin);
+	VectorScale(forward, -2, ent->client->kick_origin);
 	ent->client->kick_angles[0] = -2;
 
-	VectorSet (offset, 0, 8, ent->viewheight - height);
-	P_ProjectSource (ent->client, ent->s.origin, offset, forward, right, start);
+	VectorSet(offset, 0, 8, ent->viewheight - height);
+	P_ProjectSource(ent->client, ent->s.origin, offset, forward, right, start);
 
 	if (is_quad)
 	{
@@ -2708,36 +2637,36 @@ void HC_Fire (edict_t * ent)
 			v[YAW] = ent->client->v_angle[YAW] - ((0.5) / 2);
 		else
 			v[YAW] = ent->client->v_angle[YAW] + ((0.5) / 2);
-		AngleVectors (v, forward, NULL, NULL);
+		AngleVectors(v, forward, NULL, NULL);
 
 		//half the spread, half the pellets?
-		fire_shotgun (ent, start, forward, sngl_damage, sngl_kick, DEFAULT_SHOTGUN_HSPREAD * 2.5, DEFAULT_SHOTGUN_VSPREAD * 2.5, 34 / 2, MOD_HC);
+		fire_shotgun(ent, start, forward, sngl_damage, sngl_kick, DEFAULT_SHOTGUN_HSPREAD * 2.5, DEFAULT_SHOTGUN_VSPREAD * 2.5, 34 / 2, MOD_HC);
 
-		ent->client->cannon_rds --;
+		ent->client->cannon_rds--;
 	}
 	else
 	{
 		// Both barrels.
 
 		v[YAW] = ent->client->v_angle[YAW] - 5;
-		AngleVectors (v, forward, NULL, NULL);
-		fire_shotgun (ent, start, forward, damage, kick, DEFAULT_SHOTGUN_HSPREAD * 4, DEFAULT_SHOTGUN_VSPREAD * 4, 34 / 2, MOD_HC);
+		AngleVectors(v, forward, NULL, NULL);
+		fire_shotgun(ent, start, forward, damage, kick, DEFAULT_SHOTGUN_HSPREAD * 4, DEFAULT_SHOTGUN_VSPREAD * 4, 34 / 2, MOD_HC);
 
 		v[YAW] = ent->client->v_angle[YAW] + 5;
-		AngleVectors (v, forward, NULL, NULL);
-		fire_shotgun (ent, start, forward, damage, kick, DEFAULT_SHOTGUN_HSPREAD * 4, DEFAULT_SHOTGUN_VSPREAD * 4 /* was *5 here */, 34 / 2, MOD_HC);
+		AngleVectors(v, forward, NULL, NULL);
+		fire_shotgun(ent, start, forward, damage, kick, DEFAULT_SHOTGUN_HSPREAD * 4, DEFAULT_SHOTGUN_VSPREAD * 4 /* was *5 here */, 34 / 2, MOD_HC);
 
 		ent->client->cannon_rds -= 2;
 	}
 
 	Stats_AddShot(ent, MOD_HC);
-	ProduceShotgunDamageReport (ent);	//FB 6/3/99
+	ProduceShotgunDamageReport(ent);	//FB 6/3/99
 
 	ent->client->ps.gunframe++;
 
 
 	ent->client->weapon_sound = MZ_SSHOTGUN;
-	PlayWeaponSound( ent );
+	PlayWeaponSound(ent);
 
 
 	//      if (!DMFLAGS(DF_INFINITE_AMMO))
@@ -2745,48 +2674,48 @@ void HC_Fire (edict_t * ent)
 }
 
 /*
-        v[YAW]   = ent->client->v_angle[YAW] - 5;
-        v[ROLL]  = ent->client->v_angle[ROLL];
-        AngleVectors (v, forward, NULL, NULL);
-        // default hspread is 1k and default vspread is 500
+		v[YAW]   = ent->client->v_angle[YAW] - 5;
+		v[ROLL]  = ent->client->v_angle[ROLL];
+		AngleVectors (v, forward, NULL, NULL);
+		// default hspread is 1k and default vspread is 500
 	setFFState(ent);
-        InitTookDamage();  //FB 6/3/99
-        fire_shotgun (ent, start, forward, damage, kick, DEFAULT_SHOTGUN_HSPREAD*4, DEFAULT_SHOTGUN_VSPREAD*4, 34/2, MOD_HC);
-        v[YAW]   = ent->client->v_angle[YAW] + 5;
-        AngleVectors (v, forward, NULL, NULL);
-        fire_shotgun (ent, start, forward, damage, kick, DEFAULT_SHOTGUN_HSPREAD*4, DEFAULT_SHOTGUN_VSPREAD*5, 34/2, MOD_HC);
+		InitTookDamage();  //FB 6/3/99
+		fire_shotgun (ent, start, forward, damage, kick, DEFAULT_SHOTGUN_HSPREAD*4, DEFAULT_SHOTGUN_VSPREAD*4, 34/2, MOD_HC);
+		v[YAW]   = ent->client->v_angle[YAW] + 5;
+		AngleVectors (v, forward, NULL, NULL);
+		fire_shotgun (ent, start, forward, damage, kick, DEFAULT_SHOTGUN_HSPREAD*4, DEFAULT_SHOTGUN_VSPREAD*5, 34/2, MOD_HC);
 
 	if (llsound->value == 0)
 	  {
-	    gi.sound(ent, CHAN_WEAPON, gi.soundindex("weapons/cannon_fire.wav"), 1, ATTN_LOUD, 0);
+		gi.sound(ent, CHAN_WEAPON, gi.soundindex("weapons/cannon_fire.wav"), 1, ATTN_LOUD, 0);
 	  }
-        // send muzzle flash
-        gi.WriteByte (svc_muzzleflash);
-        gi.WriteShort (ent-g_edicts);
-        gi.WriteByte (MZ_SSHOTGUN | is_silenced);
-        gi.multicast (ent->s.origin, MULTICAST_PVS);
-        ProduceShotgunDamageReport(ent);  //FB 6/3/99
+		// send muzzle flash
+		gi.WriteByte (svc_muzzleflash);
+		gi.WriteShort (ent-g_edicts);
+		gi.WriteByte (MZ_SSHOTGUN | is_silenced);
+		gi.multicast (ent->s.origin, MULTICAST_PVS);
+		ProduceShotgunDamageReport(ent);  //FB 6/3/99
 
-        ent->client->ps.gunframe++;
-        PlayerNoise(ent, start, PNOISE_WEAPON);
-	
+		ent->client->ps.gunframe++;
+		PlayerNoise(ent, start, PNOISE_WEAPON);
+
 	//      if (!DMFLAGS(DF_INFINITE_AMMO))
 	//              ent->client->inventory[ent->client->ammo_index] -= 2;
 
-        ent->client->cannon_rds -= 2;
+		ent->client->cannon_rds -= 2;
 }
 */
 // AQ2:TNG END
 
-void Weapon_HC (edict_t * ent)
+void Weapon_HC(edict_t* ent)
 {
-  static int pause_frames[] = { 29, 42, 57, 0 };
-  static int fire_frames[] = { 7, 0 };
+	static int pause_frames[] = { 29, 42, 57, 0 };
+	static int fire_frames[] = { 7, 0 };
 
-  Weapon_Generic (ent, 6, 17, 57, 61, 82, 83, pause_frames, fire_frames, HC_Fire);
+	Weapon_Generic(ent, 6, 17, 57, 61, 82, 83, pause_frames, fire_frames, HC_Fire);
 }
 
-void Sniper_Fire (edict_t * ent)
+void Sniper_Fire(edict_t* ent)
 {
 	//int i;  // FIXME: Should this be used somewhere?
 	vec3_t start;
@@ -2800,15 +2729,15 @@ void Sniper_Fire (edict_t * ent)
 
 	if (ent->client->ps.gunframe == 13)
 	{
-		gi.sound (ent, CHAN_AUTO, gi.soundindex ("weapons/ssgbolt.wav"), 1, ATTN_NORM, 0);
+		gi.sound(ent, CHAN_AUTO, gi.soundindex("weapons/ssgbolt.wav"), 1, ATTN_NORM, 0);
 		ent->client->ps.gunframe++;
 
-		AngleVectors (ent->client->v_angle, forward, right, NULL);
-		VectorSet (offset, 0, 0, ent->viewheight - 0);
+		AngleVectors(ent->client->v_angle, forward, right, NULL);
+		VectorSet(offset, 0, 0, ent->viewheight - 0);
 
-		P_ProjectSource (ent->client, ent->s.origin, offset, forward, right, start);
+		P_ProjectSource(ent->client, ent->s.origin, offset, forward, right, start);
 
-		EjectShell (ent, start, 0);
+		EjectShell(ent, start, 0);
 		return;
 	}
 
@@ -2848,7 +2777,7 @@ void Sniper_Fire (edict_t * ent)
 		return;
 	}
 
-	spread = AdjustSpread (ent, spread);
+	spread = AdjustSpread(ent, spread);
 	if (ent->client->resp.sniper_mode == SNIPER_2X)
 		spread = 0;
 	else if (ent->client->resp.sniper_mode == SNIPER_4X)
@@ -2873,41 +2802,41 @@ void Sniper_Fire (edict_t * ent)
 
 	// get start / end positions
 	//VectorAdd (ent->client->v_angle, ent->client->kick_angles, angles);  // FIXME: Should this be used?
-	AngleVectors (ent->client->v_angle, forward, right, NULL);  // FIXME: Should this be angles instead of v_angle?
-	VectorSet (offset, 0, 0, ent->viewheight - 0);
+	AngleVectors(ent->client->v_angle, forward, right, NULL);  // FIXME: Should this be angles instead of v_angle?
+	VectorSet(offset, 0, 0, ent->viewheight - 0);
 
-	P_ProjectSource (ent->client, ent->s.origin, offset, forward, right, start);
+	P_ProjectSource(ent->client, ent->s.origin, offset, forward, right, start);
 
 
 	//If no reload, fire normally.
-	fire_bullet_sniper (ent, start, forward, damage, kick, spread, spread, MOD_SNIPER);
+	fire_bullet_sniper(ent, start, forward, damage, kick, spread, spread, MOD_SNIPER);
 	Stats_AddShot(ent, MOD_SNIPER);
 
 	ent->client->sniper_rds--;
 	ent->client->ps.fov = 90;	// so we can watch the next round get chambered
 	ent->client->ps.gunindex =
-	gi.modelindex(ent->client->weapon->view_model);
+		gi.modelindex(ent->client->weapon->view_model);
 	ent->client->no_sniper_display = 1;
 
 
 	ent->client->weapon_sound = MZ_HYPERBLASTER;
-	if( INV_AMMO( ent, SIL_NUM ) )
+	if (INV_AMMO(ent, SIL_NUM))
 		ent->client->weapon_sound |= MZ_SILENCED;
-	PlayWeaponSound( ent );
+	PlayWeaponSound(ent);
 }
 
-void Weapon_Sniper (edict_t * ent)
+void Weapon_Sniper(edict_t* ent)
 {
-  //Idle animation entry points - These make the fidgeting look more random
-  static int pause_frames[] = { 21, 40 };
-  //The frames at which the weapon will fire
-  static int fire_frames[] = { 9, 13, 21, 0 };
+	//Idle animation entry points - These make the fidgeting look more random
+	static int pause_frames[] = { 21, 40 };
+	//The frames at which the weapon will fire
+	static int fire_frames[] = { 9, 13, 21, 0 };
 
-  //The call is made...
-  Weapon_Generic (ent, 8, 21, 41, 50, 81, 95, pause_frames, fire_frames, Sniper_Fire);
+	//The call is made...
+	Weapon_Generic(ent, 8, 21, 41, 50, 81, 95, pause_frames, fire_frames, Sniper_Fire);
 }
 
-void Dual_Fire (edict_t * ent)
+void Dual_Fire(edict_t* ent)
 {
 	int i;
 	vec3_t start;
@@ -2924,7 +2853,7 @@ void Dual_Fire (edict_t * ent)
 	else
 		height = 0;
 
-	spread = AdjustSpread (ent, spread);
+	spread = AdjustSpread(ent, spread);
 
 	if (ent->client->dual_rds < 1)
 	{
@@ -2946,22 +2875,22 @@ void Dual_Fire (edict_t * ent)
 		//gi.sound(ent, CHAN_WEAPON, gi.soundindex("weapons/mk23fire.wav"), 1, ATTN_LOUD, 0);
 		ent->client->ps.gunframe++;
 
-		VectorAdd (ent->client->v_angle, ent->client->kick_angles, angles);
-		AngleVectors (angles, forward, right, NULL);
+		VectorAdd(ent->client->v_angle, ent->client->kick_angles, angles);
+		AngleVectors(angles, forward, right, NULL);
 
-		VectorSet (offset, 0, 8, ent->viewheight - height);
-		P_ProjectSource (ent->client, ent->s.origin, offset, forward, right, start);
+		VectorSet(offset, 0, 8, ent->viewheight - height);
+		P_ProjectSource(ent->client, ent->s.origin, offset, forward, right, start);
 		if (ent->client->dual_rds > 1)
 		{
 
-			fire_bullet (ent, start, forward, damage, kick, spread, spread, MOD_DUAL);
+			fire_bullet(ent, start, forward, damage, kick, spread, spread, MOD_DUAL);
 			Stats_AddShot(ent, MOD_DUAL);
 
 			if (!sv_shelloff->value)
 			{
 				vec3_t result;
-				Old_ProjectSource (ent->client, ent->s.origin, offset, forward, right, result);
-				EjectShell (ent, result, 2);
+				Old_ProjectSource(ent->client, ent->s.origin, offset, forward, right, result);
+				EjectShell(ent, result, 2);
 			}
 
 			if (ent->client->dual_rds > ent->client->mk23_max + 1)
@@ -2987,7 +2916,7 @@ void Dual_Fire (edict_t * ent)
 
 
 			ent->client->weapon_sound = MZ_BLASTER2;  // Becomes MZ_BLASTER.
-			PlayWeaponSound( ent );
+			PlayWeaponSound(ent);
 		}
 		else
 		{
@@ -3032,45 +2961,45 @@ void Dual_Fire (edict_t * ent)
 	//Calculate the kick angles
 	for (i = 1; i < 3; i++)
 	{
-		ent->client->kick_origin[i] = crandom () * 0.25;
-		ent->client->kick_angles[i] = crandom () * 0.5;
+		ent->client->kick_origin[i] = crandom() * 0.25;
+		ent->client->kick_angles[i] = crandom() * 0.5;
 	}
-	ent->client->kick_origin[0] = crandom () * 0.35;
+	ent->client->kick_origin[0] = crandom() * 0.35;
 
 	// get start / end positions
-	VectorAdd (ent->client->v_angle, ent->client->kick_angles, angles);
-	AngleVectors (angles, forward, right, NULL);
+	VectorAdd(ent->client->v_angle, ent->client->kick_angles, angles);
+	AngleVectors(angles, forward, right, NULL);
 	// first set up for left firing
-	VectorSet (offset, 0, -20, ent->viewheight - height);
-	P_ProjectSource (ent->client, ent->s.origin, offset, forward, right, start);
+	VectorSet(offset, 0, -20, ent->viewheight - height);
+	P_ProjectSource(ent->client, ent->s.origin, offset, forward, right, start);
 
 	if (!sv_shelloff->value)
 	{
 		vec3_t result;
-		Old_ProjectSource (ent->client, ent->s.origin, offset, forward, right, result);
-		EjectShell (ent, result, 1);
+		Old_ProjectSource(ent->client, ent->s.origin, offset, forward, right, result);
+		EjectShell(ent, result, 1);
 	}
 
 
 
 	//If no reload, fire normally.
-	fire_bullet (ent, start, forward, damage, kick, spread, spread, MOD_DUAL);
+	fire_bullet(ent, start, forward, damage, kick, spread, spread, MOD_DUAL);
 	Stats_AddShot(ent, MOD_DUAL);
 
 
 	ent->client->weapon_sound = MZ_BLASTER2;  // Becomes MZ_BLASTER.
-	PlayWeaponSound( ent );
+	PlayWeaponSound(ent);
 }
 
-void Weapon_Dual (edict_t * ent)
+void Weapon_Dual(edict_t* ent)
 {
-  //Idle animation entry points - These make the fidgeting look more random
-  static int pause_frames[] = { 13, 22, 32 };
-  //The frames at which the weapon will fire
-  static int fire_frames[] = { 7, 8, 9, 0 };
+	//Idle animation entry points - These make the fidgeting look more random
+	static int pause_frames[] = { 13, 22, 32 };
+	//The frames at which the weapon will fire
+	static int fire_frames[] = { 7, 8, 9, 0 };
 
-  //The call is made...
-  Weapon_Generic (ent, 6, 10, 32, 40, 65, 68, pause_frames, fire_frames, Dual_Fire);
+	//The call is made...
+	Weapon_Generic(ent, 6, 10, 32, 40, 65, 68, pause_frames, fire_frames, Dual_Fire);
 }
 
 
@@ -3084,13 +3013,13 @@ void Weapon_Dual (edict_t * ent)
 #define FRAME_NEWKNIFE_FIRST            (FRAME_STOPTHROW_LAST +1)
 
 void
-Weapon_Generic_Knife (edict_t * ent, int FRAME_ACTIVATE_LAST,
-		      int FRAME_FIRE_LAST, int FRAME_IDLE_LAST,
-		      int FRAME_DEACTIVATE_LAST, int FRAME_PREPARETHROW_LAST,
-		      int FRAME_IDLE2_LAST, int FRAME_THROW_LAST,
-		      int FRAME_STOPTHROW_LAST, int FRAME_NEWKNIFE_LAST,
-		      int *pause_frames, int *fire_frames,
-		      int (*fire) (edict_t * ent))
+Weapon_Generic_Knife(edict_t* ent, int FRAME_ACTIVATE_LAST,
+	int FRAME_FIRE_LAST, int FRAME_IDLE_LAST,
+	int FRAME_DEACTIVATE_LAST, int FRAME_PREPARETHROW_LAST,
+	int FRAME_IDLE2_LAST, int FRAME_THROW_LAST,
+	int FRAME_STOPTHROW_LAST, int FRAME_NEWKNIFE_LAST,
+	int* pause_frames, int* fire_frames,
+	int (*fire) (edict_t* ent))
 {
 
 	if (ent->s.modelindex != 255)	// zucc vwep
@@ -3098,8 +3027,8 @@ Weapon_Generic_Knife (edict_t * ent, int FRAME_ACTIVATE_LAST,
 
 	//FIREBLADE
 	if (ent->client->weaponstate == WEAPON_FIRING &&
-	((ent->solid == SOLID_NOT && ent->deadflag != DEAD_DEAD)
-	|| lights_camera_action))
+		((ent->solid == SOLID_NOT && ent->deadflag != DEAD_DEAD)
+			|| lights_camera_action))
 	{
 		ent->client->weaponstate = WEAPON_READY;
 	}
@@ -3124,7 +3053,7 @@ Weapon_Generic_Knife (edict_t * ent, int FRAME_ACTIVATE_LAST,
 		{
 			if (ent->client->ps.gunframe == FRAME_NEWKNIFE_FIRST)
 			{
-				ChangeWeapon (ent);
+				ChangeWeapon(ent);
 				return;
 			}
 			else
@@ -3133,18 +3062,10 @@ Weapon_Generic_Knife (edict_t * ent, int FRAME_ACTIVATE_LAST,
 				// of the way I roll gunframes backwards for the thrownknife position
 				if ((ent->client->ps.gunframe - FRAME_NEWKNIFE_FIRST) == 4)
 				{
-					ent->client->anim_priority = ANIM_REVERSE;
 					if (ent->client->ps.pmove.pm_flags & PMF_DUCKED)
-					{
-						ent->s.frame = FRAME_crpain4 + 1;
-						ent->client->anim_end = FRAME_crpain1;
-					}
+						SetAnimation( ent, FRAME_crpain4 + 1, FRAME_crpain1, ANIM_REVERSE );
 					else
-					{
-						ent->s.frame = FRAME_pain304 + 1;
-						ent->client->anim_end = FRAME_pain301;
-
-					}
+						SetAnimation( ent, FRAME_pain304 + 1, FRAME_pain301, ANIM_REVERSE );
 				}
 				ent->client->ps.gunframe--;
 			}
@@ -3154,23 +3075,15 @@ Weapon_Generic_Knife (edict_t * ent, int FRAME_ACTIVATE_LAST,
 		{
 			if (ent->client->ps.gunframe == FRAME_DEACTIVATE_LAST)
 			{
-				ChangeWeapon (ent);
+				ChangeWeapon(ent);
 				return;
 			}
 			else if ((FRAME_DEACTIVATE_LAST - ent->client->ps.gunframe) == 4)
 			{
-				ent->client->anim_priority = ANIM_REVERSE;
 				if (ent->client->ps.pmove.pm_flags & PMF_DUCKED)
-				{
-					ent->s.frame = FRAME_crpain4 + 1;
-					ent->client->anim_end = FRAME_crpain1;
-				}
+					SetAnimation( ent, FRAME_crpain4 + 1, FRAME_crpain1, ANIM_REVERSE );
 				else
-				{
-					ent->s.frame = FRAME_pain304 + 1;
-					ent->client->anim_end = FRAME_pain301;
-
-				}
+					SetAnimation( ent, FRAME_pain304 + 1, FRAME_pain301, ANIM_REVERSE );
 			}
 
 
@@ -3189,7 +3102,7 @@ Weapon_Generic_Knife (edict_t * ent, int FRAME_ACTIVATE_LAST,
 			return;
 		}
 		if (ent->client->ps.gunframe == FRAME_ACTIVATE_LAST
-		|| ent->client->ps.gunframe == FRAME_STOPTHROW_LAST)
+			|| ent->client->ps.gunframe == FRAME_STOPTHROW_LAST)
 		{
 			ent->client->weaponstate = WEAPON_READY;
 			ent->client->ps.gunframe = FRAME_IDLE_FIRST;
@@ -3216,10 +3129,10 @@ Weapon_Generic_Knife (edict_t * ent, int FRAME_ACTIVATE_LAST,
 
 	// bandaging case
 	if ((ent->client->bandaging)
-	&& (ent->client->weaponstate != WEAPON_FIRING)
-	&& (ent->client->weaponstate != WEAPON_BURSTING)
-	&& (ent->client->weaponstate != WEAPON_BUSY)
-	&& (ent->client->weaponstate != WEAPON_BANDAGING))
+		&& (ent->client->weaponstate != WEAPON_FIRING)
+		&& (ent->client->weaponstate != WEAPON_BURSTING)
+		&& (ent->client->weaponstate != WEAPON_BUSY)
+		&& (ent->client->weaponstate != WEAPON_BANDAGING))
 	{
 		ent->client->weaponstate = WEAPON_BANDAGING;
 		ent->client->ps.gunframe = FRAME_DEACTIVATE_FIRST;
@@ -3234,7 +3147,7 @@ Weapon_Generic_Knife (edict_t * ent, int FRAME_ACTIVATE_LAST,
 		{
 			if (!(ent->client->idle_weapon))
 			{
-				Bandage (ent);
+				Bandage(ent);
 				//ent->client->weaponstate = WEAPON_ACTIVATING;
 				//                ent->client->ps.gunframe = 0;
 			}
@@ -3281,7 +3194,7 @@ Weapon_Generic_Knife (edict_t * ent, int FRAME_ACTIVATE_LAST,
 
 
 	if ((ent->client->newweapon) && (ent->client->weaponstate != WEAPON_FIRING)
-	&& (ent->client->weaponstate != WEAPON_BUSY))
+		&& (ent->client->weaponstate != WEAPON_BUSY))
 	{
 
 		if (ent->client->pers.knife_mode == 1)	// throwing mode
@@ -3290,18 +3203,10 @@ Weapon_Generic_Knife (edict_t * ent, int FRAME_ACTIVATE_LAST,
 			// zucc more vwep stuff
 			if ((FRAME_NEWKNIFE_LAST - FRAME_NEWKNIFE_FIRST) < 4)
 			{
-				ent->client->anim_priority = ANIM_REVERSE;
 				if (ent->client->ps.pmove.pm_flags & PMF_DUCKED)
-				{
-					ent->s.frame = FRAME_crpain4 + 1;
-					ent->client->anim_end = FRAME_crpain1;
-				}
+					SetAnimation( ent, FRAME_crpain4 + 1, FRAME_crpain1, ANIM_REVERSE );
 				else
-				{
-					ent->s.frame = FRAME_pain304 + 1;
-					ent->client->anim_end = FRAME_pain301;
-
-				}
+					SetAnimation( ent, FRAME_pain304 + 1, FRAME_pain301, ANIM_REVERSE );
 			}
 		}
 		else			// not in throwing mode
@@ -3310,18 +3215,10 @@ Weapon_Generic_Knife (edict_t * ent, int FRAME_ACTIVATE_LAST,
 			// zucc more vwep stuff
 			if ((FRAME_DEACTIVATE_LAST - FRAME_DEACTIVATE_FIRST) < 4)
 			{
-				ent->client->anim_priority = ANIM_REVERSE;
 				if (ent->client->ps.pmove.pm_flags & PMF_DUCKED)
-				{
-					ent->s.frame = FRAME_crpain4 + 1;
-					ent->client->anim_end = FRAME_crpain1;
-				}
+					SetAnimation( ent, FRAME_crpain4 + 1, FRAME_crpain1, ANIM_REVERSE );
 				else
-				{
-					ent->s.frame = FRAME_pain304 + 1;
-					ent->client->anim_end = FRAME_pain301;
-
-				}
+					SetAnimation( ent, FRAME_pain304 + 1, FRAME_pain301, ANIM_REVERSE );
 			}
 		}
 		ent->client->weaponstate = WEAPON_DROPPING;
@@ -3348,17 +3245,10 @@ Weapon_Generic_Knife (edict_t * ent, int FRAME_ACTIVATE_LAST,
 			ent->client->weaponstate = WEAPON_FIRING;
 
 			// start the animation
-			ent->client->anim_priority = ANIM_ATTACK;
 			if (ent->client->ps.pmove.pm_flags & PMF_DUCKED)
-			{
-				ent->s.frame = FRAME_crattak1 - 1;
-				ent->client->anim_end = FRAME_crattak9;
-			}
+				SetAnimation( ent, FRAME_crattak1 - 1, FRAME_attack8, ANIM_ATTACK );
 			else
-			{
-				ent->s.frame = FRAME_attack1 - 1;
-				ent->client->anim_end = FRAME_attack8;
-			}
+				SetAnimation( ent, FRAME_attack1 - 1, FRAME_attack8, ANIM_ATTACK );
 			return;
 		}
 		if (ent->client->ps.gunframe == FRAME_IDLE_LAST)
@@ -3379,7 +3269,7 @@ Weapon_Generic_Knife (edict_t * ent, int FRAME_ACTIVATE_LAST,
 			return;
 		}
 			*/
-		//gi.cprintf(ent, PRINT_HIGH, "Before a gunframe additon frames = %d\n", ent->client->ps.gunframe);
+			//gi.cprintf(ent, PRINT_HIGH, "Before a gunframe additon frames = %d\n", ent->client->ps.gunframe);
 		ent->client->ps.gunframe++;
 		return;
 	}
@@ -3391,10 +3281,10 @@ Weapon_Generic_Knife (edict_t * ent, int FRAME_ACTIVATE_LAST,
 			if (ent->client->ps.gunframe == fire_frames[n])
 			{
 				if (ent->client->quad_framenum > level.framenum)
-					gi.sound (ent, CHAN_ITEM, gi.soundindex ("items/damage3.wav"),
+					gi.sound(ent, CHAN_ITEM, gi.soundindex("items/damage3.wav"),
 						1, ATTN_NORM, 0);
 
-				if (fire (ent))
+				if (fire(ent))
 					break;
 				else		// we ran out of knives and switched weapons
 					return;
@@ -3418,7 +3308,7 @@ Weapon_Generic_Knife (edict_t * ent, int FRAME_ACTIVATE_LAST,
 }
 
 
-int Knife_Fire (edict_t * ent)
+int Knife_Fire(edict_t* ent)
 {
 	vec3_t start, v;
 	vec3_t forward, right;
@@ -3429,13 +3319,13 @@ int Knife_Fire (edict_t * ent)
 	int kick = 50;		// doesn't throw them back much..
 	int knife_return = 3;
 
-	AngleVectors (ent->client->v_angle, forward, right, NULL);
+	AngleVectors(ent->client->v_angle, forward, right, NULL);
 
-	VectorScale (forward, -2, ent->client->kick_origin);
+	VectorScale(forward, -2, ent->client->kick_origin);
 	ent->client->kick_angles[0] = -2;
 
-	VectorSet (offset, 0, 8, ent->viewheight - 8);
-	P_ProjectSource (ent->client, ent->s.origin, offset, forward, right, start);
+	VectorSet(offset, 0, 8, ent->viewheight - 8);
+	P_ProjectSource(ent->client, ent->s.origin, offset, forward, right, start);
 
 
 
@@ -3449,27 +3339,27 @@ int Knife_Fire (edict_t * ent)
 	if (ent->client->ps.gunframe == 6)
 	{
 		v[YAW] = ent->client->v_angle[YAW];	// + 5;
-		AngleVectors (v, forward, NULL, NULL);
+		AngleVectors(v, forward, NULL, NULL);
 	}
 	else if (ent->client->ps.gunframe == 7)
 	{
 		v[YAW] = ent->client->v_angle[YAW];	// + 2;
-		AngleVectors (v, forward, NULL, NULL);
+		AngleVectors(v, forward, NULL, NULL);
 	}
 	else if (ent->client->ps.gunframe == 8)
 	{
 		v[YAW] = ent->client->v_angle[YAW];
-		AngleVectors (v, forward, NULL, NULL);
+		AngleVectors(v, forward, NULL, NULL);
 	}
 	else if (ent->client->ps.gunframe == 9)
 	{
 		v[YAW] = ent->client->v_angle[YAW];	// - 2;
-		AngleVectors (v, forward, NULL, NULL);
+		AngleVectors(v, forward, NULL, NULL);
 	}
 	else if (ent->client->ps.gunframe == 10)
 	{
 		v[YAW] = ent->client->v_angle[YAW];	//-5;
-		AngleVectors (v, forward, NULL, NULL);
+		AngleVectors(v, forward, NULL, NULL);
 	}
 
 
@@ -3478,7 +3368,7 @@ int Knife_Fire (edict_t * ent)
 		if (is_quad)
 			damage *= 1.5f;
 
-		knife_return = knife_attack (ent, start, forward, damage, kick);
+		knife_return = knife_attack(ent, start, forward, damage, kick);
 		Stats_AddShot(ent, MOD_KNIFE);
 
 		if (knife_return < ent->client->knife_sound)
@@ -3489,20 +3379,20 @@ int Knife_Fire (edict_t * ent)
 			if (ent->client->knife_sound == -2)
 			{
 				// we hit a player
-				gi.sound (ent, CHAN_WEAPON, gi.soundindex ("weapons/stab.wav"),
-				1, ATTN_NORM, 0);
+				gi.sound(ent, CHAN_WEAPON, gi.soundindex("weapons/stab.wav"),
+					1, ATTN_NORM, 0);
 			}
 			else if (ent->client->knife_sound == -1)
 			{
 				// we hit a wall
 
-				gi.sound (ent, CHAN_WEAPON, gi.soundindex ("weapons/clank.wav"),
-				1, ATTN_NORM, 0);
+				gi.sound(ent, CHAN_WEAPON, gi.soundindex("weapons/clank.wav"),
+					1, ATTN_NORM, 0);
 			}
 			else			// we missed
 			{
-				gi.sound (ent, CHAN_WEAPON, gi.soundindex ("weapons/swish.wav"),
-				1, ATTN_NORM, 0);
+				gi.sound(ent, CHAN_WEAPON, gi.soundindex("weapons/swish.wav"),
+					1, ATTN_NORM, 0);
 			}
 			ent->client->knife_sound = 0;
 		}
@@ -3516,28 +3406,28 @@ int Knife_Fire (edict_t * ent)
 		if (is_quad)
 			damage *= 1.5f;
 		// throwing sound
-		gi.sound (ent, CHAN_WEAPON, gi.soundindex ("weapons/throw.wav"), 1, ATTN_NORM, 0);
+		gi.sound(ent, CHAN_WEAPON, gi.soundindex("weapons/throw.wav"), 1, ATTN_NORM, 0);
 
 
 		// below is exact code from action for how it sets the knife up
-		AngleVectors (ent->client->v_angle, forward, right, NULL);
-		VectorSet (offset, 24, 8, ent->viewheight - 8);
-		VectorAdd (offset, vec3_origin, offset);
+		AngleVectors(ent->client->v_angle, forward, right, NULL);
+		VectorSet(offset, 24, 8, ent->viewheight - 8);
+		VectorAdd(offset, vec3_origin, offset);
 		forward[2] += .17f;
 
 		// zucc using old style because the knife coming straight out looks
 		// pretty stupid
 
 
-		Knife_ProjectSource (ent->client, ent->s.origin, offset, forward, right, start);
+		Knife_ProjectSource(ent->client, ent->s.origin, offset, forward, right, start);
 
 		INV_AMMO(ent, KNIFE_NUM)--;
 		if (INV_AMMO(ent, KNIFE_NUM) <= 0)
 		{
 			ent->client->newweapon = GET_ITEM(MK23_NUM);
-			ChangeWeapon (ent);
+			ChangeWeapon(ent);
 			// zucc was at 1250, dropping speed to 1200
-			knife_throw (ent, start, forward, damage, 1200);
+			knife_throw(ent, start, forward, damage, 1200);
 			Stats_AddShot(ent, MOD_KNIFE_THROWN);
 			return 0;
 		}
@@ -3559,7 +3449,7 @@ int Knife_Fire (edict_t * ent)
 		*/
 		//      fire_rocket (ent, start, forward, damage, 650, 200, 200);
 
-		knife_throw (ent, start, forward, damage, 1200);
+		knife_throw(ent, start, forward, damage, 1200);
 		Stats_AddShot(ent, MOD_KNIFE_THROWN);
 
 		// 
@@ -3570,17 +3460,17 @@ int Knife_Fire (edict_t * ent)
 		ent->client->ps.gunframe = 64;	// the idle animation frame for throwing
 	// not sure why the frames weren't ordered
 	// with throwing first, unwise.
-	PlayerNoise (ent, start, PNOISE_WEAPON);
+	PlayerNoise(ent, start, PNOISE_WEAPON);
 	return 1;
 
 }
 
-void Weapon_Knife (edict_t * ent)
+void Weapon_Knife(edict_t* ent)
 {
-  static int pause_frames[] = { 22, 28, 0 };
-  static int fire_frames[] = { 6, 7, 8, 9, 10, 105, 0 };
-  // I think we need a special version of the generic function for this...
-  Weapon_Generic_Knife (ent, 5, 12, 52, 59, 63, 102, 105, 110, 117, pause_frames, fire_frames, Knife_Fire);
+	static int pause_frames[] = { 22, 28, 0 };
+	static int fire_frames[] = { 6, 7, 8, 9, 10, 105, 0 };
+	// I think we need a special version of the generic function for this...
+	Weapon_Generic_Knife(ent, 5, 12, 52, 59, 63, 102, 105, 110, 117, pause_frames, fire_frames, Knife_Fire);
 }
 
 
@@ -3588,7 +3478,7 @@ void Weapon_Knife (edict_t * ent)
 // didn't work out that great though, so I just changed this code to be the standard
 // action grenade.  So the function name is just misleading...
 
-void gas_fire (edict_t * ent)
+void gas_fire(edict_t* ent)
 {
 	vec3_t offset;
 	vec3_t forward, right;
@@ -3603,12 +3493,12 @@ void gas_fire (edict_t * ent)
 	else
 		damage = GRENADE_DAMRAD;
 
-	if(is_quad)
+	if (is_quad)
 		damage *= 1.5f;
 
-	VectorSet (offset, 8, 8, ent->viewheight - 8);
-	AngleVectors (ent->client->v_angle, forward, right, NULL);
-	P_ProjectSource (ent->client, ent->s.origin, offset, forward, right, start);
+	VectorSet(offset, 8, 8, ent->viewheight - 8);
+	AngleVectors(ent->client->v_angle, forward, right, NULL);
+	P_ProjectSource(ent->client, ent->s.origin, offset, forward, right, start);
 
 	if (ent->client->pers.grenade_mode == 0)
 		speed = 400;
@@ -3617,13 +3507,13 @@ void gas_fire (edict_t * ent)
 	else
 		speed = 920;
 
-	fire_grenade2 (ent, start, forward, damage, speed, 2 * HZ, damage * 2, false);
+	fire_grenade2(ent, start, forward, damage, speed, 2 * HZ, damage * 2, false);
 
 	INV_AMMO(ent, GRENADE_NUM)--;
 	if (INV_AMMO(ent, GRENADE_NUM) <= 0)
 	{
 		ent->client->newweapon = GET_ITEM(MK23_NUM);
-		ChangeWeapon (ent);
+		ChangeWeapon(ent);
 		return;
 	}
 	else
@@ -3652,15 +3542,15 @@ void gas_fire (edict_t * ent)
 // the 2 deactivation frames are a joke, they look like shit, probably best to roll
 // the activation frames backwards.  Aren't really enough of them either.
 
-void Weapon_Gas (edict_t * ent)
+void Weapon_Gas(edict_t* ent)
 {
 	if (ent->s.modelindex != 255)	// zucc vwep
 		return;			// not on client, so VWep animations could do wacky things
 
 	//FIREBLADE
 	if (ent->client->weaponstate == WEAPON_FIRING &&
-	((ent->solid == SOLID_NOT && ent->deadflag != DEAD_DEAD) ||
-	lights_camera_action))
+		((ent->solid == SOLID_NOT && ent->deadflag != DEAD_DEAD) ||
+			lights_camera_action))
 	{
 		ent->client->weaponstate = WEAPON_READY;
 	}
@@ -3683,31 +3573,23 @@ void Weapon_Gas (edict_t * ent)
 	{
 		if (ent->client->ps.gunframe == 0)
 		{
-			ChangeWeapon (ent);
+			ChangeWeapon(ent);
 			return;
 		}
-	else
-	{
-		// zucc going to have to do this a bit different because
-		// of the way I roll gunframes backwards for the thrownknife position
-		if ((ent->client->ps.gunframe) == 3)
+		else
 		{
-			ent->client->anim_priority = ANIM_REVERSE;
-			if (ent->client->ps.pmove.pm_flags & PMF_DUCKED)
+			// zucc going to have to do this a bit different because
+			// of the way I roll gunframes backwards for the thrownknife position
+			if ((ent->client->ps.gunframe) == 3)
 			{
-				ent->s.frame = FRAME_crpain4 + 1;
-				ent->client->anim_end = FRAME_crpain1;
+				if (ent->client->ps.pmove.pm_flags & PMF_DUCKED)
+					SetAnimation( ent, FRAME_crpain4 + 1, FRAME_crpain1, ANIM_REVERSE );
+				else
+					SetAnimation( ent, FRAME_pain304 + 1, FRAME_pain301, ANIM_REVERSE );
 			}
-			else
-			{
-				ent->s.frame = FRAME_pain304 + 1;
-				ent->client->anim_end = FRAME_pain301;
-
-			}
+			ent->client->ps.gunframe--;
+			return;
 		}
-		ent->client->ps.gunframe--;
-		return;
-	}
 
 	}
 	if (ent->client->weaponstate == WEAPON_ACTIVATING)
@@ -3724,7 +3606,7 @@ void Weapon_Gas (edict_t * ent)
 		{
 			ent->client->ps.gunframe = GRENADE_IDLE_FIRST;
 			ent->client->weaponstate = WEAPON_READY;
-			gi.cprintf (ent, PRINT_HIGH, "Pin pulled, ready for %s range throw\n",
+			gi.cprintf(ent, PRINT_HIGH, "Pin pulled, ready for %s range throw\n",
 				ent->client->pers.grenade_mode == 0 ? "short" :
 				(ent->client->pers.grenade_mode == 1 ? "medium" : "long"));
 			return;
@@ -3732,7 +3614,7 @@ void Weapon_Gas (edict_t * ent)
 
 		if (ent->client->ps.gunframe == 75)
 		{
-			gi.sound (ent, CHAN_WEAPON, gi.soundindex ("misc/grenade.wav"), 1, ATTN_NORM, 0);
+			gi.sound(ent, CHAN_WEAPON, gi.soundindex("misc/grenade.wav"), 1, ATTN_NORM, 0);
 		}
 
 		ent->client->resp.sniper_mode = 0;
@@ -3748,10 +3630,10 @@ void Weapon_Gas (edict_t * ent)
 
 	// bandaging case
 	if ((ent->client->bandaging)
-	&& (ent->client->weaponstate != WEAPON_FIRING)
-	&& (ent->client->weaponstate != WEAPON_BURSTING)
-	&& (ent->client->weaponstate != WEAPON_BUSY)
-	&& (ent->client->weaponstate != WEAPON_BANDAGING))
+		&& (ent->client->weaponstate != WEAPON_FIRING)
+		&& (ent->client->weaponstate != WEAPON_BURSTING)
+		&& (ent->client->weaponstate != WEAPON_BUSY)
+		&& (ent->client->weaponstate != WEAPON_BANDAGING))
 	{
 		ent->client->weaponstate = WEAPON_BANDAGING;
 		ent->client->ps.gunframe = GRENADE_ACTIVATE_LAST;
@@ -3766,7 +3648,7 @@ void Weapon_Gas (edict_t * ent)
 		{
 			if (!(ent->client->idle_weapon))
 			{
-				Bandage (ent);
+				Bandage(ent);
 			}
 			else
 				(ent->client->idle_weapon)--;
@@ -3779,7 +3661,7 @@ void Weapon_Gas (edict_t * ent)
 			{
 				ent->client->newweapon = GET_ITEM(MK23_NUM);
 				ent->client->bandage_stopped = 0;
-				ChangeWeapon (ent);
+				ChangeWeapon(ent);
 				return;
 			}
 
@@ -3807,16 +3689,16 @@ void Weapon_Gas (edict_t * ent)
 
 
 	if ((ent->client->newweapon) && (ent->client->weaponstate != WEAPON_FIRING)
-	&& (ent->client->weaponstate != WEAPON_BUSY))
+		&& (ent->client->weaponstate != WEAPON_BUSY))
 	{
 
 		// zucc - check if they have a primed grenade
 
 		if (ent->client->curr_weap == GRENADE_NUM
-		&& ((ent->client->ps.gunframe >= GRENADE_IDLE_FIRST
-		&& ent->client->ps.gunframe <= GRENADE_IDLE_LAST)
-		|| (ent->client->ps.gunframe >= GRENADE_THROW_FIRST
-		&& ent->client->ps.gunframe <= GRENADE_THROW_LAST)))
+			&& ((ent->client->ps.gunframe >= GRENADE_IDLE_FIRST
+				&& ent->client->ps.gunframe <= GRENADE_IDLE_LAST)
+				|| (ent->client->ps.gunframe >= GRENADE_THROW_FIRST
+					&& ent->client->ps.gunframe <= GRENADE_THROW_LAST)))
 		{
 			int damage;
 
@@ -3825,8 +3707,8 @@ void Weapon_Gas (edict_t * ent)
 				damage = GRENADE_DAMRAD_CLASSIC;
 			else
 				damage = GRENADE_DAMRAD;
-			
-			if(is_quad)
+
+			if (is_quad)
 				damage *= 1.5f;
 
 			fire_grenade2(ent, ent->s.origin, vec3_origin, damage, 0, 2 * HZ, damage * 2, false);
@@ -3835,7 +3717,7 @@ void Weapon_Gas (edict_t * ent)
 			if (INV_AMMO(ent, GRENADE_NUM) <= 0)
 			{
 				ent->client->newweapon = GET_ITEM(MK23_NUM);
-				ChangeWeapon (ent);
+				ChangeWeapon(ent);
 				return;
 			}
 		}
@@ -3845,17 +3727,10 @@ void Weapon_Gas (edict_t * ent)
 		// zucc more vwep stuff
 		if ((GRENADE_ACTIVATE_LAST) < 4)
 		{
-			ent->client->anim_priority = ANIM_REVERSE;
 			if (ent->client->ps.pmove.pm_flags & PMF_DUCKED)
-			{
-				ent->s.frame = FRAME_crpain4 + 1;
-				ent->client->anim_end = FRAME_crpain1;
-			}
+				SetAnimation( ent, FRAME_crpain4 + 1, FRAME_crpain1, ANIM_REVERSE );
 			else
-			{
-				ent->s.frame = FRAME_pain304 + 1;
-				ent->client->anim_end = FRAME_pain301;
-			}
+				SetAnimation( ent, FRAME_pain304 + 1, FRAME_pain301, ANIM_REVERSE );
 		}
 
 		ent->client->weaponstate = WEAPON_DROPPING;
@@ -3871,7 +3746,7 @@ void Weapon_Gas (edict_t * ent)
 
 
 			if (ent->client->ps.gunframe <= GRENADE_PINIDLE_LAST &&
-			ent->client->ps.gunframe >= GRENADE_PINIDLE_FIRST)
+				ent->client->ps.gunframe >= GRENADE_PINIDLE_FIRST)
 			{
 				ent->client->ps.gunframe = GRENADE_PULL_FIRST;
 				ent->client->weaponstate = WEAPON_ACTIVATING;
@@ -3890,20 +3765,13 @@ void Weapon_Gas (edict_t * ent)
 		}
 
 		if (ent->client->ps.gunframe >= GRENADE_IDLE_FIRST &&
-		ent->client->ps.gunframe <= GRENADE_IDLE_LAST)
+			ent->client->ps.gunframe <= GRENADE_IDLE_LAST)
 		{
 			ent->client->ps.gunframe = GRENADE_THROW_FIRST;
-			ent->client->anim_priority = ANIM_ATTACK;
 			if (ent->client->ps.pmove.pm_flags & PMF_DUCKED)
-			{
-				ent->s.frame = FRAME_crattak1 - 1;
-				ent->client->anim_end = FRAME_crattak9;
-			}
+				SetAnimation( ent, FRAME_crattak1 - 1, FRAME_crattak9, ANIM_ATTACK );
 			else
-			{
-				ent->s.frame = FRAME_attack1 - 1;
-				ent->client->anim_end = FRAME_attack8;
-			}
+				SetAnimation( ent, FRAME_attack1 - 1, FRAME_attack8, ANIM_ATTACK );
 			ent->client->weaponstate = WEAPON_FIRING;
 			return;
 
@@ -3923,7 +3791,7 @@ void Weapon_Gas (edict_t * ent)
 
 		if (ent->client->ps.gunframe == 8)
 		{
-			gas_fire (ent);
+			gas_fire(ent);
 			return;
 		}
 

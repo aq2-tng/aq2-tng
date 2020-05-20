@@ -2860,25 +2860,25 @@ void A_ScoreboardMessage (edict_t * ent, edict_t * killer)
 			cl = sortedClients[i];
 			cl_ent = g_edicts + 1 + (cl - game.clients);
 
-			snprintf( team_buf,   6, " %c%c%c ", (cl->resp.team ? (cl->resp.team + '0') : ' '), (IS_CAPTAIN(cl_ent) ? 'C' : ' '), (cl->resp.subteam ? 'S' : ' ') );
+			Com_sprintf( team_buf,   6, " %c%c%c ", (cl->resp.team ? (cl->resp.team + '0') : ' '), (IS_CAPTAIN(cl_ent) ? 'C' : ' '), (cl->resp.subteam ? 'S' : ' ') );
 			int minutes = (level.framenum - cl->resp.enterframe) / (60 * HZ);
 			if( minutes < 60 )
-				snprintf( time_buf, 6, " %4i", minutes );
+				Com_sprintf( time_buf, 6, " %4i", minutes );
 			else if( minutes < 600 )
-				snprintf( time_buf, 6, " %1i:%02i", minutes / 60, minutes % 60 );
+				Com_sprintf( time_buf, 6, " %1i:%02i", minutes / 60, minutes % 60 );
 			else
-				snprintf( time_buf, 6, " %3ih", min( 999, minutes / 60 ) );
-			snprintf( ping_buf,   6, " %4i", min( 9999, cl->ping ) );
+				Com_sprintf( time_buf, 6, " %3ih", min( 999, minutes / 60 ) );
+			Com_sprintf( ping_buf,   6, " %4i", min( 9999, cl->ping ) );
 #ifndef NO_BOTS
 			if( cl_ent->is_bot )
 				strcpy( ping_buf, "  BOT" );
 #endif
-			snprintf( caps_buf,   6, " %4i", min( 9999, cl->resp.ctf_caps ) );
-			snprintf( score_buf,  7, " %5i", min( 99999, cl->resp.score) );
-			snprintf( kills_buf,  7, " %5i", min( 99999, cl->resp.kills) );
-			snprintf( deaths_buf, 8, " %6i", min( 999999, cl->resp.deaths) );
-			snprintf( damage_buf, 8, " %6i", min( 999999, cl->resp.damage_dealt) );
-			snprintf( acc_buf   , 5, " %3.f", cl->resp.shotsTotal ? (double) cl->resp.hitsTotal * 100.0 / (double) cl->resp.shotsTotal : 0. );
+			Com_sprintf( caps_buf,   6, " %4i", min( 9999, cl->resp.ctf_caps ) );
+			Com_sprintf( score_buf,  7, " %5i", min( 99999, cl->resp.score) );
+			Com_sprintf( kills_buf,  7, " %5i", min( 99999, cl->resp.kills) );
+			Com_sprintf( deaths_buf, 8, " %6i", min( 999999, cl->resp.deaths) );
+			Com_sprintf( damage_buf, 8, " %6i", min( 999999, cl->resp.damage_dealt) );
+			Com_sprintf( acc_buf   , 5, " %3.f", cl->resp.shotsTotal ? (double) cl->resp.hitsTotal * 100.0 / (double) cl->resp.shotsTotal : 0. );
 
 			sprintf( string + strlen(string), "yv %d string \"%s%-15s%s%s%s%s%s%s%s%s\"",
 				line_y,

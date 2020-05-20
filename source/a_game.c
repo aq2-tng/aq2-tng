@@ -276,8 +276,10 @@ void PrintMOTD(edict_t * ent)
 		}
 		else  // So it's not Teamplay?
 		{
+			if (jump->value)
+				server_type = "JumpMod";
 			// Set the appropiate Deathmatch mode
-			if (DMFLAGS(DF_MODELTEAMS))
+			else if (DMFLAGS(DF_MODELTEAMS))
 				server_type = "Deathmatch (Teams by Model)";
 			else if (DMFLAGS(DF_SKINTEAMS))
 				server_type = "Deathmatch (Teams by Skin)";
@@ -659,7 +661,7 @@ static void RemoveOldestShell( void )
 	for( i = 0; i < globals.num_edicts; i ++ )
 	{
 		it = &g_edicts[i];
-		if( it->inuse && it->classname && (strcasecmp( it->classname, "shell" ) == 0) )
+		if( it->inuse && it->classname && (Q_stricmp( it->classname, "shell" ) == 0) )
 		{
 			if( (! found) || (it->freetime < found->freetime) )
 				found = it;
@@ -908,7 +910,7 @@ edict_t *FindEdictByClassnum(char *classname, int classnum)
 	for (i = 0; i < globals.num_edicts; i++)
 	{
 		it = &g_edicts[i];
-		if (it->classname && (it->classnum == classnum) && (strcasecmp(it->classname, classname) == 0))
+		if (it->classname && (it->classnum == classnum) && (Q_stricmp(it->classname, classname) == 0))
 			return it;
 	}
 
@@ -984,11 +986,11 @@ void AttachToEntity( edict_t *self, edict_t *onto )
 
 qboolean CanBeAttachedTo( const edict_t *ent )
 {
-	return (ent && ( (strncasecmp( ent->classname, "func_door", 9 ) == 0)
-	               || (strcasecmp( ent->classname, "func_plat" ) == 0)
-	               || (strcasecmp( ent->classname, "func_rotating" ) == 0)
-	               || (strcasecmp( ent->classname, "func_train" ) == 0)
-	               || (strcasecmp( ent->classname, "func_button" ) == 0) ));
+	return (ent && ( (Q_strnicmp( ent->classname, "func_door", 9 ) == 0)
+	               || (Q_stricmp( ent->classname, "func_plat" ) == 0)
+	               || (Q_stricmp( ent->classname, "func_rotating" ) == 0)
+	               || (Q_stricmp( ent->classname, "func_train" ) == 0)
+	               || (Q_stricmp( ent->classname, "func_button" ) == 0) ));
 }
 
 void AddDecal(edict_t * self, trace_t * tr)

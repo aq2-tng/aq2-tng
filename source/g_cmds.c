@@ -214,8 +214,6 @@
 #include "g_local.h"
 #include "m_player.h"
 
-void Cmd_NextMap_f( edict_t *ent );
-
 #ifndef NO_BOTS
 void Cmd_Placenode_f( edict_t *ent );
 
@@ -1240,36 +1238,30 @@ static void Cmd_Wave_f (edict_t * ent)
 		ent->client->resp.lastWave = level.framenum;
 	}
 
-	ent->client->anim_priority = ANIM_WAVE;
 	i = atoi (gi.argv (1));
 
 	switch (i)
 	{
 	case 0:
 		gi.cprintf (ent, PRINT_HIGH, "flipoff\n");
-		ent->s.frame = FRAME_flip01 - 1;
-		ent->client->anim_end = FRAME_flip12;
+		SetAnimation( ent, FRAME_flip01 - 1, FRAME_flip12, ANIM_WAVE );
 		break;
 	case 1:
 		gi.cprintf (ent, PRINT_HIGH, "salute\n");
-		ent->s.frame = FRAME_salute01 - 1;
-		ent->client->anim_end = FRAME_salute11;
+		SetAnimation( ent, FRAME_salute01 - 1, FRAME_salute11, ANIM_WAVE );
 		break;
 	case 2:
 		gi.cprintf (ent, PRINT_HIGH, "taunt\n");
-		ent->s.frame = FRAME_taunt01 - 1;
-		ent->client->anim_end = FRAME_taunt17;
+		SetAnimation( ent, FRAME_taunt01 - 1, FRAME_taunt17, ANIM_WAVE );
 		break;
 	case 3:
 		gi.cprintf (ent, PRINT_HIGH, "wave\n");
-		ent->s.frame = FRAME_wave01 - 1;
-		ent->client->anim_end = FRAME_wave11;
+		SetAnimation( ent, FRAME_wave01 - 1, FRAME_wave11, ANIM_WAVE );
 		break;
 	case 4:
 	default:
 		gi.cprintf (ent, PRINT_HIGH, "point\n");
-		ent->s.frame = FRAME_point01 - 1;
-		ent->client->anim_end = FRAME_point12;
+		SetAnimation( ent, FRAME_point01 - 1, FRAME_point12, ANIM_WAVE );
 		break;
 	}
 }
@@ -1520,7 +1512,7 @@ static void Cmd_PlayerList_f (edict_t * ent)
 {
 	int i;
 	char st[64];
-	char text[1024] = "\0";
+	char text[1024] = { 0 };
 	edict_t *e2;
 
 	// connect time, ping, score, name
@@ -1676,7 +1668,7 @@ static void Cmd_PrintSettings_f( edict_t * ent )
 	char text[1024] = "\0";
 	size_t length = 0;
 
-	if (game.serverfeatures & GMF_CLIENTNUM) {
+	if (game.serverfeatures & GMF_VARIABLE_FPS) {
 		Com_sprintf( text, sizeof( text ), "Server fps = %d\n", game.framerate );
 		length = strlen( text );
 	}
@@ -1900,7 +1892,9 @@ static cmdList_t commandList[] =
 	{ "ignorepart", Cmd_IgnorePart_f, 0 },
 	{ "voteconfig", Cmd_Voteconfig_f, 0 },
 	{ "configlist", Cmd_Configlist_f, 0 },
-	{ "votescramble", Cmd_Votescramble_f, 0 }
+	{ "votescramble", Cmd_Votescramble_f, 0 },
+	// JumpMod
+	{ "jmod", Cmd_Jmod_f, 0 }
 };
 
 #define MAX_COMMAND_HASH 64

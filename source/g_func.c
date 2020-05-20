@@ -335,7 +335,7 @@ static void plat_CalcAcceleratedMove(moveinfo_t *moveinfo)
 		float f;
 
 		f = (moveinfo->accel + moveinfo->decel) / (moveinfo->accel * moveinfo->decel);
-		moveinfo->move_speed = (-2 + sqrt(4 - 4 * f * (-2 * moveinfo->remaining_distance))) / (2 * f);
+		moveinfo->move_speed = (-2 + sqrtf(4 - 4 * f * (-2 * moveinfo->remaining_distance))) / (2 * f);
 		decel_dist = AccelerationDistance(moveinfo->move_speed, moveinfo->decel);
 	}
 
@@ -400,7 +400,7 @@ static void plat_Accelerate(moveinfo_t *moveinfo)
 		// and cross over the decel_distance; figure the average speed for the
 		// entire move
 		p1_distance = moveinfo->remaining_distance - moveinfo->decel_distance;
-		p1_speed = (old_speed + moveinfo->move_speed) / 2.0;
+		p1_speed = (old_speed + moveinfo->move_speed) / 2.0f;
 		p2_distance = moveinfo->move_speed * (1.0 - (p1_distance / p1_speed));
 		distance = p1_distance + p2_distance;
 		moveinfo->current_speed = (p1_speed * (p1_distance / distance)) + (moveinfo->move_speed * (p2_distance / distance));
@@ -969,7 +969,7 @@ static void door_use_areaportals(edict_t *self, qboolean open)
 	if (!self->target)
 		return;
 
-	while ((t = G_Find(t, FOFS(targetname), self->target))) {
+	while ((t = G_Find(t, FOFS(targetname), self->target)) != NULL) {
 		if (Q_stricmp(t->classname, "func_areaportal") == 0) {
 			gi.SetAreaPortalState(t->style, open);
 		}
@@ -2077,10 +2077,10 @@ void SP_func_door_secret(edict_t *ent)
 	VectorClear(ent->s.angles);
 	side = 1.0 - (ent->spawnflags & SECRET_1ST_LEFT);
 	if (ent->spawnflags & SECRET_1ST_DOWN)
-		width = fabs(DotProduct(up, ent->size));
+		width = fabsf(DotProduct(up, ent->size));
 	else
-		width = fabs(DotProduct(right, ent->size));
-	length = fabs(DotProduct(forward, ent->size));
+		width = fabsf(DotProduct(right, ent->size));
+	length = fabsf(DotProduct(forward, ent->size));
 	if (ent->spawnflags & SECRET_1ST_DOWN)
 		VectorMA(ent->s.origin, -1 * width, up, ent->pos1);
 	else
