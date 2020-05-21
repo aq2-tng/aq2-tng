@@ -79,6 +79,12 @@ else
 CFLAGS+=-fPIC
 endif
 
+ifdef WIN64
+CC=x86_64-w64-mingw32-gcc
+CFLAGS+=-m64 -Wno-attributes
+ARCH=x86_64
+endif
+
 #############################################################################
 # SETUP AND BUILD
 # GAME
