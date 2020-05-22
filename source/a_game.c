@@ -335,7 +335,7 @@ void PrintMOTD(edict_t * ent)
 				/* no comment without author, grr */
 				if(ctfgame.comment) {
 					/* max line length is 39 chars + new line */
-					strncat(msg_buf + strlen(msg_buf), ctfgame.comment, 39);
+					Q_strncatz(msg_buf + strlen(msg_buf), ctfgame.comment, 39);
 					strcat(msg_buf, "\n");
 					lines++;
 				}
