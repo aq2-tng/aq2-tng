@@ -1234,13 +1234,15 @@ void ACEMV_Attack (edict_t *self, usercmd_t *ucmd)
 		self->client->pers.knife_mode = 0;
 		if( (dist < 2000) && (dist < 400 + 300 * INV_AMMO(self,KNIFE_NUM)) )
 		{
-			// See if we want to throw the knife
-			if( bHasWeapon && (dist > 100) )
+			float kick_dist = 200;
+
+			if( bHasWeapon )
 			{
-				// Yes we do.
 				self->client->pers.knife_mode = 1;
+				kick_dist = 100;
 			}
-			else if( dist < 200 )
+
+			if( dist < kick_dist )
 			{
 				if( dist < 64 )	// Too close
 					ucmd->forwardmove = -SPEED_WALK;
