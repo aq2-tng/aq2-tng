@@ -129,20 +129,19 @@
 # ifndef Q_strnicmp
 #  define Q_strnicmp _strnicmp
 # endif
-#endif
-
-#ifdef HAVE_STRCASECMP
+# ifndef strcasecmp
+#  define strcasecmp _stricmp
+# endif
+# ifndef strncasecmp
+#  define strncasecmp _strnicmp
+# endif
+#elif defined(HAVE_STRCASECMP)
 # ifndef Q_stricmp
 #  define Q_stricmp strcasecmp
 # endif
 # ifndef Q_strnicmp
 #  define Q_strnicmp strncasecmp
 # endif
-#endif
-
-#ifndef HAVE_STRCASECMP
-# define strcasecmp Q_stricmp
-# define strncasecmp Q_strnicmp
 #endif
 
 // =========================================================================
