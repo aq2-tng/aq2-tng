@@ -234,6 +234,7 @@ edict_t *ACESP_SpawnBotFromConfig( char *inString )
 	char	modelskin[80];
 	int		team=0, weaponchoice=0, equipchoice=0;
 	char	gender[2] = "m";
+	char	team_str[2] = "0";
 
 	// Scanner stuff
 	char	tokenString[81];
@@ -316,7 +317,6 @@ edict_t *ACESP_SpawnBotFromConfig( char *inString )
 	Info_SetValueForKey( userinfo, "spectator", "0" ); // NOT a spectator
 	Info_SetValueForKey( userinfo, "gender", gender );
 	
-	char team_str[ 2 ] = "0";
 	Com_sprintf( team_str, 2, "%i", team );
 	
 	bot = ACESP_SpawnBot( team_str, name, modelskin, userinfo );
@@ -570,6 +570,7 @@ char *LocalTeamNames[4] = { "spectator", "1", "2", "3" };
 ///////////////////////////////////////////////////////////////////////
 edict_t *ACESP_SpawnBot( char *team_str, char *name, char *skin, char *userinfo )
 {
+	int team = 0;
 	edict_t	*bot = ACESP_FindFreeClient();
 	if( ! bot )
 	{
@@ -589,7 +590,6 @@ edict_t *ACESP_SpawnBot( char *team_str, char *name, char *skin, char *userinfo 
 	ClientBeginDeathmatch( bot );
 	
 	// Balance the teams!
-	int team = 0;
 	if( teamplay->value )
 	{
 		if( team_str )
