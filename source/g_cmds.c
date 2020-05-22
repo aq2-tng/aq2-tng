@@ -1268,6 +1268,7 @@ void Cmd_Say_f (edict_t * ent, qboolean team, qboolean arg0, qboolean partner_ms
 	edict_t *other;
 	char *args, text[256], *s;
 	int meing = 0, isadmin = 0;
+	qboolean show_info = false;
 
 	if (gi.argc() < 2 && !arg0)
 		return;
@@ -1439,7 +1440,7 @@ void Cmd_Say_f (edict_t * ent, qboolean team, qboolean arg0, qboolean partner_ms
 	if (strlen(text) >= 254)
 		text[254] = 0;
 
-	qboolean show_info = ! strncmp( text + offset_of_text, "!actionversion", 14 );
+	show_info = ! strncmp( text + offset_of_text, "!actionversion", 14 );
 
 	//if( IS_ALIVE(ent) )  // Disabled so we parse dead chat too.
 	{

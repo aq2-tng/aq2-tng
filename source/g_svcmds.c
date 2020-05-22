@@ -511,6 +511,15 @@ void SVCmd_SoftQuit_f (void)
 
 void SVCmd_Slap_f (void)
 {
+	const char *name = gi.argv(2);
+	size_t name_len = strlen(name);
+	int damage = atoi(gi.argv(3));
+	float power = (gi.argc() >= 5) ? atof(gi.argv(4)) : 100.f;
+	vec3_t slap_dir = {0.f,0.f,1.f}, slap_normal = {0.f,0.f,-1.f};
+	qboolean found_victim = false;
+	size_t i = 0;
+	int user_id = name_len ? (atoi(name) + 1) : 0;
+
 	if( gi.argc() < 3 )
 	{
 		gi.cprintf( NULL, PRINT_HIGH, "Usage: sv slap <name/id> [<damage>] [<power>]\n" );
@@ -521,15 +530,6 @@ void SVCmd_Slap_f (void)
 		gi.cprintf( NULL, PRINT_HIGH, "Can't slap yet!\n" );
 		return;
 	}
-
-	const char *name = gi.argv(2);
-	size_t name_len = strlen(name);
-	int damage = atoi(gi.argv(3));
-	float power = (gi.argc() >= 5) ? atof(gi.argv(4)) : 100.f;
-	vec3_t slap_dir = {0.f,0.f,1.f}, slap_normal = {0.f,0.f,-1.f};
-	qboolean found_victim = false;
-	size_t i = 0;
-	int user_id = name_len ? (atoi(name) + 1) : 0;
 
 	// See if we're slapping by user ID.
 	for( i = 0; i < name_len; i ++ )

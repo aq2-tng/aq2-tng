@@ -2787,22 +2787,7 @@ void A_ScoreboardMessage (edict_t * ent, edict_t * killer)
 	else if (ent->client->layout == LAYOUT_SCORES2)
 	{
 		char team_buf[6]="", time_buf[6]="", ping_buf[6]="", caps_buf[6]="", score_buf[7]="", kills_buf[7]="", deaths_buf[8]="", damage_buf[8]="", acc_buf[5]="";
-
-		if (noscore->value)
-			totalClients = G_NotSortedClients(sortedClients);
-		else
-			totalClients = G_SortedClients(sortedClients);
-
 		int s2f = ctf->value ? scores2ctf->value : scores2teamplay->value;
-		if( noscore->value )
-			s2f &= ~(SCORES2_CAPS | SCORES2_SCORE | SCORES2_KILLS | SCORES2_DEATHS | SCORES2_DAMAGE | SCORES2_ACC);
-		else if( ! ctf->value )
-		{
-			s2f &= ~SCORES2_CAPS;
-			if( s2f & SCORES2_SCORE )
-				s2f = (s2f & ~SCORES2_SCORE) | SCORES2_KILLS;
-		}
-
 		int chars = 15
 			+ ((s2f & SCORES2_TEAM)   ? 5 : 0)
 			+ ((s2f & SCORES2_TIME)   ? 5 : 0)
@@ -2813,6 +2798,20 @@ void A_ScoreboardMessage (edict_t * ent, edict_t * killer)
 			+ ((s2f & SCORES2_DEATHS) ? 7 : 0)
 			+ ((s2f & SCORES2_DAMAGE) ? 7 : 0)
 			+ ((s2f & SCORES2_ACC)    ? 4 : 0);
+
+		if (noscore->value)
+			totalClients = G_NotSortedClients(sortedClients);
+		else
+			totalClients = G_SortedClients(sortedClients);
+
+		if( noscore->value )
+			s2f &= ~(SCORES2_CAPS | SCORES2_SCORE | SCORES2_KILLS | SCORES2_DEATHS | SCORES2_DAMAGE | SCORES2_ACC);
+		else if( ! ctf->value )
+		{
+			s2f &= ~SCORES2_CAPS;
+			if( s2f & SCORES2_SCORE )
+				s2f = (s2f & ~SCORES2_SCORE) | SCORES2_KILLS;
+		}
 
 		line_x = 160 - (chars * 4);
 		sprintf( string, "xv %i ", line_x );
@@ -2846,11 +2845,13 @@ void A_ScoreboardMessage (edict_t * ent, edict_t * killer)
 
 		for (i = 0; i < totalClients; i++)
 		{
+			int minutes;
+
 			cl = sortedClients[i];
 			cl_ent = g_edicts + 1 + (cl - game.clients);
 
 			Com_sprintf( team_buf,   6, " %c%c%c ", (cl->resp.team ? (cl->resp.team + '0') : ' '), (IS_CAPTAIN(cl_ent) ? 'C' : ' '), (cl->resp.subteam ? 'S' : ' ') );
-			int minutes = (level.framenum - cl->resp.enterframe) / (60 * HZ);
+			minutes = (level.framenum - cl->resp.enterframe) / (60 * HZ);
 			if( minutes < 60 )
 				Com_sprintf( time_buf, 6, " %4i", minutes );
 			else if( minutes < 600 )

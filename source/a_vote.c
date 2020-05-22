@@ -447,11 +447,12 @@ void _MapWithMostVotes (void)
 //
 void _ClearMapVotes (void)
 {
+	votelist_t *search = NULL;
+
 	map_num_votes = 0;
 	map_num_clients = 0;
 	map_need_to_check_votes = true;
 	
-	votelist_t *search = NULL;
 	for( search = map_votes; search != NULL; search = search->next )
 	{
 		search->num_votes = 0;
@@ -651,6 +652,8 @@ void MapVoteMenu (edict_t * ent, pmenu_t * p)
 
 votelist_t *VotelistInsert( votelist_t *start, votelist_t *insert )
 {
+	votelist_t *tmp, *after;
+
 	// If this is the first element or goes before the first, it's the new start point.
 	if( (! start) || (Q_stricmp( insert->mapname, start->mapname ) < 0) )
 	{
@@ -659,11 +662,10 @@ votelist_t *VotelistInsert( votelist_t *start, votelist_t *insert )
 	}
 	
 	// Loop until we find a place to insert the new element into the list.
-	votelist_t *tmp;
 	for( tmp = start; tmp->next && (Q_stricmp( insert->mapname, tmp->next->mapname ) >= 0); tmp = tmp->next ){}
 	
 	// Insert the new element.
-	votelist_t *after = tmp->next;
+	after = tmp->next;
 	tmp->next = insert;
 	insert->next = after;
 	
@@ -1967,6 +1969,8 @@ qboolean ScrambleTeams(void)
 	}
 
 	for (i = 0; i < numplayers; i++) {
+		const char *s;
+
 		ent = players[i];
 		newteam = (i % teamCount) + 1;
 
@@ -1975,7 +1979,7 @@ qboolean ScrambleTeams(void)
 
 		ent->client->resp.team = newteam;
 
-		const char *s = Info_ValueForKey( ent->client->pers.userinfo, "skin" );
+		s = Info_ValueForKey( ent->client->pers.userinfo, "skin" );
 		AssignSkin( ent, s, false );
 	}
 
