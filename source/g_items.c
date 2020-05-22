@@ -162,10 +162,7 @@ gitem_t *FindItem (char *pickup_name)
 void DoRespawn (edict_t * ent)
 {
 	if (!ent)
-	{
-		gi.dprintf("NULL ent passed to %s\n", __func__);
 		return;
-	}
 
 	if (ent->team)
 	{

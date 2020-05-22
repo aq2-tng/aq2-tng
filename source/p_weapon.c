@@ -2006,6 +2006,7 @@ void weapon_grenade_fire(edict_t* ent, qboolean held)
 	int damage = 125;
 	int timer;
 	int speed;
+	int damrad = GRENADE_DAMRAD;
 
 	if (is_quad)
 		damage *= 4;
@@ -2018,7 +2019,7 @@ void weapon_grenade_fire(edict_t* ent, qboolean held)
 	speed = GRENADE_MINSPEED + (GRENADE_TIMER - timer) * ((GRENADE_MAXSPEED - GRENADE_MINSPEED) / GRENADE_TIMER);
 
 	// Reset Grenade Damage to 1.52 when requested:
-	int damrad = use_classic->value ? GRENADE_DAMRAD_CLASSIC : GRENADE_DAMRAD;
+	damrad = use_classic->value ? GRENADE_DAMRAD_CLASSIC : GRENADE_DAMRAD;
 	fire_grenade2(ent, start, forward, damrad, speed, timer, damrad * 2, held);
 
 	if (!DMFLAGS(DF_INFINITE_AMMO))

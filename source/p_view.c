@@ -133,6 +133,7 @@ void P_DamageFeedback (edict_t * player)
 	static const vec3_t power_color = { 0.0, 1.0, 0.0 };
 	static const vec3_t acolor = { 1.0, 1.0, 1.0 };
 	static const vec3_t bcolor = { 1.0, 0.0, 0.0 };
+	float max_damage_alpha = 0.6f;
 
 	//if (!FRAMESYNC)
 	//	return;
@@ -211,7 +212,7 @@ void P_DamageFeedback (edict_t * player)
 	client->damage_alpha += count * 0.01f;
 	if (client->damage_alpha < 0.2f)
 		client->damage_alpha = 0.2f;
-	float max_damage_alpha = 0.6f + (game.framediv - level.framenum % game.framediv - 1) * 0.6f * FRAMETIME;  // stay solid red in lava
+	max_damage_alpha = 0.6f + (game.framediv - level.framenum % game.framediv - 1) * 0.6f * FRAMETIME;  // stay solid red in lava
 	if (client->damage_alpha > max_damage_alpha)
 		client->damage_alpha = max_damage_alpha;  // don't go too saturated
 
@@ -977,13 +978,14 @@ G_SetClientEvent
 */
 void G_SetClientEvent (edict_t * ent)
 {
+	int footstep_speed = 225;
 	if (ent->s.event)
 		return;
 
 	//if (!FRAMESYNC)
 	//	return;
 
-	int footstep_speed = silentwalk->value ? 290 : 225;
+	footstep_speed = silentwalk->value ? 290 : 225;
 	if (ent->groundentity && (xyspeed > footstep_speed))
 	{
 		//zucc added item check to see if they have slippers
@@ -1023,6 +1025,7 @@ void G_SetClientFrame (edict_t * ent)
 {
 	gclient_t *client;
 	qboolean duck, run;
+	qboolean anim_framesync;
 
 	if (ent->s.modelindex != 255)
 		return;			// not in the player model
@@ -1041,7 +1044,7 @@ void G_SetClientFrame (edict_t * ent)
 	else
 		run = false;
 
-	qboolean anim_framesync = level.framenum % game.framediv == client->anim_started % game.framediv;
+	anim_framesync = level.framenum % game.framediv == client->anim_started % game.framediv;
 
 	// check for stand/duck and stop/go transitions
 	if( anim_framesync || (level.framenum >= client->anim_started + game.framediv) )
@@ -1170,10 +1173,10 @@ void Do_Bleeding (edict_t * ent)
 			ent->client->bleed_remain %= BLEED_TIME;
 		}
 		if (ent->client->bleeddelay <= level.framenum)
-		{
-			ent->client->bleeddelay = level.framenum + 2 * HZ;  // 2 seconds
-			
+		{			
 			vec3_t fwd, right, up, pos, vel;
+
+			ent->client->bleeddelay = level.framenum + 2 * HZ;  // 2 seconds
 			AngleVectors( ent->s.angles, fwd, right, up );
 			vel[0] = fwd[0] * ent->client->bleedloc_offset[0] + right[0] * ent->client->bleedloc_offset[1] + up[0] * ent->client->bleedloc_offset[2];
 			vel[1] = fwd[1] * ent->client->bleedloc_offset[0] + right[1] * ent->client->bleedloc_offset[1] + up[1] * ent->client->bleedloc_offset[2];
@@ -1246,6 +1249,7 @@ void ClientEndServerFrame (edict_t * ent)
 	//char player_name[30];
 	//char temp[40];
 	//        int             damage; // zucc for bleeding
+	qboolean weapon_framesync;
 
 	current_player = ent;
 	current_client = ent->client;
@@ -1489,7 +1493,7 @@ void ClientEndServerFrame (edict_t * ent)
 	if( ! ent->client->weapon_last_activity )
 		ent->client->weapon_last_activity = level.framenum;
 
-	qboolean weapon_framesync = (level.framenum % game.framediv == ent->client->weapon_last_activity % game.framediv);
+	weapon_framesync = (level.framenum % game.framediv == ent->client->weapon_last_activity % game.framediv);
 
 	if (ent->client->reload_attempts > 0)
 	{

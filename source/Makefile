@@ -85,7 +85,7 @@ endif
 
 ifdef WIN64
 CC=x86_64-w64-mingw32-gcc
-CFLAGS+=-m64 -Wno-attributes
+CFLAGS+=-m64 -DWIN64
 ARCH=x86_64
 endif
 

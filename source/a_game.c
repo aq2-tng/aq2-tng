@@ -335,7 +335,7 @@ void PrintMOTD(edict_t * ent)
 				/* no comment without author, grr */
 				if(ctfgame.comment) {
 					/* max line length is 39 chars + new line */
-					strncat(msg_buf + strlen(msg_buf), ctfgame.comment, 39);
+					Q_strncatz(msg_buf + strlen(msg_buf), ctfgame.comment, 39);
 					strcat(msg_buf, "\n");
 					lines++;
 				}
@@ -996,11 +996,12 @@ qboolean CanBeAttachedTo( const edict_t *ent )
 void AddDecal(edict_t * self, trace_t * tr)
 {
 	edict_t *decal, *dec;
+	qboolean attached;
 
 	if (bholelimit->value < 1)
 		return;
 
-	qboolean attached = CanBeAttachedTo(tr->ent);
+	attached = CanBeAttachedTo(tr->ent);
 
 	decal = bholelife->value ? G_Spawn() : G_Spawn_Decal();
 	if( ! decal )
@@ -1047,11 +1048,12 @@ void AddSplat(edict_t * self, vec3_t point, trace_t * tr)
 {
 	edict_t *splat, *spt;
 	float r;
+	qboolean attached;
 
 	if (splatlimit->value < 1)
 		return;
 
-	qboolean attached = CanBeAttachedTo(tr->ent);
+	attached = CanBeAttachedTo(tr->ent);
 
 	splat = splatlife->value ? G_Spawn() : G_Spawn_Decal();
 	if( ! splat )

@@ -105,12 +105,12 @@ void Stats_AddShot( edict_t *ent, int gun )
 
 void Stats_AddHit( edict_t *ent, int gun, int hitPart )
 {
+	int headShot = (hitPart == LOC_HDAM || hitPart == LOC_KVLR_HELMET) ? 1 : 0;
+
 	ent->client->last_damaged_part = hitPart;
 
 	if( in_warmup )
 		return;
-
-	int headShot = (hitPart == LOC_HDAM || hitPart == LOC_KVLR_HELMET) ? 1 : 0;
 
 	if ((unsigned)gun >= MAX_GUNSTAT) {
 		gi.dprintf( "Stats_AddHit: Bad gun number!\n" );

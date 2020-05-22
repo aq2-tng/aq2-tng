@@ -1428,12 +1428,12 @@ void player_die(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage
 
 	// zucc - check if they have a primed grenade
 	if (self->client->curr_weap == GRENADE_NUM
-	    && ((self->client->ps.gunframe >= GRENADE_IDLE_FIRST && self->client->ps.gunframe <= GRENADE_IDLE_LAST)
-		|| (self->client->ps.gunframe >= GRENADE_THROW_FIRST
-		    && self->client->ps.gunframe <= GRENADE_THROW_LAST))) {
-		self->client->ps.gunframe = 0;
+	&& ((self->client->ps.gunframe >= GRENADE_IDLE_FIRST  && self->client->ps.gunframe <= GRENADE_IDLE_LAST)
+	||  (self->client->ps.gunframe >= GRENADE_THROW_FIRST && self->client->ps.gunframe <= GRENADE_THROW_LAST)))
+	{
 		// Reset Grenade Damage to 1.52 when requested:
 		int damrad = use_classic->value ? GRENADE_DAMRAD_CLASSIC : GRENADE_DAMRAD;
+		self->client->ps.gunframe = 0;
 		fire_grenade2( self, self->s.origin, vec3_origin, damrad, 0, 2 * HZ, damrad * 2, false );
 	}
 
@@ -2951,6 +2951,8 @@ trace_t q_gameabi PM_trace(vec3_t start, vec3_t mins, vec3_t maxs, vec3_t end)
 // Raptor007: Allow weapon actions to start happening on any frame.
 static void ClientThinkWeaponIfReady( edict_t *ent, qboolean update_idle )
 {
+	int old_weaponstate, old_gunframe;
+
 	// If they just spawned, sync up the weapon animation with that.
 	if( ! ent->client->weapon_last_activity )
 		ent->client->weapon_last_activity = level.framenum;
@@ -2963,8 +2965,8 @@ static void ClientThinkWeaponIfReady( edict_t *ent, qboolean update_idle )
 	VectorClear( ent->client->kick_origin );
 	VectorClear( ent->client->kick_angles );
 
-	int old_weaponstate = ent->client->weaponstate;
-	int old_gunframe = ent->client->ps.gunframe;
+	old_weaponstate = ent->client->weaponstate;
+	old_gunframe = ent->client->ps.gunframe;
 
 	Think_Weapon( ent );
 
@@ -3326,11 +3328,13 @@ void ClientBeginServerFrame(edict_t * ent)
 
 	if (ent->solid != SOLID_NOT)
 	{
+		int idleframes;
+
 		if( client->punch_desired && ! client->jumping && ! lights_camera_action && ! client->uvTime )
 			punch_attack( ent );
 		client->punch_desired = false;
 
-		int idleframes = ppl_idletime->value * HZ;
+		idleframes = ppl_idletime->value * HZ;
 		if( (idleframes > 0) && client->resp.idletime && IS_ALIVE(ent) && (level.framenum >= client->resp.idletime + idleframes) )
 		{
 			//plays a random sound/insane sound, insane1-9.wav

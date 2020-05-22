@@ -1036,12 +1036,13 @@ void G_RunFrame (void)
 {
 	int i;
 	edict_t *ent;
+	qboolean empty = false;
 
 	// IRC poll
 	IRC_poll ();
 
 	// If the server is empty, don't wait at intermission.
-	qboolean empty = ! _numclients();
+	empty = ! _numclients();
 	if( level.intermission_framenum && empty )
 		level.intermission_exit = 1;
 

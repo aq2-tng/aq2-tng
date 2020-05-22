@@ -40,6 +40,9 @@ int DomFlagOwner( edict_t *flag )
 
 qboolean DomCheckRules( void )
 {
+	int max_score = dom_flag_count * ((teamCount == 3) ? 150 : 200);
+	int winning_teams = 0;
+
 	if( (int) level.time > dom_last_score )
 	{
 		dom_last_score = level.time;
@@ -51,11 +54,8 @@ qboolean DomCheckRules( void )
 
 	dom_winner = NOTEAM;
 
-	int max_score = dom_flag_count * ((teamCount == 3) ? 150 : 200);
 	if( max_score <= 0 )
 		return true;
-
-	int winning_teams = 0;
 
 	if( teams[ TEAM1 ].score >= max_score )
 	{
@@ -118,14 +118,19 @@ qboolean DomCheckRules( void )
 
 void DomFlagThink( edict_t *flag )
 {
+	int prev = flag->s.frame;
+
 	// If the flag was touched this frame, make it owned by that team.
 	if( flag->owner && flag->owner->client && flag->owner->client->resp.team )
 	{
 		unsigned int effect = dom_team_effect[ flag->owner->client->resp.team ];
 		if( flag->s.effects != effect )
 		{
+			char location[ 128 ] = "(";
+			qboolean has_loc = false;
 			edict_t *ent = NULL;
 			int prev_owner = DomFlagOwner( flag );
+
 			if( prev_owner != NOTEAM )
 				dom_team_flags[ prev_owner ] --;
 
@@ -139,8 +144,7 @@ void DomFlagThink( edict_t *flag )
 				flag->s.modelindex = dom_blue_flag;
 
 			// Get flag location if possible.
-			char location[ 128 ] = "(";
-			qboolean has_loc = GetPlayerLocation( flag, location + 1 );
+			has_loc = GetPlayerLocation( flag, location + 1 );
 			if( has_loc )
 				strcat( location, ") " );
 			else
@@ -174,7 +178,6 @@ void DomFlagThink( edict_t *flag )
 	flag->owner = NULL;
 
 	// Animate the flag waving.
-	int prev = flag->s.frame;
 	flag->s.frame = 173 + (((flag->s.frame - 173) + 1) % 16);
 
 	// Blink between red and blue if it's unclaimed.
