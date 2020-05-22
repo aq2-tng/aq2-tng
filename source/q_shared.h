@@ -114,21 +114,12 @@
 # endif
 #endif
 
-#if defined(HAVE__SNPRINTF) && ! defined(HAVE_SNPRINTF) && ! defined(snprintf)
+#if defined(HAVE__SNPRINTF) && ! defined(snprintf)
 # define snprintf _snprintf
 #endif
 
-#if defined(HAVE__VSNPRINTF) && ! defined(HAVE_VSNPRINTF) && ! defined(vsnprintf)
+#if defined(HAVE__VSNPRINTF) && ! defined(vsnprintf)
 # define vsnprintf(dest, size, src, list) _vsnprintf((dest), (size), (src), (list)), (dest)[(size)-1] = 0
-#endif
-
-#ifdef HAVE_STRCASECMP
-# ifndef Q_stricmp
-#  define Q_stricmp strcasecmp
-# endif
-# ifndef Q_strnicmp
-#  define Q_strnicmp strncasecmp
-# endif
 #endif
 
 #ifdef HAVE__STRICMP
@@ -138,11 +129,19 @@
 # ifndef Q_strnicmp
 #  define Q_strnicmp _strnicmp
 # endif
-#endif
-
-#ifndef HAVE_STRCASECMP
-# define strcasecmp Q_stricmp
-# define strncasecmp Q_strnicmp
+# ifndef strcasecmp
+#  define strcasecmp _stricmp
+# endif
+# ifndef strncasecmp
+#  define strncasecmp _strnicmp
+# endif
+#elif defined(HAVE_STRCASECMP)
+# ifndef Q_stricmp
+#  define Q_stricmp strcasecmp
+# endif
+# ifndef Q_strnicmp
+#  define Q_strnicmp strncasecmp
+# endif
 #endif
 
 // =========================================================================
