@@ -471,11 +471,6 @@ cvar_t *_InitMapVotelist (ini_t * ini)
 	_ClearMapVotes();
 	ReadMaplistFile ();
 
-	use_mapvote = gi.cvar ("use_mapvote", "0", 0);
-	//Igor[Rock] Begin
-	vrot = gi.cvar ("vrot", "0", CVAR_LATCH);
-	rrot = gi.cvar ("rrot", "0", CVAR_LATCH);
-	//Igor[Rock] End
 	mapvote_min = gi.cvar ("mapvote_min",
 		ReadIniStr (ini, MAPVOTESECTION, "mapvote_min", buf, "1"), CVAR_LATCH);
 	mapvote_need = gi.cvar ("mapvote_need",

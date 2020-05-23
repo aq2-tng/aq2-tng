@@ -655,7 +655,6 @@ void ClientEndServerFrames (void)
 void EndDMLevel (void)
 {
 	edict_t *ent = NULL; // TNG Stats was: edict_t *ent = NULL;
-	char *nextmapname = NULL;
 	qboolean byvote = false;
 	votelist_t *maptosort = NULL;
 	votelist_t *tmp = NULL;
@@ -685,7 +684,7 @@ void EndDMLevel (void)
 	{
 		ent = G_Spawn ();
 		ent->classname = "target_changelevel";
-		nextmapname = ent->map = level.mapname;
+		ent->map = level.mapname;
 	}
 	//FIREBLADE
 	//  else if (!actionmaps->value || num_maps < 1)
@@ -698,7 +697,7 @@ void EndDMLevel (void)
 		{			// go to a specific map
 			ent = G_Spawn ();
 			ent->classname = "target_changelevel";
-			nextmapname = ent->map = level.nextmap;
+			ent->map = level.nextmap;
 		}
 		else
 		{			// search for a changelevel
@@ -708,7 +707,7 @@ void EndDMLevel (void)
 				// so create a fake ent that goes back to the same level
 				ent = G_Spawn ();
 				ent->classname = "target_changelevel";
-				nextmapname = ent->map = level.mapname;
+				ent->map = level.mapname;
 			}
 		}
 	}
@@ -722,14 +721,14 @@ void EndDMLevel (void)
 			team_game_going = 0;
 			dosoft=0;
 			ent = G_Spawn ();
-			nextmapname = ent->map = level.nextmap;
+			ent->map = level.nextmap;
 		}
-		else if (vrot->value)
+		else if( vrot->value && map_votes && num_allvotes )
 		{
 			ent = G_Spawn ();
 			ent->classname = "target_changelevel";
 			Q_strncpyz(level.nextmap, map_votes->mapname, sizeof(level.nextmap));
-			nextmapname = ent->map = level.nextmap;
+			ent->map = level.nextmap;
 			maptosort = map_votes;
 			map_votes = maptosort->next;
 			for (tmp = map_votes; tmp->next != NULL; tmp = tmp->next)
@@ -737,45 +736,23 @@ void EndDMLevel (void)
 			tmp->next = maptosort;
 			maptosort->next = NULL;
 		}
-		else if (rrot->value)
-		{
-		// TNG: Making sure the rotation works fine
-		// If there is just one map in the rotation:
-			if(num_maps == 1)
-			{
-				cur_map = 0;
-				ent = G_Spawn ();
-				ent->classname = "target_changelevel"; //Yoohoo
-				Q_strncpyz(level.nextmap, map_rotation[cur_map], sizeof(level.nextmap));
-				nextmapname = ent->map = level.nextmap;
-			} 
-			// if there are 2 or more
-			else 
-			{
-				nextmapname = level.mapname;
-				while(!Q_stricmp(level.mapname, nextmapname)) {
-					srand(rand()); // Reinitializing the random generator
-					cur_map = rand () % num_maps;
-					if (cur_map >= num_maps)
-						cur_map = 0;
-					ent = G_Spawn ();
-					ent->classname = "target_changelevel"; //Yoohoo
-					Q_strncpyz(level.nextmap, map_rotation[cur_map], sizeof(level.nextmap));
-					nextmapname = ent->map = level.nextmap;
-				}
-			}
-		}
 		else
 		{
-		//Igor[Rock] End
-			cur_map++;
-			if (cur_map >= num_maps)
-				cur_map = 0;
-			ent = G_Spawn ();
+			ent = G_Spawn();
 			ent->classname = "target_changelevel";
-			Q_strncpyz(level.nextmap, map_rotation[cur_map], sizeof(level.nextmap));
-			nextmapname = ent->map = level.nextmap;
-		//Igor[Rock] BEGIN
+			if( num_maps > 1 )
+			{
+				cur_map += rrot->value ? rand_map : 1;
+				cur_map %= num_maps;
+				rand_map = rand() % (num_maps - 1) + 1;
+			}
+			else
+			{
+				cur_map = 0;
+				rand_map = 1;
+			}
+			Q_strncpyz( level.nextmap, map_rotation[cur_map], sizeof(level.nextmap) );
+			ent->map = level.nextmap;
 		}
 	//Igor[Rock] End
 	}
@@ -787,7 +764,7 @@ void EndDMLevel (void)
 	{
 		// change to new map...
 		byvote = true;
-		nextmapname = ent->map = level.tempmap;	// TempFile added ent->map to fit 1.52 EndDMLevel() conventions
+		ent->map = level.tempmap;	// TempFile added ent->map to fit 1.52 EndDMLevel() conventions
 		if (level.nextmap != NULL)
 			level.nextmap[0] = '\0';
 	}

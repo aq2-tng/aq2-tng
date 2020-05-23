@@ -512,16 +512,47 @@ void _ZoomOut(edict_t * ent, qboolean overflow)
 
 void Cmd_NextMap_f(edict_t * ent)
 {
-	if (level.nextmap[0])
-	{
-		gi.cprintf (ent, PRINT_HIGH, "Next map in rotation is %s (%d/%d).\n", level.nextmap, cur_map+1, num_maps);
-		return;
-	}
-	if ((cur_map+1) >= num_maps)
-		gi.cprintf (ent, PRINT_HIGH, "Next map in rotation is %s (%d/%d).\n", map_rotation[0], 1, num_maps);
-	else
-		gi.cprintf (ent, PRINT_HIGH, "Next map in rotation is %s (%d/%d).\n", map_rotation[cur_map+1], cur_map+2, num_maps);
+	int map_num = -1;
+	const char *next_map = level.nextmap;
+	const char *rot_type = "in rotation";
 
+	if( next_map[0] )
+		rot_type = "chosen";
+	/*
+	else if( vrot->value && map_votes && num_allvotes )
+	{
+		next_map = map_votes->mapname;
+		rot_type = "by votes";
+	}
+	*/
+
+	if( next_map[0] )
+	{
+		next_map = level.nextmap;
+		for( int i = 0; i < num_maps; i ++ )
+		{
+			if( Q_stricmp( map_rotation[i], level.nextmap ) == 0 )
+			{
+				map_num = i;
+				break;
+			}
+		}
+	}
+	else if( num_maps )
+	{
+		map_num = (cur_map + (rrot->value ? rand_map : 1)) % num_maps;
+		next_map = map_rotation[ map_num ];
+		rot_type = rrot->value ? "randomly" : "in rotation";
+	}
+
+	if( DMFLAGS(DF_SAME_LEVEL) )
+	{
+		map_num = cur_map;
+		next_map = level.mapname;
+		rot_type = "repeated";
+	}
+
+	gi.cprintf( ent, PRINT_HIGH, "Next map %s is %s (%i/%i).\n", rot_type, next_map, map_num+1, num_maps );
 }
 
 void Cmd_Lens_f(edict_t * ent)
