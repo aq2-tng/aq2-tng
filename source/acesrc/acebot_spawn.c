@@ -81,7 +81,7 @@ int GetNextTeamNumber()
                 return 0;
 
 //		gi.bprintf(PRINT_HIGH, "Checking team balance..\n");
-        for (i = 1; i < maxclients->value+1; i++)
+        for (i = 1; i <= game.maxclients; i++)
         {
                 e = g_edicts + i;
                 if (e->inuse)
@@ -450,7 +450,7 @@ edict_t *ACESP_FindFreeClient (void)
 	int max_count = 0;
 	
 	// This is for the naming of the bots
-	for (i = maxclients->value; i > 0; i--)
+	for (i = game.maxclients; i > 0; i--)
 	{
 		bot = g_edicts + i + 1;
 		
@@ -459,7 +459,7 @@ edict_t *ACESP_FindFreeClient (void)
 	}
 	
 	// Check for free spot
-	for (i = maxclients->value; i > 0; i--)
+	for (i = game.maxclients; i > 0; i--)
 	{
 		bot = g_edicts + i + 1;
 
@@ -646,7 +646,7 @@ void ACESP_RemoveBot(char *name)
 	int find_team = (strlen(name)==1) ? atoi(name) : 0;
 
 //	if (name!=NULL)
-	for(i=0;i<maxclients->value;i++)
+	for(i=0;i<game.maxclients;i++)
 	{
 		bot = g_edicts + i + 1;
 		if(bot->inuse)
@@ -675,7 +675,7 @@ void ACESP_RemoveBot(char *name)
 	{
 		do
 		{
-			i = (int)(rand()) % (int)(maxclients->value);
+			i = (int)(rand()) % (int)(game.maxclients);
 			bot = g_edicts + i + 1;
 		}	while ( (!bot->inuse) || (!bot->is_bot) );
 		bot->health = 0;
