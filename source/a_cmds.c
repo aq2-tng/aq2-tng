@@ -527,7 +527,8 @@ void Cmd_NextMap_f(edict_t * ent)
 
 	if( next_map[0] )
 	{
-		for( int i = 0; i < num_maps; i ++ )
+		int i;
+		for( i = 0; i < num_maps; i ++ )
 		{
 			if( Q_stricmp( map_rotation[i], next_map ) == 0 )
 			{
