@@ -77,7 +77,7 @@
 #define MAX_TOTAL_MOTD_LINES    30
 
 char *map_rotation[MAX_MAP_ROTATION];
-int num_maps, cur_map, num_allvotes;	// num_allvotes added by Igor[Rock]
+int num_maps, cur_map, rand_map, num_allvotes;	// num_allvotes added by Igor[Rock]
 
 char motd_lines[MAX_TOTAL_MOTD_LINES][40];
 int motd_num_lines;
@@ -166,7 +166,10 @@ void ReadConfigFile()
 	Com_sprintf(teams[TEAM1].skin_index, sizeof(teams[TEAM1].skin_index), "../players/%s_i", teams[TEAM1].skin);
 	Com_sprintf(teams[TEAM2].skin_index, sizeof(teams[TEAM2].skin_index), "../players/%s_i", teams[TEAM2].skin);
 	Com_sprintf(teams[TEAM3].skin_index, sizeof(teams[TEAM3].skin_index), "../players/%s_i", teams[TEAM3].skin);
+
 	cur_map = 0;
+	srand(time(NULL));
+	rand_map = (num_maps > 1) ? (rand() % (num_maps - 1) + 1) : 1;
 
 	fclose(config_file);
 }
