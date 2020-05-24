@@ -725,11 +725,12 @@ void EndDMLevel (void)
 		}
 		else if( vrot->value && ((tmp = MapWithMostAllVotes())) )
 		{
-			ent = G_Spawn ();
+			int i;
+			ent = G_Spawn();
 			ent->classname = "target_changelevel";
 			Q_strncpyz( level.nextmap, tmp->mapname, sizeof(level.nextmap) );
 			ent->map = level.nextmap;
-			for( int i = 0; i < num_maps; i ++ )
+			for( i = 0; i < num_maps; i ++ )
 			{
 				if( Q_stricmp( map_rotation[i], tmp->mapname ) == 0 )
 				{
