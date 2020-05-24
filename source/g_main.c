@@ -656,9 +656,9 @@ void EndDMLevel (void)
 {
 	edict_t *ent = NULL; // TNG Stats was: edict_t *ent = NULL;
 	qboolean byvote = false;
-	votelist_t *maptosort = NULL;
+	//votelist_t *maptosort = NULL;
 	votelist_t *tmp = NULL;
-	int newmappos; // TNG Stats, was: int newmappos;
+	//int newmappos; // TNG Stats, was: int newmappos;
 	struct tm *now = NULL;
 	time_t tnow = 0;
 	char ltm[64] = "";
@@ -723,10 +723,21 @@ void EndDMLevel (void)
 			ent = G_Spawn ();
 			ent->map = level.nextmap;
 		}
-		else if( vrot->value && map_votes && num_allvotes )
+		else if( vrot->value && ((tmp = MapWithMostAllVotes())) )
 		{
 			ent = G_Spawn ();
 			ent->classname = "target_changelevel";
+			Q_strncpyz( level.nextmap, tmp->mapname, sizeof(level.nextmap) );
+			ent->map = level.nextmap;
+			for( int i = 0; i < num_maps; i ++ )
+			{
+				if( Q_stricmp( map_rotation[i], tmp->mapname ) == 0 )
+				{
+					cur_map = i;
+					break;
+				}
+			}
+			/*
 			Q_strncpyz(level.nextmap, map_votes->mapname, sizeof(level.nextmap));
 			ent->map = level.nextmap;
 			maptosort = map_votes;
@@ -735,6 +746,7 @@ void EndDMLevel (void)
 				;
 			tmp->next = maptosort;
 			maptosort->next = NULL;
+			*/
 		}
 		else
 		{
@@ -771,6 +783,8 @@ void EndDMLevel (void)
 	//PG BUND - END
 
 	//Igor[Rock] Begin (we have to change the position in the maplist here, because now the votes are up-to-date
+	// Raptor007: Keep votelist alphabetical and use MapWithMostAllVotes() for vrot instead.
+	/*
 	if ((maptosort != NULL) && (num_allvotes > map_num_maps))
 	{				// I inserted the map_num_maps here to block an one user vote rotation...
 		newmappos =	(int) (((100.0 - (((float) maptosort->num_allvotes * 100.0) / (float) num_allvotes)) * ((float) map_num_maps - 1.0)) / 100.0);
@@ -798,6 +812,7 @@ void EndDMLevel (void)
 			}
 		}
 	}
+	*/
 
 	if (level.nextmap != NULL && !byvote) {
 		gi.bprintf (PRINT_HIGH, "Next map in rotation is %s.\n", level.nextmap);

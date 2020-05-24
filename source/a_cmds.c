@@ -515,23 +515,21 @@ void Cmd_NextMap_f(edict_t * ent)
 	int map_num = -1;
 	const char *next_map = level.nextmap;
 	const char *rot_type = "in rotation";
+	votelist_t *voted = NULL;
 
 	if( next_map[0] )
-		rot_type = "chosen";
-	/*
-	else if( vrot->value && map_votes && num_allvotes )
+		rot_type = "selected";
+	else if( vrot->value && ((voted = MapWithMostAllVotes())) )
 	{
-		next_map = map_votes->mapname;
+		next_map = voted->mapname;
 		rot_type = "by votes";
 	}
-	*/
 
 	if( next_map[0] )
 	{
-		next_map = level.nextmap;
 		for( int i = 0; i < num_maps; i ++ )
 		{
-			if( Q_stricmp( map_rotation[i], level.nextmap ) == 0 )
+			if( Q_stricmp( map_rotation[i], next_map ) == 0 )
 			{
 				map_num = i;
 				break;

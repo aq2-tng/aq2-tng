@@ -43,6 +43,7 @@ void _RemoveVoteFromMap (edict_t *ent);
 void _MapExitLevel(char *NextMap);
 qboolean _CheckMapVotes(void);
 void _MapWithMostVotes(void);
+votelist_t *MapWithMostAllVotes(void);
 void _ClearMapVotes(void);
 cvar_t *_InitMapVotelist(ini_t *ini);
 void MapVoteMenu(edict_t *ent, pmenu_t *p);
