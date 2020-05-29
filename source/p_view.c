@@ -1235,6 +1235,46 @@ int canFire (edict_t * ent)
 	return result;
 }
 
+
+void FrameEndZ( edict_t *ent )
+{
+#ifndef NO_FPS
+	int i;
+
+	if( (FRAMEDIV == 1) || ! ent->inuse )
+		return;
+
+	// Advance the history.
+	for( i = FRAMEDIV - 1; i >= 1; i -- )
+		ent->z_history[ i ] = ent->z_history[ i - 1 ];
+
+	// Store the real origin[2] in z_history[0] to be restored next frame.
+	ent->z_history[0] = ent->s.origin[2];
+	ent->z_history_framenum = level.framenum;
+
+	// Only smooth Z-axis values when walking on regular ground.
+	if( (ent->client->ps.pmove.pm_type == PM_NORMAL)
+	&& !(ent->client->ps.pmove.pm_flags & PMF_NO_PREDICTION)
+	&&  (ent->client->ps.pmove.pm_flags & PMF_ON_GROUND)
+	&&  (ent->groundentity == &(globals.edicts[0])) )
+	{
+		if( ent->z_history_count < FRAMEDIV )
+			ent->z_history_count ++;
+	}
+	else
+		ent->z_history_count = 0;
+
+	// If we have multiple valid frames to smooth, temporarily set origin[2] as the average.
+	if( ent->z_history_count > 1 )
+	{
+		for( i = 1; i < ent->z_history_count; i ++ )
+			ent->s.origin[2] += ent->z_history[ i ];
+
+		ent->s.origin[2] /= (float) ent->z_history_count;
+	}
+#endif
+}
+
 /*
 =================
 ClientEndServerFrame
@@ -1293,6 +1333,7 @@ void ClientEndServerFrame (edict_t * ent)
 
 	if (level.pauseFrames) {
 		G_SetStats (ent);
+		FrameEndZ( ent );
 		return;
 	}
 
@@ -1319,6 +1360,7 @@ void ClientEndServerFrame (edict_t * ent)
 		current_client->ps.fov = 90;
 		current_client->desired_fov = 90;
 		G_SetStats(ent);
+		FrameEndZ( ent );
 		return;
 	}
 
@@ -1506,6 +1548,7 @@ void ClientEndServerFrame (edict_t * ent)
 	if( (ent->client->weapon_attempts > 0) && weapon_framesync )
 		Cmd_Weapon_f (ent);
 
+	FrameEndZ( ent );
 
 	if (!FRAMESYNC)
 		return;

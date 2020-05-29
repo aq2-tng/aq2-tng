@@ -179,6 +179,8 @@ void SP_LaserSight(edict_t * self, gitem_t * item)
 	lasersight->classname = "lasersight";
 	lasersight->s.modelindex = level.model_lsight;
 	lasersight->s.renderfx = RF_TRANSLUCENT;
+	lasersight->ideal_yaw = self->viewheight;
+	lasersight->count = 0;
 	lasersight->think = LaserSightThink;
 	lasersight->nextthink = level.framenum + 1;
 	LaserSightThink( lasersight );
@@ -198,7 +200,7 @@ void LaserSightThink(edict_t * self)
 	vec3_t start, end, endp, offset;
 	vec3_t forward, right, up, angles;
 	trace_t tr;
-	int height = 0;
+	float viewheight = self->owner->viewheight;
 
 	// zucc compensate for weapon ride up
 	VectorAdd(self->owner->client->v_angle, self->owner->client->kick_angles, angles);
@@ -208,10 +210,33 @@ void LaserSightThink(edict_t * self)
 		self->think = G_FreeEdict;
 	}
 
-	if (self->owner->client->pers.firing_style == ACTION_FIRING_CLASSIC)
-		height = 8;
+#ifndef NO_FPS
+	// Raptor007: Smooth laser viewheight changes (crouch/stand) with sv_fps.
+	// I borrowed ideal_yaw and yaw_speed because I needed two entity floats
+	// that wouldn't otherwise be used for the lasersight.
+	if( FRAMEDIV > 1 )
+	{
+		if( self->count )
+		{
+			self->ideal_yaw += self->yaw_speed;
+			self->count --;
+		}
 
-	VectorSet(offset, 24, 8, self->owner->viewheight - height);
+		if( FRAMESYNC && ! self->count )
+		{
+			self->yaw_speed = (self->owner->viewheight - self->ideal_yaw) / (float) FRAMEDIV;
+			self->ideal_yaw += self->yaw_speed;
+			self->count = FRAMEDIV - 1;
+		}
+
+		viewheight = self->ideal_yaw;
+	}
+#endif
+
+	if (self->owner->client->pers.firing_style == ACTION_FIRING_CLASSIC)
+		viewheight -= 8;
+
+	VectorSet(offset, 24, 8, viewheight);
 	P_ProjectSource(self->owner->client, self->owner->s.origin, offset, forward, right, start);
 	VectorMA(start, 8192, forward, end);
 

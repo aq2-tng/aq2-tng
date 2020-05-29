@@ -2982,6 +2982,18 @@ static void ClientThinkWeaponIfReady( edict_t *ent, qboolean update_idle )
 		ent->client->ps.gunframe = old_gunframe;
 }
 
+void FrameStartZ( edict_t *ent )
+{
+#ifndef NO_FPS
+	if( (FRAMEDIV == 1) || ! ent->inuse || (ent->z_history_framenum != level.framenum - 1) )
+		return;
+
+	// Restore origin[2] from z_history[0] once at the very beginning of the frame.
+	ent->s.origin[2] = ent->z_history[0];
+	ent->z_history_framenum = level.framenum;
+#endif
+}
+
 /*
 ==============
 ClientThink
@@ -2997,6 +3009,8 @@ void ClientThink(edict_t * ent, usercmd_t * ucmd)
 	int i, j;
 	pmove_t pm;
 	char ltm[64] = "\0";
+
+	FrameStartZ( ent );
 
 	level.current_entity = ent;
 	client = ent->client;
@@ -3209,6 +3223,8 @@ void ClientBeginServerFrame(edict_t * ent)
 {
 	gclient_t *client;
 	int buttonMask, going_observer = 0;
+
+	FrameStartZ( ent );
 
 	client = ent->client;
 
