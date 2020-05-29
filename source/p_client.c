@@ -2849,7 +2849,7 @@ static void ClientThinkWeaponIfReady( edict_t *ent, qboolean update_idle )
 void FrameStartZ( edict_t *ent )
 {
 #ifndef NO_FPS
-	if( (FRAMEDIV == 1) || ! ent->inuse || (ent->z_history_framenum != level.framenum - 1) )
+	if( (FRAMEDIV == 1) || ! ent->inuse || ! IS_ALIVE(ent) || (ent->z_history_framenum != level.framenum - 1) )
 		return;
 
 	// Restore origin[2] from z_history[0] once at the very beginning of the frame.

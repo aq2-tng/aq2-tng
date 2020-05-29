@@ -1253,7 +1253,8 @@ void FrameEndZ( edict_t *ent )
 	ent->z_history_framenum = level.framenum;
 
 	// Only smooth Z-axis values when walking on regular ground.
-	if( (ent->client->ps.pmove.pm_type == PM_NORMAL)
+	if( IS_ALIVE(ent)
+	&&  (ent->client->ps.pmove.pm_type == PM_NORMAL)
 	&& !(ent->client->ps.pmove.pm_flags & PMF_NO_PREDICTION)
 	&&  (ent->client->ps.pmove.pm_flags & PMF_ON_GROUND)
 	&&  (ent->groundentity == &(globals.edicts[0])) )
