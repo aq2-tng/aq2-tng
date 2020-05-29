@@ -1235,6 +1235,47 @@ int canFire (edict_t * ent)
 	return result;
 }
 
+
+void FrameEndZ( edict_t *ent )
+{
+#ifndef NO_FPS
+	int i;
+
+	if( (FRAMEDIV == 1) || ! ent->inuse )
+		return;
+
+	for( i = FRAMEDIV; i >= 1; i -- )
+		ent->z_history[ i ] = ent->z_history[ i - 1 ];
+
+	ent->z_history[0] = ent->s.origin[2];
+	ent->z_history[1] = ent->s.old_origin[2];
+	ent->z_history_framenum = level.framenum;
+
+	if( (ent->client->ps.pmove.pm_type == PM_NORMAL)
+	&& !(ent->client->ps.pmove.pm_flags & PMF_NO_PREDICTION)
+/*	&&  (ent->client->ps.pmove.pm_flags & PMF_ON_GROUND)
+	&&  (ent->groundentity == &(globals.edicts[0])) */ )
+	{
+		if( ent->z_history_count < FRAMEDIV )
+			ent->z_history_count ++;
+	}
+	else
+		ent->z_history_count = 0;
+
+	if( ent->z_history_count <= 1 )
+		return;
+
+	for( i = 1; i < ent->z_history_count; i ++ )
+	{
+		ent->s.origin[2]     += ent->z_history[ i ];
+		ent->s.old_origin[2] += ent->z_history[ i + 1 ];
+	}
+
+	ent->s.origin[2]     /= (float) ent->z_history_count;
+	ent->s.old_origin[2] /= (float) ent->z_history_count;
+#endif
+}
+
 /*
 =================
 ClientEndServerFrame
@@ -1293,6 +1334,7 @@ void ClientEndServerFrame (edict_t * ent)
 
 	if (level.pauseFrames) {
 		G_SetStats (ent);
+		FrameEndZ( ent );
 		return;
 	}
 
@@ -1319,6 +1361,7 @@ void ClientEndServerFrame (edict_t * ent)
 		current_client->ps.fov = 90;
 		current_client->desired_fov = 90;
 		G_SetStats(ent);
+		FrameEndZ( ent );
 		return;
 	}
 
@@ -1506,6 +1549,7 @@ void ClientEndServerFrame (edict_t * ent)
 	if( (ent->client->weapon_attempts > 0) && weapon_framesync )
 		Cmd_Weapon_f (ent);
 
+	FrameEndZ( ent );
 
 	if (!FRAMESYNC)
 		return;

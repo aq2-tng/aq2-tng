@@ -1877,6 +1877,12 @@ struct edict_s
 	// hack for proper s.old_origin updates
 	vec3_t		old_origin;
 
+#ifndef NO_FPS
+	float		z_history[ MAX_FRAMEDIV + 1 ];
+	int			z_history_framenum;
+	int			z_history_count;
+#endif
+
 	// action
 	qboolean	splatted;
 	int			classnum;
