@@ -1244,17 +1244,19 @@ void FrameEndZ( edict_t *ent )
 	if( (FRAMEDIV == 1) || ! ent->inuse )
 		return;
 
-	for( i = FRAMEDIV; i >= 1; i -- )
+	// Advance the history.
+	for( i = FRAMEDIV - 1; i >= 1; i -- )
 		ent->z_history[ i ] = ent->z_history[ i - 1 ];
 
+	// Store the real origin[2] in z_history[0] to be restored next frame.
 	ent->z_history[0] = ent->s.origin[2];
-	ent->z_history[1] = ent->s.old_origin[2];
 	ent->z_history_framenum = level.framenum;
 
+	// Only smooth Z-axis values when walking on regular ground.
 	if( (ent->client->ps.pmove.pm_type == PM_NORMAL)
 	&& !(ent->client->ps.pmove.pm_flags & PMF_NO_PREDICTION)
-/*	&&  (ent->client->ps.pmove.pm_flags & PMF_ON_GROUND)
-	&&  (ent->groundentity == &(globals.edicts[0])) */ )
+	&&  (ent->client->ps.pmove.pm_flags & PMF_ON_GROUND)
+	&&  (ent->groundentity == &(globals.edicts[0])) )
 	{
 		if( ent->z_history_count < FRAMEDIV )
 			ent->z_history_count ++;
@@ -1262,17 +1264,14 @@ void FrameEndZ( edict_t *ent )
 	else
 		ent->z_history_count = 0;
 
-	if( ent->z_history_count <= 1 )
-		return;
-
-	for( i = 1; i < ent->z_history_count; i ++ )
+	// If we have multiple valid frames to smooth, temporarily set origin[2] as the average.
+	if( ent->z_history_count > 1 )
 	{
-		ent->s.origin[2]     += ent->z_history[ i ];
-		ent->s.old_origin[2] += ent->z_history[ i + 1 ];
-	}
+		for( i = 1; i < ent->z_history_count; i ++ )
+			ent->s.origin[2] += ent->z_history[ i ];
 
-	ent->s.origin[2]     /= (float) ent->z_history_count;
-	ent->s.old_origin[2] /= (float) ent->z_history_count;
+		ent->s.origin[2] /= (float) ent->z_history_count;
+	}
 #endif
 }
 

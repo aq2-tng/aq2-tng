@@ -1878,7 +1878,7 @@ struct edict_s
 	vec3_t		old_origin;
 
 #ifndef NO_FPS
-	float		z_history[ MAX_FRAMEDIV + 1 ];
+	float		z_history[ MAX_FRAMEDIV ];
 	int			z_history_framenum;
 	int			z_history_count;
 #endif
