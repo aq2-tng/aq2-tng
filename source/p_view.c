@@ -1241,7 +1241,7 @@ void FrameEndZ( edict_t *ent )
 #ifndef NO_FPS
 	int i;
 
-	if( (FRAMEDIV == 1) || ! ent->inuse )
+	if( FRAMEDIV == 1 )
 		return;
 
 	// Advance the history.
@@ -1250,15 +1250,15 @@ void FrameEndZ( edict_t *ent )
 
 	// Store the real origin[2] in z_history[0] to be restored next frame.
 	ent->z_history[0] = ent->s.origin[2];
-	ent->z_history_framenum = level.framenum;
 
 	// Only smooth Z-axis values when walking on regular ground.
-	if( IS_ALIVE(ent)
+	if(  ent->inuse && IS_ALIVE(ent)
 	&&  (ent->client->ps.pmove.pm_type == PM_NORMAL)
 	&& !(ent->client->ps.pmove.pm_flags & PMF_NO_PREDICTION)
 	&&  (ent->client->ps.pmove.pm_flags & PMF_ON_GROUND)
 	&&  (ent->groundentity == &(globals.edicts[0])) )
 	{
+		ent->z_history_framenum = level.framenum;
 		if( ent->z_history_count < FRAMEDIV )
 			ent->z_history_count ++;
 	}
