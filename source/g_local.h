@@ -1879,6 +1879,7 @@ struct edict_s
 
 #ifndef NO_FPS
 	float		z_history[ MAX_FRAMEDIV ];
+	//short		z_pmove;
 	int			z_history_framenum;
 	int			z_history_count;
 #endif
