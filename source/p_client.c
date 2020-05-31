@@ -2990,7 +2990,11 @@ void FrameStartZ( edict_t *ent )
 
 	// Restore origin[2] from z_history[0] once at the very beginning of the frame.
 	ent->s.origin[2] = ent->z_history[0];
-	ent->z_history_framenum = level.framenum;
+	ent->z_history_framenum = 0;
+/*
+	if( game.serverfeatures & GMF_CLIENTNUM )
+		ent->client->ps.pmove.origin[2] = ent->z_pmove;
+*/
 #endif
 }
 

@@ -1258,7 +1258,6 @@ void FrameEndZ( edict_t *ent )
 	&&  (ent->client->ps.pmove.pm_flags & PMF_ON_GROUND)
 	&&  (ent->groundentity == &(globals.edicts[0])) )
 	{
-		ent->z_history_framenum = level.framenum;
 		if( ent->z_history_count < FRAMEDIV )
 			ent->z_history_count ++;
 	}
@@ -1268,10 +1267,21 @@ void FrameEndZ( edict_t *ent )
 	// If we have multiple valid frames to smooth, temporarily set origin[2] as the average.
 	if( ent->z_history_count > 1 )
 	{
+		ent->z_history_framenum = level.framenum;
+
 		for( i = 1; i < ent->z_history_count; i ++ )
 			ent->s.origin[2] += ent->z_history[ i ];
 
 		ent->s.origin[2] /= (float) ent->z_history_count;
+/*
+		// Smooth in-eyes spectator height.
+		// Commented-out because this causes player views to jiggle when walking up ramps!
+		if( game.serverfeatures & GMF_CLIENTNUM )
+		{
+			ent->z_pmove = ent->client->ps.pmove.origin[2];
+			ent->client->ps.pmove.origin[2] = ent->s.origin[2] * 8;
+		}
+*/
 	}
 #endif
 }
