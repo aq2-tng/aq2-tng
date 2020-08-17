@@ -2993,7 +2993,7 @@ void ClientThink(edict_t * ent, usercmd_t * ucmd)
 		ent->waterlevel = pm.waterlevel;
 		ent->watertype = pm.watertype;
 
-		if( pm.groundentity )
+		if( pm.groundentity || ! slopefix->value )
 			ent->groundentity = pm.groundentity;
 		else if( ent->groundentity && (ent->client->jumping || pm.waterlevel || (ent->velocity[2] > 0) || (ent->velocity[2] < -70) || ! ent->groundentity->inuse) )
 			ent->groundentity = NULL;

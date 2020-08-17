@@ -330,6 +330,7 @@ cvar_t *llsound;
 cvar_t *loud_guns;
 cvar_t *sync_guns;
 cvar_t *silentwalk;
+cvar_t *slopefix;
 cvar_t *use_cvote;
 cvar_t *new_irvision;
 cvar_t *use_rewards;
