@@ -149,9 +149,12 @@ void UpdateChaseCam( edict_t * ent )
 		VectorNormalize( forward );
 		VectorMA( ownerv, -150, forward, o );
 
+		/*
 		// jump animation lifts
+		// Raptor007: This made sense for baseq2 shoulder chase, but looks bad in AQ2 on slopes.
 		if (!targ->groundentity)
 			o[2] += 16;
+		*/
 
 		PRETRACE();
 		trace = gi.trace( ownerv, vec3_origin, vec3_origin, o, targ, MASK_SOLID );
