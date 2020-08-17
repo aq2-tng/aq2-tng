@@ -3128,9 +3128,15 @@ void ClientThink(edict_t * ent, usercmd_t * ucmd)
 		ent->viewheight = pm.viewheight;
 		ent->waterlevel = pm.waterlevel;
 		ent->watertype = pm.watertype;
-		ent->groundentity = pm.groundentity;
-		if (pm.groundentity)
-			ent->groundentity_linkcount = pm.groundentity->linkcount;
+
+		if( pm.groundentity || ! slopefix->value )
+			ent->groundentity = pm.groundentity;
+		else if( ent->groundentity && (ent->client->jumping || pm.waterlevel || (ent->velocity[2] > 0) || (ent->velocity[2] < -70) || ! ent->groundentity->inuse) )
+			ent->groundentity = NULL;
+
+		if( ent->groundentity )
+			ent->groundentity_linkcount = ent->groundentity->linkcount;
+
 		if (ent->deadflag) {
 			client->ps.viewangles[ROLL] = 40;
 			client->ps.viewangles[PITCH] = -15;
