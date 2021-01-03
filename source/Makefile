@@ -50,6 +50,11 @@ ifneq (,$(findstring __arm,__$(MACHINE)))
 ARCH=arm
 endif
 
+# If machine starts with aarch64 raspberry pi 4  gameaarch64.so.
+ifneq (,$(findstring __aarch64,__$(MACHINE)))
+ARCH=aarch64
+endif
+
 ifeq ($(MACHINE),x86_64)
 ARCH=x86_64
 endif
