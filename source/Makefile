@@ -43,25 +43,12 @@ endif
 
 MACHINE=$(shell uname -m)
 SYSTEM=$(shell uname -s)
-ARCH=i386
 
-# If machine starts with arm (any type of Raspberry Pi) make gamearm.so.
+ARCH=$(MACHINE)
+
+# If machine starts with arm (any 32-bit Raspberry Pi) make gamearm.so.
 ifneq (,$(findstring __arm,__$(MACHINE)))
 ARCH=arm
-endif
-
-# If machine starts with aarch64 raspberry pi 4  gameaarch64.so.
-ifneq (,$(findstring __aarch64,__$(MACHINE)))
-ARCH=aarch64
-endif
-
-ifeq ($(MACHINE),x86_64)
-ARCH=x86_64
-endif
-
-ifdef X86
-ARCH=i386
-CFLAGS+=-m32
 endif
 
 DO_CC=$(CC) $(CFLAGS) $(SHLIBCFLAGS) -o $@ -c $<
@@ -75,7 +62,6 @@ WIN32=yes
 endif
 
 ifdef WIN32
-CC=gcc
 CFLAGS+=-DWIN32
 ARCH=x86
 SHLIBEXT=dll
@@ -86,9 +72,14 @@ endif
 
 ifdef WIN64
 CC=x86_64-w64-mingw32-gcc
-CFLAGS+=-m64 -DWIN64
+CFLAGS+=-DWIN64 -m64
 ARCH=x86_64
 endif
+
+ifeq ($(ARCH),x86)
+CFLAGS+=-m32
+endif
+
 
 #############################################################################
 # SETUP AND BUILD
