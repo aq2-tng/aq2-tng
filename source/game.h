@@ -95,8 +95,8 @@ struct edict_s
 
 #ifndef NO_BOTS
 // making real copies for bot compatibility
-void (*real_cprintf) (edict_t * ent, int printlevel, char *fmt, ...);
-void (*real_centerprintf) (edict_t * ent, char *fmt, ...);
+extern void (*real_cprintf) (edict_t * ent, int printlevel, char *fmt, ...);
+extern void (*real_centerprintf) (edict_t * ent, char *fmt, ...);
 #endif
 
 //

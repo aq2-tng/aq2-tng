@@ -155,6 +155,9 @@ void debug_printf(char *fmt, ...)
 
 }
 
+void (*real_cprintf) (edict_t * ent, int printlevel, char *fmt, ...) = NULL;
+void (*real_centerprintf) (edict_t * ent, char *fmt, ...) = NULL;
+
 ///////////////////////////////////////////////////////////////////////
 // botsafe cprintf
 ///////////////////////////////////////////////////////////////////////
