@@ -66,11 +66,14 @@ CFLAGS+=-DWIN32
 ARCH=x86
 SHLIBEXT=dll
 SHLIBLIBS=-lws2_32
+CC=i686-w64-mingw32-gcc
 else
 CFLAGS+=-fPIC
 endif
 
 ifdef WIN64
+SHLIBLIBS=-lws2_32
+SHLIBEXT=dll
 CC=x86_64-w64-mingw32-gcc
 CFLAGS+=-DWIN64 -m64
 ARCH=x86_64
