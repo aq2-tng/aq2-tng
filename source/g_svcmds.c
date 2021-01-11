@@ -5,6 +5,11 @@
 //
 //-----------------------------------------------------------------------------
 // $Log: g_svcmds.c,v $
+//
+// Revision 1.6 2020/01/11 23:30:00  KaniZ
+// New server commands: "sv t1name", "sv t2name" and "sv t3name"
+// Can be used to change teamname without joining the team
+//
 // Revision 1.15  2003/12/09 20:53:35  igor_rock
 // added player console info if stuffcmd used (to avoid admin cheating)
 //
@@ -503,6 +508,25 @@ void SVCmd_SetTeamScore_f( int team )
 	gi.bprintf( PRINT_HIGH, "Team %i score set to %i by console.\n", team, teams[team].score );
 }
 
+void SVCmd_SetTeamName_f( int team )
+{
+	if( ! teamplay->value )
+	{
+		gi.cprintf( NULL, PRINT_HIGH, "Teamnames can only be set for teamplay.\n" );
+		return;
+	}
+
+	if( gi.argc() < 3 )
+	{
+		gi.cprintf( NULL, PRINT_HIGH, "Usage: sv %s <name>\n", gi.argv(1) );
+		return;
+	}
+
+	strcpy(teams[team].name, gi.argv(2));
+
+	gi.bprintf( PRINT_HIGH, "Team %i name set to %s by console.\n", team, teams[team].name );
+}
+
 void SVCmd_SoftQuit_f (void)
 {
 	gi.bprintf(PRINT_HIGH, "The server will exit after this map\n");
@@ -511,15 +535,6 @@ void SVCmd_SoftQuit_f (void)
 
 void SVCmd_Slap_f (void)
 {
-	const char *name = gi.argv(2);
-	size_t name_len = strlen(name);
-	int damage = atoi(gi.argv(3));
-	float power = (gi.argc() >= 5) ? atof(gi.argv(4)) : 100.f;
-	vec3_t slap_dir = {0.f,0.f,1.f}, slap_normal = {0.f,0.f,-1.f};
-	qboolean found_victim = false;
-	size_t i = 0;
-	int user_id = name_len ? (atoi(name) + 1) : 0;
-
 	if( gi.argc() < 3 )
 	{
 		gi.cprintf( NULL, PRINT_HIGH, "Usage: sv slap <name/id> [<damage>] [<power>]\n" );
@@ -531,6 +546,15 @@ void SVCmd_Slap_f (void)
 		return;
 	}
 
+	const char *name = gi.argv(2);
+	size_t name_len = strlen(name);
+	int damage = atoi(gi.argv(3));
+	float power = (gi.argc() >= 5) ? atof(gi.argv(4)) : 100.f;
+	vec3_t slap_dir = {0.f,0.f,1.f}, slap_normal = {0.f,0.f,-1.f};
+	qboolean found_victim = false;
+	size_t i = 0;
+	int user_id = name_len ? (atoi(name) + 1) : 0;
+
 	// See if we're slapping by user ID.
 	for( i = 0; i < name_len; i ++ )
 	{
@@ -538,10 +562,10 @@ void SVCmd_Slap_f (void)
 			user_id = 0;
 	}
 
-	for( i = 1; i <= game.maxclients; i ++ )
+	for( i = 0; i < maxclients->value ; i ++ )
 	{
-		edict_t *ent = g_edicts + i;
-		if( ent->inuse && ( (user_id == i) || ((! user_id) && (Q_strnicmp( ent->client->pers.netname, name, name_len ) == 0)) ) )
+		edict_t *ent = g_edicts + i + 1;
+		if( ent->inuse && ( (user_id == i + 1) || ((! user_id) && (Q_strnicmp( ent->client->pers.netname, name, name_len ) == 0)) ) )
 		{
 			found_victim = true;
 			if( IS_ALIVE(ent) )
@@ -619,6 +643,12 @@ void ServerCommand (void)
 		SVCmd_SetTeamScore_f( 2 );
 	else if (Q_stricmp (cmd, "t3score") == 0)
 		SVCmd_SetTeamScore_f( 3 );
+	else if (Q_stricmp (cmd, "t1name") == 0)
+		SVCmd_SetTeamName_f( 1 );
+	else if (Q_stricmp (cmd, "t2name") == 0)
+		SVCmd_SetTeamName_f( 2 );
+	else if (Q_stricmp (cmd, "t3name") == 0)
+		SVCmd_SetTeamName_f( 3 );
 	else if (Q_stricmp (cmd, "softquit") == 0)
 		SVCmd_SoftQuit_f ();
 	else if (Q_stricmp (cmd, "slap") == 0)
