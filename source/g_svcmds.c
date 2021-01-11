@@ -562,10 +562,10 @@ void SVCmd_Slap_f (void)
 			user_id = 0;
 	}
 
-	for( i = 0; i < maxclients->value ; i ++ )
+	for( i = 1; i <= game.maxclients; i ++ )
 	{
-		edict_t *ent = g_edicts + i + 1;
-		if( ent->inuse && ( (user_id == i + 1) || ((! user_id) && (Q_strnicmp( ent->client->pers.netname, name, name_len ) == 0)) ) )
+		edict_t *ent = g_edicts + i;
+		if( ent->inuse && ( (user_id == i) || ((! user_id) && (Q_strnicmp( ent->client->pers.netname, name, name_len ) == 0)) ) )
 		{
 			found_victim = true;
 			if( IS_ALIVE(ent) )
