@@ -6,7 +6,7 @@
 //-----------------------------------------------------------------------------
 // $Log: g_svcmds.c,v $
 //
-// Revision 1.6 2020/01/11 23:30:00  KaniZ
+// Revision 1.16 2020/01/11 23:30:00  KaniZ
 // New server commands: "sv t1name", "sv t2name" and "sv t3name"
 // Can be used to change teamname without joining the team
 //
