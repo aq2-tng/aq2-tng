@@ -144,7 +144,7 @@ void debug_printf(char *fmt, ...)
 	if (dedicated->value)
 		gi.cprintf(NULL, PRINT_MEDIUM, "%s", bigbuffer);
 
-	for (i=0 ; i<maxclients->value ; i++)
+	for (i=0 ; i<game.maxclients ; i++)
 	{
 		cl_ent = g_edicts + 1 + i;
 		if (!cl_ent->inuse || cl_ent->is_bot)
@@ -154,6 +154,9 @@ void debug_printf(char *fmt, ...)
 	}
 
 }
+
+void (*real_cprintf) (edict_t * ent, int printlevel, char *fmt, ...) = NULL;
+void (*real_centerprintf) (edict_t * ent, char *fmt, ...) = NULL;
 
 ///////////////////////////////////////////////////////////////////////
 // botsafe cprintf

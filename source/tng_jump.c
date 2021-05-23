@@ -1,6 +1,6 @@
 #include "g_local.h"
 
-cvar_t *jump;
+//cvar_t *jump;
 
 char *jump_statusbar =
     "yb -24 "

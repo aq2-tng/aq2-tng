@@ -428,6 +428,7 @@ void InitGame( void )
 	loud_guns = gi.cvar( "loud_guns", "1", 0 );
 	sync_guns = gi.cvar( "sync_guns", "1", 0 );
 	silentwalk = gi.cvar( "silentwalk", "0", 0 );
+	slopefix = gi.cvar( "slopefix", "1", 0 );
 	use_cvote = gi.cvar( "use_cvote", "0", 0 );	// Removed it from Serverinfo
 	new_irvision = gi.cvar( "new_irvision", "0", 0 );
 	use_rewards = gi.cvar( "use_rewards", "1", 0 );

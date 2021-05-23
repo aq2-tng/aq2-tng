@@ -1195,6 +1195,7 @@ void ACEMV_Attack (edict_t *self, usercmd_t *ucmd)
 	vec3_t	attackvector;
 	float	dist;
 	qboolean	bHasWeapon;	// Needed to allow knife throwing and kick attacks
+	qboolean	enemy_front;
 
 	bHasWeapon = self->grenadewait || ACEAI_ChooseWeapon(self);
 
@@ -1202,7 +1203,7 @@ void ACEMV_Attack (edict_t *self, usercmd_t *ucmd)
 	VectorSubtract( self->s.origin, self->enemy->s.origin, attackvector);
 	dist = VectorLength( attackvector);
 
-	qboolean enemy_front = infront( self, self->enemy );
+	enemy_front = infront( self, self->enemy );
 
   //If we're fleeing, don't bother moving randomly around the enemy and stuff...
 //  if (self->state != STATE_FLEE)
@@ -1233,13 +1234,15 @@ void ACEMV_Attack (edict_t *self, usercmd_t *ucmd)
 		self->client->pers.knife_mode = 0;
 		if( (dist < 2000) && (dist < 400 + 300 * INV_AMMO(self,KNIFE_NUM)) )
 		{
-			// See if we want to throw the knife
-			if( bHasWeapon && (dist > 100) )
+			float kick_dist = 200;
+
+			if( bHasWeapon )
 			{
-				// Yes we do.
 				self->client->pers.knife_mode = 1;
+				kick_dist = 100;
 			}
-			else if( dist < 200 )
+
+			if( dist < kick_dist )
 			{
 				if( dist < 64 )	// Too close
 					ucmd->forwardmove = -SPEED_WALK;
@@ -1387,6 +1390,7 @@ void ACEMV_Attack (edict_t *self, usercmd_t *ucmd)
 		)
 	{
 		short int sign[3], iFactor = 7;
+		float yaw_diff = 0.f;
 		sign[0] = (random() < 0.5) ? -1 : 1;
 		sign[1] = (random() < 0.5) ? -1 : 1;
 		sign[2] = (random() < 0.5) ? -1 : 1;
@@ -1402,7 +1406,7 @@ void ACEMV_Attack (edict_t *self, usercmd_t *ucmd)
 
 		// Shoot less accurately if we just turned around and are far away.
 		vectoangles( attackvector, angles );
-		float yaw_diff = angles[YAW] - self->s.angles[YAW];
+		yaw_diff = angles[YAW] - self->s.angles[YAW];
 		if( yaw_diff > 180.f )
 			yaw_diff -= 360.f;
 		else if( yaw_diff < -180.f )

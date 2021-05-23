@@ -799,6 +799,9 @@ qboolean ACEIT_CanUseArmor (gitem_t *item, edict_t *other)
 ///////////////////////////////////////////////////////////////////////
 float ACEIT_ItemNeed( edict_t *self, edict_t *item_ent )
 {
+	gitem_t *item = NULL;
+	int band = 0;
+
 	if( ! item_ent )
 		return 0;
 
@@ -806,11 +809,11 @@ float ACEIT_ItemNeed( edict_t *self, edict_t *item_ent )
 	if( dom->value && (Q_stricmp( item_ent->classname, "item_flag" ) == 0) )
 		return (DomFlagOwner(item_ent) != self->client->resp.team) ? 9000 : 0;
 
-	gitem_t *item = FindItemByClassname( item_ent->classname );
+	item = FindItemByClassname( item_ent->classname );
 	if( ! item )
 		return 0;
 
-	int band = INV_AMMO(self,BAND_NUM) ? 1 : 0;
+	band = INV_AMMO(self,BAND_NUM) ? 1 : 0;
 
 	switch( item->typeNum )
 	{
