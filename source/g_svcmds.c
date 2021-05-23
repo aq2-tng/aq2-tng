@@ -5,6 +5,11 @@
 //
 //-----------------------------------------------------------------------------
 // $Log: g_svcmds.c,v $
+//
+// Revision 1.16 2020/01/11 23:30:00  KaniZ
+// New server commands: "sv t1name", "sv t2name" and "sv t3name"
+// Can be used to change teamname without joining the team
+//
 // Revision 1.15  2003/12/09 20:53:35  igor_rock
 // added player console info if stuffcmd used (to avoid admin cheating)
 //
@@ -503,6 +508,25 @@ void SVCmd_SetTeamScore_f( int team )
 	gi.bprintf( PRINT_HIGH, "Team %i score set to %i by console.\n", team, teams[team].score );
 }
 
+void SVCmd_SetTeamName_f( int team )
+{
+	if( ! teamplay->value )
+	{
+		gi.cprintf( NULL, PRINT_HIGH, "Teamnames can only be set for teamplay.\n" );
+		return;
+	}
+
+	if( gi.argc() < 3 )
+	{
+		gi.cprintf( NULL, PRINT_HIGH, "Usage: sv %s <name>\n", gi.argv(1) );
+		return;
+	}
+
+	strcpy(teams[team].name, gi.argv(2));
+
+	gi.bprintf( PRINT_HIGH, "Team %i name set to %s by console.\n", team, teams[team].name );
+}
+
 void SVCmd_SoftQuit_f (void)
 {
 	gi.bprintf(PRINT_HIGH, "The server will exit after this map\n");
@@ -619,6 +643,12 @@ void ServerCommand (void)
 		SVCmd_SetTeamScore_f( 2 );
 	else if (Q_stricmp (cmd, "t3score") == 0)
 		SVCmd_SetTeamScore_f( 3 );
+	else if (Q_stricmp (cmd, "t1name") == 0)
+		SVCmd_SetTeamName_f( 1 );
+	else if (Q_stricmp (cmd, "t2name") == 0)
+		SVCmd_SetTeamName_f( 2 );
+	else if (Q_stricmp (cmd, "t3name") == 0)
+		SVCmd_SetTeamName_f( 3 );
 	else if (Q_stricmp (cmd, "softquit") == 0)
 		SVCmd_SoftQuit_f ();
 	else if (Q_stricmp (cmd, "slap") == 0)
