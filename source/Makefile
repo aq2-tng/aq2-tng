@@ -62,6 +62,9 @@ WIN32=yes
 endif
 
 ifdef WIN32
+ifneq (,$(findstring Linux,$(SYSTEM)))
+CC=i686-w64-mingw32-gcc
+endif
 CFLAGS+=-DWIN32
 ARCH=x86
 SHLIBEXT=dll
@@ -74,6 +77,8 @@ ifdef WIN64
 CC=x86_64-w64-mingw32-gcc
 CFLAGS+=-DWIN64 -m64
 ARCH=x86_64
+SHLIBEXT=dll
+SHLIBLIBS=-lws2_32
 endif
 
 ifeq ($(ARCH),x86)
