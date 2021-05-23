@@ -982,6 +982,7 @@ extern cvar_t *llsound;
 extern cvar_t *loud_guns;
 extern cvar_t *sync_guns;
 extern cvar_t *silentwalk;
+extern cvar_t *slopefix;
 extern cvar_t *use_cvote;
 extern cvar_t *new_irvision;
 extern cvar_t *use_rewards;
@@ -1876,6 +1877,13 @@ struct edict_s
 
 	// hack for proper s.old_origin updates
 	vec3_t		old_origin;
+
+#ifndef NO_FPS
+	float		z_history[ MAX_FRAMEDIV ];
+	//short		z_pmove;
+	int			z_history_framenum;
+	int			z_history_count;
+#endif
 
 	// action
 	qboolean	splatted;

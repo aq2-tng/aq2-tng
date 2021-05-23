@@ -96,7 +96,7 @@
 //AQ2:TNG END
 
 extern char *map_rotation[];
-extern int num_maps, cur_map, num_allvotes;	// num_allvotes added by Igor[Rock]
+extern int num_maps, cur_map, rand_map, num_allvotes;	// num_allvotes added by Igor[Rock]
 
 void ReadConfigFile ();
 void ReadMOTDFile ();

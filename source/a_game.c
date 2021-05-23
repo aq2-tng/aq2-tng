@@ -77,7 +77,7 @@
 #define MAX_TOTAL_MOTD_LINES    30
 
 char *map_rotation[MAX_MAP_ROTATION];
-int num_maps, cur_map, num_allvotes;	// num_allvotes added by Igor[Rock]
+int num_maps, cur_map, rand_map, num_allvotes;	// num_allvotes added by Igor[Rock]
 
 char motd_lines[MAX_TOTAL_MOTD_LINES][40];
 int motd_num_lines;
@@ -166,7 +166,10 @@ void ReadConfigFile()
 	Com_sprintf(teams[TEAM1].skin_index, sizeof(teams[TEAM1].skin_index), "../players/%s_i", teams[TEAM1].skin);
 	Com_sprintf(teams[TEAM2].skin_index, sizeof(teams[TEAM2].skin_index), "../players/%s_i", teams[TEAM2].skin);
 	Com_sprintf(teams[TEAM3].skin_index, sizeof(teams[TEAM3].skin_index), "../players/%s_i", teams[TEAM3].skin);
+
 	cur_map = 0;
+	srand(time(NULL));
+	rand_map = (num_maps > 1) ? (rand() % (num_maps - 1) + 1) : 1;
 
 	fclose(config_file);
 }
@@ -335,7 +338,7 @@ void PrintMOTD(edict_t * ent)
 				/* no comment without author, grr */
 				if(ctfgame.comment) {
 					/* max line length is 39 chars + new line */
-					strncat(msg_buf + strlen(msg_buf), ctfgame.comment, 39);
+					Q_strncatz(msg_buf + strlen(msg_buf), ctfgame.comment, 39);
 					strcat(msg_buf, "\n");
 					lines++;
 				}
@@ -986,11 +989,12 @@ qboolean CanBeAttachedTo( const edict_t *ent )
 void AddDecal(edict_t * self, trace_t * tr)
 {
 	edict_t *decal, *dec;
+	qboolean attached;
 
 	if (bholelimit->value < 1)
 		return;
 
-	qboolean attached = CanBeAttachedTo(tr->ent);
+	attached = CanBeAttachedTo(tr->ent);
 
 	decal = bholelife->value ? G_Spawn() : G_Spawn_Decal();
 	if( ! decal )
@@ -1037,11 +1041,12 @@ void AddSplat(edict_t * self, vec3_t point, trace_t * tr)
 {
 	edict_t *splat, *spt;
 	float r;
+	qboolean attached;
 
 	if (splatlimit->value < 1)
 		return;
 
-	qboolean attached = CanBeAttachedTo(tr->ent);
+	attached = CanBeAttachedTo(tr->ent);
 
 	splat = splatlife->value ? G_Spawn() : G_Spawn_Decal();
 	if( ! splat )

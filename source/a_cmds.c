@@ -179,6 +179,8 @@ void SP_LaserSight(edict_t * self, gitem_t * item)
 	lasersight->classname = "lasersight";
 	lasersight->s.modelindex = level.model_lsight;
 	lasersight->s.renderfx = RF_TRANSLUCENT;
+	lasersight->ideal_yaw = self->viewheight;
+	lasersight->count = 0;
 	lasersight->think = LaserSightThink;
 	lasersight->nextthink = level.framenum + 1;
 	LaserSightThink( lasersight );
@@ -198,7 +200,7 @@ void LaserSightThink(edict_t * self)
 	vec3_t start, end, endp, offset;
 	vec3_t forward, right, up, angles;
 	trace_t tr;
-	int height = 0;
+	float viewheight = self->owner->viewheight;
 
 	// zucc compensate for weapon ride up
 	VectorAdd(self->owner->client->v_angle, self->owner->client->kick_angles, angles);
@@ -208,10 +210,33 @@ void LaserSightThink(edict_t * self)
 		self->think = G_FreeEdict;
 	}
 
-	if (self->owner->client->pers.firing_style == ACTION_FIRING_CLASSIC)
-		height = 8;
+#ifndef NO_FPS
+	// Raptor007: Smooth laser viewheight changes (crouch/stand) with sv_fps.
+	// I borrowed ideal_yaw and yaw_speed because I needed two entity floats
+	// that wouldn't otherwise be used for the lasersight.
+	if( FRAMEDIV > 1 )
+	{
+		if( self->count )
+		{
+			self->ideal_yaw += self->yaw_speed;
+			self->count --;
+		}
 
-	VectorSet(offset, 24, 8, self->owner->viewheight - height);
+		if( FRAMESYNC && ! self->count )
+		{
+			self->yaw_speed = (self->owner->viewheight - self->ideal_yaw) / (float) FRAMEDIV;
+			self->ideal_yaw += self->yaw_speed;
+			self->count = FRAMEDIV - 1;
+		}
+
+		viewheight = self->ideal_yaw;
+	}
+#endif
+
+	if (self->owner->client->pers.firing_style == ACTION_FIRING_CLASSIC)
+		viewheight -= 8;
+
+	VectorSet(offset, 24, 8, viewheight);
 	P_ProjectSource(self->owner->client, self->owner->s.origin, offset, forward, right, start);
 	VectorMA(start, 8192, forward, end);
 
@@ -512,16 +537,46 @@ void _ZoomOut(edict_t * ent, qboolean overflow)
 
 void Cmd_NextMap_f(edict_t * ent)
 {
-	if (level.nextmap[0])
-	{
-		gi.cprintf (ent, PRINT_HIGH, "Next map in rotation is %s (%d/%d).\n", level.nextmap, cur_map+1, num_maps);
-		return;
-	}
-	if ((cur_map+1) >= num_maps)
-		gi.cprintf (ent, PRINT_HIGH, "Next map in rotation is %s (%d/%d).\n", map_rotation[0], 1, num_maps);
-	else
-		gi.cprintf (ent, PRINT_HIGH, "Next map in rotation is %s (%d/%d).\n", map_rotation[cur_map+1], cur_map+2, num_maps);
+	int map_num = -1;
+	const char *next_map = level.nextmap;
+	const char *rot_type = "in rotation";
+	votelist_t *voted = NULL;
 
+	if( next_map[0] )
+		rot_type = "selected";
+	else if( vrot->value && ((voted = MapWithMostAllVotes())) )
+	{
+		next_map = voted->mapname;
+		rot_type = "by votes";
+	}
+
+	if( next_map[0] )
+	{
+		int i;
+		for( i = 0; i < num_maps; i ++ )
+		{
+			if( Q_stricmp( map_rotation[i], next_map ) == 0 )
+			{
+				map_num = i;
+				break;
+			}
+		}
+	}
+	else if( num_maps )
+	{
+		map_num = (cur_map + (rrot->value ? rand_map : 1)) % num_maps;
+		next_map = map_rotation[ map_num ];
+		rot_type = rrot->value ? "randomly" : "in rotation";
+	}
+
+	if( DMFLAGS(DF_SAME_LEVEL) )
+	{
+		map_num = cur_map;
+		next_map = level.mapname;
+		rot_type = "repeated";
+	}
+
+	gi.cprintf( ent, PRINT_HIGH, "Next map %s is %s (%i/%i).\n", rot_type, next_map, map_num+1, num_maps );
 }
 
 void Cmd_Lens_f(edict_t * ent)

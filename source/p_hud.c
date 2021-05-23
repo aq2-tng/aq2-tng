@@ -344,6 +344,11 @@ void G_SetStats (edict_t * ent)
 
 	if (!ent->client->chase_mode)
 	{
+		int icons[ 6 ], icon_count, i;
+		int cycle = hud_items_cycle->value * FRAMEDIV;
+		int weapon_ids[ 6 ] = { SNIPER_NUM, M4_NUM, MP5_NUM, M3_NUM, HC_NUM, DUAL_NUM };
+		int s_item_ids[ 6 ] = { KEV_NUM, HELM_NUM, BAND_NUM, SIL_NUM, SLIP_NUM, LASER_NUM };
+
 		//
 		// health
 		//
@@ -373,11 +378,7 @@ void G_SetStats (edict_t * ent)
 		// zucc display special item and special weapon
 		// Raptor007: Modified to rotate through all carried special weapons and items.
 
-		int icons[ 6 ], icon_count, i;
-		int cycle = hud_items_cycle->value * FRAMEDIV;
-
 		icon_count = 0;
-		int weapon_ids[ 6 ] = { SNIPER_NUM, M4_NUM, MP5_NUM, M3_NUM, HC_NUM, DUAL_NUM };
 		for( i = 0; i < 6; i ++ )
 		{
 			if( INV_AMMO( ent, weapon_ids[i] ) )
@@ -391,7 +392,6 @@ void G_SetStats (edict_t * ent)
 			ent->client->ps.stats[STAT_WEAPONS_ICON] = 0;
 
 		icon_count = 0;
-		int s_item_ids[ 6 ] = { KEV_NUM, HELM_NUM, BAND_NUM, SIL_NUM, SLIP_NUM, LASER_NUM };
 		for( i = 0; i < 6; i ++ )
 		{
 			if( INV_AMMO( ent, s_item_ids[i] ) )

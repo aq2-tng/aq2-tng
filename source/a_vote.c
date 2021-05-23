@@ -157,6 +157,7 @@ char maplistpath[MAX_STR_LEN];
 
 // forward declarations
 votelist_t *MapWithMostVotes(float *p);
+votelist_t *MapWithMostAllVotes(void);
 int AddVoteToMap(const char *mapname, edict_t * ent);
 void ReadMaplistFile(void);
 qboolean _iCheckMapVotes(void);
@@ -328,8 +329,8 @@ void _MapExitLevel (char *NextMap)
 {
 	votelist_t *votemap = NULL;
 	//Igor[Rock] BEGIN
-	FILE *votefile;
-	char buf[MAX_STR_LEN];
+	//FILE *votefile;
+	//char buf[MAX_STR_LEN];
 	//Igor[Rock] END
 
 	// If mapvote_next=1 and level has ended, ignore minimums required for mapvote.
@@ -351,6 +352,9 @@ void _MapExitLevel (char *NextMap)
 		}
 		if (Q_stricmp (level.mapname, votemap->mapname) == 0)
 		{
+			num_allvotes -= votemap->num_allvotes;
+			votemap->num_allvotes = 0;
+			/*
 			if (map_num_clients > 1)
 			{
 				if (votemap->num_allvotes < (map_num_clients / 2))
@@ -372,11 +376,13 @@ void _MapExitLevel (char *NextMap)
 					votemap->num_allvotes--;
 				}
 			}
+			*/
 		}
 		//Igor[Rock] END
 		votemap->num_votes = 0;
 	}
 
+	/*
 	//Igor[Rock] BEGIN
 	// Save the actual votes to a file
 	votefile = fopen (maplistpath, "w");
@@ -393,6 +399,8 @@ void _MapExitLevel (char *NextMap)
 
 		fclose (votefile);
 	}
+	*/
+
 	//Igor[Rock] END
 	map_num_votes = 0;
 	map_num_clients = 0;
@@ -447,16 +455,23 @@ void _MapWithMostVotes (void)
 //
 void _ClearMapVotes (void)
 {
+	votelist_t *search = NULL;
+
 	map_num_votes = 0;
 	map_num_clients = 0;
 	map_need_to_check_votes = true;
-	
-	votelist_t *search = NULL;
+
 	for( search = map_votes; search != NULL; search = search->next )
 	{
 		search->num_votes = 0;
-		search->num_allvotes = 0;
+		if( Q_stricmp( level.mapname, search->mapname ) == 0 )
+		{
+			num_allvotes -= search->num_allvotes;
+			search->num_allvotes = 0;
+		}
 	}
+
+	level.nextmap[0] = '\0';
 }
 
 //
@@ -467,14 +482,10 @@ cvar_t *_InitMapVotelist (ini_t * ini)
 	// note that this is done whether we have set "use_mapvote" or not!
 	map_votes = NULL;
 	map_num_maps = 0;
+	num_allvotes = 0;
 	_ClearMapVotes();
 	ReadMaplistFile ();
 
-	use_mapvote = gi.cvar ("use_mapvote", "0", 0);
-	//Igor[Rock] Begin
-	vrot = gi.cvar ("vrot", "0", CVAR_LATCH);
-	rrot = gi.cvar ("rrot", "0", CVAR_LATCH);
-	//Igor[Rock] End
 	mapvote_min = gi.cvar ("mapvote_min",
 		ReadIniStr (ini, MAPVOTESECTION, "mapvote_min", buf, "1"), CVAR_LATCH);
 	mapvote_need = gi.cvar ("mapvote_need",
@@ -538,12 +549,47 @@ votelist_t *MapWithMostVotes (float *p)
 			p_most = votes;
 			most = search;
 		}
+		/*
+		else if( votes && (votes == p_most) )
+		{
+			// FIXME: Tie-breaker?
+		}
+		*/
 	}
 
 	if (p != NULL)
 		*p = p_most;
 	return (most);
 }
+
+
+votelist_t *MapWithMostAllVotes( void )
+{
+	votelist_t *search = NULL, *most = NULL;
+	int highest_total = 0;
+
+	if( ! _numclients() )
+		return NULL;
+
+	for( search = map_votes; search != NULL; search = search->next )
+	{
+		int total = search->num_allvotes + search->num_votes;
+		if( total > highest_total )
+		{
+			highest_total = total;
+			most = search;
+		}
+		/*
+		else if( total && (total == highest_total) )
+		{
+			// FIXME: Tie-breaker?
+		}
+		*/
+	}
+
+	return most;
+}
+
 
 int AddVoteToMap(const char *mapname, edict_t * ent)
 {
@@ -651,6 +697,8 @@ void MapVoteMenu (edict_t * ent, pmenu_t * p)
 
 votelist_t *VotelistInsert( votelist_t *start, votelist_t *insert )
 {
+	votelist_t *tmp, *after;
+
 	// If this is the first element or goes before the first, it's the new start point.
 	if( (! start) || (Q_stricmp( insert->mapname, start->mapname ) < 0) )
 	{
@@ -659,11 +707,10 @@ votelist_t *VotelistInsert( votelist_t *start, votelist_t *insert )
 	}
 	
 	// Loop until we find a place to insert the new element into the list.
-	votelist_t *tmp;
 	for( tmp = start; tmp->next && (Q_stricmp( insert->mapname, tmp->next->mapname ) >= 0); tmp = tmp->next ){}
 	
 	// Insert the new element.
-	votelist_t *after = tmp->next;
+	after = tmp->next;
 	tmp->next = insert;
 	insert->next = after;
 	
@@ -673,7 +720,7 @@ votelist_t *VotelistInsert( votelist_t *start, votelist_t *insert )
 
 void ReadMaplistFile (void)
 {
-	int i, bs, maplen;
+	int i, bs;
 	votelist_t *tmp = NULL;
 	FILE *maplist_file;
 	char buf[MAX_STR_LEN];
@@ -734,6 +781,9 @@ void ReadMaplistFile (void)
 		fclose(maplist_file);
 	}
 
+	/*
+	num_allvotes = 0;
+
 	//Igor[Rock] BEGIN
 	//load the saved values from the last run of the server
 	Q_strncatz(maplistpath, "-votes", sizeof(maplistpath));
@@ -753,18 +803,23 @@ void ReadMaplistFile (void)
 
 			if (i == 0)
 			{
-				num_allvotes = atoi(buf);
+				//num_allvotes = atoi(buf);  // Don't trust this; count as we go.
 			}
 			else if (map_votes)
 			{
-				if (bs < 3)
+				// Split the buffer on the comma.
+				char *num = strrchr( buf, ',' );
+				if( ! num )
 					continue;
+				*num = '\0';
+				num ++;
 
 				for (tmp = map_votes; tmp->next != NULL; tmp = tmp->next)
 				{
-					maplen = strlen(tmp->mapname);
-					if (maplen < bs && !strncmp(tmp->mapname, buf, maplen)) {
-						tmp->num_allvotes = atoi(&buf[maplen + 1]);
+					if( Q_stricmp( tmp->mapname, buf ) == 0 )
+					{
+						tmp->num_allvotes = atoi(num);
+						num_allvotes += tmp->num_allvotes;
 						break;
 					}
 				}
@@ -773,8 +828,7 @@ void ReadMaplistFile (void)
 		}
 		fclose(maplist_file);
 	}
-
-	return;
+	*/
 }
 
 //=== kick voting ==========================================================
@@ -1967,6 +2021,8 @@ qboolean ScrambleTeams(void)
 	}
 
 	for (i = 0; i < numplayers; i++) {
+		const char *s;
+
 		ent = players[i];
 		newteam = (i % teamCount) + 1;
 
@@ -1975,7 +2031,7 @@ qboolean ScrambleTeams(void)
 
 		ent->client->resp.team = newteam;
 
-		const char *s = Info_ValueForKey( ent->client->pers.userinfo, "skin" );
+		s = Info_ValueForKey( ent->client->pers.userinfo, "skin" );
 		AssignSkin( ent, s, false );
 	}
 

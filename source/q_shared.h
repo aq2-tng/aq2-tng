@@ -60,7 +60,7 @@
 //FIREBLADE
 
 // legacy ABI support for Windows
-#if defined( __GNUC__) && defined( WIN32 )
+#if defined(__GNUC__) && defined(WIN32) && ! defined(WIN64)
 #define		q_gameabi           __attribute__((callee_pop_aggregate_return(0)))
 #else
 #define		q_gameabi
@@ -93,62 +93,54 @@
 # define HAVE_INLINE
 # define HAVE_STRCASECMP
 # define HAVE_SNPRINTF
+# define HAVE_VSNPRINTF
 
 #endif
 //==============================================
-#ifndef HAVE__CDECL
-# ifndef __cdecl
-#  define __cdecl
-# endif
+
+#if ! defined(HAVE__CDECL) && ! defined(__cdecl)
+# define __cdecl
 #endif
 
-#ifndef HAVE___FASTCALL
-# ifndef __fastcall
-#  define __fastcall
-# endif
+#if ! defined(HAVE___FASTCALL) && ! defined(__fastcall)
+# define __fastcall
 #endif
 
-#ifdef HAVE___INLINE
-# ifndef inline
+#if ! defined(HAVE_INLINE) && ! defined(inline)
+# ifdef HAVE___INLINE
 #  define inline __inline
-# endif
-#elif !defined(HAVE_INLINE)
-# ifndef inline
+# else
 #  define inline
 # endif
 #endif
 
-#ifdef HAVE__SNPRINTF
-# ifndef snprintf 
-#  define snprintf _snprintf
-# endif
+#if defined(HAVE__SNPRINTF) && ! defined(snprintf)
+# define snprintf _snprintf
 #endif
 
-#ifdef HAVE__VSNPRINTF
-# ifndef vsnprintf 
-#  define vsnprintf(dest, size, src, list) _vsnprintf((dest), (size), (src), (list)), (dest)[(size)-1] = 0
-# endif
+#if defined(HAVE__VSNPRINTF) && ! defined(vsnprintf)
+# define vsnprintf(dest, size, src, list) _vsnprintf((dest), (size), (src), (list)), (dest)[(size)-1] = 0
 #endif
 
 #ifdef HAVE__STRICMP
-# ifndef Q_stricmp 
-#  define Q_stricmp(s1, s2) _stricmp((s1), (s2))
+# ifndef Q_stricmp
+#  define Q_stricmp _stricmp
 # endif
-# ifndef Q_strnicmp 
-#  define Q_strnicmp(s1, s2, n) _strnicmp((s1), (s2), (n))
+# ifndef Q_strnicmp
+#  define Q_strnicmp _strnicmp
 # endif
-# ifndef HAVE_STRCASECMP
-#  define strcasecmp Q_stricmp    //QwazyWabbit for MSVC compatibility
-#  define strncasecmp Q_strnicmp
+# ifndef strcasecmp
+#  define strcasecmp _stricmp
 # endif
-#endif
-
-#ifdef HAVE_STRCASECMP
-# ifndef Q_stricmp 
-#  define Q_stricmp(s1, s2) strcasecmp((s1), (s2))
+# ifndef strncasecmp
+#  define strncasecmp _strnicmp
 # endif
-# ifndef Q_strnicmp 
-#  define Q_strnicmp(s1, s2, n) strncasecmp((s1), (s2), (n))
+#elif defined(HAVE_STRCASECMP)
+# ifndef Q_stricmp
+#  define Q_stricmp strcasecmp
+# endif
+# ifndef Q_strnicmp
+#  define Q_strnicmp strncasecmp
 # endif
 #endif
 

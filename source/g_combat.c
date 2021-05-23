@@ -761,11 +761,11 @@ T_Damage (edict_t * targ, edict_t * inflictor, edict_t * attacker, vec3_t dir,
 			{
 				float mass = max( targ->mass, 50 );
 				vec3_t flydir = {0.f,0.f,0.f}, kvel = {0.f,0.f,0.f};
+				float accel_scale = (client && (attacker == targ)) ? 1600.f : 500.f; // the rocket jump hack...
 
 				VectorNormalize2( dir, flydir );
 				flydir[2] += 0.4f;
 
-				float accel_scale = (client && (attacker == targ)) ? 1600.f : 500.f; // the rocket jump hack...
 				VectorScale( flydir, accel_scale * (float) knockback / mass, kvel );
 
 				VectorAdd( targ->velocity, kvel, targ->velocity );
@@ -876,9 +876,9 @@ T_Damage (edict_t * targ, edict_t * inflictor, edict_t * attacker, vec3_t dir,
 		//zucc handle adding bleeding here
 		if (bleeding)
 		{
-			client->bleeding += damage * BLEED_TIME;
-			
 			vec3_t fwd, right, up, offset;
+
+			client->bleeding += damage * BLEED_TIME;			
 			AngleVectors( targ->s.angles, fwd, right, up );
 			VectorSubtract( point, targ->s.origin, offset );
 			targ->client->bleedloc_offset[0] = DotProduct( offset, fwd );

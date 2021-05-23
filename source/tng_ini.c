@@ -10,6 +10,7 @@ char *INI_Find( FILE *fh, const char *section, const char *key )
 	char *line = NULL, *value = NULL;
 	char cur_section[MAX_INI_STR_LEN] = { 0 };
 	size_t length = 0;
+	int was_at = 0, read_size = 0;
 
 	if( ! fh )
 	{
@@ -20,9 +21,9 @@ char *INI_Find( FILE *fh, const char *section, const char *key )
 	memset( _ini_ret, 0, MAX_INI_STR_LEN );
 	memset( _ini_file, 0, MAX_INI_SIZE );
 
-	int was_at = fseek( fh, 0, SEEK_CUR );
+	was_at = fseek( fh, 0, SEEK_CUR );
 	fseek( fh, 0, SEEK_SET );
-	int read_size = fread( _ini_file, 1, MAX_INI_SIZE, fh );
+	read_size = fread( _ini_file, 1, MAX_INI_SIZE, fh );
 	fseek( fh, was_at, SEEK_SET );
 
 	if( read_size == MAX_INI_SIZE )
