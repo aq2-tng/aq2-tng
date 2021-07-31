@@ -907,7 +907,9 @@ void ACEMV_Move(edict_t *self, usercmd_t *ucmd)
 	// Get the absolute length
 	distance = VectorLength(dist);
 
-	if( (next_node_type == NODE_LADDER) && ! self->groundentity )
+	// If on the ladder
+	if( (next_node_type == NODE_LADDER) && (distance < 64)
+	&&  ((nodes[self->next_node].origin[2] > self->s.origin[2]) || ! self->groundentity) )
 	{
 		// FIXME: Dirty hack so the bots can actually use ladders.
 		VectorSubtract( nodes[self->next_node].origin, self->s.origin, dist );
@@ -917,46 +919,41 @@ void ACEMV_Move(edict_t *self, usercmd_t *ucmd)
 			self->velocity[2] = min( 200, self->velocity[2] );
 		else
 			self->velocity[2] = max( -200, self->velocity[2] );
+		
 		ACEMV_ChangeBotAngle(self);
 		return;
 	}
-	if(next_node_type == NODE_LADDER && //(gi.pointcontents(self->s.origin) & CONTENTS_LADDER) &&
-		nodes[self->next_node].origin[2] > self->s.origin[2] &&
-		distance < NODE_DENSITY)
+	
+	// If getting onto the ladder going up
+	if( (next_node_type == NODE_LADDER) && (distance < 200)
+	&&  (nodes[self->next_node].origin[2] >= self->s.origin[2]) )
 	{
-		// Otherwise move as fast as we can
-		ucmd->forwardmove = SPEED_WALK / 2; // Reduced from SPEED_RUN
+		ucmd->forwardmove = SPEED_WALK / 2;
 		ucmd->upmove = SPEED_RUN;
-//		self->velocity[2] = SPEED_RUN * 4 / 5;
 		ucmd->sidemove = 0;
 		
 		ACEMV_ChangeBotAngle(self);
-		
 		return;
-
 	}
-	// If getting off the ladder 
-	if(
-		(current_node_type == NODE_LADDER && next_node_type != NODE_LADDER &&
-	   nodes[self->next_node].origin[2] > self->s.origin[2])
-	   )
+	
+	// If getting off the ladder
+	if( (current_node_type == NODE_LADDER) && (next_node_type != NODE_LADDER)
+	&&  (nodes[self->next_node].origin[2] >= self->s.origin[2]) )
 	{
-		ucmd->forwardmove = SPEED_WALK; // Reduced from SPEED_RUN
+		ucmd->forwardmove = SPEED_WALK;
 		ucmd->upmove = SPEED_RUN;
-		self->velocity[2] = 200;
+		self->velocity[2] = min( 200, distance * 10 ); // Jump higher for farther node
+		
 		ACEMV_ChangeBotAngle(self);
 		return;
 	}
-	// If getting onto the ladder 
-	if(
-		(current_node_type != NODE_LADDER && next_node_type == NODE_LADDER )//&&
-//	   (nodes[self->next_node].origin[2] > self->s.origin[2])
-	   )
+	
+	// If getting onto the ladder going down
+	if( (current_node_type != NODE_LADDER) && (next_node_type == NODE_LADDER) )
 	{
-		ucmd->forwardmove = SPEED_WALK / 2; // Reduced from 400
+		ucmd->forwardmove = SPEED_WALK / 2;
 		ucmd->upmove = -SPEED_RUN; //Added by Werewolf to cause crouching
-//		ucmd->upmove = SPEED_WALK;
-//		self->velocity[2] = SPEED_WALK;
+		
 		ACEMV_ChangeBotAngle(self);
 		return;
 	}
