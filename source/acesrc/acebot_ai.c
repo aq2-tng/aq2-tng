@@ -228,8 +228,9 @@ void ACEAI_Think (edict_t *self)
 	}
 	else
 	{
-		// Are we hurt?
+		// Are we hurt or out of ammo?
 		if( (self->health < self->old_health) ||
+			self->client->leg_damage ||
 			(self->client->weaponstate == WEAPON_RELOADING) )
 		{
 			Cmd_Bandage_f ( self );
