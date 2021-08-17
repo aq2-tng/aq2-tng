@@ -1948,6 +1948,7 @@ struct edict_s
 	qboolean	killchat;	// Have we reported an enemy death and taunted him 
 	vec3_t		lastSeen; 
 	qboolean	cansee; 
+	float react;            // How long enemy has been in view.
  
 	// States 
 	int state;	//ACE only 

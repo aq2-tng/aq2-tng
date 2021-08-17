@@ -1188,7 +1188,6 @@ void ACEMV_Attack (edict_t *self, usercmd_t *ucmd)
 {
 	float c;
 	vec3_t  target;
-	vec3_t  angles;
 	vec3_t	attackvector;
 	float	dist;
 	qboolean	bHasWeapon;	// Needed to allow knife throwing and kick attacks
@@ -1311,11 +1310,11 @@ void ACEMV_Attack (edict_t *self, usercmd_t *ucmd)
 		//Reenabled by Werewolf
 		if( ACEAI_CheckShot( self ))
 		{
-			// Raptor007: Only start firing on framesync and if we saw them last frame.
 			if( (ltk_skill->value >= 0)
+			&&  (self->react >= 1.f / (ltk_skill->value + 2.f))             // Reaction time.
 			&&  enemy_front
-			&&  (FRAMESYNC || (self->client->weaponstate != WEAPON_READY))
-			&&  (self->teamPauseTime == level.framenum - 1) )
+			&&  (FRAMESYNC || (self->client->weaponstate != WEAPON_READY))  // Sync firing with random offsets.
+			&&  (self->teamPauseTime == level.framenum - 1) )               // Saw them last frame too.
 			{
 				ucmd->buttons = BUTTON_ATTACK;
 
@@ -1387,7 +1386,6 @@ void ACEMV_Attack (edict_t *self, usercmd_t *ucmd)
 		)
 	{
 		short int sign[3], iFactor = 7;
-		float yaw_diff = 0.f;
 		sign[0] = (random() < 0.5) ? -1 : 1;
 		sign[1] = (random() < 0.5) ? -1 : 1;
 		sign[2] = (random() < 0.5) ? -1 : 1;
@@ -1401,18 +1399,11 @@ void ACEMV_Attack (edict_t *self, usercmd_t *ucmd)
 		if( self->client->push_timeout > 45 )
 			iFactor += self->client->push_timeout - 45;
 
-		// Shoot less accurately if we just turned around and are far away.
-		vectoangles( attackvector, angles );
-		yaw_diff = angles[YAW] - self->s.angles[YAW];
-		if( yaw_diff > 180.f )
-			yaw_diff -= 360.f;
-		else if( yaw_diff < -180.f )
-			yaw_diff += 360.f;
-		iFactor += abs( yaw_diff / 80.f ) * abs( dist / 700.f );
-
-		// Really make sure we aim less accurately when turning around.
-		if( ! enemy_front )
-			iFactor += 3;
+		// Shoot more accurately after holding aim, but less accurately when first aiming.
+		if( self->react >= 4.f )
+			iFactor --;
+		else if( (self->react < 0.5f) && (dist > 300.f) )
+			iFactor ++;
 
 		target[0] += sign[0] * (10 - ltk_skill->value + ( (  iFactor*(10 - ltk_skill->value)  ) * random() )) * 0.7f;
 		target[1] += sign[1] * (10 - ltk_skill->value + ( (  iFactor*(10 - ltk_skill->value)  ) * random() )) * 0.7f;
