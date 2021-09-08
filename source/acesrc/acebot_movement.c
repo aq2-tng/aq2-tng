@@ -56,8 +56,6 @@ void ACEMV_ChangeBotAngle (edict_t *ent);
 qboolean	ACEND_LadderForward( edict_t *self );
 qboolean ACEMV_CanJump(edict_t *self);
 
-qboolean OnLadder( edict_t *ent );  // p_view.c
-
 /*
 =============
 M_CheckBottom
@@ -234,12 +232,15 @@ qboolean ACEMV_CanMove(edict_t *self, int direction)
 	
 	if(tr.fraction == 1.0 || tr.contents & (CONTENTS_LAVA|CONTENTS_SLIME))
 	{
-		if( debug_mode && (self->last_door_time < level.framenum) )
-			debug_printf( "%s: move blocked (ACEMV_CanMove)\n", self->client->pers.netname );
+		if( self->last_door_time < level.framenum )
+		{
+			if( debug_mode )
+				debug_printf( "%s: move blocked (ACEMV_CanMove)\n", self->client->pers.netname );
 
-		Cmd_OpenDoor_f ( self );	// Open the door
-		self->last_door_time = level.framenum + 3 * HZ; // wait!
-		return false;	
+			Cmd_OpenDoor_f ( self );	// Open the door
+			//self->last_door_time = level.framenum + 3 * HZ; // wait!
+		}
+		return false;
 	}
 	
 	return true; // yup, can move
@@ -281,12 +282,15 @@ qboolean ACEMV_CanJumpInternal(edict_t *self, int direction)
 	
 	if(tr.fraction == 1.0 || tr.contents & (CONTENTS_LAVA|CONTENTS_SLIME))
 	{
-		if( debug_mode && (self->last_door_time < level.framenum) )
-			debug_printf( "%s: move blocked (ACEMV_CanJumpInternal)\n", self->client->pers.netname );
+		if( self->last_door_time < level.framenum )
+		{
+			if( debug_mode )
+				debug_printf( "%s: move blocked (ACEMV_CanJumpInternal)\n", self->client->pers.netname );
 
-		Cmd_OpenDoor_f ( self );	// Open the door
-		self->last_door_time = level.framenum + 3 * HZ; // wait!
-		return false;	
+			Cmd_OpenDoor_f ( self );	// Open the door
+			//self->last_door_time = level.framenum + 3 * HZ; // wait!
+		}
+		return false;
 	}
 	
 	return true; // yup, can move
@@ -612,31 +616,40 @@ void ACEMV_MoveToGoal(edict_t *self, usercmd_t *ucmd)
 		trace_t	tTrace;
 		vec3_t	vStart, vDest;
 
-		if (self->current_node==NODE_DOOR)
+		if( nodes[self->current_node].type == NODE_DOOR )
 		{
-			VectorCopy( nodes[self->current_node].origin, vStart);
-			VectorCopy( nodes[self->next_node].origin, vDest);
-			VectorSubtract(self->s.origin,nodes[self->next_node].origin,v);
+			if( nodes[self->next_node].type == NODE_DOOR )
+			{
+				VectorCopy( nodes[self->current_node].origin, vStart );
+				VectorCopy( nodes[self->next_node].origin, vDest );
+				VectorSubtract( self->s.origin, nodes[self->next_node].origin, v );
+			}
+			else
+			{
+				VectorCopy( self->s.origin, vStart );
+				VectorCopy( nodes[self->current_node].origin, vDest );
+				VectorSubtract( self->s.origin, nodes[self->current_node].origin, v );
+			}
+
 			if(VectorLength(v) < 32)
 			{
 				// See if we have a clear shot at it
 				tTrace = gi.trace( vStart, tv(-16,-16,-8), tv(16,16,8), vDest, self, MASK_PLAYERSOLID);
 				if( tTrace.fraction <1.0 )
 				{
-					if(
-						(strcmp(tTrace.ent->classname,"func_door_rotating")==0)
-						||	(strcmp(tTrace.ent->classname,"func_door")==0 )
-						)
+					if( (strcmp( tTrace.ent->classname, "func_door_rotating" ) == 0)
+					||  (strcmp( tTrace.ent->classname, "func_door") == 0) )
 					{
 						// The door is in the way
 						// See if it's moving
-						if( 
-							(VectorLength(tTrace.ent->avelocity) > 0.0)
-							|| ( (tTrace.ent->moveinfo.state != STATE_BOTTOM) && (tTrace.ent->moveinfo.state != STATE_TOP) )
-							)
+						if( (VectorLength(tTrace.ent->avelocity) > 0.0)
+						||  ((tTrace.ent->moveinfo.state != STATE_BOTTOM) && (tTrace.ent->moveinfo.state != STATE_TOP)) )
 						{
-								ucmd->forwardmove = -SPEED_RUN;
-								return;
+							if( self->last_door_time < level.framenum )
+								self->last_door_time = level.framenum;
+							if( ACEMV_CanMove( self, MOVE_BACK ) )
+								ucmd->forwardmove = -SPEED_WALK;
+							return;
 						}
 						else
 						{
@@ -646,22 +659,20 @@ void ACEMV_MoveToGoal(edict_t *self, usercmd_t *ucmd)
 								(tTrace.ent->moveinfo.state != STATE_UP) )
 							{
 								Cmd_OpenDoor_f ( self );	// Open the door
-								self->last_door_time = level.framenum + random() * 3.0 * HZ; // wait!
-								ucmd->forwardmove = -SPEED_RUN;
+								self->last_door_time = level.framenum + random() * 2.5 * HZ; // wait!
+								ucmd->forwardmove = 0;
 								return;
 							}
 						}
 					}
-					else	//No door sighted, try opening anyway
+					else if( tTrace.ent->client )
 					{
-							// Open it
-							if( self->last_door_time < level.framenum - 2.0 * HZ )
-							{
-								Cmd_OpenDoor_f ( self );	// Open the door
-								self->last_door_time = level.framenum + random() * 3.0 * HZ; // wait!
-								ucmd->forwardmove = -SPEED_RUN;
-								return;
-							}
+						// Back up slowly - may have a teammate in the way
+						if( self->last_door_time < level.framenum )
+							self->last_door_time = level.framenum;
+						if( ACEMV_CanMove( self, MOVE_BACK ) )
+							ucmd->forwardmove = -SPEED_WALK;
+						return;
 					}
 				}
 			}
@@ -759,63 +770,62 @@ void ACEMV_Move(edict_t *self, usercmd_t *ucmd)
 	///////////////////////////////////////////////////////
 	if(current_node_type == NODE_DOOR)
 	{
-		if(next_node_type == NODE_DOOR)
+		// We are trying to go through a door
+		trace_t	tTrace;
+		vec3_t	vStart, vDest;
+
+		if( next_node_type == NODE_DOOR )
 		{
-			// We are trying to go through a door
-			trace_t	tTrace;
-			vec3_t	vStart, vDest;
+			VectorCopy( nodes[self->current_node].origin, vStart );
+			VectorCopy( nodes[self->next_node].origin, vDest );
+		}
+		else
+		{
+			VectorCopy( self->s.origin, vStart );
+			VectorCopy( nodes[self->current_node].origin, vDest );
+		}
 
-			VectorCopy( nodes[self->current_node].origin, vStart);
-			VectorCopy( nodes[self->next_node].origin, vDest);
+		// See if we have a clear shot at it
+		tTrace = gi.trace( vStart, tv(-16,-16,-8), tv(16,16,8), vDest, self, MASK_PLAYERSOLID);
 
-			// See if we have a clear shot at it
-			tTrace = gi.trace( vStart, tv(-16,-16,-8), tv(16,16,8), vDest, self, MASK_PLAYERSOLID);
-
-			if( tTrace.fraction <1.0 )
+		if( tTrace.fraction <1.0 )
+		{
+			if( (strcmp( tTrace.ent->classname, "func_door_rotating" ) == 0)
+			||  (strcmp( tTrace.ent->classname, "func_door") == 0) )
 			{
-				if(
-					(strcmp(tTrace.ent->classname,"func_door_rotating")==0)
-					||	(strcmp(tTrace.ent->classname,"func_door")==0 )
-					)
+				// The door is in the way
+				// See if it's moving
+				if( (VectorLength(tTrace.ent->avelocity) > 0.0)
+				||  ((tTrace.ent->moveinfo.state != STATE_BOTTOM) && (tTrace.ent->moveinfo.state != STATE_TOP)) )
 				{
-					// The door is in the way
-					// See if it's moving
-					if( 
-						(VectorLength(tTrace.ent->avelocity) > 0.0)
-						|| ( (tTrace.ent->moveinfo.state != STATE_BOTTOM) && (tTrace.ent->moveinfo.state != STATE_TOP) )
-						)
-					{
-						ucmd->forwardmove = -SPEED_RUN; //walk backwards a little
-//						VectorCopy(self->move_vector,dist);
-//						VectorScale(dist,25,self->velocity);
-						return;
-					}
-					else
-					{
-						// Open it
-						if( (self->last_door_time < level.framenum - 2.0 * HZ) &&
-							(tTrace.ent->moveinfo.state != STATE_TOP) &&
-							(tTrace.ent->moveinfo.state != STATE_UP) )
-						{
-							Cmd_OpenDoor_f ( self );	// Open the door
-							self->last_door_time = level.framenum + random() * 3.0 * HZ; // wait!
-							ucmd->forwardmove = -SPEED_RUN; //walk backwards a little
-//							VectorCopy(self->move_vector,dist);
-//							VectorScale(dist,25,self->velocity);
-							return;
-						}
-					}
+					if( self->last_door_time < level.framenum )
+						self->last_door_time = level.framenum;
+					if( ACEMV_CanMove( self, MOVE_BACK ) )
+						ucmd->forwardmove = -SPEED_WALK; //walk backwards a little
+					return;
 				}
 				else
 				{
-
-					// Back up slowly - may have a teammate in the way
-					ucmd->forwardmove = -SPEED_RUN;
-//					VectorCopy(self->move_vector,dist);
-//					VectorScale(dist,25,self->velocity);
-
-					return;
+					// Open it
+					if( (self->last_door_time < level.framenum - 2.0 * HZ) &&
+						(tTrace.ent->moveinfo.state != STATE_TOP) &&
+						(tTrace.ent->moveinfo.state != STATE_UP) )
+					{
+						Cmd_OpenDoor_f ( self );	// Open the door
+						self->last_door_time = level.framenum + random() * 2.5 * HZ; // wait!
+						ucmd->forwardmove = 0;
+						return;
+					}
 				}
+			}
+			else if( tTrace.ent->client )
+			{
+				// Back up slowly - may have a teammate in the way
+				if( self->last_door_time < level.framenum )
+					self->last_door_time = level.framenum;
+				if( ACEMV_CanMove( self, MOVE_BACK ) )
+					ucmd->forwardmove = -SPEED_WALK;
+				return;
 			}
 		}
 	}

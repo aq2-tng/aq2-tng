@@ -1314,6 +1314,7 @@ qboolean Ban_TeamKiller (edict_t * ent, int rounds);
 //
 void ClientEndServerFrame (edict_t * ent);
 void SetAnimation( edict_t *ent, int frame, int anim_end, int anim_priority );
+qboolean OnLadder( edict_t *ent );
 
 //
 // p_hud.c

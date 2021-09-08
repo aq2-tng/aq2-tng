@@ -1224,6 +1224,10 @@ void Cmd_Placenode_f (edict_t *ent)
 {
 	if(ent->waterlevel)
 		ACEND_AddNode(ent,NODE_WATER);
+	else if(OnLadder(ent))
+		ACEND_AddNode(ent,NODE_LADDER);
+	else if(! ent->groundentity)
+		ACEND_AddNode(ent,NODE_JUMP);
 	else
 		ACEND_AddNode(ent,NODE_MOVE);
 }
