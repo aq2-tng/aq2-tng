@@ -892,16 +892,18 @@ qboolean ACEAI_ChooseWeapon(edict_t *self)
 	VectorSubtract (self->s.origin, self->enemy->s.origin, v);
 	range = VectorLength(v);
 		
-	// Friendy fire after round should be fought with honor.
+	// Friendly fire after round should be fought with honor.
 	if( team_round_countdown && ff_afterround->value )
 	{
-		if( ACEIT_ChangeWeapon(self,FindItem(GRENADE_NAME)) )
-		{
-			self->client->pers.grenade_mode = (range > 700) ? 2 : 1;
-			return true;
-		}
 		if( ACEIT_ChangeWeapon(self,FindItem(KNIFE_NAME)) )
 			return true;
+		if( ACEIT_ChangeHCSpecialWeapon(self,FindItem(HC_NAME)) )
+			return true;
+		if( ACEIT_ChangeWeapon(self,FindItem(GRENADE_NAME)) )
+		{
+			self->client->pers.grenade_mode = (range > 500) ? 1 : 0;
+			return true;
+		}
 	}
 
 	// Extreme range

@@ -1330,7 +1330,7 @@ void ACEMV_Attack (edict_t *self, usercmd_t *ucmd)
 
 				if(self->client->weapon == FindItem(GRENADE_NAME))
 				{
-					self->grenadewait = level.framenum + 2 * HZ;
+					self->grenadewait = level.framenum + 1.5 * HZ;
 					ucmd->forwardmove = -SPEED_RUN; //Stalk back, behold of the holy Grenade!
 				}
 				else
@@ -1362,7 +1362,7 @@ void ACEMV_Attack (edict_t *self, usercmd_t *ucmd)
 	{
 		if( self->client->weapon == FindItem(KNIFE_NAME) )
 			self->client->pers.knife_mode = 1;  // Throwing knives are honorable.
-		else
+		else if( self->client->weapon != FindItem(HC_NAME) )  // Handcannon is allowed.
 			ucmd->buttons &= ~BUTTON_ATTACK;
 
 		if( dist < 128 )
