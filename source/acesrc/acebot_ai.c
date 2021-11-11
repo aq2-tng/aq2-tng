@@ -187,6 +187,13 @@ void ACEAI_Think (edict_t *self)
 	}
 */
 
+	// React when enemies remain in sight, otherwise gradually forget.
+	self->react += see_enemies ? FRAMETIME : (FRAMETIME * -2.f);
+	if( (self->react > 6.f) || (ltk_skill->value > 10) )
+		self->react = 6.f;
+	else if( self->react < 0.f )
+		self->react = 0.f;
+
 	// Look for enemies
 	if( (see_enemies) &&
 		(self->client->weaponstate != WEAPON_RELOADING) &&
@@ -228,8 +235,9 @@ void ACEAI_Think (edict_t *self)
 	}
 	else
 	{
-		// Are we hurt?
+		// Are we hurt or out of ammo?
 		if( (self->health < self->old_health) ||
+			self->client->leg_damage ||
 			(self->client->weaponstate == WEAPON_RELOADING) )
 		{
 			Cmd_Bandage_f ( self );
@@ -671,6 +679,10 @@ qboolean ACEAI_FindEnemy(edict_t *self, int *total)
 	float		bestweight = 99999;
 	float		weight;
 	vec3_t		dist;
+	vec3_t		eyes;
+
+	VectorCopy( self->s.origin, eyes );
+	eyes[2] += self->viewheight;
 
 /*	// If we already have an enemy and it is the last enemy to hurt us
 	if (self->enemy && 
@@ -704,7 +716,7 @@ qboolean ACEAI_FindEnemy(edict_t *self, int *total)
 // AQ2 END
 
 		if((players[i]->deadflag == DEAD_NO) && ai_visible(self, players[i]) && 
-			gi.inPVS(self->s.origin, players[i]->s.origin)	)
+			gi.inPVS(eyes, players[i]->s.origin) )
 		{
 // RiEvEr
 			// Now we assess this enemy
@@ -790,7 +802,7 @@ qboolean ACEAI_FindEnemy(edict_t *self, int *total)
 		if( self->client->push_timeout > 0)
 		{
 			if( (self->client->attacker->solid != SOLID_NOT) && ai_visible(self, self->client->attacker) &&
-				gi.inPVS(self->s.origin, self->client->attacker->s.origin)	)
+				gi.inPVS(eyes, self->client->attacker->s.origin) )
 			{
 				self->enemy = self->client->attacker;
 				return true;
@@ -880,16 +892,18 @@ qboolean ACEAI_ChooseWeapon(edict_t *self)
 	VectorSubtract (self->s.origin, self->enemy->s.origin, v);
 	range = VectorLength(v);
 		
-	// Friendy fire after round should be fought with honor.
+	// Friendly fire after round should be fought with honor.
 	if( team_round_countdown && ff_afterround->value )
 	{
-		if( ACEIT_ChangeWeapon(self,FindItem(GRENADE_NAME)) )
-		{
-			self->client->pers.grenade_mode = (range > 700) ? 2 : 1;
-			return true;
-		}
 		if( ACEIT_ChangeWeapon(self,FindItem(KNIFE_NAME)) )
 			return true;
+		if( ACEIT_ChangeHCSpecialWeapon(self,FindItem(HC_NAME)) )
+			return true;
+		if( ACEIT_ChangeWeapon(self,FindItem(GRENADE_NAME)) )
+		{
+			self->client->pers.grenade_mode = (range > 500) ? 1 : 0;
+			return true;
+		}
 	}
 
 	// Extreme range

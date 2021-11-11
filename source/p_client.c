@@ -2334,6 +2334,7 @@ void PutClientInServer(edict_t * ent)
 	ent->is_jumping = false;
 	ent->is_triggering = false;
 	ent->grenadewait = 0;
+	ent->react = 0.f;
 	
 	if( ent->is_bot )
 	{

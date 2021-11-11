@@ -67,7 +67,7 @@ qboolean ACECM_Commands(edict_t *ent)
 
 	else if(Q_stricmp (cmd, "movenode") == 0 && debug_mode)
 	{
-		node = atoi(gi.argv(1));
+		node = (gi.argc() >= 2) ? atoi(gi.argv(1)) : (numnodes - 1);
 
 		if( gi.argc() >= 5 )
 		{

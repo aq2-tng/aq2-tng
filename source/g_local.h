@@ -1314,6 +1314,7 @@ qboolean Ban_TeamKiller (edict_t * ent, int rounds);
 //
 void ClientEndServerFrame (edict_t * ent);
 void SetAnimation( edict_t *ent, int frame, int anim_end, int anim_priority );
+qboolean OnLadder( edict_t *ent );
 
 //
 // p_hud.c
@@ -1948,6 +1949,7 @@ struct edict_s
 	qboolean	killchat;	// Have we reported an enemy death and taunted him 
 	vec3_t		lastSeen; 
 	qboolean	cansee; 
+	float react;            // How long enemy has been in view.
  
 	// States 
 	int state;	//ACE only 
