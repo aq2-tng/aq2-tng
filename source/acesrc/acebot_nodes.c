@@ -320,8 +320,10 @@ void ACEND_SetGoal(edict_t *self, int goal_node)
 	self->goal_node = goal_node;
 	node = ACEND_FindClosestReachableNode(self, NODE_DENSITY*3, NODE_ALL);
 	
+	/*
 	if(node == -1)
 		return;
+	*/
 	
 	if(debug_mode)
 		debug_printf("%s new start node selected %d\n",self->client->pers.netname,node);
@@ -355,7 +357,7 @@ qboolean ACEND_FollowPath(edict_t *self)
 	// Try again?
 	if(self->node_timeout ++ > 5*BOT_FPS)
 	{
-		if(self->tries++ > 3)
+		if(self->tries++ >= 3)
 			return false;
 		else
 			ACEND_SetGoal(self,self->goal_node);
@@ -363,7 +365,7 @@ qboolean ACEND_FollowPath(edict_t *self)
 
 	//RiEvEr - new path code & algorithm
 	// This part checks if we are off course
-	if( level.time == (float)((int)level.time) )
+	if( (level.framenum % HZ == 0) || (self->node_timeout == 0) || (self->current_node == INVALID) )
 	{
 		if( 
 			!AntLinkExists( self->current_node, SLLfront(&self->pathList) )

@@ -870,16 +870,24 @@ void ACEMV_Move(edict_t *self, usercmd_t *ucmd)
 	
 		if (ACEMV_CanJumpInternal(self, MOVE_FORWARD))
 		{
+			// Jump only when we are moving the correct direction.
+			vec3_t velocity;
+			VectorCopy( self->velocity, velocity );
+			velocity[2] = 0;
+			VectorNormalize( velocity );
+			VectorNormalize( dist );
+			if( DotProduct( velocity, dist ) > 0.8 )
+				ucmd->upmove = SPEED_RUN;
+
 			//Kill running movement
 //			self->move_vector[0]=0;
 //			self->move_vector[1]=0;
 //			self->move_vector[2]=0;
 			// Set up a jump move
-			if( SPEED_RUN * distance / 64 < SPEED_RUN )            // This was distance / 128 but
-				ucmd->forwardmove = SPEED_RUN * distance / 64; // they didn't jump far enough.
+			if( distance < 128 )
+				ucmd->forwardmove = SPEED_RUN * sqrtf( distance / 128 );
 			else
 				ucmd->forwardmove = SPEED_RUN;
-			ucmd->upmove = SPEED_RUN;
 
 			self->move_vector[2] *= 2;
 
@@ -938,8 +946,16 @@ void ACEMV_Move(edict_t *self, usercmd_t *ucmd)
 	if( (next_node_type == NODE_LADDER) && (distance < 200)
 	&&  (nodes[self->next_node].origin[2] >= self->s.origin[2]) )
 	{
+		// Jump only when we are moving the correct direction.
+		vec3_t velocity;
+		VectorCopy( self->velocity, velocity );
+		velocity[2] = 0;
+		VectorNormalize( velocity );
+		VectorNormalize( dist );
+		if( DotProduct( velocity, dist ) > 0.8 )
+			ucmd->upmove = SPEED_RUN;
+
 		ucmd->forwardmove = SPEED_WALK / 2;
-		ucmd->upmove = SPEED_RUN;
 		ucmd->sidemove = 0;
 		
 		ACEMV_ChangeBotAngle(self);
@@ -1042,7 +1058,9 @@ void ACEMV_Move(edict_t *self, usercmd_t *ucmd)
 	else
 	{
 		// Raptor007: Reached a ledge, attempt to jump with momentum.
-		if( nodes[self->next_node].origin[2] > self->s.origin[2] )
+		VectorSubtract( nodes[self->next_node].origin, self->s.origin, dist );
+		dist[2] = 0;
+		if( (nodes[self->next_node].origin[2] > self->s.origin[2]) && (VectorLength(dist) < 500) )
 		{
 			ucmd->upmove = SPEED_RUN;
 			ucmd->forwardmove = SPEED_RUN;
