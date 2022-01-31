@@ -4,6 +4,10 @@ Changes in TNG
 - = bug fix
 * = major bug fix
 
+From 2.82
+
++ Enhanced Stealth Slippers - from ETE, set with e_enhancedSlippers <0|1> (default: "0") to remove limping from leg damage (falling and shooting)
+
 From 2.81
 * 3team mode: third team can not be locked forever anymore
 - Player can not flood sounds through menu
