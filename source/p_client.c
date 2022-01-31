@@ -2939,22 +2939,26 @@ void ClientThink(edict_t * ent, usercmd_t * ucmd)
 		pm.cmd = *ucmd;
 
 		// Stumbling movement with leg damage.
-		if( client->leg_damage && ent->groundentity )
-		{
-			int frame_mod_6 = (level.framenum / game.framediv) % 6;
-			if( frame_mod_6 <= 2 )
+		// AQ2 ETE edit:  if e_enhancedSlippers are enabled, negate all stumbling
+	
+		if (!e_enhancedSlippers->value) {
+			if( client->leg_damage && ent->groundentity )
 			{
-				pm.cmd.forwardmove = 0;
-				pm.cmd.sidemove = 0;
-			}
-			else if( frame_mod_6 == 3 )
-			{
-				pm.cmd.forwardmove /= client->leghits + 1;
-				pm.cmd.sidemove /= client->leghits + 1;
-			}
+				int frame_mod_6 = (level.framenum / game.framediv) % 6;
+				if( frame_mod_6 <= 2 )
+				{
+					pm.cmd.forwardmove = 0;
+					pm.cmd.sidemove = 0;
+				}
+				else if( frame_mod_6 == 3 )
+				{
+					pm.cmd.forwardmove /= client->leghits + 1;
+					pm.cmd.sidemove /= client->leghits + 1;
+				}
 
-			// Prevent jumping with leg damage.
-			pm.s.pm_flags |= PMF_JUMP_HELD;
+				// Prevent jumping with leg damage.
+				pm.s.pm_flags |= PMF_JUMP_HELD;
+			}
 		}
 
 		pm.trace = PM_trace;	// adds default parms
