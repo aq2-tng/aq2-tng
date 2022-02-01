@@ -2939,10 +2939,12 @@ void ClientThink(edict_t * ent, usercmd_t * ucmd)
 		pm.cmd = *ucmd;
 
 		// Stumbling movement with leg damage.
-		// AQ2 ETE edit:  if e_enhancedSlippers are enabled, negate all stumbling
+		// darksaint ETE edit:  if e_enhancedSlippers are enabled/equipped, negate all stumbling
 	
-		if (e_enhancedSlippers->value == 0) {
-			if( client->leg_damage && ent->groundentity )
+		if (INV_AMMO(ent, SLIP_NUM) && e_enhancedSlippers->value == 1) {
+			return;
+		}
+		else if( client->leg_damage && ent->groundentity )
 			{
 				int frame_mod_6 = (level.framenum / game.framediv) % 6;
 				if( frame_mod_6 <= 2 )
