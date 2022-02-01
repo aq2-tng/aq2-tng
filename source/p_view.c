@@ -704,7 +704,12 @@ void P_FallingDamage (edict_t * ent)
 		if (damage < 1)
 			damage = 1;
 		// zucc scale this up
-		damage *= 10;
+		// darksaint - reduce damage if e_enhancedSlippers are on and equipped
+		if (e_enhancedSlippers->value == 1 && INV_AMMO(ent, SLIP_NUM)) {
+			damage *= 5;
+		else
+			damage *= 10;
+		}
 		VectorSet (dir, 0, 0, 1);
 
 		if (jump->value)
