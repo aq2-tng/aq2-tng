@@ -2940,7 +2940,7 @@ void ClientThink(edict_t * ent, usercmd_t * ucmd)
 
 		// Stumbling movement with leg damage.
 		// darksaint ETE edit:  if e_enhancedSlippers are enabled/equipped, negate all stumbling
-		if (e_enhancedSlippers->value == 0 || (e_enhancedSlippers->value == 1 && !INV_AMMO(ent, SLIP_NUM) ) {
+		if (e_enhancedSlippers->value == 0 || (e_enhancedSlippers->value == 1 && !INV_AMMO(ent, SLIP_NUM))) {
 			if( client->leg_damage && ent->groundentity )
 			{
 				int frame_mod_6 = (level.framenum / game.framediv) % 6;
