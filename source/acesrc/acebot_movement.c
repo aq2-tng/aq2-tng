@@ -234,7 +234,7 @@ qboolean ACEMV_CanMove(edict_t *self, int direction)
 	{
 		if( self->last_door_time < level.framenum )
 		{
-			if( debug_mode )
+			if( debug_mode && (level.framenum % HZ == 0) )
 				debug_printf( "%s: move blocked (ACEMV_CanMove)\n", self->client->pers.netname );
 
 			Cmd_OpenDoor_f ( self );	// Open the door
@@ -284,7 +284,7 @@ qboolean ACEMV_CanJumpInternal(edict_t *self, int direction)
 	{
 		if( self->last_door_time < level.framenum )
 		{
-			if( debug_mode )
+			if( debug_mode && (level.framenum % HZ == 0) )
 				debug_printf( "%s: move blocked (ACEMV_CanJumpInternal)\n", self->client->pers.netname );
 
 			Cmd_OpenDoor_f ( self );	// Open the door
@@ -602,10 +602,13 @@ void ACEMV_MoveToGoal(edict_t *self, usercmd_t *ucmd)
 			debug_printf("%s: Oh crap a rocket!\n",self->client->pers.netname);
 		
 		// strafe left/right
-		if(ACEMV_CanMove(self, MOVE_LEFT))
-				ucmd->sidemove = -SPEED_RUN;
+		if( (self->bot_strafe <= 0) && ACEMV_CanMove(self, MOVE_LEFT) )
+			ucmd->sidemove = -SPEED_RUN;
 		else if(ACEMV_CanMove(self, MOVE_RIGHT))
-				ucmd->sidemove = SPEED_RUN;
+			ucmd->sidemove = SPEED_RUN;
+		else
+			ucmd->sidemove = 0;
+		self->bot_strafe = ucmd->sidemove;
 		return;
 
 	}
@@ -736,6 +739,25 @@ void ACEMV_Move(edict_t *self, usercmd_t *ucmd)
 	///////////////////////////
 	if (self->movetarget)
 		ACEMV_MoveToGoal(self,ucmd);
+
+	else if( (self->next_node != self->current_node) && (current_node_type != NODE_LADDER) )
+	{
+		// Decide if the bot should strafe to stay on course.
+		vec3_t v = {0,0,0};
+		float left = 0;
+		VectorSubtract( nodes[self->next_node].origin, nodes[self->current_node].origin, v );
+		v[2] = 0;
+		if( VectorLength(v) )
+			VectorNormalize( v );
+		VectorRotate2( v, 90 );
+		VectorSubtract( self->s.origin, nodes[self->next_node].origin, dist );
+		dist[2] = 0;
+		left = DotProduct( v, dist );
+		if( left > 16 )
+			ucmd->sidemove = SPEED_RUN;
+		else if( left < -16 )
+			ucmd->sidemove = -SPEED_RUN;
+	}
 
 	if(current_node_type == NODE_GRAPPLE)
 	{
