@@ -1360,6 +1360,10 @@ void ACEND_LoadNodes(void)
 	
 		fread(item_table,sizeof(item_table_t),num_items,pIn);
 		fclose(pIn);
+
+		// Raptor007: Do not trust saved pointers!
+		for(i=0;i<MAX_EDICTS;i++)
+			item_table[i].ent = NULL;
 	}
 	else
 	{
