@@ -637,7 +637,9 @@ void ACEMV_MoveToGoal(edict_t *self, usercmd_t *ucmd)
 			if(VectorLength(v) < 32)
 			{
 				// See if we have a clear shot at it
+				PRETRACE();
 				tTrace = gi.trace( vStart, tv(-16,-16,-8), tv(16,16,8), vDest, self, MASK_PLAYERSOLID);
+				POSTTRACE();
 				if( tTrace.fraction <1.0 )
 				{
 					if( (strcmp( tTrace.ent->classname, "func_door_rotating" ) == 0)
@@ -711,12 +713,10 @@ void ACEMV_Move(edict_t *self, usercmd_t *ucmd)
 		{
 			self->state = STATE_WANDER;
 			self->wander_timeout = level.framenum + 1.0 * HZ;
-			return;
 		}
 		else
 		{
 			// Teamplay mode - just fan out and chill
-			self->goal_node = INVALID;
 			if (self->state == STATE_FLEE)
 			{
 				self->state = STATE_POSITION;
@@ -727,8 +727,9 @@ void ACEMV_Move(edict_t *self, usercmd_t *ucmd)
 				self->state = STATE_POSITION;
 				self->wander_timeout = level.framenum + 1.0 * HZ;
 			}
-			return;
 		}
+		self->goal_node = INVALID;
+		return;
 	}
 
 	current_node_type = nodes[self->current_node].type;
@@ -797,20 +798,21 @@ void ACEMV_Move(edict_t *self, usercmd_t *ucmd)
 		vec3_t	vStart, vDest;
 
 		if( next_node_type == NODE_DOOR )
-		{
 			VectorCopy( nodes[self->current_node].origin, vStart );
-			VectorCopy( nodes[self->next_node].origin, vDest );
-		}
 		else
-		{
 			VectorCopy( self->s.origin, vStart );
-			VectorCopy( nodes[self->current_node].origin, vDest );
-		}
+
+		VectorCopy( nodes[self->next_node].origin, vDest );
+		VectorSubtract( nodes[self->next_node].origin, self->s.origin, dist );
+		dist[2] = 0;
+		distance = VectorLength(dist);
 
 		// See if we have a clear shot at it
+		PRETRACE();
 		tTrace = gi.trace( vStart, tv(-16,-16,-8), tv(16,16,8), vDest, self, MASK_PLAYERSOLID);
+		POSTTRACE();
 
-		if( tTrace.fraction <1.0 )
+		if( (tTrace.fraction < 1.0) && (distance < 512) )
 		{
 			if( (strcmp( tTrace.ent->classname, "func_door_rotating" ) == 0)
 			||  (strcmp( tTrace.ent->classname, "func_door") == 0) )
@@ -824,6 +826,8 @@ void ACEMV_Move(edict_t *self, usercmd_t *ucmd)
 						self->last_door_time = level.framenum;
 					if( ACEMV_CanMove( self, MOVE_BACK ) )
 						ucmd->forwardmove = -SPEED_WALK; //walk backwards a little
+					else if( self->tries && self->groundentity )
+						ucmd->upmove = SPEED_RUN;
 					return;
 				}
 				else
@@ -835,6 +839,8 @@ void ACEMV_Move(edict_t *self, usercmd_t *ucmd)
 					{
 						Cmd_OpenDoor_f ( self );	// Open the door
 						self->last_door_time = level.framenum + random() * 2.5 * HZ; // wait!
+						if( self->tries && self->groundentity )
+							ucmd->upmove = SPEED_RUN;
 						ucmd->forwardmove = 0;
 						return;
 					}
@@ -847,6 +853,8 @@ void ACEMV_Move(edict_t *self, usercmd_t *ucmd)
 					self->last_door_time = level.framenum;
 				if( ACEMV_CanMove( self, MOVE_BACK ) )
 					ucmd->forwardmove = -SPEED_WALK;
+				else if( self->tries && self->groundentity )
+					ucmd->upmove = SPEED_RUN;
 				return;
 			}
 		}
@@ -960,6 +968,19 @@ void ACEMV_Move(edict_t *self, usercmd_t *ucmd)
 		else
 			self->velocity[2] = max( -200, self->velocity[2] );
 		
+		if( self->velocity[2] < 0 )
+		{
+			// If we are going down the ladder, check for teammates coming up and yield to them.
+			trace_t	tr;
+			tr = gi.trace( self->s.origin, tv(-16,-16,-8), tv(16,16,8), nodes[self->next_node].origin, self, MASK_PLAYERSOLID );
+			if( (tr.fraction < 1.0) && tr.ent && (tr.ent != self) && tr.ent->client && (tr.ent->velocity[2] >= 0) )
+			{
+				self->velocity[0] = 0;
+				self->velocity[1] = 0;
+				self->velocity[2] = 200;
+			}
+		}
+
 		ACEMV_ChangeBotAngle(self);
 		return;
 	}
@@ -1056,6 +1077,20 @@ void ACEMV_Move(edict_t *self, usercmd_t *ucmd)
 		if(random() > 0.5 && ACEMV_SpecialMove(self, ucmd))
 			return;
 		
+		if( self->groundentity )
+		{
+			// Check if we are obstructed by an oncoming teammate, and if so strafe right.
+			trace_t	tr;
+			tr = gi.trace( self->s.origin, tv(-16,-16,-8), tv(16,16,8), nodes[self->next_node].origin, self, MASK_PLAYERSOLID );
+			if( (tr.fraction < 1.0) && tr.ent && (tr.ent != self) && tr.ent->client
+			&&  (DotProduct( self->velocity, tr.ent->velocity ) <= 0) && ACEMV_CanMove( self, MOVE_RIGHT ) )
+			{
+				ucmd->sidemove = SPEED_RUN;
+				ACEMV_ChangeBotAngle(self);
+				return;
+			}
+		}
+
 		self->s.angles[YAW] += random() * 180 - 90; 
 
 		ACEMV_ChangeBotAngle(self);
@@ -1069,29 +1104,40 @@ void ACEMV_Move(edict_t *self, usercmd_t *ucmd)
 		return;
 	}
 
+	////////////////////////////////////////////////////////
+	// Walk Nodes
+	///////////////////////////////////////////////////////
 	ACEMV_ChangeBotAngle(self);
 
-	// Otherwise move as fast as we can
-	// If it's safe to move forward (I can't believe ACE didn't check this!
-	if (ACEMV_CanMove( self, MOVE_FORWARD) || (current_node_type == NODE_LADDER) || (current_node_type==NODE_DOOR))
+	VectorSubtract( nodes[self->next_node].origin, self->s.origin, dist );
+	dist[2] = 0;
+	distance = VectorLength(dist);
+
+	if( ! self->groundentity )
 	{
-		ucmd->forwardmove = SPEED_RUN;
+		// When in air, control speed carefully to avoid overshooting the next node.
+		if( distance < 256 )
+			ucmd->forwardmove = SPEED_RUN * sqrtf( distance / 256 );
+		else
+			ucmd->forwardmove = SPEED_RUN;
+	}
+	else if( ! ACEMV_CanMove( self, MOVE_FORWARD ) )
+	{
+		// If we reached a ledge, slow down.
+		if( distance < 512 )
+		{
+			// Jump unless dropping down to the next node.
+			if( (nodes[self->next_node].origin[2] > self->s.origin[2] + 7) && (distance < 500) )
+				ucmd->upmove = SPEED_RUN;
+
+			ucmd->forwardmove = SPEED_WALK * sqrtf( distance / 512 );
+		}
+		else
+			ucmd->forwardmove = SPEED_WALK;
 	}
 	else
-	{
-		// Raptor007: Reached a ledge, attempt to jump with momentum.
-		VectorSubtract( nodes[self->next_node].origin, self->s.origin, dist );
-		dist[2] = 0;
-		if( (nodes[self->next_node].origin[2] > self->s.origin[2]) && (VectorLength(dist) < 500) )
-		{
-			ucmd->upmove = SPEED_RUN;
-			ucmd->forwardmove = SPEED_RUN;
-		}
-
-		// Forget about this route!
-//		ucmd->forwardmove = -SPEED_WALK / 2;
-//		self->movetarget = NULL;
-	}	
+		// Otherwise move as fast as we can.
+		ucmd->forwardmove = SPEED_RUN;
 }
 
 
