@@ -1298,7 +1298,16 @@ void ACEND_SaveNodes()
 		for(j=0;j<numnodes;j++)
 			fwrite(&path_table[i][j],sizeof(short int),1,pOut); // write count
 		
-	fwrite(item_table,sizeof(item_table_t),num_items,pOut); 		// write out the fact table
+	//fwrite(item_table,sizeof(item_table_t),num_items,pOut); 		// write out the fact table
+
+	// Write out the fact table with sanitized pointers.
+	for( i = 0; i < num_items; i ++ )
+	{
+		item_table_t item;
+		memcpy( &item, &(item_table[i]), sizeof(item) );
+		item.ent = NULL;
+		fwrite( &item, sizeof(item), 1, pOut );
+	}
 
 	fclose(pOut);
 	
