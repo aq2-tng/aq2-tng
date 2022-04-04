@@ -413,6 +413,19 @@ void TransparentListSet( solid_t solid_type )
 	}
 }
 
+qboolean OnTransparentList( const edict_t *ent )
+{
+	const transparent_list_t *entry;
+
+	for( entry = transparent_list; entry; entry = entry->next )
+	{
+		if( entry->ent == ent )
+			return true;
+	}
+
+	return false;
+}
+
 void ReprintMOTD (edict_t * ent, pmenu_t * p)
 {
 	PMenu_Close (ent);
