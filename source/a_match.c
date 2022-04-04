@@ -63,11 +63,11 @@ void SendScores(void)
 	mins = gametime / 60;
 	secs = gametime % 60;
 	if(teamCount == 3) {
-		gi.bprintf(PRINT_HIGH, "Ÿ\n");
+		gi.bprintf(PRINT_HIGH, "\n");
 		gi.bprintf(PRINT_HIGH, " Team 1 Score - Team 2 Score - Team 3 Score\n");
 		gi.bprintf(PRINT_HIGH, "    [%d]           [%d]           [%d]\n", teams[TEAM1].score, teams[TEAM2].score, teams[TEAM3].score);
 		gi.bprintf(PRINT_HIGH, " Total Played Time: %d:%02d\n", mins, secs);
-		gi.bprintf(PRINT_HIGH, "Ÿ\n");
+		gi.bprintf(PRINT_HIGH, "\n");
 	} else {
 		int team1score = 0, team2score = 0;
 
@@ -77,11 +77,11 @@ void SendScores(void)
 			team1score = teams[TEAM1].score;
 			team2score = teams[TEAM2].score;
 		}
-		gi.bprintf(PRINT_HIGH, "Ÿ\n");
+		gi.bprintf(PRINT_HIGH, "\n");
 		gi.bprintf(PRINT_HIGH, " Team 1 Score - Team 2 Score\n");
 		gi.bprintf(PRINT_HIGH, "     [%d]           [%d]\n", team1score, team2score);
 		gi.bprintf(PRINT_HIGH, " Total Played Time: %d:%02d\n", mins, secs);
-		gi.bprintf(PRINT_HIGH, "Ÿ\n");
+		gi.bprintf(PRINT_HIGH, "\n");
 	}
 	gi.bprintf(PRINT_HIGH, "Match is over, waiting for next map, please vote a new one..\n");
 }

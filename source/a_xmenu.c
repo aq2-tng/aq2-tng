@@ -16,13 +16,13 @@
 #include "g_local.h"
 
 static XMENU_TITLE xRaw[] = {
-  "€‚",		// double line
+  "",		// double line
   "previous page",
   "next page",
   "Use [ and ] to move cursor",
   "ENTER to select, TAB to exit",
   "",	// single line
-  "€‚"	// double line
+  ""	// double line
 };
 
 qboolean xMenu_Add (edict_t * ent, char *name,
