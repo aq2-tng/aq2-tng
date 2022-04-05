@@ -151,7 +151,7 @@ void Cmd_Stats_f (edict_t *targetent, char *arg)
 
 	if (arg[0] != '\0') {
 		if (strcmp (arg, "list") == 0) {
-			gi.cprintf (targetent, PRINT_HIGH, "\nŸ\n");
+			gi.cprintf (targetent, PRINT_HIGH, "\n\n");
 			gi.cprintf (targetent, PRINT_HIGH, "PlayerID  Name                  Accuracy\n");
 
 			for (i = 0; i < game.maxclients; i++)
@@ -175,7 +175,7 @@ void Cmd_Stats_f (edict_t *targetent, char *arg)
 
 				gi.cprintf (targetent, PRINT_HIGH, "   %-3i    %-16s        %6.2f\n", i, cl_ent->client->pers.netname, perc_hit);
 			}
-			gi.cprintf (targetent, PRINT_HIGH, "\n  Use \"stats <PlayerID>\" for\n  individual stats\nŸ\n");
+			gi.cprintf (targetent, PRINT_HIGH, "\n  Use \"stats <PlayerID>\" for\n  individual stats\n\n");
 			return;
 		}
 
@@ -195,19 +195,19 @@ void Cmd_Stats_f (edict_t *targetent, char *arg)
 		total += gun->shots;
 	}
 
-	sprintf(stathead, "\nŸ Statistics for %s ", ent->client->pers.netname);
+	sprintf(stathead, "\n Statistics for %s ", ent->client->pers.netname);
 	len = strlen(stathead);
 	for (i = len; i < 55; i++) {
-		stathead[i] = '';
+		stathead[i] = '';
 	}
 	stathead[i] = 0;
-	strcat(stathead, "Ÿ\n");
+	strcat(stathead, "\n");
 
 	gi.cprintf (targetent, PRINT_HIGH, "%s", stathead);
 
 	if (!total) {
 		gi.cprintf (targetent, PRINT_HIGH, "\n  Player has not fired a shot.\n");
-		gi.cprintf (targetent, PRINT_HIGH, "\nŸ\n\n");
+		gi.cprintf (targetent, PRINT_HIGH, "\n\n\n");
 		return;
 	}
 
@@ -257,7 +257,7 @@ void Cmd_Stats_f (edict_t *targetent, char *arg)
 			string, perc_hit, gun->hits, gun->shots, gun->kills, gun->headshots );
 	}
 
-	gi.cprintf (targetent, PRINT_HIGH, "\nŸ\n");
+	gi.cprintf (targetent, PRINT_HIGH, "\n\n");
 
 
 	// Final Part
@@ -307,7 +307,7 @@ void Cmd_Stats_f (edict_t *targetent, char *arg)
 		perc_hit = 0.0;
 
 	gi.cprintf (targetent, PRINT_HIGH, "Average Accuracy:                         %.2f\n", perc_hit); // Average
-	gi.cprintf (targetent, PRINT_HIGH, "\nŸ\n\n");
+	gi.cprintf (targetent, PRINT_HIGH, "\n\n\n");
 	gi.cprintf(targetent, PRINT_HIGH, "Highest streaks:  kills: %d headshots: %d\n", ent->client->resp.streakKillsHighest, ent->client->resp.streakHSHighest);
 }
 
@@ -393,10 +393,10 @@ void A_ScoreboardEndLevel (edict_t * ent, edict_t * killer)
 	line_y = 56;
 	sprintf(string + strlen (string),
 		"xv 0 yv 40 string2 \"Frags Player          Shots   Acc   FPM \" "
-		"xv 0 yv 48 string2 \"Ÿ Ÿ Ÿ Ÿ Ÿ\" ");
+		"xv 0 yv 48 string2 \"    \" ");
 
 //        strcpy (string, "xv 0 yv 32 string2 \"Frags Player          Time Ping Damage Kills\" "
-//                "xv 0 yv 40 string2 \"Ÿ Ÿ Ÿ Ÿ Ÿ Ÿ\" ");
+//                "xv 0 yv 40 string2 \"ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½\" ");
   /*
      {
      strcpy (string, "xv 0 yv 32 string2 \"Player          Time Ping\" "
