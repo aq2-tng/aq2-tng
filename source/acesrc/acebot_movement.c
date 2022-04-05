@@ -702,6 +702,13 @@ void ACEMV_Move(edict_t *self, usercmd_t *ucmd)
 	int i;
 	float	distance;
 
+	// Do not follow path when teammates are still inside us.
+	if( OnTransparentList(self) )
+	{
+		self->state = STATE_WANDER;
+		self->wander_timeout = level.framenum + (random() + 0.5) * HZ;
+		return;
+	}
 
 	// Get current and next node back from nav code.
 	if(!ACEND_FollowPath(self))
@@ -745,19 +752,21 @@ void ACEMV_Move(edict_t *self, usercmd_t *ucmd)
 	{
 		// Decide if the bot should strafe to stay on course.
 		vec3_t v = {0,0,0};
-		float left = 0;
 		VectorSubtract( nodes[self->next_node].origin, nodes[self->current_node].origin, v );
 		v[2] = 0;
-		if( VectorLength(v) )
-			VectorNormalize( v );
-		VectorRotate2( v, 90 );
 		VectorSubtract( self->s.origin, nodes[self->next_node].origin, dist );
 		dist[2] = 0;
-		left = DotProduct( v, dist );
-		if( left > 16 )
-			ucmd->sidemove = SPEED_RUN;
-		else if( left < -16 )
-			ucmd->sidemove = -SPEED_RUN;
+		if( (DotProduct( v, dist ) > 0) && (VectorLength(v) > 16) )
+		{
+			float left = 0;
+			VectorNormalize( v );
+			VectorRotate2( v, 90 );
+			left = DotProduct( v, dist );
+			if( (left > 16) && (! self->groundentity || ACEMV_CanMove( self, MOVE_RIGHT )) )
+				ucmd->sidemove = SPEED_RUN;
+			else if( (left < -16) && (! self->groundentity || ACEMV_CanMove( self, MOVE_LEFT )) )
+				ucmd->sidemove = -SPEED_RUN;
+		}
 	}
 
 	if(current_node_type == NODE_GRAPPLE)
@@ -871,6 +880,18 @@ void ACEMV_Move(edict_t *self, usercmd_t *ucmd)
 				if(item_table[i].ent->moveinfo.state != STATE_BOTTOM)
 				    return; // Wait for elevator
 	}
+	if( (current_node_type == NODE_PLATFORM) && self->groundentity && (self->groundentity->use = Use_Plat)
+	&&  ((self->groundentity->moveinfo.state == STATE_UP) || (self->groundentity->moveinfo.state == STATE_DOWN)) )
+	{
+		// Standing on moving elevator.
+		ucmd->forwardmove = 0;
+		ucmd->sidemove = 0;
+		ucmd->upmove = 0;
+		ACEMV_ChangeBotAngle(self);
+		if( debug_mode && (level.framenum % HZ == 0) )
+			debug_printf( "%s: platform move state %i\n", self->client->pers.netname, self->groundentity->moveinfo.state );
+		return;
+	}
 	if(current_node_type == NODE_PLATFORM && next_node_type == NODE_PLATFORM)
 	{
 		// Move to the center
@@ -898,7 +919,7 @@ void ACEMV_Move(edict_t *self, usercmd_t *ucmd)
 		// Get the absolute length
 		distance = VectorLength(dist);
 	
-		if (ACEMV_CanJumpInternal(self, MOVE_FORWARD))
+		//if (ACEMV_CanJumpInternal(self, MOVE_FORWARD))
 		{
 			// Jump only when we are moving the correct direction.
 			vec3_t velocity;
@@ -914,12 +935,12 @@ void ACEMV_Move(edict_t *self, usercmd_t *ucmd)
 //			self->move_vector[1]=0;
 //			self->move_vector[2]=0;
 			// Set up a jump move
-			if( distance < 128 )
-				ucmd->forwardmove = SPEED_RUN * sqrtf( distance / 128 );
+			if( distance < 256 )
+				ucmd->forwardmove = SPEED_RUN * sqrtf( distance / 256 );
 			else
 				ucmd->forwardmove = SPEED_RUN;
 
-			self->move_vector[2] *= 2;
+			//self->move_vector[2] *= 2;
 
 			ACEMV_ChangeBotAngle(self);
 
@@ -936,11 +957,12 @@ void ACEMV_Move(edict_t *self, usercmd_t *ucmd)
 			}
 			*/
 		}
+		/*
 		else
 		{
 				self->goal_node = INVALID;
 		}
-
+		*/
 		return;
 	}
 	
@@ -999,19 +1021,23 @@ void ACEMV_Move(edict_t *self, usercmd_t *ucmd)
 			ucmd->upmove = SPEED_RUN;
 
 		ucmd->forwardmove = SPEED_WALK / 2;
-		ucmd->sidemove = 0;
 		
 		ACEMV_ChangeBotAngle(self);
 		return;
 	}
 	
 	// If getting off the ladder
-	if( (current_node_type == NODE_LADDER) && (next_node_type != NODE_LADDER)
-	&&  (nodes[self->next_node].origin[2] >= self->s.origin[2]) )
+	if( (current_node_type == NODE_LADDER) && (next_node_type != NODE_LADDER) )
 	{
 		ucmd->forwardmove = SPEED_WALK;
-		ucmd->upmove = SPEED_RUN;
-		self->velocity[2] = min( 200, distance * 10 ); // Jump higher for farther node
+
+		if( (nodes[self->next_node].origin[2] >= self->s.origin[2])
+		&&  (nodes[self->next_node].origin[2] >= nodes[self->current_node].origin[2])
+		&&  ( ((self->velocity[2] > 0) && ! self->groundentity) || OnLadder(self) ) )
+		{
+			ucmd->upmove = SPEED_RUN;
+			self->velocity[2] = min( 200, distance * 10 ); // Jump higher for farther node
+		}
 		
 		ACEMV_ChangeBotAngle(self);
 		return;
@@ -1021,7 +1047,9 @@ void ACEMV_Move(edict_t *self, usercmd_t *ucmd)
 	if( (current_node_type != NODE_LADDER) && (next_node_type == NODE_LADDER) )
 	{
 		ucmd->forwardmove = SPEED_WALK / 2;
-		ucmd->upmove = -SPEED_RUN; //Added by Werewolf to cause crouching
+
+		if( (distance < 200) && (nodes[self->next_node].origin[2] <= self->s.origin[2] + 16) )
+			ucmd->upmove = -SPEED_RUN; //Added by Werewolf to cause crouching
 		
 		ACEMV_ChangeBotAngle(self);
 		return;
