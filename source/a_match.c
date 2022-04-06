@@ -294,7 +294,7 @@ void Cmd_Teamname_f(edict_t * ent)
 	}
 
 	Q_strncpyz(temp, gi.argv(1), sizeof(temp));
-	for (i = 2; i <= argc; i++) {
+	for (i = 2; i < argc; i++) {
 		Q_strncatz(temp, " ", sizeof(temp));
 		Q_strncatz(temp, gi.argv(i), sizeof(temp));
 	}
