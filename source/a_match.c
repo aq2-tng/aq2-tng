@@ -620,4 +620,3 @@ void Cmd_TogglePause_f(edict_t * ent, qboolean pause)
 		lastPaused = 0;
 	}
 }
-
