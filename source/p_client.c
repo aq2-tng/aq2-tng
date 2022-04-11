@@ -2940,24 +2940,23 @@ void ClientThink(edict_t * ent, usercmd_t * ucmd)
 
 		// Stumbling movement with leg damage.
 		// darksaint ETE edit:  if e_enhancedSlippers are enabled/equipped, negate all stumbling
-		if (e_enhancedSlippers->value == 0 || (e_enhancedSlippers->value == 1 && !INV_AMMO(ent, SLIP_NUM))) {
-			if( client->leg_damage && ent->groundentity )
+		qboolean has_enhanced_slippers = e_enhancedSlippers->value && INV_AMMO(ent, SLIP_NUM);
+		if( client->leg_damage && ent->groundentity && ! has_enhanced_slippers )
+		{
+			int frame_mod_6 = (level.framenum / game.framediv) % 6;
+			if( frame_mod_6 <= 2)
 			{
-				int frame_mod_6 = (level.framenum / game.framediv) % 6;
-				if( frame_mod_6 <= 2)
-				{
-					pm.cmd.forwardmove = 0;
-					pm.cmd.sidemove = 0;
-				}
-				else if( frame_mod_6 == 3 )
-				{
-					pm.cmd.forwardmove /= client->leghits + 1;
-					pm.cmd.sidemove /= client->leghits + 1;
-				}
-
-				// Prevent jumping with leg damage.
-				pm.s.pm_flags |= PMF_JUMP_HELD;
+				pm.cmd.forwardmove = 0;
+				pm.cmd.sidemove = 0;
 			}
+			else if( frame_mod_6 == 3 )
+			{
+				pm.cmd.forwardmove /= client->leghits + 1;
+				pm.cmd.sidemove /= client->leghits + 1;
+			}
+
+			// Prevent jumping with leg damage.
+			pm.s.pm_flags |= PMF_JUMP_HELD;
 		}
 
 		pm.trace = PM_trace;	// adds default parms
