@@ -6,7 +6,7 @@ Changes in TNG
 
 From 2.82
 
-+ Enhanced Stealth Slippers: From ETE, set with e_enhancedSlippers <0|1> (default: "0") to remove limping from leg damage (falling and shooting), and 50% damage reduction when falling long distances
++ Enhanced Stealth Slippers addition
 - Removed extended-ASCII on scoreboards from times of yore, replaced with conchars-compatible horizontal bars
 
 From 2.81
