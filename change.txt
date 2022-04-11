@@ -4,6 +4,11 @@ Changes in TNG
 - = bug fix
 * = major bug fix
 
+From 2.82
+
++ Enhanced Stealth Slippers addition
+- Removed extended-ASCII on scoreboards from times of yore, replaced with conchars-compatible horizontal bars
+
 From 2.81
 * 3team mode: third team can not be locked forever anymore
 - Player can not flood sounds through menu

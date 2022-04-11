@@ -533,6 +533,12 @@ Features
   sv_mvd_enable must also be set to 1.  The demos go into the action/demos folder on the server and contain
   all players points of view for the entire match.   To activate this simply set use_mvd2 1 in your server config.
 
+* Espionage Additions
+  Taken from AQ2:ETE, these additions are optional server vars to create a larger variety of gameplay.
+
+  Commands:
+  e_enhancedSlippers [0|1] (default: "0") to remove limping from leg damage (falling and shooting), and 50% damage reduction when falling long distances
+
 --------------------------------------------------------------------------------------------------------------------
 Contact Information
   If you wish to contact the TNG team, to report a bug, suggest a new feature, or offer JBravo your
