@@ -2944,7 +2944,7 @@ void ClientThink(edict_t * ent, usercmd_t * ucmd)
 		if( client->leg_damage && ent->groundentity && ! has_enhanced_slippers )
 		{
 			int frame_mod_6 = (level.framenum / game.framediv) % 6;
-			if( frame_mod_6 <= 2)
+			if( frame_mod_6 <= 2 )
 			{
 				pm.cmd.forwardmove = 0;
 				pm.cmd.sidemove = 0;
