@@ -234,7 +234,7 @@ qboolean ACEMV_CanMove(edict_t *self, int direction)
 	{
 		if( self->last_door_time < level.framenum )
 		{
-			if( debug_mode )
+			if( debug_mode && (level.framenum % HZ == 0) )
 				debug_printf( "%s: move blocked (ACEMV_CanMove)\n", self->client->pers.netname );
 
 			Cmd_OpenDoor_f ( self );	// Open the door
@@ -284,7 +284,7 @@ qboolean ACEMV_CanJumpInternal(edict_t *self, int direction)
 	{
 		if( self->last_door_time < level.framenum )
 		{
-			if( debug_mode )
+			if( debug_mode && (level.framenum % HZ == 0) )
 				debug_printf( "%s: move blocked (ACEMV_CanJumpInternal)\n", self->client->pers.netname );
 
 			Cmd_OpenDoor_f ( self );	// Open the door
@@ -602,10 +602,13 @@ void ACEMV_MoveToGoal(edict_t *self, usercmd_t *ucmd)
 			debug_printf("%s: Oh crap a rocket!\n",self->client->pers.netname);
 		
 		// strafe left/right
-		if(ACEMV_CanMove(self, MOVE_LEFT))
-				ucmd->sidemove = -SPEED_RUN;
+		if( (self->bot_strafe <= 0) && ACEMV_CanMove(self, MOVE_LEFT) )
+			ucmd->sidemove = -SPEED_RUN;
 		else if(ACEMV_CanMove(self, MOVE_RIGHT))
-				ucmd->sidemove = SPEED_RUN;
+			ucmd->sidemove = SPEED_RUN;
+		else
+			ucmd->sidemove = 0;
+		self->bot_strafe = ucmd->sidemove;
 		return;
 
 	}
@@ -634,7 +637,9 @@ void ACEMV_MoveToGoal(edict_t *self, usercmd_t *ucmd)
 			if(VectorLength(v) < 32)
 			{
 				// See if we have a clear shot at it
+				PRETRACE();
 				tTrace = gi.trace( vStart, tv(-16,-16,-8), tv(16,16,8), vDest, self, MASK_PLAYERSOLID);
+				POSTTRACE();
 				if( tTrace.fraction <1.0 )
 				{
 					if( (strcmp( tTrace.ent->classname, "func_door_rotating" ) == 0)
@@ -697,6 +702,13 @@ void ACEMV_Move(edict_t *self, usercmd_t *ucmd)
 	int i;
 	float	distance;
 
+	// Do not follow path when teammates are still inside us.
+	if( OnTransparentList(self) )
+	{
+		self->state = STATE_WANDER;
+		self->wander_timeout = level.framenum + (random() + 0.5) * HZ;
+		return;
+	}
 
 	// Get current and next node back from nav code.
 	if(!ACEND_FollowPath(self))
@@ -708,12 +720,10 @@ void ACEMV_Move(edict_t *self, usercmd_t *ucmd)
 		{
 			self->state = STATE_WANDER;
 			self->wander_timeout = level.framenum + 1.0 * HZ;
-			return;
 		}
 		else
 		{
 			// Teamplay mode - just fan out and chill
-			self->goal_node = INVALID;
 			if (self->state == STATE_FLEE)
 			{
 				self->state = STATE_POSITION;
@@ -724,8 +734,9 @@ void ACEMV_Move(edict_t *self, usercmd_t *ucmd)
 				self->state = STATE_POSITION;
 				self->wander_timeout = level.framenum + 1.0 * HZ;
 			}
-			return;
 		}
+		self->goal_node = INVALID;
+		return;
 	}
 
 	current_node_type = nodes[self->current_node].type;
@@ -736,6 +747,27 @@ void ACEMV_Move(edict_t *self, usercmd_t *ucmd)
 	///////////////////////////
 	if (self->movetarget)
 		ACEMV_MoveToGoal(self,ucmd);
+
+	else if( (self->next_node != self->current_node) && (current_node_type != NODE_LADDER) )
+	{
+		// Decide if the bot should strafe to stay on course.
+		vec3_t v = {0,0,0};
+		VectorSubtract( nodes[self->next_node].origin, nodes[self->current_node].origin, v );
+		v[2] = 0;
+		VectorSubtract( self->s.origin, nodes[self->next_node].origin, dist );
+		dist[2] = 0;
+		if( (DotProduct( v, dist ) > 0) && (VectorLength(v) > 16) )
+		{
+			float left = 0;
+			VectorNormalize( v );
+			VectorRotate2( v, 90 );
+			left = DotProduct( v, dist );
+			if( (left > 16) && (! self->groundentity || ACEMV_CanMove( self, MOVE_RIGHT )) )
+				ucmd->sidemove = SPEED_RUN;
+			else if( (left < -16) && (! self->groundentity || ACEMV_CanMove( self, MOVE_LEFT )) )
+				ucmd->sidemove = -SPEED_RUN;
+		}
+	}
 
 	if(current_node_type == NODE_GRAPPLE)
 	{
@@ -775,20 +807,21 @@ void ACEMV_Move(edict_t *self, usercmd_t *ucmd)
 		vec3_t	vStart, vDest;
 
 		if( next_node_type == NODE_DOOR )
-		{
 			VectorCopy( nodes[self->current_node].origin, vStart );
-			VectorCopy( nodes[self->next_node].origin, vDest );
-		}
 		else
-		{
 			VectorCopy( self->s.origin, vStart );
-			VectorCopy( nodes[self->current_node].origin, vDest );
-		}
+
+		VectorCopy( nodes[self->next_node].origin, vDest );
+		VectorSubtract( nodes[self->next_node].origin, self->s.origin, dist );
+		dist[2] = 0;
+		distance = VectorLength(dist);
 
 		// See if we have a clear shot at it
+		PRETRACE();
 		tTrace = gi.trace( vStart, tv(-16,-16,-8), tv(16,16,8), vDest, self, MASK_PLAYERSOLID);
+		POSTTRACE();
 
-		if( tTrace.fraction <1.0 )
+		if( (tTrace.fraction < 1.0) && (distance < 512) )
 		{
 			if( (strcmp( tTrace.ent->classname, "func_door_rotating" ) == 0)
 			||  (strcmp( tTrace.ent->classname, "func_door") == 0) )
@@ -802,6 +835,8 @@ void ACEMV_Move(edict_t *self, usercmd_t *ucmd)
 						self->last_door_time = level.framenum;
 					if( ACEMV_CanMove( self, MOVE_BACK ) )
 						ucmd->forwardmove = -SPEED_WALK; //walk backwards a little
+					else if( self->tries && self->groundentity )
+						ucmd->upmove = SPEED_RUN;
 					return;
 				}
 				else
@@ -813,6 +848,8 @@ void ACEMV_Move(edict_t *self, usercmd_t *ucmd)
 					{
 						Cmd_OpenDoor_f ( self );	// Open the door
 						self->last_door_time = level.framenum + random() * 2.5 * HZ; // wait!
+						if( self->tries && self->groundentity )
+							ucmd->upmove = SPEED_RUN;
 						ucmd->forwardmove = 0;
 						return;
 					}
@@ -825,6 +862,8 @@ void ACEMV_Move(edict_t *self, usercmd_t *ucmd)
 					self->last_door_time = level.framenum;
 				if( ACEMV_CanMove( self, MOVE_BACK ) )
 					ucmd->forwardmove = -SPEED_WALK;
+				else if( self->tries && self->groundentity )
+					ucmd->upmove = SPEED_RUN;
 				return;
 			}
 		}
@@ -840,6 +879,18 @@ void ACEMV_Move(edict_t *self, usercmd_t *ucmd)
 			if(item_table[i].node == self->next_node)
 				if(item_table[i].ent->moveinfo.state != STATE_BOTTOM)
 				    return; // Wait for elevator
+	}
+	if( (current_node_type == NODE_PLATFORM) && self->groundentity && (self->groundentity->use = Use_Plat)
+	&&  ((self->groundentity->moveinfo.state == STATE_UP) || (self->groundentity->moveinfo.state == STATE_DOWN)) )
+	{
+		// Standing on moving elevator.
+		ucmd->forwardmove = 0;
+		ucmd->sidemove = 0;
+		ucmd->upmove = 0;
+		ACEMV_ChangeBotAngle(self);
+		if( debug_mode && (level.framenum % HZ == 0) )
+			debug_printf( "%s: platform move state %i\n", self->client->pers.netname, self->groundentity->moveinfo.state );
+		return;
 	}
 	if(current_node_type == NODE_PLATFORM && next_node_type == NODE_PLATFORM)
 	{
@@ -868,7 +919,7 @@ void ACEMV_Move(edict_t *self, usercmd_t *ucmd)
 		// Get the absolute length
 		distance = VectorLength(dist);
 	
-		if (ACEMV_CanJumpInternal(self, MOVE_FORWARD))
+		//if (ACEMV_CanJumpInternal(self, MOVE_FORWARD))
 		{
 			// Jump only when we are moving the correct direction.
 			vec3_t velocity;
@@ -884,12 +935,12 @@ void ACEMV_Move(edict_t *self, usercmd_t *ucmd)
 //			self->move_vector[1]=0;
 //			self->move_vector[2]=0;
 			// Set up a jump move
-			if( distance < 128 )
-				ucmd->forwardmove = SPEED_RUN * sqrtf( distance / 128 );
+			if( distance < 256 )
+				ucmd->forwardmove = SPEED_RUN * sqrtf( distance / 256 );
 			else
 				ucmd->forwardmove = SPEED_RUN;
 
-			self->move_vector[2] *= 2;
+			//self->move_vector[2] *= 2;
 
 			ACEMV_ChangeBotAngle(self);
 
@@ -906,11 +957,12 @@ void ACEMV_Move(edict_t *self, usercmd_t *ucmd)
 			}
 			*/
 		}
+		/*
 		else
 		{
 				self->goal_node = INVALID;
 		}
-
+		*/
 		return;
 	}
 	
@@ -938,6 +990,19 @@ void ACEMV_Move(edict_t *self, usercmd_t *ucmd)
 		else
 			self->velocity[2] = max( -200, self->velocity[2] );
 		
+		if( self->velocity[2] < 0 )
+		{
+			// If we are going down the ladder, check for teammates coming up and yield to them.
+			trace_t	tr;
+			tr = gi.trace( self->s.origin, tv(-16,-16,-8), tv(16,16,8), nodes[self->next_node].origin, self, MASK_PLAYERSOLID );
+			if( (tr.fraction < 1.0) && tr.ent && (tr.ent != self) && tr.ent->client && (tr.ent->velocity[2] >= 0) )
+			{
+				self->velocity[0] = 0;
+				self->velocity[1] = 0;
+				self->velocity[2] = 200;
+			}
+		}
+
 		ACEMV_ChangeBotAngle(self);
 		return;
 	}
@@ -956,19 +1021,23 @@ void ACEMV_Move(edict_t *self, usercmd_t *ucmd)
 			ucmd->upmove = SPEED_RUN;
 
 		ucmd->forwardmove = SPEED_WALK / 2;
-		ucmd->sidemove = 0;
 		
 		ACEMV_ChangeBotAngle(self);
 		return;
 	}
 	
 	// If getting off the ladder
-	if( (current_node_type == NODE_LADDER) && (next_node_type != NODE_LADDER)
-	&&  (nodes[self->next_node].origin[2] >= self->s.origin[2]) )
+	if( (current_node_type == NODE_LADDER) && (next_node_type != NODE_LADDER) )
 	{
 		ucmd->forwardmove = SPEED_WALK;
-		ucmd->upmove = SPEED_RUN;
-		self->velocity[2] = min( 200, distance * 10 ); // Jump higher for farther node
+
+		if( (nodes[self->next_node].origin[2] >= self->s.origin[2])
+		&&  (nodes[self->next_node].origin[2] >= nodes[self->current_node].origin[2])
+		&&  ( ((self->velocity[2] > 0) && ! self->groundentity) || OnLadder(self) ) )
+		{
+			ucmd->upmove = SPEED_RUN;
+			self->velocity[2] = min( 200, distance * 10 ); // Jump higher for farther node
+		}
 		
 		ACEMV_ChangeBotAngle(self);
 		return;
@@ -978,7 +1047,9 @@ void ACEMV_Move(edict_t *self, usercmd_t *ucmd)
 	if( (current_node_type != NODE_LADDER) && (next_node_type == NODE_LADDER) )
 	{
 		ucmd->forwardmove = SPEED_WALK / 2;
-		ucmd->upmove = -SPEED_RUN; //Added by Werewolf to cause crouching
+
+		if( (distance < 200) && (nodes[self->next_node].origin[2] <= self->s.origin[2] + 16) )
+			ucmd->upmove = -SPEED_RUN; //Added by Werewolf to cause crouching
 		
 		ACEMV_ChangeBotAngle(self);
 		return;
@@ -1034,6 +1105,20 @@ void ACEMV_Move(edict_t *self, usercmd_t *ucmd)
 		if(random() > 0.5 && ACEMV_SpecialMove(self, ucmd))
 			return;
 		
+		if( self->groundentity )
+		{
+			// Check if we are obstructed by an oncoming teammate, and if so strafe right.
+			trace_t	tr;
+			tr = gi.trace( self->s.origin, tv(-16,-16,-8), tv(16,16,8), nodes[self->next_node].origin, self, MASK_PLAYERSOLID );
+			if( (tr.fraction < 1.0) && tr.ent && (tr.ent != self) && tr.ent->client
+			&&  (DotProduct( self->velocity, tr.ent->velocity ) <= 0) && ACEMV_CanMove( self, MOVE_RIGHT ) )
+			{
+				ucmd->sidemove = SPEED_RUN;
+				ACEMV_ChangeBotAngle(self);
+				return;
+			}
+		}
+
 		self->s.angles[YAW] += random() * 180 - 90; 
 
 		ACEMV_ChangeBotAngle(self);
@@ -1047,29 +1132,40 @@ void ACEMV_Move(edict_t *self, usercmd_t *ucmd)
 		return;
 	}
 
+	////////////////////////////////////////////////////////
+	// Walk Nodes
+	///////////////////////////////////////////////////////
 	ACEMV_ChangeBotAngle(self);
 
-	// Otherwise move as fast as we can
-	// If it's safe to move forward (I can't believe ACE didn't check this!
-	if (ACEMV_CanMove( self, MOVE_FORWARD) || (current_node_type == NODE_LADDER) || (current_node_type==NODE_DOOR))
+	VectorSubtract( nodes[self->next_node].origin, self->s.origin, dist );
+	dist[2] = 0;
+	distance = VectorLength(dist);
+
+	if( ! self->groundentity )
 	{
-		ucmd->forwardmove = SPEED_RUN;
+		// When in air, control speed carefully to avoid overshooting the next node.
+		if( distance < 256 )
+			ucmd->forwardmove = SPEED_RUN * sqrtf( distance / 256 );
+		else
+			ucmd->forwardmove = SPEED_RUN;
+	}
+	else if( ! ACEMV_CanMove( self, MOVE_FORWARD ) )
+	{
+		// If we reached a ledge, slow down.
+		if( distance < 512 )
+		{
+			// Jump unless dropping down to the next node.
+			if( (nodes[self->next_node].origin[2] > self->s.origin[2] + 7) && (distance < 500) )
+				ucmd->upmove = SPEED_RUN;
+
+			ucmd->forwardmove = SPEED_WALK * sqrtf( distance / 512 );
+		}
+		else
+			ucmd->forwardmove = SPEED_WALK;
 	}
 	else
-	{
-		// Raptor007: Reached a ledge, attempt to jump with momentum.
-		VectorSubtract( nodes[self->next_node].origin, self->s.origin, dist );
-		dist[2] = 0;
-		if( (nodes[self->next_node].origin[2] > self->s.origin[2]) && (VectorLength(dist) < 500) )
-		{
-			ucmd->upmove = SPEED_RUN;
-			ucmd->forwardmove = SPEED_RUN;
-		}
-
-		// Forget about this route!
-//		ucmd->forwardmove = -SPEED_WALK / 2;
-//		self->movetarget = NULL;
-	}	
+		// Otherwise move as fast as we can.
+		ucmd->forwardmove = SPEED_RUN;
 }
 
 

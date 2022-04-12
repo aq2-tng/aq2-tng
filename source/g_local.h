@@ -1109,6 +1109,9 @@ extern cvar_t *bholelimit;
 extern cvar_t *splatlife;
 extern cvar_t *bholelife;
 
+// AQ2 ETE
+extern cvar_t *e_enhancedSlippers;
+
 #define world   (&g_edicts[0])
 
 // item spawnflags

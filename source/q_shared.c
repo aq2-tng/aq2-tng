@@ -69,6 +69,14 @@ void RotatePointAroundVector( vec3_t dst, const vec3_t dir, const vec3_t point, 
 		   + (t0 * vr[2] + t1 * vu[2] + vf[2] * vf[2]) * point[2];
 }
 
+void VectorRotate2( vec3_t v, float degrees )
+{
+	float radians = DEG2RAD(degrees);
+	float x = v[0], y = v[1];
+	v[0] = x * cosf(radians) - y * sinf(radians);
+	v[1] = y * cosf(radians) + x * sinf(radians);
+}
+
 void AngleVectors (const vec3_t angles, vec3_t forward, vec3_t right, vec3_t up)
 {
 	float		angle;

@@ -94,6 +94,42 @@ qboolean ACECM_Commands(edict_t *ent)
 		gi.bprintf(PRINT_MEDIUM,"node %d type %d\n", node, nodes[node].type);
 	}
 
+	else if(Q_stricmp (cmd, "showlinks") == 0 && debug_mode)
+	{
+		int i;
+		node = atoi(gi.argv(1));
+		for( i = 0; i < MAXLINKS; i ++ )
+		{
+			int target = nodes[node].links[i].targetNode;
+			if( target != INVALID )
+				gi.bprintf( PRINT_MEDIUM, "link: %d -> %d\n", node, nodes[node].links[i].targetNode );
+		}
+	}
+
+	else if(Q_stricmp (cmd, "showallnodes") == 0 && debug_mode)
+	{
+		int i;
+		for( i = 1; i < numnodes; i ++ )
+			ACEND_ShowNode(i);
+	}
+
+	else if(Q_stricmp (cmd, "botgoal") == 0 && debug_mode)
+	{
+		int i;
+		node = (gi.argc() >= 2) ? atoi(gi.argv(1)) : ACEND_FindClosestReachableNode( ent, NODE_DENSITY, NODE_ALL );
+		for( i = 1; i <= game.maxclients; i ++ )
+		{
+			edict_t *ent = &(g_edicts[ i ]);
+			if( ent->inuse && ent->is_bot && IS_ALIVE(ent) )
+			{
+				AntInitSearch( ent );
+				ACEND_SetGoal( ent, node );
+				ent->state = STATE_MOVE;
+				ent->node_timeout = 0;
+			}
+		}
+	}
+
 	else
 		return false;
 

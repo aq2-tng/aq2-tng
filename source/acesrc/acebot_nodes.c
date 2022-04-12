@@ -320,19 +320,18 @@ void ACEND_SetGoal(edict_t *self, int goal_node)
 	self->goal_node = goal_node;
 	node = ACEND_FindClosestReachableNode(self, NODE_DENSITY*3, NODE_ALL);
 	
-	/*
 	if(node == -1)
+	{
+		self->node_timeout /= 2;  // If invalid, wait half the time again, then retry.
 		return;
-	*/
+	}
 	
 	if(debug_mode)
 		debug_printf("%s new start node selected %d\n",self->client->pers.netname,node);
 	
-	
 	self->current_node = node;
 	self->next_node = self->current_node; // make sure we get to the nearest node first
 	self->node_timeout = 0;
-
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -365,12 +364,12 @@ qboolean ACEND_FollowPath(edict_t *self)
 
 	//RiEvEr - new path code & algorithm
 	// This part checks if we are off course
-	if( (level.framenum % HZ == 0) || (self->node_timeout == 0) || (self->current_node == INVALID) )
+	if( (level.framenum % HZ == 0) || (self->node_timeout == 0) )
 	{
-		if( 
+		if( (self->goal_node == INVALID) || (
 			!AntLinkExists( self->current_node, SLLfront(&self->pathList) )
 			&& ( self->current_node != SLLfront(&self->pathList) )
-			)
+			))
 		{
 			// We are off the path - clear out the lists
 			AntInitSearch( self );
@@ -406,7 +405,7 @@ qboolean ACEND_FollowPath(edict_t *self)
 		if(self->next_node == self->goal_node)
 		{
 			if(debug_mode)
-				debug_printf("%s reached goal!\n",self->client->pers.netname);	
+				debug_printf("%s reached goal node %i!\n", self->client->pers.netname, self->goal_node);
 
 			if (self->state == STATE_FLEE)
 				ACEAI_PickSafeGoal(self);
@@ -418,10 +417,15 @@ qboolean ACEND_FollowPath(edict_t *self)
 			self->current_node = self->next_node;
 //			self->next_node = path_table[self->current_node][self->goal_node];
 			// Removethe front entry from the list
-			SLLpop_front(&self->pathList);
+			if( self->next_node == SLLfront(&self->pathList) )
+				SLLpop_front(&self->pathList);
 			// Get the next node - if there is one!
 			if( !SLLempty(&self->pathList))
+			{
 				self->next_node = SLLfront( &self->pathList);
+				if(debug_mode)
+					debug_printf("%s reached node %i, next is %i.\n", self->client->pers.netname, self->current_node, self->next_node);
+			}
 			else
 			{
 				// We messed up...
@@ -1294,7 +1298,16 @@ void ACEND_SaveNodes()
 		for(j=0;j<numnodes;j++)
 			fwrite(&path_table[i][j],sizeof(short int),1,pOut); // write count
 		
-	fwrite(item_table,sizeof(item_table_t),num_items,pOut); 		// write out the fact table
+	//fwrite(item_table,sizeof(item_table_t),num_items,pOut); 		// write out the fact table
+
+	// Write out the fact table with sanitized pointers.
+	for( i = 0; i < num_items; i ++ )
+	{
+		item_table_t item;
+		memcpy( &item, &(item_table[i]), sizeof(item) );
+		item.ent = NULL;
+		fwrite( &item, sizeof(item), 1, pOut );
+	}
 
 	fclose(pOut);
 	
@@ -1359,6 +1372,10 @@ void ACEND_LoadNodes(void)
 	
 		fread(item_table,sizeof(item_table_t),num_items,pIn);
 		fclose(pIn);
+
+		// Raptor007: Do not trust saved pointers!
+		for(i=0;i<MAX_EDICTS;i++)
+			item_table[i].ent = NULL;
 	}
 	else
 	{
