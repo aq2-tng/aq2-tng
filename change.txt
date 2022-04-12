@@ -101,6 +101,7 @@ From 2.81
 - When not using maplist.ini, votes are now saved as action.ini-votes instead of maplist.ini-votes.  This fixes vote storage with 'ininame' cvar.
 + Added 'empty_rotate' to rotate maps when empty for that many minutes, to prevent being stuck on an unpopular map.  Default 0 means disabled.
 + Added 'empty_exec' to optionally execute config with empty_rotate.  Useful to revert to default settings on servers with configvote.
++ Enhanced Stealth Slippers addition (set 'e_enhancedSlippers 1')
 
 From 2.8
 - Radio kill count was missing for falling death
