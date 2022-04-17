@@ -62,6 +62,8 @@ extern cvar_t *ctf_mode;
 extern cvar_t *ctf_dropflag;
 extern cvar_t *ctf_respawn;
 extern cvar_t *ctf_model;
+extern cvar_t *ctf_medkit;
+extern cvar_t *ctf_medkit_instant;
 
 #define CTF_TEAM1_SKIN "ctf_r"
 #define CTF_TEAM2_SKIN "ctf_b"

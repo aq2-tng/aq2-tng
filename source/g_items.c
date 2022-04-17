@@ -86,6 +86,7 @@ void Weapon_Gas (edict_t * ent);
 
 #define HEALTH_IGNORE_MAX       1
 #define HEALTH_TIMED            2
+#define HEALTH_MEDKIT           4
 
 void Use_Quad (edict_t * ent, gitem_t * item);
 static int quad_drop_timeout_hack;
@@ -774,17 +775,33 @@ void MegaHealth_think (edict_t * self)
 
 qboolean Pickup_Health (edict_t * ent, edict_t * other)
 {
+	// Raptor007: MedKit heals when bandaging, not on item pickup.
+	if( ent->style & HEALTH_MEDKIT )
+	{
+		int max_medkit = INV_AMMO( other, BAND_NUM ) ? 99 : 50;
+		if( other->client->medkit >= max_medkit )
+			return false;
+
+		other->client->medkit += ent->count;
+		if( other->client->medkit > max_medkit )
+			other->client->medkit = max_medkit;
+
+		ent->item->pickup_sound = NULL;
+
+		return true;
+	}
+
 	if (!(ent->style & HEALTH_IGNORE_MAX))
 		if (other->health >= other->max_health)
 			return false;
 
 	other->health += ent->count;
 
-	if (ent->count == 2)
+	if (ent->count < 10)        // (ent->count == 2)
 		ent->item->pickup_sound = "items/s_health.wav";
-	else if (ent->count == 10)
+	else if (ent->count < 25)   // (ent->count == 10)
 		ent->item->pickup_sound = "items/n_health.wav";
-	else if (ent->count == 25)
+	else if (ent->count < 100)  // (ent->count == 25)
 		ent->item->pickup_sound = "items/l_health.wav";
 	else				// (ent->count == 100)
 		ent->item->pickup_sound = "items/m_health.wav";
