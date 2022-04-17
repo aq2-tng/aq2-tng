@@ -1202,6 +1202,27 @@ void EjectWeapon(edict_t * ent, gitem_t * item)
 
 }
 
+void EjectMedKit( edict_t *ent, int medkit )
+{
+	gitem_t *item = FindItem("Health");
+	float spread = 300.0 * crandom();
+	edict_t *drop = NULL;
+
+	if( ! item )
+		return;
+
+	item->world_model = "models/items/healing/medium/tris.md2";
+	ent->client->v_angle[YAW] -= spread;
+	drop = Drop_Item( ent, item );
+	ent->client->v_angle[YAW] += spread;
+	drop->model = item->world_model;
+	drop->spawnflags = DROPPED_ITEM | DROPPED_PLAYER_ITEM;
+	drop->count = medkit;
+
+	if( ! ctf_medkit_instant->value )
+		drop->style = 4; // HEALTH_MEDKIT (g_items.c)
+}
+
 //zucc toss items on death
 void TossItemsOnDeath(edict_t * ent)
 {
@@ -1217,6 +1238,9 @@ void TossItemsOnDeath(edict_t * ent)
 	} else {
 		DeadDropSpec(ent);
 	}
+
+	if( ctf->value && (ctf_medkit->value > 0) )
+		EjectMedKit( ent, ctf_medkit->value );
 
 	if (allweapon->value)// don't drop weapons if allweapons is on
 		return;
@@ -1422,6 +1446,7 @@ void player_die(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage
 	self->client->ps.fov = 90;
 	Bandage(self);		// clear up the leg damage when dead sound?
 	self->client->bandage_stopped = 0;
+	self->client->medkit = 0;
 
 	// clear inventory
 	memset(self->client->inventory, 0, sizeof(self->client->inventory));
@@ -2487,6 +2512,8 @@ void PutClientInServer(edict_t * ent)
 			client->uvTime = uvtime->value;
 		}
 	}
+
+	ent->client->medkit = 0;
 
 	if( jump->value )
 	{

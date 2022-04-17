@@ -357,7 +357,7 @@ void G_SetStats (edict_t * ent)
 
 	if (!ent->client->chase_mode)
 	{
-		int icons[ 6 ], icon_count, i;
+		int icons[ 6 ], numbers[ 2 ], icon_count, i;
 		int cycle = hud_items_cycle->value * FRAMEDIV;
 		int weapon_ids[ 6 ] = { SNIPER_NUM, M4_NUM, MP5_NUM, M3_NUM, HC_NUM, DUAL_NUM };
 		int s_item_ids[ 6 ] = { KEV_NUM, HELM_NUM, BAND_NUM, SIL_NUM, SLIP_NUM, LASER_NUM };
@@ -418,16 +418,28 @@ void G_SetStats (edict_t * ent)
 			ent->client->ps.stats[STAT_ITEMS_ICON] = 0;
 
 		// grenades remaining
-		if (INV_AMMO(ent, GRENADE_NUM))
+		icon_count = 0;
+		numbers[ icon_count ] = INV_AMMO( ent, GRENADE_NUM );
+		if( numbers[ icon_count ] )
+			icons[ icon_count ++ ] = level.pic_weapon_ammo[GRENADE_NUM];
+		// MedKit
+		numbers[ icon_count ] = ent->client->medkit;
+		if( numbers[ icon_count ] )
+			icons[ icon_count ++ ] = level.pic_health;
+		// Cycle grenades and medkit if player has both.
+		if( icon_count && ! cycle )
+			icon_count = 1;
+		if( icon_count )
 		{
-			ent->client->ps.stats[STAT_GRENADE_ICON] = level.pic_weapon_ammo[GRENADE_NUM];
-			ent->client->ps.stats[STAT_GRENADES] = INV_AMMO(ent, GRENADE_NUM);
+			int index = ((level.framenum+cycle/4)/cycle) % icon_count;
+			ent->client->ps.stats[STAT_GRENADE_ICON] = icons[ index ];
+			ent->client->ps.stats[STAT_GRENADES]     = numbers[ index ];
 		}
 		else
 		{
 			ent->client->ps.stats[STAT_GRENADE_ICON] = 0;
+			ent->client->ps.stats[STAT_GRENADES]     = 0;
 		}
-
 
 		//
 		// ammo by weapon

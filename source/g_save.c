@@ -410,6 +410,8 @@ void InitGame( void )
 	ctf_dropflag = gi.cvar( "ctf_dropflag", "1", 0 );
 	ctf_respawn = gi.cvar( "ctf_respawn", "4", 0 );
 	ctf_model = gi.cvar( "ctf_model", "male", CVAR_LATCH );
+	ctf_medkit = gi.cvar( "ctf_medkit", "0", 0 );
+	ctf_medkit_instant = gi.cvar( "ctf_medkit_instant", "0", 0 );
 	dom = gi.cvar( "dom", "0", CVAR_SERVERINFO | CVAR_LATCH );
 	use_grapple = gi.cvar( "use_grapple", "0", 0 );
 	mv_public = gi.cvar( "mv_public", "0", 0 );	//slicer 

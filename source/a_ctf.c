@@ -57,6 +57,8 @@ cvar_t *ctf_mode = NULL;
 cvar_t *ctf_dropflag = NULL;
 cvar_t *ctf_respawn = NULL;
 cvar_t *ctf_model = NULL;
+cvar_t *ctf_medkit = NULL;
+cvar_t *ctf_medkit_instant = NULL;
 
 //-----------------------------------------------------------------------------
 
