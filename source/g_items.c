@@ -778,7 +778,7 @@ qboolean Pickup_Health (edict_t * ent, edict_t * other)
 	// Raptor007: MedKit heals when bandaging, not on item pickup.
 	if( ent->style & HEALTH_MEDKIT )
 	{
-		int max_medkit = INV_AMMO( other, BAND_NUM ) ? 99 : 50;
+		int max_medkit = INV_AMMO( other, BAND_NUM ) ? 99 : ctf_medkit->value;
 		if( other->client->medkit >= max_medkit )
 			return false;
 
