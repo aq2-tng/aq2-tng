@@ -778,7 +778,7 @@ qboolean Pickup_Health (edict_t * ent, edict_t * other)
 	// Raptor007: MedKit heals when bandaging, not on item pickup.
 	if( ent->style & HEALTH_MEDKIT )
 	{
-		int max_medkit = INV_AMMO( other, BAND_NUM ) ? 99 : ctf_medkit->value;
+		int max_medkit = INV_AMMO( other, BAND_NUM ) ? 99 : medkit_drop->value;
 		if( other->client->medkit >= max_medkit )
 			return false;
 
@@ -905,7 +905,12 @@ static void drop_make_touchable (edict_t * ent)
 	ent->touch = Touch_Item;
 
 	//AQ2:TNG - Slicer
-	if (ctf->value)
+	if( ent->item && (ent->item->pickup == Pickup_Health) )
+	{
+		ent->nextthink = level.framenum + (medkit_time->value - 1) * HZ;
+		ent->think = G_FreeEdict;
+	}
+	else if( ctf->value )
 	{
 		ent->nextthink = level.framenum + 6 * HZ;
 		ent->think = G_FreeEdict;

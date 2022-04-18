@@ -1216,10 +1216,9 @@ void EjectMedKit( edict_t *ent, int medkit )
 	drop = Drop_Item( ent, item );
 	ent->client->v_angle[YAW] += spread;
 	drop->model = item->world_model;
-	drop->spawnflags = DROPPED_ITEM | DROPPED_PLAYER_ITEM;
 	drop->count = medkit;
 
-	if( ! ctf_medkit_instant->value )
+	if( ! medkit_instant->value )
 		drop->style = 4; // HEALTH_MEDKIT (g_items.c)
 }
 
@@ -1239,8 +1238,8 @@ void TossItemsOnDeath(edict_t * ent)
 		DeadDropSpec(ent);
 	}
 
-	if( ctf->value && (ctf_medkit->value > 0) )
-		EjectMedKit( ent, ctf_medkit->value );
+	if( medkit_drop->value > 0 )
+		EjectMedKit( ent, medkit_drop->value );
 
 	if (allweapon->value)// don't drop weapons if allweapons is on
 		return;

@@ -457,6 +457,10 @@ cvar_t *warmup;
 cvar_t *round_begin;
 cvar_t *spectator_hud;
 
+cvar_t *medkit_drop;
+cvar_t *medkit_time;
+cvar_t *medkit_instant;
+
 #ifndef NO_BOTS
 cvar_t *ltk_jumpy;
 cvar_t *ltk_skill;

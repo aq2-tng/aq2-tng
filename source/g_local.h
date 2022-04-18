@@ -1109,6 +1109,10 @@ extern cvar_t *bholelimit;
 extern cvar_t *splatlife;
 extern cvar_t *bholelife;
 
+extern cvar_t *medkit_drop;
+extern cvar_t *medkit_time;
+extern cvar_t *medkit_instant;
+
 // AQ2 ETE
 extern cvar_t *e_enhancedSlippers;
 
