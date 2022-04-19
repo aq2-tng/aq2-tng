@@ -1339,6 +1339,7 @@ void CleanLevel ()
 				break;
 			default:
 				if((ent->die == gib_die)
+				|| (strcmp( ent->classname, "medkit" ) == 0)
 				|| (strcmp( ent->classname, "decal" ) == 0)
 				|| (strcmp( ent->classname, "splat" ) == 0)
 				|| (strcmp( ent->classname, "shell" ) == 0))

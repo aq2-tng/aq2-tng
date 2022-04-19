@@ -1216,6 +1216,7 @@ void EjectMedKit( edict_t *ent, int medkit )
 	drop = Drop_Item( ent, item );
 	ent->client->v_angle[YAW] += spread;
 	drop->model = item->world_model;
+	drop->classname = "medkit";
 	drop->count = medkit;
 
 	if( ! medkit_instant->value )
