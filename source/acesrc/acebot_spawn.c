@@ -133,7 +133,7 @@ void ACESP_LoadBotConfig()
 	char	*sp, *tp;
 	int		ttype;
 
-	game_dir = gi.cvar ("game", "", 0);
+	game_dir = gi.cvar ("game", "action", 0);
 	botdir = gi.cvar ("botdir", "bots", 0);
 
 	// Try to load the file for THIS level
