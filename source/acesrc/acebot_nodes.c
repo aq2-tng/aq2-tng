@@ -1259,7 +1259,7 @@ void ACEND_SaveNodes()
 
 	version = LTK_NODEVERSION;
 
-	game_dir = gi.cvar ("game", "", 0);
+	game_dir = gi.cvar ("game", "action", 0);
 
 	//@@ change 'nav' to 'terrain' to line up with William
 #ifdef	_WIN32
