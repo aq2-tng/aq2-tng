@@ -704,14 +704,12 @@ void P_FallingDamage (edict_t * ent)
 		if (damage < 1)
 			damage = 1;
 		// zucc scale this up
+		damage *= 10;
+
 		// darksaint - reduce damage if e_enhancedSlippers are on and equipped
-		if (e_enhancedSlippers->value == 1 && INV_AMMO(ent, SLIP_NUM)) {
-			damage *= 5;
-		}
-		else 
-		{
-			damage *= 10;
-		}
+		if (e_enhancedSlippers->value && INV_AMMO(ent, SLIP_NUM))
+			damage /= 2;
+
 		VectorSet (dir, 0, 0, 1);
 
 		if (jump->value)
@@ -1200,6 +1198,41 @@ void Do_Bleeding (edict_t * ent)
 }
 
 
+void Do_MedKit( edict_t *ent )
+{
+	int i = 0;
+
+	// Synchronize with weapon_framesync for consistent healing, as bandaging time is controlled by weapon think.
+	if( level.framenum % game.framediv != ent->client->weapon_last_activity % game.framediv )
+		return;
+
+	if( ent->health <= 0 )
+		return;
+	if( ! IS_ALIVE(ent) )
+		return;
+
+	// Heal from medkit only while bandaging.
+	if( !(ent->client->bandaging || ent->client->bandage_stopped) )
+		return;
+
+	// If there is bleeding or leg damage, take care of that separately before using medkit.
+	if( ent->client->bandaging && (ent->client->bleeding || ent->client->leg_damage) )
+		return;
+
+	for( i = 0; i < 2; i ++ )
+	{
+		// Make sure we have any medkit and need to use it.
+		if( ent->client->medkit <= 0 )
+			return;
+		if( ent->health >= ent->max_health )
+			return;
+
+		ent->health ++;
+		ent->client->medkit --;
+	}
+}
+
+
 int canFire (edict_t * ent)
 {
 	int result = 0;
@@ -1464,6 +1497,9 @@ void ClientEndServerFrame (edict_t * ent)
 
 	// zucc handle any bleeding damage here
 	Do_Bleeding (ent);
+
+	// If we have a medkit and are bandaging, gradually transfer medkit to health.
+	Do_MedKit (ent);
 
 	// apply all the damage taken this frame
 	P_DamageFeedback (ent);

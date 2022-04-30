@@ -1105,6 +1105,10 @@ extern cvar_t *bholelimit;
 extern cvar_t *splatlife;
 extern cvar_t *bholelife;
 
+extern cvar_t *medkit_drop;
+extern cvar_t *medkit_time;
+extern cvar_t *medkit_instant;
+
 // AQ2 ETE
 extern cvar_t *e_enhancedSlippers;
 
@@ -1729,6 +1733,8 @@ struct gclient_s
 
 	edict_t		*lasersight; // laser
 	edict_t		*flashlight; // Flashlight
+
+	int			medkit;
 
 	edict_t		*ctf_grapple;		// entity of grapple
 	int			ctf_grapplestate;		// true if pulling

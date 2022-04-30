@@ -459,6 +459,10 @@ cvar_t *warmup;
 cvar_t *round_begin;
 cvar_t *spectator_hud;
 
+cvar_t *medkit_drop;
+cvar_t *medkit_time;
+cvar_t *medkit_instant;
+
 cvar_t *jump;			// jumping mod
 
 // AQ2 ETE Add

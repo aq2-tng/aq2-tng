@@ -1198,6 +1198,27 @@ void EjectWeapon(edict_t * ent, gitem_t * item)
 
 }
 
+void EjectMedKit( edict_t *ent, int medkit )
+{
+	gitem_t *item = FindItem("Health");
+	float spread = 300.0 * crandom();
+	edict_t *drop = NULL;
+
+	if( ! item )
+		return;
+
+	item->world_model = "models/items/healing/medium/tris.md2";
+	ent->client->v_angle[YAW] -= spread;
+	drop = Drop_Item( ent, item );
+	ent->client->v_angle[YAW] += spread;
+	drop->model = item->world_model;
+	drop->classname = "medkit";
+	drop->count = medkit;
+
+	if( ! medkit_instant->value )
+		drop->style = 4; // HEALTH_MEDKIT (g_items.c)
+}
+
 //zucc toss items on death
 void TossItemsOnDeath(edict_t * ent)
 {
@@ -1213,6 +1234,9 @@ void TossItemsOnDeath(edict_t * ent)
 	} else {
 		DeadDropSpec(ent);
 	}
+
+	if( medkit_drop->value > 0 )
+		EjectMedKit( ent, medkit_drop->value );
 
 	if (allweapon->value)// don't drop weapons if allweapons is on
 		return;
@@ -1418,6 +1442,7 @@ void player_die(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage
 	self->client->ps.fov = 90;
 	Bandage(self);		// clear up the leg damage when dead sound?
 	self->client->bandage_stopped = 0;
+	self->client->medkit = 0;
 
 	// clear inventory
 	memset(self->client->inventory, 0, sizeof(self->client->inventory));
@@ -2361,6 +2386,8 @@ void PutClientInServer(edict_t * ent)
 		}
 	}
 
+	ent->client->medkit = 0;
+
 	if( jump->value )
 	{
 		Jmp_EquipClient(ent);
@@ -2940,24 +2967,23 @@ void ClientThink(edict_t * ent, usercmd_t * ucmd)
 
 		// Stumbling movement with leg damage.
 		// darksaint ETE edit:  if e_enhancedSlippers are enabled/equipped, negate all stumbling
-		if (e_enhancedSlippers->value == 0 || (e_enhancedSlippers->value == 1 && !INV_AMMO(ent, SLIP_NUM))) {
-			if( client->leg_damage && ent->groundentity )
+		qboolean has_enhanced_slippers = e_enhancedSlippers->value && INV_AMMO(ent, SLIP_NUM);
+		if( client->leg_damage && ent->groundentity && ! has_enhanced_slippers )
+		{
+			int frame_mod_6 = (level.framenum / game.framediv) % 6;
+			if( frame_mod_6 <= 2 )
 			{
-				int frame_mod_6 = (level.framenum / game.framediv) % 6;
-				if( frame_mod_6 <= 2)
-				{
-					pm.cmd.forwardmove = 0;
-					pm.cmd.sidemove = 0;
-				}
-				else if( frame_mod_6 == 3 )
-				{
-					pm.cmd.forwardmove /= client->leghits + 1;
-					pm.cmd.sidemove /= client->leghits + 1;
-				}
-
-				// Prevent jumping with leg damage.
-				pm.s.pm_flags |= PMF_JUMP_HELD;
+				pm.cmd.forwardmove = 0;
+				pm.cmd.sidemove = 0;
 			}
+			else if( frame_mod_6 == 3 )
+			{
+				pm.cmd.forwardmove /= client->leghits + 1;
+				pm.cmd.sidemove /= client->leghits + 1;
+			}
+
+			// Prevent jumping with leg damage.
+			pm.s.pm_flags |= PMF_JUMP_HELD;
 		}
 
 		pm.trace = PM_trace;	// adds default parms

@@ -648,7 +648,7 @@ void QuakeNigguhz (edict_t * ent, pmenu_t * p)
 // AQ2:TNG Deathwatch - Editing all menus to show the correct credits, version, names, locations, urls, etc
 pmenu_t creditsmenu[] = {
   {"*" TNG_TITLE, PMENU_ALIGN_CENTER, NULL, NULL},
-  {"", PMENU_ALIGN_CENTER, NULL, NULL},
+  {"\x9D\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9F", PMENU_ALIGN_CENTER, NULL, NULL},
   {"*Design Team", PMENU_ALIGN_LEFT, NULL, NULL},
   {NULL, PMENU_ALIGN_LEFT, NULL, NULL},
   {"Deathwatch", PMENU_ALIGN_LEFT, NULL, DoAGoodie},
@@ -678,7 +678,7 @@ pmenu_t creditsmenu[] = {
 
 pmenu_t weapmenu[] = {
   {"*" TNG_TITLE, PMENU_ALIGN_CENTER, NULL, NULL},
-  {"", PMENU_ALIGN_CENTER, NULL, NULL},
+  {"\x9D\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9F", PMENU_ALIGN_CENTER, NULL, NULL},
   {"Select your Weapon", PMENU_ALIGN_CENTER, NULL, NULL},
   {NULL, PMENU_ALIGN_LEFT, NULL, NULL},
   //AQ2:TNG - Igor adding wp_flags
@@ -705,7 +705,7 @@ pmenu_t weapmenu[] = {
 
 pmenu_t itemmenu[] = {
   {"*" TNG_TITLE, PMENU_ALIGN_CENTER, NULL, NULL},
-  {"", PMENU_ALIGN_CENTER, NULL, NULL},
+  {"\x9D\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9F", PMENU_ALIGN_CENTER, NULL, NULL},
   {"Select your Item", PMENU_ALIGN_CENTER, NULL, NULL},
   {NULL, PMENU_ALIGN_LEFT, NULL, NULL},
   //AQ2:TNG Igor adding itm_flags
@@ -734,7 +734,7 @@ void VotingMenu (edict_t * ent, pmenu_t * p)
 
 pmenu_t joinmenu[] = {
   {"*" TNG_TITLE, PMENU_ALIGN_CENTER, NULL, NULL},
-  {"", PMENU_ALIGN_CENTER, NULL, NULL},
+  {"\x9D\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9F", PMENU_ALIGN_CENTER, NULL, NULL},
   {NULL /* lvl name */ , PMENU_ALIGN_CENTER, NULL, NULL},
   {NULL, PMENU_ALIGN_CENTER, NULL, NULL},
   {NULL /* team 1 */ , PMENU_ALIGN_LEFT, NULL, JoinTeam1},
@@ -1333,6 +1333,7 @@ void CleanLevel ()
 				break;
 			default:
 				if((ent->die == gib_die)
+				|| (strcmp( ent->classname, "medkit" ) == 0)
 				|| (strcmp( ent->classname, "decal" ) == 0)
 				|| (strcmp( ent->classname, "splat" ) == 0)
 				|| (strcmp( ent->classname, "shell" ) == 0))
@@ -2842,16 +2843,16 @@ void A_ScoreboardMessage (edict_t * ent, edict_t * killer)
 			((s2f & SCORES2_ACC)    ? " Acc"    : "")
 		);
 		sprintf( string + strlen(string),
-			"yv 40 string2 \"%s%s%s%s%s%s%s%s%s\" ",
-			((s2f & SCORES2_TEAM)   ? " "   : ""),
-			((s2f & SCORES2_TIME)   ? " "   : ""),
-			((s2f & SCORES2_PING)   ? " "   : ""),
-			((s2f & SCORES2_CAPS)   ? " "   : ""),
-			((s2f & SCORES2_SCORE)  ? " "  : ""),
-			((s2f & SCORES2_KILLS)  ? " "  : ""),
-			((s2f & SCORES2_DEATHS) ? " " : ""),
-			((s2f & SCORES2_DAMAGE) ? " " : ""),
-			((s2f & SCORES2_ACC)    ? " "   : "")
+			"yv 40 string2 \"%s\x9D\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9F%s%s%s%s%s%s%s%s\" ",
+			((s2f & SCORES2_TEAM)   ? "\x9D\x9E\x9E\x9F "   : ""),
+			((s2f & SCORES2_TIME)   ? " \x9D\x9E\x9E\x9F"   : ""),
+			((s2f & SCORES2_PING)   ? " \x9D\x9E\x9E\x9F"   : ""),
+			((s2f & SCORES2_CAPS)   ? " \x9D\x9E\x9E\x9F"   : ""),
+			((s2f & SCORES2_SCORE)  ? " \x9D\x9E\x9E\x9E\x9F"  : ""),
+			((s2f & SCORES2_KILLS)  ? " \x9D\x9E\x9E\x9E\x9F"  : ""),
+			((s2f & SCORES2_DEATHS) ? " \x9D\x9E\x9E\x9E\x9E\x9F" : ""),
+			((s2f & SCORES2_DAMAGE) ? " \x9D\x9E\x9E\x9E\x9E\x9F" : ""),
+			((s2f & SCORES2_ACC)    ? " \x9D\x9E\x9F"   : "")
 		);
 
 		line_y = 48;

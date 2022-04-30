@@ -744,7 +744,7 @@ void G_LoadLocations( void )
 	memset( ml_creator, 0, sizeof( ml_creator ) );
 	ml_count = 0;
 
-	game_cvar = gi.cvar ("game", "", 0);
+	game_cvar = gi.cvar ("game", "action", 0);
 
 	if (!*game_cvar->string)
 		Com_sprintf(locfile, sizeof(locfile), "%s/tng/%s.aqg", GAMEVERSION, level.mapname);
