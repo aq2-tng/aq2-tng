@@ -1089,6 +1089,8 @@ extern cvar_t *auto_menu;	// Automatically show the join menu
 extern cvar_t *dm_choose;
 extern cvar_t *dm_shield;
 
+extern cvar_t *tourney_lca; // Enables or disabled lights camera action for tourney mode
+
 // TNG:Freud - new spawning system
 extern cvar_t *use_oldspawns;
 // TNG:Freud - ghosts

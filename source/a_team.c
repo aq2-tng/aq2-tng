@@ -1670,7 +1670,7 @@ static void StartLCA(void)
 	if (gameSettings & (GS_WEAPONCHOOSE|GS_ROUNDBASED))
 		CleanLevel();
 
-	if (use_tourney->value)
+	if (use_tourney->value && !tourney_lca->value)
 	{
 		lights_camera_action = TourneySetTime (T_SPAWN);
 		TourneyTimeEvent(T_SPAWN, lights_camera_action);
@@ -1711,7 +1711,7 @@ edict_t *FindOverlap (edict_t * ent, edict_t * last_overlap)
 
 void ContinueLCA ()
 {
-	if (use_tourney->value)
+	if (use_tourney->value && !tourney_lca->value)
 	{
 		TourneyTimeEvent (T_SPAWN, lights_camera_action);
 		if (lights_camera_action == 1)

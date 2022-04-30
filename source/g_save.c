@@ -481,7 +481,7 @@ void InitGame( void )
 	use_balancer = gi.cvar( "use_balancer", "0", 0 );
 	dm_choose = gi.cvar( "dm_choose", "0", CVAR_LATCH );
 	dm_shield = gi.cvar( "dm_shield", "0", 0 );
-
+	tourney_lca = gi.cvar( "tourney_lca", "0", 0 );
 	use_punch = gi.cvar( "use_punch", "1", 0 );
 
 	//TNG:Freud - new spawning system
