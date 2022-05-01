@@ -415,6 +415,8 @@ cvar_t *respawn_effect;
 
 cvar_t *dm_shield;
 
+cvar_t *tourney_lca;	// Enables lights camera action for tourney mode
+
 cvar_t *item_respawnmode;
 
 cvar_t *use_mvd2;	// JBravo: activate mvd2 recording on servers running q2pro
