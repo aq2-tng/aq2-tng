@@ -57,7 +57,7 @@ SV_TestEntityPosition (edict_t * ent)
   POSTTRACE ();
 
   if (trace.startsolid)
-    return g_edicts;
+    return trace.ent ? trace.ent : g_edicts;
 
   return NULL;
 }
@@ -539,6 +539,12 @@ SV_Push (edict_t * pusher, vec3_t move, vec3_t amove)
 	  // FIXME: this doesn't acount for rotation
 	  VectorSubtract (check->s.origin, move, check->s.origin);
 	  block = SV_TestEntityPosition (check);
+      if ((block == pusher) && (move[2] > 0))
+      {
+        // Raptor007: If platform can't push something and its old origin is within the platform, try just lifting it.
+        check->s.origin[2] += move[2];
+        block = SV_TestEntityPosition (check);
+      }
 	  if (!block)
 	    {
 	      pushed_p--;
