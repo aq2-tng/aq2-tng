@@ -539,17 +539,42 @@ SV_Push (edict_t * pusher, vec3_t move, vec3_t amove)
 	  // FIXME: this doesn't acount for rotation
 	  VectorSubtract (check->s.origin, move, check->s.origin);
 	  block = SV_TestEntityPosition (check);
-      if ((block == pusher) && (move[2] > 0))
-      {
-        // Raptor007: If platform can't push something and its old origin is within the platform, try just lifting it.
-        check->s.origin[2] += move[2];
-        block = SV_TestEntityPosition (check);
-      }
 	  if (!block)
 	    {
 	      pushed_p--;
 	      continue;
 	    }
+
+	  // Raptor007: If we can't push up+sideways and old position is now within pusher, try just pushing up.
+	  // This fixes crushing players that bump into each other on the cliff tram (issue #95).
+	  if ((block == pusher) && (move[2] > 0) && (move[0] || move[1]))
+	  {
+	    check->s.origin[2] += move[2];
+	    block = SV_TestEntityPosition (check);
+	    if (!block)
+	    {
+	      gi.linkentity (check);
+	      continue;
+	    }
+	    check->s.origin[2] -= move[2];
+      }
+
+	  // Raptor007: If we can't push down+sideways and old position is now within pusher, try just pushing sideways.
+	  // This fixes crushing in the doors of cliff tram when it starts moving downward.
+	  // FIXME: Should this use a trace for height so entities could also be pushed along slightly upward slopes?
+      else if ((block == pusher) && (move[2] < 0) && (move[0] || move[1]))
+      {
+	    check->s.origin[0] += move[0];
+	    check->s.origin[1] += move[1];
+	    block = SV_TestEntityPosition (check);
+	    if (!block)
+	    {
+	      gi.linkentity (check);
+	      continue;
+	    }
+	    check->s.origin[0] -= move[0];
+	    check->s.origin[1] -= move[1];
+      }
 	}
 
       // save off the obstacle so we can call the block function
