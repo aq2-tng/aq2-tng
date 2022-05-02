@@ -2702,6 +2702,8 @@ void ClientUserinfoChanged(edict_t *ent, char *userinfo)
 					continue;
 				gi.cprintf( other, PRINT_MEDIUM, "%s is now known as %s.\n", client->pers.netname, tnick ); //TempFile
 			}
+			if( dedicated->value )
+				gi.dprintf( "%s is now known as %s.\n", client->pers.netname, tnick ); //TempFile
 			IRC_printf(IRC_T_SERVER, "%n is now known as %n.", client->pers.netname, tnick);
 			nickChanged = true;
 		}
