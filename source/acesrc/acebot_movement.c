@@ -872,6 +872,31 @@ void ACEMV_Move(edict_t *self, usercmd_t *ucmd)
 	////////////////////////////////////////////////////////
 	// Platforms
 	///////////////////////////////////////////////////////
+	if( (next_node_type == NODE_PLATFORM) && ((current_node_type != NODE_PLATFORM) || (self->current_node == self->next_node)) )
+	{
+		// Check if the platform is directly above us.
+		vec3_t start, above;
+		trace_t tr;
+		VectorCopy( self->s.origin, start );
+		VectorCopy( self->s.origin, above );
+		start[2] += 32;
+		above[2] += 2048;
+		tr = gi.trace( start, tv(-24,-24,-8), tv(24,24,8), above, self, MASK_PLAYERSOLID );
+		if( (tr.fraction < 1.0) && tr.ent && (tr.ent->use == Use_Plat) )
+		{
+			// If it is directly above us, get out of the way.
+			ucmd->sidemove = 0;
+			if( ACEMV_CanMove( self, MOVE_BACK ) )
+				ucmd->forwardmove = -SPEED_WALK;
+			else if( (self->bot_strafe <= 0) && ACEMV_CanMove( self, MOVE_LEFT ) )
+				ucmd->sidemove = -SPEED_WALK;
+			else if( ACEMV_CanMove( self, MOVE_RIGHT ) )
+				ucmd->sidemove = SPEED_WALK;
+			self->bot_strafe = ucmd->sidemove;
+			ACEMV_ChangeBotAngle(self);
+			return;
+		}
+	}
 	if(current_node_type != NODE_PLATFORM && next_node_type == NODE_PLATFORM)
 	{
 		// check to see if lift is down?
@@ -880,19 +905,21 @@ void ACEMV_Move(edict_t *self, usercmd_t *ucmd)
 				if(item_table[i].ent->moveinfo.state != STATE_BOTTOM)
 				    return; // Wait for elevator
 	}
-	if( (current_node_type == NODE_PLATFORM) && self->groundentity && (self->groundentity->use = Use_Plat)
+	if( (current_node_type == NODE_PLATFORM) && self->groundentity
 	&&  ((self->groundentity->moveinfo.state == STATE_UP) || (self->groundentity->moveinfo.state == STATE_DOWN)) )
 	{
 		// Standing on moving elevator.
 		ucmd->forwardmove = 0;
 		ucmd->sidemove = 0;
 		ucmd->upmove = 0;
+		if( VectorLength(self->groundentity->velocity) < 8 )
+			ucmd->upmove = SPEED_RUN;
 		ACEMV_ChangeBotAngle(self);
 		if( debug_mode && (level.framenum % HZ == 0) )
 			debug_printf( "%s: platform move state %i\n", self->client->pers.netname, self->groundentity->moveinfo.state );
 		return;
 	}
-	if(current_node_type == NODE_PLATFORM && next_node_type == NODE_PLATFORM)
+	if( (current_node_type == NODE_PLATFORM) && (next_node_type == NODE_PLATFORM) && (self->current_node != self->next_node) )
 	{
 		// Move to the center
 		self->move_vector[2] = 0; // kill z movement	
@@ -1187,7 +1214,7 @@ void ACEMV_Wander(edict_t *self, usercmd_t *ucmd)
 		return;
 
 	// Special check for elevators, stand still until the ride comes to a complete stop.
-	if(self->groundentity != NULL && self->groundentity->use == Use_Plat)
+	if( self->groundentity && (VectorLength(self->groundentity->velocity) >= 8) )
 		if(self->groundentity->moveinfo.state == STATE_UP ||
 		   self->groundentity->moveinfo.state == STATE_DOWN) // only move when platform not
 		{
