@@ -804,6 +804,8 @@ void Cmd_Bandage_f(edict_t *ent)
 void Bandage(edict_t * ent)
 {
 	ent->client->leg_noise = 0;
+	if (ent->client->leg_damage)
+		ent->client->ps.pmove.pm_flags &= ~PMF_NO_PREDICTION;
 	ent->client->leg_damage = 0;
 	ent->client->leghits = 0;
 	ent->client->bleeding = 0;

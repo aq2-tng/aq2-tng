@@ -1446,6 +1446,8 @@ typedef struct
 	int menu_shown;		// has the main menu been shown
 	qboolean dm_selected;		// if dm weapon selection has been done once
 
+	qboolean limp_nopred;
+
 	int mk23_mode;		// firing mode, semi or auto
 	int mp5_mode;
 	int m4_mode;

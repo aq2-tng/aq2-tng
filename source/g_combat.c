@@ -605,6 +605,8 @@ T_Damage (edict_t * targ, edict_t * inflictor, edict_t * attacker, vec3_t dir,
 
 				gi.cprintf(targ, PRINT_HIGH, "Leg damage\n");
 				targ->client->leg_damage = 1;
+				if (targ->client->pers.limp_nopred)
+					targ->client->ps.pmove.pm_flags |= PMF_NO_PREDICTION;
 				targ->client->leghits++;
 			}
 			else if (z_rel < STOMACH_DAMAGE)
@@ -715,6 +717,8 @@ T_Damage (edict_t * targ, edict_t * inflictor, edict_t * attacker, vec3_t dir,
 		{
 			gi.cprintf(targ, PRINT_HIGH, "Leg damage\n");
 			client->leg_damage = 1;
+			if (client->pers.limp_nopred)
+				client->ps.pmove.pm_flags |= PMF_NO_PREDICTION;
 			client->leghits++;
 			//bleeding = 1; for testing
 		}
