@@ -1794,6 +1794,7 @@ qboolean CheckTimelimit( void )
 				SendScores();
 				team_round_going = team_round_countdown = team_game_going = 0;
 				MakeAllLivePlayersObservers();
+				ctfgame.halftime = 0;
 			} else {
 				gi.bprintf( PRINT_HIGH, "Timelimit hit.\n" );
 				IRC_printf( IRC_T_GAME, "Timelimit hit." );
