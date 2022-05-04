@@ -70,6 +70,7 @@ void MoveClientToIntermission(edict_t *ent)
 	ent->client->ps.pmove.origin[1] = level.intermission_origin[1] * 8;
 	ent->client->ps.pmove.origin[2] = level.intermission_origin[2] * 8;
 	VectorCopy(level.intermission_angle, ent->client->ps.viewangles);
+	VectorClear(ent->client->ps.kick_angles);
 	ent->client->ps.pmove.pm_type = PM_FREEZE;
 	ent->client->ps.gunindex = 0;
 	ent->client->ps.blend[3] = 0;
