@@ -2187,6 +2187,9 @@ Called when a player takes leg damage
 
 void ClientLegDamage(edict_t *ent)
 {
+	ent->client->leg_damage = 1;
+	ent->client->leghits++;
+
 	// Reki: limp_nopred behavior
 	switch (ent->client->pers.limp_nopred & 255)
 	{
@@ -2214,6 +2217,19 @@ void ClientLegDamage(edict_t *ent)
 	}
 	//
 
+}
+
+void ClientFixLegs(edict_t *ent)
+{
+	if (ent->client->leg_damage && ent->client->ctf_grapplestate <= CTF_GRAPPLE_STATE_FLY)
+	{
+		ent->client->ps.pmove.pm_flags &= ~PMF_NO_PREDICTION;
+	}
+
+	ent->client->leg_noise = 0;
+	ent->client->leg_damage = 0;
+	ent->client->leghits = 0;
+	ent->client->leg_dam_count = 0;
 }
 
 

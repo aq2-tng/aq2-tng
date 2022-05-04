@@ -604,9 +604,7 @@ T_Damage (edict_t * targ, edict_t * inflictor, edict_t * attacker, vec3_t dir,
 				}
 
 				gi.cprintf(targ, PRINT_HIGH, "Leg damage\n");
-				targ->client->leg_damage = 1;
 				ClientLegDamage(targ);
-				targ->client->leghits++;
 			}
 			else if (z_rel < STOMACH_DAMAGE)
 			{
@@ -715,9 +713,7 @@ T_Damage (edict_t * targ, edict_t * inflictor, edict_t * attacker, vec3_t dir,
 		if (client && targ->health > 0)
 		{
 			gi.cprintf(targ, PRINT_HIGH, "Leg damage\n");
-			client->leg_damage = 1;
 			ClientLegDamage(targ);
-			client->leghits++;
 			//bleeding = 1; for testing
 		}
 	}
