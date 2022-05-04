@@ -2212,6 +2212,9 @@ void ClientLegDamage(edict_t *ent)
 				break;
 			ent->client->pers.limp_nopred |= 256;
 		case 1:
+			if (e_enhancedSlippers->value && INV_AMMO(ent, SLIP_NUM)) // we don't limp with enhanced slippers, so just ignore this leg damage.
+				break;
+
 			ent->client->ps.pmove.pm_flags |= PMF_NO_PREDICTION;
 			break;
 	}
