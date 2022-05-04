@@ -1363,6 +1363,7 @@ edict_t* SelectRandomDeathmatchSpawnPoint(void);
 edict_t* SelectFarthestDeathmatchSpawnPoint(void);
 float PlayersRangeFromSpot(edict_t* spot);
 void ClientLegDamage(edict_t* ent);
+void ClientFixLegs(edict_t *ent);
 void ClientUserinfoChanged(edict_t* ent, char* userinfo);
 void ClientDisconnect(edict_t* ent);
 void CopyToBodyQue(edict_t* ent);
