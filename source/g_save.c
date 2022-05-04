@@ -543,6 +543,8 @@ void InitGame( void )
 
 	e_enhancedSlippers = gi.cvar( "e_enhancedSlippers", "0", 0); // darksaint: AQ2 ETE
 
+	sv_limp_highping = gi.cvar("sv_limp_highping", "70", CVAR_SERVERINFO);
+
 	// items
 	InitItems();
 
