@@ -1107,6 +1107,9 @@ extern cvar_t *bholelife;
 // AQ2 ETE
 extern cvar_t *e_enhancedSlippers;
 
+extern cvar_t *sv_limp_highping;
+
+
 #define world   (&g_edicts[0])
 
 // item spawnflags
@@ -1360,6 +1363,7 @@ void G_UpdatePlayerStatusbar( edict_t *ent, int force );
 edict_t* SelectRandomDeathmatchSpawnPoint(void);
 edict_t* SelectFarthestDeathmatchSpawnPoint(void);
 float PlayersRangeFromSpot(edict_t* spot);
+void ClientLegDamage(edict_t* ent);
 void ClientUserinfoChanged(edict_t* ent, char* userinfo);
 void ClientDisconnect(edict_t* ent);
 void CopyToBodyQue(edict_t* ent);
@@ -1447,7 +1451,7 @@ typedef struct
 	int menu_shown;		// has the main menu been shown
 	qboolean dm_selected;		// if dm weapon selection has been done once
 
-	qboolean limp_nopred;
+	int limp_nopred;
 
 	int mk23_mode;		// firing mode, semi or auto
 	int mp5_mode;

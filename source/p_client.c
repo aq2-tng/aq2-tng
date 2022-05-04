@@ -2176,6 +2176,48 @@ void EquipClientDM(edict_t * ent)
 
 // Igor[Rock] ende
 
+
+/*
+===========
+ClientLegDamage
+
+Called when a player takes leg damage
+============
+*/
+
+void ClientLegDamage(edict_t *ent)
+{
+	// Reki: limp_nopred behavior
+	switch (ent->client->pers.limp_nopred & 255)
+	{
+		case -1:
+			break;
+		case 0:
+			if (sv_limp_highping->value <= 0)
+				break;
+			// if the 256 bit flag is set, we have to be cautious to only deactivate if ping swung significantly
+			// so each leg break doesn't flipflop between behavior if client ping is fluctuating
+			if (ent->client->pers.limp_nopred & 256)
+			{
+				if (ent->client->ping < (int)sv_limp_highping->value - 15)
+				{
+					ent->client->pers.limp_nopred &= ~256;
+					break;
+				}
+			}
+			else if (ent->client->ping < (int)sv_limp_highping->value)
+				break;
+			ent->client->pers.limp_nopred |= 256;
+		case 1:
+			ent->client->ps.pmove.pm_flags |= PMF_NO_PREDICTION;
+			break;
+	}
+	//
+
+}
+
+
+
 /*
 ===========
 PutClientInServer
@@ -2597,10 +2639,14 @@ void ClientUserinfoChanged(edict_t *ent, char *userinfo)
 
 
 	// Reki - disable prediction on limping
-	if (atoi(Info_ValueForKey(userinfo, "limp_nopred")))
-		client->pers.limp_nopred = qtrue;
-	else
-		client->pers.limp_nopred = qfalse;
+	s = Info_ValueForKey(userinfo, "limp_nopred");
+	int limp = atoi(s);
+	if (limp == 1)
+		client->pers.limp_nopred = 1; // client explicity wants new behavior 
+	else if (s[0] == 0)
+		client->pers.limp_nopred = 0 | (client->pers.limp_nopred & 256); // client doesn't specify, so use auto threshold
+	else if (limp == 0)
+		client->pers.limp_nopred = -1; // client explicity wants old behavior
 }
 
 /*
