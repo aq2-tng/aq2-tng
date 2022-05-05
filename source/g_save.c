@@ -410,6 +410,9 @@ void InitGame( void )
 	ctf_dropflag = gi.cvar( "ctf_dropflag", "1", 0 );
 	ctf_respawn = gi.cvar( "ctf_respawn", "4", 0 );
 	ctf_model = gi.cvar( "ctf_model", "male", CVAR_LATCH );
+	medkit_drop = gi.cvar( "medkit_drop", "0", 0 );
+	medkit_time = gi.cvar( "medkit_time", "30", 0 );
+	medkit_instant = gi.cvar( "medkit_instant", "0", 0 );
 	dom = gi.cvar( "dom", "0", CVAR_SERVERINFO | CVAR_LATCH );
 	use_grapple = gi.cvar( "use_grapple", "0", 0 );
 	mv_public = gi.cvar( "mv_public", "0", 0 );	//slicer 
@@ -481,7 +484,7 @@ void InitGame( void )
 	use_balancer = gi.cvar( "use_balancer", "0", 0 );
 	dm_choose = gi.cvar( "dm_choose", "0", CVAR_LATCH );
 	dm_shield = gi.cvar( "dm_shield", "0", 0 );
-
+	tourney_lca = gi.cvar( "tourney_lca", "0", 0 );
 	use_punch = gi.cvar( "use_punch", "1", 0 );
 
 	//TNG:Freud - new spawning system
