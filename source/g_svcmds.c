@@ -309,7 +309,7 @@ void SVCmd_WriteIP_f (void)
 	int i;
 	cvar_t *game;
 
-	game = gi.cvar ("game", "", 0);
+	game = gi.cvar ("game", "action", 0);
 
 	if (!*game->string)
 		sprintf (name, "%s/listip.cfg", GAMEVERSION);
