@@ -2205,6 +2205,67 @@ void EquipClientDM(edict_t * ent)
 
 // Igor[Rock] ende
 
+
+/*
+===========
+ClientLegDamage
+
+Called when a player takes leg damage
+============
+*/
+
+void ClientLegDamage(edict_t *ent)
+{
+	ent->client->leg_damage = 1;
+	ent->client->leghits++;
+
+	// Reki: limp_nopred behavior
+	switch (ent->client->pers.limp_nopred & 255)
+	{
+		case -1:
+			break;
+		case 0:
+			if (sv_limp_highping->value <= 0)
+				break;
+			// if the 256 bit flag is set, we have to be cautious to only deactivate if ping swung significantly
+			// so each leg break doesn't flipflop between behavior if client ping is fluctuating
+			if (ent->client->pers.limp_nopred & 256)
+			{
+				if (ent->client->ping < (int)sv_limp_highping->value - 15)
+				{
+					ent->client->pers.limp_nopred &= ~256;
+					break;
+				}
+			}
+			else if (ent->client->ping < (int)sv_limp_highping->value)
+				break;
+			ent->client->pers.limp_nopred |= 256;
+		case 1:
+			if (e_enhancedSlippers->value && INV_AMMO(ent, SLIP_NUM)) // we don't limp with enhanced slippers, so just ignore this leg damage.
+				break;
+
+			ent->client->ps.pmove.pm_flags |= PMF_NO_PREDICTION;
+			break;
+	}
+	//
+
+}
+
+void ClientFixLegs(edict_t *ent)
+{
+	if (ent->client->leg_damage && ent->client->ctf_grapplestate <= CTF_GRAPPLE_STATE_FLY)
+	{
+		ent->client->ps.pmove.pm_flags &= ~PMF_NO_PREDICTION;
+	}
+
+	ent->client->leg_noise = 0;
+	ent->client->leg_damage = 0;
+	ent->client->leghits = 0;
+	ent->client->leg_dam_count = 0;
+}
+
+
+
 /*
 ===========
 PutClientInServer
@@ -2754,6 +2815,17 @@ void ClientUserinfoChanged(edict_t *ent, char *userinfo)
 	} else {
 		client->pers.gender = GENDER_NEUTRAL;
 	}
+
+
+	// Reki - disable prediction on limping
+	s = Info_ValueForKey(userinfo, "limp_nopred");
+	int limp = atoi(s);
+	if (limp == 1)
+		client->pers.limp_nopred = 1; // client explicity wants new behavior 
+	else if (s[0] == 0)
+		client->pers.limp_nopred = 0 | (client->pers.limp_nopred & 256); // client doesn't specify, so use auto threshold
+	else if (limp == 0)
+		client->pers.limp_nopred = -1; // client explicity wants old behavior
 }
 
 /*
