@@ -2193,9 +2193,9 @@ void ClientLegDamage(edict_t *ent)
 	// Reki: limp_nopred behavior
 	switch (ent->client->pers.limp_nopred & 255)
 	{
-		case -1:
-			break;
 		case 0:
+			break;
+		case 2:
 			if (sv_limp_highping->value <= 0)
 				break;
 			// if the 256 bit flag is set, we have to be cautious to only deactivate if ping swung significantly
@@ -2663,9 +2663,9 @@ void ClientUserinfoChanged(edict_t *ent, char *userinfo)
 	if (limp == 1)
 		client->pers.limp_nopred = 1; // client explicity wants new behavior 
 	else if (s[0] == 0)
-		client->pers.limp_nopred = 0 | (client->pers.limp_nopred & 256); // client doesn't specify, so use auto threshold
+		client->pers.limp_nopred = 2 | (client->pers.limp_nopred & 256); // client doesn't specify, so use auto threshold
 	else if (limp == 0)
-		client->pers.limp_nopred = -1; // client explicity wants old behavior
+		client->pers.limp_nopred = 0; // client explicity wants old behavior
 }
 
 /*
