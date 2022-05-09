@@ -261,7 +261,9 @@ pistols, rifles, etc....
 void fire_bullet(edict_t *self, vec3_t start, vec3_t aimdir, int damage, int kick, int hspread, int vspread, int mod)
 {
 	setFFState(self);
+	antilag_rewind_all(self);
 	fire_lead(self, start, aimdir, damage, kick, TE_GUNSHOT, hspread, vspread, mod);
+	antilag_unmove_all();
 }
 
 
@@ -467,14 +469,18 @@ static void fire_lead_ap(edict_t *self, vec3_t start, vec3_t aimdir, int damage,
 void fire_bullet_sparks (edict_t *self, vec3_t start, vec3_t aimdir, int damage, int kick, int hspread, int vspread, int mod)
 {
 	setFFState(self);
+	antilag_rewind_all(self);
 	fire_lead_ap(self, start, aimdir, damage, kick, TE_BULLET_SPARKS, hspread, vspread, mod);
+	antilag_unmove_all();
 }
 
 // zucc - for sniper
 void fire_bullet_sniper (edict_t *self, vec3_t start, vec3_t aimdir, int damage, int kick, int hspread, int vspread, int mod)
 {
 	setFFState (self);
+	antilag_rewind_all(self);
 	fire_lead_ap (self, start, aimdir, damage, kick, TE_GUNSHOT, hspread, vspread, mod);
+	antilag_unmove_all();
 }
 
 
@@ -546,8 +552,10 @@ void fire_shotgun(edict_t *self, vec3_t start, vec3_t aimdir, int damage, int ki
 {
 	int i;
 
+	antilag_rewind_all(self);
 	for (i = 0; i < count; i++)
 		fire_lead (self, start, aimdir, damage, kick, TE_SHOTGUN, hspread, vspread, mod);
+	antilag_unmove_all();
 }
 
 

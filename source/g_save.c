@@ -557,7 +557,17 @@ void InitGame( void )
 	e_enhancedSlippers = gi.cvar( "e_enhancedSlippers", "0", 0);
 	// END AQ2 ETE
 
+	sv_antilag = gi.cvar("sv_antilag", "0", CVAR_SERVERINFO);
 	sv_limp_highping = gi.cvar("sv_limp_highping", "70", CVAR_SERVERINFO);
+
+#ifndef NO_BOTS
+	// bots
+	ltk_jumpy = gi.cvar( "ltk_jumpy", "1", CVAR_SERVERINFO );
+	ltk_skill = gi.cvar( "ltk_skill", "5", 0 );
+	ltk_showpath = gi.cvar( "ltk_showpath", "0", 0 );
+	ltk_chat = gi.cvar( "ltk_chat", "1", 0 );
+	ltk_routing = gi.cvar( "ltk_routing", "0", 0 );
+#endif
 
 	// items
 	InitItems();
@@ -631,6 +641,9 @@ void InitGame( void )
 #endif
 
 	gi.cvar_forceset("g_features", va("%d", G_FEATURES));
+	gi.cvar_forceset("g_view_predict", "1");
+	gi.cvar_forceset("g_view_high", va("%d", STANDING_VIEWHEIGHT));
+	gi.cvar_forceset("g_view_low", va("%d", CROUCHING_VIEWHEIGHT));
 }
 
 //=========================================================

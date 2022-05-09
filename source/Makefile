@@ -7,6 +7,15 @@ PACKAGE=aq2-tng
 VERSION=2.81
 FILE_VERSION:=$(VERSION)
 
+## Export env TNG_BUILD_FOR=WIN32 or TNG_BUILD_FOR=WIN64 to build 32-bit exe on 64-bit arch
+ifeq ($(TNG_BUILD_FOR),WIN32)
+    WIN32=yes
+endif
+
+ifeq ($(TNG_BUILD_FOR),WIN64)
+    WIN64=yes
+endif
+
 ifndef RELEASE
 GIT_DATE=$(shell git show -s --format='%cd' --date=short)
 ifeq ($(GIT_DATE),)
@@ -46,6 +55,12 @@ endif
 
 MACHINE=$(shell uname -m)
 SYSTEM=$(shell uname -s)
+
+# Fixes by bAron to get it compiling on max m1
+ifeq ($(TNG_BUILD_FOR),M1)
+	CC=clang
+	MACHINE=arm64e
+endif
 
 ARCH=$(MACHINE)
 
@@ -89,6 +104,11 @@ CFLAGS+=-m32
 endif
 
 
+ifdef NO_BOTS
+CFLAGS+=-DNO_BOTS
+endif
+
+
 #############################################################################
 # SETUP AND BUILD
 # GAME
@@ -104,9 +124,18 @@ GAME_OBJS = \
 	g_combat.o g_func.o g_items.o g_main.o g_misc.o \
 	g_phys.o g_save.o g_spawn.o g_svcmds.o g_target.o g_trigger.o \
 	g_utils.o g_weapon.o \
-	p_client.o p_hud.o p_view.o p_weapon.o q_shared.o \
+	p_antilag.o p_client.o p_hud.o p_view.o p_weapon.o q_shared.o \
 	tng_stats.o tng_flashlight.o tng_irc.o tng_ini.o tng_balancer.o \
 	g_grapple.o a_dom.o tng_jump.o
+
+ifndef NO_BOTS
+GAME_OBJS += acesrc/acebot_ai.o acesrc/acebot_nodes.o acesrc/bot_combat.o \
+	acesrc/bot_states.o acesrc/acebot_cmds.o acesrc/acebot_spawn.o \
+	acesrc/bot_env_doors.o acesrc/bot_utility.o acesrc/acebot_compress.o \
+	acesrc/bot_ai.o acesrc/bot_movement.o acesrc/bot_weapon.o \
+	acesrc/acebot_items.o acesrc/botchat.o acesrc/botnav.o \
+	acesrc/acebot_movement.o acesrc/bot_collision.o acesrc/botscan.o
+endif
 
 game$(ARCH).$(SHLIBEXT): $(GAME_OBJS)
 	$(DO_LINK)

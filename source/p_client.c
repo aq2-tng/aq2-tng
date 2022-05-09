@@ -642,6 +642,10 @@ void PrintDeathMessage(char *msg, edict_t * gibee)
 		other = &g_edicts[j];
 		if (!other->inuse || !other->client)
 			continue;
+#ifndef NO_BOTS
+		if( other->is_bot )
+			continue;
+#endif
 
 		// only print if he's NOT gibee, NOT attacker, and NOT alive! -TempFile
 		if (other != gibee && other != gibee->client->attacker && other->solid == SOLID_NOT)
@@ -2218,9 +2222,9 @@ void ClientLegDamage(edict_t *ent)
 	// Reki: limp_nopred behavior
 	switch (ent->client->pers.limp_nopred & 255)
 	{
-		case -1:
-			break;
 		case 0:
+			break;
+		case 2:
 			if (sv_limp_highping->value <= 0)
 				break;
 			// if the 256 bit flag is set, we have to be cautious to only deactivate if ping swung significantly
@@ -2411,6 +2415,125 @@ void PutClientInServer(edict_t * ent)
 	for (i = 0; i < 3; i++)
 		client->ps.pmove.delta_angles[i] = ANGLE2SHORT(ent->s.angles[i] - client->resp.cmd_angles[i]);
 
+#ifndef NO_BOTS
+	ent->last_node = -1;
+	ent->is_jumping = false;
+	ent->is_triggering = false;
+	ent->grenadewait = 0;
+	ent->react = 0.f;
+	
+	if( ent->is_bot )
+	{
+		ent->classname = "bot";
+		
+		ent->enemy = NULL;
+		ent->movetarget = NULL;
+		if( ! teamplay->value )
+		{
+			ent->state = STATE_MOVE;
+			ent->botState = BS_ROAM;
+			ent->nextState = BS_ROAM;
+			ent->secondaryState = BSS_NONE;
+		}
+		else
+		{
+			ent->state = STATE_POSITION;
+			ent->botState = BS_ROAM;
+			ent->nextState = BS_ROAM;
+			ent->secondaryState = BSS_POSITION;
+		}
+		
+		// Set the current node
+		ent->current_node = ACEND_FindClosestReachableNode( ent, NODE_DENSITY, NODE_ALL );
+		ent->goal_node = ent->current_node;
+		ent->next_node = ent->current_node;
+		ent->next_move_time = level.framenum;
+		ent->suicide_timeout = level.framenum + 15.0 * HZ;
+		
+		ent->killchat = false;
+		VectorClear( ent->lastSeen );
+		ent->cansee = false;
+		
+		ent->bot_strafe = SPEED_WALK;
+		ent->bot_speed = 0;
+		VectorClear( ent->lastPosition );
+		
+		// Choose Teamplay weapon
+		switch( ent->weaponchoice - 1 )  // Range is 1..5
+		{
+		case 0:
+			ACEAI_Cmd_Choose_Weapon_Num( ent, MP5_NUM );
+			break;
+		case 1:
+			ACEAI_Cmd_Choose_Weapon_Num( ent, M4_NUM );
+			break;
+		case 2:
+			ACEAI_Cmd_Choose_Weapon_Num( ent, M3_NUM );
+			break;
+		case 3:
+			ACEAI_Cmd_Choose_Weapon_Num( ent, HC_NUM );
+			break;
+		case 4:
+			ACEAI_Cmd_Choose_Weapon_Num( ent, SNIPER_NUM );
+			break;
+		default:
+			ACEAI_Cmd_Choose_Weapon_Num( ent, 0 );  // Random allowed.
+			break;
+		}
+		
+		// Choose Teamplay equipment
+		switch( ent->equipchoice - 1 )  // Range is 1..5
+		{
+		case 0:
+			ACEAI_Cmd_Choose_Item_Num( ent, SIL_NUM );
+			break;
+		case 1:
+			ACEAI_Cmd_Choose_Item_Num( ent, SLIP_NUM );
+			break;
+		case 2:
+			ACEAI_Cmd_Choose_Item_Num( ent, BAND_NUM );
+			break;
+		case 3:
+			ACEAI_Cmd_Choose_Item_Num( ent, KEV_NUM );
+			break;
+		case 4:
+			ACEAI_Cmd_Choose_Item_Num( ent, LASER_NUM );
+			break;
+		default:
+			ACEAI_Cmd_Choose_Item_Num( ent, 0 );  // Random allowed.
+			break;
+		}
+		
+		if( teamplay->value )
+		{
+			int randomnode = 0;
+			const char *s = Info_ValueForKey( ent->client->pers.userinfo, "skin" );
+			AssignSkin( ent, s, false /* nickChanged */ );
+			// Anti centipede timer
+			ent->teamPauseTime = level.framenum + (3.0 + (rand() % 7)) * HZ;
+			// Radio setup
+			ent->teamReportedIn = true;
+			ent->lastRadioTime = level.framenum;
+			// Change facing angle for each bot
+			randomnode = (int)( num_players * random() );
+			VectorSubtract( nodes[randomnode].origin, ent->s.origin, ent->move_vector );
+			ent->move_vector[2] = 0;
+		}
+		else
+			ent->teamPauseTime = level.framenum;
+		
+		//RiEvEr - new node pathing system
+		memset( &(ent->pathList), 0, sizeof(ent->pathList) );
+		ent->pathList.head = ent->pathList.tail = NULL;
+		//R
+		
+		ent->client->resp.radio.gender = (ent->client->pers.gender == GENDER_FEMALE) ? 1 : 0;
+	}
+	
+	if( (! ent->is_bot) || (ent->think != ACESP_HoldSpawn) )  // if( respawn )
+	{
+#endif
+
 	if (teamplay->value) {
 		going_observer = (!ent->client->resp.team || ent->client->resp.subteam);
 	}
@@ -2428,6 +2551,10 @@ void PutClientInServer(edict_t * ent)
 		gi.linkentity(ent);
 		return;
 	}
+
+#ifndef NO_BOTS
+	}  // end if( respawn )
+#endif
 
 	if (!teamplay->value) {	// this handles telefrags...
 		KillBox(ent);
@@ -2528,6 +2655,10 @@ void ClientBeginDeathmatch(edict_t * ent)
 
 	TourneyNewPlayer(ent);
 	vInitClient(ent);
+
+#ifndef NO_BOTS
+	ACEIT_RebuildPlayerList();
+#endif
 
 	// locate ent at a spawn point
 	PutClientInServer(ent);
@@ -2692,9 +2823,9 @@ void ClientUserinfoChanged(edict_t *ent, char *userinfo)
 	if (limp == 1)
 		client->pers.limp_nopred = 1; // client explicity wants new behavior 
 	else if (s[0] == 0)
-		client->pers.limp_nopred = 0 | (client->pers.limp_nopred & 256); // client doesn't specify, so use auto threshold
+		client->pers.limp_nopred = 2 | (client->pers.limp_nopred & 256); // client doesn't specify, so use auto threshold
 	else if (limp == 0)
-		client->pers.limp_nopred = -1; // client explicity wants old behavior
+		client->pers.limp_nopred = 0; // client explicity wants old behavior
 }
 
 /*
@@ -2846,6 +2977,12 @@ void ClientDisconnect(edict_t * ent)
 	ent->client->pers.connected = false;
 
 	teams_changed = true;
+
+#ifndef NO_BOTS
+	ent->is_bot = false;
+	ent->think = NULL;
+	ACEIT_RebuildPlayerList();
+#endif
 }
 
 void CreateGhost(edict_t * ent)
@@ -2983,6 +3120,8 @@ void ClientThink(edict_t * ent, usercmd_t * ucmd)
 
 	level.current_entity = ent;
 	client = ent->client;
+	
+	client->antilag_state.curr_timestamp += (float)ucmd->msec / 1000; // antilag needs sub-server-frame timestamps
 
 	if (level.intermission_framenum) {
 		client->ps.pmove.pm_type = PM_FREEZE;
@@ -3204,6 +3343,8 @@ void ClientBeginServerFrame(edict_t * ent)
 	FrameStartZ( ent );
 
 	client = ent->client;
+
+	antilag_update(ent);
 
 	if (client->resp.penalty > 0 && level.realFramenum % HZ == 0)
 		client->resp.penalty--;
