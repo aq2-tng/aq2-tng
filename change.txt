@@ -103,6 +103,7 @@ From 2.81
 + Added 'empty_exec' to optionally execute config with empty_rotate.  Useful to revert to default settings on servers with configvote.
 + Enhanced Stealth Slippers addition (set 'e_enhancedSlippers 1')
 + Added 'tourney_lca' server cvar to enable "Lights Camera Action" at the beginning of the round rather than silence.  Set to 0 for classic use, 1 for LCA.
++ Added 'teamplay_set_teaminfo' server cvar for avoiding server crashes due to missing action.ini.  Set to 0 for normal behavior, set to 1 to set teamplay team names and skins to default same as CTF, set to 2 and you must also specify teamplay_team_1_name, teamplay_team_2_name, teamplay_team_1_skin, teamplay_team_2_skin, teamplay_team_1_skin_index and teamplay_team_2_skin_index values, by default they are also set to the same as CTF.
 
 From 2.8
 - Radio kill count was missing for falling death
