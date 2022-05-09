@@ -1109,8 +1109,12 @@ extern cvar_t *medkit_drop;
 extern cvar_t *medkit_time;
 extern cvar_t *medkit_instant;
 
-// AQ2 ETE
+extern cvar_t *teamplay_use_ctf_skins;
+
+// BEGIN AQ2 ETE
 extern cvar_t *e_enhancedSlippers;
+
+// END AQ2 ETE
 
 extern cvar_t *sv_limp_highping;
 

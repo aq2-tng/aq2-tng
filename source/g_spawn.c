@@ -1043,6 +1043,15 @@ void SpawnEntities (char *mapname, char *entities, char *spawnpoint)
 	else if (teamplay->value)
 	{
 		gameSettings |= (GS_ROUNDBASED | GS_WEAPONCHOOSE);
+
+		if (teamplay_use_ctf_skins->value) {
+			strcpy(teams[TEAM1].name, "RED");
+			strcpy(teams[TEAM2].name, "BLUE");
+			strcpy(teams[TEAM1].skin, "male/ctf_r");
+			strcpy(teams[TEAM2].skin, "male/ctf_b");
+			strcpy(teams[TEAM1].skin_index, "i_ctf1");
+			strcpy(teams[TEAM2].skin_index, "i_ctf2");
+		}
 	}
 	else { //Its deathmatch
 		gameSettings |= GS_DEATHMATCH;

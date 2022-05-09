@@ -544,7 +544,11 @@ void InitGame( void )
 
 	use_mvd2 = gi.cvar( "use_mvd2", "0", 0 );	// JBravo: q2pro MVD2 recording. 0 = off, 1 = on
 
-	e_enhancedSlippers = gi.cvar( "e_enhancedSlippers", "0", 0); // darksaint: AQ2 ETE
+	teamplay_use_ctf_skins = gi.cvar( "teamplay_use_ctf_skins", "0", 0);
+
+	// BEGIN AQ2 ETE
+	e_enhancedSlippers = gi.cvar( "e_enhancedSlippers", "0", 0);
+	// END AQ2 ETE
 
 	sv_limp_highping = gi.cvar("sv_limp_highping", "70", CVAR_SERVERINFO);
 

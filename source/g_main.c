@@ -465,8 +465,12 @@ cvar_t *medkit_instant;
 
 cvar_t *jump;			// jumping mod
 
-// AQ2 ETE Add
+cvar_t *teamplay_use_ctf_skins;
+
+
+// BEGIN AQ2 ETE
 cvar_t *e_enhancedSlippers;
+// END AQ2 ETE
 
 cvar_t *sv_limp_highping;
 
