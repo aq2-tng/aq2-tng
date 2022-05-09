@@ -7,6 +7,15 @@ PACKAGE=aq2-tng
 VERSION=2.81
 FILE_VERSION:=$(VERSION)
 
+## Export env TNG_BUILD_FOR=WIN32 or TNG_BUILD_FOR=WIN64 to build 32-bit exe on 64-bit arch
+ifeq ($(TNG_BUILD_FOR),WIN32)
+    WIN32=yes
+endif
+
+ifeq ($(TNG_BUILD_FOR),WIN64)
+    WIN64=yes
+endif
+
 ifndef RELEASE
 GIT_DATE=$(shell git show -s --format='%cd' --date=short)
 ifeq ($(GIT_DATE),)
@@ -46,6 +55,12 @@ endif
 
 MACHINE=$(shell uname -m)
 SYSTEM=$(shell uname -s)
+
+# Fixes by bAron to get it compiling on max m1
+ifeq ($(TNG_BUILD_FOR),M1)
+	CC=clang
+	MACHINE=arm64e
+endif
 
 ARCH=$(MACHINE)
 
