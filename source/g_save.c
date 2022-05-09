@@ -410,6 +410,9 @@ void InitGame( void )
 	ctf_dropflag = gi.cvar( "ctf_dropflag", "1", 0 );
 	ctf_respawn = gi.cvar( "ctf_respawn", "4", 0 );
 	ctf_model = gi.cvar( "ctf_model", "male", CVAR_LATCH );
+	medkit_drop = gi.cvar( "medkit_drop", "0", 0 );
+	medkit_time = gi.cvar( "medkit_time", "30", 0 );
+	medkit_instant = gi.cvar( "medkit_instant", "0", 0 );
 	dom = gi.cvar( "dom", "0", CVAR_SERVERINFO | CVAR_LATCH );
 	use_grapple = gi.cvar( "use_grapple", "0", 0 );
 	mv_public = gi.cvar( "mv_public", "0", 0 );	//slicer 
@@ -481,7 +484,7 @@ void InitGame( void )
 	use_balancer = gi.cvar( "use_balancer", "0", 0 );
 	dm_choose = gi.cvar( "dm_choose", "0", CVAR_LATCH );
 	dm_shield = gi.cvar( "dm_shield", "0", 0 );
-
+	tourney_lca = gi.cvar( "tourney_lca", "0", 0 );
 	use_punch = gi.cvar( "use_punch", "1", 0 );
 
 	//TNG:Freud - new spawning system
@@ -542,6 +545,9 @@ void InitGame( void )
 	use_mvd2 = gi.cvar( "use_mvd2", "0", 0 );	// JBravo: q2pro MVD2 recording. 0 = off, 1 = on
 
 	e_enhancedSlippers = gi.cvar( "e_enhancedSlippers", "0", 0); // darksaint: AQ2 ETE
+
+	sv_antilag = gi.cvar("sv_antilag", "0", CVAR_SERVERINFO);
+	sv_limp_highping = gi.cvar("sv_limp_highping", "70", CVAR_SERVERINFO);
 
 	// items
 	InitItems();
@@ -615,6 +621,9 @@ void InitGame( void )
 #endif
 
 	gi.cvar_forceset("g_features", va("%d", G_FEATURES));
+	gi.cvar_forceset("g_view_predict", "1");
+	gi.cvar_forceset("g_view_high", va("%d", STANDING_VIEWHEIGHT));
+	gi.cvar_forceset("g_view_low", va("%d", CROUCHING_VIEWHEIGHT));
 }
 
 //=========================================================

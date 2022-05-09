@@ -751,7 +751,9 @@ void Cmd_Bandage_f(edict_t *ent)
 		return;
 	}
 
-	if (ent->client->bleeding == 0 && ent->client->leg_damage == 0) {
+	qboolean can_use_medkit = (ent->client->medkit > 0) && (ent->health < ent->max_health);
+
+	if (ent->client->bleeding == 0 && ent->client->leg_damage == 0 && ! can_use_medkit) {
 		gi.cprintf(ent, PRINT_HIGH, "No need to bandage\n");
 		return;
 	}
@@ -803,13 +805,10 @@ void Cmd_Bandage_f(edict_t *ent)
 
 void Bandage(edict_t * ent)
 {
-	ent->client->leg_noise = 0;
-	ent->client->leg_damage = 0;
-	ent->client->leghits = 0;
+	ClientFixLegs(ent);
 	ent->client->bleeding = 0;
 	ent->client->bleed_remain = 0;
 	ent->client->bandaging = 0;
-	ent->client->leg_dam_count = 0;
 	ent->client->attacker = NULL;
 	ent->client->bandage_stopped = 1;
 	ent->client->idle_weapon = BANDAGE_TIME;

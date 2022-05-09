@@ -76,6 +76,7 @@ Features
 
   Commands:
   use_tourney [0/1] - This will turn tourney mode on (1) or off (0). To use it, teamplay needs to be on. (1)
+  tourney_lca [0/1] - Set to 1 to enable "Lights Camera Action" for tourney mode, set to 0 for classic silence
 
 * 3 Teams Teamplay
   For more exciting teamplay games, TNG offers a 3 Teams mode of play. This variant of Teamplay will put three

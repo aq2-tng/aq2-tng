@@ -1333,6 +1333,7 @@ void CleanLevel ()
 				break;
 			default:
 				if((ent->die == gib_die)
+				|| (strcmp( ent->classname, "medkit" ) == 0)
 				|| (strcmp( ent->classname, "decal" ) == 0)
 				|| (strcmp( ent->classname, "splat" ) == 0)
 				|| (strcmp( ent->classname, "shell" ) == 0))
@@ -1670,7 +1671,7 @@ static void StartLCA(void)
 	if (gameSettings & (GS_WEAPONCHOOSE|GS_ROUNDBASED))
 		CleanLevel();
 
-	if (use_tourney->value)
+	if (use_tourney->value && !tourney_lca->value)
 	{
 		lights_camera_action = TourneySetTime (T_SPAWN);
 		TourneyTimeEvent(T_SPAWN, lights_camera_action);
@@ -1711,7 +1712,7 @@ edict_t *FindOverlap (edict_t * ent, edict_t * last_overlap)
 
 void ContinueLCA ()
 {
-	if (use_tourney->value)
+	if (use_tourney->value && !tourney_lca->value)
 	{
 		TourneyTimeEvent (T_SPAWN, lights_camera_action);
 		if (lights_camera_action == 1)
@@ -1793,6 +1794,7 @@ qboolean CheckTimelimit( void )
 				SendScores();
 				team_round_going = team_round_countdown = team_game_going = 0;
 				MakeAllLivePlayersObservers();
+				ctfgame.halftime = 0;
 			} else {
 				gi.bprintf( PRINT_HIGH, "Timelimit hit.\n" );
 				IRC_printf( IRC_T_GAME, "Timelimit hit." );

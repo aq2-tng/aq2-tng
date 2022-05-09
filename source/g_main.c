@@ -415,6 +415,8 @@ cvar_t *respawn_effect;
 
 cvar_t *dm_shield;
 
+cvar_t *tourney_lca;	// Enables lights camera action for tourney mode
+
 cvar_t *item_respawnmode;
 
 cvar_t *use_mvd2;	// JBravo: activate mvd2 recording on servers running q2pro
@@ -457,10 +459,17 @@ cvar_t *warmup;
 cvar_t *round_begin;
 cvar_t *spectator_hud;
 
+cvar_t *medkit_drop;
+cvar_t *medkit_time;
+cvar_t *medkit_instant;
+
 cvar_t *jump;			// jumping mod
 
 // AQ2 ETE Add
 cvar_t *e_enhancedSlippers;
+
+cvar_t *sv_limp_highping;
+
 
 void SpawnEntities (char *mapname, char *entities, char *spawnpoint);
 void ClientThink (edict_t * ent, usercmd_t * cmd);

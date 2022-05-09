@@ -288,6 +288,7 @@
 #include	"tng_balancer.h"
 #include	"tng_jump.h"
 #include	"g_grapple.h"
+#include	"p_antilag.h"
 #define		getEnt(entnum)	(edict_t *)((char *)globals.edicts + (globals.edict_size * entnum))	//AQ:TNG Slicer - This was missing
 #define		GAMEVERSION			"action"	// the "gameversion" client command will print this plus compile date
 
@@ -1089,6 +1090,8 @@ extern cvar_t *auto_menu;	// Automatically show the join menu
 extern cvar_t *dm_choose;
 extern cvar_t *dm_shield;
 
+extern cvar_t *tourney_lca; // Enables or disabled lights camera action for tourney mode
+
 // TNG:Freud - new spawning system
 extern cvar_t *use_oldspawns;
 // TNG:Freud - ghosts
@@ -1103,8 +1106,15 @@ extern cvar_t *bholelimit;
 extern cvar_t *splatlife;
 extern cvar_t *bholelife;
 
+extern cvar_t *medkit_drop;
+extern cvar_t *medkit_time;
+extern cvar_t *medkit_instant;
+
 // AQ2 ETE
 extern cvar_t *e_enhancedSlippers;
+
+extern cvar_t *sv_limp_highping;
+
 
 #define world   (&g_edicts[0])
 
@@ -1359,6 +1369,8 @@ void G_UpdatePlayerStatusbar( edict_t *ent, int force );
 edict_t* SelectRandomDeathmatchSpawnPoint(void);
 edict_t* SelectFarthestDeathmatchSpawnPoint(void);
 float PlayersRangeFromSpot(edict_t* spot);
+void ClientLegDamage(edict_t* ent);
+void ClientFixLegs(edict_t *ent);
 void ClientUserinfoChanged(edict_t* ent, char* userinfo);
 void ClientDisconnect(edict_t* ent);
 void CopyToBodyQue(edict_t* ent);
@@ -1445,6 +1457,8 @@ typedef struct
 
 	int menu_shown;		// has the main menu been shown
 	qboolean dm_selected;		// if dm weapon selection has been done once
+
+	int limp_nopred;
 
 	int mk23_mode;		// firing mode, semi or auto
 	int mp5_mode;
@@ -1711,6 +1725,8 @@ struct gclient_s
 
 	int			jumping;
 
+	antilag_t	antilag_state;
+
 	// Number of teammate woundings this game and a "before attack" tracker
 	int			team_wounds_before;
 	int			ff_warning;
@@ -1727,6 +1743,8 @@ struct gclient_s
 
 	edict_t		*lasersight; // laser
 	edict_t		*flashlight; // Flashlight
+
+	int			medkit;
 
 	edict_t		*ctf_grapple;		// entity of grapple
 	int			ctf_grapplestate;		// true if pulling

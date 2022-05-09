@@ -1198,6 +1198,27 @@ void EjectWeapon(edict_t * ent, gitem_t * item)
 
 }
 
+void EjectMedKit( edict_t *ent, int medkit )
+{
+	gitem_t *item = FindItem("Health");
+	float spread = 300.0 * crandom();
+	edict_t *drop = NULL;
+
+	if( ! item )
+		return;
+
+	item->world_model = "models/items/healing/medium/tris.md2";
+	ent->client->v_angle[YAW] -= spread;
+	drop = Drop_Item( ent, item );
+	ent->client->v_angle[YAW] += spread;
+	drop->model = item->world_model;
+	drop->classname = "medkit";
+	drop->count = medkit;
+
+	if( ! medkit_instant->value )
+		drop->style = 4; // HEALTH_MEDKIT (g_items.c)
+}
+
 //zucc toss items on death
 void TossItemsOnDeath(edict_t * ent)
 {
@@ -1213,6 +1234,9 @@ void TossItemsOnDeath(edict_t * ent)
 	} else {
 		DeadDropSpec(ent);
 	}
+
+	if( medkit_drop->value > 0 )
+		EjectMedKit( ent, medkit_drop->value );
 
 	if (allweapon->value)// don't drop weapons if allweapons is on
 		return;
@@ -1418,6 +1442,7 @@ void player_die(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage
 	self->client->ps.fov = 90;
 	Bandage(self);		// clear up the leg damage when dead sound?
 	self->client->bandage_stopped = 0;
+	self->client->medkit = 0;
 
 	// clear inventory
 	memset(self->client->inventory, 0, sizeof(self->client->inventory));
@@ -2176,6 +2201,67 @@ void EquipClientDM(edict_t * ent)
 
 // Igor[Rock] ende
 
+
+/*
+===========
+ClientLegDamage
+
+Called when a player takes leg damage
+============
+*/
+
+void ClientLegDamage(edict_t *ent)
+{
+	ent->client->leg_damage = 1;
+	ent->client->leghits++;
+
+	// Reki: limp_nopred behavior
+	switch (ent->client->pers.limp_nopred & 255)
+	{
+		case 0:
+			break;
+		case 2:
+			if (sv_limp_highping->value <= 0)
+				break;
+			// if the 256 bit flag is set, we have to be cautious to only deactivate if ping swung significantly
+			// so each leg break doesn't flipflop between behavior if client ping is fluctuating
+			if (ent->client->pers.limp_nopred & 256)
+			{
+				if (ent->client->ping < (int)sv_limp_highping->value - 15)
+				{
+					ent->client->pers.limp_nopred &= ~256;
+					break;
+				}
+			}
+			else if (ent->client->ping < (int)sv_limp_highping->value)
+				break;
+			ent->client->pers.limp_nopred |= 256;
+		case 1:
+			if (e_enhancedSlippers->value && INV_AMMO(ent, SLIP_NUM)) // we don't limp with enhanced slippers, so just ignore this leg damage.
+				break;
+
+			ent->client->ps.pmove.pm_flags |= PMF_NO_PREDICTION;
+			break;
+	}
+	//
+
+}
+
+void ClientFixLegs(edict_t *ent)
+{
+	if (ent->client->leg_damage && ent->client->ctf_grapplestate <= CTF_GRAPPLE_STATE_FLY)
+	{
+		ent->client->ps.pmove.pm_flags &= ~PMF_NO_PREDICTION;
+	}
+
+	ent->client->leg_noise = 0;
+	ent->client->leg_damage = 0;
+	ent->client->leghits = 0;
+	ent->client->leg_dam_count = 0;
+}
+
+
+
 /*
 ===========
 PutClientInServer
@@ -2361,6 +2447,8 @@ void PutClientInServer(edict_t * ent)
 		}
 	}
 
+	ent->client->medkit = 0;
+
 	if( jump->value )
 	{
 		Jmp_EquipClient(ent);
@@ -2544,6 +2632,8 @@ void ClientUserinfoChanged(edict_t *ent, char *userinfo)
 					continue;
 				gi.cprintf( other, PRINT_MEDIUM, "%s is now known as %s.\n", client->pers.netname, tnick ); //TempFile
 			}
+			if( dedicated->value )
+				gi.dprintf( "%s is now known as %s.\n", client->pers.netname, tnick ); //TempFile
 			IRC_printf(IRC_T_SERVER, "%n is now known as %n.", client->pers.netname, tnick);
 			nickChanged = true;
 		}
@@ -2594,6 +2684,17 @@ void ClientUserinfoChanged(edict_t *ent, char *userinfo)
 	} else {
 		client->pers.gender = GENDER_NEUTRAL;
 	}
+
+
+	// Reki - disable prediction on limping
+	s = Info_ValueForKey(userinfo, "limp_nopred");
+	int limp = atoi(s);
+	if (limp == 1)
+		client->pers.limp_nopred = 1; // client explicity wants new behavior 
+	else if (s[0] == 0)
+		client->pers.limp_nopred = 2 | (client->pers.limp_nopred & 256); // client doesn't specify, so use auto threshold
+	else if (limp == 0)
+		client->pers.limp_nopred = 0; // client explicity wants old behavior
 }
 
 /*
@@ -2882,6 +2983,8 @@ void ClientThink(edict_t * ent, usercmd_t * ucmd)
 
 	level.current_entity = ent;
 	client = ent->client;
+	
+	client->antilag_state.curr_timestamp += (float)ucmd->msec / 1000; // antilag needs sub-server-frame timestamps
 
 	if (level.intermission_framenum) {
 		client->ps.pmove.pm_type = PM_FREEZE;
@@ -3103,6 +3206,8 @@ void ClientBeginServerFrame(edict_t * ent)
 	FrameStartZ( ent );
 
 	client = ent->client;
+
+	antilag_update(ent);
 
 	if (client->resp.penalty > 0 && level.realFramenum % HZ == 0)
 		client->resp.penalty--;
