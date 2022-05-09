@@ -1109,14 +1109,21 @@ extern cvar_t *medkit_drop;
 extern cvar_t *medkit_time;
 extern cvar_t *medkit_instant;
 
-extern cvar_t *teamplay_use_ctf_skins;
-
 // BEGIN AQ2 ETE
 extern cvar_t *e_enhancedSlippers;
 
 // END AQ2 ETE
 
 extern cvar_t *sv_limp_highping;
+
+extern cvar_t *teamplay_set_teaminfo;
+extern cvar_t *teamplay_team_1_name;
+extern cvar_t *teamplay_team_2_name;
+extern cvar_t *teamplay_team_1_skin;
+extern cvar_t *teamplay_team_2_skin;
+extern cvar_t *teamplay_team_1_skin_index;
+extern cvar_t *teamplay_team_2_skin_index;
+
 
 
 #define world   (&g_edicts[0])

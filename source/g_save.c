@@ -544,7 +544,14 @@ void InitGame( void )
 
 	use_mvd2 = gi.cvar( "use_mvd2", "0", 0 );	// JBravo: q2pro MVD2 recording. 0 = off, 1 = on
 
-	teamplay_use_ctf_skins = gi.cvar( "teamplay_use_ctf_skins", "0", 0);
+	teamplay_set_teaminfo = gi.cvar( "teamplay_set_teaminfo", "0", 0);
+
+	teamplay_team_1_name = gi.cvar( "teamplay_team_1_name", "BLUE", 0);
+	teamplay_team_2_name = gi.cvar( "teamplay_team_2_name", "RED", 0);
+	teamplay_team_1_skin = gi.cvar( "teamplay_team_1_skin", "male/ctf_r", 0);
+	teamplay_team_2_skin = gi.cvar( "teamplay_team_2_skin", "male/ctf_b", 0);
+	teamplay_team_1_skin_index = gi.cvar( "teamplay_team_1_skin_index", "i_ctf1", 0);
+	teamplay_team_2_skin_index = gi.cvar( "teamplay_team_2_skin_index", "i_ctf2", 0);
 
 	// BEGIN AQ2 ETE
 	e_enhancedSlippers = gi.cvar( "e_enhancedSlippers", "0", 0);
