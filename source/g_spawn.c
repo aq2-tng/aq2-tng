@@ -1552,7 +1552,7 @@ void SP_worldspawn (edict_t * ent)
 		for(i = TEAM1; i <= teamCount; i++)
 		{
 			if (teams[i].skin_index[0] == 0) {
-				gi.dprintf("No skin was specified for team %i in config file. Exiting.\n", i);
+				gi.dprintf("No skin was specified for team %i in config file or teamplay_set_teaminfo. Exiting.\n", i);
 				exit(1);
 			}
 			level.pic_teamskin[i] = gi.imageindex(teams[i].skin_index);
