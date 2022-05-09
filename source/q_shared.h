@@ -305,6 +305,10 @@ extern long Q_ftol (float f);
 #define VectorLength(v)			(sqrtf(DotProduct((v),(v))))
 #define VectorInverse(v)		((v)[0]=-(v)[0],(v)[1]=-(v)[1],(v)[2]=-(v)[2])
 #define VectorScale(in,s,out)	((out)[0]=(in)[0]*(s),(out)[1]=(in)[1]*(s),(out)[2]=(in)[2]*(s))
+#define LerpVector(a,b,c,d) \
+    ((d)[0]=(a)[0]+(c)*((b)[0]-(a)[0]), \
+     (d)[1]=(a)[1]+(c)*((b)[1]-(a)[1]), \
+     (d)[2]=(a)[2]+(c)*((b)[2]-(a)[2]))
 
 #define VectorCopyMins(a,b,c)	((c)[0]=min((a)[0],(b)[0]),(c)[0]=min((a)[1],(b)[1]),(c)[2]=min((a)[2],(b)[2]))
 #define VectorCopyMaxs(a,b,c)	((c)[0]=max((a)[0],(b)[0]),(c)[0]=max((a)[1],(b)[1]),(c)[2]=max((a)[2],(b)[2]))

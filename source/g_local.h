@@ -288,9 +288,12 @@
 #include	"tng_balancer.h"
 #include	"tng_jump.h"
 #include	"g_grapple.h"
+#include	"p_antilag.h"
+
 #ifndef NO_BOTS
 #include	"acesrc/botnav.h"
 #endif
+
 #define		getEnt(entnum)	(edict_t *)((char *)globals.edicts + (globals.edict_size * entnum))	//AQ:TNG Slicer - This was missing
 #define		GAMEVERSION			"action"	// the "gameversion" client command will print this plus compile date
 
@@ -1735,6 +1738,8 @@ struct gclient_s
 	int			push_timeout;	// timeout for how long an attacker will get fall death credit
 
 	int			jumping;
+
+	antilag_t	antilag_state;
 
 	// Number of teammate woundings this game and a "before attack" tracker
 	int			team_wounds_before;

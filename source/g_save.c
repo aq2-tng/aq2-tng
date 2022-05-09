@@ -546,6 +546,7 @@ void InitGame( void )
 
 	e_enhancedSlippers = gi.cvar( "e_enhancedSlippers", "0", 0); // darksaint: AQ2 ETE
 
+	sv_antilag = gi.cvar("sv_antilag", "0", CVAR_SERVERINFO);
 	sv_limp_highping = gi.cvar("sv_limp_highping", "70", CVAR_SERVERINFO);
 
 #ifndef NO_BOTS
@@ -629,6 +630,9 @@ void InitGame( void )
 #endif
 
 	gi.cvar_forceset("g_features", va("%d", G_FEATURES));
+	gi.cvar_forceset("g_view_predict", "1");
+	gi.cvar_forceset("g_view_high", va("%d", STANDING_VIEWHEIGHT));
+	gi.cvar_forceset("g_view_low", va("%d", CROUCHING_VIEWHEIGHT));
 }
 
 //=========================================================
