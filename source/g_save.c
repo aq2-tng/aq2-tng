@@ -620,6 +620,9 @@ void InitGame( void )
 #endif
 
 	gi.cvar_forceset("g_features", va("%d", G_FEATURES));
+	gi.cvar_forceset("g_view_predict", "1");
+	gi.cvar_forceset("g_view_high", va("%d", STANDING_VIEWHEIGHT));
+	gi.cvar_forceset("g_view_low", va("%d", CROUCHING_VIEWHEIGHT));
 }
 
 //=========================================================
