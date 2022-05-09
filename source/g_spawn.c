@@ -1043,6 +1043,23 @@ void SpawnEntities (char *mapname, char *entities, char *spawnpoint)
 	else if (teamplay->value)
 	{
 		gameSettings |= (GS_ROUNDBASED | GS_WEAPONCHOOSE);
+
+		if (teamplay_set_teaminfo->value == 1) {
+			strcpy(teams[TEAM1].name, "RED");
+			strcpy(teams[TEAM2].name, "BLUE");
+			strcpy(teams[TEAM1].skin, "male/ctf_r");
+			strcpy(teams[TEAM2].skin, "male/ctf_b");
+			strcpy(teams[TEAM1].skin_index, "i_ctf1");
+			strcpy(teams[TEAM2].skin_index, "i_ctf2");
+		}
+		else if (teamplay_set_teaminfo->value == 2) {
+			strcpy(teams[TEAM1].name, teamplay_team_1_name);
+			strcpy(teams[TEAM2].name, teamplay_team_2_name);
+			strcpy(teams[TEAM1].skin, teamplay_team_1_skin);
+			strcpy(teams[TEAM2].skin, teamplay_team_2_skin);
+			strcpy(teams[TEAM1].skin_index, teamplay_team_1_skin_index);
+			strcpy(teams[TEAM2].skin_index, teamplay_team_2_skin_index);
+		}
 	}
 	else { //Its deathmatch
 		gameSettings |= GS_DEATHMATCH;
@@ -1558,7 +1575,7 @@ void SP_worldspawn (edict_t * ent)
 		for(i = TEAM1; i <= teamCount; i++)
 		{
 			if (teams[i].skin_index[0] == 0) {
-				gi.dprintf("No skin was specified for team %i in config file. Exiting.\n", i);
+				gi.dprintf("No skin was specified for team %i in config file or teamplay_set_teaminfo. Exiting.\n", i);
 				exit(1);
 			}
 			level.pic_teamskin[i] = gi.imageindex(teams[i].skin_index);

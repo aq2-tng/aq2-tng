@@ -544,7 +544,18 @@ void InitGame( void )
 
 	use_mvd2 = gi.cvar( "use_mvd2", "0", 0 );	// JBravo: q2pro MVD2 recording. 0 = off, 1 = on
 
-	e_enhancedSlippers = gi.cvar( "e_enhancedSlippers", "0", 0); // darksaint: AQ2 ETE
+	teamplay_set_teaminfo = gi.cvar( "teamplay_set_teaminfo", "0", CVAR_LATCH);
+
+	teamplay_team_1_name = gi.cvar( "teamplay_team_1_name", "BLUE", CVAR_LATCH);
+	teamplay_team_2_name = gi.cvar( "teamplay_team_2_name", "RED", CVAR_LATCH);
+	teamplay_team_1_skin = gi.cvar( "teamplay_team_1_skin", "male/ctf_r", CVAR_LATCH);
+	teamplay_team_2_skin = gi.cvar( "teamplay_team_2_skin", "male/ctf_b", CVAR_LATCH);
+	teamplay_team_1_skin_index = gi.cvar( "teamplay_team_1_skin_index", "i_ctf1", CVAR_LATCH);
+	teamplay_team_2_skin_index = gi.cvar( "teamplay_team_2_skin_index", "i_ctf2", CVAR_LATCH);
+
+	// BEGIN AQ2 ETE
+	e_enhancedSlippers = gi.cvar( "e_enhancedSlippers", "0", 0);
+	// END AQ2 ETE
 
 	sv_antilag = gi.cvar("sv_antilag", "0", CVAR_SERVERINFO);
 	sv_limp_highping = gi.cvar("sv_limp_highping", "70", CVAR_SERVERINFO);
