@@ -544,8 +544,6 @@ void InitGame( void )
 
 	use_mvd2 = gi.cvar( "use_mvd2", "0", 0 );	// JBravo: q2pro MVD2 recording. 0 = off, 1 = on
 
-	teamplay_set_teaminfo = gi.cvar( "teamplay_set_teaminfo", "0", CVAR_LATCH);
-
 	// BEGIN AQ2 ETE
 	e_enhancedSlippers = gi.cvar( "e_enhancedSlippers", "0", 0);
 	// END AQ2 ETE

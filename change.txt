@@ -103,7 +103,6 @@ From 2.81
 + Added 'empty_exec' to optionally execute config with empty_rotate.  Useful to revert to default settings on servers with configvote.
 + Enhanced Stealth Slippers addition (set 'e_enhancedSlippers 1')
 + Added 'tourney_lca' server cvar to enable "Lights Camera Action" at the beginning of the round rather than silence.  Set to 0 for classic use, 1 for LCA.
-+ Added 'teamplay_set_teaminfo' server cvar for avoiding server crashes due to missing action.ini.  Set to 0 for normal behavior, set to 1 to set teamplay team names and skins to default same as CTF.
 + Added bot support.  Use 'sv addbot' to spawn them on demand, or 'botdata.cfg' to spawn them every map.
 * Bots branch no longer messes up multiplayer view models (player_state_t was not the expected size).
 - Tweaked bot aiming so they're not such ridiculous crack shots in certain circumstances.
