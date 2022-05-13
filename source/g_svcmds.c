@@ -527,6 +527,44 @@ void SVCmd_SetTeamName_f( int team )
 	gi.bprintf( PRINT_HIGH, "Team %i name set to %s by console.\n", team, teams[team].name );
 }
 
+void SVCmd_SetTeamSkin_f( int team )
+{
+	if( ! teamplay->value )
+	{
+		gi.cprintf( NULL, PRINT_HIGH, "Team skins can only be set for teamplay.\n" );
+		return;
+	}
+
+	if( gi.argc() < 3 )
+	{
+		gi.cprintf( NULL, PRINT_HIGH, "Usage: sv %s <name>\n", gi.argv(1) );
+		return;
+	}
+
+	strcpy(teams[team].skin, gi.argv(2));
+
+	gi.bprintf( PRINT_HIGH, "Team %i skin set to %s by console.\n", team, teams[team].name );
+}
+
+void SVCmd_SetTeamSkin_Index_f( int team )
+{
+	if( ! teamplay->value )
+	{
+		gi.cprintf( NULL, PRINT_HIGH, "Team skin indexes can only be set for teamplay.\n" );
+		return;
+	}
+
+	if( gi.argc() < 3 )
+	{
+		gi.cprintf( NULL, PRINT_HIGH, "Usage: sv %s <name>\n", gi.argv(1) );
+		return;
+	}
+
+	strcpy(teams[team].skin_index, gi.argv(2));
+
+	gi.bprintf( PRINT_HIGH, "Team %i skin set to %s by console.\n", team, teams[team].name );
+}
+
 void SVCmd_SoftQuit_f (void)
 {
 	gi.bprintf(PRINT_HIGH, "The server will exit after this map\n");
@@ -649,12 +687,83 @@ void ServerCommand (void)
 		SVCmd_SetTeamName_f( 2 );
 	else if (Q_stricmp (cmd, "t3name") == 0)
 		SVCmd_SetTeamName_f( 3 );
+	else if (Q_stricmp (cmd, "t1skin") == 0)
+		SVCmd_SetTeamSkin_f( 1 );
+	else if (Q_stricmp (cmd, "t2skin") == 0)
+		SVCmd_SetTeamSkin_f( 2 );
+	else if (Q_stricmp (cmd, "t3skin") == 0)
+		SVCmd_SetTeamSkin_f( 3 );
+	else if (Q_stricmp (cmd, "t1skin_index") == 0)
+		SVCmd_SetTeamSkin_Index_f( 1 );
+	else if (Q_stricmp (cmd, "t2skin_index") == 0)
+		SVCmd_SetTeamSkin_Index_f( 2 );
+	else if (Q_stricmp (cmd, "t3skin_index") == 0)
+		SVCmd_SetTeamSkin_Index_f( 3 );
 	else if (Q_stricmp (cmd, "softquit") == 0)
 		SVCmd_SoftQuit_f ();
 	else if (Q_stricmp (cmd, "slap") == 0)
 		SVCmd_Slap_f ();
 	else if (Q_stricmp(cmd, "scramble") == 0)
 		SVCmd_Scramble_f();
+#ifndef NO_BOTS
+	else if(Q_stricmp (cmd, "botdebug") == 0)
+	{
+ 		if (strcmp(gi.argv(2),"on")==0)
+		{
+			gi.bprintf (PRINT_MEDIUM, "BOT: Debug Mode On\n");
+			debug_mode = true;
+		}
+		else
+		{
+			gi.bprintf (PRINT_MEDIUM, "BOT: Debug Mode Off\n");
+			debug_mode = false;
+		}
+	}
+	//RiEvEr - new node visibility method
+	else if(Q_stricmp (cmd, "shownodes") == 0)
+	{
+ 		if (strcmp(gi.argv(2),"on")==0)
+		{
+			gi.bprintf (PRINT_MEDIUM, "BOT: ShowNodes On\n");
+			shownodes_mode = true;
+		}
+		else
+		{
+			gi.bprintf (PRINT_MEDIUM, "BOT: ShowNodes Off\n");
+			shownodes_mode = false;
+		}
+	}
+	else if (Q_stricmp (cmd, "addbot") == 0)
+	{
+		if(teamplay->value) // team, name, skin (ignored)
+			ACESP_SpawnBot (gi.argv(2), gi.argv(3), gi.argv(4), NULL);
+		else // name, skin
+			ACESP_SpawnBot (NULL, gi.argv(2), gi.argv(3), NULL);
+	}
+	else if (Q_stricmp (cmd, "addbots") == 0)
+	{
+		if( gi.argc() >= 3 )
+		{
+			int count = atoi(gi.argv(2)), i = 0;
+			for( i = 0; i < count; i ++ )
+				ACESP_SpawnBot( gi.argv(3), NULL, NULL, NULL );
+		}
+		else
+			gi.cprintf( NULL, PRINT_HIGH, "Usage: sv addbots <count> [<team>]\n" );
+	}
+	// removebot
+	else if(Q_stricmp (cmd, "removebot") == 0)
+		ACESP_RemoveBot(gi.argv(2));
+	// Node saving
+	else if(Q_stricmp (cmd, "savenodes") == 0)
+		ACEND_SaveNodes();
+	// Clear all node data.
+	else if(Q_stricmp (cmd, "initnodes") == 0)
+		ACEND_InitNodes();
+	// Generate map entity nodes (items/doors/etc) and load saved nodes; you should probably "initnodes" first.
+	else if(Q_stricmp (cmd, "loadnodes") == 0)
+		ACEND_LoadNodes();
+#endif
 	else
 		gi.cprintf (NULL, PRINT_HIGH, "Unknown server command \"%s\"\n", cmd);
 }

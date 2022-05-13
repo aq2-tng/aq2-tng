@@ -1043,6 +1043,15 @@ void SpawnEntities (char *mapname, char *entities, char *spawnpoint)
 	else if (teamplay->value)
 	{
 		gameSettings |= (GS_ROUNDBASED | GS_WEAPONCHOOSE);
+
+		if (teamplay_set_teaminfo->value == 1) {
+			strcpy(teams[TEAM1].name, "RED");
+			strcpy(teams[TEAM2].name, "BLUE");
+			strcpy(teams[TEAM1].skin, "male/ctf_r");
+			strcpy(teams[TEAM2].skin, "male/ctf_b");
+			strcpy(teams[TEAM1].skin_index, "i_ctf1");
+			strcpy(teams[TEAM2].skin_index, "i_ctf2");
+		}
 	}
 	else { //Its deathmatch
 		gameSettings |= GS_DEATHMATCH;
@@ -1068,6 +1077,18 @@ void SpawnEntities (char *mapname, char *entities, char *spawnpoint)
 	gi.cvar_forceset(maptime->name, "0:00");
 
 	gi.FreeTags(TAG_LEVEL);
+
+#ifndef NO_BOTS
+	// Disconnect bots before we wipe entity data and lose track of is_bot.
+	for (i = 0, ent = &g_edicts[1]; i < game.maxclients; i++, ent++)
+	{
+		if( ent->is_bot )
+		{
+			client = &game.clients[i];
+			client->pers.connected = false;
+		}
+	}
+#endif
 
 	memset(&level, 0, sizeof (level));
 	memset(g_edicts, 0, game.maxentities * sizeof (g_edicts[0]));
@@ -1185,6 +1206,13 @@ void SpawnEntities (char *mapname, char *entities, char *spawnpoint)
 	G_LoadLocations();
 
 	UnBan_TeamKillers();
+
+#ifndef NO_BOTS
+	// Reload nodes and any persistent bots.
+	ACEND_InitNodes();
+	ACEND_LoadNodes();
+	ACESP_LoadBotConfig();
+#endif
 }
 
 
@@ -1419,6 +1447,10 @@ void G_UpdatePlayerStatusbar( edict_t * ent, int force )
 		playerStatusbar = level.spec_statusbar;
 	}
 
+#ifndef NO_BOTS
+	if( ent->is_bot )
+		return;
+#endif
 	gi.WriteByte( svc_configstring );
 	gi.WriteShort( CS_STATUSBAR );
 	gi.WriteString( playerStatusbar );
@@ -1535,7 +1567,7 @@ void SP_worldspawn (edict_t * ent)
 		for(i = TEAM1; i <= teamCount; i++)
 		{
 			if (teams[i].skin_index[0] == 0) {
-				gi.dprintf("No skin was specified for team %i in config file. Exiting.\n", i);
+				gi.dprintf("No skin was specified for team %i in config file or teamplay_set_teaminfo. Exiting.\n", i);
 				exit(1);
 			}
 			level.pic_teamskin[i] = gi.imageindex(teams[i].skin_index);
