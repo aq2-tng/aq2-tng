@@ -470,6 +470,13 @@ cvar_t *e_enhancedSlippers;
 
 cvar_t *sv_limp_highping;
 
+cvar_t *teamplay_set_teaminfo;
+cvar_t *teamplay_team_1_name;
+cvar_t *teamplay_team_2_name;
+cvar_t *teamplay_team_1_skin;
+cvar_t *teamplay_team_2_skin;
+cvar_t *teamplay_team_1_skin_index;
+cvar_t *teamplay_team_2_skin_index;
 
 void SpawnEntities (char *mapname, char *entities, char *spawnpoint);
 void ClientThink (edict_t * ent, usercmd_t * cmd);
