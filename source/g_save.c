@@ -546,11 +546,6 @@ void InitGame( void )
 
 	teamplay_set_teaminfo = gi.cvar( "teamplay_set_teaminfo", "0", CVAR_LATCH);
 
-	teamplay_team_1_skin = gi.cvar( "teamplay_team_1_skin", "male/ctf_r", CVAR_LATCH);
-	teamplay_team_2_skin = gi.cvar( "teamplay_team_2_skin", "male/ctf_b", CVAR_LATCH);
-	teamplay_team_1_skin_index = gi.cvar( "teamplay_team_1_skin_index", "i_ctf1", CVAR_LATCH);
-	teamplay_team_2_skin_index = gi.cvar( "teamplay_team_2_skin_index", "i_ctf2", CVAR_LATCH);
-
 	// BEGIN AQ2 ETE
 	e_enhancedSlippers = gi.cvar( "e_enhancedSlippers", "0", 0);
 	// END AQ2 ETE
