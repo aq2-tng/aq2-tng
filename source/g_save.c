@@ -546,8 +546,6 @@ void InitGame( void )
 
 	teamplay_set_teaminfo = gi.cvar( "teamplay_set_teaminfo", "0", CVAR_LATCH);
 
-	teamplay_team_1_name = gi.cvar( "teamplay_team_1_name", "BLUE", CVAR_LATCH);
-	teamplay_team_2_name = gi.cvar( "teamplay_team_2_name", "RED", CVAR_LATCH);
 	teamplay_team_1_skin = gi.cvar( "teamplay_team_1_skin", "male/ctf_r", CVAR_LATCH);
 	teamplay_team_2_skin = gi.cvar( "teamplay_team_2_skin", "male/ctf_b", CVAR_LATCH);
 	teamplay_team_1_skin_index = gi.cvar( "teamplay_team_1_skin_index", "i_ctf1", CVAR_LATCH);

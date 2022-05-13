@@ -1052,14 +1052,6 @@ void SpawnEntities (char *mapname, char *entities, char *spawnpoint)
 			strcpy(teams[TEAM1].skin_index, "i_ctf1");
 			strcpy(teams[TEAM2].skin_index, "i_ctf2");
 		}
-		else if (teamplay_set_teaminfo->value == 2) {
-			strcpy(teams[TEAM1].name, teamplay_team_1_name);
-			strcpy(teams[TEAM2].name, teamplay_team_2_name);
-			strcpy(teams[TEAM1].skin, teamplay_team_1_skin);
-			strcpy(teams[TEAM2].skin, teamplay_team_2_skin);
-			strcpy(teams[TEAM1].skin_index, teamplay_team_1_skin_index);
-			strcpy(teams[TEAM2].skin_index, teamplay_team_2_skin_index);
-		}
 	}
 	else { //Its deathmatch
 		gameSettings |= GS_DEATHMATCH;
