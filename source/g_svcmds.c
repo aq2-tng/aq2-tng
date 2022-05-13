@@ -543,7 +543,7 @@ void SVCmd_SetTeamSkin_f( int team )
 
 	strcpy(teams[team].skin, gi.argv(2));
 
-	gi.bprintf( PRINT_HIGH, "Team %i skin set to %s by console.\n", team, teams[team].name );
+	gi.bprintf( PRINT_HIGH, "Team %i skin set to %s by console. New skin will be reflected upon next round.\n", team, teams[team].skin );
 }
 
 void SVCmd_SetTeamSkin_Index_f( int team )
@@ -562,7 +562,7 @@ void SVCmd_SetTeamSkin_Index_f( int team )
 
 	strcpy(teams[team].skin_index, gi.argv(2));
 
-	gi.bprintf( PRINT_HIGH, "Team %i skin set to %s by console.\n", team, teams[team].name );
+	gi.bprintf( PRINT_HIGH, "Team %i skin index set to %s by console. Requires a server restart or new map load.\n", team, teams[team].skin_index );
 }
 
 void SVCmd_SoftQuit_f (void)
