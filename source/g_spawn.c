@@ -1043,15 +1043,6 @@ void SpawnEntities (char *mapname, char *entities, char *spawnpoint)
 	else if (teamplay->value)
 	{
 		gameSettings |= (GS_ROUNDBASED | GS_WEAPONCHOOSE);
-
-		if (teamplay_set_teaminfo->value == 1) {
-			strcpy(teams[TEAM1].name, "RED");
-			strcpy(teams[TEAM2].name, "BLUE");
-			strcpy(teams[TEAM1].skin, "male/ctf_r");
-			strcpy(teams[TEAM2].skin, "male/ctf_b");
-			strcpy(teams[TEAM1].skin_index, "i_ctf1");
-			strcpy(teams[TEAM2].skin_index, "i_ctf2");
-		}
 	}
 	else { //Its deathmatch
 		gameSettings |= GS_DEATHMATCH;
@@ -1566,9 +1557,20 @@ void SP_worldspawn (edict_t * ent)
 
 		for(i = TEAM1; i <= teamCount; i++)
 		{
-			if (teams[i].skin_index[0] == 0 && !teamplay_set_teaminfo->value) {
-				gi.dprintf("No skin was specified for team %i in config file or teamplay_set_teaminfo. Exiting.\n", i);
-				exit(1);
+			if (teams[i].skin_index[0] == 0) {
+				// If the action.ini file isn't found, set default skins rather than kill the server
+				gi.dprintf("WARNING: No skin was specified for team %i in config file.\n", i);
+				gi.dprintf("Setting default team names, skins and skin indexes.\n", i);
+				strcpy(teams[TEAM1].name, "RED");
+				strcpy(teams[TEAM2].name, "BLUE");
+				strcpy(teams[TEAM3].name, "GREEN");
+				strcpy(teams[TEAM1].skin, "male/ctf_r");
+				strcpy(teams[TEAM2].skin, "male/ctf_b");
+				strcpy(teams[TEAM3].skin, "male/commando");
+				strcpy(teams[TEAM1].skin_index, "i_ctf1");
+				strcpy(teams[TEAM2].skin_index, "i_ctf2");
+				strcpy(teams[TEAM3].skin_index, "i_pack");
+				//exit(1);
 			}
 			level.pic_teamskin[i] = gi.imageindex(teams[i].skin_index);
 		}
