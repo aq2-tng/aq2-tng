@@ -136,7 +136,7 @@ void ACESP_LoadBotConfig()
 	game_dir = gi.cvar ("game", "action", 0);
 	botdir = gi.cvar ("botdir", "bots", 0);
 
-if (ltk_loadbots->value == 1){  // Run this if ltk_loadbots is 1 or 2
+if (ltk_loadbots->value == 1){
 		// Try to load the file for THIS level
 	#ifdef	_WIN32
 		i =  sprintf(filename, ".\\");
@@ -178,6 +178,8 @@ if (ltk_loadbots->value == 1){  // Run this if ltk_loadbots is 1 or 2
 
 			// No bot file available, get out of here!
 			if((pIn = fopen(filename, "rb" )) == NULL)
+				gi.dprintf("WARNING: No file containing bot data was found, no bots loaded.\n");
+				gi.dprintf("ltk_botfile value is %s\n", ltk_botfile->string);
 				return; // bail
 		}
 
@@ -722,17 +724,17 @@ char	*aq2names[AQ2WORLDNUMNAMES] = {
 	};
 
 qboolean	nameused[NUMNAMES][NUMNAMES];
-qboolean	customnameused[AQ2WORLDNUMNAMES];
+qboolean	adminnameused[AQ2WORLDNUMNAMES];
 
 //====================================
 // New random bot naming routine
 //====================================
 void	LTKsetBotName( char	*bot_name )
 {
-	int	part1,part2,nonrandom;
+	int	part1,part2,adminnames;
 
 	part1 = part2 = 0;
-	nonrandom = 0;
+	adminnames = 0;
 
 	if (ltk_loadbots->value != 2) {
 	do // Load random bot names from NUMNAMES lists
@@ -755,14 +757,15 @@ void	LTKsetBotName( char	*bot_name )
 			strcat( bot_name, names4[part2]);
 		}
 	}
-	if (ltk_loadbots->value == 2) {
+	else // Load bot names from AQ2WORLDNUMNAMES list
+	{
 		do
 		{
-			nonrandom = rand()% AQ2WORLDNUMNAMES;
-		}while( nameused[nonrandom]);
+			adminnames = rand()% AQ2WORLDNUMNAMES;
+		}while( nameused[adminnames]);
 
 		// Mark that name as used
-		customnameused[nonrandom] = true;
-		strcpy( bot_name, aq2names[nonrandom]);
+		adminnameused[adminnames] = true;
+		strcpy( bot_name, aq2names[adminnames]);
 	}
 }
