@@ -1,14 +1,8 @@
-Changes in TNG
+Changes in TNG 2.82
 
 + = new feature
 - = bug fix
 * = major bug fix
-
-From 2.82
-+ Server cvar "sv_antilag" -
-+ Crouch prediction - 
-* Missing action.ini file no longer kills the server, it will default to CTF team names and skins (blue/red/green).  The presence of action.ini will still take precedence
-+ Ability to change team names and skins during teamplay with sv t[i]team, sv t[i]skin and sv t[i]skin_index where i is the team number.
 
 From 2.81
 * 3team mode: third team can not be locked forever anymore
@@ -109,6 +103,10 @@ From 2.81
 + Added 'empty_exec' to optionally execute config with empty_rotate.  Useful to revert to default settings on servers with configvote.
 + Enhanced Stealth Slippers addition (set 'e_enhancedSlippers 1')
 + Added 'tourney_lca' server cvar to enable "Lights Camera Action" at the beginning of the round rather than silence.  Set to 0 for classic use, 1 for LCA.
++ Server cvar "sv_antilag" -
++ Crouch prediction - 
+* Missing action.ini file no longer kills the server, it will default to CTF team names and skins (blue/red/green).  The presence of action.ini will still take precedence
++ Ability to change team names and skins during teamplay with sv t[i]team, sv t[i]skin and sv t[i]skin_index where i is the team number.
 
 From 2.8
 - Radio kill count was missing for falling death
