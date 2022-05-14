@@ -755,8 +755,7 @@ void	LTKsetBotName( char	*bot_name )
 			strcat( bot_name, names4[part2]);
 		}
 	}
-	else // Load bot names from AQ2WORLDNUMNAMES list
-	{
+	if (ltk_loadbots->value == 2) {
 		do
 		{
 			nonrandom = rand()% AQ2WORLDNUMNAMES;
