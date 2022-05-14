@@ -1115,7 +1115,6 @@ extern cvar_t *e_enhancedSlippers;
 
 extern cvar_t *sv_limp_highping;
 
-
 #define world   (&g_edicts[0])
 
 // item spawnflags
