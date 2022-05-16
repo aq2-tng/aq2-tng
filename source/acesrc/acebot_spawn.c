@@ -740,23 +740,23 @@ void	LTKsetBotName( char	*bot_name )
 	part1 = part2 = 0;
 
 	do // Load random bot names from NUMNAMES lists
-		{
-			part1 = rand()% NUMNAMES;
-			part2 = rand()% NUMNAMES;
-		}while( nameused[part1][part2]);
+	{
+		part1 = rand()% NUMNAMES;
+		part2 = rand()% NUMNAMES;
+	}while( nameused[part1][part2]);
 
-		// Mark that name as used
-		nameused[part1][part2] = true;
-		// Now put the name together
-		if( random() < 0.5 )
-		{
-			strcpy( bot_name, names1[part1]);
-			strcat( bot_name, names2[part2]);
-		}
-		else
-		{
-			strcpy( bot_name, names3[part1]);
-			strcat( bot_name, names4[part2]);
-		}
+	// Mark that name as used
+	nameused[part1][part2] = true;
+	// Now put the name together
+	if( random() < 0.5 )
+	{
+		strcpy( bot_name, names1[part1]);
+		strcat( bot_name, names2[part2]);
+	}
+	else
+	{
+		strcpy( bot_name, names3[part1]);
+		strcat( bot_name, names4[part2]);
+	}
 }
 
