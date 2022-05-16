@@ -94,8 +94,8 @@ extern cvar_t	*ltk_skill;	// Skill setting for bots, range 0-10
 extern cvar_t	*ltk_showpath;	// Toggles display of bot paths in debug mode
 extern cvar_t	*ltk_chat;	// Chat setting for bots, off or on (0,1)
 extern cvar_t	*ltk_routing;	// Set to 1 to drop nodes, otherwise you won't do it!
-extern cvar_t	*ltk_botfile;	// Set this to adjust which botdata file to load, default is botdata.cfg
-extern cvar_t	*ltk_loadbots;	// Set to 0 to not load bots from botdata.cfg, 1 for normal operation, 2 to load bot names from botnames.cfg
+extern cvar_t	*ltk_botfile;	// Set this to adjust which botdata file to load, default is botdata
+extern cvar_t	*ltk_loadbots;	// Set to 0 to not load bots from ltk_botfile value, 1 for normal operation
 
 extern int lights_camera_action;
 

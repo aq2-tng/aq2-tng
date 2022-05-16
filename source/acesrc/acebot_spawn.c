@@ -167,6 +167,7 @@ if (ltk_loadbots->value == 1){
 			i += sprintf(filename + i, botdir->string);
 			i += sprintf(filename + i, "\\");
 			i += sprintf(filename + i, ltk_botfile->string);
+			i += sprintf(filename + i, ".cfg");
 	#else
 			strcpy(filename, "./");
 			strcat(filename, game_dir->string);
@@ -174,6 +175,7 @@ if (ltk_loadbots->value == 1){
 			strcat(filename, botdir->string);
 			strcat(filename, "/");
 			strcat(filename, ltk_botfile->string);
+			strcat(filename, ".cfg");
 	#endif
 
 			// No bot file available, get out of here!
@@ -715,28 +717,28 @@ char	*names3[NUMNAMES] = {
 char	*names4[NUMNAMES] = {
 	"ders", "rog", "born", "dor", "fing", "galad", "bon", "loss", "orch", "riel" };
 
+qboolean	nameused[NUMNAMES][NUMNAMES];
+
 //====================================
 // AQ2World Staff Names -- come shoot at us!
+// Find time to implement this!  Or better yet, 
+// load names from a file rather than this array
 //====================================
-#define AQ2WORLDNUMNAMES	14
-char	*aq2names[AQ2WORLDNUMNAMES] = {
-	"bAron", "darksaint", "FragBait", "matic", "stan0x", "TgT", "dmc", "dox", "KaniZ", "keffo", "QuimBy", "Rezet", "Royce", "vrol"
-	};
-
-qboolean	nameused[NUMNAMES][NUMNAMES];
-qboolean	adminnameused[AQ2WORLDNUMNAMES];
+// #define AQ2WORLDNUMNAMES	14
+// char	*aq2names[AQ2WORLDNUMNAMES] = {
+// 	"bAron", "darksaint", "FragBait", "matic", "stan0x", "TgT", "dmc", "dox", "KaniZ", "keffo", "QuimBy", "Rezet", "Royce", "vrol"
+// 	};
+//qboolean	adminnameused[AQ2WORLDNUMNAMES];
+// END AQ2World Staff Names //
 
 //====================================
 // New random bot naming routine
 //====================================
 void	LTKsetBotName( char	*bot_name )
 {
-	int	part1,part2,adminnames;
-
+	int	part1,part2;
 	part1 = part2 = 0;
-	adminnames = 0;
 
-	if (ltk_loadbots->value != 2) {
 	do // Load random bot names from NUMNAMES lists
 		{
 			part1 = rand()% NUMNAMES;
@@ -756,16 +758,5 @@ void	LTKsetBotName( char	*bot_name )
 			strcpy( bot_name, names3[part1]);
 			strcat( bot_name, names4[part2]);
 		}
-	}
-	else // Load bot names from AQ2WORLDNUMNAMES list
-	{
-		do
-		{
-			adminnames = rand()% AQ2WORLDNUMNAMES;
-		}while( nameused[adminnames]);
-
-		// Mark that name as used
-		adminnameused[adminnames] = true;
-		strcpy( bot_name, aq2names[adminnames]);
-	}
 }
+
