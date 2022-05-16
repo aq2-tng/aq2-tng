@@ -523,6 +523,8 @@ Features
   sv removebot [name] - remove a bot
   ltk_skill [0-10] - set bot skill (default 5)
   ltk_chat [0/1] - allow bots to chat
+  ltk_loadbots [0/1] - 0 to stop bots from automatically joining the game, 1 for default behavior
+  ltk_botfile [filename] - Set filename of the botfile you want to load.  Default is 'botdata' (this loads bots/botdata.cfg)
   sv botdebug [on/off] - toggle bot node editing and output for debugging
   addnode [type] - place a new node at your current position (it will tell you its number)
   addlink [num1] [num2] - add a link from node num1 to num2, and a reverse link if possible
