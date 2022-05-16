@@ -342,6 +342,8 @@ Features
 
   Commands:
   dmweapon "weaponname" - Starting weapon for DM mode (dmweapon), default is "MK23 Pistol".
+  dm_choose [0/1] - allows players to choose their starting weapon in DM mode, 0 disables/1 enables
+  dm_shield [#] - Sets a time value for how long the invunerability shield in DM mode.  Value of 30 = 3 seconds, for example.
 
 * Control Characters
   Some proxies use control characters to hide the name of the user. However, it is used by several players as
