@@ -167,7 +167,6 @@ if (ltk_loadbots->value == 1){
 			i += sprintf(filename + i, botdir->string);
 			i += sprintf(filename + i, "\\");
 			i += sprintf(filename + i, ltk_botfile->string);
-			i += sprintf(filename + i, ".cfg");
 	#else
 			strcpy(filename, "./");
 			strcat(filename, game_dir->string);
@@ -175,7 +174,6 @@ if (ltk_loadbots->value == 1){
 			strcat(filename, botdir->string);
 			strcat(filename, "/");
 			strcat(filename, ltk_botfile->string);
-			strcat(filename, ".cfg");
 	#endif
 
 			// No bot file available, get out of here!
