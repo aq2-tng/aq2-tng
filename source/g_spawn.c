@@ -1558,8 +1558,19 @@ void SP_worldspawn (edict_t * ent)
 		for(i = TEAM1; i <= teamCount; i++)
 		{
 			if (teams[i].skin_index[0] == 0) {
-				gi.dprintf("No skin was specified for team %i in config file. Exiting.\n", i);
-				exit(1);
+				// If the action.ini file isn't found, set default skins rather than kill the server
+				gi.dprintf("WARNING: No skin was specified for team %i in config file, server either could not find it or is does not exist.\n", i);
+				gi.dprintf("Setting default team names, skins and skin indexes.\n", i);
+				strcpy(teams[TEAM1].name, "RED");
+				strcpy(teams[TEAM2].name, "BLUE");
+				strcpy(teams[TEAM3].name, "GREEN");
+				strcpy(teams[TEAM1].skin, "male/ctf_r");
+				strcpy(teams[TEAM2].skin, "male/ctf_b");
+				strcpy(teams[TEAM3].skin, "male/ctf_g");
+				strcpy(teams[TEAM1].skin_index, "ctf_r_i");
+				strcpy(teams[TEAM2].skin_index, "ctf_b_i");
+				strcpy(teams[TEAM3].skin_index, "ctf_g_i");
+				//exit(1);
 			}
 			level.pic_teamskin[i] = gi.imageindex(teams[i].skin_index);
 		}

@@ -469,15 +469,17 @@ cvar_t *ltk_skill;
 cvar_t *ltk_showpath;
 cvar_t *ltk_chat;
 cvar_t *ltk_routing;
+cvar_t *ltk_botfile;
+cvar_t *ltk_loadbots;
 #endif
 
 cvar_t *jump;			// jumping mod
 
-// AQ2 ETE Add
+// BEGIN AQ2 ETE
 cvar_t *e_enhancedSlippers;
+// END AQ2 ETE
 
 cvar_t *sv_limp_highping;
-
 
 void SpawnEntities (char *mapname, char *entities, char *spawnpoint);
 void ClientThink (edict_t * ent, usercmd_t * cmd);

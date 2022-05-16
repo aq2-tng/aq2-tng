@@ -544,7 +544,9 @@ void InitGame( void )
 
 	use_mvd2 = gi.cvar( "use_mvd2", "0", 0 );	// JBravo: q2pro MVD2 recording. 0 = off, 1 = on
 
-	e_enhancedSlippers = gi.cvar( "e_enhancedSlippers", "0", 0); // darksaint: AQ2 ETE
+	// BEGIN AQ2 ETE
+	e_enhancedSlippers = gi.cvar( "e_enhancedSlippers", "0", 0);
+	// END AQ2 ETE
 
 	sv_antilag = gi.cvar("sv_antilag", "0", CVAR_SERVERINFO);
 	sv_limp_highping = gi.cvar("sv_limp_highping", "70", CVAR_SERVERINFO);
@@ -556,6 +558,8 @@ void InitGame( void )
 	ltk_showpath = gi.cvar( "ltk_showpath", "0", 0 );
 	ltk_chat = gi.cvar( "ltk_chat", "1", 0 );
 	ltk_routing = gi.cvar( "ltk_routing", "0", 0 );
+	ltk_botfile = gi.cvar( "ltk_botfile", "botdata", 0);
+	ltk_loadbots = gi.cvar( "ltk_loadbots", "1", CVAR_LATCH);
 #endif
 
 	// items

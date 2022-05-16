@@ -109,6 +109,8 @@ From 2.81
 - Bots are no longer counted in voting, and you can kickvote bots with any number of players (minimum is ignored).
 + Added optional gender to 'botdata.cfg' parsing.
 * Bot-safe printf functions no longer parse an extra level of "%".
++ Added 'ltk_botfile', set this string to the filename in the bots directory that you want to load bots from (example: 'supertroopers' to load bots/supertroopers.cfg).  Default string is 'botdata' to maintain backwards compatability
++ Added 'ltk_loadbots', set to "0" to stop bots from automatically loading from 'ltk_botfile', set to "1" for normal behavior.  This does not affect sv addbot/sv removebot
 
 From 2.8
 - Radio kill count was missing for falling death
