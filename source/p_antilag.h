@@ -21,6 +21,7 @@ typedef struct antilag_s
 } antilag_t;
 
 extern cvar_t *sv_antilag;
+extern cvar_t *sv_antilag_interp;
 void antilag_update(edict_t *ent);
 void antilag_rewind_all(edict_t *ent);
 void antilag_unmove_all(void);
