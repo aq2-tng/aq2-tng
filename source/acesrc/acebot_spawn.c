@@ -136,7 +136,7 @@ void ACESP_LoadBotConfig()
 	game_dir = gi.cvar ("game", "action", 0);
 	botdir = gi.cvar ("botdir", "bots", 0);
 
-if (ltk_loadbots->value == 1){
+if (ltk_loadbots->value){
 		// Try to load the file for THIS level
 	#ifdef	_WIN32
 		i =  sprintf(filename, ".\\");
