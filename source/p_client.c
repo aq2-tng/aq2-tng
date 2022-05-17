@@ -2954,6 +2954,8 @@ void ClientThink(edict_t * ent, usercmd_t * ucmd)
 
 	level.current_entity = ent;
 	client = ent->client;
+	
+	client->antilag_state.curr_timestamp += (float)ucmd->msec / 1000; // antilag needs sub-server-frame timestamps
 
 	if (level.intermission_framenum) {
 		client->ps.pmove.pm_type = PM_FREEZE;
@@ -3175,6 +3177,9 @@ void ClientBeginServerFrame(edict_t * ent)
 	FrameStartZ( ent );
 
 	client = ent->client;
+
+	if (sv_antilag->value) // if sv_antilag is enabled, we want to track our player position for later reference
+		antilag_update(ent);
 
 	if (client->resp.penalty > 0 && level.realFramenum % HZ == 0)
 		client->resp.penalty--;
