@@ -3159,7 +3159,8 @@ void ClientBeginServerFrame(edict_t * ent)
 
 	client = ent->client;
 
-	antilag_update(ent);
+	if (sv_antilag->value) // if sv_antilag is enabled, we want to track our player position for later reference
+		antilag_update(ent);
 
 	if (client->resp.penalty > 0 && level.realFramenum % HZ == 0)
 		client->resp.penalty--;

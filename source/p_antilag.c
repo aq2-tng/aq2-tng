@@ -2,19 +2,18 @@
 #include "g_local.h"
 
 cvar_t *sv_antilag;
+cvar_t *sv_antilag_interp;
 
 void antilag_update(edict_t *ent)
 {
-	antilag_t *state = &ent->client->antilag_state;
+	antilag_t *state = &(ent->client->antilag_state);
 
 	state->seek++;
 	state->curr_timestamp = level.time;
 
-	float time_stamp;
-	if ((int)sv_antilag->value == 2)
-		time_stamp = level.time;
-	else
-		time_stamp = level.time + FRAMETIME;
+	float time_stamp = level.time;
+	if (sv_antilag_interp->value) // offset by 1 server frame to account for interpolation
+		time_stamp += FRAMETIME;
 
 	state->hist_timestamp[state->seek & ANTILAG_MASK] = time_stamp;
 	VectorCopy(ent->s.origin, state->hist_origin[state->seek & ANTILAG_MASK]);
@@ -31,7 +30,7 @@ void antilag_clear(edict_t *ent)
 
 float antilag_findseek(edict_t *ent, float time_stamp)
 {
-	antilag_t *state = &ent->client->antilag_state;
+	antilag_t *state = &(ent->client->antilag_state);
 
 	int offs = 0;
 	while (offs < ANTILAG_MAX)
