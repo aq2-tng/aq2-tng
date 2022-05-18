@@ -527,6 +527,44 @@ void SVCmd_SetTeamName_f( int team )
 	gi.bprintf( PRINT_HIGH, "Team %i name set to %s by console.\n", team, teams[team].name );
 }
 
+void SVCmd_SetTeamSkin_f( int team )
+{
+	if( ! teamplay->value )
+	{
+		gi.cprintf( NULL, PRINT_HIGH, "Team skins can only be set for teamplay.\n" );
+		return;
+	}
+
+	if( gi.argc() < 3 )
+	{
+		gi.cprintf( NULL, PRINT_HIGH, "Usage: sv %s <name>\n", gi.argv(1) );
+		return;
+	}
+
+	strcpy(teams[team].skin, gi.argv(2));
+
+	gi.bprintf( PRINT_HIGH, "Team %i skin set to %s by console and will be reflected next round.\n", team, teams[team].skin );
+}
+
+void SVCmd_SetTeamSkin_Index_f( int team )
+{
+	if( ! teamplay->value )
+	{
+		gi.cprintf( NULL, PRINT_HIGH, "Team skin indexes can only be set for teamplay.\n" );
+		return;
+	}
+
+	if( gi.argc() < 3 )
+	{
+		gi.cprintf( NULL, PRINT_HIGH, "Usage: sv %s <name>\n", gi.argv(1) );
+		return;
+	}
+
+	strcpy(teams[team].skin_index, gi.argv(2));
+
+	gi.bprintf( PRINT_HIGH, "Team %i skin index set to %s by console, requires a new map or server restart.\n", team, teams[team].skin_index );
+}
+
 void SVCmd_SoftQuit_f (void)
 {
 	gi.bprintf(PRINT_HIGH, "The server will exit after this map\n");
@@ -649,6 +687,18 @@ void ServerCommand (void)
 		SVCmd_SetTeamName_f( 2 );
 	else if (Q_stricmp (cmd, "t3name") == 0)
 		SVCmd_SetTeamName_f( 3 );
+	else if (Q_stricmp (cmd, "t1skin") == 0)
+		SVCmd_SetTeamSkin_f( 1 );
+	else if (Q_stricmp (cmd, "t2skin") == 0)
+		SVCmd_SetTeamSkin_f( 2 );
+	else if (Q_stricmp (cmd, "t3skin") == 0)
+		SVCmd_SetTeamSkin_f( 3 );
+	else if (Q_stricmp (cmd, "t1skin_index") == 0)
+		SVCmd_SetTeamSkin_Index_f( 1 );
+	else if (Q_stricmp (cmd, "t2skin_index") == 0)
+		SVCmd_SetTeamSkin_Index_f( 2 );
+	else if (Q_stricmp (cmd, "t3skin_index") == 0)
+		SVCmd_SetTeamSkin_Index_f( 3 );
 	else if (Q_stricmp (cmd, "softquit") == 0)
 		SVCmd_SoftQuit_f ();
 	else if (Q_stricmp (cmd, "slap") == 0)

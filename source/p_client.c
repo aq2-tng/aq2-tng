@@ -2222,9 +2222,9 @@ void ClientLegDamage(edict_t *ent)
 	// Reki: limp_nopred behavior
 	switch (ent->client->pers.limp_nopred & 255)
 	{
-		case -1:
-			break;
 		case 0:
+			break;
+		case 2:
 			if (sv_limp_highping->value <= 0)
 				break;
 			// if the 256 bit flag is set, we have to be cautious to only deactivate if ping swung significantly
@@ -2823,9 +2823,9 @@ void ClientUserinfoChanged(edict_t *ent, char *userinfo)
 	if (limp == 1)
 		client->pers.limp_nopred = 1; // client explicity wants new behavior 
 	else if (s[0] == 0)
-		client->pers.limp_nopred = 0 | (client->pers.limp_nopred & 256); // client doesn't specify, so use auto threshold
+		client->pers.limp_nopred = 2 | (client->pers.limp_nopred & 256); // client doesn't specify, so use auto threshold
 	else if (limp == 0)
-		client->pers.limp_nopred = -1; // client explicity wants old behavior
+		client->pers.limp_nopred = 0; // client explicity wants old behavior
 }
 
 /*
@@ -3120,6 +3120,8 @@ void ClientThink(edict_t * ent, usercmd_t * ucmd)
 
 	level.current_entity = ent;
 	client = ent->client;
+	
+	client->antilag_state.curr_timestamp += (float)ucmd->msec / 1000; // antilag needs sub-server-frame timestamps
 
 	if (level.intermission_framenum) {
 		client->ps.pmove.pm_type = PM_FREEZE;
@@ -3341,6 +3343,9 @@ void ClientBeginServerFrame(edict_t * ent)
 	FrameStartZ( ent );
 
 	client = ent->client;
+
+	if (sv_antilag->value) // if sv_antilag is enabled, we want to track our player position for later reference
+		antilag_update(ent);
 
 	if (client->resp.penalty > 0 && level.realFramenum % HZ == 0)
 		client->resp.penalty--;

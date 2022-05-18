@@ -1,4 +1,4 @@
-Changes in TNG
+Changes in TNG 2.82
 
 + = new feature
 - = bug fix
@@ -103,6 +103,13 @@ From 2.81
 + Added 'empty_exec' to optionally execute config with empty_rotate.  Useful to revert to default settings on servers with configvote.
 + Enhanced Stealth Slippers addition (set 'e_enhancedSlippers 1')
 + Added 'tourney_lca' server cvar to enable "Lights Camera Action" at the beginning of the round rather than silence.  Set to 0 for classic use, 1 for LCA.
+* Missing action.ini file no longer kills the server, it will default to CTF team names and skins (blue/red/green).  The presence of action.ini will still take precedence
++ Ability to change team names and skins during teamplay with sv t[i]name, sv t[i]skin and sv t[i]skin_index where i is the team number.
++ Added server cvar "sv_antilag" enables lag-compensation for aiming with hitscan weapons, useful for making high ping games more fair. (Default 0)
++ Added server cvar "sv_antilag_interp" accounts for interpolation with antilag, can cause players to be "shot around corners" even on low ping, but you can aim straight on the model. (Default 0)
++ Added server cvar "sv_limp_highping" players above this ping threshold will have movement prediction disabled with leg damage to make things less jittery. (Default 70)
++ Added userinfo Cvar "limp_nopred" clients can set this to force on or off movement prediction when taking leg damage. Legacy behavior would be "setu limp_nopred 0". (Default is decided by sv_limp_highping)
++ Exposed standing viewheight and crouched viewheight to the engine for compatible servers/clients to take advantage for use in crouch prediction.
 + Added bot support.  Use 'sv addbot' to spawn them on demand, or 'botdata.cfg' to spawn them every map.
 * Bots branch no longer messes up multiplayer view models (player_state_t was not the expected size).
 - Tweaked bot aiming so they're not such ridiculous crack shots in certain circumstances.
