@@ -1,4 +1,4 @@
-name: Linux TNG (64-bit)
+name: TNG Build
 
 on:
   push:
@@ -37,7 +37,7 @@ jobs:
         working-directory: build
         run: echo "::set-output name=sha_short::$(git rev-parse --short HEAD)"
 
-      - name: Build TNG (64-bit)
+      - name: Build TNG (Win 64-bit)
         working-directory: build/source
         run: make -j2 V=1 && mv gamex86_64.dll ../gamex86_64.dll
         env:
@@ -51,7 +51,7 @@ jobs:
             build/gamex86_64.dll
             build/versions
 
-      - name: Build TNG (32-bit)
+      - name: Build TNG (Win 32-bit)
         working-directory: build/source
         run: make clean && make -j2 V=1 && mv gamex86.dll ../gamex86.dll
         env:
@@ -65,9 +65,9 @@ jobs:
             build/gamex86.dll
             build/versions
 
-      - name: Build TNG
+      - name: Build TNG (Linux 64-bit)
         working-directory: build/source
-        run: make -j2 V=1 && mv gamex86_64.so ../gamex86_64.so
+        run: make clean && make -j2 V=1 && mv gamex86_64.so ../gamex86_64.so
         env:
           CC: "gcc"
 
@@ -99,7 +99,7 @@ jobs:
           cp config/build/getversion.sh build/
           cd build && bash -x getversion.sh tng >> versions
 
-      - name: Build TNG
+      - name: Build TNG (Linux ARM64)
         working-directory: build/source
         run: make -j2 V=1 && mv gameaarch64.so ../gameaarch64.so
         env:
