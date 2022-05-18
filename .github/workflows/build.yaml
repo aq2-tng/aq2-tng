@@ -118,10 +118,10 @@ jobs:
     steps:
       - name: Generate directories
         run: |
-          mkdir -p ${{ LIN64_DIST_DIR }}
-          mkdir -p ${{ LINARM64_DIST_DIR }}
-          mkdir -p ${{ WIN64_DIST_DIR }}
-          mkdir -p ${{ WIN32_DIST_DIR }}
+          mkdir -p ${{ env.LIN64_DIST_DIR }}
+          mkdir -p ${{ env.LINARM64_DIST_DIR }}
+          mkdir -p ${{ env.WIN64_DIST_DIR }}
+          mkdir -p ${{ env.WIN32_DIST_DIR }}
 
       - name: Download Linux x86_64 TNG artifacts
         uses: dawidd6/action-download-artifact@v2
