@@ -114,6 +114,7 @@ jobs:
             build/versions
 
   generate_release:
+    needs: ["x86_build_tng", "arm64_build_tng"]
     runs-on: [self-hosted, x86]
     steps:
       - name: Generate directories
