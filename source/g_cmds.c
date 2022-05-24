@@ -1699,7 +1699,15 @@ static void Cmd_PrintSettings_f( edict_t * ent )
 
 static void Cmd_Follow_f( edict_t *ent )
 {
-	edict_t *target = LookupPlayer( ent, gi.argv(1), true, true );
+	edict_t *target = NULL;
+
+	if( (ent->solid != SOLID_NOT) || (ent->deadflag == DEAD_DEAD) )
+	{
+		gi.cprintf( ent, PRINT_HIGH, "Only spectators may follow!\n" );
+		return;
+	}
+
+	target = LookupPlayer( ent, gi.argv(1), true, true );
 	if( target == ent )
 		SetChase( ent, NULL );
 	else if( target )
