@@ -2658,14 +2658,26 @@ void ClientUserinfoChanged(edict_t *ent, char *userinfo)
 
 
 	// Reki - disable prediction on limping
-	s = Info_ValueForKey(userinfo, "limp_nopred");
-	int limp = atoi(s);
-	if (limp == 1)
-		client->pers.limp_nopred = 1; // client explicity wants new behavior 
-	else if (s[0] == 0)
-		client->pers.limp_nopred = 2 | (client->pers.limp_nopred & 256); // client doesn't specify, so use auto threshold
-	else if (limp == 0)
-		client->pers.limp_nopred = 0; // client explicity wants old behavior
+#ifdef AQTION_EXTENSION
+	if (Client_GetProtocol(ent) == 38) // if we're using AQTION protocol, we have limp prediction
+	{
+
+		client->pers.limp_nopred = 0;
+	}
+	else
+	{
+#endif
+		s = Info_ValueForKey(userinfo, "limp_nopred");
+		int limp = atoi(s);
+		if (limp == 1)
+			client->pers.limp_nopred = 1; // client explicity wants new behavior 
+		else if (s[0] == 0)
+			client->pers.limp_nopred = 2 | (client->pers.limp_nopred & 256); // client doesn't specify, so use auto threshold
+		else if (limp == 0)
+			client->pers.limp_nopred = 0; // client explicity wants old behavior
+#ifdef AQTION_EXTENSION
+	}
+#endif
 }
 
 /*
@@ -3017,6 +3029,10 @@ void ClientThink(edict_t * ent, usercmd_t * ucmd)
 		qboolean has_enhanced_slippers = e_enhancedSlippers->value && INV_AMMO(ent, SLIP_NUM);
 		if( client->leg_damage && ent->groundentity && ! has_enhanced_slippers )
 		{
+			#ifdef AQTION_EXTENSION
+			pm.s.pm_aq2_flags |= PMF_AQ2_LIMP;
+			pm.s.pm_aq2_leghits = min(client->leghits, 255);
+			#else
 			int frame_mod_6 = (level.framenum / game.framediv) % 6;
 			if( frame_mod_6 <= 2 )
 			{
@@ -3031,7 +3047,15 @@ void ClientThink(edict_t * ent, usercmd_t * ucmd)
 
 			// Prevent jumping with leg damage.
 			pm.s.pm_flags |= PMF_JUMP_HELD;
+			#endif
 		}
+		#ifdef AQTION_EXTENSION
+		else
+		{
+			pm.s.pm_aq2_flags &= ~PMF_AQ2_LIMP;
+			pm.s.pm_aq2_leghits = 0;
+		}
+		#endif
 
 		pm.trace = PM_trace;	// adds default parms
 		pm.pointcontents = gi.pointcontents;
@@ -3180,6 +3204,16 @@ void ClientBeginServerFrame(edict_t * ent)
 
 	if (sv_antilag->value) // if sv_antilag is enabled, we want to track our player position for later reference
 		antilag_update(ent);
+
+#ifdef AQTION_EXTENSION
+	// resync pm_timestamp so all limps are roughly synchronous, to try to maintain original behavior
+	unsigned short world_timestamp = (int)(level.time * 1000) % 60000;
+	client->ps.pmove.pm_timestamp = world_timestamp;
+
+	// network any pending ghud updates
+	Ghud_SendUpdates(ent);
+#endif
+
 
 	if (client->resp.penalty > 0 && level.realFramenum % HZ == 0)
 		client->resp.penalty--;

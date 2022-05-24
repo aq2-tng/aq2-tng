@@ -13,7 +13,7 @@
 #-----------------------------------------------------------------------------
 
 CC=lcc
-CFLAGS=-DC_ONLY -o2
+CFLAGS=-DC_ONLY -o2 -DAQTION_EXTENSION
 OBJS= g_ai.obj g_cmds.obj g_combat.obj g_func.obj g_items.obj g_main.obj \
 g_misc.obj g_monster.obj g_phys.obj g_save.obj g_spawn.obj g_target.obj \
 g_trigger.obj g_turret.obj g_utils.obj g_weapon.obj m_actor.obj \

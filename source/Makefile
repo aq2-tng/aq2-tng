@@ -22,7 +22,7 @@ FILE_VERSION:=$(FILE_VERSION)~$(GIT_REV)
 endif
 
 CC?=gcc
-BASE_CFLAGS=-Wall -fno-strict-aliasing -DC_ONLY -DVERSION="\"$(VERSION)\""
+BASE_CFLAGS=-Wall -fno-strict-aliasing -DC_ONLY -DVERSION="\"$(VERSION)\"" -DAQTION_EXTENSION
 
 ifdef WEXTRA
 BASE_CFLAGS += -Wextra

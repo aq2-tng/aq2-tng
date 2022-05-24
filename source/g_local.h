@@ -264,6 +264,7 @@
 #include <ctype.h>
 
 #include "q_shared.h"
+#include "q_ghud.h"
 
 // define GAME_INCLUDE so that game.h does not define the
 // short, server-visible gclient_t and edict_t structures,
@@ -1108,6 +1109,38 @@ extern cvar_t *bholelife;
 extern cvar_t *e_enhancedSlippers;
 
 extern cvar_t *sv_limp_highping;
+
+#ifdef AQTION_EXTENSION
+int (*engine_Client_GetVersion)(edict_t *ent);
+int (*engine_Client_GetProtocol)(edict_t *ent);
+int Client_GetVersion(edict_t *ent);
+int Client_GetProtocol(edict_t *ent);
+
+void (*engine_Ghud_SendUpdates)(edict_t *ent);
+void  Ghud_SendUpdates(edict_t *ent);
+int  (*engine_Ghud_NewElement)(int type);
+int   Ghud_NewElement(int type);
+void (*engine_Ghud_SetFlags)(int i, int val);
+void  Ghud_SetFlags(int i, int val);
+void (*engine_Ghud_UnicastSetFlags)(edict_t *ent, int i, int val);
+void  Ghud_UnicastSetFlags(edict_t *ent, int i, int val);
+void (*engine_Ghud_SetInt)(int i, int val);
+void  Ghud_SetInt(int i, int val);
+void (*engine_Ghud_SetText)(int i, char *text);
+void  Ghud_SetText(int i, char *text);
+void (*engine_Ghud_SetPosition)(int i, int x, int y);
+void  Ghud_SetPosition(int i, int x, int y);
+void (*engine_Ghud_SetAnchor)(int i, float x, float y);
+void  Ghud_SetAnchor(int i, float x, float y);
+void (*engine_Ghud_SetColor)(int i, int r, int g, int b, int a);
+void  Ghud_SetColor(int i, int r, int g, int b, int a);
+void (*engine_Ghud_SetSize)(int i, int x, int y);
+void  Ghud_SetSize(int i, int x, int y);
+
+int   Ghud_AddIcon(int x, int y, int image, int sizex, int sizey);
+int   Ghud_AddText(int x, int y, char *text);
+int   Ghud_AddNumber(int x, int y, int value);
+#endif
 
 
 #define world   (&g_edicts[0])
@@ -2032,6 +2065,11 @@ typedef struct team_s
 	int pauses_used, wantReset;
 	cvar_t	*teamscore;
 	edict_t	*captain;
+
+#ifdef AQTION_EXTENSION
+	byte ghud_icon;
+	byte ghud_num;
+#endif
 }team_t;
 
 extern team_t teams[TEAM_TOP];
@@ -2048,3 +2086,12 @@ extern int gameSettings;
 
 #include "a_ctf.h"
 #include "a_dom.h"
+
+#ifdef AQTION_EXTENSION
+extern int ghud_team1_icon;
+extern int ghud_team1_num;
+extern int ghud_team2_icon;
+extern int ghud_team2_num;
+extern int ghud_team3_icon;
+extern int ghud_team3_num;
+#endif
