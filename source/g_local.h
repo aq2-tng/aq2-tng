@@ -1324,6 +1324,14 @@ void InitBodyQue (void);
 void ClientBeginServerFrame (edict_t * ent);
 
 //
+// g_ext.c
+//
+#ifdef AQTION_EXTENSION
+void G_InitExtEntrypoints(void);
+void* G_FetchGameExtension(char *name);
+#endif
+
+//
 // g_player.c
 //
 void player_pain (edict_t * self, edict_t * other, float kick, int damage);
