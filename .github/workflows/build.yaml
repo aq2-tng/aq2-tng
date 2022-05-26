@@ -167,7 +167,7 @@ jobs:
         with:
           draft: false
           prerelease: false
-          release_name: aq2-tng-${{ steps.shortversion.outputs.sha_short }}
-          tag_name: ${{ steps.shortversion.outputs.sha_short }}
+          release_name: aq2-tng-${{ github.ref }}
+          tag_name: ${{ github.ref }}
           #body_path: CHANGELOG.md
           body: ${{steps.github_release.outputs.changelog}}
