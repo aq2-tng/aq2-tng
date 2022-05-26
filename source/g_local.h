@@ -290,10 +290,6 @@
 #include	"g_grapple.h"
 #include	"p_antilag.h"
 
-#ifndef NO_BOTS
-#include	"acesrc/botnav.h"
-#endif
-
 #define		getEnt(entnum)	(edict_t *)((char *)globals.edicts + (globals.edict_size * entnum))	//AQ:TNG Slicer - This was missing
 #define		GAMEVERSION			"action"	// the "gameversion" client command will print this plus compile date
 
@@ -2131,7 +2127,3 @@ extern int gameSettings;
 
 #include "a_ctf.h"
 #include "a_dom.h"
-
-#ifndef NO_BOTS
-#include "acesrc/acebot.h"
-#endif

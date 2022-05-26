@@ -163,24 +163,6 @@
     <ClCompile Include="tng_irc.c" />
     <ClCompile Include="tng_jump.c" />
     <ClCompile Include="tng_stats.c" />
-    <ClCompile Include="acesrc\acebot_ai.c" />
-    <ClCompile Include="acesrc\acebot_cmds.c" />
-    <ClCompile Include="acesrc\acebot_compress.c" />
-    <ClCompile Include="acesrc\acebot_items.c" />
-    <ClCompile Include="acesrc\acebot_movement.c" />
-    <ClCompile Include="acesrc\acebot_nodes.c" />
-    <ClCompile Include="acesrc\acebot_spawn.c" />
-    <ClCompile Include="acesrc\bot_ai.c" />
-    <ClCompile Include="acesrc\bot_collision.c" />
-    <ClCompile Include="acesrc\bot_combat.c" />
-    <ClCompile Include="acesrc\bot_env_doors.c" />
-    <ClCompile Include="acesrc\bot_movement.c" />
-    <ClCompile Include="acesrc\bot_states.c" />
-    <ClCompile Include="acesrc\bot_utility.c" />
-    <ClCompile Include="acesrc\bot_weapon.c" />
-    <ClCompile Include="acesrc\botchat.c" />
-    <ClCompile Include="acesrc\botnav.c" />
-    <ClCompile Include="acesrc\botscan.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="a_ctf.h" />
@@ -207,10 +189,6 @@
     <ClInclude Include="tng_irc.h" />
     <ClInclude Include="tng_jump.h" />
     <ClInclude Include="tng_stats.h" />
-    <ClInclude Include="acesrc\acebot.h" />
-    <ClInclude Include="acesrc\botchat.h" />
-    <ClInclude Include="acesrc\botnav.h" />
-    <ClInclude Include="acesrc\botscan.h" />
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="game.def" />
