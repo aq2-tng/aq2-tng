@@ -319,6 +319,9 @@
 #define svc_stufftext           11
 #define	svc_configstring		13
 
+#define svc_extend				30
+#define svc_userstatistic		31
+
 //==================================================================
 
 #define MASK_VOLUME			1
@@ -1782,6 +1785,13 @@ struct gclient_s
 	edict_t		*ctf_grapple;		// entity of grapple
 	int			ctf_grapplestate;		// true if pulling
 	int			ctf_grapplereleaseframe;	// frame of grapple release
+
+
+	// used for extrapolation
+	usercmd_t	cmd_last;
+
+	// visiblity mask
+	unsigned int dimension_observe;
 };
 
 
@@ -1938,6 +1948,9 @@ struct edict_s
 	int			z_history_framenum;
 	int			z_history_count;
 #endif
+
+	// visibility mask
+	unsigned int dimension_visible;
 
 	// action
 	qboolean	splatted;

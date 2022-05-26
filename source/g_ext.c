@@ -42,15 +42,86 @@ extension_func_t *g_extension_funcs;
 
 //
 // optional new entrypoints the engine may want to call
+edict_t *xerp_ent;
+trace_t q_gameabi XERP_trace(vec3_t start, vec3_t mins, vec3_t maxs, vec3_t end)
+{
+	return gi.trace(start, mins, maxs, end, xerp_ent, MASK_PLAYERSOLID);
+}
+
 int G_customizeentityforclient(edict_t *client, edict_t *ent, entity_state_t *state)
 {
+	// first check visibility masks
+	if (!(max(1, ent->dimension_visible) & max(1, client->client->dimension_observe)))
+		return false;
+	
+	// extrapolation, if we want that kind of thing, which we pretty much don't because antilag exists.
+	// this could be used in future if antilag is disabled.
+#if 0
+	if (ent->client) // extrapolate clients
+	{
+		if (sv_antilag_interp->value) // don't extrapolate when our antilag accounts for lerp
+			return true;
+
+		float xerp_amount = FRAMETIME;
+		if (!sv_antilag->value) // we don't add extra xerp with antilag
+			xerp_amount += client->client->ping / 1000;
+
+		pmove_t pm;
+		xerp_ent = ent;
+		memcpy(&pm.s, &ent->client->ps.pmove, sizeof(pmove_state_t));
+
+		pm.trace = XERP_trace;
+		pm.pointcontents = gi.pointcontents;
+		pm.s.pm_type = PM_NORMAL;
+
+		pm.cmd = ent->client->cmd_last; // just assume client is gonna keep pressing the same buttons for next frame
+		// we need to reign in A/D spamming at low velocities
+		if ((VectorLength(pm.s.velocity)/8) < 280)
+		{
+			pm.cmd.sidemove = 0;
+			pm.cmd.forwardmove = 0;
+		}
+
+		pm.cmd.msec = xerp_amount * 1000;
+
+		gi.Pmove(&pm);
+
+		VectorScale(pm.s.origin, 0.125, state->origin);
+	}
+	else // extrapolate other physics entities
+	{
+		if (ent->movetype)
+		{
+			vec3_t start, end, velocity;
+			VectorCopy(state->origin, start);
+			VectorCopy(ent->velocity, velocity);
+
+			switch (ent->movetype)
+			{
+			case MOVETYPE_BOUNCE:
+			case MOVETYPE_TOSS:
+				velocity[2] -= ent->gravity * sv_gravity->value * FRAMETIME;
+			case MOVETYPE_FLY:
+				VectorMA(start, FRAMETIME, velocity, end);
+				break;
+			default:
+				return true;
+			}
+
+			trace_t trace;
+			trace = gi.trace(start, ent->mins, ent->maxs, end, ent, ent->clipmask ? ent->clipmask : MASK_SOLID);
+			VectorCopy(trace.endpos, state->origin);
+		}
+	}
+#endif
+
 	return true;
 }
 
 
 void G_InitExtEntrypoints(void)
 {
-	//g_addextension("customizeentityforclient", G_customizeentityforclient);
+	g_addextension("customizeentityforclient", G_customizeentityforclient);
 }
 
 

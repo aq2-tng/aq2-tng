@@ -3023,6 +3023,7 @@ void ClientThink(edict_t * ent, usercmd_t * ucmd)
 		}
 
 		pm.cmd = *ucmd;
+		client->cmd_last = *ucmd;
 
 		// Stumbling movement with leg damage.
 		// darksaint ETE edit:  if e_enhancedSlippers are enabled/equipped, negate all stumbling
@@ -3212,6 +3213,9 @@ void ClientBeginServerFrame(edict_t * ent)
 
 	// network any pending ghud updates
 	Ghud_SendUpdates(ent);
+
+	// update dimension mask for team-only entities
+	client->dimension_observe = 1 | (1 << client->resp.team);
 #endif
 
 
