@@ -963,9 +963,6 @@ extern cvar_t *use_newscore;
 extern cvar_t *scores2teamplay;
 extern cvar_t *scores2ctf;
 extern cvar_t *actionversion;
-#ifndef NO_BOTS
-extern cvar_t *ltk_jumpy;
-#endif
 extern cvar_t *use_voice;
 extern cvar_t *ppl_idletime;
 extern cvar_t *use_tourney;

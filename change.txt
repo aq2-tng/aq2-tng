@@ -110,14 +110,6 @@ From 2.81
 + Added server cvar "sv_limp_highping" players above this ping threshold will have movement prediction disabled with leg damage to make things less jittery. (Default 70)
 + Added userinfo Cvar "limp_nopred" clients can set this to force on or off movement prediction when taking leg damage. Legacy behavior would be "setu limp_nopred 0". (Default is decided by sv_limp_highping)
 + Exposed standing viewheight and crouched viewheight to the engine for compatible servers/clients to take advantage for use in crouch prediction.
-+ Added bot support.  Use 'sv addbot' to spawn them on demand, or 'botdata.cfg' to spawn them every map.
-* Bots branch no longer messes up multiplayer view models (player_state_t was not the expected size).
-- Tweaked bot aiming so they're not such ridiculous crack shots in certain circumstances.
-- Bots are no longer counted in voting, and you can kickvote bots with any number of players (minimum is ignored).
-+ Added optional gender to 'botdata.cfg' parsing.
-* Bot-safe printf functions no longer parse an extra level of "%".
-+ Added 'ltk_botfile', set this string to the filename in the bots directory that you want to load bots from (example: 'supertroopers.cfg' to load bots/supertroopers.cfg).  Default string is 'botdata.cfg' to maintain backwards compatability
-+ Added 'ltk_loadbots', set to "0" to stop bots from automatically loading from 'ltk_botfile', set to "1" for normal behavior.  This does not affect sv addbot/sv removebot
 
 From 2.8
 - Radio kill count was missing for falling death
