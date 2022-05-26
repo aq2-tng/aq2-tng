@@ -1185,6 +1185,7 @@ void SpawnEntities (char *mapname, char *entities, char *spawnpoint)
 	G_LoadLocations();
 
 	UnBan_TeamKillers();
+}
 
 
 //===================================================================
