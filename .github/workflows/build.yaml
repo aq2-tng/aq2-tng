@@ -9,6 +9,7 @@ env:
   LINARM64_DIST_DIR: "linux-arm64-tng"
   WIN64_DIST_DIR: "windows-x64-tng"
   WIN32_DIST_DIR: "windows-i386-tng"
+  GITHUB_TOKEN: ${{ github.token }}
 
 jobs:
   x86_build_tng:
@@ -20,7 +21,7 @@ jobs:
           rm -rf ./* || true
           rm -rf ./.??* || true
           ls -la ./
-          
+
       - uses: actions/checkout@v3
         with:
           # repository: aq2-tng/aq2-tng  ## Official repository
@@ -176,5 +177,6 @@ jobs:
           prerelease: false
           release_name: aq2-tng-${{ github.ref }}
           tag_name: ${{ github.ref }}
+          token: ${{ env.GITHUB_TOKEN }}
           #body_path: CHANGELOG.md
           body: ${{steps.github_release.outputs.changelog}}
