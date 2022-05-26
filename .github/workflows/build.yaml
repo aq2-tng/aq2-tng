@@ -14,6 +14,13 @@ jobs:
   x86_build_tng:
     runs-on: [self-hosted, x86]
     steps:
+      - name: 'Cleanup build folder'
+        run: |
+          ls -la ./
+          rm -rf ./* || true
+          rm -rf ./.??* || true
+          ls -la ./
+          
       - uses: actions/checkout@v3
         with:
           # repository: aq2-tng/aq2-tng  ## Official repository
@@ -154,7 +161,7 @@ jobs:
 
       - name: Create singular directory and zip it up
         run: |
-          mkdir tng-serverfiles
+          mkdir -p tng-serverfiles
           cp ${{ env.LIN64_DIST_DIR }}/* tng-serverfiles/
           cp ${{ env.LINARM64_DIST_DIR }}/* tng-serverfiles/
           cp ${{ env.WIN64_DIST_DIR }}/* tng-serverfiles/
