@@ -126,8 +126,8 @@ jobs:
 
       - name: Download Linux x86_64 TNG artifacts
         uses: dawidd6/action-download-artifact@
-        workflow: build.yaml
         with:
+          workflow: build.yaml
           name: tng-lin-x86_64
           path: ${{ env.LIN64_DIST_DIR }}/
 
