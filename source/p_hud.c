@@ -106,6 +106,10 @@ void MoveClientToIntermission(edict_t *ent)
 	ent->client->ps.stats[STAT_SNIPER_ICON] = 0;
 	ent->client->pickup_msg_framenum = 0;
 
+#ifndef NO_BOTS
+	if( ent->is_bot )
+		return;
+#endif
 	// add the layout
 	DeathmatchScoreboardMessage(ent, NULL);
 	gi.unicast(ent, true);
@@ -192,6 +196,11 @@ void DeathmatchScoreboardMessage (edict_t * ent, edict_t * killer)
 	edict_t *cl_ent;
 	char *tag;
 
+#ifndef NO_BOTS
+	if (ent->is_bot)
+		return;
+#endif
+
 	if (teamplay->value && !use_tourney->value)
 	{
 		// DW: If the map ends
@@ -270,6 +279,10 @@ void DeathmatchScoreboardMessage (edict_t * ent, edict_t * killer)
 */
 void DeathmatchScoreboard(edict_t *ent)
 {
+#ifndef NO_BOTS
+	if( ent->is_bot )
+		return;
+#endif
 	DeathmatchScoreboardMessage(ent, ent->enemy);
 	gi.unicast(ent, true);
 }
