@@ -22,10 +22,6 @@ void PMenu_Open (edict_t *ent, pmenu_t *entries, int cur, int num)
 
 	if (!ent->client)
 		return;
-#ifndef NO_BOTS
-	if( ent->is_bot )
-		return;
-#endif
 
 	if (ent->client->layout == LAYOUT_MENU) {
 		gi.dprintf("warning, ent already has a menu\n");

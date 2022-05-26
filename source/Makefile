@@ -103,12 +103,6 @@ ifeq ($(ARCH),x86)
 CFLAGS+=-m32
 endif
 
-
-ifdef NO_BOTS
-CFLAGS+=-DNO_BOTS
-endif
-
-
 #############################################################################
 # SETUP AND BUILD
 # GAME

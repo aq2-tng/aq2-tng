@@ -504,9 +504,6 @@ void ShutdownGame (void)
 	gi.dprintf ("==== ShutdownGame ====\n");
 	IRC_printf (IRC_T_SERVER, "==== ShutdownGame ====");
 	IRC_exit ();
-#ifndef NO_BOTS
-	ACECM_Store();
-#endif
 	//PG BUND
 	vExitGame ();
 	gi.FreeTags (TAG_LEVEL);
@@ -527,13 +524,6 @@ void ShutdownGame (void)
 game_export_t *GetGameAPI (game_import_t * import)
 {
 	gi = *import;
-#ifndef NO_BOTS
-	/* proxy ent printf calls trough the bot safe functions */
-	real_cprintf = gi.cprintf;
-	real_centerprintf = gi.centerprintf;
-	gi.cprintf = safe_cprintf;
-	gi.centerprintf = safe_centerprintf;
-#endif
 	globals.apiversion = GAME_API_VERSION;
 	globals.Init = InitGame;
 	globals.Shutdown = ShutdownGame;
@@ -634,10 +624,6 @@ void ClientEndServerFrames (void)
 				PMenu_Update(ent);
 			else
 				DeathmatchScoreboardMessage(ent, ent->enemy);
-
-#ifndef NO_BOTS
-			if( ! ent->is_bot )
-#endif
 			gi.unicast(ent, false);
 		}
 		if (teamplay->value && !ent->client->resp.team)
@@ -688,10 +674,6 @@ void EndDMLevel (void)
 	time_t tnow = 0;
 	char ltm[64] = "";
 	char mvdstring[512] = "";
-
-#ifndef NO_BOTS
-	ACECM_Store();
-#endif
 
 	tnow = time ((time_t *) 0);
 	now = localtime (&tnow);
@@ -1086,11 +1068,6 @@ void G_RunFrame (void)
 				// TNG Stats End
 
 				ClientBeginServerFrame (ent);
-
-#ifndef NO_BOTS
-				// allow bots to think
-				if(!ent->is_bot)
-#endif
 				continue;
 			}
 

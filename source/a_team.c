@@ -985,12 +985,6 @@ void JoinTeam (edict_t * ent, int desired_team, int skip_menuclose)
 	if (oldTeam == desired_team || ent->client->pers.mvdspec)
 		return;
 
-#ifndef NO_BOTS
-	// Bots are always allowed to join their selected team.
-	if( ent->is_bot )
-		;
-	else
-#endif
 	if (matchmode->value)
 	{
 		if (mm_allowlock->value && teams[desired_team].locked) {
@@ -1610,11 +1604,6 @@ static void SpawnPlayers(void)
 			ent->client->pers.chosenItem = GET_ITEM(KEV_NUM);
 		}
 
-#ifndef NO_BOTS
-		if( !Q_stricmp( ent->classname, "bot" ) )
-			ACESP_PutClientInServer( ent, true, ent->client->resp.team );
-		else
-#endif
 		PutClientInServer(ent);
 		AddToTransparentList(ent);
 	}
@@ -2885,10 +2874,6 @@ void A_ScoreboardMessage (edict_t * ent, edict_t * killer)
 			else
 				Com_sprintf( time_buf, 6, " %3ih", min( 999, minutes / 60 ) );
 			Com_sprintf( ping_buf,   6, " %4i", min( 9999, cl->ping ) );
-#ifndef NO_BOTS
-			if( cl_ent->is_bot )
-				strcpy( ping_buf, "  BOT" );
-#endif
 			Com_sprintf( caps_buf,   6, " %4i", min( 9999, cl->resp.ctf_caps ) );
 			Com_sprintf( score_buf,  7, " %5i", min( 99999, cl->resp.score) );
 			Com_sprintf( kills_buf,  7, " %5i", min( 99999, cl->resp.kills) );

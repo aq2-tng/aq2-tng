@@ -1069,18 +1069,6 @@ void SpawnEntities (char *mapname, char *entities, char *spawnpoint)
 
 	gi.FreeTags(TAG_LEVEL);
 
-#ifndef NO_BOTS
-	// Disconnect bots before we wipe entity data and lose track of is_bot.
-	for (i = 0, ent = &g_edicts[1]; i < game.maxclients; i++, ent++)
-	{
-		if( ent->is_bot )
-		{
-			client = &game.clients[i];
-			client->pers.connected = false;
-		}
-	}
-#endif
-
 	memset(&level, 0, sizeof (level));
 	memset(g_edicts, 0, game.maxentities * sizeof (g_edicts[0]));
 
@@ -1197,14 +1185,6 @@ void SpawnEntities (char *mapname, char *entities, char *spawnpoint)
 	G_LoadLocations();
 
 	UnBan_TeamKillers();
-
-#ifndef NO_BOTS
-	// Reload nodes and any persistent bots.
-	ACEND_InitNodes();
-	ACEND_LoadNodes();
-	ACESP_LoadBotConfig();
-#endif
-}
 
 
 //===================================================================
@@ -1438,10 +1418,6 @@ void G_UpdatePlayerStatusbar( edict_t * ent, int force )
 		playerStatusbar = level.spec_statusbar;
 	}
 
-#ifndef NO_BOTS
-	if( ent->is_bot )
-		return;
-#endif
 	gi.WriteByte( svc_configstring );
 	gi.WriteShort( CS_STATUSBAR );
 	gi.WriteString( playerStatusbar );
