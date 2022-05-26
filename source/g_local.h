@@ -1364,6 +1364,7 @@ void ExitLevel (void);
 void UpdateChaseCam (edict_t * ent);
 int ChaseTargetGone (edict_t * ent);
 void NextChaseMode( edict_t *ent );
+void SetChase( edict_t *ent, edict_t *target );
 void ChaseNext (edict_t * ent);
 void ChasePrev (edict_t * ent);
 void GetChaseTarget (edict_t * ent);

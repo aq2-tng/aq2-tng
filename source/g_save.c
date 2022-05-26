@@ -566,7 +566,6 @@ void InitGame( void )
 	// items
 	InitItems();
 
-
 	// initialize all clients for this game
 	game.maxclients = (int)maxclients->value;
 	game.clients = gi.TagMalloc( game.maxclients * sizeof(game.clients[0]), TAG_GAME );
