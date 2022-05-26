@@ -125,7 +125,8 @@ jobs:
           mkdir -p ${{ env.WIN32_DIST_DIR }}
 
       - name: Download Linux x86_64 TNG artifacts
-        uses: dawidd6/action-download-artifact@v2
+        uses: dawidd6/action-download-artifact@
+        workflow: build.yaml
         with:
           name: tng-lin-x86_64
           path: ${{ env.LIN64_DIST_DIR }}/
@@ -133,18 +134,21 @@ jobs:
       - name: Download Linux ARM64 TNG artifacts
         uses: dawidd6/action-download-artifact@v2
         with:
+          workflow: build.yaml
           name: tng-lin-arm64
           path: ${{ env.LINARM64_DIST_DIR }}/
 
       - name: Download Windows x86_64 TNG artifacts
         uses: dawidd6/action-download-artifact@v2
         with:
+          workflow: build.yaml
           name: tng-win-64
           path: ${{ env.WIN64_DIST_DIR }}/
 
       - name: Download Windows i386 TNG artifacts
         uses: dawidd6/action-download-artifact@v2
         with:
+          workflow: build.yaml
           name: tng-win-32
           path: ${{ env.WIN32_DIST_DIR }}/
 
