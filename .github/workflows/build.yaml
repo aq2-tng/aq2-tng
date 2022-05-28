@@ -2,7 +2,9 @@ name: TNG Build
 
 on:
   push:
-    branches: ["master", "aqtion"]
+    branches: [master, aqtion]
+  pull_request:
+    branches: [master, aqtion]
 
 env:
   LIN64_DIST_DIR: "linux-x64-tng"
