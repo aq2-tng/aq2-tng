@@ -1965,6 +1965,13 @@ int WonGame (int winner)
 				gi.sound(&g_edicts[0], CHAN_VOICE | CHAN_NO_PHS_ADD, level.snd_teamwins[winner], 1.0, ATTN_NONE, 0.0);
 			// end of changing sound dir
 			teams[winner].score++;
+
+			#ifdef AQTION_EXTENSION
+			Ghud_SetFlags(teams[winner].ghud_icon, GHF_BLINK);
+			Ghud_SetFlags(teams[winner].ghud_num, GHF_BLINK);
+			teams[winner].ghud_resettime = level.time + 3;
+			#endif
+
 			gi.cvar_forceset(teams[winner].teamscore->name, va("%i", teams[winner].score));
 
 			PrintScores ();

@@ -887,6 +887,13 @@ void CheckDMRules (void)
 			if (teams[i].ghud_num <= 0)
 				continue;
 
+			if (teams[i].ghud_resettime && level.time > teams[i].ghud_resettime)
+			{
+				teams[i].ghud_resettime = 0;
+				Ghud_SetFlags(teams[i].ghud_icon, 0);
+				Ghud_SetFlags(teams[i].ghud_num, 0);
+			}
+
 			Ghud_SetInt(teams[i].ghud_num, teams[i].score);
 		}
 #endif

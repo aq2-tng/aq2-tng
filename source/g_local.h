@@ -2089,6 +2089,7 @@ typedef struct team_s
 	edict_t	*captain;
 
 #ifdef AQTION_EXTENSION
+	int	 ghud_resettime;
 	byte ghud_icon;
 	byte ghud_num;
 #endif
