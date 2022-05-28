@@ -8,7 +8,6 @@
 #include "g_local.h"
 #include "q_ghud.h"
 
-
 #ifdef AQTION_EXTENSION
 //
 // Reki
@@ -227,7 +226,15 @@ void Ghud_SetPosition(int i, int x, int y)
 	if (!engine_Ghud_SetPosition)
 		return;
 
-	engine_Ghud_SetPosition(i, x, y);
+	engine_Ghud_SetPosition(i, x, y, 0);
+}
+
+void Ghud_SetPosition3D(int i, int x, int y, int z)
+{
+	if (!engine_Ghud_SetPosition)
+		return;
+
+	engine_Ghud_SetPosition(i, x, y, z);
 }
 
 void Ghud_SetSize(int i, int x, int y)
