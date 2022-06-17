@@ -348,6 +348,7 @@ cvar_t *maxclients;
 cvar_t *maxentities;
 cvar_t *g_select_empty;
 cvar_t *dedicated;
+cvar_t *steamid;
 cvar_t *filterban;
 cvar_t *sv_maxvelocity;
 cvar_t *sv_gravity;
