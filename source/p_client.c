@@ -1363,12 +1363,38 @@ void LookAtKiller(edict_t * self, edict_t * inflictor, edict_t * attacker)
 
 /*
 ==================
+LogKill
+=================
+*/
+void LogKill(edict_t *self, edict_t *inflictor, edict_t *attacker)
+{
+	char *player;
+	char *killer;
+	int mod;
+	int loc;
+
+	if (team_round_going)
+	{
+		player = self->client->pers.userinfo;
+		killer = attacker->client->pers.userinfo;
+
+		mod = meansOfDeath & ~MOD_FRIENDLY_FIRE;
+		loc = locOfDeath;
+
+		Com_Printf("!stat|%s|%s|%i|%i\n", player, killer, mod, loc);
+	}
+}
+
+/*
+==================
 player_die
 ==================
 */
 void player_die(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, vec3_t point)
 {
 	int n, mod;
+
+	LogKill(self, inflictor, attacker);
 
 	VectorClear(self->avelocity);
 
