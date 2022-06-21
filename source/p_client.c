@@ -1361,6 +1361,44 @@ void LookAtKiller(edict_t * self, edict_t * inflictor, edict_t * attacker)
 		self->client->killer_yaw += 360;
 }
 
+int *Gamemode()
+{
+	int gamemode = 0;
+	if (teamplay->value)
+	{
+		gamemode = 1;
+	}
+	if (teamdm->value)
+	{
+		gamemode = 2;
+	}
+	if (ctf->value)
+	{
+		gamemode = 3;
+	}
+	if (use_3teams->value)
+	{
+		gamemode = 4;
+	}
+	if (dom->value)
+	{
+		gamemode = 5;
+	}
+	if (darkmatch->value)
+	{
+		gamemode = 6;
+	}
+	if (matchmode->value)
+	{
+		gamemode = 7;
+	}
+	if (use_tourney->value)
+	{
+		gamemode = 8;
+	}
+	return gamemode;
+}
+
 /*
 ==================
 LogKill
@@ -1368,20 +1406,89 @@ LogKill
 */
 void LogKill(edict_t *self, edict_t *inflictor, edict_t *attacker)
 {
-	char *player;
-	char *killer;
 	int mod;
 	int loc;
+	int gamemode;
+	char msg[1024];
+	char v[24];
+	char vn[24];
+	char vi[24];
+	char k[24];
+	char kn[24];
+	char ki[24];
+
+	/*
+{
+    "frag": {
+        "sid": "AKIAZXXXXDPT32CRFR6327910",
+        "mid": "2C16CC41-1125-4426-AC4E-DE48002EC6A0,
+        "v": 76561111960862711,
+        "vn": "KaniZ",
+        "vi": "11.22.33.44",
+        "vt": 1,
+        "k": 73562211920862722,
+        "kn": "somen00b",
+        "ki": "55.66.77.88",
+        "kt": 2,
+        "w": 3,
+        "i": 0,
+        "l": 1,
+        "ks": 2,
+        "gm": 1,
+        "ttk": 17
+    }
+}
+	*/
+
+	/*\fov\90
+	\gender\male
+	\hand\0
+	\msg\1
+	\name\> F < KaniZ
+	\rate\25000
+	\skin\male/ctf_r
+	\spectator\0
+	\ip\172.19.0.1:58554
+	\version\q2pro r1861~5917c5f Feb 17 2020 Win32
+	*/
 
 	if (team_round_going)
 	{
-		player = self->client->pers.userinfo;
-		killer = attacker->client->pers.userinfo;
-
 		mod = meansOfDeath & ~MOD_FRIENDLY_FIRE;
 		loc = locOfDeath;
 
-		Com_Printf("!stat|%s|%s|%i|%i\n", player, killer, mod, loc);
+		gamemode = Gamemode();
+		
+		strcpy(v, Info_ValueForKey(self->client->pers.userinfo, "steamid"));
+		strcpy(vn, Info_ValueForKey(self->client->pers.userinfo, "name"));
+		strcpy(vi, Info_ValueForKey(self->client->pers.userinfo, "ip"));
+		strcpy(k, Info_ValueForKey(self->client->pers.userinfo, "steamid"));
+		strcpy(kn, Info_ValueForKey(attacker->client->pers.userinfo, "name"));
+		strcpy(ki, Info_ValueForKey(attacker->client->pers.userinfo, "ip"));
+
+
+		strcpy(
+			msg,
+			"{\"v\":\"%s\",\"vn\":\"%s\",\"vi\":\"%s\",\"vt\":%i,\"k\":\"%s\",\"kn\":\"%s\",\"ki\":\"%s\",\"kt\":%i,\"w\":%i,\"l\":%i,\"ks\":%i,\"gm\":%i,\"ttk\":\"%s\"\"m\":\"%s\"}\n"
+		);
+
+		Com_Printf(
+			msg,
+			v,
+			vn,
+			vi,
+			self->client->resp.team,
+			k,
+			kn,
+			ki,
+			attacker->client->resp.team,
+			mod,
+			loc,
+			attacker->client->resp.streakKills + 1,
+			gamemode,
+			level.matchTime,
+			level.mapname
+		);
 	}
 }
 
