@@ -1409,6 +1409,7 @@ void LogKill(edict_t *self, edict_t *inflictor, edict_t *attacker)
 	int mod;
 	int loc;
 	int gamemode;
+	int gametime = 0;
 	char msg[1024];
 	char v[24];
 	char vn[24];
@@ -1466,27 +1467,34 @@ void LogKill(edict_t *self, edict_t *inflictor, edict_t *attacker)
 		strcpy(kn, Info_ValueForKey(attacker->client->pers.userinfo, "name"));
 		strcpy(ki, Info_ValueForKey(attacker->client->pers.userinfo, "ip"));
 
+		gametime = level.matchTime;
 
 		strcpy(
 			msg,
-			"{\"v\":\"%s\",\"vn\":\"%s\",\"vi\":\"%s\",\"vt\":%i,\"k\":\"%s\",\"kn\":\"%s\",\"ki\":\"%s\",\"kt\":%i,\"w\":%i,\"l\":%i,\"ks\":%i,\"gm\":%i,\"ttk\":\"%s\"\"m\":\"%s\"}\n"
+			"{\"frag\":{\"sid\":\"%s\",\"mid\":\"%s\",\"v\":\"%s\",\"vn\":\"%s\",\"vi\":\"%s\",\"vt\":%i,\"vl\":%i,\"k\":\"%s\",\"kn\":\"%s\",\"ki\":\"%s\",\"kt\":%i,\"kl\":%i,\"w\":%i,\"i\":%i,\"l\":%i,\"ks\":%i,\"gm\":%i,\"ttk\":\"%d\",\"gt\":%d,\"m\":\"%s\"}}\n"
 		);
 
 		Com_Printf(
 			msg,
+			server_id->string,
+			"", // match id placeholder
 			v,
 			vn,
 			vi,
 			self->client->resp.team,
+			0, // leader placeholder
 			k,
 			kn,
 			ki,
 			attacker->client->resp.team,
+			0, // leader placeholder
 			mod,
+			attacker->client->pers.chosenItem->typeNum,
 			loc,
 			attacker->client->resp.streakKills + 1,
 			gamemode,
-			level.matchTime,
+			current_round_length / 10,
+			gametime,
 			level.mapname
 		);
 	}

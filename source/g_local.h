@@ -1123,7 +1123,9 @@ extern cvar_t *e_enhancedSlippers;
 
 // END AQ2 ETE
 
+// 2022
 extern cvar_t *sv_limp_highping;
+extern cvar_t *server_id;
 
 #define world   (&g_edicts[0])
 
