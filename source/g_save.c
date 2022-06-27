@@ -341,6 +341,7 @@ void InitGame( void )
 	sv_gravity = gi.cvar( "sv_gravity", "800", 0 );
 
 	dedicated = gi.cvar( "dedicated", "0", CVAR_NOSET );
+	steamid = gi.cvar( "steamid", "0", CVAR_NOSET );
 
 	sv_cheats = gi.cvar( "cheats", "0", CVAR_SERVERINFO | CVAR_LATCH );
 	gi.cvar( "gamename", GAMEVERSION, CVAR_SERVERINFO | CVAR_NOSET );
