@@ -1509,7 +1509,7 @@ void player_die(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage
 {
 	int n, mod;
 
-	if (kill_logs->value) {
+	if (stat_logs->value) {
 		LogKill(self, inflictor, attacker);
 	}
 

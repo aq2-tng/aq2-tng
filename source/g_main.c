@@ -482,7 +482,7 @@ cvar_t *e_enhancedSlippers;
 // 2022
 cvar_t *sv_limp_highping;
 cvar_t *server_id;
-cvar_t *kill_logs;
+cvar_t *stat_logs;
 
 void SpawnEntities (char *mapname, char *entities, char *spawnpoint);
 void ClientThink (edict_t * ent, usercmd_t * cmd);
