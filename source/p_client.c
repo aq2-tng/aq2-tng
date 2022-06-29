@@ -1509,7 +1509,9 @@ void player_die(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage
 {
 	int n, mod;
 
-	LogKill(self, inflictor, attacker);
+	if (kill_logs->value) {
+		LogKill(self, inflictor, attacker);
+	}
 
 	VectorClear(self->avelocity);
 
