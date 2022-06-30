@@ -1410,6 +1410,7 @@ void LogKill(edict_t *self, edict_t *inflictor, edict_t *attacker)
 	int loc;
 	int gamemode;
 	int gametime = 0;
+	int vt,kt,ttk = 0; //Default team is 0 (no team) and TTK is 0 by default
 	char msg[1024];
 	char v[24];
 	char vn[24];
@@ -1459,6 +1460,13 @@ void LogKill(edict_t *self, edict_t *inflictor, edict_t *attacker)
 		loc = locOfDeath;
 
 		gamemode = Gamemode();
+
+		if (gamemode != 0) // Define these if the game is not Deathmatch
+		{
+			vt = self->client->resp.team;
+			kt = attacker->client->resp.team;
+			ttk = current_round_length / 10;
+		}
 		
 		strcpy(v, Info_ValueForKey(self->client->pers.userinfo, "steamid"));
 		strcpy(vn, Info_ValueForKey(self->client->pers.userinfo, "name"));
@@ -1481,19 +1489,19 @@ void LogKill(edict_t *self, edict_t *inflictor, edict_t *attacker)
 			v,
 			vn,
 			vi,
-			self->client->resp.team,
+			vt,
 			0, // leader placeholder
 			k,
 			kn,
 			ki,
-			attacker->client->resp.team,
+			kt,
 			0, // leader placeholder
 			mod,
 			attacker->client->pers.chosenItem->typeNum,
 			loc,
 			attacker->client->resp.streakKills + 1,
 			gamemode,
-			current_round_length / 10,
+			ttk,
 			gametime,
 			level.mapname
 		);
