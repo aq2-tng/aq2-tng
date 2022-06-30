@@ -1410,14 +1410,18 @@ void LogKill(edict_t *self, edict_t *inflictor, edict_t *attacker)
 	int loc;
 	int gamemode;
 	int gametime = 0;
-	int vt,kt,ttk = 0; //Default team is 0 (no team) and TTK is 0 by default
+	int vt = 0; //Default victim team is 0 (no team)
+	int kt = 0; //Default killer team is 0 (no team)
+	int ttk = 0; //Default TTK (time to kill) is 0
 	char msg[1024];
 	char v[24];
 	char vn[24];
-	char vi[24];
+	char vip[24];
+	char *vi;
 	char k[24];
 	char kn[24];
-	char ki[24];
+	char kip[24];
+	char *ki;
 
 	/*
 {
@@ -1470,10 +1474,15 @@ void LogKill(edict_t *self, edict_t *inflictor, edict_t *attacker)
 		
 		strcpy(v, Info_ValueForKey(self->client->pers.userinfo, "steamid"));
 		strcpy(vn, Info_ValueForKey(self->client->pers.userinfo, "name"));
-		strcpy(vi, Info_ValueForKey(self->client->pers.userinfo, "ip"));
+		strcpy(vip, Info_ValueForKey(self->client->pers.userinfo, "ip"));
 		strcpy(k, Info_ValueForKey(self->client->pers.userinfo, "steamid"));
 		strcpy(kn, Info_ValueForKey(attacker->client->pers.userinfo, "name"));
-		strcpy(ki, Info_ValueForKey(attacker->client->pers.userinfo, "ip"));
+		strcpy(kip, Info_ValueForKey(attacker->client->pers.userinfo, "ip"));
+
+		// Separate IP from Port
+		char* portSeperator = ":";
+		vi = strtok(vip, portSeperator);
+		ki = strtok(kip, portSeperator);
 
 		gametime = level.matchTime;
 
