@@ -1453,7 +1453,7 @@ void LogKill(edict_t *self, edict_t *inflictor, edict_t *attacker)
 	\version\q2pro r1861~5917c5f Feb 17 2020 Win32
 	*/
 
-	if (team_round_going)
+	if (team_round_going || (deathmatch->value && !teamplay->value) // If round is active OR if deathmatch=1 and teamplay=0
 	{
 		mod = meansOfDeath & ~MOD_FRIENDLY_FIRE;
 		loc = locOfDeath;
@@ -1509,9 +1509,9 @@ void player_die(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage
 {
 	int n, mod;
 
-	//if (stat_logs->value) {
-	LogKill(self, inflictor, attacker);
-	//}
+	if (stat_logs->value) {
+	  LogKill(self, inflictor, attacker);
+	}
 
 	VectorClear(self->avelocity);
 
