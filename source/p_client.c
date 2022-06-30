@@ -1461,7 +1461,7 @@ void LogKill(edict_t *self, edict_t *inflictor, edict_t *attacker)
 
 		gamemode = Gamemode();
 
-		if (gamemode != 0) // Define these if the game is not Deathmatch
+		if (gameSettings & GS_TEAMPLAY) // Define these if the game is teamplay
 		{
 			vt = self->client->resp.team;
 			kt = attacker->client->resp.team;
