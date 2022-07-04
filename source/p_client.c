@@ -776,6 +776,9 @@ void ClientObituary(edict_t * self, edict_t * inflictor, edict_t * attacker)
 			PrintDeathMessage(death_msg, self);
 			IRC_printf(IRC_T_KILL, death_msg);
 			AddKilledPlayer(self->client->attacker, self);
+			if (stat_logs->value) {
+				LogKill(self, inflictor, attacker);
+			}
 			self->client->attacker->client->radio_num_kills++;
 
 			//MODIFIED FOR FF -FB
@@ -807,6 +810,10 @@ void ClientObituary(edict_t * self, edict_t * inflictor, edict_t * attacker)
 			}
 
 			self->enemy = NULL;
+
+			if (stat_logs->value) {
+				LogKill(self, inflictor, NULL);
+			}
 		}
 		return;
 	}
@@ -1139,6 +1146,9 @@ void ClientObituary(edict_t * self, edict_t * inflictor, edict_t * attacker)
 			PrintDeathMessage(death_msg, self);
 			IRC_printf(IRC_T_KILL, death_msg);
 			AddKilledPlayer(attacker, self);
+			if (stat_logs->value) {
+				LogKill(self, inflictor, attacker);
+			}
 
 			if (friendlyFire) {
 				if (!teamplay->value || team_round_going || !ff_afterround->value)
@@ -1163,6 +1173,9 @@ void ClientObituary(edict_t * self, edict_t * inflictor, edict_t * attacker)
 	sprintf(death_msg, "%s died\n", self->client->pers.netname);
 	PrintDeathMessage(death_msg, self);
 	IRC_printf(IRC_T_DEATH, death_msg);
+	if (stat_logs->value) {
+		LogKill(self, inflictor, attacker);
+	}
 
 	Subtract_Frag(self);	//self->client->resp.score--;
 	Add_Death( self, true );
@@ -1525,10 +1538,6 @@ player_die
 void player_die(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, vec3_t point)
 {
 	int n, mod;
-
-	if (stat_logs->value) {
-	  LogKill(self, inflictor, attacker);
-	}
 
 	VectorClear(self->avelocity);
 
