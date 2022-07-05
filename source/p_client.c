@@ -616,7 +616,7 @@ void player_pain(edict_t * self, edict_t * other, float kick, int damage)
 // ^^^
 
 
-int *Gamemode() // These are distinct game modes; you cannot have a teamdm tourney mode, for example
+void *Gamemode() // These are distinct game modes; you cannot have a teamdm tourney mode, for example
 {
 	// Default gamemode
 	int gamemode = 0;
@@ -644,7 +644,7 @@ int *Gamemode() // These are distinct game modes; you cannot have a teamdm tourn
 	return (void *)gamemode;
 }
 
-int *Gamemodeflag() // These are gamemode flags that change the rules of gamemodes.  For example, you can have a darkmatch matchmode teamplay match
+void *Gamemodeflag() // These are gamemode flags that change the rules of gamemodes.  For example, you can have a darkmatch matchmode teamplay match
 {
 	// Default has no flags
 	int gamemodeflag = 0;
@@ -728,7 +728,7 @@ void LogKill(edict_t *self, edict_t *inflictor, edict_t *attacker)
 	\version\q2pro r1861~5917c5f Feb 17 2020 Win32
 	*/
 
-	if (team_round_going && !in_warmup || (gameSettings & GS_DEATHMATCH)) // If round is active OR if deathmatch
+	if ((team_round_going && !in_warmup) || (gameSettings & GS_DEATHMATCH)) // If round is active OR if deathmatch
 	{
 		mod = meansOfDeath & ~MOD_FRIENDLY_FIRE;
 		loc = locOfDeath;
@@ -840,7 +840,7 @@ void LogWorldKill(edict_t *self)
 	\version\q2pro r1861~5917c5f Feb 17 2020 Win32
 	*/
 
-	if (team_round_going && !in_warmup || (gameSettings & GS_DEATHMATCH)) // If round is active OR if deathmatch
+	if ((team_round_going && !in_warmup) || (gameSettings & GS_DEATHMATCH)) // If round is active OR if deathmatch
 	{
 		mod = meansOfDeath & ~MOD_FRIENDLY_FIRE;
 		loc = locOfDeath;
