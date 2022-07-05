@@ -641,7 +641,7 @@ int *Gamemode() // These are distinct game modes; you cannot have a teamdm tourn
 	{
 		gamemode = 4;
 	}
-	return gamemode;
+	return (void *)gamemode;
 }
 
 int *Gamemodeflag() // These are gamemode flags that change the rules of gamemodes.  For example, you can have a darkmatch matchmode teamplay match
@@ -665,7 +665,7 @@ int *Gamemodeflag() // These are gamemode flags that change the rules of gamemod
 	{
 		gamemodeflag = 16;
 	}
-	return gamemodeflag;
+	return (void *)gamemodeflag;
 }
 
 /*
