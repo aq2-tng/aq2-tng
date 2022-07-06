@@ -319,7 +319,16 @@
 #include "g_local.h"
 #include "m_player.h"
 #include "cgf_sfx_glass.h"
+#include <uuid/uuid.h>
 
+char *generate_uuid(void) {
+    uuid_t binuuid;
+    uuid_generate_random(binuuid);
+    char *uuid = malloc(37);
+
+    uuid_unparse_lower(binuuid, uuid);
+    return uuid;
+}
 
 static void FreeClientEdicts(gclient_t *client)
 {
@@ -616,7 +625,7 @@ void player_pain(edict_t * self, edict_t * other, float kick, int damage)
 // ^^^
 
 
-void *Gamemode() // These are distinct game modes; you cannot have a teamdm tourney mode, for example
+int Gamemode(void) // These are distinct game modes; you cannot have a teamdm tourney mode, for example
 {
 	// Default gamemode
 	int gamemode = 0;
@@ -641,31 +650,34 @@ void *Gamemode() // These are distinct game modes; you cannot have a teamdm tour
 	{
 		gamemode = 4;
 	}
-	return (void *)gamemode;
+	return gamemode;
 }
 
-void *Gamemodeflag() // These are gamemode flags that change the rules of gamemodes.  For example, you can have a darkmatch matchmode teamplay match
+int Gamemodeflag(void) // These are gamemode flags that change the rules of gamemodes.  For example, you can have a darkmatch matchmode 3team teamplay match
 {
-	// Default has no flags
 	int gamemodeflag = 0;
+	#define USE_3TEAMS 1
+	#define USE_DOM 2
+	#define USE_DARK 4
+	#define USE_MM 8
 
 	if (use_3teams->value)
 	{
-		gamemodeflag = 2;
+		gamemodeflag += USE_3TEAMS;
 	}
 	if (dom->value)
 	{
-		gamemodeflag = 4;
+		gamemodeflag += USE_DOM;
 	}
 	if (darkmatch->value)
 	{
-		gamemodeflag = 8;
+		gamemodeflag += USE_DARK;
 	}
 	if (matchmode->value)
 	{
-		gamemodeflag = 16;
+		gamemodeflag += USE_MM;
 	}
-	return (void *)gamemodeflag;
+	return gamemodeflag;
 }
 
 /*
@@ -845,7 +857,7 @@ void LogWorldKill(edict_t *self)
 		mod = meansOfDeath & ~MOD_FRIENDLY_FIRE;
 		loc = locOfDeath;
 
-		if (gameSettings & GS_TEAMPLAY) // Define these if the game is teamplay
+		if (gameSettings & GS_TEAMPLAY) // Define these if the game is teamplay, else default to 0
 		{
 			vt = self->client->resp.team;
 			ttk = current_round_length / 10;
@@ -869,7 +881,7 @@ void LogWorldKill(edict_t *self)
 		Com_Printf(
 			msg,
 			server_id->string,
-			"", // match id placeholder
+			generate_uuid(), // match id placeholder
 			v,
 			vn,
 			vi,
@@ -1054,7 +1066,7 @@ void ClientObituary(edict_t * self, edict_t * inflictor, edict_t * attacker)
 			PrintDeathMessage(death_msg, self);
 			IRC_printf(IRC_T_KILL, death_msg);
 			AddKilledPlayer(self->client->attacker, self);
-			if (stat_logs->value) {
+			if (stat_logs->value && !ltk_loadbots->value) { // Only create stats logs if stat_logs is 1 and ltk_loadbots is 0
 				LogKill(self, inflictor, attacker);
 			}
 			self->client->attacker->client->radio_num_kills++;
@@ -1089,7 +1101,7 @@ void ClientObituary(edict_t * self, edict_t * inflictor, edict_t * attacker)
 
 			self->enemy = NULL;
 
-			if (stat_logs->value) {
+			if (stat_logs->value && !ltk_loadbots->value) { // Only create stats logs if stat_logs is 1 and ltk_loadbots is 0
 				LogWorldKill(self);
 			}
 		}
@@ -1424,7 +1436,7 @@ void ClientObituary(edict_t * self, edict_t * inflictor, edict_t * attacker)
 			PrintDeathMessage(death_msg, self);
 			IRC_printf(IRC_T_KILL, death_msg);
 			AddKilledPlayer(attacker, self);
-			if (stat_logs->value) {
+			if (stat_logs->value && !ltk_loadbots->value) { // Only create stats logs if stat_logs is 1 and ltk_loadbots is 0
 				LogKill(self, inflictor, attacker);
 			}
 
@@ -1451,7 +1463,7 @@ void ClientObituary(edict_t * self, edict_t * inflictor, edict_t * attacker)
 	sprintf(death_msg, "%s died\n", self->client->pers.netname);
 	PrintDeathMessage(death_msg, self);
 	IRC_printf(IRC_T_DEATH, death_msg);
-	if (stat_logs->value) {
+	if (stat_logs->value && !ltk_loadbots->value) { // Only create stats logs if stat_logs is 1 and ltk_loadbots is 0
 		LogKill(self, inflictor, attacker);
 	}
 
