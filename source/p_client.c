@@ -319,16 +319,6 @@
 #include "g_local.h"
 #include "m_player.h"
 #include "cgf_sfx_glass.h"
-#include <uuid/uuid.h>
-
-char *generate_uuid(void) {
-    uuid_t binuuid;
-    uuid_generate_random(binuuid);
-    char *uuid = malloc(37);
-
-    uuid_unparse_lower(binuuid, uuid);
-    return uuid;
-}
 
 static void FreeClientEdicts(gclient_t *client)
 {
@@ -627,33 +617,30 @@ void player_pain(edict_t * self, edict_t * other, float kick, int damage)
 
 int Gamemode(void) // These are distinct game modes; you cannot have a teamdm tourney mode, for example
 {
-	// Default gamemode
 	int gamemode = 0;
+	#define TEAMPLAY 0
+	#define TEAMDM 1
+	#define CTF 2
+	#define TOURNEY 3
+	#define DEATHMATCH 4
 
-	if (teamplay->value)
-	{
-		gamemode = 0;
-	}
-	else if (teamdm->value)
-	{
-		gamemode = 1;
-	}
-	else if (ctf->value)
-	{
-		gamemode = 2;
-	}
-	else if (use_tourney->value)
-	{
-		gamemode = 3;
-	}
-	else if (deathmatch->value)
-	{
-		gamemode = 4;
+	if (teamplay->value) {
+		gamemode = TEAMPLAY;
+	} else if (teamdm->value) {
+		gamemode = TEAMDM;
+	} else if (ctf->value) {
+		gamemode = CTF;
+	} else if (use_tourney->value) {
+		gamemode = TOURNEY;
+	} else if (deathmatch->value) {
+		gamemode = DEATHMATCH;
 	}
 	return gamemode;
 }
 
-int Gamemodeflag(void) // These are gamemode flags that change the rules of gamemodes.  For example, you can have a darkmatch matchmode 3team teamplay match
+int Gamemodeflag(void) 
+// These are gamemode flags that change the rules of gamemodes.
+// For example, you can have a darkmatch matchmode 3team teamplay server
 {
 	int gamemodeflag = 0;
 	#define USE_3TEAMS 1
@@ -661,20 +648,16 @@ int Gamemodeflag(void) // These are gamemode flags that change the rules of game
 	#define USE_DARK 4
 	#define USE_MM 8
 
-	if (use_3teams->value)
-	{
+	if (use_3teams->value) {
 		gamemodeflag += USE_3TEAMS;
 	}
-	if (dom->value)
-	{
+	if (dom->value) {
 		gamemodeflag += USE_DOM;
 	}
-	if (darkmatch->value)
-	{
+	if (darkmatch->value) {
 		gamemodeflag += USE_DARK;
 	}
-	if (matchmode->value)
-	{
+	if (matchmode->value) {
 		gamemodeflag += USE_MM;
 	}
 	return gamemodeflag;
@@ -774,7 +757,7 @@ void LogKill(edict_t *self, edict_t *inflictor, edict_t *attacker)
 		Com_Printf(
 			msg,
 			server_id->string,
-			"", // match id placeholder
+			level.match_id,
 			v,
 			vn,
 			vi,
@@ -881,7 +864,7 @@ void LogWorldKill(edict_t *self)
 		Com_Printf(
 			msg,
 			server_id->string,
-			generate_uuid(), // match id placeholder
+			level.match_id,
 			v,
 			vn,
 			vi,

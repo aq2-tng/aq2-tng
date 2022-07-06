@@ -741,6 +741,8 @@ typedef struct
 
   char mapname[MAX_QPATH];	// the server name (base1, etc)
 
+  char match_id[MAX_QPATH]; // Generated uuid for each match
+
   char nextmap[MAX_QPATH];	// go here when fraglimit is hit
   //+
 
