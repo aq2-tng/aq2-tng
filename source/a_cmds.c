@@ -1227,7 +1227,7 @@ void generate_uuid()
     char uuid[MAX_QPATH];
     uuid_unparse_lower(binuuid, uuid);
     strncpy(game.matchid, uuid, MAX_QPATH);
-    gi.dprintf("%s\n", match_id);
+    gi.dprintf("%s\n", game.matchid);
     //strncpy(game.matchid, uuid, MAX_QPATH);
 }
 
