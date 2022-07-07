@@ -1219,14 +1219,14 @@ void Cmd_Ghost_f(edict_t * ent)
 	num_ghost_players--;
 }
 
-char *generate_uuid(void) {
+void generate_uuid() {
     uuid_t binuuid;
     uuid_generate_random(binuuid);
     char *uuid = malloc(37);
 
     uuid_unparse_lower(binuuid, uuid);
 
-	return level.match_id;
+	strcpy(match_id, uuid);
 }
 
 #ifndef NO_BOTS

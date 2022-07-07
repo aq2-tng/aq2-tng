@@ -1129,6 +1129,7 @@ extern cvar_t *e_enhancedSlippers;
 // 2022
 extern cvar_t *sv_limp_highping;
 extern cvar_t *server_id;
+extern cvar_t *match_id;
 extern cvar_t *stat_logs;
 
 #define world   (&g_edicts[0])
@@ -1384,7 +1385,7 @@ void ED_CallSpawn( edict_t *ent );
 char* ED_NewString(char* string);
 void G_UpdateSpectatorStatusbar( void );
 void G_UpdatePlayerStatusbar( edict_t *ent, int force );
-char* generate_uuid();
+void generate_uuid();
 
 //
 // p_client.c
