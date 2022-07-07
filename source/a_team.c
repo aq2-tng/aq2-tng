@@ -2299,8 +2299,6 @@ void A_Scoreboard (edict_t * ent)
 		ent->client->ps.stats[STAT_TEAM2_SCORE] = teams[TEAM2].score;
 		if (teamCount == 3)
 			ent->client->ps.stats[STAT_TEAM3_SCORE] = teams[TEAM3].score;
-
-		LogMatch();  // Generate match logs
 	}
 }
 
@@ -2949,6 +2947,7 @@ void TallyEndOfLevelTeamScores (void)
 
 		teams[game.clients[i].resp.team].total += game.clients[i].resp.score;
 	}
+	LogMatch();  // Generate match logs
 }
 
 
