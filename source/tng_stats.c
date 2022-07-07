@@ -311,14 +311,9 @@ void Cmd_Stats_f (edict_t *targetent, char *arg)
 	gi.cprintf(targetent, PRINT_HIGH, "Highest streaks:  kills: %d headshots: %d\n", ent->client->resp.streakKillsHighest, ent->client->resp.streakHSHighest);
 }
 
-void A_StatPrinter (int score, char name, int shots, float accuracy, float fpm)
+void A_StatPrinter (int score, char name[16], int shots, float accuracy, float fpm)
 {
 	char msg[1024];
-	int score;
-	char name[16];
-	int shots;
-	float accuracy;
-	float fpm;
 
 	strcpy(
 			msg,
