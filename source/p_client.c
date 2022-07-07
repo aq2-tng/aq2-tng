@@ -738,7 +738,7 @@ void LogKill(edict_t *self, edict_t *inflictor, edict_t *attacker)
 		strcpy(v, Info_ValueForKey(self->client->pers.userinfo, "steamid"));
 		strcpy(vn, Info_ValueForKey(self->client->pers.userinfo, "name"));
 		strcpy(vip, Info_ValueForKey(self->client->pers.userinfo, "ip"));
-		strcpy(k, Info_ValueForKey(self->client->pers.userinfo, "steamid"));
+		strcpy(k, Info_ValueForKey(attacker->client->pers.userinfo, "steamid"));
 		strcpy(kn, Info_ValueForKey(attacker->client->pers.userinfo, "name"));
 		strcpy(kip, Info_ValueForKey(attacker->client->pers.userinfo, "ip"));
 
