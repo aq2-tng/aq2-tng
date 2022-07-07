@@ -900,6 +900,7 @@ void LogAward(edict_t *self, int award)
 	int gametime = 0;
 	char msg[1024];
 	int mod;
+	char steamid[24];
 	mod = meansOfDeath & ~MOD_FRIENDLY_FIRE;
 
 	gi.dprintf("%s Broken\n", __func__);
