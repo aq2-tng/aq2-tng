@@ -907,6 +907,8 @@ void LogAward(edict_t *self, int award)
 	gi.dprintf("%s Broken\n", __func__);
 	gametime = level.matchTime;
 
+	strcpy(steamid, Info_ValueForKey(self->client->pers.userinfo, "steamid"));
+
 	strcpy(
 		msg,
 		"{\"award\":{\"sid\":\"%s\",\"mid\":\"%s\",\"t\":\"%s\",\"a\":%i,\"k\":%i,\"w\":\"%i\"}}\n"
