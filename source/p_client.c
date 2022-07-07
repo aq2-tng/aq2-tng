@@ -370,6 +370,7 @@ void Add_Frag(edict_t * ent, int mod)
 				CenterPrintAll(buf);
 				gi.sound(&g_edicts[0], CHAN_VOICE | CHAN_NO_PHS_ADD,
 					 gi.soundindex("tng/impressive.wav"), 1.0, ATTN_NONE, 0.0);
+				LogAward(Info_ValueForKey(ent->client->pers.userinfo, "steamid"), IMPRESSIVE);
 			}
 			else if (ent->client->resp.streakKills % 12 == 0 && use_rewards->value)
 			{
@@ -377,6 +378,7 @@ void Add_Frag(edict_t * ent, int mod)
 				CenterPrintAll(buf);
 				gi.sound(&g_edicts[0], CHAN_VOICE | CHAN_NO_PHS_ADD,
 					 gi.soundindex("tng/excellent.wav"), 1.0, ATTN_NONE, 0.0);
+				LogAward(Info_ValueForKey(ent->client->pers.userinfo, "steamid"), EXCELLENT);
 			}
 		}
 
@@ -885,6 +887,39 @@ void LogMatch()
 		t1,
 		t2,
 		t3
+	);
+}
+
+/*
+==================
+LogMatch
+=================
+*/
+void LogAward(char steamid, int a)
+{
+	int gametime = 0;
+	char msg[1024];
+	char steamid[24];
+	int a;
+	int mod;
+	mod = meansOfDeath & ~MOD_FRIENDLY_FIRE;
+
+	gi.dprintf("%s Broken\n", __func__);
+	gametime = level.matchTime;
+
+	strcpy(
+		msg,
+		"{\"award\":{\"sid\":\"%s\",\"mid\":\"%s\",\"t\":\"%s\",\"a\":%i,\"k\":%i,\"w\":\"%i\"}}\n"
+	);
+
+	Com_Printf(
+		msg,
+		server_id->string,
+		game.matchid,
+		gametime,
+		a,
+		steamid,
+		mod
 	);
 }
 

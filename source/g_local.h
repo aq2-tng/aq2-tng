@@ -923,6 +923,11 @@ extern int sm_meat_index;
 #define LOC_NO			7	// Shot by shotgun or handcannon
 #define LOC_MAX			8
 
+// Awards
+#define ACCURACY 0
+#define IMPRESSIVE 1
+#define EXCELLENT 2
+
 extern int meansOfDeath;
 // zucc for hitlocation of death
 extern int locOfDeath;
@@ -1399,6 +1404,7 @@ void ClientUserinfoChanged(edict_t* ent, char* userinfo);
 void ClientDisconnect(edict_t* ent);
 void CopyToBodyQue(edict_t* ent);
 void LogMatch();
+void LogAward(char steamid, int a);
 
 //p_weapon.c
 void Weapon_Generic( edict_t * ent, int FRAME_ACTIVATE_LAST, int FRAME_FIRE_LAST,
