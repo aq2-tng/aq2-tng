@@ -554,7 +554,6 @@ void InitGame( void )
 	sv_antilag_interp = gi.cvar("sv_antilag_interp", "0", CVAR_SERVERINFO);
 	sv_limp_highping = gi.cvar("sv_limp_highping", "70", CVAR_SERVERINFO);
 	server_id = gi.cvar( "server_id", "", CVAR_SERVERINFO );
-	match_id = gi.cvar("match_id", "0", CVAR_NOSET);
 	stat_logs = gi.cvar( "stat_logs", "0", 0);
 
 #ifndef NO_BOTS
