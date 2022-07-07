@@ -1221,13 +1221,37 @@ void Cmd_Ghost_f(edict_t * ent)
 
 void generate_uuid()
 {
-    uuid_t binuuid;
-    uuid_generate_random(binuuid);
+#ifdef WIN32
+    UUID uuid;
+    unsigned char* uuidStr;
 
-    char uuid[MAX_QPATH];
-    uuid_unparse_lower(binuuid, uuid);
-    strncpy(game.matchid, uuid, MAX_QPATH);
-    gi.dprintf("%s\n", game.matchid);
+    if (UuidCreate(&uuid) != RPC_S_OK)
+    {
+        gi.dprintf("%s unable to create UUID\n", __func__);
+        return;
+    }
+    if (UuidToStringA(&uuid, &uuidStr) != RPC_S_OK)
+    {
+        gi.dprintf("%s unable to format UUID as a string\n", __func__);
+        return;
+    }
+
+    strncpy(level.matchid, uuidStr, MAX_QPATH);
+    //gi.dprintf("%s UUID: %s\n", __func__, level.matchid);
+
+    if (RpcStringFreeA(&uuidStr) != RPC_S_OK)
+    {
+        gi.dprintf("Failed to free UUID display string\n", __func__);
+        return;
+    }
+#else
+    char uuidBuff[MAX_QPATH]; // Make the buffer slightly larger than required
+    uuid_t uuidGenerated;
+    uuid_generate_random(uuidGenerated); // The UUID is 16 bytes (128 bits) long, which gives approximately 3.4x10^38 unique values
+    uuid_unparse(uuidGenerated, uuidBuff);
+    strncpy(game.matchid, uuidBuff, MAX_QPATH);
+    //gi.dprintf("%s UUID: %s\n", __func__, level.matchid);
+#endif
 }
 
 #ifndef NO_BOTS
