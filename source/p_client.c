@@ -910,7 +910,7 @@ void LogAward(edict_t *self, int award)
 
 	strcpy(
 		msg,
-		"{\"award\":{\"sid\":\"%s\",\"mid\":\"%s\",\"t\":\"%s\",\"a\":%i,\"k\":%i,\"w\":\"%i\"}}\n"
+		"{\"award\":{\"sid\":\"%s\",\"mid\":\"%s\",\"t\":\"%s\",\"a\":%i,\"k\":%s,\"w\":\"%i\"}}\n"
 	);
 
 	Com_Printf(
