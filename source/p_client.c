@@ -866,6 +866,7 @@ void LogMatch()
 	int t2 = teams[TEAM2].score;
 	int t3 = teams[TEAM3].score;
 
+	gi.dprintf("%s Broken: %s\n", __func__, "Called from a_team.c");
 	gametime = level.matchTime;
 
 	strcpy(
