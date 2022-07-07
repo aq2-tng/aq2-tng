@@ -2299,6 +2299,8 @@ void A_Scoreboard (edict_t * ent)
 		ent->client->ps.stats[STAT_TEAM2_SCORE] = teams[TEAM2].score;
 		if (teamCount == 3)
 			ent->client->ps.stats[STAT_TEAM3_SCORE] = teams[TEAM3].score;
+
+		LogMatch();  // Generate match logs
 	}
 }
 

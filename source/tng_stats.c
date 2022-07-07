@@ -342,6 +342,7 @@ void A_ScoreboardEndLevel (edict_t * ent, edict_t * killer)
 	int totalplayers[TEAM_TOP] = {0};
 	int totalscore[TEAM_TOP] = {0};
 	int name_pos[TEAM_TOP] = {0};
+	char steamid[24];
 
 
 	totalClients = G_SortedClients(sortedClients);
@@ -457,8 +458,9 @@ void A_ScoreboardEndLevel (edict_t * ent, edict_t * killer)
 			cl->resp.score,
 			cl->pers.netname, shots, accuracy, fpm );
 
-		A_StatPrinter(cl->resp.score, cl->pers.netname, shots, accuracy, fpm);
-
+		strcpy(steamid, Info_ValueForKey(killer->client->pers.userinfo, "steamid"));
+		A_StatPrinter(cl->resp.score, steamid, shots, accuracy, fpm);
+		
 		line_y += 8;
 
 		if (strlen (string) > (maxsize - 100) && i < (totalClients - 2))

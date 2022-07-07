@@ -800,41 +800,6 @@ void LogWorldKill(edict_t *self)
 	char vip[24];
 	char *vi;
 
-	/*
-{
-    "frag": {
-        "sid": "AKIAZXXXXDPT32CRFR6327910",
-        "mid": "2C16CC41-1125-4426-AC4E-DE48002EC6A0,
-        "v": 76561111960862711,
-        "vn": "KaniZ",
-        "vi": "11.22.33.44",
-        "vt": 1,
-        "k": 73562211920862722,
-        "kn": "somen00b",
-        "ki": "55.66.77.88",
-        "kt": 2,
-        "w": 3,
-        "i": 0,
-        "l": 1,
-        "ks": 2,
-        "gm": 1,
-        "ttk": 17
-    }
-}
-	*/
-
-	/*\fov\90
-	\gender\male
-	\hand\0
-	\msg\1
-	\name\> F < KaniZ
-	\rate\25000
-	\skin\male/ctf_r
-	\spectator\0
-	\ip\172.19.0.1:58554
-	\version\q2pro r1861~5917c5f Feb 17 2020 Win32
-	*/
-
 	if ((team_round_going && !in_warmup) || (gameSettings & GS_DEATHMATCH)) // If round is active OR if deathmatch
 	{
 		mod = meansOfDeath & ~MOD_FRIENDLY_FIRE;
@@ -876,7 +841,7 @@ void LogWorldKill(edict_t *self)
 			vt,
 			vl,
 			mod,
-			16, // No attacker here
+			16, // No attacker for world death
 			loc,
 			0, // No killstreak for world death
 			Gamemode(),
@@ -886,6 +851,40 @@ void LogWorldKill(edict_t *self)
 			level.mapname
 		);
 	}
+}
+
+/*
+==================
+LogMatch
+=================
+*/
+void LogMatch()
+{
+	int gametime = 0;
+	char msg[1024];
+	int t1 = teams[TEAM1].score;
+	int t2 = teams[TEAM2].score;
+	int t3 = teams[TEAM3].score;
+
+	gametime = level.matchTime;
+
+	strcpy(
+		msg,
+		"{\"frag\":{\"sid\":\"%s\",\"mid\":\"%s\",\"t\":\"%s\",\"m\":\"%s\",\"gm\":\"%i\",\"gmf\":%i,\"t1\":%i,\"t2\":\"%i\",\"t3\":\"%i\"}}\n"
+	);
+
+	Com_Printf(
+		msg,
+		server_id->string,
+		game.matchid,
+		gametime,
+		level.mapname,
+		Gamemode(),
+		Gamemodeflag(),
+		t1,
+		t2,
+		t3
+	);
 }
 
 // PrintDeathMessage: moved the actual printing of the death messages to here, to handle
