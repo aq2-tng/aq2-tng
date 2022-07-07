@@ -1050,7 +1050,7 @@ void ClientObituary(edict_t * self, edict_t * inflictor, edict_t * attacker)
 			IRC_printf(IRC_T_KILL, death_msg);
 			AddKilledPlayer(self->client->attacker, self);
 			if (stat_logs->value && !ltk_loadbots->value) { // Only create stats logs if stat_logs is 1 and ltk_loadbots is 0
-				LogKill(self, inflictor, attacker);
+				LogKill(self, self->client, self->client->attacker);
 			}
 			self->client->attacker->client->radio_num_kills++;
 

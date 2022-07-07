@@ -1228,7 +1228,6 @@ void generate_uuid()
     uuid_unparse_lower(binuuid, uuid);
     strncpy(game.matchid, uuid, MAX_QPATH);
     gi.dprintf("%s\n", game.matchid);
-    //strncpy(game.matchid, uuid, MAX_QPATH);
 }
 
 #ifndef NO_BOTS
