@@ -757,7 +757,7 @@ void LogKill(edict_t *self, edict_t *inflictor, edict_t *attacker)
 		Com_Printf(
 			msg,
 			server_id->string,
-			match_id->string,
+			game.matchid,
 			v,
 			vn,
 			vi,
@@ -864,7 +864,7 @@ void LogWorldKill(edict_t *self)
 		Com_Printf(
 			msg,
 			server_id->string,
-			match_id->string,
+			game.matchid,
 			v,
 			vn,
 			vi,
