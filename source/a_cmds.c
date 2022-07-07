@@ -1226,7 +1226,7 @@ void generate_uuid() {
 
     uuid_unparse_lower(binuuid, uuid);
 
-	strcpy(match_id, uuid);
+	gi.cvar_forceset(match_id->name, uuid);
 }
 
 #ifndef NO_BOTS
