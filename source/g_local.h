@@ -724,6 +724,9 @@ typedef struct
 
   // items
   int num_items;
+	
+  // stats
+  char matchid[MAX_QPATH];
 }
 game_locals_t;
 
@@ -740,8 +743,6 @@ typedef struct
   char level_name[MAX_QPATH];	// the descriptive name (Outer Base, etc)
 
   char mapname[MAX_QPATH];	// the server name (base1, etc)
-
-  char match_id[MAX_QPATH]; // Generated uuid for each match
 
   char nextmap[MAX_QPATH];	// go here when fraglimit is hit
   //+
@@ -1129,7 +1130,6 @@ extern cvar_t *e_enhancedSlippers;
 // 2022
 extern cvar_t *sv_limp_highping;
 extern cvar_t *server_id;
-extern cvar_t *match_id;
 extern cvar_t *stat_logs;
 
 #define world   (&g_edicts[0])
