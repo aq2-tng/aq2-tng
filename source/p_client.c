@@ -898,7 +898,7 @@ void LogMatch()
 LogMatch
 =================
 */
-void LogAward(char* steamid, int award)
+void LogAward(char steamid, int award)
 {
 	int gametime = 0;
 	char msg[1024];
