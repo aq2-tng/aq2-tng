@@ -323,7 +323,7 @@ void A_StatPrinter (int score, char name[16], int shots, float accuracy, float f
 	Com_Printf(
 		msg,
 		server_id->string,
-		level.match_id,
+		match_id->string,
 		score,
 		name,
 		shots,
