@@ -1388,6 +1388,7 @@ void ED_CallSpawn( edict_t *ent );
 char* ED_NewString(char* string);
 void G_UpdateSpectatorStatusbar( void );
 void G_UpdatePlayerStatusbar( edict_t *ent, int force );
+void generate_uuid();
 
 //
 // p_client.c
