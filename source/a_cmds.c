@@ -1219,14 +1219,23 @@ void Cmd_Ghost_f(edict_t * ent)
 	num_ghost_players--;
 }
 
-void generate_uuid() {
+void generate_uuid() 
+{
     uuid_t binuuid;
     uuid_generate_random(binuuid);
-    char *uuid = malloc(37);
 
-    uuid_unparse_lower(binuuid, uuid);
-
-	gi.cvar_forceset(match_id->name, uuid);
+    char* uuid = (uuid_t*)malloc(sizeof(uuid_t));
+    
+    if (uuid)
+    {
+        uuid_unparse_lower(binuuid, uuid);
+        strncpy(game.matchid, uuid, MAX_QPATH);
+        free(uuid);
+    }
+    else
+    {
+        gi.dprintf("%s Failed to malloc for uuid\n", __func__); // Output error for generate_uuid()
+    }
 }
 
 #ifndef NO_BOTS
