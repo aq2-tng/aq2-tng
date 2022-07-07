@@ -1219,16 +1219,6 @@ void Cmd_Ghost_f(edict_t * ent)
 	num_ghost_players--;
 }
 
-void uuid_generate_random(uuid_t* id)
-{
-    id->uuidrand = rand();
-}
-void uuid_unparse_lower(uuid_t binuuid, char* id)
-{
-    // Set id to binuuid->uuidrand
-    sprintf(id, "%d", binuuid.uuidrand);
-}
-
 void generate_uuid()
 {
     uuid_t binuuid;
