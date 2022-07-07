@@ -1069,6 +1069,8 @@ void SpawnEntities (char *mapname, char *entities, char *spawnpoint)
 
 	gi.FreeTags(TAG_LEVEL);
 
+	generate_uuid();  // Run this once every time a map loads to generate a unique id for stats (cvar match_id)
+
 #ifndef NO_BOTS
 	// Disconnect bots before we wipe entity data and lose track of is_bot.
 	for (i = 0, ent = &g_edicts[1]; i < game.maxclients; i++, ent++)

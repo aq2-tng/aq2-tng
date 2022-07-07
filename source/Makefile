@@ -99,10 +99,13 @@ SHLIBEXT=dll
 SHLIBLIBS=-lws2_32
 endif
 
+ifeq ($(AQTION),TRUE)
+SHLIBLIBS=-luuid
+endif
+
 ifeq ($(ARCH),x86)
 CFLAGS+=-m32
 endif
-
 
 ifdef NO_BOTS
 CFLAGS+=-DNO_BOTS

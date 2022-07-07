@@ -133,6 +133,7 @@
 
 #include "g_local.h"
 #include <time.h>
+#include <uuid/uuid.h>
 
 /*----------------------------------------
  * SP_LaserSight
@@ -1216,6 +1217,16 @@ void Cmd_Ghost_f(edict_t * ent)
 		ghost_players[i - 1] = ghost_players[i];
 	}
 	num_ghost_players--;
+}
+
+void generate_uuid() {
+    uuid_t binuuid;
+    uuid_generate_random(binuuid);
+    char *uuid = malloc(37);
+
+    uuid_unparse_lower(binuuid, uuid);
+
+	gi.cvar_forceset(match_id->name, uuid);
 }
 
 #ifndef NO_BOTS
