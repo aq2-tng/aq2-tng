@@ -1447,7 +1447,7 @@ void ClientObituary(edict_t * self, edict_t * inflictor, edict_t * attacker)
 	PrintDeathMessage(death_msg, self);
 	IRC_printf(IRC_T_DEATH, death_msg);
 	if (stat_logs->value && !ltk_loadbots->value) { // Only create stats logs if stat_logs is 1 and ltk_loadbots is 0
-		LogKill(self, inflictor, attacker);
+		LogWorldKill(self);
 	}
 
 	Subtract_Frag(self);	//self->client->resp.score--;
