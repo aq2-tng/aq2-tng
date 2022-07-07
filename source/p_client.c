@@ -345,7 +345,6 @@ void Add_Frag(edict_t * ent, int mod)
 {
 	char buf[256];
 	int frags = 0;
-	char steamid[24];
 
 	strcpy(steamid, Info_ValueForKey(ent->client->pers.userinfo, "steamid"));
 
