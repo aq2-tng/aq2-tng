@@ -895,15 +895,13 @@ void LogMatch()
 
 /*
 ==================
-LogMatch
+LogAward
 =================
 */
 void LogAward(char steamid, int award)
 {
 	int gametime = 0;
 	char msg[1024];
-	char steamid[24];
-	int award;
 	int mod;
 	mod = meansOfDeath & ~MOD_FRIENDLY_FIRE;
 
