@@ -1219,6 +1219,20 @@ void Cmd_Ghost_f(edict_t * ent)
 	num_ghost_players--;
 }
 
+typedef struct uuid_s
+{
+    int blah;
+} uuid_t;
+void uuid_generate_random(uuid_t* id)
+{
+    id->blah = rand();
+}
+void uuid_unparse_lower(uuid_t binuuid, char* id)
+{
+    // Set id to binuuid->blah
+    sprintf(id, "%d", binuuid.blah);
+}
+
 void generate_uuid()
 {
     uuid_t binuuid;
