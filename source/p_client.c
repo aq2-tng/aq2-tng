@@ -628,14 +628,14 @@ int Gamemode(void) // These are distinct game modes; you cannot have a teamdm to
 	#define TOURNEY 3
 	#define DEATHMATCH 4
 
-	if (teamplay->value) {
-		gamemode = TEAMPLAY;
-	} else if (teamdm->value) {
+	if (teamdm->value) {
 		gamemode = TEAMDM;
 	} else if (ctf->value) {
 		gamemode = CTF;
 	} else if (use_tourney->value) {
 		gamemode = TOURNEY;
+	} else if (teamplay->value) {
+		gamemode = TEAMPLAY;  
 	} else if (deathmatch->value) {
 		gamemode = DEATHMATCH;
 	}
@@ -875,7 +875,7 @@ void LogMatch()
 
 	strcpy(
 		msg,
-		"{\"frag\":{\"sid\":\"%s\",\"mid\":\"%s\",\"t\":\"%i\",\"m\":\"%s\",\"gm\":\"%i\",\"gmf\":%i,\"t1\":%i,\"t2\":\"%i\",\"t3\":\"%i\"}}\n"
+		"{\"gamematch\":{\"sid\":\"%s\",\"mid\":\"%s\",\"t\":\"%i\",\"m\":\"%s\",\"gm\":\"%i\",\"gmf\":%i,\"t1\":%i,\"t2\":\"%i\",\"t3\":\"%i\"}}\n"
 	);
 
 	Com_Printf(
