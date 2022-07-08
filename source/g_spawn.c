@@ -918,7 +918,6 @@ void SpawnEntities (char *mapname, char *entities, char *spawnpoint)
 			gi.cvar_forceset(ctf->name, "1"); //for now
 
 		gameSettings |= GS_WEAPONCHOOSE;
-		strncpy(game.gamemode, GM_CTF, sizeof(game.gamemode));
 
 		// Make sure teamplay is enabled
 		if (!teamplay->value)
@@ -989,7 +988,6 @@ void SpawnEntities (char *mapname, char *entities, char *spawnpoint)
 	else if(teamdm->value)
 	{
 		gameSettings |= GS_DEATHMATCH;
-		strncpy(game.gamemode, GM_TEAMDM, sizeof(game.gamemode));
 
 		if (dm_choose->value)
 			gameSettings |= GS_WEAPONCHOOSE;
@@ -1008,7 +1006,6 @@ void SpawnEntities (char *mapname, char *entities, char *spawnpoint)
 	else if (use_3teams->value)
 	{
 		gameSettings |= (GS_ROUNDBASED | GS_WEAPONCHOOSE);
-		strncpy(game.gamemode, GM_TEAMPLAY, sizeof(game.gamemode));
 
 		if (!teamplay->value)
 		{
@@ -1038,7 +1035,6 @@ void SpawnEntities (char *mapname, char *entities, char *spawnpoint)
 	else if (use_tourney->value)
 	{
 		gameSettings |= (GS_ROUNDBASED | GS_WEAPONCHOOSE);
-		strncpy(game.gamemode, GM_TOURNEY, sizeof(game.gamemode));
 
 		if (!teamplay->value)
 		{
@@ -1049,11 +1045,9 @@ void SpawnEntities (char *mapname, char *entities, char *spawnpoint)
 	else if (teamplay->value)
 	{
 		gameSettings |= (GS_ROUNDBASED | GS_WEAPONCHOOSE);
-		strncpy(game.gamemode, GM_TEAMPLAY, sizeof(game.gamemode));
 	}
 	else { //Its deathmatch
 		gameSettings |= GS_DEATHMATCH;
-		strncpy(game.gamemode, GM_DEATHMATCH, sizeof(game.gamemode));
 		if (dm_choose->value)
 			gameSettings |= GS_WEAPONCHOOSE;
 	}
