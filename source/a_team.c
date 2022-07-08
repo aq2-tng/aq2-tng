@@ -2947,6 +2947,8 @@ void TallyEndOfLevelTeamScores (void)
 
 		teams[game.clients[i].resp.team].total += game.clients[i].resp.score;
 	}
+	gi.dprintf("%i %i %i\n", teams[TEAM1].score, teams[TEAM2].score, teams[TEAM3].score);
+
 	LogMatch();  // Generate match logs
 }
 
