@@ -1419,8 +1419,6 @@ void ClientFixLegs(edict_t *ent);
 void ClientUserinfoChanged(edict_t* ent, char* userinfo);
 void ClientDisconnect(edict_t* ent);
 void CopyToBodyQue(edict_t* ent);
-void LogMatch();
-void LogAward(char* steamid, int award);
 
 //p_weapon.c
 void Weapon_Generic( edict_t * ent, int FRAME_ACTIVATE_LAST, int FRAME_FIRE_LAST,
@@ -1434,6 +1432,12 @@ void P_ProjectSource(gclient_t *client, vec3_t point, vec3_t distance, vec3_t fo
 void weapon_grenade_fire(edict_t* ent, qboolean held);
 void InitTookDamage(void);
 void ProduceShotgunDamageReport(edict_t*);
+
+//tng_stats.c
+void LogKill(edict_t *self, edict_t *inflictor, edict_t *attacker);
+void LogWorldKill(edict_t *self);
+void LogMatch();
+void LogAward(char* steamid, int award);
 
 
 //============================================================================
