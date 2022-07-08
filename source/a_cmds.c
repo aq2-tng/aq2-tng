@@ -137,7 +137,7 @@
 #pragma comment(lib, "rpcrt4.lib")
 #include <Rpc.h>
 #else
-#include <uuid.h>
+#include <uuid/uuid.h>
 #endif
 
 /*----------------------------------------
