@@ -908,6 +908,8 @@ void LogAward(edict_t *self, int award)
 
 	strcpy(steamid, Info_ValueForKey(self->client->pers.userinfo, "steamid"));
 
+	gi.dprintf("%s %s %s %s %s %s\n", server_id->string, game.matchid, gametime, mod, steamid, award);
+
 	strcpy(
 		msg,
 		"{\"award\":{\"sid\":\"%s\",\"mid\":\"%s\",\"t\":\"%s\",\"a\":%i,\"k\":%s,\"w\":\"%i\"}}\n"
