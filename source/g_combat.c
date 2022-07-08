@@ -546,7 +546,8 @@ T_Damage (edict_t * targ, edict_t * inflictor, edict_t * attacker, vec3_t dir,
 								CenterPrintAll(buf);
 								gi.sound(&g_edicts[0], CHAN_VOICE | CHAN_NO_PHS_ADD, gi.soundindex("tng/accuracy.wav"), 1.0, ATTN_NONE, 0.0);
 
-								gi.dprintf("%s %s\n", server_id->string, game.matchid);
+								strcpy(steamid, Info_ValueForKey(attacker->client->pers.userinfo, "steamid"));
+								gi.dprintf("%s %s %s\n", server_id->string, game.matchid, steamid);
 								//LogAward(attacker, IMPRESSIVE);
 							}
 						}
