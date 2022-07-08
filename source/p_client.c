@@ -897,8 +897,9 @@ void LogMatch()
 LogAward
 =================
 */
-void LogAward(char* steamid, int award)
+void LogAward(char* steamid)
 {
+	int award = 0;
 	gi.dprintf("%s %s\n", steamid, award);
 	int gametime = 0;
 	char msg[1024];

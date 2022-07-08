@@ -549,7 +549,7 @@ T_Damage (edict_t * targ, edict_t * inflictor, edict_t * attacker, vec3_t dir,
 
 								strcpy(steamid, Info_ValueForKey(attacker->client->pers.userinfo, "steamid"));
 								//gi.dprintf("%s %s %s\n", server_id->string, game.matchid, steamid);
-								LogAward(steamid, ACCURACY);
+								LogAward(steamid);
 							}
 						}
 					}
