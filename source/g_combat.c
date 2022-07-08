@@ -432,6 +432,7 @@ T_Damage (edict_t * targ, edict_t * inflictor, edict_t * attacker, vec3_t dir,
 	float from_top;
 	vec_t dist;
 	float targ_maxs2;		//FB 6/1/99
+	char steamid[24];
 
 	// do this before teamplay check
 	if (!targ->takedamage)
