@@ -905,10 +905,10 @@ void LogAward(char* steamid)
 	int mod;
 	mod = meansOfDeath & ~MOD_FRIENDLY_FIRE;
 
+	gametime = level.matchTime;
+
 //	gi.dprintf("%s Broken\n", __func__);
 	gi.dprintf("%s %s %s %s %s\n", server_id->string, game.matchid, gametime, mod, steamid);
-
-	gametime = level.matchTime;
 
 	strcpy(
 		msg,
