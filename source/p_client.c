@@ -345,6 +345,8 @@ void Add_Frag(edict_t * ent, int mod)
 {
 	char buf[256];
 	int frags = 0;
+	char steamid[24];
+	strcpy(steamid, Info_ValueForKey(ent->client->pers.userinfo, "steamid"));
 
 	if (in_warmup)
 		return;
@@ -370,6 +372,9 @@ void Add_Frag(edict_t * ent, int mod)
 				CenterPrintAll(buf);
 				gi.sound(&g_edicts[0], CHAN_VOICE | CHAN_NO_PHS_ADD,
 					 gi.soundindex("tng/impressive.wav"), 1.0, ATTN_NONE, 0.0);
+				if (stat_logs->value && !ltk_loadbots->value) {
+					LogAward(steamid, IMPRESSIVE);
+				}
 			}
 			else if (ent->client->resp.streakKills % 12 == 0 && use_rewards->value)
 			{
@@ -377,6 +382,9 @@ void Add_Frag(edict_t * ent, int mod)
 				CenterPrintAll(buf);
 				gi.sound(&g_edicts[0], CHAN_VOICE | CHAN_NO_PHS_ADD,
 					 gi.soundindex("tng/excellent.wav"), 1.0, ATTN_NONE, 0.0);
+				if (stat_logs->value && !ltk_loadbots->value) {
+					LogAward(steamid, EXCELLENT);
+				}
 			}
 		}
 
@@ -618,22 +626,16 @@ void player_pain(edict_t * self, edict_t * other, float kick, int damage)
 int Gamemode(void) // These are distinct game modes; you cannot have a teamdm tourney mode, for example
 {
 	int gamemode = 0;
-	#define TEAMPLAY 0
-	#define TEAMDM 1
-	#define CTF 2
-	#define TOURNEY 3
-	#define DEATHMATCH 4
-
-	if (teamplay->value) {
-		gamemode = TEAMPLAY;
-	} else if (teamdm->value) {
-		gamemode = TEAMDM;
+	if (teamdm->value) {
+		gamemode = GM_TEAMDM;
 	} else if (ctf->value) {
-		gamemode = CTF;
+		gamemode = GM_CTF;
 	} else if (use_tourney->value) {
-		gamemode = TOURNEY;
+		gamemode = GM_TOURNEY;
+	} else if (teamplay->value) {
+		gamemode = GM_TEAMPLAY;  
 	} else if (deathmatch->value) {
-		gamemode = DEATHMATCH;
+		gamemode = GM_DEATHMATCH;
 	}
 	return gamemode;
 }
@@ -643,22 +645,18 @@ int Gamemodeflag(void)
 // For example, you can have a darkmatch matchmode 3team teamplay server
 {
 	int gamemodeflag = 0;
-	#define USE_3TEAMS 1
-	#define USE_DOM 2
-	#define USE_DARK 4
-	#define USE_MM 8
 
 	if (use_3teams->value) {
-		gamemodeflag += USE_3TEAMS;
+		gamemodeflag += GMF_3TEAMS;
 	}
 	if (dom->value) {
-		gamemodeflag += USE_DOM;
+		gamemodeflag += GMF_DOMINATION;
 	}
 	if (darkmatch->value) {
-		gamemodeflag += USE_DARK;
+		gamemodeflag += GMF_DARKMATCH;
 	}
 	if (matchmode->value) {
-		gamemodeflag += USE_MM;
+		gamemodeflag += GMF_MATCHMODE;
 	}
 	return gamemodeflag;
 }
@@ -800,41 +798,6 @@ void LogWorldKill(edict_t *self)
 	char vip[24];
 	char *vi;
 
-	/*
-{
-    "frag": {
-        "sid": "AKIAZXXXXDPT32CRFR6327910",
-        "mid": "2C16CC41-1125-4426-AC4E-DE48002EC6A0,
-        "v": 76561111960862711,
-        "vn": "KaniZ",
-        "vi": "11.22.33.44",
-        "vt": 1,
-        "k": 73562211920862722,
-        "kn": "somen00b",
-        "ki": "55.66.77.88",
-        "kt": 2,
-        "w": 3,
-        "i": 0,
-        "l": 1,
-        "ks": 2,
-        "gm": 1,
-        "ttk": 17
-    }
-}
-	*/
-
-	/*\fov\90
-	\gender\male
-	\hand\0
-	\msg\1
-	\name\> F < KaniZ
-	\rate\25000
-	\skin\male/ctf_r
-	\spectator\0
-	\ip\172.19.0.1:58554
-	\version\q2pro r1861~5917c5f Feb 17 2020 Win32
-	*/
-
 	if ((team_round_going && !in_warmup) || (gameSettings & GS_DEATHMATCH)) // If round is active OR if deathmatch
 	{
 		mod = meansOfDeath & ~MOD_FRIENDLY_FIRE;
@@ -876,7 +839,7 @@ void LogWorldKill(edict_t *self)
 			vt,
 			vl,
 			mod,
-			16, // No attacker here
+			16, // No attacker for world death
 			loc,
 			0, // No killstreak for world death
 			Gamemode(),
@@ -886,6 +849,71 @@ void LogWorldKill(edict_t *self)
 			level.mapname
 		);
 	}
+}
+
+/*
+==================
+LogMatch
+=================
+*/
+void LogMatch()
+{
+	int gametime = 0;
+	char msg[1024];
+	int t1 = teams[TEAM1].score;
+	int t2 = teams[TEAM2].score;
+	int t3 = teams[TEAM3].score;
+
+	//gi.dprintf("%s Broken: %s\n", __func__, "Called from a_team.c");
+	gametime = level.matchTime;
+
+	strcpy(
+		msg,
+		"{\"gamematch\":{\"sid\":\"%s\",\"mid\":\"%s\",\"t\":\"%i\",\"m\":\"%s\",\"gm\":\"%i\",\"gmf\":%i,\"t1\":%i,\"t2\":\"%i\",\"t3\":\"%i\"}}\n"
+	);
+
+	Com_Printf(
+		msg,
+		server_id->string,
+		game.matchid,
+		gametime,
+		level.mapname,
+		Gamemode(),
+		Gamemodeflag(),
+		t1,
+		t2,
+		t3
+	);
+}
+
+/*
+==================
+LogAward
+=================
+*/
+void LogAward(char* steamid, int award)
+{
+	int gametime = 0;
+	char msg[1024];
+	int mod;
+	mod = meansOfDeath & ~MOD_FRIENDLY_FIRE;
+
+	gametime = level.matchTime;
+
+	strcpy(
+		msg,
+		"{\"award\":{\"sid\":\"%s\",\"mid\":\"%s\",\"t\":\"%i\",\"a\":%i,\"k\":%s,\"w\":\"%i\"}}\n"
+	);
+
+	Com_Printf(
+		msg,
+		server_id->string,
+		game.matchid,
+		gametime,
+		award,
+		steamid,
+		mod
+	);
 }
 
 // PrintDeathMessage: moved the actual printing of the death messages to here, to handle

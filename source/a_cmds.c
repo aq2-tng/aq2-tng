@@ -133,7 +133,12 @@
 
 #include "g_local.h"
 #include <time.h>
-#include <uuid/uuid.h>
+#ifdef WIN32
+#pragma comment(lib, "rpcrt4.lib")
+#include <Rpc.h>
+#else
+#include <uuid.h>
+#endif
 
 /*----------------------------------------
  * SP_LaserSight
@@ -1236,7 +1241,7 @@ void generate_uuid()
         return;
     }
 
-    strncpy(level.matchid, uuidStr, MAX_QPATH);
+    strncpy(game.matchid, uuidStr, MAX_QPATH);
     //gi.dprintf("%s UUID: %s\n", __func__, level.matchid);
 
     if (RpcStringFreeA(&uuidStr) != RPC_S_OK)
