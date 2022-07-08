@@ -903,12 +903,13 @@ void LogAward(edict_t *self, int award)
 	char steamid[24];
 	mod = meansOfDeath & ~MOD_FRIENDLY_FIRE;
 
-	gi.dprintf("%s Broken\n", __func__);
+//	gi.dprintf("%s Broken\n", __func__);
+	gi.dprintf("%s %s %s %s %s %s\n", server_id->string, game.matchid, gametime, mod, steamid, award);
+
 	gametime = level.matchTime;
 
 	strcpy(steamid, Info_ValueForKey(self->client->pers.userinfo, "steamid"));
 
-	gi.dprintf("%s %s %s %s %s %s\n", server_id->string, game.matchid, gametime, mod, steamid, award);
 
 	strcpy(
 		msg,
