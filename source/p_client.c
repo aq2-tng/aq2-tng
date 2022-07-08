@@ -870,7 +870,7 @@ void LogMatch()
 	int t2 = teams[TEAM2].score;
 	int t3 = teams[TEAM3].score;
 
-	gi.dprintf("%s Broken: %s\n", __func__, "Called from a_team.c");
+	//gi.dprintf("%s Broken: %s\n", __func__, "Called from a_team.c");
 	gametime = level.matchTime;
 
 	strcpy(
@@ -905,9 +905,6 @@ void LogAward(char* steamid, int award)
 	mod = meansOfDeath & ~MOD_FRIENDLY_FIRE;
 
 	gametime = level.matchTime;
-
-//	gi.dprintf("%s Broken\n", __func__);
-	gi.dprintf("%s %s %i %i %s %i\n", server_id->string, game.matchid, gametime, mod, steamid, award);
 
 	strcpy(
 		msg,
