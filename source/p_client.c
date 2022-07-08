@@ -869,13 +869,13 @@ void LogMatch()
 
 	strcpy(
 		msg,
-		"{\"gamematch\":{\"sid\":\"%s\",\"mid\":\"%s\",\"t\":\"%i\",\"m\":\"%s\",\"gm\":\"%i\",\"gmf\":%i,\"t1\":%i,\"t2\":\"%i\",\"t3\":\"%i\"}}\n"
+		"{\"gamematch\":{\"mid\":\"%s\",\"sid\":\"%s\",\"t\":\"%i\",\"m\":\"%s\",\"gm\":\"%i\",\"gmf\":%i,\"t1\":%i,\"t2\":\"%i\",\"t3\":\"%i\"}}\n"
 	);
 
 	Com_Printf(
 		msg,
-		server_id->string,
 		game.matchid,
+		server_id->string,
 		gametime,
 		level.mapname,
 		Gamemode(),
