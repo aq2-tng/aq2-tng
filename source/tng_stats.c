@@ -312,26 +312,26 @@ void Cmd_Stats_f (edict_t *targetent, char *arg)
 }
 
 // Not ready yet
-void A_StatPrinter (int score, char steamid[24], int shots, float accuracy, float fpm)
-{
-	char msg[1024];
+// void A_StatPrinter (int score, char steamid[24], int shots, float accuracy, float fpm)
+// {
+// 	char msg[1024];
 
-	strcpy(
-			msg,
-			"{\"matchstats\":{\"sid\":\"%s\",\"mid\":\"%s\",\"s\":\"%i\",\"n\":\"%s\",\"sh\":\"%i\",\"a\":%f,\"f\":%f}}\n"
-		);
+// 	strcpy(
+// 			msg,
+// 			"{\"matchstats\":{\"sid\":\"%s\",\"mid\":\"%s\",\"s\":\"%i\",\"n\":\"%s\",\"sh\":\"%i\",\"a\":%f,\"f\":%f}}\n"
+// 		);
 
-	Com_Printf(
-		msg,
-		server_id->string,
-		game.matchid,
-		score,
-		steamid,
-		shots,
-		accuracy,
-		fpm
-	);
-}
+// 	Com_Printf(
+// 		msg,
+// 		server_id->string,
+// 		game.matchid,
+// 		score,
+// 		steamid,
+// 		shots,
+// 		accuracy,
+// 		fpm
+// 	);
+// }
 
 void A_ScoreboardEndLevel (edict_t * ent, edict_t * killer)
 {
@@ -343,7 +343,7 @@ void A_ScoreboardEndLevel (edict_t * ent, edict_t * killer)
 	int totalplayers[TEAM_TOP] = {0};
 	int totalscore[TEAM_TOP] = {0};
 	int name_pos[TEAM_TOP] = {0};
-	char steamid[24];
+	//char steamid[24];
 
 
 	totalClients = G_SortedClients(sortedClients);
