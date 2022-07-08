@@ -895,7 +895,7 @@ void LogMatch()
 LogAward
 =================
 */
-void LogAward(char steamid, int award)
+void LogAward(char* steamid, int award)
 {
 	int gametime = 0;
 	char msg[1024];
@@ -906,7 +906,6 @@ void LogAward(char steamid, int award)
 	gi.dprintf("%s %s %s %s %s %s\n", server_id->string, game.matchid, gametime, mod, steamid, award);
 
 	gametime = level.matchTime;
-
 
 	strcpy(
 		msg,
