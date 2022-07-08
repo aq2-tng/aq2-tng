@@ -899,7 +899,6 @@ LogAward
 */
 void LogAward(char* steamid, int award)
 {
-	int award = 0;
 	int gametime = 0;
 	char msg[1024];
 	int mod;
