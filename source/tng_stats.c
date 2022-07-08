@@ -311,6 +311,7 @@ void Cmd_Stats_f (edict_t *targetent, char *arg)
 	gi.cprintf(targetent, PRINT_HIGH, "Highest streaks:  kills: %d headshots: %d\n", ent->client->resp.streakKillsHighest, ent->client->resp.streakHSHighest);
 }
 
+// Not ready yet
 void A_StatPrinter (int score, char steamid[24], int shots, float accuracy, float fpm)
 {
 	char msg[1024];
@@ -458,8 +459,8 @@ void A_ScoreboardEndLevel (edict_t * ent, edict_t * killer)
 			cl->resp.score,
 			cl->pers.netname, shots, accuracy, fpm );
 
-		strcpy(steamid, Info_ValueForKey(killer->client->pers.userinfo, "steamid"));
-		A_StatPrinter(cl->resp.score, steamid, shots, accuracy, fpm);
+		//strcpy(steamid, Info_ValueForKey(killer->client->pers.userinfo, "steamid"));
+		//A_StatPrinter(cl->resp.score, steamid, shots, accuracy, fpm);
 		
 		line_y += 8;
 
