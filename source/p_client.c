@@ -372,7 +372,7 @@ void Add_Frag(edict_t * ent, int mod)
 				CenterPrintAll(buf);
 				gi.sound(&g_edicts[0], CHAN_VOICE | CHAN_NO_PHS_ADD,
 					 gi.soundindex("tng/impressive.wav"), 1.0, ATTN_NONE, 0.0);
-				LogAward(steamid);
+				LogAward(steamid, IMPRESSIVE);
 			}
 			else if (ent->client->resp.streakKills % 12 == 0 && use_rewards->value)
 			{
@@ -380,7 +380,7 @@ void Add_Frag(edict_t * ent, int mod)
 				CenterPrintAll(buf);
 				gi.sound(&g_edicts[0], CHAN_VOICE | CHAN_NO_PHS_ADD,
 					 gi.soundindex("tng/excellent.wav"), 1.0, ATTN_NONE, 0.0);
-				LogAward(steamid);
+				LogAward(steamid, EXCELLENT);
 			}
 		}
 
@@ -897,7 +897,7 @@ void LogMatch()
 LogAward
 =================
 */
-void LogAward(char* steamid)
+void LogAward(char* steamid, int award)
 {
 	int award = 0;
 	int gametime = 0;
@@ -908,11 +908,11 @@ void LogAward(char* steamid)
 	gametime = level.matchTime;
 
 //	gi.dprintf("%s Broken\n", __func__);
-	gi.dprintf("%s %s %s %s %s\n", server_id->string, game.matchid, gametime, mod, steamid);
+	gi.dprintf("%s %s %i %i %s %i\n", server_id->string, game.matchid, gametime, mod, steamid, award);
 
 	strcpy(
 		msg,
-		"{\"award\":{\"sid\":\"%s\",\"mid\":\"%s\",\"t\":\"%s\",\"a\":%i,\"k\":%s,\"w\":\"%i\"}}\n"
+		"{\"award\":{\"sid\":\"%s\",\"mid\":\"%s\",\"t\":\"%i\",\"a\":%i,\"k\":%s,\"w\":\"%i\"}}\n"
 	);
 
 	Com_Printf(
