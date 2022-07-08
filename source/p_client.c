@@ -372,7 +372,9 @@ void Add_Frag(edict_t * ent, int mod)
 				CenterPrintAll(buf);
 				gi.sound(&g_edicts[0], CHAN_VOICE | CHAN_NO_PHS_ADD,
 					 gi.soundindex("tng/impressive.wav"), 1.0, ATTN_NONE, 0.0);
-				LogAward(steamid, IMPRESSIVE);
+				if (stat_logs->value && !ltk_loadbots->value) {
+					LogAward(steamid, IMPRESSIVE);
+				}
 			}
 			else if (ent->client->resp.streakKills % 12 == 0 && use_rewards->value)
 			{
@@ -380,7 +382,9 @@ void Add_Frag(edict_t * ent, int mod)
 				CenterPrintAll(buf);
 				gi.sound(&g_edicts[0], CHAN_VOICE | CHAN_NO_PHS_ADD,
 					 gi.soundindex("tng/excellent.wav"), 1.0, ATTN_NONE, 0.0);
-				LogAward(steamid, EXCELLENT);
+				if (stat_logs->value && !ltk_loadbots->value) {
+					LogAward(steamid, EXCELLENT);
+				}
 			}
 		}
 
@@ -622,22 +626,16 @@ void player_pain(edict_t * self, edict_t * other, float kick, int damage)
 int Gamemode(void) // These are distinct game modes; you cannot have a teamdm tourney mode, for example
 {
 	int gamemode = 0;
-	#define TEAMPLAY 0
-	#define TEAMDM 1
-	#define CTF 2
-	#define TOURNEY 3
-	#define DEATHMATCH 4
-
 	if (teamdm->value) {
-		gamemode = TEAMDM;
+		gamemode = GM_TEAMDM;
 	} else if (ctf->value) {
-		gamemode = CTF;
+		gamemode = GM_CTF;
 	} else if (use_tourney->value) {
-		gamemode = TOURNEY;
+		gamemode = GM_TOURNEY;
 	} else if (teamplay->value) {
-		gamemode = TEAMPLAY;  
+		gamemode = GM_TEAMPLAY;  
 	} else if (deathmatch->value) {
-		gamemode = DEATHMATCH;
+		gamemode = GM_DEATHMATCH;
 	}
 	return gamemode;
 }
@@ -647,22 +645,18 @@ int Gamemodeflag(void)
 // For example, you can have a darkmatch matchmode 3team teamplay server
 {
 	int gamemodeflag = 0;
-	#define USE_3TEAMS 1
-	#define USE_DOM 2
-	#define USE_DARK 4
-	#define USE_MM 8
 
 	if (use_3teams->value) {
-		gamemodeflag += USE_3TEAMS;
+		gamemodeflag += GMF_3TEAMS;
 	}
 	if (dom->value) {
-		gamemodeflag += USE_DOM;
+		gamemodeflag += GMF_DOMINATION;
 	}
 	if (darkmatch->value) {
-		gamemodeflag += USE_DARK;
+		gamemodeflag += GMF_DARKMATCH;
 	}
 	if (matchmode->value) {
-		gamemodeflag += USE_MM;
+		gamemodeflag += GMF_MATCHMODE;
 	}
 	return gamemodeflag;
 }

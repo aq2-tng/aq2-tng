@@ -727,6 +727,8 @@ typedef struct
 	
   // stats
   char matchid[MAX_QPATH];
+  int gamemode;
+  int gamemodeflags;
 }
 game_locals_t;
 
@@ -927,6 +929,20 @@ extern int sm_meat_index;
 #define ACCURACY 0
 #define IMPRESSIVE 1
 #define EXCELLENT 2
+
+// Game Modes
+#define GM_TEAMPLAY 0
+#define GM_TEAMDM 1
+#define GM_CTF 2
+#define GM_TOURNEY 3
+#define GM_DEATHMATCH 4
+
+// Game Mode Flags
+#define GMF_NONE 0
+#define GMF_3TEAMS 1
+#define GMF_DOMINATION 2
+#define GMF_DARKMATCH 4
+#define GMF_MATCHMODE 8
 
 extern int meansOfDeath;
 // zucc for hitlocation of death
