@@ -311,26 +311,27 @@ void Cmd_Stats_f (edict_t *targetent, char *arg)
 	gi.cprintf(targetent, PRINT_HIGH, "Highest streaks:  kills: %d headshots: %d\n", ent->client->resp.streakKillsHighest, ent->client->resp.streakHSHighest);
 }
 
-void A_StatPrinter (int score, char name[16], int shots, float accuracy, float fpm)
-{
-	char msg[1024];
+// Not ready yet
+// void A_StatPrinter (int score, char steamid[24], int shots, float accuracy, float fpm)
+// {
+// 	char msg[1024];
 
-	strcpy(
-			msg,
-			"{\"matchstats\":{\"sid\":\"%s\",\"mid\":\"%s\",\"s\":\"%i\",\"n\":\"%s\",\"sh\":\"%i\",\"a\":%f,\"f\":%f}}\n"
-		);
+// 	strcpy(
+// 			msg,
+// 			"{\"matchstats\":{\"sid\":\"%s\",\"mid\":\"%s\",\"s\":\"%i\",\"n\":\"%s\",\"sh\":\"%i\",\"a\":%f,\"f\":%f}}\n"
+// 		);
 
-	Com_Printf(
-		msg,
-		server_id->string,
-		game.matchid,
-		score,
-		name,
-		shots,
-		accuracy,
-		fpm
-	);
-}
+// 	Com_Printf(
+// 		msg,
+// 		server_id->string,
+// 		game.matchid,
+// 		score,
+// 		steamid,
+// 		shots,
+// 		accuracy,
+// 		fpm
+// 	);
+// }
 
 void A_ScoreboardEndLevel (edict_t * ent, edict_t * killer)
 {
@@ -342,6 +343,7 @@ void A_ScoreboardEndLevel (edict_t * ent, edict_t * killer)
 	int totalplayers[TEAM_TOP] = {0};
 	int totalscore[TEAM_TOP] = {0};
 	int name_pos[TEAM_TOP] = {0};
+	//char steamid[24];
 
 
 	totalClients = G_SortedClients(sortedClients);
@@ -457,8 +459,9 @@ void A_ScoreboardEndLevel (edict_t * ent, edict_t * killer)
 			cl->resp.score,
 			cl->pers.netname, shots, accuracy, fpm );
 
-		A_StatPrinter(cl->resp.score, cl->pers.netname, shots, accuracy, fpm);
-
+		//strcpy(steamid, Info_ValueForKey(killer->client->pers.userinfo, "steamid"));
+		//A_StatPrinter(cl->resp.score, steamid, shots, accuracy, fpm);
+		
 		line_y += 8;
 
 		if (strlen (string) > (maxsize - 100) && i < (totalClients - 2))

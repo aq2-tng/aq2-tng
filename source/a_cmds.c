@@ -1241,7 +1241,7 @@ void generate_uuid()
         return;
     }
 
-    strncpy(level.matchid, uuidStr, MAX_QPATH);
+    strncpy(game.matchid, uuidStr, MAX_QPATH);
     //gi.dprintf("%s UUID: %s\n", __func__, level.matchid);
 
     if (RpcStringFreeA(&uuidStr) != RPC_S_OK)
