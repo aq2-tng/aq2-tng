@@ -133,7 +133,12 @@
 
 #include "g_local.h"
 #include <time.h>
-#include <uuid/uuid.h>
+#ifdef WIN32
+#pragma comment(lib, "rpcrt4.lib")
+#include <Rpc.h>
+#else
+#include <uuid.h>
+#endif
 
 /*----------------------------------------
  * SP_LaserSight
