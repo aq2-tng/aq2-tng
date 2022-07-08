@@ -345,6 +345,8 @@ void Add_Frag(edict_t * ent, int mod)
 {
 	char buf[256];
 	int frags = 0;
+	char steamid[24];
+	strcpy(steamid, Info_ValueForKey(ent->client->pers.userinfo, "steamid"));
 
 	if (in_warmup)
 		return;
@@ -370,7 +372,7 @@ void Add_Frag(edict_t * ent, int mod)
 				CenterPrintAll(buf);
 				gi.sound(&g_edicts[0], CHAN_VOICE | CHAN_NO_PHS_ADD,
 					 gi.soundindex("tng/impressive.wav"), 1.0, ATTN_NONE, 0.0);
-				LogAward(ent, IMPRESSIVE);
+				LogAward(steamid, IMPRESSIVE);
 			}
 			else if (ent->client->resp.streakKills % 12 == 0 && use_rewards->value)
 			{
@@ -378,7 +380,7 @@ void Add_Frag(edict_t * ent, int mod)
 				CenterPrintAll(buf);
 				gi.sound(&g_edicts[0], CHAN_VOICE | CHAN_NO_PHS_ADD,
 					 gi.soundindex("tng/excellent.wav"), 1.0, ATTN_NONE, 0.0);
-				LogAward(ent, EXCELLENT);
+				LogAward(steamid, EXCELLENT);
 			}
 		}
 
