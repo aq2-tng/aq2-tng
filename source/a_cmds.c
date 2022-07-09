@@ -133,11 +133,10 @@
 
 #include "g_local.h"
 #include <time.h>
-// #ifdef WIN32
-// #pragma comment(lib, "rpcrt4.lib")
-// #include <rpc/rpc.h>
-// #else
-#ifndef WIN32
+#ifdef WIN32
+#pragma comment(lib, "rpcrt4.lib")
+#include <Rpc.h>
+#else
 #include <uuid/uuid.h>
 #endif
 
@@ -1225,42 +1224,40 @@ void Cmd_Ghost_f(edict_t * ent)
 	num_ghost_players--;
 }
 
-#ifndef WIN32
 void generate_uuid()
 {
-// #ifdef WIN32
-//     UUID uuid;
-//     unsigned char* uuidStr;
+#ifdef WIN32
+    UUID uuid;
+    unsigned char* uuidStr;
 
-//     if (UuidCreate(&uuid) != RPC_S_OK)
-//     {
-//         gi.dprintf("%s unable to create UUID\n", __func__);
-//         return;
-//     }
-//     if (UuidToStringA(&uuid, &uuidStr) != RPC_S_OK)
-//     {
-//         gi.dprintf("%s unable to format UUID as a string\n", __func__);
-//         return;
-//     }
+    if (UuidCreate(&uuid) != RPC_S_OK)
+    {
+        gi.dprintf("%s unable to create UUID\n", __func__);
+        return;
+    }
+    if (UuidToStringA(&uuid, &uuidStr) != RPC_S_OK)
+    {
+        gi.dprintf("%s unable to format UUID as a string\n", __func__);
+        return;
+    }
 
-//     strncpy(game.matchid, uuidStr, MAX_QPATH);
-//     //gi.dprintf("%s UUID: %s\n", __func__, game.matchid);
+    strncpy(game.matchid, uuidStr, MAX_QPATH);
+    //gi.dprintf("%s UUID: %s\n", __func__, game.matchid);
 
-//     if (RpcStringFreeA(&uuidStr) != RPC_S_OK)
-//     {
-//         gi.dprintf("Failed to free UUID display string\n", __func__);
-//         return;
-//     }
-// #else
+    if (RpcStringFreeA(&uuidStr) != RPC_S_OK)
+    {
+        gi.dprintf("Failed to free UUID display string\n", __func__);
+        return;
+    }
+#else
     char uuidBuff[MAX_QPATH]; // Make the buffer slightly larger than required
     uuid_t uuidGenerated;
     uuid_generate_random(uuidGenerated); // The UUID is 16 bytes (128 bits) long, which gives approximately 3.4x10^38 unique values
     uuid_unparse(uuidGenerated, uuidBuff);
     strncpy(game.matchid, uuidBuff, MAX_QPATH);
     //gi.dprintf("%s UUID: %s\n", __func__, game.matchid);
-
-}
 #endif
+}
 
 #ifndef NO_BOTS
 void Cmd_Placenode_f (edict_t *ent)
