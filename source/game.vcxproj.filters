@@ -147,6 +147,66 @@
     <ClCompile Include="a_dom.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="tng_jump.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="acesrc\acebot_ai.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="acesrc\acebot_cmds.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="acesrc\acebot_compress.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="acesrc\acebot_items.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="acesrc\acebot_movement.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="acesrc\acebot_nodes.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="acesrc\acebot_spawn.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="acesrc\bot_ai.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="acesrc\bot_collision.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="acesrc\bot_combat.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="acesrc\bot_env_doors.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="acesrc\bot_movement.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="acesrc\bot_states.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="acesrc\bot_utility.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="acesrc\bot_weapon.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="acesrc\botchat.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="acesrc\botnav.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="acesrc\botscan.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="p_antilag.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="a_ctf.h">
@@ -216,6 +276,24 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="a_dom.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="tng_jump.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="acesrc\acebot.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="acesrc\botchat.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="acesrc\botnav.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="acesrc\botscan.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="p_antilag.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

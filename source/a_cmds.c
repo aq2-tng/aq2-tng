@@ -1242,7 +1242,7 @@ void generate_uuid()
     }
 
     strncpy(game.matchid, uuidStr, MAX_QPATH);
-    //gi.dprintf("%s UUID: %s\n", __func__, level.matchid);
+    //gi.dprintf("%s UUID: %s\n", __func__, game.matchid);
 
     if (RpcStringFreeA(&uuidStr) != RPC_S_OK)
     {
@@ -1255,7 +1255,7 @@ void generate_uuid()
     uuid_generate_random(uuidGenerated); // The UUID is 16 bytes (128 bits) long, which gives approximately 3.4x10^38 unique values
     uuid_unparse(uuidGenerated, uuidBuff);
     strncpy(game.matchid, uuidBuff, MAX_QPATH);
-    //gi.dprintf("%s UUID: %s\n", __func__, level.matchid);
+    //gi.dprintf("%s UUID: %s\n", __func__, game.matchid);
 #endif
 }
 
