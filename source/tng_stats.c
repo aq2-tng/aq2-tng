@@ -756,20 +756,16 @@ LogMatch
 */
 void LogMatch()
 {
-	int gametime = 0;
 	int eventtime;
 	char msg[1024];
 	int t1 = teams[TEAM1].score;
 	int t2 = teams[TEAM2].score;
 	int t3 = teams[TEAM3].score;
-
-	//gi.dprintf("%s Broken: %s\n", __func__, "Called from a_team.c");
-	gametime = level.matchTime;
 	eventtime = (int)time(NULL);
 
 	strcpy(
 		msg,
-		"{\"gamematch\":{\"mid\":\"%s\",\"sid\":\"%s\",\"t\":\"%d\"\"gt\":\"%d\",\"m\":\"%s\",\"gm\":\"%i\",\"gmf\":%i,\"t1\":%i,\"t2\":\"%i\",\"t3\":\"%i\"}}\n"
+		"{\"gamematch\":{\"mid\":\"%s\",\"sid\":\"%s\",\"t\":\"%d\",\"m\":\"%s\",\"gm\":\"%i\",\"gmf\":%i,\"t1\":%i,\"t2\":\"%i\",\"t3\":\"%i\"}}\n"
 	);
 
 	Com_Printf(
@@ -777,7 +773,6 @@ void LogMatch()
 		game.matchid,
 		server_id->string,
 		eventtime,
-		gametime,
 		level.mapname,
 		Gamemode(),
 		Gamemodeflag(),
