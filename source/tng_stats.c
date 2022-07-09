@@ -68,6 +68,7 @@
 //-----------------------------------------------------------------------------
 
 #include "g_local.h"
+#include <time.h>
 
 /* Stats Command */
 
@@ -512,4 +513,304 @@ void Cmd_Statmode_f(edict_t* ent)
 		ent->client->resp.stat_mode = i;
 	}
 	stuffcmd(ent, stuff);
+}
+
+int Gamemode(void) // These are distinct game modes; you cannot have a teamdm tourney mode, for example
+{
+	int gamemode = 0;
+	if (teamdm->value) {
+		gamemode = GM_TEAMDM;
+	} else if (ctf->value) {
+		gamemode = GM_CTF;
+	} else if (use_tourney->value) {
+		gamemode = GM_TOURNEY;
+	} else if (teamplay->value) {
+		gamemode = GM_TEAMPLAY;  
+	} else if (deathmatch->value) {
+		gamemode = GM_DEATHMATCH;
+	}
+	return gamemode;
+}
+
+int Gamemodeflag(void) 
+// These are gamemode flags that change the rules of gamemodes.
+// For example, you can have a darkmatch matchmode 3team teamplay server
+{
+	int gamemodeflag = 0;
+
+	if (use_3teams->value) {
+		gamemodeflag += GMF_3TEAMS;
+	}
+	if (dom->value) {
+		gamemodeflag += GMF_DOMINATION;
+	}
+	if (darkmatch->value) {
+		gamemodeflag += GMF_DARKMATCH;
+	}
+	if (matchmode->value) {
+		gamemodeflag += GMF_MATCHMODE;
+	}
+	return gamemodeflag;
+}
+
+/*
+==================
+LogKill
+=================
+*/
+void LogKill(edict_t *self, edict_t *inflictor, edict_t *attacker)
+{
+	int mod;
+	int loc;
+	int gametime = 0;
+	int eventtime;
+	int vt = 0; //Default victim team is 0 (no team)
+	int kt = 0; //Default killer team is 0 (no team)
+	int ttk = 0; //Default TTK (time to kill) is 0
+	int vl = 0; //Placeholder victimleader until Espionage gets ported
+	int kl = 0; //Placeholder killerleader until Espionage gets ported
+	char msg[1024];
+	char v[24];
+	char vn[24];
+	char vip[24];
+	char *vi;
+	char k[24];
+	char kn[24];
+	char kip[24];
+	char *ki;
+
+	/*
+{
+    "frag": {
+        "sid": "AKIAZXXXXDPT32CRFR6327910",
+        "mid": "2C16CC41-1125-4426-AC4E-DE48002EC6A0,
+        "v": 76561111960862711,
+        "vn": "KaniZ",
+        "vi": "11.22.33.44",
+        "vt": 1,
+        "k": 73562211920862722,
+        "kn": "somen00b",
+        "ki": "55.66.77.88",
+        "kt": 2,
+        "w": 3,
+        "i": 0,
+        "l": 1,
+        "ks": 2,
+        "gm": 1,
+        "ttk": 17
+    }
+}
+	*/
+
+	/*\fov\90
+	\gender\male
+	\hand\0
+	\msg\1
+	\name\> F < KaniZ
+	\rate\25000
+	\skin\male/ctf_r
+	\spectator\0
+	\ip\172.19.0.1:58554
+	\version\q2pro r1861~5917c5f Feb 17 2020 Win32
+	*/
+
+	if ((team_round_going && !in_warmup) || (gameSettings & GS_DEATHMATCH)) // If round is active OR if deathmatch
+	{
+		mod = meansOfDeath & ~MOD_FRIENDLY_FIRE;
+		loc = locOfDeath;
+
+		if (gameSettings & GS_TEAMPLAY) // Define these if the game is teamplay
+		{
+			vt = self->client->resp.team;
+			kt = attacker->client->resp.team;
+			ttk = current_round_length / 10;
+		}
+		
+		strcpy(v, Info_ValueForKey(self->client->pers.userinfo, "steamid"));
+		strcpy(vn, Info_ValueForKey(self->client->pers.userinfo, "name"));
+		strcpy(vip, Info_ValueForKey(self->client->pers.userinfo, "ip"));
+		strcpy(k, Info_ValueForKey(attacker->client->pers.userinfo, "steamid"));
+		strcpy(kn, Info_ValueForKey(attacker->client->pers.userinfo, "name"));
+		strcpy(kip, Info_ValueForKey(attacker->client->pers.userinfo, "ip"));
+
+		// Separate IP from Port
+		char* portSeperator = ":";
+		vi = strtok(vip, portSeperator);
+		ki = strtok(kip, portSeperator);
+
+		gametime = level.matchTime;
+		eventtime = (int)time(NULL);
+
+		strcpy(
+			msg,
+			"{\"frag\":{\"sid\":\"%s\",\"mid\":\"%s\",\"v\":\"%s\",\"vn\":\"%s\",\"vi\":\"%s\",\"vt\":%i,\"vl\":%i,\"k\":\"%s\",\"kn\":\"%s\",\"ki\":\"%s\",\"kt\":%i,\"kl\":%i,\"w\":%i,\"i\":%i,\"l\":%i,\"ks\":%i,\"gm\":%i,\"gmf\":%i,\"ttk\":\"%d\",\"t\":%d,\"gt\":%d,\"m\":\"%s\"}}\n"
+		);
+
+		Com_Printf(
+			msg,
+			server_id->string,
+			game.matchid,
+			v,
+			vn,
+			vi,
+			vt,
+			vl,
+			k,
+			kn,
+			ki,
+			kt,
+			kl,
+			mod,
+			attacker->client->pers.chosenItem->typeNum,
+			loc,
+			attacker->client->resp.streakKills + 1,
+			Gamemode(),
+			Gamemodeflag(),
+			ttk,
+			eventtime,
+			gametime,
+			level.mapname
+		);
+	}
+}
+
+/*
+==================
+LogWorldKill
+=================
+*/
+void LogWorldKill(edict_t *self)
+{
+	int mod;
+	int loc = 16;
+	int gametime = 0;
+	int eventtime;
+	int vt = 0; //Default victim team is 0 (no team)
+	int ttk = 0; //Default TTK (time to kill) is 0
+	int vl = 0; //Placeholder victimleader until Espionage gets ported
+	char msg[1024];
+	char v[24];
+	char vn[24];
+	char vip[24];
+	char *vi;
+
+	if ((team_round_going && !in_warmup) || (gameSettings & GS_DEATHMATCH)) // If round is active OR if deathmatch
+	{
+		mod = meansOfDeath & ~MOD_FRIENDLY_FIRE;
+		loc = locOfDeath;
+
+		if (gameSettings & GS_TEAMPLAY) // Define these if the game is teamplay, else default to 0
+		{
+			vt = self->client->resp.team;
+			ttk = current_round_length / 10;
+		}
+		
+		strcpy(v, Info_ValueForKey(self->client->pers.userinfo, "steamid"));
+		strcpy(vn, Info_ValueForKey(self->client->pers.userinfo, "name"));
+		strcpy(vip, Info_ValueForKey(self->client->pers.userinfo, "ip"));
+
+		// Separate IP from Port
+		char* portSeperator = ":";
+		vi = strtok(vip, portSeperator);
+
+		gametime = level.matchTime;
+		eventtime = (int)time(NULL);
+
+		strcpy(
+			msg,
+			"{\"frag\":{\"sid\":\"%s\",\"mid\":\"%s\",\"v\":\"%s\",\"vn\":\"%s\",\"vi\":\"%s\",\"vt\":%i,\"vl\":%i,\"k\":\"%s\",\"kn\":\"%s\",\"ki\":\"%s\",\"kt\":%i,\"kl\":%i,\"w\":%i,\"i\":%i,\"l\":%i,\"ks\":%i,\"gm\":%i,\"gmf\":%i,\"ttk\":\"%d\",\"t\":%d,\"gt\":%d,\"m\":\"%s\"}}\n"
+		);
+
+		Com_Printf(
+			msg,
+			server_id->string,
+			game.matchid,
+			v,
+			vn,
+			vi,
+			vt,
+			vl,
+			v,
+			vn,
+			vi,
+			vt,
+			vl,
+			mod,
+			16, // No attacker for world death
+			loc,
+			0, // No killstreak for world death
+			Gamemode(),
+			Gamemodeflag(),
+			ttk,
+			eventtime,
+			gametime,
+			level.mapname
+		);
+	}
+}
+
+/*
+==================
+LogMatch
+=================
+*/
+void LogMatch()
+{
+	int eventtime;
+	char msg[1024];
+	int t1 = teams[TEAM1].score;
+	int t2 = teams[TEAM2].score;
+	int t3 = teams[TEAM3].score;
+	eventtime = (int)time(NULL);
+
+	strcpy(
+		msg,
+		"{\"gamematch\":{\"mid\":\"%s\",\"sid\":\"%s\",\"t\":\"%d\",\"m\":\"%s\",\"gm\":\"%i\",\"gmf\":%i,\"t1\":%i,\"t2\":\"%i\",\"t3\":\"%i\"}}\n"
+	);
+
+	Com_Printf(
+		msg,
+		game.matchid,
+		server_id->string,
+		eventtime,
+		level.mapname,
+		Gamemode(),
+		Gamemodeflag(),
+		t1,
+		t2,
+		t3
+	);
+}
+
+/*
+==================
+LogAward
+=================
+*/
+void LogAward(char* steamid, int award)
+{
+	int gametime = 0;
+	int eventtime;
+	char msg[1024];
+	int mod;
+	mod = meansOfDeath & ~MOD_FRIENDLY_FIRE;
+
+	gametime = level.matchTime;
+	eventtime = (int)time(NULL);
+
+	strcpy(
+		msg,
+		"{\"award\":{\"sid\":\"%s\",\"mid\":\"%s\",\"t\":\"%d\",\"gt\":\"%d\",\"a\":%i,\"k\":%s,\"w\":\"%i\"}}\n"
+	);
+
+	Com_Printf(
+		msg,
+		server_id->string,
+		game.matchid,
+		eventtime,
+		gametime,
+		award,
+		steamid,
+		mod
+	);
 }
