@@ -137,8 +137,9 @@
 // #pragma comment(lib, "rpcrt4.lib")
 // #include <rpc/rpc.h>
 // #else
+#ifndef WIN32
 #include <uuid/uuid.h>
-//#endif
+#endif
 
 /*----------------------------------------
  * SP_LaserSight
@@ -1224,6 +1225,7 @@ void Cmd_Ghost_f(edict_t * ent)
 	num_ghost_players--;
 }
 
+#ifndef WIN32
 void generate_uuid()
 {
 // #ifdef WIN32
@@ -1256,8 +1258,9 @@ void generate_uuid()
     uuid_unparse(uuidGenerated, uuidBuff);
     strncpy(game.matchid, uuidBuff, MAX_QPATH);
     //gi.dprintf("%s UUID: %s\n", __func__, game.matchid);
-//#endif
+
 }
+#endif
 
 #ifndef NO_BOTS
 void Cmd_Placenode_f (edict_t *ent)
