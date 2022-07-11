@@ -370,6 +370,7 @@ void InitGame( void )
 	capturelimit = gi.cvar( "capturelimit", "0", CVAR_SERVERINFO );
 	password = gi.cvar( "password", "", CVAR_USERINFO );
 	filterban = gi.cvar( "filterban", "1", 0 );
+	silenceban = gi.cvar( "silenceban", "1", 0); //rekkie -- silence ban
 	needpass = gi.cvar( "needpass", "0", CVAR_SERVERINFO );
 	radiolog = gi.cvar( "radiolog", "0", 0 );
 	teamplay = gi.cvar( "teamplay", "0", CVAR_SERVERINFO | CVAR_LATCH );
