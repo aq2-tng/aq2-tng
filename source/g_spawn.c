@@ -252,6 +252,7 @@ void SP_misc_easterchick2 (edict_t * self);
 //zucc - item replacement function
 void CheckItem (edict_t * ent);
 int LoadFlagsFromFile (const char *mapname);
+void SVCmd_CheckSB_f(void); //rekkie -- silence ban
 extern void UnBan_TeamKillers(void);
 
 //AQ2:TNG - Slicer New location code
@@ -1199,6 +1200,8 @@ void SpawnEntities (char *mapname, char *entities, char *spawnpoint)
 	}
 
 	G_LoadLocations();
+
+	SVCmd_CheckSB_f(); //rekkie -- silence ban
 
 	UnBan_TeamKillers();
 

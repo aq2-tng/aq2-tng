@@ -2915,6 +2915,17 @@ qboolean ClientConnect(edict_t * ent, char *userinfo)
 		IRC_printf(IRC_T_SERVER, "%n@%s connected", value, ipaddr_buf);
 	}
 
+	//rekkie -- silence ban -- s
+	if (SV_FilterSBPacket(ipaddr_buf, NULL)) // Check if player has been silenced
+	{
+		ent->client->pers.silence_banned = true;
+		value = Info_ValueForKey(userinfo, "name");
+		gi.dprintf("%s has been [SILENCED] because they're on the naughty list\n", value); // Notify console the player is silenced
+	}
+	else
+		ent->client->pers.silence_banned = false;
+	//rekkie -- silence ban -- e
+
 	//set connected on ClientBeginDeathmatch as clientconnect doesn't always
 	//guarantee a client is actually making it all the way into the game.
 	//ent->client->pers.connected = true;

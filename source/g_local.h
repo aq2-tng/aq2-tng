@@ -1085,6 +1085,7 @@ extern cvar_t *dedicated;
 extern cvar_t *steamid;
 
 extern cvar_t *filterban;
+extern cvar_t* silenceban; //rekkie -- silence ban
 extern cvar_t *flood_threshold;
 
 extern cvar_t *sv_gravity;
@@ -1350,6 +1351,7 @@ void player_die (edict_t * self, edict_t * inflictor, edict_t * attacker,
 //
 void ServerCommand (void);
 qboolean SV_FilterPacket (char *from, int *temp);
+qboolean SV_FilterSBPacket(char* from, int* temp); //rekkie -- silence ban
 void Kick_Client (edict_t * ent);
 qboolean Ban_TeamKiller (edict_t * ent, int rounds);
 
@@ -1492,6 +1494,8 @@ typedef struct
 
 	qboolean connected;		// a loadgame will leave valid entities that
 	// just don't have a connection yet
+
+	qboolean silence_banned; //rekkie -- silence ban
 
 	int admin;
 
