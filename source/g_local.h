@@ -1085,6 +1085,7 @@ extern cvar_t *dedicated;
 extern cvar_t *steamid;
 
 extern cvar_t *filterban;
+extern cvar_t* silenceban; //rekkie -- silence ban
 extern cvar_t *flood_threshold;
 
 extern cvar_t *sv_gravity;
@@ -1350,6 +1351,7 @@ void player_die (edict_t * self, edict_t * inflictor, edict_t * attacker,
 //
 void ServerCommand (void);
 qboolean SV_FilterPacket (char *from, int *temp);
+qboolean SV_FilterSBPacket(char* from, int* temp); //rekkie -- silence ban
 void Kick_Client (edict_t * ent);
 qboolean Ban_TeamKiller (edict_t * ent, int rounds);
 
@@ -1419,8 +1421,6 @@ void ClientFixLegs(edict_t *ent);
 void ClientUserinfoChanged(edict_t* ent, char* userinfo);
 void ClientDisconnect(edict_t* ent);
 void CopyToBodyQue(edict_t* ent);
-void LogMatch();
-void LogAward(char* steamid, int award);
 
 //p_weapon.c
 void Weapon_Generic( edict_t * ent, int FRAME_ACTIVATE_LAST, int FRAME_FIRE_LAST,
@@ -1434,6 +1434,12 @@ void P_ProjectSource(gclient_t *client, vec3_t point, vec3_t distance, vec3_t fo
 void weapon_grenade_fire(edict_t* ent, qboolean held);
 void InitTookDamage(void);
 void ProduceShotgunDamageReport(edict_t*);
+
+//tng_stats.c
+void LogKill(edict_t *self, edict_t *inflictor, edict_t *attacker);
+void LogWorldKill(edict_t *self);
+void LogMatch();
+void LogAward(char* steamid, int award);
 
 
 //============================================================================
@@ -1488,6 +1494,8 @@ typedef struct
 
 	qboolean connected;		// a loadgame will leave valid entities that
 	// just don't have a connection yet
+
+	qboolean silence_banned; //rekkie -- silence ban
 
 	int admin;
 
