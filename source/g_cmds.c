@@ -1674,6 +1674,9 @@ static void Cmd_PrintSettings_f( edict_t * ent )
 		length = strlen( text );
 	}
 
+        Com_sprintf( text + length, sizeof( text ) - length, "sv_antilag = %d\n", (int)sv_antilag->value );
+        length = strlen( text );
+	
 	Com_sprintf( text + length, sizeof( text ) - length, "dmflags %i: ", (int)dmflags->value );
 	dmflagsSettings( text, sizeof( text ), (int)dmflags->value );
 
