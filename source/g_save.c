@@ -544,15 +544,17 @@ void InitGame( void )
 
 	use_mvd2 = gi.cvar( "use_mvd2", "0", 0 );	// JBravo: q2pro MVD2 recording. 0 = off, 1 = on
 
-	e_enhancedSlippers = gi.cvar( "e_enhancedSlippers", "0", 0); // darksaint: AQ2 ETE
+	// BEGIN AQ2 ETE
+	e_enhancedSlippers = gi.cvar( "e_enhancedSlippers", "0", 0);
+	// END AQ2 ETE
 
 	sv_antilag = gi.cvar("sv_antilag", "0", CVAR_SERVERINFO);
+	sv_antilag_interp = gi.cvar("sv_antilag_interp", "0", CVAR_SERVERINFO);
 	sv_limp_highping = gi.cvar("sv_limp_highping", "70", CVAR_SERVERINFO);
 	mapvote_next_time = gi.cvar( "mapvote_next_time", "60", 0);
 
 	// items
 	InitItems();
-
 
 	// initialize all clients for this game
 	game.maxclients = (int)maxclients->value;
