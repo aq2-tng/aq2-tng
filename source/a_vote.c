@@ -167,9 +167,20 @@ static void Votemap(edict_t *ent, const char *mapname)
 {
 	char *oldvote;
 	int voteWaitTime;
+	int gametime = 0;
+	int remaining = 0;
+
+	gametime = level.matchTime;
+	remaining = (timelimit->value * 60) - gametime;
 
 	if (!use_mapvote->value) {
 		gi.cprintf(ent, PRINT_HIGH, "Map voting is disabled.\n");
+		return;
+	}
+
+	// If timelimit is set and if mapvote_next is 2, and the remaining time is less than the mapvote_next_time, do not allow the mapvote
+	if (timelimit->value && mapvote_next->value == 2 && remaining < mapvote_next_time->value){
+		gi.cprintf(ent, PRINT_HIGH, "It is too late to vote for the next map.\n");
 		return;
 	}
 
@@ -667,8 +678,8 @@ void AddMapToMenu (edict_t * ent, int fromix)
 		spc[i--] = '\0';
 		while (i >= 0)
 			spc[i--] = ' ';
-		//+ Marker: Hier einbauen, daß die gewählte Karte markiert ist
-		//  problem: '*' am anfang wird nicht berücksichtigt. - erledigt -
+		//+ Marker: Hier einbauen, daï¿½ die gewï¿½hlte Karte markiert ist
+		//  problem: '*' am anfang wird nicht berï¿½cksichtigt. - erledigt -
 		//alt: sprintf(buffer, "%s%s%.1f%%", search->mapname, spc, prozent);
 		sprintf (buffer, "%s%s%s%.1f%%",
 		ent->client->resp.mapvote == search->mapname ? "*" : "",
@@ -1061,7 +1072,7 @@ void _AddKickuserToMenu (edict_t * ent, int fromix)
 
 		if (other != ent)
 		{
-			//+ Marker: Hier gewählten markieren - erledigt -
+			//+ Marker: Hier gewï¿½hlten markieren - erledigt -
 			sprintf (buf, "%s%2i: %s%s",
 			other == ent->client->resp.kickvote ? "*" : "", i,
 			other->client->pers.netname,
@@ -1945,7 +1956,7 @@ void _AddIgnoreuserToMenu (edict_t * ent, int fromix)
 	{
 		if (other->inuse && other != ent)
 		{
-			//+ Marker: Hier gewählten markieren - erledigt -
+			//+ Marker: Hier gewï¿½hlten markieren - erledigt -
 			sprintf (buf, "%s%2i: %s", IsInIgnoreList (ent, other) ? "*" : "",
 			i, other->client->pers.netname);
 			erg = xMenu_Add (ent, buf, _IgnoreSelected);
