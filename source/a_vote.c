@@ -678,8 +678,8 @@ void AddMapToMenu (edict_t * ent, int fromix)
 		spc[i--] = '\0';
 		while (i >= 0)
 			spc[i--] = ' ';
-		//+ Marker: Hier einbauen, da� die gew�hlte Karte markiert ist
-		//  problem: '*' am anfang wird nicht ber�cksichtigt. - erledigt -
+		//+ Marker: Hier einbauen, daß die gewählte Karte markiert ist
+		// problem: '*' am anfang wird nicht berücksichtigt. - erledigt -
 		//alt: sprintf(buffer, "%s%s%.1f%%", search->mapname, spc, prozent);
 		sprintf (buffer, "%s%s%s%.1f%%",
 		ent->client->resp.mapvote == search->mapname ? "*" : "",
@@ -1072,7 +1072,7 @@ void _AddKickuserToMenu (edict_t * ent, int fromix)
 
 		if (other != ent)
 		{
-			//+ Marker: Hier gew�hlten markieren - erledigt -
+			//+ Marker: Hier gewählten markieren - erledigt -
 			sprintf (buf, "%s%2i: %s%s",
 			other == ent->client->resp.kickvote ? "*" : "", i,
 			other->client->pers.netname,
@@ -1956,7 +1956,7 @@ void _AddIgnoreuserToMenu (edict_t * ent, int fromix)
 	{
 		if (other->inuse && other != ent)
 		{
-			//+ Marker: Hier gew�hlten markieren - erledigt -
+			//+ Marker: Hier gewählten markieren - erledigt -
 			sprintf (buf, "%s%2i: %s", IsInIgnoreList (ent, other) ? "*" : "",
 			i, other->client->pers.netname);
 			erg = xMenu_Add (ent, buf, _IgnoreSelected);
