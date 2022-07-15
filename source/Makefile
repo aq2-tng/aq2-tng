@@ -4,7 +4,7 @@
 #
 
 PACKAGE=aq2-tng
-VERSION=2.81
+VERSION=2.82
 FILE_VERSION:=$(VERSION)
 
 ## Export env TNG_BUILD_FOR=WIN32 or TNG_BUILD_FOR=WIN64 to build 32-bit exe on 64-bit arch
