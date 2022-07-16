@@ -1114,7 +1114,7 @@ extern cvar_t *medkit_instant;
 extern cvar_t *e_enhancedSlippers;
 
 extern cvar_t *sv_limp_highping;
-extern cvar_t *mapvote_next_time;
+extern cvar_t *mapvote_next_limit;
 
 #define world   (&g_edicts[0])
 

@@ -5,7 +5,7 @@ Changes in TNG 2.82
 * = major bug fix
 
 From 2.82
-+ mapvote_next_time: Value in seconds, restricts players from voting for a map at the very end of the match while still enabling mapvote_next features
++ mapvote_next_limit: Value in seconds, restricts players from voting for a map at the very end of the match while still enabling mapvote_next features
 
 
 From 2.81
