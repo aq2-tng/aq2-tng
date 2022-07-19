@@ -568,7 +568,7 @@ void LogKill(edict_t *self, edict_t *inflictor, edict_t *attacker)
 	int mod;
 	int loc;
 	int gametime = 0;
-	int roundNum;
+	int roundNum = 1;
 	int eventtime;
 	int vt = 0; //Default victim team is 0 (no team)
 	int kt = 0; //Default killer team is 0 (no team)
@@ -692,7 +692,7 @@ void LogWorldKill(edict_t *self)
 	int mod;
 	int loc = 16;
 	int gametime = 0;
-	int roundNum;
+	int roundNum = 1;
 	int eventtime;
 	int vt = 0; //Default victim team is 0 (no team)
 	int ttk = 0; //Default TTK (time to kill) is 0
