@@ -317,11 +317,11 @@ void PostMatchStats(int score, int shots, char* steamid, float accuracy, float f
 {
 	char msg[1024];
 
-	gi.dprintf("Post: %i %i %f %f", score, shots, steamid, accuracy, fpm);
+	gi.dprintf("Post: %i %i %s %f %f", score, shots, steamid, accuracy, fpm);
 
 	strcpy(
 			msg,
-			"{\"matchstats\":{\"sid\":\"%s\",\"mid\":\"%s\",\"s\":\"%i\",\"n\":\"%s\",\"sh\":\"%i\",\"a\":%f,\"f\":%f}}\n"
+			"{\"matchstats\":{\"sid\":\"%s\",\"mid\":\"%s\",\"s\":\"%i\",\"sh\":\"%i\",\"n\":\"%s\",\"a\":%f,\"f\":%f\"}}\n"
 		);
 
 	Com_Printf(
@@ -329,8 +329,8 @@ void PostMatchStats(int score, int shots, char* steamid, float accuracy, float f
 		server_id->string,
 		game.matchid,
 		score,
-		steamid,
 		shots,
+		steamid,
 		accuracy,
 		fpm
 	);
@@ -464,7 +464,7 @@ void A_ScoreboardEndLevel (edict_t * ent, edict_t * killer)
 
 		if (stat_logs->value && !ltk_loadbots->value) { // Only create stats logs if stat_logs is 1 and ltk_loadbots is 0
 			strcpy(steamid, Info_ValueForKey(killer->client->pers.userinfo, "steamid"));
-			gi.dprintf("Pre: %i %i %s %f %f", cl->resp.score, steamid, shots, accuracy, fpm);
+			gi.dprintf("Pre: %i %i %s %f %f", cl->resp.score, shots, steamid, accuracy, fpm);
 			PostMatchStats(cl->resp.score, shots, steamid, accuracy, fpm);
 		}
 		
