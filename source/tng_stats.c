@@ -462,11 +462,11 @@ void A_ScoreboardEndLevel (edict_t * ent, edict_t * killer)
 			cl->resp.score,
 			cl->pers.netname, shots, accuracy, fpm );
 
-		if (stat_logs->value && !ltk_loadbots->value) { // Only create stats logs if stat_logs is 1 and ltk_loadbots is 0
-			strcpy(steamid, Info_ValueForKey(killer->client->pers.userinfo, "steamid"));
-			gi.dprintf("Pre: %i %i %s %f %f", cl->resp.score, shots, steamid, accuracy, fpm);
-			PostMatchStats(cl->resp.score, shots, steamid, accuracy, fpm);
-		}
+		// if (stat_logs->value && !ltk_loadbots->value) { // Only create stats logs if stat_logs is 1 and ltk_loadbots is 0
+		// 	strcpy(steamid, Info_ValueForKey(killer->client->pers.userinfo, "steamid"));
+		// 	gi.dprintf("Pre: %i %i %s %f %f", cl->resp.score, shots, steamid, accuracy, fpm);
+		// 	PostMatchStats(cl->resp.score, shots, steamid, accuracy, fpm);
+		// }
 		
 		line_y += 8;
 
@@ -568,7 +568,7 @@ void LogKill(edict_t *self, edict_t *inflictor, edict_t *attacker)
 	int mod;
 	int loc;
 	int gametime = 0;
-	int roundNum = 1;
+	int roundNum;
 	int eventtime;
 	int vt = 0; //Default victim team is 0 (no team)
 	int kt = 0; //Default killer team is 0 (no team)
@@ -646,7 +646,7 @@ void LogKill(edict_t *self, edict_t *inflictor, edict_t *attacker)
 
 		gametime = level.matchTime;
 		eventtime = (int)time(NULL);
-		roundNum = game.roundNum;
+		roundNum = game.roundNum + 1;
 
 		strcpy(
 			msg,
@@ -692,7 +692,7 @@ void LogWorldKill(edict_t *self)
 	int mod;
 	int loc = 16;
 	int gametime = 0;
-	int roundNum = 1;
+	int roundNum;
 	int eventtime;
 	int vt = 0; //Default victim team is 0 (no team)
 	int ttk = 0; //Default TTK (time to kill) is 0
@@ -724,7 +724,7 @@ void LogWorldKill(edict_t *self)
 
 		gametime = level.matchTime;
 		eventtime = (int)time(NULL);
-		roundNum = game.roundNum;
+		roundNum = game.roundNum + 1;
 
 		strcpy(
 			msg,
