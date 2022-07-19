@@ -463,9 +463,9 @@ void A_ScoreboardEndLevel (edict_t * ent, edict_t * killer)
 			cl->pers.netname, shots, accuracy, fpm );
 
 		if (stat_logs->value && !ltk_loadbots->value) { // Only create stats logs if stat_logs is 1 and ltk_loadbots is 0
-			strcpy(steamid, Info_ValueForKey(killer->client->pers.userinfo, "steamid"));
-			gi.dprintf("Pre: %i %s %i %f %f", cl->resp.score, steamid, shots, accuracy, fpm);
-			PostMatchStats(cl->resp.score, steamid, shots, accuracy, fpm);
+			//strcpy(steamid, Info_ValueForKey(killer->client->pers.userinfo, "steamid"));
+			gi.dprintf("Pre: %i %i %f %f", cl->resp.score, shots, accuracy, fpm);
+			PostMatchStats(cl->resp.score, shots, accuracy, fpm);
 		}
 		
 		line_y += 8;
