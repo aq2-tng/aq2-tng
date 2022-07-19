@@ -313,11 +313,11 @@ void Cmd_Stats_f (edict_t *targetent, char *arg)
 }
 
 
-void PostMatchStats(int score, char* steamid, int shots, float accuracy, float fpm)
+void PostMatchStats(int score, int shots, float accuracy, float fpm)
 {
 	char msg[1024];
 
-	gi.dprintf("Post: %i %s %i %f %f", score, steamid, shots, accuracy, fpm);
+	gi.dprintf("Post: %i %i %f %f", score, shots, accuracy, fpm);
 
 	strcpy(
 			msg,
