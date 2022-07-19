@@ -729,6 +729,7 @@ typedef struct
   char matchid[MAX_QPATH];
   int gamemode;
   int gamemodeflags;
+  int roundNum;
 }
 game_locals_t;
 

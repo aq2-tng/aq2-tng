@@ -312,28 +312,6 @@ void Cmd_Stats_f (edict_t *targetent, char *arg)
 	gi.cprintf(targetent, PRINT_HIGH, "Highest streaks:  kills: %d headshots: %d\n", ent->client->resp.streakKillsHighest, ent->client->resp.streakHSHighest);
 }
 
-// Not ready yet
-// void A_StatPrinter (int score, char steamid[24], int shots, float accuracy, float fpm)
-// {
-// 	char msg[1024];
-
-// 	strcpy(
-// 			msg,
-// 			"{\"matchstats\":{\"sid\":\"%s\",\"mid\":\"%s\",\"s\":\"%i\",\"n\":\"%s\",\"sh\":\"%i\",\"a\":%f,\"f\":%f}}\n"
-// 		);
-
-// 	Com_Printf(
-// 		msg,
-// 		server_id->string,
-// 		game.matchid,
-// 		score,
-// 		steamid,
-// 		shots,
-// 		accuracy,
-// 		fpm
-// 	);
-// }
-
 void A_ScoreboardEndLevel (edict_t * ent, edict_t * killer)
 {
 	char string[2048];
@@ -344,7 +322,7 @@ void A_ScoreboardEndLevel (edict_t * ent, edict_t * killer)
 	int totalplayers[TEAM_TOP] = {0};
 	int totalscore[TEAM_TOP] = {0};
 	int name_pos[TEAM_TOP] = {0};
-	//char steamid[24];
+	char steamid[24];
 
 
 	totalClients = G_SortedClients(sortedClients);
@@ -460,8 +438,11 @@ void A_ScoreboardEndLevel (edict_t * ent, edict_t * killer)
 			cl->resp.score,
 			cl->pers.netname, shots, accuracy, fpm );
 
-		//strcpy(steamid, Info_ValueForKey(killer->client->pers.userinfo, "steamid"));
-		//A_StatPrinter(cl->resp.score, steamid, shots, accuracy, fpm);
+		if (stat_logs->value && !ltk_loadbots->value) { // Only create stats logs if stat_logs is 1 and ltk_loadbots is 0
+			strcpy(steamid, Info_ValueForKey(killer->client->pers.userinfo, "steamid"));
+			gi.dprintf("Pre: %i %s %i %f %f", cl->resp.score, steamid, shots, accuracy, fpm);
+			PostMatchStats(cl->resp.score, steamid, shots, accuracy, fpm);
+		}
 		
 		line_y += 8;
 
@@ -563,6 +544,7 @@ void LogKill(edict_t *self, edict_t *inflictor, edict_t *attacker)
 	int mod;
 	int loc;
 	int gametime = 0;
+	int roundNum = 0;
 	int eventtime;
 	int vt = 0; //Default victim team is 0 (no team)
 	int kt = 0; //Default killer team is 0 (no team)
@@ -640,10 +622,11 @@ void LogKill(edict_t *self, edict_t *inflictor, edict_t *attacker)
 
 		gametime = level.matchTime;
 		eventtime = (int)time(NULL);
+		roundNum = game.roundNum;
 
 		strcpy(
 			msg,
-			"{\"frag\":{\"sid\":\"%s\",\"mid\":\"%s\",\"v\":\"%s\",\"vn\":\"%s\",\"vi\":\"%s\",\"vt\":%i,\"vl\":%i,\"k\":\"%s\",\"kn\":\"%s\",\"ki\":\"%s\",\"kt\":%i,\"kl\":%i,\"w\":%i,\"i\":%i,\"l\":%i,\"ks\":%i,\"gm\":%i,\"gmf\":%i,\"ttk\":\"%d\",\"t\":%d,\"gt\":%d,\"m\":\"%s\"}}\n"
+			"{\"frag\":{\"sid\":\"%s\",\"mid\":\"%s\",\"v\":\"%s\",\"vn\":\"%s\",\"vi\":\"%s\",\"vt\":%i,\"vl\":%i,\"k\":\"%s\",\"kn\":\"%s\",\"ki\":\"%s\",\"kt\":%i,\"kl\":%i,\"w\":%i,\"i\":%i,\"l\":%i,\"ks\":%i,\"gm\":%i,\"gmf\":%i,\"ttk\":\"%d\",\"t\":%d,\"gt\":%d,\"m\":\"%s\",\"r\":%i\"}}\n"
 		);
 
 		Com_Printf(
@@ -669,7 +652,8 @@ void LogKill(edict_t *self, edict_t *inflictor, edict_t *attacker)
 			ttk,
 			eventtime,
 			gametime,
-			level.mapname
+			level.mapname,
+			roundNum
 		);
 	}
 }
@@ -684,6 +668,7 @@ void LogWorldKill(edict_t *self)
 	int mod;
 	int loc = 16;
 	int gametime = 0;
+	int roundNum = 0;
 	int eventtime;
 	int vt = 0; //Default victim team is 0 (no team)
 	int ttk = 0; //Default TTK (time to kill) is 0
@@ -715,10 +700,11 @@ void LogWorldKill(edict_t *self)
 
 		gametime = level.matchTime;
 		eventtime = (int)time(NULL);
+		roundNum = game.roundNum;
 
 		strcpy(
 			msg,
-			"{\"frag\":{\"sid\":\"%s\",\"mid\":\"%s\",\"v\":\"%s\",\"vn\":\"%s\",\"vi\":\"%s\",\"vt\":%i,\"vl\":%i,\"k\":\"%s\",\"kn\":\"%s\",\"ki\":\"%s\",\"kt\":%i,\"kl\":%i,\"w\":%i,\"i\":%i,\"l\":%i,\"ks\":%i,\"gm\":%i,\"gmf\":%i,\"ttk\":\"%d\",\"t\":%d,\"gt\":%d,\"m\":\"%s\"}}\n"
+			"{\"frag\":{\"sid\":\"%s\",\"mid\":\"%s\",\"v\":\"%s\",\"vn\":\"%s\",\"vi\":\"%s\",\"vt\":%i,\"vl\":%i,\"k\":\"%s\",\"kn\":\"%s\",\"ki\":\"%s\",\"kt\":%i,\"kl\":%i,\"w\":%i,\"i\":%i,\"l\":%i,\"ks\":%i,\"gm\":%i,\"gmf\":%i,\"ttk\":\"%d\",\"t\":%d,\"gt\":%d,\"m\":\"%s\",\"r\":%i\"}}\n"
 		);
 
 		Com_Printf(
@@ -744,7 +730,8 @@ void LogWorldKill(edict_t *self)
 			ttk,
 			eventtime,
 			gametime,
-			level.mapname
+			level.mapname,
+			roundNum
 		);
 	}
 }
@@ -812,5 +799,28 @@ void LogAward(char* steamid, int award)
 		award,
 		steamid,
 		mod
+	);
+}
+
+void PostMatchStats(int score, char* steamid, int shots, float accuracy, float fpm)
+{
+	char msg[1024];
+
+	gi.dprintf("Post: %i %s %i %f %f", score, steamid, shots, accuracy, fpm);
+
+	strcpy(
+			msg,
+			"{\"matchstats\":{\"sid\":\"%s\",\"mid\":\"%s\",\"s\":\"%i\",\"n\":\"%s\",\"sh\":\"%i\",\"a\":%f,\"f\":%f}}\n"
+		);
+
+	Com_Printf(
+		msg,
+		server_id->string,
+		game.matchid,
+		score,
+		steamid,
+		shots,
+		accuracy,
+		fpm
 	);
 }
