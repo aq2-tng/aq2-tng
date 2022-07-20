@@ -148,6 +148,12 @@ void BeginIntermission(edict_t *targ)
 		else
 			fpm = 0.0;
 
+		//debug
+			gi.dprintf("score: %i \n", cl->resp.score);
+			gi.dprintf("shots: %i \n", shots);
+			gi.dprintf("accuracy: %i \n", accuracy);
+			gi.dprintf("fpm: %i \n", fpm);
+
 		if (stat_logs->value && !ltk_loadbots->value) { // Only create stats logs if stat_logs is 1 and ltk_loadbots is 0
 			strcpy(steamid, Info_ValueForKey(targ->client->pers.userinfo, "steamid"));
 			gi.dprintf("Pre: %i %i %s %f %f\n", cl->resp.score, shots, steamid, accuracy, fpm);
