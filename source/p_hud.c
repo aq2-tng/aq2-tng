@@ -120,6 +120,44 @@ void BeginIntermission(edict_t *targ)
 	int i;
 	edict_t *ent;
 
+	// Stats begin
+	gclient_t *sortedClients[MAX_CLIENTS], *cl;
+	int totalClients, secs, shots;
+	double accuracy, fpm;
+	char steamid[24];
+
+	totalClients = G_SortedClients(sortedClients);
+
+	for (i = 0; i < totalClients; i++)
+	{
+		cl = sortedClients[i];
+
+		if (!cl->resp.team)
+			continue;
+
+		shots = min( cl->resp.shotsTotal, 9999 );
+
+		if (shots)
+			accuracy = (double)cl->resp.hitsTotal * 100.0 / (double)cl->resp.shotsTotal;
+		else
+			accuracy = 0;
+
+		secs = (level.framenum - cl->resp.enterframe) / HZ;
+		if (secs > 0)
+			fpm = (double)cl->resp.score * 60.0 / (double)secs;
+		else
+			fpm = 0.0;
+
+		if (stat_logs->value && !ltk_loadbots->value) { // Only create stats logs if stat_logs is 1 and ltk_loadbots is 0
+		strcpy(steamid, Info_ValueForKey(ent->client->pers.userinfo, "steamid"));
+		gi.dprintf("Pre: %i %i %s %f %f\n", cl->resp.score, shots, steamid, accuracy, fpm);
+		PostMatchStats(cl->resp.score, shots, steamid, accuracy, fpm);
+	}
+	}
+
+	// Stats end
+
+
 	if (level.intermission_framenum)
 		return;			// already activated
 

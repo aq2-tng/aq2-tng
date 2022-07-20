@@ -346,8 +346,6 @@ void A_ScoreboardEndLevel (edict_t * ent, edict_t * killer)
 	int totalplayers[TEAM_TOP] = {0};
 	int totalscore[TEAM_TOP] = {0};
 	int name_pos[TEAM_TOP] = {0};
-	char steamid[24];
-
 
 	totalClients = G_SortedClients(sortedClients);
 
@@ -473,13 +471,7 @@ void A_ScoreboardEndLevel (edict_t * ent, edict_t * killer)
 			break;
 		}
 	}
-	if (stat_logs->value && !ltk_loadbots->value) { // Only create stats logs if stat_logs is 1 and ltk_loadbots is 0
-		strcpy(steamid, Info_ValueForKey(ent->client->pers.userinfo, "steamid"));
-		gi.dprintf("Pre: %i %i %s %f %f\n", cl->resp.score, shots, steamid, accuracy, fpm);
-		PostMatchStats(cl->resp.score, shots, steamid, accuracy, fpm);
-	}
-
-
+	
 	if (strlen(string) > 1023)	// for debugging...
 	{
 		gi.dprintf("Warning: scoreboard string neared or exceeded max length\nDump:\n%s\n---\n", string);
