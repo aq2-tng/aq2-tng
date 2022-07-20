@@ -822,7 +822,7 @@ void LogAward(char* steamid, int award)
 LogEndMatchStats
 =================
 */
-void LogEndMatchStats(edict_t *ent)
+void LogEndMatchStats(edict_t *targ)
 {
 	int i;
 	char msg[1024];
@@ -862,7 +862,7 @@ void LogEndMatchStats(edict_t *ent)
 		gi.dprintf("shotsTotal: %i \n", cl->resp.shotsTotal);
 		gi.dprintf("streakKillsHighest: %i \n", cl->resp.streakKillsHighest);
 		gi.dprintf("streakHSHighest: %i \n", cl->resp.streakHSHighest);
-		gi.dprintf("steamid: %s \n", ent->client->pers.userinfo, "steamid");
+		gi.dprintf("steamid: %s \n", targ->client->pers.userinfo, "steamid");
 
 	}
 
