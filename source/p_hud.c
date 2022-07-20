@@ -121,61 +121,16 @@ void BeginIntermission(edict_t *targ)
 	edict_t *ent;
 
 	// Stats begin
-	gclient_t *sortedClients[MAX_CLIENTS], *cl;
-	int totalClients, secs, shots;
-	double accuracy, fpm;
-	char steamid[24];
-
-	totalClients = G_SortedClients(sortedClients);
-
-	for (i = 0; i < totalClients; i++)
-	{
-		cl = sortedClients[i];
-
-		if (!cl->resp.team)
-			continue;
-
-		shots = min( cl->resp.shotsTotal, 9999 );
-
-		if (shots)
-			accuracy = (double)cl->resp.hitsTotal * 100.0 / (double)cl->resp.shotsTotal;
-		else
-			accuracy = 0;
-
-		secs = (level.framenum - cl->resp.enterframe) / HZ;
-		if (secs > 0)
-			fpm = (double)cl->resp.score * 60.0 / (double)secs;
-		else
-			fpm = 0.0;
-
-		//debug
-			gi.dprintf("score: %i \n", cl->resp.score);
-			gi.dprintf("shots: %i \n", shots);
-			gi.dprintf("accuracy: %f \n", accuracy);
-			gi.dprintf("fpm: %f \n", fpm);
-			gi.dprintf("dmg: %i \n", cl->resp.damage_dealt);
-			gi.dprintf("deaths: %i \n", cl->resp.deaths);
-			gi.dprintf("kills: %i \n", cl->resp.kills);
-			gi.dprintf("ctf_caps: %i \n", cl->resp.ctf_caps);
-			gi.dprintf("ctf_capstreak: %i \n", cl->resp.ctf_capstreak);
-			gi.dprintf("hitsTotal: %i \n", cl->resp.hitsTotal);
-			gi.dprintf("team_kills: %i \n", cl->resp.team_kills);
-			gi.dprintf("team: %i \n", cl->resp.team);
-			gi.dprintf("shotsTotal: %i \n", cl->resp.shotsTotal);
-			gi.dprintf("streakKillsHighest: %i \n", cl->resp.streakKillsHighest);
-			gi.dprintf("streakHSHighest: %i \n", cl->resp.streakHSHighest);
-			gi.dprintf("steamid: %s \n", ent->client->pers.userinfo, "steamid");
-
-			// strcpy(steamid, Info_ValueForKey(ent->client->pers.userinfo, "steamid"));
-			// gi.dprintf("steamid: %s \n", steamid);
-
-		// if (stat_logs->value && !ltk_loadbots->value) { // Only create stats logs if stat_logs is 1 and ltk_loadbots is 0
-		// 	strcpy(steamid, Info_ValueForKey(targ->client->pers.userinfo, "steamid"));
-		// 	gi.dprintf("Pre: %i %i %s %f %f\n", cl->resp.score, shots, steamid, accuracy, fpm);
-		// 	PostMatchStats(cl->resp.score, shots, steamid, accuracy, fpm);
-		// }
+	if (stat_logs->value && !ltk_loadbots->value) {
+		gclient_t *sortedClients[MAX_CLIENTS], *cl;
+		int totalClients;
+		totalClients = G_SortedClients(sortedClients);
+		for (i = 0; i < totalClients; i++)
+		{
+			cl = sortedClients[i];
+			LogEndMatchStats(cl, ent);
+		}
 	}
-
 	// Stats end
 
 
