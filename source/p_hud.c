@@ -121,9 +121,9 @@ void BeginIntermission(edict_t *targ)
 	edict_t *ent;
 
 	// Stats begin
-	if (stat_logs->value && !ltk_loadbots->value) {
+	//if (stat_logs->value && !ltk_loadbots->value) {
 		LogEndMatchStats(targ);
-	}
+	//}
 	// Stats end
 
 
