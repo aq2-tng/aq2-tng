@@ -128,7 +128,7 @@ void BeginIntermission(edict_t *targ)
 		for (i = 0; i < totalClients; i++)
 		{
 			cl = sortedClients[i];
-			LogEndMatchStats(cl, targ);
+			LogEndMatchStats(targ);
 		}
 	}
 	// Stats end
