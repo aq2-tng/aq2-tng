@@ -2950,6 +2950,7 @@ void TallyEndOfLevelTeamScores (void)
 	}
 	if (stat_logs->value) {
 		LogMatch();  // Generate end of match logs
+		LogEndMatchStats();
 	}
 	// Stats: Reset roundNum
 	game.roundNum = 0;

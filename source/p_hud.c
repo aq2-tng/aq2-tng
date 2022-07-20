@@ -120,13 +120,6 @@ void BeginIntermission(edict_t *targ)
 	int i;
 	edict_t *ent;
 
-	// Stats begin
-	//if (stat_logs->value && !ltk_loadbots->value) {
-		LogEndMatchStats(targ);
-	//}
-	// Stats end
-
-
 	if (level.intermission_framenum)
 		return;			// already activated
 
