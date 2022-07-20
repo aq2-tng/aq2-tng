@@ -872,8 +872,8 @@ void LogEndMatchStats()
 	// gi.dprintf("steamid: %s \n", steamid);
 
 	// if (stat_logs->value && !ltk_loadbots->value) { // Only create stats logs if stat_logs is 1 and ltk_loadbots is 0
-		strcpy(steamid, Info_ValueForKey(targ->client->pers.userinfo, "steamid"));
-		gi.dprintf("Pre: %i %i %s %f %f\n", cl->resp.score, shots, steamid, accuracy, fpm);
+		// strcpy(steamid, Info_ValueForKey(targ->client->pers.userinfo, "steamid"));
+		// gi.dprintf("Pre: %i %i %s %f %f\n", cl->resp.score, shots, steamid, accuracy, fpm);
 	// 	PostMatchStats(cl->resp.score, shots, steamid, accuracy, fpm);
 	// }
 
