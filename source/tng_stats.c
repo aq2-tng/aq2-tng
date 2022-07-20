@@ -822,22 +822,7 @@ void LogEndMatchStats()
 				fpm = (double)cl->resp.score * 60.0 / (double)secs;
 			else
 				fpm = 0.0;
-
-		// gi.dprintf("score: %i \n", cl->resp.score);
-		// gi.dprintf("shots: %i \n", shots);
-		// gi.dprintf("accuracy: %f \n", accuracy);
-		// gi.dprintf("fpm: %f \n", fpm);
-		// gi.dprintf("dmg: %i \n", cl->resp.damage_dealt);
-		// gi.dprintf("deaths: %i \n", cl->resp.deaths);
-		// gi.dprintf("kills: %i \n", cl->resp.kills);
-		// gi.dprintf("ctf_caps: %i \n", cl->resp.ctf_caps);
-		// gi.dprintf("ctf_capstreak: %i \n", cl->resp.ctf_capstreak);
-		// gi.dprintf("hitsTotal: %i \n", cl->resp.hitsTotal);
-		// gi.dprintf("team_kills: %i \n", cl->resp.team_kills);
-		// gi.dprintf("team: %i \n", cl->resp.team);
-		// gi.dprintf("shotsTotal: %i \n", cl->resp.shotsTotal);
-		// gi.dprintf("streakKillsHighest: %i \n", cl->resp.streakKillsHighest);
-		// gi.dprintf("streakHSHighest: %i \n", cl->resp.streakHSHighest);
+				
 		strcpy(steamid, Info_ValueForKey(cl->pers.userinfo, "steamid"));
 		strcpy(
 			msg,
