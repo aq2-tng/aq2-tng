@@ -2962,6 +2962,11 @@ void ClientDisconnect(edict_t * ent)
 
 	gi.bprintf(PRINT_HIGH, "%s disconnected\n", ent->client->pers.netname);
 	IRC_printf(IRC_T_SERVER, "%n disconnected", ent->client->pers.netname);
+	//Stats begin
+	//Get client stats when disconnected and not in intermission as stats are printed during intermission already
+	if (stat_logs->value && !ltk_loadbots->value && !level.intermission_framenum) {
+		LogEndMatchStats();
+	}
 
 	if( !teamplay->value && !ent->client->pers.spectator )
 	{
