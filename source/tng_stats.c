@@ -827,7 +827,6 @@ void LogEndMatchStats()
 	int i;
 	char msg[1024];
 	gclient_t *sortedClients[MAX_CLIENTS], *cl;
-	edict_t *ent;
 	int totalClients, secs, shots;
 	double accuracy, fpm;
 	char steamid[24];
@@ -866,30 +865,31 @@ void LogEndMatchStats()
 		// strcpy(steamid, Info_ValueForKey(cl->pers.userinfo, "steamid"));
 		// gi.dprintf("steamid: %s \n", steamid);
 
-	strcpy(
-		msg,
-		"{\"matchstats\":{\"sid\":\"%s\",\"mid\":\"%s\",\"s\":\"%s\",\"sc\":\"%i\",\"sh\":%i,\"a\":%f,\"f\":\"%f\",\"dd\":\"%i\",\"d\":\"%i\",\"k\":\"%i\",\"ctfc\":\"%i\",\"ctfcs\":\"%i\",\"ht\":\"%i\",\"t\":\"%i\",\"st\":\"%i\",\"hks\":\"%i\",\"hhs\":\"%i\"}}\n"
-	);
+		strcpy(
+			msg,
+			"{\"matchstats\":{\"sid\":\"%s\",\"mid\":\"%s\",\"s\":\"%s\",\"sc\":\"%i\",\"sh\":%i,\"a\":%f,\"f\":\"%f\",\"dd\":\"%i\",\"d\":\"%i\",\"k\":\"%i\",\"ctfc\":\"%i\",\"ctfcs\":\"%i\",\"ht\":\"%i\",\"t\":\"%i\",\"st\":\"%i\",\"hks\":\"%i\",\"hhs\":\"%i\"}}\n"
+		);
 
-	Com_Printf(
-		msg,
-		server_id->string,
-		game.matchid,
-		steamid,
-		cl->resp.score,
-		shots,
-		accuracy,
-		fpm,
-		cl->resp.damage_dealt,
-		cl->resp.deaths,
-		cl->resp.kills,
-		cl->resp.ctf_caps,
-		cl->resp.ctf_capstreak,
-		cl->resp.hitsTotal,
-		cl->resp.team_kills,
-		cl->resp.team,
-		cl->resp.shotsTotal,
-		cl->resp.streakKillsHighest,
-		cl->resp.streakHSHighest
-	);
+		Com_Printf(
+			msg,
+			server_id->string,
+			game.matchid,
+			steamid,
+			cl->resp.score,
+			shots,
+			accuracy,
+			fpm,
+			cl->resp.damage_dealt,
+			cl->resp.deaths,
+			cl->resp.kills,
+			cl->resp.ctf_caps,
+			cl->resp.ctf_capstreak,
+			cl->resp.hitsTotal,
+			cl->resp.team_kills,
+			cl->resp.team,
+			cl->resp.shotsTotal,
+			cl->resp.streakKillsHighest,
+			cl->resp.streakHSHighest
+		);
+	}
 }
