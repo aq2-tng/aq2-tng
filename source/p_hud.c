@@ -122,14 +122,7 @@ void BeginIntermission(edict_t *targ)
 
 	// Stats begin
 	if (stat_logs->value && !ltk_loadbots->value) {
-		gclient_t *sortedClients[MAX_CLIENTS], *cl;
-		int totalClients;
-		totalClients = G_SortedClients(sortedClients);
-		for (i = 0; i < totalClients; i++)
-		{
-			cl = sortedClients[i];
-			LogEndMatchStats(targ);
-		}
+		LogEndMatchStats(targ);
 	}
 	// Stats end
 
