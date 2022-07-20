@@ -1977,6 +1977,7 @@ int WonGame (int winner)
 			if(use_warnings->value)
 				gi.sound(&g_edicts[0], CHAN_VOICE | CHAN_NO_PHS_ADD, level.snd_teamwins[winner], 1.0, ATTN_NONE, 0.0);
 			// end of changing sound dir
+			game.roundNum++;
 			teams[winner].score++;
 			gi.cvar_forceset(teams[winner].teamscore->name, va("%i", teams[winner].score));
 
@@ -2947,9 +2948,14 @@ void TallyEndOfLevelTeamScores (void)
 
 		teams[game.clients[i].resp.team].total += game.clients[i].resp.score;
 	}
-	if (stat_logs->value) {
-		LogMatch();  // Generate end of match logs
+
+	// Stats begin
+	if (stat_logs->value && !ltk_loadbots->value) {
+		LogMatch();  // Generates end of match logs
 	}
+	// Stats: Reset roundNum
+	game.roundNum = 0;
+	// Stats end
 }
 
 
