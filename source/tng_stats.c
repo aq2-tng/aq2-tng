@@ -831,12 +831,11 @@ void LogEndMatchStats()
 	int totalClients, secs, shots;
 	double accuracy, fpm;
 	char steamid[24];
+	totalClients = G_SortedClients(sortedClients);
 
 	gi.dprintf("step 1\n");
 	for (i = 0; i < totalClients; i++){
 		cl = sortedClients[i];
-
-		totalClients = G_SortedClients(sortedClients);
 		shots = min( cl->resp.shotsTotal, 9999 );
 
 		gi.dprintf("step 2\n");
