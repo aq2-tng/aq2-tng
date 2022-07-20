@@ -317,7 +317,7 @@ void PostMatchStats(int score, int shots, char* steamid, float accuracy, float f
 {
 	char msg[1024];
 
-	gi.dprintf("Post: %i %i %s %f %f", score, shots, steamid, accuracy, fpm);
+	gi.dprintf("Post: %i %i %s %f %f\n", score, shots, steamid, accuracy, fpm);
 
 	strcpy(
 			msg,
@@ -461,12 +461,6 @@ void A_ScoreboardEndLevel (edict_t * ent, edict_t * killer)
 			line_y,
 			cl->resp.score,
 			cl->pers.netname, shots, accuracy, fpm );
-
-		if (stat_logs->value && !ltk_loadbots->value) { // Only create stats logs if stat_logs is 1 and ltk_loadbots is 0
-			strcpy(steamid, Info_ValueForKey(ent->client->pers.userinfo, "steamid"));
-			gi.dprintf("Pre: %i %i %s %f %f", cl->resp.score, shots, steamid, accuracy, fpm);
-			PostMatchStats(cl->resp.score, shots, steamid, accuracy, fpm);
-		}
 		
 		line_y += 8;
 
@@ -478,6 +472,11 @@ void A_ScoreboardEndLevel (edict_t * ent, edict_t * killer)
 			line_y += 8;
 			break;
 		}
+	}
+	if (stat_logs->value && !ltk_loadbots->value) { // Only create stats logs if stat_logs is 1 and ltk_loadbots is 0
+		strcpy(steamid, Info_ValueForKey(ent->client->pers.userinfo, "steamid"));
+		gi.dprintf("Pre: %i %i %s %f %f\n", cl->resp.score, shots, steamid, accuracy, fpm);
+		PostMatchStats(cl->resp.score, shots, steamid, accuracy, fpm);
 	}
 
 
