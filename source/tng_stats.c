@@ -312,30 +312,6 @@ void Cmd_Stats_f (edict_t *targetent, char *arg)
 	gi.cprintf(targetent, PRINT_HIGH, "Highest streaks:  kills: %d headshots: %d\n", ent->client->resp.streakKillsHighest, ent->client->resp.streakHSHighest);
 }
 
-
-// void PostMatchStats(int score, int shots, char* steamid, float accuracy, float fpm)
-// {
-// 	char msg[1024];
-
-// 	gi.dprintf("Post: %i %i %s %f %f\n", score, shots, steamid, accuracy, fpm);
-
-// 	strcpy(
-// 			msg,
-// 			"{\"matchstats\":{\"sid\":\"%s\",\"mid\":\"%s\",\"s\":\"%i\",\"sh\":\"%i\",\"n\":\"%s\",\"a\":%f,\"f\":%f\"}}\n"
-// 		);
-
-// 	Com_Printf(
-// 		msg,
-// 		server_id->string,
-// 		game.matchid,
-// 		score,
-// 		shots,
-// 		steamid,
-// 		accuracy,
-// 		fpm
-// 	);
-// }
-
 void A_ScoreboardEndLevel (edict_t * ent, edict_t * killer)
 {
 	char string[2048];

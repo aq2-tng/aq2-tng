@@ -1441,7 +1441,6 @@ void LogKill(edict_t *self, edict_t *inflictor, edict_t *attacker);
 void LogWorldKill(edict_t *self);
 void LogMatch();
 void LogAward(char* steamid, int award);
-//void PostMatchStats(int score, int shots, char* steamid, float accuracy, float fpm);
 void LogEndMatchStats();
 
 //============================================================================
