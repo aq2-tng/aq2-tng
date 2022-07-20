@@ -848,48 +848,48 @@ void LogEndMatchStats()
 			else
 				fpm = 0.0;
 
-		gi.dprintf("score: %i \n", cl->resp.score);
-		gi.dprintf("shots: %i \n", shots);
-		gi.dprintf("accuracy: %f \n", accuracy);
-		gi.dprintf("fpm: %f \n", fpm);
-		gi.dprintf("dmg: %i \n", cl->resp.damage_dealt);
-		gi.dprintf("deaths: %i \n", cl->resp.deaths);
-		gi.dprintf("kills: %i \n", cl->resp.kills);
-		gi.dprintf("ctf_caps: %i \n", cl->resp.ctf_caps);
-		gi.dprintf("ctf_capstreak: %i \n", cl->resp.ctf_capstreak);
-		gi.dprintf("hitsTotal: %i \n", cl->resp.hitsTotal);
-		gi.dprintf("team_kills: %i \n", cl->resp.team_kills);
-		gi.dprintf("team: %i \n", cl->resp.team);
-		gi.dprintf("shotsTotal: %i \n", cl->resp.shotsTotal);
-		gi.dprintf("streakKillsHighest: %i \n", cl->resp.streakKillsHighest);
-		gi.dprintf("streakHSHighest: %i \n", cl->resp.streakHSHighest);
-		strcpy(steamid, Info_ValueForKey(cl->pers.userinfo, "steamid"));
-		gi.dprintf("steamid: %s \n", steamid);
+		// gi.dprintf("score: %i \n", cl->resp.score);
+		// gi.dprintf("shots: %i \n", shots);
+		// gi.dprintf("accuracy: %f \n", accuracy);
+		// gi.dprintf("fpm: %f \n", fpm);
+		// gi.dprintf("dmg: %i \n", cl->resp.damage_dealt);
+		// gi.dprintf("deaths: %i \n", cl->resp.deaths);
+		// gi.dprintf("kills: %i \n", cl->resp.kills);
+		// gi.dprintf("ctf_caps: %i \n", cl->resp.ctf_caps);
+		// gi.dprintf("ctf_capstreak: %i \n", cl->resp.ctf_capstreak);
+		// gi.dprintf("hitsTotal: %i \n", cl->resp.hitsTotal);
+		// gi.dprintf("team_kills: %i \n", cl->resp.team_kills);
+		// gi.dprintf("team: %i \n", cl->resp.team);
+		// gi.dprintf("shotsTotal: %i \n", cl->resp.shotsTotal);
+		// gi.dprintf("streakKillsHighest: %i \n", cl->resp.streakKillsHighest);
+		// gi.dprintf("streakHSHighest: %i \n", cl->resp.streakHSHighest);
+		// strcpy(steamid, Info_ValueForKey(cl->pers.userinfo, "steamid"));
+		// gi.dprintf("steamid: %s \n", steamid);
 
-	}
+	strcpy(
+		msg,
+		"{\"matchstats\":{\"sid\":\"%s\",\"mid\":\"%s\",\"s\":\"%s\",\"sc\":\"%i\",\"sh\":%i,\"a\":%f,\"f\":\"%f\",\"dd\":\"%i\",\"d\":\"%i\",\"k\":\"%i\",\"ctfc\":\"%i\",\"ctfcs\":\"%i\",\"ht\":\"%i\",\"t\":\"%i\",\"st\":\"%i\",\"hks\":\"%i\",\"hhs\":\"%i\"}}\n"
+	);
 
-	// strcpy(steamid, Info_ValueForKey(ent->client->pers.userinfo, "steamid"));
-	// gi.dprintf("steamid: %s \n", steamid);
-
-	// if (stat_logs->value && !ltk_loadbots->value) { // Only create stats logs if stat_logs is 1 and ltk_loadbots is 0
-		// strcpy(steamid, Info_ValueForKey(targ->client->pers.userinfo, "steamid"));
-		// gi.dprintf("Pre: %i %i %s %f %f\n", cl->resp.score, shots, steamid, accuracy, fpm);
-	// 	PostMatchStats(cl->resp.score, shots, steamid, accuracy, fpm);
-	// }
-
-	// strcpy(
-	// 	msg,
-	// 	"{\"award\":{\"sid\":\"%s\",\"mid\":\"%s\",\"t\":\"%d\",\"gt\":\"%d\",\"a\":%i,\"k\":%s,\"w\":\"%i\"}}\n"
-	// );
-
-	// Com_Printf(
-	// 	msg,
-	// 	server_id->string,
-	// 	game.matchid,
-	// 	eventtime,
-	// 	gametime,
-	// 	award,
-	// 	steamid,
-	// 	mod
-	// );
+	Com_Printf(
+		msg,
+		server_id->string,
+		game.matchid,
+		steamid,
+		cl->resp.score,
+		shots,
+		accuracy,
+		fpm,
+		cl->resp.damage_dealt,
+		cl->resp.deaths,
+		cl->resp.kills,
+		cl->resp.ctf_caps,
+		cl->resp.ctf_capstreak,
+		cl->resp.hitsTotal,
+		cl->resp.team_kills,
+		cl->resp.team,
+		cl->resp.shotsTotal,
+		cl->resp.streakKillsHighest,
+		cl->resp.streakHSHighest
+	);
 }
