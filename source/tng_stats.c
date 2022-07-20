@@ -832,15 +832,19 @@ void LogEndMatchStats()
 	double accuracy, fpm;
 	char steamid[24];
 
+	gi.dprintf("step 1\n");
 	for (i = 0; i < totalClients; i++){
 		cl = sortedClients[i];
 
 		totalClients = G_SortedClients(sortedClients);
 		shots = min( cl->resp.shotsTotal, 9999 );
+
+		gi.dprintf("step 2\n");
 		if (shots)
 				accuracy = (double)cl->resp.hitsTotal * 100.0 / (double)cl->resp.shotsTotal;
 			else
 				accuracy = 0;
+			gi.dprintf("step 3\n");
 
 			secs = (level.framenum - cl->resp.enterframe) / HZ;
 			if (secs > 0)
