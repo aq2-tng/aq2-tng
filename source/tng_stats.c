@@ -865,7 +865,7 @@ void LogEndMatchStats()
 		strcpy(steamid, Info_ValueForKey(cl->pers.userinfo, "steamid"));
 		strcpy(
 			msg,
-			"{\"matchstats\":{\"sid\":\"%s\",\"mid\":\"%s\",\"s\":\"%s\",\"sc\":\"%i\",\"sh\":%i,\"a\":%f,\"f\":\"%f\",\"dd\":\"%i\",\"d\":\"%i\",\"k\":\"%i\",\"ctfc\":\"%i\",\"ctfcs\":\"%i\",\"ht\":\"%i\",\"t\":\"%i\",\"st\":\"%i\",\"hks\":\"%i\",\"hhs\":\"%i\"}}\n"
+			"{\"matchstats\":{\"sid\":\"%s\",\"mid\":\"%s\",\"s\":\"%s\",\"sc\":\"%i\",\"sh\":\"%i\",\"a\":\"%f\",\"f\":\"%f\",\"dd\":\"%i\",\"d\":\"%i\",\"k\":\"%i\",\"ctfc\":\"%i\",\"ctfcs\":\"%i\",\"ht\":\"%i\",\"tk\":\"%i\",\"t\":\"%i\",\"st\":\"%i\",\"hks\":\"%i\",\"hhs\":\"%i\"}}\n"
 		);
 
 		Com_Printf(
