@@ -822,7 +822,7 @@ void LogAward(char* steamid, int award)
 LogEndMatchStats
 =================
 */
-void LogEndMatchStats(gclient_t *cl, edict_t *ent)
+void LogEndMatchStats(edict_t *ent)
 {
 	char msg[1024];
 	gclient_t *sortedClients[MAX_CLIENTS], *cl;
