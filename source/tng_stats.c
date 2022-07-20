@@ -833,17 +833,14 @@ void LogEndMatchStats()
 	char steamid[24];
 	totalClients = G_SortedClients(sortedClients);
 
-	gi.dprintf("step 1\n");
 	for (i = 0; i < totalClients; i++){
 		cl = sortedClients[i];
 		shots = min( cl->resp.shotsTotal, 9999 );
 
-		gi.dprintf("step 2\n");
 		if (shots)
 				accuracy = (double)cl->resp.hitsTotal * 100.0 / (double)cl->resp.shotsTotal;
 			else
 				accuracy = 0;
-			gi.dprintf("step 3\n");
 
 			secs = (level.framenum - cl->resp.enterframe) / HZ;
 			if (secs > 0)
@@ -866,7 +863,8 @@ void LogEndMatchStats()
 		gi.dprintf("shotsTotal: %i \n", cl->resp.shotsTotal);
 		gi.dprintf("streakKillsHighest: %i \n", cl->resp.streakKillsHighest);
 		gi.dprintf("streakHSHighest: %i \n", cl->resp.streakHSHighest);
-		gi.dprintf("steamid: %s \n", ent->client->pers.userinfo, "steamid");
+		strcpy(steamid, Info_ValueForKey(cl->pers.userinfo, "steamid"));
+		gi.dprintf("steamid: %s \n", steamid);
 
 	}
 
@@ -874,8 +872,8 @@ void LogEndMatchStats()
 	// gi.dprintf("steamid: %s \n", steamid);
 
 	// if (stat_logs->value && !ltk_loadbots->value) { // Only create stats logs if stat_logs is 1 and ltk_loadbots is 0
-	// 	strcpy(steamid, Info_ValueForKey(targ->client->pers.userinfo, "steamid"));
-	// 	gi.dprintf("Pre: %i %i %s %f %f\n", cl->resp.score, shots, steamid, accuracy, fpm);
+		strcpy(steamid, Info_ValueForKey(targ->client->pers.userinfo, "steamid"));
+		gi.dprintf("Pre: %i %i %s %f %f\n", cl->resp.score, shots, steamid, accuracy, fpm);
 	// 	PostMatchStats(cl->resp.score, shots, steamid, accuracy, fpm);
 	// }
 

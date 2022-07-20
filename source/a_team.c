@@ -2948,12 +2948,15 @@ void TallyEndOfLevelTeamScores (void)
 
 		teams[game.clients[i].resp.team].total += game.clients[i].resp.score;
 	}
-	if (stat_logs->value) {
-		LogEndMatchStats();
+
+	// Stats begin
+	if (stat_logs->value && !ltk_loadbots->value) {
 		LogMatch();  // Generate end of match logs
+		LogEndMatchStats();
 	}
 	// Stats: Reset roundNum
 	game.roundNum = 0;
+	// Stats end
 }
 
 
