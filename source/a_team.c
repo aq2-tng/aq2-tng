@@ -2951,8 +2951,7 @@ void TallyEndOfLevelTeamScores (void)
 
 	// Stats begin
 	if (stat_logs->value && !ltk_loadbots->value) {
-		LogMatch();  // Generate end of match logs
-		LogEndMatchStats();
+		LogMatch();  // Generates end of match logs
 	}
 	// Stats: Reset roundNum
 	game.roundNum = 0;
