@@ -862,9 +862,7 @@ void LogEndMatchStats()
 		// gi.dprintf("shotsTotal: %i \n", cl->resp.shotsTotal);
 		// gi.dprintf("streakKillsHighest: %i \n", cl->resp.streakKillsHighest);
 		// gi.dprintf("streakHSHighest: %i \n", cl->resp.streakHSHighest);
-		// strcpy(steamid, Info_ValueForKey(cl->pers.userinfo, "steamid"));
-		// gi.dprintf("steamid: %s \n", steamid);
-
+		strcpy(steamid, Info_ValueForKey(cl->pers.userinfo, "steamid"));
 		strcpy(
 			msg,
 			"{\"matchstats\":{\"sid\":\"%s\",\"mid\":\"%s\",\"s\":\"%s\",\"sc\":\"%i\",\"sh\":%i,\"a\":%f,\"f\":\"%f\",\"dd\":\"%i\",\"d\":\"%i\",\"k\":\"%i\",\"ctfc\":\"%i\",\"ctfcs\":\"%i\",\"ht\":\"%i\",\"t\":\"%i\",\"st\":\"%i\",\"hks\":\"%i\",\"hhs\":\"%i\"}}\n"
