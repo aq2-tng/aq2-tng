@@ -729,6 +729,7 @@ typedef struct
   char matchid[MAX_QPATH];
   int gamemode;
   int gamemodeflags;
+  int roundNum;
 }
 game_locals_t;
 
@@ -1440,7 +1441,7 @@ void LogKill(edict_t *self, edict_t *inflictor, edict_t *attacker);
 void LogWorldKill(edict_t *self);
 void LogMatch();
 void LogAward(char* steamid, int award);
-
+void LogEndMatchStats();
 
 //============================================================================
 

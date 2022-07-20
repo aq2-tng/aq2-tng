@@ -125,6 +125,12 @@ void BeginIntermission(edict_t *targ)
 
 	level.intermission_framenum = level.realFramenum;
 
+	// Stats begin
+	if (stat_logs->value && !ltk_loadbots->value) {
+		LogEndMatchStats(); // Generates end of match logs
+	}
+	// Stats end
+
 	if (ctf->value)
 		CTFCalcScores();
 	else if (teamplay->value)

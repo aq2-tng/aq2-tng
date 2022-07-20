@@ -312,28 +312,6 @@ void Cmd_Stats_f (edict_t *targetent, char *arg)
 	gi.cprintf(targetent, PRINT_HIGH, "Highest streaks:  kills: %d headshots: %d\n", ent->client->resp.streakKillsHighest, ent->client->resp.streakHSHighest);
 }
 
-// Not ready yet
-// void A_StatPrinter (int score, char steamid[24], int shots, float accuracy, float fpm)
-// {
-// 	char msg[1024];
-
-// 	strcpy(
-// 			msg,
-// 			"{\"matchstats\":{\"sid\":\"%s\",\"mid\":\"%s\",\"s\":\"%i\",\"n\":\"%s\",\"sh\":\"%i\",\"a\":%f,\"f\":%f}}\n"
-// 		);
-
-// 	Com_Printf(
-// 		msg,
-// 		server_id->string,
-// 		game.matchid,
-// 		score,
-// 		steamid,
-// 		shots,
-// 		accuracy,
-// 		fpm
-// 	);
-// }
-
 void A_ScoreboardEndLevel (edict_t * ent, edict_t * killer)
 {
 	char string[2048];
@@ -344,8 +322,6 @@ void A_ScoreboardEndLevel (edict_t * ent, edict_t * killer)
 	int totalplayers[TEAM_TOP] = {0};
 	int totalscore[TEAM_TOP] = {0};
 	int name_pos[TEAM_TOP] = {0};
-	//char steamid[24];
-
 
 	totalClients = G_SortedClients(sortedClients);
 
@@ -459,9 +435,6 @@ void A_ScoreboardEndLevel (edict_t * ent, edict_t * killer)
 			line_y,
 			cl->resp.score,
 			cl->pers.netname, shots, accuracy, fpm );
-
-		//strcpy(steamid, Info_ValueForKey(killer->client->pers.userinfo, "steamid"));
-		//A_StatPrinter(cl->resp.score, steamid, shots, accuracy, fpm);
 		
 		line_y += 8;
 
@@ -474,8 +447,7 @@ void A_ScoreboardEndLevel (edict_t * ent, edict_t * killer)
 			break;
 		}
 	}
-
-
+	
 	if (strlen(string) > 1023)	// for debugging...
 	{
 		gi.dprintf("Warning: scoreboard string neared or exceeded max length\nDump:\n%s\n---\n", string);
@@ -563,6 +535,7 @@ void LogKill(edict_t *self, edict_t *inflictor, edict_t *attacker)
 	int mod;
 	int loc;
 	int gametime = 0;
+	int roundNum;
 	int eventtime;
 	int vt = 0; //Default victim team is 0 (no team)
 	int kt = 0; //Default killer team is 0 (no team)
@@ -640,10 +613,11 @@ void LogKill(edict_t *self, edict_t *inflictor, edict_t *attacker)
 
 		gametime = level.matchTime;
 		eventtime = (int)time(NULL);
+		roundNum = game.roundNum + 1;
 
 		strcpy(
 			msg,
-			"{\"frag\":{\"sid\":\"%s\",\"mid\":\"%s\",\"v\":\"%s\",\"vn\":\"%s\",\"vi\":\"%s\",\"vt\":%i,\"vl\":%i,\"k\":\"%s\",\"kn\":\"%s\",\"ki\":\"%s\",\"kt\":%i,\"kl\":%i,\"w\":%i,\"i\":%i,\"l\":%i,\"ks\":%i,\"gm\":%i,\"gmf\":%i,\"ttk\":\"%d\",\"t\":%d,\"gt\":%d,\"m\":\"%s\"}}\n"
+			"{\"frag\":{\"sid\":\"%s\",\"mid\":\"%s\",\"v\":\"%s\",\"vn\":\"%s\",\"vi\":\"%s\",\"vt\":%i,\"vl\":%i,\"k\":\"%s\",\"kn\":\"%s\",\"ki\":\"%s\",\"kt\":%i,\"kl\":%i,\"w\":%i,\"i\":%i,\"l\":%i,\"ks\":%i,\"gm\":%i,\"gmf\":%i,\"ttk\":\"%d\",\"t\":%d,\"gt\":%d,\"m\":\"%s\",\"r\":%i\"}}\n"
 		);
 
 		Com_Printf(
@@ -669,7 +643,8 @@ void LogKill(edict_t *self, edict_t *inflictor, edict_t *attacker)
 			ttk,
 			eventtime,
 			gametime,
-			level.mapname
+			level.mapname,
+			roundNum
 		);
 	}
 }
@@ -684,6 +659,7 @@ void LogWorldKill(edict_t *self)
 	int mod;
 	int loc = 16;
 	int gametime = 0;
+	int roundNum;
 	int eventtime;
 	int vt = 0; //Default victim team is 0 (no team)
 	int ttk = 0; //Default TTK (time to kill) is 0
@@ -715,10 +691,11 @@ void LogWorldKill(edict_t *self)
 
 		gametime = level.matchTime;
 		eventtime = (int)time(NULL);
+		roundNum = game.roundNum + 1;
 
 		strcpy(
 			msg,
-			"{\"frag\":{\"sid\":\"%s\",\"mid\":\"%s\",\"v\":\"%s\",\"vn\":\"%s\",\"vi\":\"%s\",\"vt\":%i,\"vl\":%i,\"k\":\"%s\",\"kn\":\"%s\",\"ki\":\"%s\",\"kt\":%i,\"kl\":%i,\"w\":%i,\"i\":%i,\"l\":%i,\"ks\":%i,\"gm\":%i,\"gmf\":%i,\"ttk\":\"%d\",\"t\":%d,\"gt\":%d,\"m\":\"%s\"}}\n"
+			"{\"frag\":{\"sid\":\"%s\",\"mid\":\"%s\",\"v\":\"%s\",\"vn\":\"%s\",\"vi\":\"%s\",\"vt\":%i,\"vl\":%i,\"k\":\"%s\",\"kn\":\"%s\",\"ki\":\"%s\",\"kt\":%i,\"kl\":%i,\"w\":%i,\"i\":%i,\"l\":%i,\"ks\":%i,\"gm\":%i,\"gmf\":%i,\"ttk\":\"%d\",\"t\":%d,\"gt\":%d,\"m\":\"%s\",\"r\":%i\"}}\n"
 		);
 
 		Com_Printf(
@@ -744,7 +721,8 @@ void LogWorldKill(edict_t *self)
 			ttk,
 			eventtime,
 			gametime,
-			level.mapname
+			level.mapname,
+			roundNum
 		);
 	}
 }
@@ -813,4 +791,63 @@ void LogAward(char* steamid, int award)
 		steamid,
 		mod
 	);
+}
+
+/*
+==================
+LogEndMatchStats
+=================
+*/
+void LogEndMatchStats()
+{
+	int i;
+	char msg[1024];
+	gclient_t *sortedClients[MAX_CLIENTS], *cl;
+	int totalClients, secs, shots;
+	double accuracy, fpm;
+	char steamid[24];
+	totalClients = G_SortedClients(sortedClients);
+
+	for (i = 0; i < totalClients; i++){
+		cl = sortedClients[i];
+		shots = min( cl->resp.shotsTotal, 9999 );
+
+		if (shots)
+				accuracy = (double)cl->resp.hitsTotal * 100.0 / (double)cl->resp.shotsTotal;
+			else
+				accuracy = 0;
+
+			secs = (level.framenum - cl->resp.enterframe) / HZ;
+			if (secs > 0)
+				fpm = (double)cl->resp.score * 60.0 / (double)secs;
+			else
+				fpm = 0.0;
+				
+		strcpy(steamid, Info_ValueForKey(cl->pers.userinfo, "steamid"));
+		strcpy(
+			msg,
+			"{\"matchstats\":{\"sid\":\"%s\",\"mid\":\"%s\",\"s\":\"%s\",\"sc\":\"%i\",\"sh\":\"%i\",\"a\":\"%f\",\"f\":\"%f\",\"dd\":\"%i\",\"d\":\"%i\",\"k\":\"%i\",\"ctfc\":\"%i\",\"ctfcs\":\"%i\",\"ht\":\"%i\",\"tk\":\"%i\",\"t\":\"%i\",\"hks\":\"%i\",\"hhs\":\"%i\"}}\n"
+		);
+
+		Com_Printf(
+			msg,
+			server_id->string,
+			game.matchid,
+			steamid,
+			cl->resp.score,
+			shots,
+			accuracy,
+			fpm,
+			cl->resp.damage_dealt,
+			cl->resp.deaths,
+			cl->resp.kills,
+			cl->resp.ctf_caps,
+			cl->resp.ctf_capstreak,
+			cl->resp.hitsTotal,
+			cl->resp.team_kills,
+			cl->resp.team,
+			cl->resp.streakKillsHighest,
+			cl->resp.streakHSHighest
+		);
+	}
 }
