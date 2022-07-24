@@ -544,48 +544,13 @@ void LogKill(edict_t *self, edict_t *inflictor, edict_t *attacker)
 	int kl = 0; //Placeholder killerleader until Espionage gets ported
 	char msg[1024];
 	char v[24];
-	char vn[24];
+	char vn[128];
 	char vip[24];
 	char *vi;
 	char k[24];
-	char kn[24];
+	char kn[128];
 	char kip[24];
 	char *ki;
-
-	/*
-{
-    "frag": {
-        "sid": "AKIAZXXXXDPT32CRFR6327910",
-        "mid": "2C16CC41-1125-4426-AC4E-DE48002EC6A0,
-        "v": 76561111960862711,
-        "vn": "KaniZ",
-        "vi": "11.22.33.44",
-        "vt": 1,
-        "k": 73562211920862722,
-        "kn": "somen00b",
-        "ki": "55.66.77.88",
-        "kt": 2,
-        "w": 3,
-        "i": 0,
-        "l": 1,
-        "ks": 2,
-        "gm": 1,
-        "ttk": 17
-    }
-}
-	*/
-
-	/*\fov\90
-	\gender\male
-	\hand\0
-	\msg\1
-	\name\> F < KaniZ
-	\rate\25000
-	\skin\male/ctf_r
-	\spectator\0
-	\ip\172.19.0.1:58554
-	\version\q2pro r1861~5917c5f Feb 17 2020 Win32
-	*/
 
 	if ((team_round_going && !in_warmup) || (gameSettings & GS_DEATHMATCH)) // If round is active OR if deathmatch
 	{
@@ -666,7 +631,7 @@ void LogWorldKill(edict_t *self)
 	int vl = 0; //Placeholder victimleader until Espionage gets ported
 	char msg[1024];
 	char v[24];
-	char vn[24];
+	char vn[128];
 	char vip[24];
 	char *vi;
 
