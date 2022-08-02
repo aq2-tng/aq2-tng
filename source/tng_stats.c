@@ -492,8 +492,9 @@ void Cmd_Statmode_f(edict_t* ent)
 // Utilizes AWS API Gateway and AWS SQS
 // Requires two cvars -- if either are empty, sending stats is disabled
 
-void StatSend(char* payload)
+void StatSend(char payload)
 {
+	gi.dprintf( "payload: %s\n", payload );
 	CURL *curl = curl_easy_init();
 	struct curl_slist *headers = NULL;
 	headers = curl_slist_append(headers, "Accept: application/json");
@@ -604,8 +605,6 @@ void LogKill(edict_t *self, edict_t *inflictor, edict_t *attacker)
 			"{\"frag\":{\"sid\":\"%s\",\"mid\":\"%s\",\"v\":\"%s\",\"vn\":\"%s\",\"vi\":\"%s\",\"vt\":%i,\"vl\":%i,\"k\":\"%s\",\"kn\":\"%s\",\"ki\":\"%s\",\"kt\":%i,\"kl\":%i,\"w\":%i,\"i\":%i,\"l\":%i,\"ks\":%i,\"gm\":%i,\"gmf\":%i,\"ttk\":\"%d\",\"t\":%d,\"gt\":%d,\"m\":\"%s\",\"r\":\"%i\"}}\n"
 		);
 
-		StatSend(msg);
-
 		Com_Printf(
 			msg,
 			server_id->string,
@@ -632,6 +631,8 @@ void LogKill(edict_t *self, edict_t *inflictor, edict_t *attacker)
 			level.mapname,
 			roundNum
 		);
+
+		StatSend(msg);
 	}
 }
 
@@ -710,6 +711,8 @@ void LogWorldKill(edict_t *self)
 			level.mapname,
 			roundNum
 		);
+
+		StatSend(msg);
 	}
 }
 
