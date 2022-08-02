@@ -509,7 +509,6 @@ void StatSend(const char *payload, ...)
 
 	//gi.dprintf( "payload: %s\n", text );
 	CURL *curl = curl_easy_init();
-    CURLcode res;
 	struct curl_slist *headers = NULL;
 	headers = curl_slist_append(headers, "Accept: application/json");
 	headers = curl_slist_append(headers, "Content-Type: application/json");
