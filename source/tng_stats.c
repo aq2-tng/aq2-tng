@@ -492,7 +492,7 @@ void Cmd_Statmode_f(edict_t* ent)
 // Utilizes AWS API Gateway and AWS SQS
 // Requires two cvars -- if either are empty, sending stats is disabled
 
-void StatSend(char payload)
+void StatSend(char* payload)
 {
 	gi.dprintf( "payload: %s\n", payload );
 	CURL *curl = curl_easy_init();
