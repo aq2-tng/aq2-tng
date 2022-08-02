@@ -614,7 +614,7 @@ void LogKill(edict_t *self, edict_t *inflictor, edict_t *attacker)
 			"{\"frag\":{\"sid\":\"%s\",\"mid\":\"%s\",\"v\":\"%s\",\"vn\":\"%s\",\"vi\":\"%s\",\"vt\":%i,\"vl\":%i,\"k\":\"%s\",\"kn\":\"%s\",\"ki\":\"%s\",\"kt\":%i,\"kl\":%i,\"w\":%i,\"i\":%i,\"l\":%i,\"ks\":%i,\"gm\":%i,\"gmf\":%i,\"ttk\":\"%d\",\"t\":%d,\"gt\":%d,\"m\":\"%s\",\"r\":\"%i\"}}\n"
 		);
 
-		Com_Printf(
+		StatSend(
 			msg,
 			server_id->string,
 			game.matchid,
@@ -640,8 +640,6 @@ void LogKill(edict_t *self, edict_t *inflictor, edict_t *attacker)
 			level.mapname,
 			roundNum
 		);
-
-		StatSend(msg);
 	}
 }
 
@@ -694,7 +692,7 @@ void LogWorldKill(edict_t *self)
 			"{\"frag\":{\"sid\":\"%s\",\"mid\":\"%s\",\"v\":\"%s\",\"vn\":\"%s\",\"vi\":\"%s\",\"vt\":%i,\"vl\":%i,\"k\":\"%s\",\"kn\":\"%s\",\"ki\":\"%s\",\"kt\":%i,\"kl\":%i,\"w\":%i,\"i\":%i,\"l\":%i,\"ks\":%i,\"gm\":%i,\"gmf\":%i,\"ttk\":\"%d\",\"t\":%d,\"gt\":%d,\"m\":\"%s\",\"r\":\"%i\"}}\n"
 		);
 
-		Com_Printf(
+		StatSend(
 			msg,
 			server_id->string,
 			game.matchid,
@@ -720,8 +718,6 @@ void LogWorldKill(edict_t *self)
 			level.mapname,
 			roundNum
 		);
-
-		StatSend(msg);
 	}
 }
 
