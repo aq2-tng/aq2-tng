@@ -492,6 +492,10 @@ void Cmd_Statmode_f(edict_t* ent)
 // Utilizes AWS API Gateway and AWS SQS
 // Requires two cvars -- if either are empty, sending stats is disabled
 
+size_t write_data(void *buffer, size_t size, size_t nmemb, void *userp)
+{
+   return size * nmemb;
+}
 void StatSend(const char *payload, ...)
 {
 	va_list argptr;
@@ -515,6 +519,10 @@ void StatSend(const char *payload, ...)
 	curl_easy_setopt(curl, CURLOPT_CUSTOMREQUEST, "POST");
 	curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
 	curl_easy_setopt(curl, CURLOPT_POSTFIELDS, text);
+	// Do not print responses from curl request
+	curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_data);
+
+	// Run it!
 	curl_easy_perform(curl);
     curl_easy_cleanup(curl);
     curl_global_cleanup();
@@ -744,7 +752,7 @@ void LogMatch()
 		"{\"gamematch\":{\"mid\":\"%s\",\"sid\":\"%s\",\"t\":\"%d\",\"m\":\"%s\",\"gm\":\"%i\",\"gmf\":%i,\"t1\":%i,\"t2\":\"%i\",\"t3\":\"%i\"}}\n"
 	);
 
-	Com_Printf(
+	StatSend(
 		msg,
 		game.matchid,
 		server_id->string,
@@ -779,7 +787,7 @@ void LogAward(char* steamid, int award)
 		"{\"award\":{\"sid\":\"%s\",\"mid\":\"%s\",\"t\":\"%d\",\"gt\":\"%d\",\"a\":%i,\"k\":%s,\"w\":\"%i\"}}\n"
 	);
 
-	Com_Printf(
+	StatSend(
 		msg,
 		server_id->string,
 		game.matchid,
@@ -827,7 +835,7 @@ void LogEndMatchStats()
 			"{\"matchstats\":{\"sid\":\"%s\",\"mid\":\"%s\",\"s\":\"%s\",\"sc\":\"%i\",\"sh\":\"%i\",\"a\":\"%f\",\"f\":\"%f\",\"dd\":\"%i\",\"d\":\"%i\",\"k\":\"%i\",\"ctfc\":\"%i\",\"ctfcs\":\"%i\",\"ht\":\"%i\",\"tk\":\"%i\",\"t\":\"%i\",\"hks\":\"%i\",\"hhs\":\"%i\"}}\n"
 		);
 
-		Com_Printf(
+		StatSend(
 			msg,
 			server_id->string,
 			game.matchid,
