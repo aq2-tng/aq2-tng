@@ -69,6 +69,7 @@
 
 #include "g_local.h"
 #include <time.h>
+#include <curl/curl.h>
 
 /* Stats Command */
 
@@ -487,6 +488,24 @@ void Cmd_Statmode_f(edict_t* ent)
 	stuffcmd(ent, stuff);
 }
 
+// AQtion stats addon
+// Utilizes AWS API Gateway and AWS SQS
+// Requires two cvars -- if either are empty, sending stats is disabled
+
+void StatSend(char* payload)
+{
+	CURL *curl = curl_easy_init();
+	struct curl_slist *headers = NULL;
+	headers = curl_slist_append(headers, "Accept: application/json");
+	headers = curl_slist_append(headers, "Content-Type: application/json");
+	headers = curl_slist_append(headers, "x-api-key: w1nvxA7J3T27kGhafk1Ku9KogGsctb6O4O0Azq59");
+
+	curl_easy_setopt(curl, CURLOPT_URL, "https://6wkwcocq4m.execute-api.us-east-1.amazonaws.com/live/v1/stats");
+	curl_easy_setopt(curl, CURLOPT_POSTFIELDS, payload);
+	curl_easy_perform(curl);
+
+}
+
 int Gamemode(void) // These are distinct game modes; you cannot have a teamdm tourney mode, for example
 {
 	int gamemode = 0;
@@ -584,6 +603,8 @@ void LogKill(edict_t *self, edict_t *inflictor, edict_t *attacker)
 			msg,
 			"{\"frag\":{\"sid\":\"%s\",\"mid\":\"%s\",\"v\":\"%s\",\"vn\":\"%s\",\"vi\":\"%s\",\"vt\":%i,\"vl\":%i,\"k\":\"%s\",\"kn\":\"%s\",\"ki\":\"%s\",\"kt\":%i,\"kl\":%i,\"w\":%i,\"i\":%i,\"l\":%i,\"ks\":%i,\"gm\":%i,\"gmf\":%i,\"ttk\":\"%d\",\"t\":%d,\"gt\":%d,\"m\":\"%s\",\"r\":\"%i\"}}\n"
 		);
+
+		StatSend(msg);
 
 		Com_Printf(
 			msg,
