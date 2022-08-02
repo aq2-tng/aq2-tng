@@ -501,18 +501,25 @@ void StatSend(const char *payload, ...)
 	vsnprintf (text, sizeof(text), payload, argptr);
 	va_end (argptr);
 
-	gi.dprintf("%s", text);
+	//gi.dprintf("%s", text);
 
-	gi.dprintf( "payload: %s\n", text );
+	//gi.dprintf( "payload: %s\n", text );
 	CURL *curl = curl_easy_init();
+    CURLcode res;
 	struct curl_slist *headers = NULL;
 	headers = curl_slist_append(headers, "Accept: application/json");
 	headers = curl_slist_append(headers, "Content-Type: application/json");
 	headers = curl_slist_append(headers, "x-api-key: w1nvxA7J3T27kGhafk1Ku9KogGsctb6O4O0Azq59");
 
 	curl_easy_setopt(curl, CURLOPT_URL, "https://6wkwcocq4m.execute-api.us-east-1.amazonaws.com/live/v1/stats");
+	curl_easy_setopt(curl, CURLOPT_CUSTOMREQUEST, "POST");
+	curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
 	curl_easy_setopt(curl, CURLOPT_POSTFIELDS, text);
-	curl_easy_perform(curl);
+	res = curl_easy_perform(curl);
+
+    curl_easy_cleanup(curl);
+    curl_global_cleanup();
+    return res;
 
 }
 
