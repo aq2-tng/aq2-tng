@@ -100,7 +100,7 @@ SHLIBLIBS=-lws2_32
 endif
 
 ifeq ($(AQTION),TRUE)
-SHLIBLIBS=-luuid
+SHLIBLIBS=-luuid -lcurl
 endif
 
 ifeq ($(ARCH),x86)

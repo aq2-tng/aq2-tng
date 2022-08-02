@@ -515,9 +515,9 @@ void StatSend(const char *payload, ...)
 	curl_easy_setopt(curl, CURLOPT_CUSTOMREQUEST, "POST");
 	curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
 	curl_easy_setopt(curl, CURLOPT_POSTFIELDS, text);
+	curl_easy_perform(curl);
     curl_easy_cleanup(curl);
     curl_global_cleanup();
-
 }
 
 int Gamemode(void) // These are distinct game modes; you cannot have a teamdm tourney mode, for example
