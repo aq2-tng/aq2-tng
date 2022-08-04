@@ -520,8 +520,8 @@ void StatSend(const char *payload, ...)
 
 	va_list argptr;
 	char text[1024];
-	char apikeyheaderprefix[64];
-	char apikeyheadervalue[64];
+	char *apikeyheaderprefix;
+	char *apikeyheadervalue;
 	char *apikeyheader;
 	char apiurl[128] = "\0";
 	cvar_t *stat_apikey;
