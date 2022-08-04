@@ -508,7 +508,7 @@ void StatSend(const char *payload, ...)
 	stat_apikey = gi.cvar("stat_apikey", "none", 0);
 	stat_url = gi.cvar("stat_url", "https://apigateway.aq2world.com/api/v1/stats", 0);
 	
-	gi.dprintf("stat_logs: %i -- stat_api_key: %s -- stat_url: %s", stat_logs->value, stat_apikey, stat_url);
+	gi.dprintf("stat_logs: %i -- stat_api_key: %s -- stat_url: %s", stat_logs->value, stat_apikey->string, stat_url->string);
 	// If stat logs are disabled or the API key is not set or the stat_url is empty
 	if (!stat_logs->value || !stat_apikey->string || !stat_url->string) {
 		return;
