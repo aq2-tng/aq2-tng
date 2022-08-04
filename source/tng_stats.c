@@ -503,26 +503,44 @@ void StatSend(const char *payload, ...)
 		return;
 	}
 
+	// cURL debug
+	typedef enum {
+		CURLINFO_TEXT = 0,
+		CURLINFO_HEADER_IN,    /* 1 */
+		CURLINFO_HEADER_OUT,   /* 2 */
+		CURLINFO_DATA_IN,      /* 3 */
+		CURLINFO_DATA_OUT,     /* 4 */
+		CURLINFO_SSL_DATA_IN,  /* 5 */
+		CURLINFO_SSL_DATA_OUT, /* 6 */
+		CURLINFO_END
+	} curl_infotype;
+	// cURL debug
+	
+	
+
 	va_list argptr;
 	char text[1024];
-	char apikeyheader[128] = "x-api-key: ";
+	char apikeyheaderprefix[64];
+	char apikeyheadervalue[64];
+	char *apikeyheader;
 	char apiurl[128] = "\0";
 	cvar_t *stat_apikey;
 	cvar_t *stat_url;
-
+	
 	stat_apikey = gi.cvar("stat_apikey", "none", 0);
 	stat_url = gi.cvar("stat_url", "https://apigateway.aq2world.com/api/v1/stats", 0);
 
-	strcpy(apikeyheader, stat_apikey->string);
+	strcpy(apikeyheadervalue, stat_apikey->string);
 	strcpy(apiurl, stat_url->string);
+
+	char apikeyheader = "x-api-key: %s", apikeyheadervalue;
+	
 	va_start (argptr, payload);
 	vsnprintf (text, sizeof(text), payload, argptr);
 	va_end (argptr);
 
-	//DEBUG
-	gi.dprintf("API key: %s", apikeyheader);
-
 	CURL *curl = curl_easy_init();
+	CURLcode res;
 	struct curl_slist *headers = NULL;
 	headers = curl_slist_append(headers, "Accept: application/json");
 	headers = curl_slist_append(headers, "Content-Type: application/json");
@@ -536,9 +554,12 @@ void StatSend(const char *payload, ...)
 	//curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_data);
 
 	// Run it!
-	curl_easy_perform(curl);
-    curl_easy_cleanup(curl);
-    curl_global_cleanup();
+	res = curl_easy_perform(curl);
+	if(res != CURLE_OK)
+        gi.dprintf("Sending stats failed: %s\n", curl_easy_strerror(res));
+	else
+		curl_easy_cleanup(curl);
+		curl_global_cleanup();
 }
 
 int Gamemode(void) // These are distinct game modes; you cannot have a teamdm tourney mode, for example
