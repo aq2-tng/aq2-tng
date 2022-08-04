@@ -498,7 +498,11 @@ size_t write_data(void *buffer, size_t size, size_t nmemb, void *userp)
 }
 void StatSend(const char *payload, ...)
 {
-	
+	// If stat logs are disabled, just return
+	if (!stat_logs->value) {
+		return;
+	}
+
 	va_list argptr;
 	char text[1024];
 	char apikeyheader[128] = "x-api-key: ";
@@ -511,13 +515,6 @@ void StatSend(const char *payload, ...)
 
 	strcpy(apikeyheader, stat_apikey->string);
 	strcpy(apiurl, stat_url->string);
-
-	gi.dprintf("stat_logs: %f -- stat_api_key: %s -- stat_url: %s", stat_logs->value, apikeyheader, apiurl);
-	// If stat logs are disabled or the API key is not set or the stat_url is empty
-	if (!stat_logs->value || !apikeyheader || !apiurl) {
-		return;
-	}
-
 	va_start (argptr, payload);
 	vsnprintf (text, sizeof(text), payload, argptr);
 	va_end (argptr);
@@ -531,7 +528,7 @@ void StatSend(const char *payload, ...)
 	headers = curl_slist_append(headers, "Content-Type: application/json");
 	headers = curl_slist_append(headers, apikeyheader);
 
-	curl_easy_setopt(curl, CURLOPT_URL, stat_url->string);
+	curl_easy_setopt(curl, CURLOPT_URL, apiurl);
 	curl_easy_setopt(curl, CURLOPT_CUSTOMREQUEST, "POST");
 	curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
 	curl_easy_setopt(curl, CURLOPT_POSTFIELDS, text);
