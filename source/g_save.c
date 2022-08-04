@@ -556,8 +556,6 @@ void InitGame( void )
 	sv_limp_highping = gi.cvar("sv_limp_highping", "70", CVAR_SERVERINFO);
 	server_id = gi.cvar( "server_id", "", CVAR_SERVERINFO );
 	stat_logs = gi.cvar( "stat_logs", "0", 0);
-	stat_apikey = gi.cvar( "stat_apikey", "0", 0 );
-	stat_url = gi.cvar( "stat_url", "https://apigateway.aq2world.com/api/v1/stats", 0 );
 
 #ifndef NO_BOTS
 	// bots

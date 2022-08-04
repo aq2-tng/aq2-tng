@@ -498,14 +498,21 @@ size_t write_data(void *buffer, size_t size, size_t nmemb, void *userp)
 }
 void StatSend(const char *payload, ...)
 {
+	
+	va_list argptr;
+	char text[1024];
+	char apikeyheader[] = "x-api-key: ";
+	cvar_t *stat_apikey;
+	cvar_t *stat_url;
+
+	stat_apikey = gi.cvar("stat_apikey", "none", 0);
+	stat_url = gi.cvar("stat_url", "https://apigateway.aq2world.com/api/v1/stats", 0);
+	
 	gi.dprintf("stat_logs: %i -- stat_api_key: %s -- stat_url: %s", stat_logs->value, stat_apikey, stat_url);
 	// If stat logs are disabled or the API key is not set or the stat_url is empty
 	if (!stat_logs->value || !stat_apikey->string || !stat_url->string) {
 		return;
 	}
-	va_list argptr;
-	char text[1024];
-	char apikeyheader[] = "x-api-key: ";
 
 	va_start (argptr, payload);
 	vsnprintf (text, sizeof(text), payload, argptr);
