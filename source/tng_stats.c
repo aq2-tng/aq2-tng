@@ -502,7 +502,7 @@ void StatSend(const char *payload, ...)
 	va_list argptr;
 	char text[1024];
 	char apikeyheader[128] = "x-api-key: ";
-	char apiurl[128];
+	char apiurl[128] = "\0";
 	cvar_t *stat_apikey;
 	cvar_t *stat_url;
 
@@ -511,6 +511,7 @@ void StatSend(const char *payload, ...)
 
 	strcpy(apikeyheader, stat_apikey->string);
 	strcpy(apiurl, stat_url);
+
 	
 	gi.dprintf("stat_logs: %f -- stat_api_key: %s -- stat_url: %s", stat_logs->value, apikeyheader, apiurl);
 	// If stat logs are disabled or the API key is not set or the stat_url is empty
