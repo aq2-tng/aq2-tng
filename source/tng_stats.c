@@ -501,24 +501,26 @@ void StatSend(const char *payload, ...)
 	
 	va_list argptr;
 	char text[1024];
-	char apikeyheader[] = "x-api-key: ";
+	char apikeyheader[128] = "x-api-key: ";
+	char apiurl[128];
 	cvar_t *stat_apikey;
 	cvar_t *stat_url;
 
 	stat_apikey = gi.cvar("stat_apikey", "none", 0);
 	stat_url = gi.cvar("stat_url", "https://apigateway.aq2world.com/api/v1/stats", 0);
+
+	strcpy(apikeyheader, stat_apikey->string);
+	strcpy(apiurl, stat_url);
 	
-	gi.dprintf("stat_logs: %i -- stat_api_key: %s -- stat_url: %s", stat_logs->value, stat_apikey->string, stat_url->string);
+	gi.dprintf("stat_logs: %f -- stat_api_key: %s -- stat_url: %s", stat_logs->value, apikeyheader, apiurl);
 	// If stat logs are disabled or the API key is not set or the stat_url is empty
-	if (!stat_logs->value || !stat_apikey->string || !stat_url->string) {
+	if (!stat_logs->value || !apikeyheader || !apiurl) {
 		return;
 	}
 
 	va_start (argptr, payload);
 	vsnprintf (text, sizeof(text), payload, argptr);
 	va_end (argptr);
-
-	strcpy(apikeyheader, stat_apikey->string);
 
 	//DEBUG
 	gi.dprintf("API key: %s", apikeyheader);
