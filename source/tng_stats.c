@@ -533,7 +533,7 @@ void StatSend(const char *payload, ...)
 	strcpy(apikeyheadervalue, stat_apikey->string);
 	strcpy(apiurl, stat_url->string);
 
-	char apikeyheader = "x-api-key: %s", apikeyheadervalue;
+	char apikeyheader[128] = "x-api-key: %s", apikeyheadervalue;
 	
 	va_start (argptr, payload);
 	vsnprintf (text, sizeof(text), payload, argptr);
