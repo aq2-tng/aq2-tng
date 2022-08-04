@@ -511,7 +511,10 @@ void StatSend(const char *payload, ...)
 	va_end (argptr);
 
 	strcpy(apikeyheader, stat_apikey->string);
-	
+
+	//DEBUG
+	gi.dprintf("API key: %s", apikeyheader);
+
 	CURL *curl = curl_easy_init();
 	struct curl_slist *headers = NULL;
 	headers = curl_slist_append(headers, "Accept: application/json");
@@ -523,7 +526,7 @@ void StatSend(const char *payload, ...)
 	curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
 	curl_easy_setopt(curl, CURLOPT_POSTFIELDS, text);
 	// Do not print responses from curl request
-	curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_data);
+	//curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_data);
 
 	// Run it!
 	curl_easy_perform(curl);
