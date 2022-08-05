@@ -502,6 +502,7 @@ void StatSend(const char *payload, ...)
 	char text[1024];
 	char apikeyheader[64] = "x-api-key: ";
 	char apiurl[128] = "\0";
+	int apikey_check;
 	cvar_t *stat_apikey;
 	cvar_t *stat_url;
 	
@@ -509,7 +510,8 @@ void StatSend(const char *payload, ...)
 	stat_url = gi.cvar("stat_url", "https://apigateway.aq2world.com/api/v1/stats", 0);
 
 	// If stat logs are disabled or stat-apikey is default, just return
-	if (!stat_logs->value || stat_apikey->string == "none") {
+	apikey_check = strcmp(stat_apikey->string, "none");
+	if (!stat_logs->value || apikey_check == 0) {
 		return;
 	}
 
@@ -521,7 +523,6 @@ void StatSend(const char *payload, ...)
 	va_end (argptr);
 
 	CURL *curl = curl_easy_init();
-	CURLcode res;
 	struct curl_slist *headers = NULL;
 	headers = curl_slist_append(headers, "Accept: application/json");
 	headers = curl_slist_append(headers, "Content-Type: application/json");
