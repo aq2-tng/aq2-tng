@@ -505,13 +505,13 @@ void StatSend(const char *payload, ...)
 	cvar_t *stat_apikey;
 	cvar_t *stat_url;
 	
-	// If stat logs are disabled or stat-apikey is default, just return
-	if (!stat_logs->value || stat_apikey->string = "none") {
-		return;
-	}
-	
 	stat_apikey = gi.cvar("stat_apikey", "none", 0);
 	stat_url = gi.cvar("stat_url", "https://apigateway.aq2world.com/api/v1/stats", 0);
+
+	// If stat logs are disabled or stat-apikey is default, just return
+	if (!stat_logs->value || stat_apikey->string == "none") {
+		return;
+	}
 
 	strcat(apikeyheader, stat_apikey->string);
 	strcpy(apiurl, stat_url->string);
@@ -539,7 +539,7 @@ void StatSend(const char *payload, ...)
 	curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_data);
 
 	// Run it!
-	res = curl_easy_perform(curl);
+	curl_easy_perform(curl);
 	curl_easy_cleanup(curl);
 	curl_global_cleanup();
 }
