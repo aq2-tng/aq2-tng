@@ -510,8 +510,8 @@ void StatSend(const char *payload, ...)
 		return;
 	}
 	
-	Q_strncatz(apikeyheader, stat_apikey->string);
-	Q_strncpyz(apiurl, stat_url->string);
+	Q_strncatz(apikeyheader, stat_apikey->string, sizeof(apikeyheader));
+	Q_strncpyz(apiurl, stat_url->string, sizeof(apiurl));
 	
 	va_start (argptr, payload);
 	vsnprintf (text, sizeof(text), payload, argptr);
@@ -617,12 +617,12 @@ void LogKill(edict_t *self, edict_t *inflictor, edict_t *attacker)
 			ttk = current_round_length / 10;
 		}
 		
-		Q_strlcpy(v, Info_ValueForKey(self->client->pers.userinfo, "steamid"));
-		Q_strlcpy(vn, Info_ValueForKey(self->client->pers.userinfo, "name"));
-		Q_strlcpy(vip, Info_ValueForKey(self->client->pers.userinfo, "ip"));
-		Q_strlcpy(k, Info_ValueForKey(attacker->client->pers.userinfo, "steamid"));
-		Q_strlcpy(kn, Info_ValueForKey(attacker->client->pers.userinfo, "name"));
-		Q_strlcpy(kip, Info_ValueForKey(attacker->client->pers.userinfo, "ip"));
+		Q_strncpyz(v, Info_ValueForKey(self->client->pers.userinfo, "steamid"), sizeof(v));
+		Q_strncpyz(vn, Info_ValueForKey(self->client->pers.userinfo, "name"), sizeof(vn));
+		Q_strncpyz(vip, Info_ValueForKey(self->client->pers.userinfo, "ip"), sizeof(vip));
+		Q_strncpyz(k, Info_ValueForKey(attacker->client->pers.userinfo, "steamid"), sizeof(k));
+		Q_strncpyz(kn, Info_ValueForKey(attacker->client->pers.userinfo, "name"), sizeof(kn));
+		Q_strncpyz(kip, Info_ValueForKey(attacker->client->pers.userinfo, "ip"), sizeof(kip));
 
 		// Separate IP from Port
 		char* portSeperator = ":";
@@ -633,9 +633,10 @@ void LogKill(edict_t *self, edict_t *inflictor, edict_t *attacker)
 		eventtime = (int)time(NULL);
 		roundNum = game.roundNum + 1;
 
-		Q_strlcpy(
+		Q_strncpyz(
 			msg,
-			"{\"frag\":{\"sid\":\"%s\",\"mid\":\"%s\",\"v\":\"%s\",\"vn\":\"%s\",\"vi\":\"%s\",\"vt\":%i,\"vl\":%i,\"k\":\"%s\",\"kn\":\"%s\",\"ki\":\"%s\",\"kt\":%i,\"kl\":%i,\"w\":%i,\"i\":%i,\"l\":%i,\"ks\":%i,\"gm\":%i,\"gmf\":%i,\"ttk\":\"%d\",\"t\":%d,\"gt\":%d,\"m\":\"%s\",\"r\":\"%i\"}}\n"
+			"{\"frag\":{\"sid\":\"%s\",\"mid\":\"%s\",\"v\":\"%s\",\"vn\":\"%s\",\"vi\":\"%s\",\"vt\":%i,\"vl\":%i,\"k\":\"%s\",\"kn\":\"%s\",\"ki\":\"%s\",\"kt\":%i,\"kl\":%i,\"w\":%i,\"i\":%i,\"l\":%i,\"ks\":%i,\"gm\":%i,\"gmf\":%i,\"ttk\":\"%d\",\"t\":%d,\"gt\":%d,\"m\":\"%s\",\"r\":\"%i\"}}\n",
+			sizeof(msg)
 		);
 
 		StatSend(
@@ -699,9 +700,9 @@ void LogWorldKill(edict_t *self)
 			ttk = current_round_length / 10;
 		}
 		
-		Q_strlcpy(v, Info_ValueForKey(self->client->pers.userinfo, "steamid"));
-		Q_strlcpy(vn, Info_ValueForKey(self->client->pers.userinfo, "name"));
-		Q_strlcpy(vip, Info_ValueForKey(self->client->pers.userinfo, "ip"));
+		Q_strncpyz(v, Info_ValueForKey(self->client->pers.userinfo, "steamid"), sizeof(v));
+		Q_strncpyz(vn, Info_ValueForKey(self->client->pers.userinfo, "name"), sizeof(vn));
+		Q_strncpyz(vip, Info_ValueForKey(self->client->pers.userinfo, "ip"), sizeof(vip));
 
 		// Separate IP from Port
 		char* portSeperator = ":";
@@ -711,9 +712,10 @@ void LogWorldKill(edict_t *self)
 		eventtime = (int)time(NULL);
 		roundNum = game.roundNum + 1;
 
-		Q_strlcpy(
+		Q_strncpyz(
 			msg,
-			"{\"frag\":{\"sid\":\"%s\",\"mid\":\"%s\",\"v\":\"%s\",\"vn\":\"%s\",\"vi\":\"%s\",\"vt\":%i,\"vl\":%i,\"k\":\"%s\",\"kn\":\"%s\",\"ki\":\"%s\",\"kt\":%i,\"kl\":%i,\"w\":%i,\"i\":%i,\"l\":%i,\"ks\":%i,\"gm\":%i,\"gmf\":%i,\"ttk\":\"%d\",\"t\":%d,\"gt\":%d,\"m\":\"%s\",\"r\":\"%i\"}}\n"
+			"{\"frag\":{\"sid\":\"%s\",\"mid\":\"%s\",\"v\":\"%s\",\"vn\":\"%s\",\"vi\":\"%s\",\"vt\":%i,\"vl\":%i,\"k\":\"%s\",\"kn\":\"%s\",\"ki\":\"%s\",\"kt\":%i,\"kl\":%i,\"w\":%i,\"i\":%i,\"l\":%i,\"ks\":%i,\"gm\":%i,\"gmf\":%i,\"ttk\":\"%d\",\"t\":%d,\"gt\":%d,\"m\":\"%s\",\"r\":\"%i\"}}\n",
+			sizeof(msg)
 		);
 
 		StatSend(
@@ -759,9 +761,10 @@ void LogMatch()
 	int t3 = teams[TEAM3].score;
 	eventtime = (int)time(NULL);
 
-	Q_strlcpy(
+	Q_strncpyz(
 		msg,
-		"{\"gamematch\":{\"mid\":\"%s\",\"sid\":\"%s\",\"t\":\"%d\",\"m\":\"%s\",\"gm\":\"%i\",\"gmf\":%i,\"t1\":%i,\"t2\":\"%i\",\"t3\":\"%i\"}}\n"
+		"{\"gamematch\":{\"mid\":\"%s\",\"sid\":\"%s\",\"t\":\"%d\",\"m\":\"%s\",\"gm\":\"%i\",\"gmf\":%i,\"t1\":%i,\"t2\":\"%i\",\"t3\":\"%i\"}}\n",
+		sizeof(msg)
 	);
 
 	StatSend(
@@ -794,9 +797,10 @@ void LogAward(char* steamid, int award)
 	gametime = level.matchTime;
 	eventtime = (int)time(NULL);
 
-	Q_strlcpy(
+	Q_strncpyz(
 		msg,
-		"{\"award\":{\"sid\":\"%s\",\"mid\":\"%s\",\"t\":\"%d\",\"gt\":\"%d\",\"a\":%i,\"k\":%s,\"w\":\"%i\"}}\n"
+		"{\"award\":{\"sid\":\"%s\",\"mid\":\"%s\",\"t\":\"%d\",\"gt\":\"%d\",\"a\":%i,\"k\":%s,\"w\":\"%i\"}}\n",
+		sizeof(msg)
 	);
 
 	StatSend(
@@ -841,10 +845,11 @@ void LogEndMatchStats()
 			else
 				fpm = 0.0;
 				
-		Q_strlcpy(steamid, Info_ValueForKey(cl->pers.userinfo, "steamid"));
-		Q_strlcpy(
+		Q_strncpyz(steamid, Info_ValueForKey(cl->pers.userinfo, "steamid"), sizeof(steamid));
+		Q_strncpyz(
 			msg,
-			"{\"matchstats\":{\"sid\":\"%s\",\"mid\":\"%s\",\"s\":\"%s\",\"sc\":\"%i\",\"sh\":\"%i\",\"a\":\"%f\",\"f\":\"%f\",\"dd\":\"%i\",\"d\":\"%i\",\"k\":\"%i\",\"ctfc\":\"%i\",\"ctfcs\":\"%i\",\"ht\":\"%i\",\"tk\":\"%i\",\"t\":\"%i\",\"hks\":\"%i\",\"hhs\":\"%i\"}}\n"
+			"{\"matchstats\":{\"sid\":\"%s\",\"mid\":\"%s\",\"s\":\"%s\",\"sc\":\"%i\",\"sh\":\"%i\",\"a\":\"%f\",\"f\":\"%f\",\"dd\":\"%i\",\"d\":\"%i\",\"k\":\"%i\",\"ctfc\":\"%i\",\"ctfcs\":\"%i\",\"ht\":\"%i\",\"tk\":\"%i\",\"t\":\"%i\",\"hks\":\"%i\",\"hhs\":\"%i\"}}\n",
+			sizeof(msg)
 		);
 
 		StatSend(
