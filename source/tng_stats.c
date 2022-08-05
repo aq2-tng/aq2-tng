@@ -490,38 +490,25 @@ void Cmd_Statmode_f(edict_t* ent)
 
 // AQtion stats addon
 // Utilizes AWS API Gateway and AWS SQS
-// Requires two cvars -- if either are empty, sending stats is disabled
+// Review documentation to understand their use
 
 size_t write_data(void *buffer, size_t size, size_t nmemb, void *userp)
 {
    return size * nmemb;
 }
 void StatSend(const char *payload, ...)
-{
-	// If stat logs are disabled, just return
-	if (!stat_logs->value) {
-		return;
-	}
-
-	// cURL debug
-	typedef enum {
-		CURLINFO_TEXT = 0,
-		CURLINFO_HEADER_IN,    /* 1 */
-		CURLINFO_HEADER_OUT,   /* 2 */
-		CURLINFO_DATA_IN,      /* 3 */
-		CURLINFO_DATA_OUT,     /* 4 */
-		CURLINFO_SSL_DATA_IN,  /* 5 */
-		CURLINFO_SSL_DATA_OUT, /* 6 */
-		CURLINFO_END
-	} curl_infotype;
-	// cURL debug
-	
+{	
 	va_list argptr;
 	char text[1024];
 	char apikeyheader[64] = "x-api-key: ";
 	char apiurl[128] = "\0";
 	cvar_t *stat_apikey;
 	cvar_t *stat_url;
+	
+	// If stat logs are disabled or stat-apikey is default, just return
+	if (!stat_logs->value || stat_apikey->string = "none") {
+		return;
+	}
 	
 	stat_apikey = gi.cvar("stat_apikey", "none", 0);
 	stat_url = gi.cvar("stat_url", "https://apigateway.aq2world.com/api/v1/stats", 0);
@@ -544,16 +531,17 @@ void StatSend(const char *payload, ...)
 	curl_easy_setopt(curl, CURLOPT_CUSTOMREQUEST, "POST");
 	curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
 	curl_easy_setopt(curl, CURLOPT_POSTFIELDS, text);
-	// Do not print responses from curl request
-	//curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_data);
+
+	// Do not print responses from curl request 
+	// comment below if you are debugging responses
+	// Hint: Forbidden would mean your stat_url is malformed
+	// and a key error indicates your api key is bad or expired
+	curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_data);
 
 	// Run it!
 	res = curl_easy_perform(curl);
-	if(res != CURLE_OK)
-        gi.dprintf("Sending stats failed: %s\n", curl_easy_strerror(res));
-	else
-		curl_easy_cleanup(curl);
-		curl_global_cleanup();
+	curl_easy_cleanup(curl);
+	curl_global_cleanup();
 }
 
 int Gamemode(void) // These are distinct game modes; you cannot have a teamdm tourney mode, for example
@@ -747,9 +735,9 @@ void LogWorldKill(edict_t *self)
 			vt,
 			vl,
 			mod,
-			16, // No attacker for world death
+			16, // No attacker for world death, setting to 16 as a 'dummy' value
 			loc,
-			0, // No killstreak for world death
+			0, // No killstreak for world death, setting to 0 permanently as we aren't tracking world death kill streaks
 			Gamemode(),
 			Gamemodeflag(),
 			ttk,
