@@ -528,9 +528,9 @@ void StatSend(const char *payload, ...)
 	curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
 	curl_easy_setopt(curl, CURLOPT_POSTFIELDS, text);
 
-	// Do not print responses from curl request 
-	// comment below if you are debugging responses
-	// Hint: Forbidden would mean your stat_url is malformed
+	// Do not print responses from curl request
+	// Comment below if you are debugging responses
+	// Hint: Forbidden would mean your stat_url is malformed,
 	// and a key error indicates your api key is bad or expired
 	curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_data);
 
