@@ -516,13 +516,9 @@ void StatSend(const char *payload, ...)
 	} curl_infotype;
 	// cURL debug
 	
-	
-
 	va_list argptr;
 	char text[1024];
-	char apikeyheaderprefix[64];
-	char apikeyheadervalue[64];
-	char apikeyheader[128];
+	char apikeyheader[64] = "x-api-key: ";
 	char apiurl[128] = "\0";
 	cvar_t *stat_apikey;
 	cvar_t *stat_url;
@@ -530,10 +526,8 @@ void StatSend(const char *payload, ...)
 	stat_apikey = gi.cvar("stat_apikey", "none", 0);
 	stat_url = gi.cvar("stat_url", "https://apigateway.aq2world.com/api/v1/stats", 0);
 
-	strcpy(apikeyheadervalue, stat_apikey->string);
+	strcat(apikeyheader, stat_apikey->string);
 	strcpy(apiurl, stat_url->string);
-
-	char apikeyheader[128] = "x-api-key: %s", apikeyheadervalue;
 	
 	va_start (argptr, payload);
 	vsnprintf (text, sizeof(text), payload, argptr);
