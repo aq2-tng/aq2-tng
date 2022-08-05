@@ -503,11 +503,6 @@ void StatSend(const char *payload, ...)
 	char apikeyheader[64] = "x-api-key: ";
 	char apiurl[128] = "\0";
 	int apikey_check;
-	cvar_t *stat_apikey;
-	cvar_t *stat_url;
-	
-	stat_apikey = gi.cvar("stat_apikey", "none", 0);
-	stat_url = gi.cvar("stat_url", "https://apigateway.aq2world.com/api/v1/stats", 0);
 
 	// If stat logs are disabled or stat-apikey is default, just return
 	apikey_check = strcmp(stat_apikey->string, "none");
