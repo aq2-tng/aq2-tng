@@ -505,16 +505,16 @@ void StatSend(const char *payload, ...)
 	int apikey_check;
 
 	// If stat logs are disabled or stat-apikey is default, just return
-	apikey_check = strcmp(stat_apikey->string, "none");
+	apikey_check = Q_stricmp(stat_apikey->string, "none");
 	if (!stat_logs->value || apikey_check == 0) {
 		return;
 	}
-
-	strcat(apikeyheader, stat_apikey->string);
-	strcpy(apiurl, stat_url->string);
+	
+	Q_strlcat(apikeyheader, stat_apikey->string);
+	Q_strlcpy(apiurl, stat_url->string);
 	
 	va_start (argptr, payload);
-	vsnprintf (text, sizeof(text), payload, argptr);
+	Q_vsnprintf (text, sizeof(text), payload, argptr);
 	va_end (argptr);
 
 	CURL *curl = curl_easy_init();
@@ -617,12 +617,12 @@ void LogKill(edict_t *self, edict_t *inflictor, edict_t *attacker)
 			ttk = current_round_length / 10;
 		}
 		
-		strcpy(v, Info_ValueForKey(self->client->pers.userinfo, "steamid"));
-		strcpy(vn, Info_ValueForKey(self->client->pers.userinfo, "name"));
-		strcpy(vip, Info_ValueForKey(self->client->pers.userinfo, "ip"));
-		strcpy(k, Info_ValueForKey(attacker->client->pers.userinfo, "steamid"));
-		strcpy(kn, Info_ValueForKey(attacker->client->pers.userinfo, "name"));
-		strcpy(kip, Info_ValueForKey(attacker->client->pers.userinfo, "ip"));
+		Q_strlcpy(v, Info_ValueForKey(self->client->pers.userinfo, "steamid"));
+		Q_strlcpy(vn, Info_ValueForKey(self->client->pers.userinfo, "name"));
+		Q_strlcpy(vip, Info_ValueForKey(self->client->pers.userinfo, "ip"));
+		Q_strlcpy(k, Info_ValueForKey(attacker->client->pers.userinfo, "steamid"));
+		Q_strlcpy(kn, Info_ValueForKey(attacker->client->pers.userinfo, "name"));
+		Q_strlcpy(kip, Info_ValueForKey(attacker->client->pers.userinfo, "ip"));
 
 		// Separate IP from Port
 		char* portSeperator = ":";
@@ -633,7 +633,7 @@ void LogKill(edict_t *self, edict_t *inflictor, edict_t *attacker)
 		eventtime = (int)time(NULL);
 		roundNum = game.roundNum + 1;
 
-		strcpy(
+		Q_strlcpy(
 			msg,
 			"{\"frag\":{\"sid\":\"%s\",\"mid\":\"%s\",\"v\":\"%s\",\"vn\":\"%s\",\"vi\":\"%s\",\"vt\":%i,\"vl\":%i,\"k\":\"%s\",\"kn\":\"%s\",\"ki\":\"%s\",\"kt\":%i,\"kl\":%i,\"w\":%i,\"i\":%i,\"l\":%i,\"ks\":%i,\"gm\":%i,\"gmf\":%i,\"ttk\":\"%d\",\"t\":%d,\"gt\":%d,\"m\":\"%s\",\"r\":\"%i\"}}\n"
 		);
@@ -699,9 +699,9 @@ void LogWorldKill(edict_t *self)
 			ttk = current_round_length / 10;
 		}
 		
-		strcpy(v, Info_ValueForKey(self->client->pers.userinfo, "steamid"));
-		strcpy(vn, Info_ValueForKey(self->client->pers.userinfo, "name"));
-		strcpy(vip, Info_ValueForKey(self->client->pers.userinfo, "ip"));
+		Q_strlcpy(v, Info_ValueForKey(self->client->pers.userinfo, "steamid"));
+		Q_strlcpy(vn, Info_ValueForKey(self->client->pers.userinfo, "name"));
+		Q_strlcpy(vip, Info_ValueForKey(self->client->pers.userinfo, "ip"));
 
 		// Separate IP from Port
 		char* portSeperator = ":";
@@ -711,7 +711,7 @@ void LogWorldKill(edict_t *self)
 		eventtime = (int)time(NULL);
 		roundNum = game.roundNum + 1;
 
-		strcpy(
+		Q_strlcpy(
 			msg,
 			"{\"frag\":{\"sid\":\"%s\",\"mid\":\"%s\",\"v\":\"%s\",\"vn\":\"%s\",\"vi\":\"%s\",\"vt\":%i,\"vl\":%i,\"k\":\"%s\",\"kn\":\"%s\",\"ki\":\"%s\",\"kt\":%i,\"kl\":%i,\"w\":%i,\"i\":%i,\"l\":%i,\"ks\":%i,\"gm\":%i,\"gmf\":%i,\"ttk\":\"%d\",\"t\":%d,\"gt\":%d,\"m\":\"%s\",\"r\":\"%i\"}}\n"
 		);
@@ -759,7 +759,7 @@ void LogMatch()
 	int t3 = teams[TEAM3].score;
 	eventtime = (int)time(NULL);
 
-	strcpy(
+	Q_strlcpy(
 		msg,
 		"{\"gamematch\":{\"mid\":\"%s\",\"sid\":\"%s\",\"t\":\"%d\",\"m\":\"%s\",\"gm\":\"%i\",\"gmf\":%i,\"t1\":%i,\"t2\":\"%i\",\"t3\":\"%i\"}}\n"
 	);
@@ -794,7 +794,7 @@ void LogAward(char* steamid, int award)
 	gametime = level.matchTime;
 	eventtime = (int)time(NULL);
 
-	strcpy(
+	Q_strlcpy(
 		msg,
 		"{\"award\":{\"sid\":\"%s\",\"mid\":\"%s\",\"t\":\"%d\",\"gt\":\"%d\",\"a\":%i,\"k\":%s,\"w\":\"%i\"}}\n"
 	);
@@ -841,8 +841,8 @@ void LogEndMatchStats()
 			else
 				fpm = 0.0;
 				
-		strcpy(steamid, Info_ValueForKey(cl->pers.userinfo, "steamid"));
-		strcpy(
+		Q_strlcpy(steamid, Info_ValueForKey(cl->pers.userinfo, "steamid"));
+		Q_strlcpy(
 			msg,
 			"{\"matchstats\":{\"sid\":\"%s\",\"mid\":\"%s\",\"s\":\"%s\",\"sc\":\"%i\",\"sh\":\"%i\",\"a\":\"%f\",\"f\":\"%f\",\"dd\":\"%i\",\"d\":\"%i\",\"k\":\"%i\",\"ctfc\":\"%i\",\"ctfcs\":\"%i\",\"ht\":\"%i\",\"tk\":\"%i\",\"t\":\"%i\",\"hks\":\"%i\",\"hhs\":\"%i\"}}\n"
 		);
