@@ -510,11 +510,11 @@ void StatSend(const char *payload, ...)
 		return;
 	}
 	
-	Q_strlcat(apikeyheader, stat_apikey->string);
-	Q_strlcpy(apiurl, stat_url->string);
+	Q_strncatz(apikeyheader, stat_apikey->string);
+	Q_strncpyz(apiurl, stat_url->string);
 	
 	va_start (argptr, payload);
-	Q_vsnprintf (text, sizeof(text), payload, argptr);
+	vsnprintf (text, sizeof(text), payload, argptr);
 	va_end (argptr);
 
 	CURL *curl = curl_easy_init();
