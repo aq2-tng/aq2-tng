@@ -595,15 +595,17 @@ void LogKill(edict_t *self, edict_t *inflictor, edict_t *attacker)
 	int ttk = 0; //Default TTK (time to kill) is 0
 	int vl = 0; //Placeholder victimleader until Espionage gets ported
 	int kl = 0; //Placeholder killerleader until Espionage gets ported
-	char msg[1024];
-	char v[24];
-	char vn[128];
-	char vip[24];
-	char *vi;
-	char k[24];
-	char kn[128];
-	char kip[24];
-	char *ki;
+	char msg[1024]; // Whole stat line in JSON format
+	char v[24]; // Victim's Steam ID
+	char vn[128]; // Victim's name
+	char vip[24]; // Victim's IP:port
+	char vd[24]; // Victim's Discord ID
+	char *vi; // Victim's IP (without port)
+	char k[24]; // Killer's Steam ID
+	char kn[128]; // Killer's name
+	char kip[24]; // Killer's IP:port
+	char kd[24]; // Killer's Discord ID
+	char *ki; // Killer's IP (without port)
 
 	if ((team_round_going && !in_warmup) || (gameSettings & GS_DEATHMATCH)) // If round is active OR if deathmatch
 	{
@@ -620,9 +622,11 @@ void LogKill(edict_t *self, edict_t *inflictor, edict_t *attacker)
 		Q_strncpyz(v, Info_ValueForKey(self->client->pers.userinfo, "steamid"), sizeof(v));
 		Q_strncpyz(vn, Info_ValueForKey(self->client->pers.userinfo, "name"), sizeof(vn));
 		Q_strncpyz(vip, Info_ValueForKey(self->client->pers.userinfo, "ip"), sizeof(vip));
+		Q_strncpyz(vd, Info_ValueForKey(self->client->pers.userinfo, "cl_discord_id"), sizeof(vd));
 		Q_strncpyz(k, Info_ValueForKey(attacker->client->pers.userinfo, "steamid"), sizeof(k));
 		Q_strncpyz(kn, Info_ValueForKey(attacker->client->pers.userinfo, "name"), sizeof(kn));
 		Q_strncpyz(kip, Info_ValueForKey(attacker->client->pers.userinfo, "ip"), sizeof(kip));
+		Q_strncpyz(kd, Info_ValueForKey(attacker->client->pers.userinfo, "cl_discord_id"), sizeof(kd));
 
 		// Separate IP from Port
 		char* portSeperator = ":";
@@ -635,7 +639,7 @@ void LogKill(edict_t *self, edict_t *inflictor, edict_t *attacker)
 
 		Q_strncpyz(
 			msg,
-			"{\"frag\":{\"sid\":\"%s\",\"mid\":\"%s\",\"v\":\"%s\",\"vn\":\"%s\",\"vi\":\"%s\",\"vt\":%i,\"vl\":%i,\"k\":\"%s\",\"kn\":\"%s\",\"ki\":\"%s\",\"kt\":%i,\"kl\":%i,\"w\":%i,\"i\":%i,\"l\":%i,\"ks\":%i,\"gm\":%i,\"gmf\":%i,\"ttk\":\"%d\",\"t\":%d,\"gt\":%d,\"m\":\"%s\",\"r\":\"%i\"}}\n",
+			"{\"frag\":{\"sid\":\"%s\",\"mid\":\"%s\",\"v\":\"%s\",\"vd\":\"%s\",\"vn\":\"%s\",\"vi\":\"%s\",\"vt\":%i,\"vl\":%i,\"k\":\"%s\",\"kd\":\"%s\",\"kn\":\"%s\",\"ki\":\"%s\",\"kt\":%i,\"kl\":%i,\"w\":%i,\"i\":%i,\"l\":%i,\"ks\":%i,\"gm\":%i,\"gmf\":%i,\"ttk\":\"%d\",\"t\":%d,\"gt\":%d,\"m\":\"%s\",\"r\":\"%i\"}}\n",
 			sizeof(msg)
 		);
 
@@ -644,11 +648,13 @@ void LogKill(edict_t *self, edict_t *inflictor, edict_t *attacker)
 			server_id->string,
 			game.matchid,
 			v,
+			vd,
 			vn,
 			vi,
 			vt,
 			vl,
 			k,
+			kd,
 			kn,
 			ki,
 			kt,
@@ -687,6 +693,7 @@ void LogWorldKill(edict_t *self)
 	char v[24];
 	char vn[128];
 	char vip[24];
+	char vd[24];
 	char *vi;
 
 	if ((team_round_going && !in_warmup) || (gameSettings & GS_DEATHMATCH)) // If round is active OR if deathmatch
@@ -703,6 +710,7 @@ void LogWorldKill(edict_t *self)
 		Q_strncpyz(v, Info_ValueForKey(self->client->pers.userinfo, "steamid"), sizeof(v));
 		Q_strncpyz(vn, Info_ValueForKey(self->client->pers.userinfo, "name"), sizeof(vn));
 		Q_strncpyz(vip, Info_ValueForKey(self->client->pers.userinfo, "ip"), sizeof(vip));
+		Q_strncpyz(vd, Info_ValueForKey(self->client->pers.userinfo, "cl_discord_id"), sizeof(vd));
 
 		// Separate IP from Port
 		char* portSeperator = ":";
@@ -714,7 +722,7 @@ void LogWorldKill(edict_t *self)
 
 		Q_strncpyz(
 			msg,
-			"{\"frag\":{\"sid\":\"%s\",\"mid\":\"%s\",\"v\":\"%s\",\"vn\":\"%s\",\"vi\":\"%s\",\"vt\":%i,\"vl\":%i,\"k\":\"%s\",\"kn\":\"%s\",\"ki\":\"%s\",\"kt\":%i,\"kl\":%i,\"w\":%i,\"i\":%i,\"l\":%i,\"ks\":%i,\"gm\":%i,\"gmf\":%i,\"ttk\":\"%d\",\"t\":%d,\"gt\":%d,\"m\":\"%s\",\"r\":\"%i\"}}\n",
+			"{\"frag\":{\"sid\":\"%s\",\"mid\":\"%s\",\"v\":\"%s\",\"vd\":\"%s\",\"vn\":\"%s\",\"vi\":\"%s\",\"vt\":%i,\"vl\":%i,\"k\":\"%s\",\"kd\":\"%s\",\"kn\":\"%s\",\"ki\":\"%s\",\"kt\":%i,\"kl\":%i,\"w\":%i,\"i\":%i,\"l\":%i,\"ks\":%i,\"gm\":%i,\"gmf\":%i,\"ttk\":\"%d\",\"t\":%d,\"gt\":%d,\"m\":\"%s\",\"r\":\"%i\"}}\n",
 			sizeof(msg)
 		);
 
@@ -723,11 +731,13 @@ void LogWorldKill(edict_t *self)
 			server_id->string,
 			game.matchid,
 			v,
+			vd,
 			vn,
 			vi,
 			vt,
 			vl,
 			v,
+			vd,
 			vn,
 			vi,
 			vt,
@@ -786,7 +796,7 @@ void LogMatch()
 LogAward
 =================
 */
-void LogAward(char* steamid, int award)
+void LogAward(char* steamid, char* discordid, int award)
 {
 	int gametime = 0;
 	int eventtime;
@@ -799,7 +809,7 @@ void LogAward(char* steamid, int award)
 
 	Q_strncpyz(
 		msg,
-		"{\"award\":{\"sid\":\"%s\",\"mid\":\"%s\",\"t\":\"%d\",\"gt\":\"%d\",\"a\":%i,\"k\":%s,\"w\":\"%i\"}}\n",
+		"{\"award\":{\"sid\":\"%s\",\"mid\":\"%s\",\"t\":\"%d\",\"gt\":\"%d\",\"a\":%i,\"k\":%s,\"d\":%s,\"w\":\"%i\"}}\n",
 		sizeof(msg)
 	);
 
@@ -811,6 +821,7 @@ void LogAward(char* steamid, int award)
 		gametime,
 		award,
 		steamid,
+		discordid,
 		mod
 	);
 }
@@ -828,6 +839,7 @@ void LogEndMatchStats()
 	int totalClients, secs, shots;
 	double accuracy, fpm;
 	char steamid[24];
+	char discordid[24;]
 	totalClients = G_SortedClients(sortedClients);
 
 	for (i = 0; i < totalClients; i++){
@@ -846,9 +858,10 @@ void LogEndMatchStats()
 				fpm = 0.0;
 				
 		Q_strncpyz(steamid, Info_ValueForKey(cl->pers.userinfo, "steamid"), sizeof(steamid));
+		Q_strncpyz(discordid, Info_ValueForKey(cl->pers.userinfo, "cl_discord_id"), sizeof(discordid));
 		Q_strncpyz(
 			msg,
-			"{\"matchstats\":{\"sid\":\"%s\",\"mid\":\"%s\",\"s\":\"%s\",\"sc\":\"%i\",\"sh\":\"%i\",\"a\":\"%f\",\"f\":\"%f\",\"dd\":\"%i\",\"d\":\"%i\",\"k\":\"%i\",\"ctfc\":\"%i\",\"ctfcs\":\"%i\",\"ht\":\"%i\",\"tk\":\"%i\",\"t\":\"%i\",\"hks\":\"%i\",\"hhs\":\"%i\"}}\n",
+			"{\"matchstats\":{\"sid\":\"%s\",\"mid\":\"%s\",\"s\":\"%s\",\"dis\":\"%s\",\"sc\":\"%i\",\"sh\":\"%i\",\"a\":\"%f\",\"f\":\"%f\",\"dd\":\"%i\",\"d\":\"%i\",\"k\":\"%i\",\"ctfc\":\"%i\",\"ctfcs\":\"%i\",\"ht\":\"%i\",\"tk\":\"%i\",\"t\":\"%i\",\"hks\":\"%i\",\"hhs\":\"%i\"}}\n",
 			sizeof(msg)
 		);
 
@@ -857,6 +870,7 @@ void LogEndMatchStats()
 			server_id->string,
 			game.matchid,
 			steamid,
+			discordid,
 			cl->resp.score,
 			shots,
 			accuracy,

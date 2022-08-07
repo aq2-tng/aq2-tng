@@ -559,6 +559,13 @@ void InitGame( void )
 	stat_apikey = gi.cvar("stat_apikey", "none", 0);
 	stat_url = gi.cvar("stat_url", "https://apigateway.aq2world.com/api/v1/stats", 0);
 
+	// Discord SDK integration with Q2Pro
+	cl_discord = gi.cvar("cl_discord", "0", 0);
+	cl_discord_id = gi.cvar("cl_discord_id", "0", 0);
+	cl_discord_discriminator = gi.cvar("cl_discord_discriminator", "0", 0);
+	cl_discord_username = gi.cvar("cl_discord_username", "", 0);
+	cl_discord_avatar = gi.cvar("cl_discord_avatar", "0", 0);
+
 #ifndef NO_BOTS
 	// bots
 	ltk_jumpy = gi.cvar( "ltk_jumpy", "1", CVAR_SERVERINFO );
