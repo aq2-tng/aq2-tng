@@ -485,6 +485,7 @@ cvar_t *e_enhancedSlippers;
 cvar_t *sv_limp_highping;
 cvar_t *server_id;
 cvar_t *stat_logs;
+cvar_t *mapvote_next_limit;
 cvar_t *stat_apikey;
 cvar_t *stat_url;
 
