@@ -1117,6 +1117,7 @@ extern cvar_t *e_enhancedSlippers;
 // END AQ2 ETE
 
 extern cvar_t *sv_limp_highping;
+extern cvar_t *mapvote_next_limit;
 
 #define world   (&g_edicts[0])
 

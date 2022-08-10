@@ -1700,11 +1700,22 @@ static void Cmd_Follow_f( edict_t *ent )
 
 	target = LookupPlayer( ent, gi.argv(1), true, true );
 	if( target == ent )
-		SetChase( ent, NULL );
+	{
+		if( ! limchasecam->value )
+			SetChase( ent, NULL );
+	}
 	else if( target )
 	{
+		if( limchasecam->value && teamplay->value
+		&& (ent->client->resp.team != NOTEAM)
+		&& (ent->client->resp.team != target->client->resp.team) )
+		{
+			gi.cprintf( ent, PRINT_HIGH, "You may not follow enemies!\n" );
+			return;
+		}
+
 		if( ! ent->client->chase_mode )
-			ent->client->chase_mode = 1;
+			NextChaseMode( ent );
 		SetChase( ent, target );
 	}
 }

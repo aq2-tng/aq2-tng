@@ -548,9 +548,10 @@ void InitGame( void )
 	e_enhancedSlippers = gi.cvar( "e_enhancedSlippers", "0", 0);
 	// END AQ2 ETE
 
-	sv_antilag = gi.cvar("sv_antilag", "0", CVAR_SERVERINFO);
+	sv_antilag = gi.cvar("sv_antilag", "1", CVAR_SERVERINFO);
 	sv_antilag_interp = gi.cvar("sv_antilag_interp", "0", CVAR_SERVERINFO);
 	sv_limp_highping = gi.cvar("sv_limp_highping", "70", CVAR_SERVERINFO);
+	mapvote_next_limit = gi.cvar( "mapvote_next_limit", "0", 0);
 
 	// items
 	InitItems();
