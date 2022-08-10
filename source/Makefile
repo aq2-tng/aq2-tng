@@ -102,7 +102,7 @@ endif
 ifeq ($(AQTION),TRUE)
 
 # Define where libcurl is for Windows mingw builds
-ifneq (,$(findstring Linux,$(SYSTEM)))
+ifeq (,$(findstring WIN32 WIN64,$(TNG_BUILD_FOR))
 CURL_CFLAGS ?= $(shell pkg-config libcurl --cflags)
 CURL_LIBS ?= $(shell pkg-config libcurl --libs)
 CFLAGS += -DUSE_CURL=1 $(CURL_CFLAGS)
