@@ -470,6 +470,7 @@ cvar_t *e_enhancedSlippers;
 // END AQ2 ETE
 
 cvar_t *sv_limp_highping;
+cvar_t *mapvote_next_limit;
 
 void SpawnEntities (char *mapname, char *entities, char *spawnpoint);
 void ClientThink (edict_t * ent, usercmd_t * cmd);

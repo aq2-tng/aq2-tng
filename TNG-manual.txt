@@ -67,6 +67,7 @@ Features
 * Teamplay
   Enables standard 2-team round-based teamplay.  Kill everyone on the other team to win a round.
   teamplay [0/1] (default: "0") - setting to 1 enables teamplay, requires new map or server restart
+
   sv t[i]name <string> - Where i is 1, 2 or 3, sets a team name in the absence of action.ini.  Will take effect immediately.  Example: sv t1name "Robbers"
   sv t[i]skin <string> - Where i is 1, 2 or 3, sets a team skin in the absence of action.ini.  Will take effect on a new round of teamplay or a new map.  Example: sv t2skin "male/ctf_b"
   sv t[i]skin_index <string> - Where i is 1, 2 or 3, sets a team skin index in the absence of action.ini.  Will take effect on a new map or server restart.  Example: sv t3skin_index "siris_i"
@@ -329,6 +330,8 @@ Features
 
   Commands:
   mapvote_next [0/1] - Default on (1), set to 0 to disable this feature.
+  mapvote_next_limit [#] - Default (0, disabled), how many seconds remaining in a map (via timelimit) 
+    to restrict the use of votemap, so last second voters can't change the next map.  Enforced on mapvote_next=1.
 
 * Empty Rotate
   Prevent unpopular maps from keeping your server empty.  This feature will rotate the map after the server
@@ -547,21 +550,28 @@ Features
   Taken from AQ2:ETE, these additions are optional server vars to create a larger variety of gameplay.
 
   Commands:
-  e_enhancedSlippers [0|1] (default: "0") to remove limping from leg damage (falling and shooting), and 50% damage reduction when falling long distances
+  e_enhancedSlippers [0|1] (default: "0") to remove limping from leg damage (falling and shooting), and 50% damage
+  reduction when falling long distances
 
 * Latency Compensation
   Antilag
-  Allows server operator to enable lag-compensation for aiming with hitscan weapons, useful for making high ping games more fair.  Optionally, the server operator can enable interpolation along with antilag for aiming directly at player models to hit them.  This has the side effect of being 'shot around corners', so the best use for this setting tends to be for matches where all players pings are very low.
+  Allows server operator to enable lag-compensation for aiming with hitscan weapons, useful for making high ping
+  games more fair.  Optionally, the server operator can enable interpolation along with antilag for aiming directly
+  at player models to hit them.  This has the side effect of being 'shot around corners', so the best use for this
+  setting tends to be for matches where all players pings are very low.
 
   Commands:
-  sv_antilag [0/1] (default: "0") - Setting to "1" enables lag compensation functionality when firing hitscan weapons.
+  sv_antilag [0/1] (default: "1") - Setting to "1" enables lag compensation functionality when firing hitscan weapons.
   sv_antilag_interp [0/1] (default: "0") - Setting to "1" enables interpolation for hitscan weapons.  Requires sv_antilag "1".
 
 * General quality of life improvements
-  sv_limp_highping [#] - server cvar, players above this ping threshold will have movement prediction disabled with leg damage to make things less jittery.  Value is set in ping ms, players with a ping value equal or higher to this value will have less jittery movement.  Default value is '70'
+  sv_limp_highping [#] - server cvar, players above this ping threshold will have movement prediction disabled with
+  leg damage to make things less jittery.  Value is set in ping ms, players with a ping value equal or higher to
+  this value will have less jittery movement.  Default value is '70'
 
 * Client Prediction
-  limp_nopred [0/1] - client cvar, clients can set this to force on or off movement prediction when taking leg damage. Set to "0" for classic behavior, set to "1" to fix the jitter
+  limp_nopred [0/1] - client cvar, clients can set this to force on or off movement prediction when taking leg damage.
+  Set to "0" for classic behavior, set to "1" to fix the jitter
 
 
 --------------------------------------------------------------------------------------------------------------------
@@ -570,6 +580,9 @@ Contact Information
   sister, you can find us on IRC on QuakeNet (irc.quakenet.org) in #action.dev
 
   Send your bug reports to tng-bugs@ra.is and for normal inquiries, email tng@ra.is.
+
+  (NOTE: I doubt any of the above is still accurate, but I'm leaving it here to honor the original devs.)
+  Bug reports are now handled on GitHub: https://github.com/Raptor007/aq2-tng/issues
 
 --------------------------------------------------------------------------------------------------------------------
 Credits
