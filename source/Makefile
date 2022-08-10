@@ -100,6 +100,15 @@ SHLIBLIBS=-lws2_32
 endif
 
 ifeq ($(AQTION),TRUE)
+
+# Define where libcurl is for Windows mingw builds
+ifneq (,$(findstring Linux,$(SYSTEM)))
+CURL_CFLAGS ?= $(shell pkg-config libcurl --cflags)
+CURL_LIBS ?= $(shell pkg-config libcurl --libs)
+CFLAGS += -DUSE_CURL=1 $(CURL_CFLAGS)
+SHLIBLIBS += $(CURL_LIBS)
+endif
+
 SHLIBLIBS=-luuid -lcurl
 endif
 
