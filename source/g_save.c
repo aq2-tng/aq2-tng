@@ -551,16 +551,17 @@ void InitGame( void )
 	// END AQ2 ETE
 
 	// 2022
-	sv_antilag = gi.cvar("sv_antilag", "0", CVAR_SERVERINFO);
-	sv_antilag_interp = gi.cvar("sv_antilag_interp", "0", CVAR_SERVERINFO);
-	sv_limp_highping = gi.cvar("sv_limp_highping", "70", CVAR_SERVERINFO);
 	server_id = gi.cvar( "server_id", "", CVAR_SERVERINFO );
 	stat_logs = gi.cvar( "stat_logs", "0", 0);
+	sv_antilag = gi.cvar("sv_antilag", "1", CVAR_SERVERINFO);
+	sv_antilag_interp = gi.cvar("sv_antilag_interp", "0", CVAR_SERVERINFO);
+	sv_limp_highping = gi.cvar("sv_limp_highping", "70", CVAR_SERVERINFO);
+	mapvote_next_limit = gi.cvar( "mapvote_next_limit", "0", 0);
 
 #ifndef NO_BOTS
 	// bots
-	ltk_jumpy = gi.cvar( "ltk_jumpy", "1", CVAR_SERVERINFO );
-	ltk_skill = gi.cvar( "ltk_skill", "5", 0 );
+	ltk_jumpy = gi.cvar( "ltk_jumpy", "1", 0 );
+	ltk_skill = gi.cvar( "ltk_skill", "5", CVAR_SERVERINFO );
 	ltk_showpath = gi.cvar( "ltk_showpath", "0", 0 );
 	ltk_chat = gi.cvar( "ltk_chat", "1", 0 );
 	ltk_routing = gi.cvar( "ltk_routing", "0", 0 );
