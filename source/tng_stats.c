@@ -839,7 +839,7 @@ void LogEndMatchStats()
 	int totalClients, secs, shots;
 	double accuracy, fpm;
 	char steamid[24];
-	char discordid[24;]
+	char discordid[24];
 	totalClients = G_SortedClients(sortedClients);
 
 	for (i = 0; i < totalClients; i++){
