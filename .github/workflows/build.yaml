@@ -3,6 +3,7 @@ name: TNG Build
 on:
   push:
     branches: ["master", "aqtion"]
+  pull_request:
 
 env:
   LIN64_DIST_DIR: "linux-x64-tng"
@@ -47,7 +48,7 @@ jobs:
 
       - name: Build TNG (Win 64-bit)
         working-directory: build/source
-        run: make -j2 V=1 && mv gamex86_64.dll ../gamex86_64.dll
+        run: make -j4 V=1 && mv gamex86_64.dll ../gamex86_64.dll
         env:
           TNG_BUILD_FOR: "WIN64"
 
@@ -61,7 +62,7 @@ jobs:
 
       - name: Build TNG (Win 32-bit)
         working-directory: build/source
-        run: make clean && make -j2 V=1 && mv gamex86.dll ../gamex86.dll
+        run: make clean && make -j4 V=1 && mv gamex86.dll ../gamex86.dll
         env:
           TNG_BUILD_FOR: "WIN32"
 
@@ -75,7 +76,7 @@ jobs:
 
       - name: Build TNG (Linux 64-bit)
         working-directory: build/source
-        run: make clean && make -j2 V=1 && mv gamex86_64.so ../gamex86_64.so
+        run: make clean && make -j4 V=1 && mv gamex86_64.so ../gamex86_64.so
         env:
           CC: "gcc"
 
@@ -109,7 +110,7 @@ jobs:
 
       - name: Build TNG (Linux ARM64)
         working-directory: build/source
-        run: make -j2 V=1 && mv gameaarch64.so ../gameaarch64.so
+        run: make -j4 V=1 && mv gameaarch64.so ../gameaarch64.so
         env:
           CC: "gcc"
 
