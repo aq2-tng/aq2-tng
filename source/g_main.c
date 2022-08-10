@@ -486,6 +486,15 @@ cvar_t *sv_limp_highping;
 cvar_t *server_id;
 cvar_t *stat_logs;
 cvar_t *mapvote_next_limit;
+cvar_t *stat_apikey;
+cvar_t *stat_url;
+
+// Discord SDK integration with Q2Pro
+cvar_t *cl_discord;
+cvar_t *cl_discord_id;
+cvar_t *cl_discord_discriminator;
+cvar_t *cl_discord_username;
+cvar_t *cl_discord_avatar;
 
 void SpawnEntities (char *mapname, char *entities, char *spawnpoint);
 void ClientThink (edict_t * ent, usercmd_t * cmd);
