@@ -102,7 +102,7 @@ endif
 ifeq ($(AQTION),TRUE)
 
 ifneq (,$(findstring WIN32,$(TNG_BUILD_FOR))$(findstring WIN64,$(TNG_BUILD_FOR)))
-INCLUDES=-I../q2pro-mgw-sdk/inc
+BASE_CFLAGS += -I../q2pro-mgw-sdk/inc
 CFLAGS += -DCURL_STATICLIB
 SHLIBLIBS += -lcurl -lcrypt32
 ifeq ($(TNG_BUILD_FOR),WIN32)
