@@ -101,13 +101,13 @@ endif
 
 ifeq ($(AQTION),TRUE)
 
-ifeq WIN32 || WIN64
+ifneq (,$(findstring $(TNG_BUILD_FOR),WIN32 WIN64))
 INCLUDES=-I../q2pro-mgw-sdk/inc
 CURL_CFLAGS=-DCURL_STATICLIB
 CURL_LIBS=-lcurl -lcrypt32
-ifeq WIN32
+ifdef WIN32
 LIBS=-L../q2pro-mgw-sdk/lib
-else ifeq WIN64
+else ifdef WIN64
 LIBS=-L../q2pro-mgw-sdk/lib64
 endif
 else
