@@ -106,9 +106,9 @@ INCLUDES=-I../q2pro-mgw-sdk/inc
 CFLAGS += -DCURL_STATICLIB
 SHLIBLIBS += -lcurl -lcrypt32
 ifeq ($(TNG_BUILD_FOR),WIN32)
-LIBS=-L../q2pro-mgw-sdk/lib
+CFLAGS += -L../q2pro-mgw-sdk/lib
 else ifeq ($(TNG_BUILD_FOR),WIN64)
-LIBS=-L../q2pro-mgw-sdk/lib64
+CFLAGS += -L../q2pro-mgw-sdk/lib64
 endif
 
 else # Linux + Mac
