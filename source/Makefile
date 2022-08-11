@@ -102,9 +102,8 @@ endif
 ifeq ($(AQTION),TRUE)
 CURL_CFLAGS ?= $(shell pkg-config libcurl --cflags)
 CURL_LIBS ?= $(shell pkg-config libcurl --libs)
-CFLAGS += -DUSE_CURL=1 $(CURL_CFLAGS)
-
-SHLIBLIBS=-luuid $(CURL_LIBS)
+CFLAGS += -DUSE_CURL=1 $(CURL_CFLAGS) 
+SHLIBLIBS=-luuid -lcurl
 endif
 
 ifeq ($(ARCH),x86)
