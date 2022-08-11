@@ -100,10 +100,22 @@ SHLIBLIBS=-lws2_32
 endif
 
 ifeq ($(AQTION),TRUE)
+
+ifeq WIN32 || WIN64
+INCLUDES=-I../q2pro-mgw-sdk/inc
+CURL_CFLAGS=-DCURL_STATICLIB
+CURL_LIBS=-lcurl -lcrypt32
+ifeq WIN32
+LIBS=-L../q2pro-mgw-sdk/lib
+else ifeq WIN64
+LIBS=-L../q2pro-mgw-sdk/lib64
+endif
+else
 CURL_CFLAGS ?= $(shell pkg-config libcurl --cflags)
 CURL_LIBS ?= $(shell pkg-config libcurl --libs)
 CFLAGS += -DUSE_CURL=1 $(CURL_CFLAGS) 
 SHLIBLIBS=-luuid -lcurl
+endif
 endif
 
 ifeq ($(ARCH),x86)
