@@ -101,16 +101,18 @@ endif
 
 ifeq ($(AQTION),TRUE)
 
-ifneq (,$(findstring $(TNG_BUILD_FOR),WIN32 WIN64))
+ifneq (,$(findstring WIN32,$(TNG_BUILD_FOR))$(findstring WIN64,$(TNG_BUILD_FOR)))
 INCLUDES=-I../q2pro-mgw-sdk/inc
 CURL_CFLAGS=-DCURL_STATICLIB
 CURL_LIBS=-lcurl -lcrypt32
-ifdef WIN32
+ifeq ($(TNG_BUILD_FOR),WIN32)
 LIBS=-L../q2pro-mgw-sdk/lib
-else ifdef WIN64
+else ifeq ($(TNG_BUILD_FOR),WIN64)
 LIBS=-L../q2pro-mgw-sdk/lib64
 endif
-else
+
+else # Linux + Mac
+
 CURL_CFLAGS ?= $(shell pkg-config libcurl --cflags)
 CURL_LIBS ?= $(shell pkg-config libcurl --libs)
 CFLAGS += -DUSE_CURL=1 $(CURL_CFLAGS) 
