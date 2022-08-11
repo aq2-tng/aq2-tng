@@ -104,8 +104,8 @@ SHLIBLIBS=-luuid # UUID support
 
 # Stat publishing support
 CURL_CFLAGS ?= $(shell pkg-config libcurl --cflags)
-#CURL_LIBS ?= $(shell pkg-config libcurl --libs)
-CFLAGS += -DUSE_CURL=1 $(CURL_CFLAGS)
+CURL_LIBS ?= $(shell pkg-config libcurl --libs)
+CFLAGS += -DUSE_CURL=1 $(CURL_CFLAGS) $(CURL_LIBS)
 SHLIBLIBS += -lcurl
 endif
 
