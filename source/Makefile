@@ -103,17 +103,14 @@ ifeq ($(AQTION),TRUE)
 SHLIBLIBS=-luuid # UUID support
 
 # Stat publishing support (requires mingw libs)
-ifdef WIN32
-CURL_CFLAGS=-Lq2pro-mgw-sdk/lib -lcurl
-else ifdef WIN64
-CURL_CFLAGS=-Lq2pro-mgw-sdk/lib64 -lcurl
-else
+# ifdef WIN32
+# CURL_CFLAGS=-Lq2pro-mgw-sdk/lib -lcurl
+# else ifdef WIN64
+# CURL_CFLAGS=-Lq2pro-mgw-sdk/lib64 -lcurl
+# else
 CURL_CFLAGS ?= $(shell pkg-config libcurl --cflags)
 CURL_LIBS ?= $(shell pkg-config libcurl --libs)
-CFLAGS_c += -DUSE_CURL=1 $(CURL_CFLAGS)
-LIBS_c += $(CURL_LIBS)
-endif
-CFLAGS += -DUSE_CURL=1 $(CURL_CFLAGS)
+CFLAGS += -DUSE_CURL=1 $(CURL_CFLAGS) $(CURL_LIBS)
 endif
 
 ifeq ($(ARCH),x86)
