@@ -128,6 +128,8 @@ void antilag_unmove_all(void)
 		if (!state->rewound)
 			continue;
 
+		state->rewound = false;
+
 		VectorCopy(state->hold_origin, who->s.origin);
 		VectorCopy(state->hold_mins, who->mins);
 		VectorCopy(state->hold_maxs, who->maxs);
