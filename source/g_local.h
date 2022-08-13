@@ -1501,8 +1501,10 @@ typedef struct
 	int menu_shown;		// has the main menu been shown
 	qboolean dm_selected;		// if dm weapon selection has been done once
 
+	// Reki - added these options, controllable via userinfo cvar
 	int limp_nopred;
 	int spec_flags;
+	qboolean antilag_optout;
 
 	int mk23_mode;		// firing mode, semi or auto
 	int mp5_mode;

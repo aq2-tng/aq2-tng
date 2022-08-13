@@ -62,6 +62,9 @@ void antilag_rewind_all(edict_t *ent)
 	if (!sv_antilag->value)
 		return;
 
+	if (ent->client->pers.antilag_optout)
+		return;
+
 	float time_to_seek = ent->client->antilag_state.curr_timestamp;
 	time_to_seek -= ((float)ent->client->ping) / 1000;
 	if (time_to_seek < level.time - ANTILAG_REWINDCAP)

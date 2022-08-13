@@ -2714,6 +2714,17 @@ void ClientUserinfoChanged(edict_t *ent, char *userinfo)
 		client->pers.spec_flags |= SPECFL_KILLFEED;
 	else
 		client->pers.spec_flags &= SPECFL_KILLFEED;
+
+	// Reki - disable antilag for *my own shooting*, not others shooting at me
+	s = Info_ValueForKey(userinfo, "cl_antilag");
+	int antilag_value = client->pers.antilag_optout;
+	if (s[0] == 0 || atoi(s) > 0)
+		client->pers.antilag_optout = qfalse;
+	else if (atoi(s) <= 0)
+		client->pers.antilag_optout = qtrue;
+
+	if (sv_antilag->value && antilag_value != client->pers.antilag_optout)
+		gi.cprintf(ent, PRINT_MEDIUM, "YOUR CL_ANTILAG IS NOW SET TO %i\n", !client->pers.antilag_optout);
 }
 
 /*
