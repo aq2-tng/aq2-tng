@@ -648,13 +648,16 @@ void ClientEndServerFrames (void)
 			spectators++;
 	}
 
-	if (updateLayout && spectators && spectator_hud->value) {
+	if (updateLayout && spectators && spectator_hud->value >= 0) {
 		G_UpdateSpectatorStatusbar();
 		if (level.spec_statusbar_lastupdate >= level.realFramenum - 3 * HZ)
 		{
 			for (i = 0, ent = g_edicts + 1; i < game.maxclients; i++, ent++)
 			{
 				if (!ent->inuse || !ent->client)
+					continue;
+
+				if (spectator_hud->value == 0 && !(ent->client->pers.spec_flags & SPECFL_SPECHUD))
 					continue;
 
 				if (!ent->client->resp.team)

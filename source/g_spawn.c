@@ -1402,7 +1402,7 @@ void G_UpdatePlayerStatusbar( edict_t * ent, int force )
 {
 	char *playerStatusbar;
 
-	if (!teamplay->value || teamCount != 2 || !spectator_hud->value) {
+	if (!teamplay->value || teamCount != 2 || spectator_hud->value < 0 || (spectator_hud->value == 0 && !(ent->client->pers.spec_flags & SPECFL_SPECHUD))) {
 		return;
 	}
 

@@ -668,6 +668,29 @@ void ClientObituary(edict_t * self, edict_t * inflictor, edict_t * attacker)
 	message = NULL;
 	message2 = "";
 
+	// Reki: Print killfeed to spectators who ask for easily parsable stuff
+	edict_t *other;
+	for (int j = 1; j <= game.maxclients; j++) {
+		other = &g_edicts[j];
+		if (!other->inuse || !other->client || !teamplay->value)
+			continue;
+
+		if (other->client->resp.team) // we only want team 0 (spectators)
+			continue;
+
+		if (!(other->client->pers.spec_flags & SPECFL_KILLFEED)) // only print to spectators who want it
+			continue;
+
+		if (attacker == world || !attacker->client)
+			sprintf(death_msg, "--KF %i %s, MOD %i\n",
+				self->client->resp.team, self->client->pers.netname, mod);
+		else
+			sprintf(death_msg, "--KF %i %s, MOD %i, %i %s\n",
+				attacker->client->resp.team, attacker->client->pers.netname, mod, self->client->resp.team, self->client->pers.netname);
+		gi.cprintf(other, PRINT_MEDIUM, "%s", death_msg);
+	}
+	//
+
 	if (attacker == self)
 	{
 		switch (mod) {
@@ -2678,6 +2701,19 @@ void ClientUserinfoChanged(edict_t *ent, char *userinfo)
 #ifdef AQTION_EXTENSION
 	}
 #endif
+
+	// Reki - spectator options, force team overlay/send easily parsable kill feed prints
+	s = Info_ValueForKey(userinfo, "cl_spectatorhud");
+	if (atoi(s))
+		client->pers.spec_flags |= SPECFL_SPECHUD;
+	else
+		client->pers.spec_flags &= SPECFL_SPECHUD;
+
+	s = Info_ValueForKey(userinfo, "cl_spectatorkillfeed");
+	if (atoi(s))
+		client->pers.spec_flags |= SPECFL_KILLFEED;
+	else
+		client->pers.spec_flags &= SPECFL_KILLFEED;
 }
 
 /*

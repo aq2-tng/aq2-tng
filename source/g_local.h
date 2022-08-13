@@ -359,6 +359,10 @@
 #define FL_ACCELERATE					0x20000000  // accelerative movement
 #define FL_RESPAWN                      0x80000000	// used for item respawning
 
+// edict->client->pers.spec_flags
+#define SPECFL_KILLFEED					0x00000001
+#define SPECFL_SPECHUD					0x00000002
+
 // variable server FPS
 #ifndef NO_FPS
 #define HZ              game.framerate
@@ -1498,6 +1502,7 @@ typedef struct
 	qboolean dm_selected;		// if dm weapon selection has been done once
 
 	int limp_nopred;
+	int spec_flags;
 
 	int mk23_mode;		// firing mode, semi or auto
 	int mp5_mode;
