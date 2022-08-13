@@ -1702,6 +1702,7 @@ void SP_worldspawn (edict_t * ent)
 
 
 #ifdef AQTION_EXTENSION
+#ifdef AQTION_HUD
 	if (teamplay->value)
 	{
 		int base_y = -8;
@@ -1730,6 +1731,7 @@ void SP_worldspawn (edict_t * ent)
 			base_y += 40;
 		}
 	}
+#endif
 #endif
 }
 

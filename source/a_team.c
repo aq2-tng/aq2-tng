@@ -1967,9 +1967,11 @@ int WonGame (int winner)
 			teams[winner].score++;
 
 			#ifdef AQTION_EXTENSION
+			#ifdef AQTION_HUD
 			Ghud_SetFlags(teams[winner].ghud_icon, GHF_BLINK);
 			Ghud_SetFlags(teams[winner].ghud_num, GHF_BLINK);
 			teams[winner].ghud_resettime = level.time + 3;
+			#endif
 			#endif
 
 			gi.cvar_forceset(teams[winner].teamscore->name, va("%i", teams[winner].score));

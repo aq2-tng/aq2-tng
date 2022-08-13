@@ -882,6 +882,7 @@ void CheckDMRules (void)
 			return;
 
 #ifdef AQTION_EXTENSION
+#ifdef AQTION_HUD
 		// Reki
 		// Update our ghud values for the team score
 		int i;
@@ -899,6 +900,7 @@ void CheckDMRules (void)
 
 			Ghud_SetInt(teams[i].ghud_num, teams[i].score);
 		}
+#endif
 #endif
 
 
