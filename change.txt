@@ -102,6 +102,7 @@ From 2.81
 + Added 'empty_rotate' to rotate maps when empty for that many minutes, to prevent being stuck on an unpopular map.  Default 0 means disabled.
 + Added 'empty_exec' to optionally execute config with empty_rotate.  Useful to revert to default settings on servers with configvote.
 + Enhanced Stealth Slippers addition (set 'e_enhancedSlippers 1')
++ Added 'tourney_lca' server cvar to enable "Lights Camera Action" at the beginning of the round rather than silence.  Set to 0 for classic use, 1 for LCA.
 
 From 2.8
 - Radio kill count was missing for falling death

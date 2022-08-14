@@ -1098,6 +1098,8 @@ extern cvar_t *auto_menu;	// Automatically show the join menu
 extern cvar_t *dm_choose;
 extern cvar_t *dm_shield;
 
+extern cvar_t *tourney_lca; // Enables or disabled lights camera action for tourney mode
+
 // TNG:Freud - new spawning system
 extern cvar_t *use_oldspawns;
 // TNG:Freud - ghosts
@@ -1111,6 +1113,10 @@ extern cvar_t *splatlimit;
 extern cvar_t *bholelimit;
 extern cvar_t *splatlife;
 extern cvar_t *bholelife;
+
+extern cvar_t *medkit_drop;
+extern cvar_t *medkit_time;
+extern cvar_t *medkit_instant;
 
 // AQ2 ETE
 extern cvar_t *e_enhancedSlippers;
@@ -1789,6 +1795,8 @@ struct gclient_s
 
 	edict_t		*lasersight; // laser
 	edict_t		*flashlight; // Flashlight
+
+	int			medkit;
 
 	edict_t		*ctf_grapple;		// entity of grapple
 	int			ctf_grapplestate;		// true if pulling

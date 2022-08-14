@@ -415,6 +415,8 @@ cvar_t *respawn_effect;
 
 cvar_t *dm_shield;
 
+cvar_t *tourney_lca;	// Enables lights camera action for tourney mode
+
 cvar_t *item_respawnmode;
 
 cvar_t *use_mvd2;	// JBravo: activate mvd2 recording on servers running q2pro
@@ -456,6 +458,10 @@ cvar_t *use_classic;		// Used to reset spread/gren strength to 1.52
 cvar_t *warmup;
 cvar_t *round_begin;
 cvar_t *spectator_hud;
+
+cvar_t *medkit_drop;
+cvar_t *medkit_time;
+cvar_t *medkit_instant;
 
 cvar_t *jump;			// jumping mod
 
