@@ -99,7 +99,7 @@ SHLIBEXT=dll
 SHLIBLIBS=-lws2_32
 endif
 
-ifeq ($(AQTION),TRUE)
+ifeq ($(USE_AQTION),TRUE)
 
 ifneq (,$(findstring WIN32,$(TNG_BUILD_FOR))$(findstring WIN64,$(TNG_BUILD_FOR)))
 BASE_CFLAGS += -I../q2pro-mgw-sdk/inc

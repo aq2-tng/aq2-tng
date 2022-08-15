@@ -51,6 +51,7 @@ jobs:
         run: make -j4 V=1 && mv gamex86_64.dll ../gamex86_64.dll
         env:
           TNG_BUILD_FOR: "WIN64"
+          USE_AQTION: "TRUE"
 
       - name: Generate Win64 archive
         uses: actions/upload-artifact@v3
@@ -65,6 +66,7 @@ jobs:
         run: make clean && make -j4 V=1 && mv gamex86.dll ../gamex86.dll
         env:
           TNG_BUILD_FOR: "WIN32"
+          USE_AQTION: "TRUE"
 
       - name: Generate Win32 archive
         uses: actions/upload-artifact@v3
@@ -79,6 +81,7 @@ jobs:
         run: make clean && make -j4 V=1 && mv gamex86_64.so ../gamex86_64.so
         env:
           CC: "gcc"
+          USE_AQTION: "TRUE"
 
       - name: Generate Linux x86 archive
         uses: actions/upload-artifact@v3
@@ -113,6 +116,7 @@ jobs:
         run: make -j4 V=1 && mv gameaarch64.so ../gameaarch64.so
         env:
           CC: "gcc"
+          USE_AQTION: "TRUE"
 
       - name: Generate archive
         uses: actions/upload-artifact@v3

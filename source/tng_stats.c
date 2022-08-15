@@ -69,7 +69,6 @@
 
 #include "g_local.h"
 #include <time.h>
-#include <curl/curl.h>
 
 /* Stats Command */
 
@@ -488,6 +487,8 @@ void Cmd_Statmode_f(edict_t* ent)
 	stuffcmd(ent, stuff);
 }
 
+#if USE_AQTION
+#include <curl/curl.h>
 // AQtion stats addon
 // Utilizes AWS API Gateway and AWS SQS
 // Review documentation to understand their use
@@ -888,3 +889,4 @@ void LogEndMatchStats()
 		);
 	}
 }
+#endif
