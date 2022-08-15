@@ -11,8 +11,7 @@ void antilag_update(edict_t *ent)
 
 	state->seek++;
 	state->curr_timestamp = level.time;
-
-	float time_stamp = level.time;
+	
 	time_stamp = level.time;
 	if (sv_antilag_interp->value) // offset by 1 server frame to account for interpolation
 		time_stamp += FRAMETIME;
@@ -81,7 +80,7 @@ void antilag_rewind_all(edict_t *ent)
 		if (!who->inuse)
 			continue;
 
-    state = &who->client->antilag_state;
+		state = &who->client->antilag_state;
 		state->rewound = false;
 
 		if (who == ent)

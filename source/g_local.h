@@ -1159,31 +1159,33 @@ extern cvar_t *e_enhancedSlippers;
 // END AQ2 ETE
 
 #ifdef AQTION_EXTENSION
-int (*engine_Client_GetVersion)(edict_t *ent);
-int (*engine_Client_GetProtocol)(edict_t *ent);
+extern int (*engine_Client_GetVersion)(edict_t *ent);
+extern int (*engine_Client_GetProtocol)(edict_t *ent);
+
 int Client_GetVersion(edict_t *ent);
 int Client_GetProtocol(edict_t *ent);
 
-void (*engine_Ghud_SendUpdates)(edict_t *ent);
+extern void (*engine_Ghud_SendUpdates)(edict_t *ent);
+extern int(*engine_Ghud_NewElement)(int type);
+extern void(*engine_Ghud_SetFlags)(int i, int val);
+extern void(*engine_Ghud_UnicastSetFlags)(edict_t *ent, int i, int val);
+extern void(*engine_Ghud_SetInt)(int i, int val);
+extern void(*engine_Ghud_SetText)(int i, char *text);
+extern void(*engine_Ghud_SetPosition)(int i, int x, int y, int z);
+extern void(*engine_Ghud_SetAnchor)(int i, float x, float y);
+extern void(*engine_Ghud_SetColor)(int i, int r, int g, int b, int a);
+extern void(*engine_Ghud_SetSize)(int i, int x, int y);
+
 void  Ghud_SendUpdates(edict_t *ent);
-int  (*engine_Ghud_NewElement)(int type);
 int   Ghud_NewElement(int type);
-void (*engine_Ghud_SetFlags)(int i, int val);
 void  Ghud_SetFlags(int i, int val);
-void (*engine_Ghud_UnicastSetFlags)(edict_t *ent, int i, int val);
 void  Ghud_UnicastSetFlags(edict_t *ent, int i, int val);
-void (*engine_Ghud_SetInt)(int i, int val);
 void  Ghud_SetInt(int i, int val);
-void (*engine_Ghud_SetText)(int i, char *text);
 void  Ghud_SetText(int i, char *text);
-void (*engine_Ghud_SetPosition)(int i, int x, int y, int z);
 void  Ghud_SetPosition(int i, int x, int y);
 void  Ghud_SetPosition3D(int i, int x, int y, int z);
-void (*engine_Ghud_SetAnchor)(int i, float x, float y);
 void  Ghud_SetAnchor(int i, float x, float y);
-void (*engine_Ghud_SetColor)(int i, int r, int g, int b, int a);
 void  Ghud_SetColor(int i, int r, int g, int b, int a);
-void (*engine_Ghud_SetSize)(int i, int x, int y);
 void  Ghud_SetSize(int i, int x, int y);
 
 int   Ghud_AddIcon(int x, int y, int image, int sizex, int sizey);
