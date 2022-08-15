@@ -100,7 +100,24 @@ SHLIBLIBS=-lws2_32
 endif
 
 ifeq ($(AQTION),TRUE)
-SHLIBLIBS=-luuid
+
+ifneq (,$(findstring WIN32,$(TNG_BUILD_FOR))$(findstring WIN64,$(TNG_BUILD_FOR)))
+BASE_CFLAGS += -I../q2pro-mgw-sdk/inc
+CFLAGS += -DCURL_STATICLIB
+SHLIBLIBS += -lcurl -lcrypt32
+ifeq ($(TNG_BUILD_FOR),WIN32)
+CFLAGS += -L../q2pro-mgw-sdk/lib
+else ifeq ($(TNG_BUILD_FOR),WIN64)
+CFLAGS += -L../q2pro-mgw-sdk/lib64
+endif
+
+else # Linux + Mac
+
+CURL_CFLAGS ?= $(shell pkg-config libcurl --cflags)
+CURL_LIBS ?= $(shell pkg-config libcurl --libs)
+CFLAGS += -DUSE_CURL=1 $(CURL_CFLAGS) 
+SHLIBLIBS=-luuid -lcurl
+endif
 endif
 
 ifeq ($(ARCH),x86)

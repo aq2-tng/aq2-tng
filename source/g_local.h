@@ -1154,6 +1154,16 @@ extern cvar_t *e_enhancedSlippers;
 extern cvar_t *sv_limp_highping;
 extern cvar_t *server_id;
 extern cvar_t *stat_logs;
+extern cvar_t *mapvote_next_limit;
+extern cvar_t *stat_apikey;
+extern cvar_t *stat_url;
+
+// Discord SDK integration with Q2Pro
+extern cvar_t *cl_discord;
+extern cvar_t *cl_discord_id;
+extern cvar_t *cl_discord_discriminator;
+extern cvar_t *cl_discord_username;
+extern cvar_t *cl_discord_avatar;
 
 #define world   (&g_edicts[0])
 
@@ -1440,7 +1450,7 @@ void ProduceShotgunDamageReport(edict_t*);
 void LogKill(edict_t *self, edict_t *inflictor, edict_t *attacker);
 void LogWorldKill(edict_t *self);
 void LogMatch();
-void LogAward(char* steamid, int award);
+void LogAward(char* steamid, char* discordid, int award);
 void LogEndMatchStats();
 
 //============================================================================

@@ -1712,11 +1712,22 @@ static void Cmd_Follow_f( edict_t *ent )
 
 	target = LookupPlayer( ent, gi.argv(1), true, true );
 	if( target == ent )
-		SetChase( ent, NULL );
+	{
+		if( ! limchasecam->value )
+			SetChase( ent, NULL );
+	}
 	else if( target )
 	{
+		if( limchasecam->value && teamplay->value
+		&& (ent->client->resp.team != NOTEAM)
+		&& (ent->client->resp.team != target->client->resp.team) )
+		{
+			gi.cprintf( ent, PRINT_HIGH, "You may not follow enemies!\n" );
+			return;
+		}
+
 		if( ! ent->client->chase_mode )
-			ent->client->chase_mode = 1;
+			NextChaseMode( ent );
 		SetChase( ent, target );
 	}
 }
@@ -1901,6 +1912,10 @@ static cmdList_t commandList[] =
 	{ "resetscores", Cmd_ResetScores_f, 0 },
 	{ "gamesettings", Cmd_PrintSettings_f, 0 },
 	{ "follow", Cmd_Follow_f, 0 },
+#ifndef NO_BOTS
+	{ "placenode", Cmd_Placenode_f, 0 },
+	{ "placetrigger", Cmd_PlaceTrigger_f, 0 },
+#endif
 	//vote stuff
 	{ "votemap", Cmd_Votemap_f, 0 },
 	{ "maplist", Cmd_Maplist_f, 0 },
