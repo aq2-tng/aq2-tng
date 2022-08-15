@@ -2867,7 +2867,6 @@ void ClientUserinfoChanged(edict_t *ent, char *userinfo)
 #ifdef AQTION_EXTENSION
 	if (Client_GetProtocol(ent) == 38) // if we're using AQTION protocol, we have limp prediction
 	{
-
 		client->pers.limp_nopred = 0;
 	}
 	else
