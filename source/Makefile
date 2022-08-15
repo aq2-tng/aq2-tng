@@ -105,7 +105,7 @@ BASE_CFLAGS += -DUSE_AQTION
 ifneq (,$(findstring WIN32,$(TNG_BUILD_FOR))$(findstring WIN64,$(TNG_BUILD_FOR)))
 BASE_CFLAGS += -I../q2pro-mgw-sdk/inc
 CFLAGS += -DCURL_STATICLIB
-SHLIBLIBS += -lcurl -lcrypt32
+SHLIBLIBS += -lcurl -lcrypt32 -lwsock32 -lz -lws2_32
 ifeq ($(TNG_BUILD_FOR),WIN32)
 CFLAGS += -L../q2pro-mgw-sdk/lib
 else ifeq ($(TNG_BUILD_FOR),WIN64)
