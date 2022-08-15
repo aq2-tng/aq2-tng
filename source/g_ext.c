@@ -32,12 +32,21 @@ extension_func_t *g_extension_funcs;
 				g_extension_funcs = ext; \
 				} while (0);
 
+//
+// declare engine trap pointers, to make the compiler happy
+int(*engine_Client_GetVersion)(edict_t *ent);
+int(*engine_Client_GetProtocol)(edict_t *ent);
 
-
-
-
-
-
+void(*engine_Ghud_SendUpdates)(edict_t *ent);
+int(*engine_Ghud_NewElement)(int type);
+void(*engine_Ghud_SetFlags)(int i, int val);
+void(*engine_Ghud_UnicastSetFlags)(edict_t *ent, int i, int val);
+void(*engine_Ghud_SetInt)(int i, int val);
+void(*engine_Ghud_SetText)(int i, char *text);
+void(*engine_Ghud_SetPosition)(int i, int x, int y, int z);
+void(*engine_Ghud_SetAnchor)(int i, float x, float y);
+void(*engine_Ghud_SetColor)(int i, int r, int g, int b, int a);
+void(*engine_Ghud_SetSize)(int i, int x, int y);
 
 //
 // optional new entrypoints the engine may want to call
