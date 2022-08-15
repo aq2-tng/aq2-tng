@@ -341,6 +341,7 @@ void InitGame( void )
 	sv_gravity = gi.cvar( "sv_gravity", "800", 0 );
 
 	dedicated = gi.cvar( "dedicated", "0", CVAR_NOSET );
+	steamid = gi.cvar( "steamid", "0", CVAR_NOSET );
 
 	sv_cheats = gi.cvar( "cheats", "0", CVAR_SERVERINFO | CVAR_LATCH );
 	gi.cvar( "gamename", GAMEVERSION, CVAR_SERVERINFO | CVAR_NOSET );
@@ -369,6 +370,7 @@ void InitGame( void )
 	capturelimit = gi.cvar( "capturelimit", "0", CVAR_SERVERINFO );
 	password = gi.cvar( "password", "", CVAR_USERINFO );
 	filterban = gi.cvar( "filterban", "1", 0 );
+	silenceban = gi.cvar( "silenceban", "1", 0); //rekkie -- silence ban
 	needpass = gi.cvar( "needpass", "0", CVAR_SERVERINFO );
 	radiolog = gi.cvar( "radiolog", "0", 0 );
 	teamplay = gi.cvar( "teamplay", "0", CVAR_SERVERINFO | CVAR_LATCH );
@@ -544,15 +546,40 @@ void InitGame( void )
 
 	use_mvd2 = gi.cvar( "use_mvd2", "0", 0 );	// JBravo: q2pro MVD2 recording. 0 = off, 1 = on
 
-	e_enhancedSlippers = gi.cvar( "e_enhancedSlippers", "0", 0); // darksaint: AQ2 ETE
+	// BEGIN AQ2 ETE
+	e_enhancedSlippers = gi.cvar( "e_enhancedSlippers", "0", 0);
+	// END AQ2 ETE
 
-	sv_antilag = gi.cvar("sv_antilag", "0", CVAR_SERVERINFO);
+	// 2022
+	server_id = gi.cvar( "server_id", "", CVAR_SERVERINFO );
+	stat_logs = gi.cvar( "stat_logs", "0", 0);
+  sv_antilag = gi.cvar("sv_antilag", "1", CVAR_SERVERINFO);
 	sv_antilag_interp = gi.cvar("sv_antilag_interp", "0", CVAR_SERVERINFO);
 	sv_limp_highping = gi.cvar("sv_limp_highping", "70", CVAR_SERVERINFO);
+	mapvote_next_limit = gi.cvar( "mapvote_next_limit", "0", 0);
+	stat_apikey = gi.cvar("stat_apikey", "none", 0);
+	stat_url = gi.cvar("stat_url", "https://apigateway.aq2world.com/api/v1/stats", 0);
+
+	// Discord SDK integration with Q2Pro
+	cl_discord = gi.cvar("cl_discord", "0", 0);
+	cl_discord_id = gi.cvar("cl_discord_id", "0", 0);
+	cl_discord_discriminator = gi.cvar("cl_discord_discriminator", "0", 0);
+	cl_discord_username = gi.cvar("cl_discord_username", "", 0);
+	cl_discord_avatar = gi.cvar("cl_discord_avatar", "0", 0);
+
+#ifndef NO_BOTS
+	// bots
+	ltk_jumpy = gi.cvar( "ltk_jumpy", "1", 0 );
+	ltk_skill = gi.cvar( "ltk_skill", "5", CVAR_SERVERINFO );
+	ltk_showpath = gi.cvar( "ltk_showpath", "0", 0 );
+	ltk_chat = gi.cvar( "ltk_chat", "1", 0 );
+	ltk_routing = gi.cvar( "ltk_routing", "0", 0 );
+	ltk_botfile = gi.cvar( "ltk_botfile", "botdata.cfg", 0);
+	ltk_loadbots = gi.cvar( "ltk_loadbots", "1", 0);
+#endif
 
 	// items
 	InitItems();
-
 
 	// initialize all clients for this game
 	game.maxclients = (int)maxclients->value;

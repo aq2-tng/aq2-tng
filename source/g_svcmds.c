@@ -339,6 +339,384 @@ void SVCmd_WriteIP_f (void)
 	fclose (f);
 }
 
+//rekkie -- silence ban -- s
+/*================================================================================================================================================================
+
+SILENCE BAN FILTERING - Indefinitely or temporarly silence a player; they can see their own messages, but other players will not see them.
+
+The ip address is specified in dot format, and any unspecified digits will match any value, so you can specify an entire class C network with "addip 192.246.40"
+
+
+sv addsb <ip> <OPTIONAL: number of games>
+-----------------------------------------
+Add address, including subnet, to the silence ban list. Adding 192.168 to the list would block out everyone in the 192.168.*.* net block.
+OPTIONAL:	If number of games is specified, the address will be silenced for the specified number of games.
+			If not specified the address will be silenced indefinitely.
+
+
+sv removesb <ip>
+----------------
+Remove address from the silence ban list. Removing <IP> address must be done in the way it was added, you cannot addip a subnet then removesb a single host ip.
+
+
+sv listsb
+---------
+Prints the current list of filters.
+
+
+sv writesb
+----------
+Writes bans to listsb.cfg, which can then be run by adding +exec listsb.cfg to the server's command line.
+WARNING:	Bans are not saved or loaded by default. Admins must run sv writesb to update listsb.cfg with the changes.
+
+
+silenceban <0 or 1> Default: 1
+------------------------------
+silenceban 1		This acts as a BLACKLIST, meaning IPs listed on (sv listsb) will be DENIED from talking to other players in game.
+silenceban 0		This acts as a WHITELIST, meaning IPs listed on (sv listsb) will be ALLOWED to talk to other players in game.
+
+==================================================================================================================================================================*/
+
+#define MAX_SB_FILTERS   1024
+typedef struct
+{
+	unsigned mask;
+	unsigned compare;
+	int temp_sban_games;
+}
+sb_filter_t;
+sb_filter_t sb_filters[MAX_SB_FILTERS];
+int num_sb_filters;
+
+//===========================
+//== StringToSilenceFilter ==
+//===========================
+static qboolean StringToSilenceFilter(char* s, sb_filter_t* f, int temp_sban_games)
+{
+	char num[128];
+	int i, j;
+	byte b[4] = { 0,0,0,0 };
+	byte m[4] = { 0,0,0,0 };
+
+	for (i = 0; i < 4; i++)
+	{
+		if (*s < '0' || *s > '9')
+		{
+			gi.cprintf(NULL, PRINT_HIGH, "Bad silence filter address: %s\n", s);
+			return false;
+		}
+
+		j = 0;
+
+		while (*s >= '0' && *s <= '9')
+			num[j++] = *s++;
+
+		num[j] = 0;
+		b[i] = atoi(num);
+
+		if (b[i] != 0)
+			m[i] = 255;
+
+		if (!*s)
+			break;
+		s++;
+	}
+
+	f->mask = *(unsigned*)m;
+	f->compare = *(unsigned*)b;
+	f->temp_sban_games = temp_sban_games;
+
+	return true;
+}
+
+//=======================
+//== SV_FilterSBPacket ==
+//=======================
+qboolean SV_FilterSBPacket(char* from, int* temp) // temp is optional
+{
+	int i = 0;
+	unsigned in;
+	byte m[4] = { 0,0,0,0 };
+	char* p;
+
+	p = from;
+	while (*p && i < 4)
+	{
+		while (*p >= '0' && *p <= '9')
+		{
+			m[i] = m[i] * 10 + (*p - '0');
+			p++;
+		}
+		if (!*p || *p == ':')
+			break;
+		i++, p++;
+	}
+
+	in = *(unsigned*)m;
+
+	for (i = 0; i < num_sb_filters; i++)
+	{
+		if ((in & sb_filters[i].mask) == sb_filters[i].compare)
+		{
+			if (temp != NULL)
+				*temp = sb_filters[i].temp_sban_games;
+			return (int)silenceban->value;
+		}
+	}
+
+	return (int)!silenceban->value;
+}
+
+//================
+//== SB_Have_IP ==
+//================
+qboolean SB_Have_IP(char* from) // Check if IP is in the silence ban list
+{
+	int i = 0;
+	unsigned in;
+	byte m[4] = { 0,0,0,0 };
+	char* p;
+
+	p = from;
+	while (*p && i < 4)
+	{
+		while (*p >= '0' && *p <= '9')
+		{
+			m[i] = m[i] * 10 + (*p - '0');
+			p++;
+		}
+		if (!*p || *p == ':')
+			break;
+		i++, p++;
+	}
+
+	in = *(unsigned*)m;
+
+	for (i = 0; i < num_sb_filters; i++)
+	{
+		if ((in & sb_filters[i].mask) == sb_filters[i].compare)
+		{
+			return 1;
+		}
+	}
+
+	return 0;
+}
+
+//===================
+//== SVCmd_AddSB_f ==
+//===================
+void SVCmd_AddSB_f(void)
+{
+	int i;
+
+	if (gi.argc() < 3)
+	{
+		gi.cprintf(NULL, PRINT_HIGH, "Usage:  sv addsb <ip-mask> <OPTIONAL: num games>\n");
+		return;
+	}
+
+	if (SB_Have_IP(gi.argv(2))) // Check if IP was already added
+	{
+		gi.cprintf(NULL, PRINT_HIGH, "This IP %s is already on the list\n", gi.argv(2));
+		return;
+	}
+
+	for (i = 0; i < num_sb_filters; i++)
+	{
+		if (sb_filters[i].compare == 0xffffffff)
+			break;			// free spot
+	}
+
+	if (i == num_sb_filters)
+	{
+		if (num_sb_filters == MAX_SB_FILTERS)
+		{
+			gi.cprintf(NULL, PRINT_HIGH, "Silence filter list is full\n");
+			return;
+		}
+		num_sb_filters++;
+	}
+
+	if (gi.argc() == 4) // Admin specified number of games for a temporary ban
+	{
+		if (!StringToSilenceFilter(gi.argv(2), &sb_filters[i], atoi(gi.argv(3))))
+			sb_filters[i].compare = 0xffffffff;
+
+		gi.cprintf(NULL, PRINT_HIGH, "Added silence to IP/MASK: %s for %s games\n", gi.argv(2), gi.argv(3));
+	}
+	else // Admin did not specify number of games, therefore the ban is indefinite
+	{
+		if (!StringToSilenceFilter(gi.argv(2), &sb_filters[i], 0))
+			sb_filters[i].compare = 0xffffffff;
+
+		gi.cprintf(NULL, PRINT_HIGH, "Added silence to IP/MASK: %s\n", gi.argv(2));
+	}
+
+	// Check which client(s) need a silence applied
+	for (i = 0; i < game.maxclients; i++)
+	{
+		if (game.clients[i].pers.connected == false)
+			continue;
+		if (game.clients[i].pers.silence_banned)
+			continue;
+		if (SV_FilterSBPacket(game.clients[i].pers.ip, NULL))
+		{
+			game.clients[i].pers.silence_banned = true;
+			gi.cprintf(NULL, PRINT_HIGH, "Adding silence to player: %s\n", game.clients[i].pers.netname);
+		}
+	}
+}
+
+//====================
+// SVCmd_RemoveSB_f ==
+//====================
+void SVCmd_RemoveSB_f(void)
+{
+	sb_filter_t f;
+	int i, j;
+
+	if (gi.argc() < 3)
+	{
+		gi.cprintf(NULL, PRINT_HIGH, "Usage:  sv removesb <ip-mask>\n");
+		return;
+	}
+
+	if (!StringToSilenceFilter(gi.argv(2), &f, 0))
+		return;
+
+	for (i = 0; i < num_sb_filters; i++)
+	{
+		if (sb_filters[i].mask == f.mask && sb_filters[i].compare == f.compare)
+		{
+			for (j = i + 1; j < num_sb_filters; j++)
+				sb_filters[j - 1] = sb_filters[j];
+
+			num_sb_filters--;
+			gi.cprintf(NULL, PRINT_HIGH, "Removed silence from IP/MASK: %s\n", gi.argv(2));
+
+			// Check which client(s) need to their silenced removed
+			for (i = 0; i < game.maxclients; i++)
+			{
+				if (game.clients[i].pers.connected == false)
+					continue;
+				if (game.clients[i].pers.silence_banned == false)
+					continue;
+				if (SV_FilterSBPacket(game.clients[i].pers.ip, NULL) == false)
+				{
+					game.clients[i].pers.silence_banned = false;
+					gi.cprintf(NULL, PRINT_HIGH, "Removing silence from player: %s\n", game.clients[i].pers.netname);
+				}
+			}
+
+			return;
+		}
+	}
+	gi.cprintf(NULL, PRINT_HIGH, "Cannot find IP/MASK: %s\n", gi.argv(2));
+}
+
+//===================
+// SVCmd_CheckSB_f ==
+//===================
+void SVCmd_CheckSB_f(void) // Check for temporary silences that need removing
+{
+	// We don't directly unban them all - we subtract 1 from temp_ban_games, and unban them if it's 0.
+	int i, j;
+	for (i = 0; i < num_sb_filters; i++)
+	{
+		if (sb_filters[i].temp_sban_games > 0)
+		{
+			if (!--sb_filters[i].temp_sban_games)
+			{
+				// Re-pack the filters
+				for (j = i + 1; j < num_sb_filters; j++)
+					sb_filters[j - 1] = sb_filters[j];
+				num_sb_filters--;
+				gi.cprintf(NULL, PRINT_HIGH, "Removed silence\n");
+
+				// Since we removed the current we have to re-process the new current
+				i--;
+			}
+		}
+	}
+
+	// Check which client(s) need to their silenced removed
+	int temp_sban_games = 0;
+	for (i = 0; i < game.maxclients; i++)
+	{
+		if (game.clients[i].pers.connected == false)
+			continue;
+		if (game.clients[i].pers.silence_banned == false)
+			continue;
+		if (SV_FilterSBPacket(game.clients[i].pers.ip, &temp_sban_games) == false && temp_sban_games == 0)
+		{
+			game.clients[i].pers.silence_banned = false;
+			gi.cprintf(NULL, PRINT_HIGH, "Removing silence from player: %s\n", game.clients[i].pers.netname);
+		}
+	}
+}
+
+//====================
+//== SVCmd_ListSB_f ==
+//====================
+void SVCmd_ListSB_f(void)
+{
+	int i;
+	byte b[4];
+
+	gi.cprintf(NULL, PRINT_HIGH, "Silence filter list:\n");
+	for (i = 0; i < num_sb_filters; i++)
+	{
+		*(unsigned*)b = sb_filters[i].compare;
+		if (!sb_filters[i].temp_sban_games)
+			gi.cprintf(NULL, PRINT_HIGH, "%3i.%3i.%3i.%3i\n", b[0], b[1], b[2], b[3]);
+		else
+			gi.cprintf(NULL, PRINT_HIGH, "%3i.%3i.%3i.%3i (%d more game(s))\n", b[0], b[1], b[2], b[3], sb_filters[i].temp_sban_games);
+	}
+}
+
+//=====================
+//== SVCmd_WriteSB_f ==
+//=====================
+void SVCmd_WriteSB_f(void)
+{
+	FILE* f;
+	char name[MAX_OSPATH];
+	byte b[4];
+	int i;
+	cvar_t* game;
+
+	game = gi.cvar("game", "", 0);
+
+	if (!*game->string)
+		sprintf(name, "%s/listsb.cfg", GAMEVERSION);
+	else
+		sprintf(name, "%s/listsb.cfg", game->string);
+
+	gi.cprintf(NULL, PRINT_HIGH, "Writing %s\n", name);
+
+	f = fopen(name, "wb");
+	if (!f)
+	{
+		gi.cprintf(NULL, PRINT_HIGH, "Couldn't open %s\n", name);
+		return;
+	}
+
+	fprintf(f, "set silenceban %d\n", (int)silenceban->value);
+
+	for (i = 0; i < num_sb_filters; i++)
+	{
+		if (!sb_filters[i].temp_sban_games)
+		{
+			*(unsigned*)b = sb_filters[i].compare;
+			fprintf(f, "sv addsb %i.%i.%i.%i\n", b[0], b[1], b[2], b[3]);
+		}
+	}
+
+	fclose(f);
+}
+//rekkie -- silence ban -- e
+
 /*
 =================
 SV_Nextmap_f
@@ -527,6 +905,44 @@ void SVCmd_SetTeamName_f( int team )
 	gi.bprintf( PRINT_HIGH, "Team %i name set to %s by console.\n", team, teams[team].name );
 }
 
+void SVCmd_SetTeamSkin_f( int team )
+{
+	if( ! teamplay->value )
+	{
+		gi.cprintf( NULL, PRINT_HIGH, "Team skins can only be set for teamplay.\n" );
+		return;
+	}
+
+	if( gi.argc() < 3 )
+	{
+		gi.cprintf( NULL, PRINT_HIGH, "Usage: sv %s <name>\n", gi.argv(1) );
+		return;
+	}
+
+	strcpy(teams[team].skin, gi.argv(2));
+
+	gi.bprintf( PRINT_HIGH, "Team %i skin set to %s by console and will be reflected next round.\n", team, teams[team].skin );
+}
+
+void SVCmd_SetTeamSkin_Index_f( int team )
+{
+	if( ! teamplay->value )
+	{
+		gi.cprintf( NULL, PRINT_HIGH, "Team skin indexes can only be set for teamplay.\n" );
+		return;
+	}
+
+	if( gi.argc() < 3 )
+	{
+		gi.cprintf( NULL, PRINT_HIGH, "Usage: sv %s <name>\n", gi.argv(1) );
+		return;
+	}
+
+	strcpy(teams[team].skin_index, gi.argv(2));
+
+	gi.bprintf( PRINT_HIGH, "Team %i skin index set to %s by console, requires a new map or server restart.\n", team, teams[team].skin_index );
+}
+
 void SVCmd_SoftQuit_f (void)
 {
 	gi.bprintf(PRINT_HIGH, "The server will exit after this map\n");
@@ -622,6 +1038,16 @@ void ServerCommand (void)
 		SVCmd_ListIP_f ();
 	else if (Q_stricmp (cmd, "writeip") == 0)
 		SVCmd_WriteIP_f ();
+	//rekkie -- silence ban -- s
+	else if (Q_stricmp(cmd, "addsb") == 0)
+		SVCmd_AddSB_f();
+	else if (Q_stricmp(cmd, "removesb") == 0)
+		SVCmd_RemoveSB_f();
+	else if (Q_stricmp(cmd, "listsb") == 0)
+		SVCmd_ListSB_f();
+	else if (Q_stricmp(cmd, "writesb") == 0)
+		SVCmd_WriteSB_f();
+	//rekkie -- silence ban -- e
 	else if (Q_stricmp (cmd, "nextmap") == 0)
 		SVCmd_Nextmap_f (gi.argv (2));	// Added by Black Cross
 	else if (Q_stricmp (cmd, "reloadmotd") == 0)
@@ -649,12 +1075,83 @@ void ServerCommand (void)
 		SVCmd_SetTeamName_f( 2 );
 	else if (Q_stricmp (cmd, "t3name") == 0)
 		SVCmd_SetTeamName_f( 3 );
+	else if (Q_stricmp (cmd, "t1skin") == 0)
+		SVCmd_SetTeamSkin_f( 1 );
+	else if (Q_stricmp (cmd, "t2skin") == 0)
+		SVCmd_SetTeamSkin_f( 2 );
+	else if (Q_stricmp (cmd, "t3skin") == 0)
+		SVCmd_SetTeamSkin_f( 3 );
+	else if (Q_stricmp (cmd, "t1skin_index") == 0)
+		SVCmd_SetTeamSkin_Index_f( 1 );
+	else if (Q_stricmp (cmd, "t2skin_index") == 0)
+		SVCmd_SetTeamSkin_Index_f( 2 );
+	else if (Q_stricmp (cmd, "t3skin_index") == 0)
+		SVCmd_SetTeamSkin_Index_f( 3 );
 	else if (Q_stricmp (cmd, "softquit") == 0)
 		SVCmd_SoftQuit_f ();
 	else if (Q_stricmp (cmd, "slap") == 0)
 		SVCmd_Slap_f ();
 	else if (Q_stricmp(cmd, "scramble") == 0)
 		SVCmd_Scramble_f();
+#ifndef NO_BOTS
+	else if(Q_stricmp (cmd, "botdebug") == 0)
+	{
+ 		if (strcmp(gi.argv(2),"on")==0)
+		{
+			gi.bprintf (PRINT_MEDIUM, "BOT: Debug Mode On\n");
+			debug_mode = true;
+		}
+		else
+		{
+			gi.bprintf (PRINT_MEDIUM, "BOT: Debug Mode Off\n");
+			debug_mode = false;
+		}
+	}
+	//RiEvEr - new node visibility method
+	else if(Q_stricmp (cmd, "shownodes") == 0)
+	{
+ 		if (strcmp(gi.argv(2),"on")==0)
+		{
+			gi.bprintf (PRINT_MEDIUM, "BOT: ShowNodes On\n");
+			shownodes_mode = true;
+		}
+		else
+		{
+			gi.bprintf (PRINT_MEDIUM, "BOT: ShowNodes Off\n");
+			shownodes_mode = false;
+		}
+	}
+	else if (Q_stricmp (cmd, "addbot") == 0)
+	{
+		if(teamplay->value) // team, name, skin (ignored)
+			ACESP_SpawnBot (gi.argv(2), gi.argv(3), gi.argv(4), NULL);
+		else // name, skin
+			ACESP_SpawnBot (NULL, gi.argv(2), gi.argv(3), NULL);
+	}
+	else if (Q_stricmp (cmd, "addbots") == 0)
+	{
+		if( gi.argc() >= 3 )
+		{
+			int count = atoi(gi.argv(2)), i = 0;
+			for( i = 0; i < count; i ++ )
+				ACESP_SpawnBot( gi.argv(3), NULL, NULL, NULL );
+		}
+		else
+			gi.cprintf( NULL, PRINT_HIGH, "Usage: sv addbots <count> [<team>]\n" );
+	}
+	// removebot
+	else if(Q_stricmp (cmd, "removebot") == 0)
+		ACESP_RemoveBot(gi.argv(2));
+	// Node saving
+	else if(Q_stricmp (cmd, "savenodes") == 0)
+		ACEND_SaveNodes();
+	// Clear all node data.
+	else if(Q_stricmp (cmd, "initnodes") == 0)
+		ACEND_InitNodes();
+	// Generate map entity nodes (items/doors/etc) and load saved nodes; you should probably "initnodes" first.
+	else if(Q_stricmp (cmd, "loadnodes") == 0)
+		ACEND_LoadNodes();
+#endif
 	else
 		gi.cprintf (NULL, PRINT_HIGH, "Unknown server command \"%s\"\n", cmd);
 }

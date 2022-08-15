@@ -354,6 +354,8 @@ void PerpendicularVector (vec3_t dst, const vec3_t src);
 void RotatePointAroundVector (vec3_t dst, const vec3_t dir,
 			      const vec3_t point, float degrees);
 
+void VectorRotate( vec3_t in, vec3_t angles, vec3_t out );  // a_doorkick.c
+void VectorRotate2( vec3_t v, float degrees );
 
 //=============================================
 

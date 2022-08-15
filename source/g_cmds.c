@@ -214,6 +214,15 @@
 #include "g_local.h"
 #include "m_player.h"
 
+#ifndef NO_BOTS
+void Cmd_Placenode_f( edict_t *ent );
+
+static void Cmd_PlaceTrigger_f( edict_t *ent )
+{
+	ent->is_triggering = 1;
+}
+#endif
+
 qboolean FloodCheck (edict_t *ent)
 {
 	if (flood_threshold->value)
@@ -1665,6 +1674,9 @@ static void Cmd_PrintSettings_f( edict_t * ent )
 		length = strlen( text );
 	}
 
+        Com_sprintf( text + length, sizeof( text ) - length, "sv_antilag = %d\n", (int)sv_antilag->value );
+        length = strlen( text );
+	
 	Com_sprintf( text + length, sizeof( text ) - length, "dmflags %i: ", (int)dmflags->value );
 	dmflagsSettings( text, sizeof( text ), (int)dmflags->value );
 
@@ -1686,6 +1698,38 @@ static void Cmd_PrintSettings_f( edict_t * ent )
 		(int)use_punch->value, (int)use_classic->value );
 
 	gi.cprintf( ent, PRINT_HIGH, text );
+}
+
+static void Cmd_Follow_f( edict_t *ent )
+{
+	edict_t *target = NULL;
+
+	if( (ent->solid != SOLID_NOT) || (ent->deadflag == DEAD_DEAD) )
+	{
+		gi.cprintf( ent, PRINT_HIGH, "Only spectators may follow!\n" );
+		return;
+	}
+
+	target = LookupPlayer( ent, gi.argv(1), true, true );
+	if( target == ent )
+	{
+		if( ! limchasecam->value )
+			SetChase( ent, NULL );
+	}
+	else if( target )
+	{
+		if( limchasecam->value && teamplay->value
+		&& (ent->client->resp.team != NOTEAM)
+		&& (ent->client->resp.team != target->client->resp.team) )
+		{
+			gi.cprintf( ent, PRINT_HIGH, "You may not follow enemies!\n" );
+			return;
+		}
+
+		if( ! ent->client->chase_mode )
+			NextChaseMode( ent );
+		SetChase( ent, target );
+	}
 }
 
 static void Cmd_SayAll_f (edict_t * ent) {
@@ -1867,6 +1911,11 @@ static cmdList_t commandList[] =
 	{ "unpausegame", Cmd_UnpauseGame_f, 0 },
 	{ "resetscores", Cmd_ResetScores_f, 0 },
 	{ "gamesettings", Cmd_PrintSettings_f, 0 },
+	{ "follow", Cmd_Follow_f, 0 },
+#ifndef NO_BOTS
+	{ "placenode", Cmd_Placenode_f, 0 },
+	{ "placetrigger", Cmd_PlaceTrigger_f, 0 },
+#endif
 	//vote stuff
 	{ "votemap", Cmd_Votemap_f, 0 },
 	{ "maplist", Cmd_Maplist_f, 0 },
@@ -1933,6 +1982,11 @@ void ClientCommand (edict_t * ent)
 
 	if (!ent->client)
 		return;			// not fully in game yet
+
+#ifndef NO_BOTS
+	if( ACECM_Commands(ent) )
+		return;
+#endif
 
 	// if (level.intermission_framenum)
 	// return;

@@ -290,6 +290,11 @@
 #include	"tng_jump.h"
 #include	"g_grapple.h"
 #include	"p_antilag.h"
+
+#ifndef NO_BOTS
+#include	"acesrc/botnav.h"
+#endif
+
 #define		getEnt(entnum)	(edict_t *)((char *)globals.edicts + (globals.edict_size * entnum))	//AQ:TNG Slicer - This was missing
 #define		GAMEVERSION			"action"	// the "gameversion" client command will print this plus compile date
 
@@ -727,6 +732,12 @@ typedef struct
 
   // items
   int num_items;
+	
+  // stats
+  char matchid[MAX_QPATH];
+  int gamemode;
+  int gamemodeflags;
+  int roundNum;
 }
 game_locals_t;
 
@@ -923,6 +934,25 @@ extern int sm_meat_index;
 #define LOC_NO			7	// Shot by shotgun or handcannon
 #define LOC_MAX			8
 
+// Awards
+#define ACCURACY 0
+#define IMPRESSIVE 1
+#define EXCELLENT 2
+
+// Game Modes
+#define GM_TEAMPLAY 0
+#define GM_TEAMDM 1
+#define GM_CTF 2
+#define GM_TOURNEY 3
+#define GM_DEATHMATCH 4
+
+// Game Mode Flags
+#define GMF_NONE 0
+#define GMF_3TEAMS 1
+#define GMF_DOMINATION 2
+#define GMF_DARKMATCH 4
+#define GMF_MATCHMODE 8
+
 extern int meansOfDeath;
 // zucc for hitlocation of death
 extern int locOfDeath;
@@ -966,6 +996,9 @@ extern cvar_t *use_newscore;
 extern cvar_t *scores2teamplay;
 extern cvar_t *scores2ctf;
 extern cvar_t *actionversion;
+#ifndef NO_BOTS
+extern cvar_t *ltk_jumpy;
+#endif
 extern cvar_t *use_voice;
 extern cvar_t *ppl_idletime;
 extern cvar_t *use_tourney;
@@ -1058,8 +1091,10 @@ extern cvar_t *capturelimit;
 extern cvar_t *password;
 extern cvar_t *g_select_empty;
 extern cvar_t *dedicated;
+extern cvar_t *steamid;
 
 extern cvar_t *filterban;
+extern cvar_t* silenceban; //rekkie -- silence ban
 extern cvar_t *flood_threshold;
 
 extern cvar_t *sv_gravity;
@@ -1118,10 +1153,10 @@ extern cvar_t *medkit_drop;
 extern cvar_t *medkit_time;
 extern cvar_t *medkit_instant;
 
-// AQ2 ETE
+// BEGIN AQ2 ETE
 extern cvar_t *e_enhancedSlippers;
 
-extern cvar_t *sv_limp_highping;
+// END AQ2 ETE
 
 #ifdef AQTION_EXTENSION
 int (*engine_Client_GetVersion)(edict_t *ent);
@@ -1156,6 +1191,20 @@ int   Ghud_AddText(int x, int y, char *text);
 int   Ghud_AddNumber(int x, int y, int value);
 #endif
 
+// 2022
+extern cvar_t *sv_limp_highping;
+extern cvar_t *server_id;
+extern cvar_t *stat_logs;
+extern cvar_t *mapvote_next_limit;
+extern cvar_t *stat_apikey;
+extern cvar_t *stat_url;
+
+// Discord SDK integration with Q2Pro
+extern cvar_t *cl_discord;
+extern cvar_t *cl_discord_id;
+extern cvar_t *cl_discord_discriminator;
+extern cvar_t *cl_discord_username;
+extern cvar_t *cl_discord_avatar;
 
 #define world   (&g_edicts[0])
 
@@ -1260,6 +1309,11 @@ size_t  G_HighlightStr(char *dst, const char *src, size_t size);
 char	*G_CopyString(char *in);
 qboolean visible(edict_t *self, edict_t *other, int mask);
 
+#ifndef NO_BOTS
+qboolean ai_visible( edict_t *self, edict_t *other );
+qboolean infront( edict_t *self, edict_t *other );
+#endif
+
 // Re-enabled for bots
 float *tv (float x, float y, float z);
 char *vtos (vec3_t v);
@@ -1357,6 +1411,7 @@ void player_die (edict_t * self, edict_t * inflictor, edict_t * attacker,
 //
 void ServerCommand (void);
 qboolean SV_FilterPacket (char *from, int *temp);
+qboolean SV_FilterSBPacket(char* from, int* temp); //rekkie -- silence ban
 void Kick_Client (edict_t * ent);
 qboolean Ban_TeamKiller (edict_t * ent, int rounds);
 
@@ -1365,6 +1420,7 @@ qboolean Ban_TeamKiller (edict_t * ent, int rounds);
 //
 void ClientEndServerFrame (edict_t * ent);
 void SetAnimation( edict_t *ent, int frame, int anim_end, int anim_priority );
+qboolean OnLadder( edict_t *ent );
 
 //
 // p_hud.c
@@ -1398,6 +1454,7 @@ void ExitLevel (void);
 void UpdateChaseCam (edict_t * ent);
 int ChaseTargetGone (edict_t * ent);
 void NextChaseMode( edict_t *ent );
+void SetChase( edict_t *ent, edict_t *target );
 void ChaseNext (edict_t * ent);
 void ChasePrev (edict_t * ent);
 void GetChaseTarget (edict_t * ent);
@@ -1411,6 +1468,7 @@ void ED_CallSpawn( edict_t *ent );
 char* ED_NewString(char* string);
 void G_UpdateSpectatorStatusbar( void );
 void G_UpdatePlayerStatusbar( edict_t *ent, int force );
+void generate_uuid();
 
 //
 // p_client.c
@@ -1437,6 +1495,12 @@ void weapon_grenade_fire(edict_t* ent, qboolean held);
 void InitTookDamage(void);
 void ProduceShotgunDamageReport(edict_t*);
 
+//tng_stats.c
+void LogKill(edict_t *self, edict_t *inflictor, edict_t *attacker);
+void LogWorldKill(edict_t *self);
+void LogMatch();
+void LogAward(char* steamid, char* discordid, int award);
+void LogEndMatchStats();
 
 //============================================================================
 
@@ -1490,6 +1554,8 @@ typedef struct
 
 	qboolean connected;		// a loadgame will leave valid entities that
 	// just don't have a connection yet
+
+	qboolean silence_banned; //rekkie -- silence ban
 
 	int admin;
 
@@ -1972,6 +2038,69 @@ struct edict_s
 	qboolean	splatted;
 	int			classnum;
 	int			typeNum;
+
+#ifndef NO_BOTS
+	int old_health;
+
+	int recheck_timeout;
+	int jumphack_timeout;
+
+	qboolean is_bot; 
+	qboolean is_jumping; 
+	qboolean is_triggering; 
+	 
+	// For movement 
+	vec3_t move_vector;  
+	float next_move_time; 
+	float wander_timeout; 
+	float suicide_timeout; 
+ 
+//AQ2 ADD 
+	// Door and pause time stuff. 
+	float	last_door_time;	// Used to open doors without immediately closing them again! 
+	float	teamPauseTime;	// To stop the centipede effect and seperate the team out a little 
+	qboolean	teamReportedIn;	// Have we reported in yet? 
+	float	lastRadioTime;	// Don't use the radio too often 
+	// Path to follow 
+	ltklist_t	pathList;	// Single linked list of node numbers 
+	float	antLastCallTime;	// Check for calling complex pathsearcher 
+	// Who killed me? 
+	edict_t	*lastkilledby;	// Set in ClientObituary... 
+	int grenadewait; // Raptor007: Moved here from player_state_t.
+//AQ2 END 
+ 
+	// For node code 
+	int current_node; // current node 
+	int goal_node; // current goal node 
+	int next_node; // the node that will take us one step closer to our goal 
+	int node_timeout; 
+	int last_node; 
+	int tries; 
+	 
+	// AI related stuff 
+	int weaponchoice; 
+	int equipchoice; 
+	float	fLastZoomTime;	// Time we last changed sniper zoom mode 
+ 
+	// Enemy related 
+	qboolean	killchat;	// Have we reported an enemy death and taunted him 
+	vec3_t		lastSeen; 
+	qboolean	cansee; 
+	float react;            // How long enemy has been in view.
+ 
+	// States 
+	int state;	//ACE only 
+	int botState; 
+	int nextState; 
+	int secondaryState; 
+ 
+	// Movement 
+	int	bot_strafe; 
+	int bot_speed; 
+	qboolean	bCrawl; 
+	qboolean	bLastJump; 
+	vec3_t	lastPosition; 
+#endif
 };
 
 typedef struct
@@ -2134,4 +2263,8 @@ extern int ghud_team2_icon;
 extern int ghud_team2_num;
 extern int ghud_team3_icon;
 extern int ghud_team3_num;
+#endif
+
+#ifndef NO_BOTS
+#include "acesrc/acebot.h"
 #endif

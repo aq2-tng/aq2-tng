@@ -252,6 +252,7 @@ void SP_misc_easterchick2 (edict_t * self);
 //zucc - item replacement function
 void CheckItem (edict_t * ent);
 int LoadFlagsFromFile (const char *mapname);
+void SVCmd_CheckSB_f(void); //rekkie -- silence ban
 extern void UnBan_TeamKillers(void);
 
 //AQ2:TNG - Slicer New location code
@@ -880,6 +881,7 @@ void SpawnEntities (char *mapname, char *entities, char *spawnpoint)
 
 	if (jump->value)
 	{
+	gi.cvar_forceset(stat_logs->name, "0"); // Turn off stat logs for jump mode
 		if (teamplay->value)
 		{
 			gi.dprintf ("Jump Enabled - Forcing teamplay ff\n");
@@ -959,7 +961,6 @@ void SpawnEntities (char *mapname, char *entities, char *spawnpoint)
 	else if (dom->value)
 	{
 		gameSettings |= GS_WEAPONCHOOSE;
-
 		if (!teamplay->value)
 		{
 			gi.dprintf ("Domination Enabled - Forcing teamplay on\n");
@@ -1006,6 +1007,7 @@ void SpawnEntities (char *mapname, char *entities, char *spawnpoint)
 	else if (use_3teams->value)
 	{
 		gameSettings |= (GS_ROUNDBASED | GS_WEAPONCHOOSE);
+
 		if (!teamplay->value)
 		{
 			gi.dprintf ("3 Teams Enabled - Forcing teamplay on\n");
@@ -1034,6 +1036,7 @@ void SpawnEntities (char *mapname, char *entities, char *spawnpoint)
 	else if (use_tourney->value)
 	{
 		gameSettings |= (GS_ROUNDBASED | GS_WEAPONCHOOSE);
+
 		if (!teamplay->value)
 		{
 			gi.dprintf ("Tourney Enabled - Forcing teamplay on\n");
@@ -1068,6 +1071,20 @@ void SpawnEntities (char *mapname, char *entities, char *spawnpoint)
 	gi.cvar_forceset(maptime->name, "0:00");
 
 	gi.FreeTags(TAG_LEVEL);
+
+	generate_uuid();  // Run this once every time a map loads to generate a unique id for stats (game.matchid)
+
+#ifndef NO_BOTS
+	// Disconnect bots before we wipe entity data and lose track of is_bot.
+	for (i = 0, ent = &g_edicts[1]; i < game.maxclients; i++, ent++)
+	{
+		if( ent->is_bot )
+		{
+			client = &game.clients[i];
+			client->pers.connected = false;
+		}
+	}
+#endif
 
 	memset(&level, 0, sizeof (level));
 	memset(g_edicts, 0, game.maxentities * sizeof (g_edicts[0]));
@@ -1184,7 +1201,16 @@ void SpawnEntities (char *mapname, char *entities, char *spawnpoint)
 
 	G_LoadLocations();
 
+	SVCmd_CheckSB_f(); //rekkie -- silence ban
+
 	UnBan_TeamKillers();
+
+#ifndef NO_BOTS
+	// Reload nodes and any persistent bots.
+	ACEND_InitNodes();
+	ACEND_LoadNodes();
+	ACESP_LoadBotConfig();
+#endif
 }
 
 
@@ -1419,6 +1445,10 @@ void G_UpdatePlayerStatusbar( edict_t * ent, int force )
 		playerStatusbar = level.spec_statusbar;
 	}
 
+#ifndef NO_BOTS
+	if( ent->is_bot )
+		return;
+#endif
 	gi.WriteByte( svc_configstring );
 	gi.WriteShort( CS_STATUSBAR );
 	gi.WriteString( playerStatusbar );
@@ -1535,8 +1565,19 @@ void SP_worldspawn (edict_t * ent)
 		for(i = TEAM1; i <= teamCount; i++)
 		{
 			if (teams[i].skin_index[0] == 0) {
-				gi.dprintf("No skin was specified for team %i in config file. Exiting.\n", i);
-				exit(1);
+				// If the action.ini file isn't found, set default skins rather than kill the server
+				gi.dprintf("WARNING: No skin was specified for team %i in config file, server either could not find it or is does not exist.\n", i);
+				gi.dprintf("Setting default team names, skins and skin indexes.\n", i);
+				strcpy(teams[TEAM1].name, "RED");
+				strcpy(teams[TEAM2].name, "BLUE");
+				strcpy(teams[TEAM3].name, "GREEN");
+				strcpy(teams[TEAM1].skin, "male/ctf_r");
+				strcpy(teams[TEAM2].skin, "male/ctf_b");
+				strcpy(teams[TEAM3].skin, "male/ctf_g");
+				strcpy(teams[TEAM1].skin_index, "ctf_r_i");
+				strcpy(teams[TEAM2].skin_index, "ctf_b_i");
+				strcpy(teams[TEAM3].skin_index, "ctf_g_i");
+				//exit(1);
 			}
 			level.pic_teamskin[i] = gi.imageindex(teams[i].skin_index);
 		}

@@ -320,7 +320,6 @@
 #include "m_player.h"
 #include "cgf_sfx_glass.h"
 
-
 static void FreeClientEdicts(gclient_t *client)
 {
 	//remove lasersight
@@ -346,6 +345,10 @@ void Add_Frag(edict_t * ent, int mod)
 {
 	char buf[256];
 	int frags = 0;
+	char steamid[24];
+	char discordid[24];
+	Q_strncpyz(steamid, Info_ValueForKey(ent->client->pers.userinfo, "steamid"), sizeof(steamid));
+	Q_strncpyz(discordid, Info_ValueForKey(ent->client->pers.userinfo, "cl_discord_id"), sizeof(discordid));
 
 	if (in_warmup)
 		return;
@@ -371,6 +374,9 @@ void Add_Frag(edict_t * ent, int mod)
 				CenterPrintAll(buf);
 				gi.sound(&g_edicts[0], CHAN_VOICE | CHAN_NO_PHS_ADD,
 					 gi.soundindex("tng/impressive.wav"), 1.0, ATTN_NONE, 0.0);
+				if (stat_logs->value && !ltk_loadbots->value) {
+					LogAward(steamid, discordid, IMPRESSIVE);
+				}
 			}
 			else if (ent->client->resp.streakKills % 12 == 0 && use_rewards->value)
 			{
@@ -378,6 +384,9 @@ void Add_Frag(edict_t * ent, int mod)
 				CenterPrintAll(buf);
 				gi.sound(&g_edicts[0], CHAN_VOICE | CHAN_NO_PHS_ADD,
 					 gi.soundindex("tng/excellent.wav"), 1.0, ATTN_NONE, 0.0);
+				if (stat_logs->value && !ltk_loadbots->value) {
+					LogAward(steamid, discordid, EXCELLENT);
+				}
 			}
 		}
 
@@ -615,6 +624,7 @@ void player_pain(edict_t * self, edict_t * other, float kick, int damage)
 
 // ^^^
 
+
 // PrintDeathMessage: moved the actual printing of the death messages to here, to handle
 //  the fact that live players shouldn't receive them in teamplay.  -FB
 void PrintDeathMessage(char *msg, edict_t * gibee)
@@ -642,6 +652,10 @@ void PrintDeathMessage(char *msg, edict_t * gibee)
 		other = &g_edicts[j];
 		if (!other->inuse || !other->client)
 			continue;
+#ifndef NO_BOTS
+		if( other->is_bot )
+			continue;
+#endif
 
 		// only print if he's NOT gibee, NOT attacker, and NOT alive! -TempFile
 		if (other != gibee && other != gibee->client->attacker && other->solid == SOLID_NOT)
@@ -795,6 +809,9 @@ void ClientObituary(edict_t * self, edict_t * inflictor, edict_t * attacker)
 			PrintDeathMessage(death_msg, self);
 			IRC_printf(IRC_T_KILL, death_msg);
 			AddKilledPlayer(self->client->attacker, self);
+			if (stat_logs->value && !ltk_loadbots->value) { // Only create stats logs if stat_logs is 1 and ltk_loadbots is 0
+				LogKill(self, inflictor, self->client->attacker);
+			}
 			self->client->attacker->client->radio_num_kills++;
 
 			//MODIFIED FOR FF -FB
@@ -826,6 +843,10 @@ void ClientObituary(edict_t * self, edict_t * inflictor, edict_t * attacker)
 			}
 
 			self->enemy = NULL;
+
+			if (stat_logs->value && !ltk_loadbots->value) { // Only create stats logs if stat_logs is 1 and ltk_loadbots is 0
+				LogWorldKill(self);
+			}
 		}
 		return;
 	}
@@ -1158,6 +1179,9 @@ void ClientObituary(edict_t * self, edict_t * inflictor, edict_t * attacker)
 			PrintDeathMessage(death_msg, self);
 			IRC_printf(IRC_T_KILL, death_msg);
 			AddKilledPlayer(attacker, self);
+			if (stat_logs->value && !ltk_loadbots->value) { // Only create stats logs if stat_logs is 1 and ltk_loadbots is 0
+				LogKill(self, inflictor, attacker);
+			}
 
 			if (friendlyFire) {
 				if (!teamplay->value || team_round_going || !ff_afterround->value)
@@ -1182,6 +1206,9 @@ void ClientObituary(edict_t * self, edict_t * inflictor, edict_t * attacker)
 	sprintf(death_msg, "%s died\n", self->client->pers.netname);
 	PrintDeathMessage(death_msg, self);
 	IRC_printf(IRC_T_DEATH, death_msg);
+	if (stat_logs->value && !ltk_loadbots->value) { // Only create stats logs if stat_logs is 1 and ltk_loadbots is 0
+		LogWorldKill(self);
+	}
 
 	Subtract_Frag(self);	//self->client->resp.score--;
 	Add_Death( self, true );
@@ -2434,6 +2461,125 @@ void PutClientInServer(edict_t * ent)
 	for (i = 0; i < 3; i++)
 		client->ps.pmove.delta_angles[i] = ANGLE2SHORT(ent->s.angles[i] - client->resp.cmd_angles[i]);
 
+#ifndef NO_BOTS
+	ent->last_node = -1;
+	ent->is_jumping = false;
+	ent->is_triggering = false;
+	ent->grenadewait = 0;
+	ent->react = 0.f;
+	
+	if( ent->is_bot )
+	{
+		ent->classname = "bot";
+		
+		ent->enemy = NULL;
+		ent->movetarget = NULL;
+		if( ! teamplay->value )
+		{
+			ent->state = STATE_MOVE;
+			ent->botState = BS_ROAM;
+			ent->nextState = BS_ROAM;
+			ent->secondaryState = BSS_NONE;
+		}
+		else
+		{
+			ent->state = STATE_POSITION;
+			ent->botState = BS_ROAM;
+			ent->nextState = BS_ROAM;
+			ent->secondaryState = BSS_POSITION;
+		}
+		
+		// Set the current node
+		ent->current_node = ACEND_FindClosestReachableNode( ent, NODE_DENSITY, NODE_ALL );
+		ent->goal_node = ent->current_node;
+		ent->next_node = ent->current_node;
+		ent->next_move_time = level.framenum;
+		ent->suicide_timeout = level.framenum + 15.0 * HZ;
+		
+		ent->killchat = false;
+		VectorClear( ent->lastSeen );
+		ent->cansee = false;
+		
+		ent->bot_strafe = SPEED_WALK;
+		ent->bot_speed = 0;
+		VectorClear( ent->lastPosition );
+		
+		// Choose Teamplay weapon
+		switch( ent->weaponchoice - 1 )  // Range is 1..5
+		{
+		case 0:
+			ACEAI_Cmd_Choose_Weapon_Num( ent, MP5_NUM );
+			break;
+		case 1:
+			ACEAI_Cmd_Choose_Weapon_Num( ent, M4_NUM );
+			break;
+		case 2:
+			ACEAI_Cmd_Choose_Weapon_Num( ent, M3_NUM );
+			break;
+		case 3:
+			ACEAI_Cmd_Choose_Weapon_Num( ent, HC_NUM );
+			break;
+		case 4:
+			ACEAI_Cmd_Choose_Weapon_Num( ent, SNIPER_NUM );
+			break;
+		default:
+			ACEAI_Cmd_Choose_Weapon_Num( ent, 0 );  // Random allowed.
+			break;
+		}
+		
+		// Choose Teamplay equipment
+		switch( ent->equipchoice - 1 )  // Range is 1..5
+		{
+		case 0:
+			ACEAI_Cmd_Choose_Item_Num( ent, SIL_NUM );
+			break;
+		case 1:
+			ACEAI_Cmd_Choose_Item_Num( ent, SLIP_NUM );
+			break;
+		case 2:
+			ACEAI_Cmd_Choose_Item_Num( ent, BAND_NUM );
+			break;
+		case 3:
+			ACEAI_Cmd_Choose_Item_Num( ent, KEV_NUM );
+			break;
+		case 4:
+			ACEAI_Cmd_Choose_Item_Num( ent, LASER_NUM );
+			break;
+		default:
+			ACEAI_Cmd_Choose_Item_Num( ent, 0 );  // Random allowed.
+			break;
+		}
+		
+		if( teamplay->value )
+		{
+			int randomnode = 0;
+			const char *s = Info_ValueForKey( ent->client->pers.userinfo, "skin" );
+			AssignSkin( ent, s, false /* nickChanged */ );
+			// Anti centipede timer
+			ent->teamPauseTime = level.framenum + (3.0 + (rand() % 7)) * HZ;
+			// Radio setup
+			ent->teamReportedIn = true;
+			ent->lastRadioTime = level.framenum;
+			// Change facing angle for each bot
+			randomnode = (int)( num_players * random() );
+			VectorSubtract( nodes[randomnode].origin, ent->s.origin, ent->move_vector );
+			ent->move_vector[2] = 0;
+		}
+		else
+			ent->teamPauseTime = level.framenum;
+		
+		//RiEvEr - new node pathing system
+		memset( &(ent->pathList), 0, sizeof(ent->pathList) );
+		ent->pathList.head = ent->pathList.tail = NULL;
+		//R
+		
+		ent->client->resp.radio.gender = (ent->client->pers.gender == GENDER_FEMALE) ? 1 : 0;
+	}
+	
+	if( (! ent->is_bot) || (ent->think != ACESP_HoldSpawn) )  // if( respawn )
+	{
+#endif
+
 	if (teamplay->value) {
 		going_observer = (!ent->client->resp.team || ent->client->resp.subteam);
 	}
@@ -2451,6 +2597,10 @@ void PutClientInServer(edict_t * ent)
 		gi.linkentity(ent);
 		return;
 	}
+
+#ifndef NO_BOTS
+	}  // end if( respawn )
+#endif
 
 	if (!teamplay->value) {	// this handles telefrags...
 		KillBox(ent);
@@ -2551,6 +2701,10 @@ void ClientBeginDeathmatch(edict_t * ent)
 
 	TourneyNewPlayer(ent);
 	vInitClient(ent);
+
+#ifndef NO_BOTS
+	ACEIT_RebuildPlayerList();
+#endif
 
 	// locate ent at a spawn point
 	PutClientInServer(ent);
@@ -2822,6 +2976,17 @@ qboolean ClientConnect(edict_t * ent, char *userinfo)
 		IRC_printf(IRC_T_SERVER, "%n@%s connected", value, ipaddr_buf);
 	}
 
+	//rekkie -- silence ban -- s
+	if (SV_FilterSBPacket(ipaddr_buf, NULL)) // Check if player has been silenced
+	{
+		ent->client->pers.silence_banned = true;
+		value = Info_ValueForKey(userinfo, "name");
+		gi.dprintf("%s has been [SILENCED] because they're on the naughty list\n", value); // Notify console the player is silenced
+	}
+	else
+		ent->client->pers.silence_banned = false;
+	//rekkie -- silence ban -- e
+
 	//set connected on ClientBeginDeathmatch as clientconnect doesn't always
 	//guarantee a client is actually making it all the way into the game.
 	//ent->client->pers.connected = true;
@@ -2858,6 +3023,11 @@ void ClientDisconnect(edict_t * ent)
 
 	gi.bprintf(PRINT_HIGH, "%s disconnected\n", ent->client->pers.netname);
 	IRC_printf(IRC_T_SERVER, "%n disconnected", ent->client->pers.netname);
+	//Stats begin
+	//Get client stats when disconnected and not in intermission as stats are printed during intermission already
+	//if (stat_logs->value && !ltk_loadbots->value && !level.intermission_framenum) {
+	//	LogEndMatchStats();
+	//}
 
 	if( !teamplay->value && !ent->client->pers.spectator )
 	{
@@ -2905,6 +3075,12 @@ void ClientDisconnect(edict_t * ent)
 	ent->client->pers.connected = false;
 
 	teams_changed = true;
+
+#ifndef NO_BOTS
+	ent->is_bot = false;
+	ent->think = NULL;
+	ACEIT_RebuildPlayerList();
+#endif
 }
 
 void CreateGhost(edict_t * ent)
@@ -3293,7 +3469,6 @@ void ClientBeginServerFrame(edict_t * ent)
 	// update dimension mask for team-only entities
 	client->dimension_observe = 1 | (1 << client->resp.team);
 #endif
-
 
 	if (client->resp.penalty > 0 && level.realFramenum % HZ == 0)
 		client->resp.penalty--;

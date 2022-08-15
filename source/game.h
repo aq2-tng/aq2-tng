@@ -98,6 +98,12 @@ struct edict_s
 
 //===============================================================
 
+#ifndef NO_BOTS
+// making real copies for bot compatibility
+extern void (*real_cprintf) (edict_t * ent, int printlevel, char *fmt, ...);
+extern void (*real_centerprintf) (edict_t * ent, char *fmt, ...);
+#endif
+
 //
 // functions provided by the main engine
 //

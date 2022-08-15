@@ -7,11 +7,13 @@ cvar_t *sv_antilag_interp;
 void antilag_update(edict_t *ent)
 {
 	antilag_t *state = &(ent->client->antilag_state);
+	float time_stamp;
 
 	state->seek++;
 	state->curr_timestamp = level.time;
 
 	float time_stamp = level.time;
+	time_stamp = level.time;
 	if (sv_antilag_interp->value) // offset by 1 server frame to account for interpolation
 		time_stamp += FRAMETIME;
 
@@ -66,6 +68,7 @@ void antilag_rewind_all(edict_t *ent)
 		return;
 
 	float time_to_seek = ent->client->antilag_state.curr_timestamp;
+
 	time_to_seek -= ((float)ent->client->ping) / 1000;
 	if (time_to_seek < level.time - ANTILAG_REWINDCAP)
 		time_to_seek = level.time - ANTILAG_REWINDCAP;
@@ -78,7 +81,7 @@ void antilag_rewind_all(edict_t *ent)
 		if (!who->inuse)
 			continue;
 
-		state = &who->client->antilag_state;
+    state = &who->client->antilag_state;
 		state->rewound = false;
 
 		if (who == ent)
@@ -102,8 +105,6 @@ void antilag_rewind_all(edict_t *ent)
 
 		VectorCopy(state->hist_mins[(int)rewind_seek & ANTILAG_MASK], who->mins);
 		VectorCopy(state->hist_maxs[(int)rewind_seek & ANTILAG_MASK], who->maxs);
-
-
 
 		gi.linkentity(who);
 	}
@@ -129,7 +130,6 @@ void antilag_unmove_all(void)
 			continue;
 
 		state->rewound = false;
-
 		VectorCopy(state->hold_origin, who->s.origin);
 		VectorCopy(state->hold_mins, who->mins);
 		VectorCopy(state->hold_maxs, who->maxs);
@@ -137,11 +137,3 @@ void antilag_unmove_all(void)
 		gi.linkentity(who);
 	}
 }
-
-
-
-
-
-
-
-
