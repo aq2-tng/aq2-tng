@@ -1428,7 +1428,7 @@ void G_UpdatePlayerStatusbar( edict_t * ent, int force )
 {
 	char *playerStatusbar;
 
-	if (!teamplay->value || teamCount != 2 || !spectator_hud->value) {
+	if (!teamplay->value || teamCount != 2 || spectator_hud->value < 0 || (spectator_hud->value == 0 && !(ent->client->pers.spec_flags & SPECFL_SPECHUD))) {
 		return;
 	}
 
@@ -1740,6 +1740,40 @@ void SP_worldspawn (edict_t * ent)
 	gi.configstring(CS_LIGHTS + 11, "abcdefghijklmnopqrrqponmlkjihgfedcba");	// 11 SLOW PULSE NOT FADE TO BLACK
 	// styles 32-62 are assigned by the light program for switchable lights
 	gi.configstring(CS_LIGHTS + 63, "a");	// 63 testing
+
+
+#ifdef AQTION_EXTENSION
+#ifdef AQTION_HUD
+	if (teamplay->value)
+	{
+		int base_y = -8;
+		int team_amt = 2;
+
+		if (use_3teams->value)
+		{
+			teams[TEAM3].ghud_icon = -1; // just so we know these are unused
+			teams[TEAM3].ghud_num = -1;  // 
+
+			base_y -= 112;
+			team_amt = 3;
+		}
+		else
+			base_y -= 72;
+
+		int i;
+		for (i = 1; i <= team_amt; i++)
+		{
+			teams[i].ghud_icon = Ghud_AddIcon(8, base_y, level.pic_teamskin[i], 32, 32);
+			Ghud_SetAnchor(teams[i].ghud_icon, 0, 1);
+
+			teams[i].ghud_num = Ghud_AddNumber(44, base_y + 2, 0);
+			Ghud_SetAnchor(teams[i].ghud_num, 0, 1);
+
+			base_y += 40;
+		}
+	}
+#endif
+#endif
 }
 
 int LoadFlagsFromFile (const char *mapname)

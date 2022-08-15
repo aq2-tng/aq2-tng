@@ -264,6 +264,7 @@
 #include <ctype.h>
 
 #include "q_shared.h"
+#include "q_ghud.h"
 
 // define GAME_INCLUDE so that game.h does not define the
 // short, server-visible gclient_t and edict_t structures,
@@ -323,6 +324,9 @@
 #define svc_stufftext           11
 #define	svc_configstring		13
 
+#define svc_extend				30
+#define svc_userstatistic		31
+
 //==================================================================
 
 #define MASK_VOLUME			1
@@ -359,6 +363,10 @@
 #define FL_POWER_ARMOR                  0x00001000	// power armor (if any) is active
 #define FL_ACCELERATE					0x20000000  // accelerative movement
 #define FL_RESPAWN                      0x80000000	// used for item respawning
+
+// edict->client->pers.spec_flags
+#define SPECFL_KILLFEED					0x00000001
+#define SPECFL_SPECHUD					0x00000002
 
 // variable server FPS
 #ifndef NO_FPS
@@ -1150,6 +1158,39 @@ extern cvar_t *e_enhancedSlippers;
 
 // END AQ2 ETE
 
+#ifdef AQTION_EXTENSION
+int (*engine_Client_GetVersion)(edict_t *ent);
+int (*engine_Client_GetProtocol)(edict_t *ent);
+int Client_GetVersion(edict_t *ent);
+int Client_GetProtocol(edict_t *ent);
+
+void (*engine_Ghud_SendUpdates)(edict_t *ent);
+void  Ghud_SendUpdates(edict_t *ent);
+int  (*engine_Ghud_NewElement)(int type);
+int   Ghud_NewElement(int type);
+void (*engine_Ghud_SetFlags)(int i, int val);
+void  Ghud_SetFlags(int i, int val);
+void (*engine_Ghud_UnicastSetFlags)(edict_t *ent, int i, int val);
+void  Ghud_UnicastSetFlags(edict_t *ent, int i, int val);
+void (*engine_Ghud_SetInt)(int i, int val);
+void  Ghud_SetInt(int i, int val);
+void (*engine_Ghud_SetText)(int i, char *text);
+void  Ghud_SetText(int i, char *text);
+void (*engine_Ghud_SetPosition)(int i, int x, int y, int z);
+void  Ghud_SetPosition(int i, int x, int y);
+void  Ghud_SetPosition3D(int i, int x, int y, int z);
+void (*engine_Ghud_SetAnchor)(int i, float x, float y);
+void  Ghud_SetAnchor(int i, float x, float y);
+void (*engine_Ghud_SetColor)(int i, int r, int g, int b, int a);
+void  Ghud_SetColor(int i, int r, int g, int b, int a);
+void (*engine_Ghud_SetSize)(int i, int x, int y);
+void  Ghud_SetSize(int i, int x, int y);
+
+int   Ghud_AddIcon(int x, int y, int image, int sizex, int sizey);
+int   Ghud_AddText(int x, int y, char *text);
+int   Ghud_AddNumber(int x, int y, int value);
+#endif
+
 // 2022
 extern cvar_t *sv_limp_highping;
 extern cvar_t *server_id;
@@ -1351,6 +1392,14 @@ void InitBodyQue (void);
 void ClientBeginServerFrame (edict_t * ent);
 
 //
+// g_ext.c
+//
+#ifdef AQTION_EXTENSION
+void G_InitExtEntrypoints(void);
+void* G_FetchGameExtension(char *name);
+#endif
+
+//
 // g_player.c
 //
 void player_pain (edict_t * self, edict_t * other, float kick, int damage);
@@ -1524,7 +1573,10 @@ typedef struct
 	int menu_shown;		// has the main menu been shown
 	qboolean dm_selected;		// if dm weapon selection has been done once
 
+	// Reki - added these options, controllable via userinfo cvar
 	int limp_nopred;
+	int spec_flags;
+	qboolean antilag_optout;
 
 	int mk23_mode;		// firing mode, semi or auto
 	int mp5_mode;
@@ -1815,6 +1867,13 @@ struct gclient_s
 	edict_t		*ctf_grapple;		// entity of grapple
 	int			ctf_grapplestate;		// true if pulling
 	int			ctf_grapplereleaseframe;	// frame of grapple release
+
+
+	// used for extrapolation
+	usercmd_t	cmd_last;
+
+	// visiblity mask
+	unsigned int dimension_observe;
 };
 
 
@@ -1971,6 +2030,9 @@ struct edict_s
 	int			z_history_framenum;
 	int			z_history_count;
 #endif
+
+	// visibility mask
+	unsigned int dimension_visible;
 
 	// action
 	qboolean	splatted;
@@ -2169,6 +2231,14 @@ typedef struct team_s
 	int pauses_used, wantReset;
 	cvar_t	*teamscore;
 	edict_t	*captain;
+
+#ifdef AQTION_EXTENSION
+#ifdef AQTION_HUD
+	int	 ghud_resettime;
+	byte ghud_icon;
+	byte ghud_num;
+#endif
+#endif
 }team_t;
 
 extern team_t teams[TEAM_TOP];
@@ -2185,6 +2255,15 @@ extern int gameSettings;
 
 #include "a_ctf.h"
 #include "a_dom.h"
+
+#ifdef AQTION_EXTENSION
+extern int ghud_team1_icon;
+extern int ghud_team1_num;
+extern int ghud_team2_icon;
+extern int ghud_team2_num;
+extern int ghud_team3_icon;
+extern int ghud_team3_num;
+#endif
 
 #ifndef NO_BOTS
 #include "acesrc/acebot.h"
