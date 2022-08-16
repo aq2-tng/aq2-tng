@@ -8,13 +8,6 @@ name: TNG Release
 on:
   workflow_dispatch:
 
-env:
-  LIN64_DIST_DIR: "linux-x64-tng"
-  LINARM64_DIST_DIR: "linux-arm64-tng"
-  WIN64_DIST_DIR: "windows-x64-tng"
-  WIN32_DIST_DIR: "windows-i386-tng"
-  GITHUB_TOKEN: ${{ github.token }}
-
 jobs:
   generate_release:
     runs-on: ubuntu-latest
