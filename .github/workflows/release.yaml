@@ -17,7 +17,6 @@ env:
 
 jobs:
   generate_release:
-    needs: ["arm64_build_tng", "x86_build_tng"]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
