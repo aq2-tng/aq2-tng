@@ -71,6 +71,6 @@ jobs:
           files: |
             tng-win-64.zip
             tng-win-32.zip
-            tng-lin-arm64.tar.gz
-            tng-lin-x86_64.tar.gz
+            tng-lin-arm64.zip
+            tng-lin-x86_64.zip
 
