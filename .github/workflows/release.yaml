@@ -57,13 +57,16 @@ jobs:
           workflow: build.yaml
           name: tng-win-64
 
+      - name: Look around
+        run: ls -l
+
       - name: Upload dist tarball to release
         uses: softprops/action-gh-release@v1
         env:
           GITHUB_TOKEN: ${{ github.token }}
         with:
           body_path: 
-          tag_name: ${{github.ref_name}}
+          tag_name: ${{ steps.version.outputs.version }}
           files: |
             tng-win-64.zip
             tng-win-32.zip
