@@ -12,7 +12,8 @@ jobs:
   generate_release:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout
+        uses: actions/checkout@v3
         with:
           repository: actionquake/aq2-tng
           ref: ${{ github.ref }}
@@ -39,7 +40,7 @@ jobs:
           workflow: build.yaml
           name: tng-lin-x86_64
       
-       - name: Download Linux ARM x64 build artifacts
+      - name: Download Linux ARM x64 build artifacts
         uses: dawidd6/action-download-artifact@v2
         with:
           workflow: build.yaml
