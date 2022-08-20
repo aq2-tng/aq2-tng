@@ -345,10 +345,6 @@ void Add_Frag(edict_t * ent, int mod)
 {
 	char buf[256];
 	int frags = 0;
-	char steamid[24];
-	char discordid[24];
-	Q_strncpyz(steamid, Info_ValueForKey(ent->client->pers.userinfo, "steamid"), sizeof(steamid));
-	Q_strncpyz(discordid, Info_ValueForKey(ent->client->pers.userinfo, "cl_discord_id"), sizeof(discordid));
 
 	if (in_warmup)
 		return;
@@ -377,6 +373,10 @@ void Add_Frag(edict_t * ent, int mod)
 
 				#if USE_AQTION
 				if (stat_logs->value && !ltk_loadbots->value) {
+					char steamid[24];
+					char discordid[24];
+					Q_strncpyz(steamid, Info_ValueForKey(ent->client->pers.userinfo, "steamid"), sizeof(steamid));
+					Q_strncpyz(discordid, Info_ValueForKey(ent->client->pers.userinfo, "cl_discord_id"), sizeof(discordid));
 					LogAward(steamid, discordid, IMPRESSIVE);
 				}
 				#endif
@@ -390,6 +390,10 @@ void Add_Frag(edict_t * ent, int mod)
 
 				#if USE_AQTION
 				if (stat_logs->value && !ltk_loadbots->value) {
+					char steamid[24];
+					char discordid[24];
+					Q_strncpyz(steamid, Info_ValueForKey(ent->client->pers.userinfo, "steamid"), sizeof(steamid));
+					Q_strncpyz(discordid, Info_ValueForKey(ent->client->pers.userinfo, "cl_discord_id"), sizeof(discordid));
 					LogAward(steamid, discordid, EXCELLENT);
 				}
 				#endif
