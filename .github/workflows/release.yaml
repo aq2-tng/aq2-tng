@@ -29,7 +29,7 @@ jobs:
           draft: false
           prerelease: false
           release_name: aq2-tng_${{ steps.version.outputs.version }}
-          tag_name: ${{ github.ref }}
+          tag_name: ${{ steps.version.outputs.version }}
         env:
           GITHUB_TOKEN: ${{ github.token }}
 
@@ -38,24 +38,31 @@ jobs:
         with:
           workflow: build.yaml
           name: tng-lin-x86_64
+          skip_unpack: true
       
       - name: Download Linux ARM x64 build artifacts
         uses: dawidd6/action-download-artifact@v2
         with:
           workflow: build.yaml
           name: tng-lin-arm64
+          skip_unpack: true
 
       - name: Download Win x86 build artifacts
         uses: dawidd6/action-download-artifact@v2
         with:
           workflow: build.yaml
           name: tng-win-32
+          skip_unpack: true
 
       - name: Download Win x64 build artifacts
         uses: dawidd6/action-download-artifact@v2
         with:
           workflow: build.yaml
           name: tng-win-64
+          skip_unpack: true
+
+      - name: Verify files
+        run: ls -l
 
       - name: Upload dist tarball to release
         uses: softprops/action-gh-release@v1
@@ -63,10 +70,10 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
         with:
           body_path: 
-          tag_name: ${{github.ref_name}}
+          tag_name: ${{ steps.version.outputs.version }}
           files: |
             tng-win-64.zip
             tng-win-32.zip
-            tng-lin-arm64.tar.gz
-            tng-lin-x86_64.tar.gz
+            tng-lin-arm64.zip
+            tng-lin-x86_64.zip
 
