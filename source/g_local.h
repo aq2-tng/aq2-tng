@@ -955,8 +955,9 @@ extern cvar_t *hud_items_cycle;
 extern cvar_t *noscore;
 extern cvar_t *hud_noscore;
 extern cvar_t *use_newscore;
-extern cvar_t *scores2teamplay;
-extern cvar_t *scores2ctf;
+extern cvar_t *scoreboard;
+extern cvar_t *scores2teamplay; // DEPRECATED: Use "scoreboard" instead.
+extern cvar_t *scores2ctf;      // DEPRECATED: Use "scoreboard" instead.
 extern cvar_t *actionversion;
 extern cvar_t *use_voice;
 extern cvar_t *ppl_idletime;
