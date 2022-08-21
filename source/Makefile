@@ -31,7 +31,7 @@ FILE_VERSION:=$(FILE_VERSION)~$(GIT_REV)
 endif
 
 CC?=gcc
-BASE_CFLAGS=-Wall -fno-strict-aliasing -DC_ONLY -DVERSION="\"$(VERSION)\"" -DAQTION_EXTENSION
+BASE_CFLAGS=-Wall -fno-strict-aliasing -DC_ONLY -DVERSION="\"$(VERSION)\""
 
 ifdef WEXTRA
 BASE_CFLAGS += -Wextra
@@ -100,11 +100,10 @@ SHLIBLIBS=-lws2_32
 endif
 
 ifeq ($(USE_AQTION),TRUE)
-BASE_CFLAGS += -DUSE_AQTION
+CFLAGS += -DUSE_AQTION -DAQTION_EXTENSION
 
 ifneq (,$(findstring WIN32,$(TNG_BUILD_FOR))$(findstring WIN64,$(TNG_BUILD_FOR)))
-BASE_CFLAGS += -I../q2pro-mgw-sdk/inc
-CFLAGS += -DCURL_STATICLIB
+CFLAGS += -I../q2pro-mgw-sdk/inc -DCURL_STATICLIB
 SHLIBLIBS += -lcurl -lcrypt32 -lwsock32 -lz -lws2_32
 ifeq ($(TNG_BUILD_FOR),WIN32)
 CFLAGS += -L../q2pro-mgw-sdk/lib
