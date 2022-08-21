@@ -304,8 +304,6 @@ cvar_t *noscore;
 cvar_t *hud_noscore;
 cvar_t *use_newscore;
 cvar_t *scoreboard;
-cvar_t *scores2teamplay; // DEPRECATED: Use "scoreboard" instead.
-cvar_t *scores2ctf;      // DEPRECATED: Use "scoreboard" instead.
 cvar_t *actionversion;
 cvar_t *needpass;
 cvar_t *use_voice;

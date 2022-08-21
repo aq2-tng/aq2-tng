@@ -345,16 +345,6 @@ static size_t transparentEntryCount = 0;
 transparent_list_t *transparent_list = NULL;
 static transparent_list_t *transparentlistFree = NULL;
 
-#define SCORES2_TEAM   0x001
-#define SCORES2_TIME   0x002
-#define SCORES2_PING   0x004
-#define SCORES2_CAPS   0x008
-#define SCORES2_SCORE  0x010
-#define SCORES2_KILLS  0x020
-#define SCORES2_DEATHS 0x040
-#define SCORES2_DAMAGE 0x080
-#define SCORES2_ACC    0x100
-
 void InitTransparentList( void )
 {
 	transparent_list = NULL;
@@ -2802,38 +2792,12 @@ void A_ScoreboardMessage (edict_t * ent, edict_t * killer)
 	else if (ent->client->layout == LAYOUT_SCORES2)
 	{
 		const char *sb = scoreboard->string;
-		char sb_buf[ 16 ] = "";
 		int sb_len = 0;
 		int chars = 0;
 
 		if( ! sb[0] )
 		{
-			// If "scoreboard" is not set, check for deprecated "scores2teamplay" or "scores2ctf" flags.
-			int s2f = ctf->value ? scores2ctf->value : scores2teamplay->value;
-			if( s2f )
-			{
-				if( noscore->value )
-					s2f &= ~(SCORES2_CAPS | SCORES2_SCORE | SCORES2_KILLS | SCORES2_DEATHS | SCORES2_DAMAGE | SCORES2_ACC);
-				else if( ! ctf->value )
-				{
-					s2f &= ~SCORES2_CAPS;
-					if( s2f & SCORES2_SCORE )
-						s2f = (s2f & ~SCORES2_SCORE) | SCORES2_KILLS;
-				}
-
-				if( s2f & SCORES2_TEAM   ) strcat( sb_buf, "T" );
-				/*        SCORES2_NAME  */ strcat( sb_buf, "N" );
-				if( s2f & SCORES2_TIME   ) strcat( sb_buf, "M" );
-				if( s2f & SCORES2_PING   ) strcat( sb_buf, "P" );
-				if( s2f & SCORES2_CAPS   ) strcat( sb_buf, "C" );
-				if( s2f & SCORES2_SCORE  ) strcat( sb_buf, "S" );
-				if( s2f & SCORES2_KILLS  ) strcat( sb_buf, "K" );
-				if( s2f & SCORES2_DEATHS ) strcat( sb_buf, "D" );
-				if( s2f & SCORES2_DAMAGE ) strcat( sb_buf, "I" );
-				if( s2f & SCORES2_ACC    ) strcat( sb_buf, "A" );
-				sb = sb_buf;
-			}
-			else if( noscore->value )
+			if( noscore->value )
 				sb = "NMP";
 			else if( ctf->value )
 				sb = "SNMPCT";

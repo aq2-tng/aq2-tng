@@ -395,8 +395,6 @@ void InitGame( void )
 	hud_noscore = gi.cvar( "hud_noscore", "0", CVAR_LATCH ); // Hide score from HUD in teamplay.
 	use_newscore = gi.cvar( "use_newscore", "0", 0 );
 	scoreboard = gi.cvar( "scoreboard", "", 0 );
-	scores2teamplay = gi.cvar( "scores2teamplay", "", 0 ); // DEPRECATED: Use "scoreboard" instead.
-	scores2ctf      = gi.cvar( "scores2ctf", "", 0 );      // DEPRECATED: Use "scoreboard" instead.
 	use_voice = gi.cvar( "use_voice", "1", 0 );	//slicer
 	ppl_idletime = gi.cvar( "ppl_idletime", "15", 0 );
 	use_buggy_bandolier = gi.cvar( "use_buggy_bandolier", "0", 0 );
