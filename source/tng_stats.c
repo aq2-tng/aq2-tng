@@ -488,58 +488,61 @@ void Cmd_Statmode_f(edict_t* ent)
 }
 
 #if USE_AQTION
-#include <curl/curl.h>
-// AQtion stats addon
-// Utilizes AWS API Gateway and AWS SQS
-// Review documentation to understand their use
 
-size_t write_data(void *buffer, size_t size, size_t nmemb, void *userp)
-{
-   return size * nmemb;
-}
-void StatSend(const char *payload, ...)
-{	
-	va_list argptr;
-	char text[1024];
-	char apikeyheader[64] = "x-api-key: ";
-	char apiurl[128] = "\0";
-	int apikey_check;
+// Revisit one day...
 
-	// If stat logs are disabled or stat-apikey is default, just return
-	apikey_check = Q_stricmp(stat_apikey->string, "none");
-	if (!stat_logs->value || apikey_check == 0) {
-		return;
-	}
+// #include <curl/curl.h>
+// // AQtion stats addon
+// // Utilizes AWS API Gateway and AWS SQS
+// // Review documentation to understand their use
+
+// size_t write_data(void *buffer, size_t size, size_t nmemb, void *userp)
+// {
+//    return size * nmemb;
+// }
+// void StatSend(const char *payload, ...)
+// {	
+// 	va_list argptr;
+// 	char text[1024];
+// 	char apikeyheader[64] = "x-api-key: ";
+// 	char apiurl[128] = "\0";
+// 	int apikey_check;
+
+// 	// If stat logs are disabled or stat-apikey is default, just return
+// 	apikey_check = Q_stricmp(stat_apikey->string, "none");
+// 	if (!stat_logs->value || apikey_check == 0) {
+// 		return;
+// 	}
 	
-	Q_strncatz(apikeyheader, stat_apikey->string, sizeof(apikeyheader));
-	Q_strncpyz(apiurl, stat_url->string, sizeof(apiurl));
+// 	Q_strncatz(apikeyheader, stat_apikey->string, sizeof(apikeyheader));
+// 	Q_strncpyz(apiurl, stat_url->string, sizeof(apiurl));
 	
-	va_start (argptr, payload);
-	vsnprintf (text, sizeof(text), payload, argptr);
-	va_end (argptr);
+// 	va_start (argptr, payload);
+// 	vsnprintf (text, sizeof(text), payload, argptr);
+// 	va_end (argptr);
 
-	CURL *curl = curl_easy_init();
-	struct curl_slist *headers = NULL;
-	headers = curl_slist_append(headers, "Accept: application/json");
-	headers = curl_slist_append(headers, "Content-Type: application/json");
-	headers = curl_slist_append(headers, apikeyheader);
+// 	CURL *curl = curl_easy_init();
+// 	struct curl_slist *headers = NULL;
+// 	headers = curl_slist_append(headers, "Accept: application/json");
+// 	headers = curl_slist_append(headers, "Content-Type: application/json");
+// 	headers = curl_slist_append(headers, apikeyheader);
 
-	curl_easy_setopt(curl, CURLOPT_URL, apiurl);
-	curl_easy_setopt(curl, CURLOPT_CUSTOMREQUEST, "POST");
-	curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
-	curl_easy_setopt(curl, CURLOPT_POSTFIELDS, text);
+// 	curl_easy_setopt(curl, CURLOPT_URL, apiurl);
+// 	curl_easy_setopt(curl, CURLOPT_CUSTOMREQUEST, "POST");
+// 	curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
+// 	curl_easy_setopt(curl, CURLOPT_POSTFIELDS, text);
 
-	// Do not print responses from curl request
-	// Comment below if you are debugging responses
-	// Hint: Forbidden would mean your stat_url is malformed,
-	// and a key error indicates your api key is bad or expired
-	curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_data);
+// 	// Do not print responses from curl request
+// 	// Comment below if you are debugging responses
+// 	// Hint: Forbidden would mean your stat_url is malformed,
+// 	// and a key error indicates your api key is bad or expired
+// 	curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_data);
 
-	// Run it!
-	curl_easy_perform(curl);
-	curl_easy_cleanup(curl);
-	curl_global_cleanup();
-}
+// 	// Run it!
+// 	curl_easy_perform(curl);
+// 	curl_easy_cleanup(curl);
+// 	curl_global_cleanup();
+// }
 
 int Gamemode(void) // These are distinct game modes; you cannot have a teamdm tourney mode, for example
 {
@@ -644,7 +647,7 @@ void LogKill(edict_t *self, edict_t *inflictor, edict_t *attacker)
 			sizeof(msg)
 		);
 
-		StatSend(
+		Com_Printf(
 			msg,
 			server_id->string,
 			game.matchid,
@@ -727,7 +730,7 @@ void LogWorldKill(edict_t *self)
 			sizeof(msg)
 		);
 
-		StatSend(
+		Com_Printf(
 			msg,
 			server_id->string,
 			game.matchid,
@@ -778,7 +781,7 @@ void LogMatch()
 		sizeof(msg)
 	);
 
-	StatSend(
+	Com_Printf(
 		msg,
 		game.matchid,
 		server_id->string,
@@ -814,7 +817,7 @@ void LogAward(char* steamid, char* discordid, int award)
 		sizeof(msg)
 	);
 
-	StatSend(
+	Com_Printf(
 		msg,
 		server_id->string,
 		game.matchid,
@@ -866,7 +869,7 @@ void LogEndMatchStats()
 			sizeof(msg)
 		);
 
-		StatSend(
+		Com_Printf(
 			msg,
 			server_id->string,
 			game.matchid,
