@@ -643,7 +643,7 @@ void LogKill(edict_t *self, edict_t *inflictor, edict_t *attacker)
 
 		Q_strncpyz(
 			msg,
-			"{\"frag\":{\"sid\":\"%s\",\"mid\":\"%s\",\"v\":\"%s\",\"vd\":\"%s\",\"vn\":\"%s\",\"vi\":\"%s\",\"vt\":%i,\"vl\":%i,\"k\":\"%s\",\"kd\":\"%s\",\"kn\":\"%s\",\"ki\":\"%s\",\"kt\":%i,\"kl\":%i,\"w\":%i,\"i\":%i,\"l\":%i,\"ks\":%i,\"gm\":%i,\"gmf\":%i,\"ttk\":\"%d\",\"t\":%d,\"gt\":%d,\"m\":\"%s\",\"r\":\"%i\"}}\n",
+			"{\"frag\":{\"sid\":\"%s\",\"mid\":\"%s\",\"v\":\"%s\",\"vn\":\"%s\",\"vi\":\"%s\",\"vt\":%i,\"vl\":%i,\"k\":\"%s\",\"kn\":\"%s\",\"ki\":\"%s\",\"kt\":%i,\"kl\":%i,\"w\":%i,\"i\":%i,\"l\":%i,\"ks\":%i,\"gm\":%i,\"gmf\":%i,\"ttk\":%d,\"t\":%d,\"gt\":%d,\"m\":\"%s\",\"r\":\"%i\",\"vd\":\"%s\",\"kd\":\"%s\"}}\n",
 			sizeof(msg)
 		);
 
@@ -652,13 +652,11 @@ void LogKill(edict_t *self, edict_t *inflictor, edict_t *attacker)
 			server_id->string,
 			game.matchid,
 			v,
-			vd,
 			vn,
 			vi,
 			vt,
 			vl,
 			k,
-			kd,
 			kn,
 			ki,
 			kt,
@@ -673,7 +671,9 @@ void LogKill(edict_t *self, edict_t *inflictor, edict_t *attacker)
 			eventtime,
 			gametime,
 			level.mapname,
-			roundNum
+			roundNum,
+			vd,
+			kd
 		);
 	}
 }
@@ -726,7 +726,7 @@ void LogWorldKill(edict_t *self)
 
 		Q_strncpyz(
 			msg,
-			"{\"frag\":{\"sid\":\"%s\",\"mid\":\"%s\",\"v\":\"%s\",\"vd\":\"%s\",\"vn\":\"%s\",\"vi\":\"%s\",\"vt\":%i,\"vl\":%i,\"k\":\"%s\",\"kd\":\"%s\",\"kn\":\"%s\",\"ki\":\"%s\",\"kt\":%i,\"kl\":%i,\"w\":%i,\"i\":%i,\"l\":%i,\"ks\":%i,\"gm\":%i,\"gmf\":%i,\"ttk\":\"%d\",\"t\":%d,\"gt\":%d,\"m\":\"%s\",\"r\":\"%i\"}}\n",
+			"{\"frag\":{\"sid\":\"%s\",\"mid\":\"%s\",\"v\":\"%s\",\"vn\":\"%s\",\"vi\":\"%s\",\"vt\":%i,\"vl\":%i,\"k\":\"%s\",\"kn\":\"%s\",\"ki\":\"%s\",\"kt\":%i,\"kl\":%i,\"w\":%i,\"i\":%i,\"l\":%i,\"ks\":%i,\"gm\":%i,\"gmf\":%i,\"ttk\":\"%d\",\"t\":%d,\"gt\":%d,\"m\":\"%s\",\"r\":%i,\"vd\":\"%s\",\"kd\":\"%s\"}}\n",
 			sizeof(msg)
 		);
 
@@ -735,13 +735,11 @@ void LogWorldKill(edict_t *self)
 			server_id->string,
 			game.matchid,
 			v,
-			vd,
 			vn,
 			vi,
 			vt,
 			vl,
 			v,
-			vd,
 			vn,
 			vi,
 			vt,
@@ -756,7 +754,9 @@ void LogWorldKill(edict_t *self)
 			eventtime,
 			gametime,
 			level.mapname,
-			roundNum
+			roundNum,
+			vd,
+			vd
 		);
 	}
 }
@@ -777,7 +777,7 @@ void LogMatch()
 
 	Q_strncpyz(
 		msg,
-		"{\"gamematch\":{\"mid\":\"%s\",\"sid\":\"%s\",\"t\":\"%d\",\"m\":\"%s\",\"gm\":\"%i\",\"gmf\":%i,\"t1\":%i,\"t2\":\"%i\",\"t3\":\"%i\"}}\n",
+		"{\"gamematch\":{\"mid\":\"%s\",\"sid\":\"%s\",\"t\":\"%d\",\"m\":\"%s\",\"gm\":%i,\"gmf\":%i,\"t1\":%i,\"t2\":%i,\"t3\":%i}}\n",
 		sizeof(msg)
 	);
 
@@ -813,7 +813,7 @@ void LogAward(char* steamid, char* discordid, int award)
 
 	Q_strncpyz(
 		msg,
-		"{\"award\":{\"sid\":\"%s\",\"mid\":\"%s\",\"t\":\"%d\",\"gt\":\"%d\",\"a\":%i,\"k\":%s,\"d\":%s,\"w\":\"%i\"}}\n",
+		"{\"award\":{\"sid\":\"%s\",\"mid\":\"%s\",\"t\":\"%d\",\"gt\":\"%d\",\"a\":%i,\"k\":\"%s\",\"w\":%i,\"d\":\"%s\"}}\n",
 		sizeof(msg)
 	);
 
@@ -825,8 +825,8 @@ void LogAward(char* steamid, char* discordid, int award)
 		gametime,
 		award,
 		steamid,
-		discordid,
-		mod
+		mod,
+		discordid
 	);
 }
 
@@ -865,7 +865,7 @@ void LogEndMatchStats()
 		Q_strncpyz(discordid, Info_ValueForKey(cl->pers.userinfo, "cl_discord_id"), sizeof(discordid));
 		Q_strncpyz(
 			msg,
-			"{\"matchstats\":{\"sid\":\"%s\",\"mid\":\"%s\",\"s\":\"%s\",\"dis\":\"%s\",\"sc\":\"%i\",\"sh\":\"%i\",\"a\":\"%f\",\"f\":\"%f\",\"dd\":\"%i\",\"d\":\"%i\",\"k\":\"%i\",\"ctfc\":\"%i\",\"ctfcs\":\"%i\",\"ht\":\"%i\",\"tk\":\"%i\",\"t\":\"%i\",\"hks\":\"%i\",\"hhs\":\"%i\"}}\n",
+			"{\"matchstats\":{\"sid\":\"%s\",\"mid\":\"%s\",\"s\":\"%s\",\"sc\":%i,\"sh\":%i,\"a\":%f,\"f\":%f,\"dd\":%i,\"d\":%i,\"k\":%i,\"ctfc\":%i,\"ctfcs\":%i,\"ht\":%i,\"tk\":%i,\"t\":%i,\"hks\":%i,\"hhs\":%i,\"dis\":\"%s\"}}\n",
 			sizeof(msg)
 		);
 
@@ -874,7 +874,6 @@ void LogEndMatchStats()
 			server_id->string,
 			game.matchid,
 			steamid,
-			discordid,
 			cl->resp.score,
 			shots,
 			accuracy,
@@ -888,7 +887,8 @@ void LogEndMatchStats()
 			cl->resp.team_kills,
 			cl->resp.team,
 			cl->resp.streakKillsHighest,
-			cl->resp.streakHSHighest
+			cl->resp.streakHSHighest,
+			discordid
 		);
 	}
 }
