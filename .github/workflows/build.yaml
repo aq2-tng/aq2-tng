@@ -3,6 +3,7 @@ name: TNG Build
 on:
   push:
     branches: ["master", "aqtion"]
+  pull_request:
 
 env:
   LIN64_DIST_DIR: "linux-x64-tng"
@@ -45,11 +46,18 @@ jobs:
         working-directory: build
         run: echo "::set-output name=sha_short::$(git rev-parse --short HEAD)"
 
+      - name: Download mingw package
+        working-directory: build
+        run: |
+          wget -nv https://github.com/skullernet/q2pro-mgw-sdk/releases/download/2022-06-14/q2pro-mgw-sdk.tar.gz
+          tar xf q2pro-mgw-sdk.tar.gz
+
       - name: Build TNG (Win 64-bit)
         working-directory: build/source
-        run: make -j2 V=1 && mv gamex86_64.dll ../gamex86_64.dll
+        run: make -j4 V=1 && mv gamex86_64.dll ../gamex86_64.dll
         env:
           TNG_BUILD_FOR: "WIN64"
+          USE_AQTION: "TRUE"
 
       - name: Generate Win64 archive
         uses: actions/upload-artifact@v3
@@ -61,9 +69,10 @@ jobs:
 
       - name: Build TNG (Win 32-bit)
         working-directory: build/source
-        run: make clean && make -j2 V=1 && mv gamex86.dll ../gamex86.dll
+        run: make clean && make -j4 V=1 && mv gamex86.dll ../gamex86.dll
         env:
           TNG_BUILD_FOR: "WIN32"
+          USE_AQTION: "TRUE"
 
       - name: Generate Win32 archive
         uses: actions/upload-artifact@v3
@@ -75,9 +84,10 @@ jobs:
 
       - name: Build TNG (Linux 64-bit)
         working-directory: build/source
-        run: make clean && make -j2 V=1 && mv gamex86_64.so ../gamex86_64.so
+        run: make clean && make -j4 V=1 && mv gamex86_64.so ../gamex86_64.so
         env:
           CC: "gcc"
+          USE_AQTION: "TRUE"
 
       - name: Generate Linux x86 archive
         uses: actions/upload-artifact@v3
@@ -109,9 +119,10 @@ jobs:
 
       - name: Build TNG (Linux ARM64)
         working-directory: build/source
-        run: make -j2 V=1 && mv gameaarch64.so ../gameaarch64.so
+        run: make -j4 V=1 && mv gameaarch64.so ../gameaarch64.so
         env:
           CC: "gcc"
+          USE_AQTION: "TRUE"
 
       - name: Generate archive
         uses: actions/upload-artifact@v3
@@ -120,63 +131,3 @@ jobs:
           path: |
             build/gameaarch64.so
             build/versions
-
-  generate_release:
-    needs: ["x86_build_tng", "arm64_build_tng"]
-    runs-on: [self-hosted, x86]
-    steps:
-      - name: Generate directories
-        run: |
-          mkdir -p ${{ env.LIN64_DIST_DIR }}
-          mkdir -p ${{ env.LINARM64_DIST_DIR }}
-          mkdir -p ${{ env.WIN64_DIST_DIR }}
-          mkdir -p ${{ env.WIN32_DIST_DIR }}
-
-      - name: Download Linux x86_64 TNG artifacts
-        uses: dawidd6/action-download-artifact@v2
-        with:
-          workflow: build.yaml
-          name: tng-lin-x86_64
-          path: ${{ env.LIN64_DIST_DIR }}/
-
-      - name: Download Linux ARM64 TNG artifacts
-        uses: dawidd6/action-download-artifact@v2
-        with:
-          workflow: build.yaml
-          name: tng-lin-arm64
-          path: ${{ env.LINARM64_DIST_DIR }}/
-
-      - name: Download Windows x86_64 TNG artifacts
-        uses: dawidd6/action-download-artifact@v2
-        with:
-          workflow: build.yaml
-          name: tng-win-64
-          path: ${{ env.WIN64_DIST_DIR }}/
-
-      - name: Download Windows i386 TNG artifacts
-        uses: dawidd6/action-download-artifact@v2
-        with:
-          workflow: build.yaml
-          name: tng-win-32
-          path: ${{ env.WIN32_DIST_DIR }}/
-
-      - name: Create singular directory and zip it up
-        run: |
-          mkdir -p tng-serverfiles
-          cp ${{ env.LIN64_DIST_DIR }}/* tng-serverfiles/
-          cp ${{ env.LINARM64_DIST_DIR }}/* tng-serverfiles/
-          cp ${{ env.WIN64_DIST_DIR }}/* tng-serverfiles/
-          cp ${{ env.WIN32_DIST_DIR }}/* tng-serverfiles/
-          zip -r tng-serverfiles.zip tng-serverfiles
-
-      - name: Create release
-        uses: actions/create-release@v1
-        id: create_release
-        with:
-          draft: false
-          prerelease: false
-          release_name: aq2-tng-${{ github.ref }}
-          tag_name: ${{ github.ref }}
-          token: ${{ env.GITHUB_TOKEN }}
-          #body_path: CHANGELOG.md
-          body: ${{steps.github_release.outputs.changelog}}

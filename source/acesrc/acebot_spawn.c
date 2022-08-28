@@ -137,7 +137,10 @@ void ACESP_LoadBotConfig()
 	botdir = gi.cvar ("botdir", "bots", 0);
 
 if (ltk_loadbots->value){
-		// Try to load the file for THIS level
+
+	// Turning off stat collection since bots are enabled
+	gi.cvar_forceset(stat_logs->name, "0");
+	// Try to load the file for THIS level
 	#ifdef	_WIN32
 		i =  sprintf(filename, ".\\");
 		i += sprintf(filename + i, game_dir->string);

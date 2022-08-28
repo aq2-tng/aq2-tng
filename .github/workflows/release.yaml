@@ -1,0 +1,79 @@
+name: TNG Release
+
+# on:
+#   push:
+#     tags:
+#       - '*'
+
+on:
+  workflow_dispatch:
+
+jobs:
+  generate_release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          repository: actionquake/aq2-tng
+          ref: ${{ github.ref }}
+
+      - name: version
+        run: echo "::set-output name=version::$(git rev-parse --short HEAD)"
+        id: version
+        
+      - name: release
+        uses: actions/create-release@v1
+        id: create_release
+        with:
+          draft: false
+          prerelease: false
+          release_name: aq2-tng_${{ steps.version.outputs.version }}
+          tag_name: ${{ steps.version.outputs.version }}
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+
+      - name: Download Linux x64 build artifacts
+        uses: dawidd6/action-download-artifact@v2
+        with:
+          workflow: build.yaml
+          name: tng-lin-x86_64
+          skip_unpack: true
+      
+      - name: Download Linux ARM x64 build artifacts
+        uses: dawidd6/action-download-artifact@v2
+        with:
+          workflow: build.yaml
+          name: tng-lin-arm64
+          skip_unpack: true
+
+      - name: Download Win x86 build artifacts
+        uses: dawidd6/action-download-artifact@v2
+        with:
+          workflow: build.yaml
+          name: tng-win-32
+          skip_unpack: true
+
+      - name: Download Win x64 build artifacts
+        uses: dawidd6/action-download-artifact@v2
+        with:
+          workflow: build.yaml
+          name: tng-win-64
+          skip_unpack: true
+
+      - name: Verify files
+        run: ls -l
+
+      - name: Upload dist tarball to release
+        uses: softprops/action-gh-release@v1
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        with:
+          body_path: 
+          tag_name: ${{ steps.version.outputs.version }}
+          files: |
+            tng-win-64.zip
+            tng-win-32.zip
+            tng-lin-arm64.zip
+            tng-lin-x86_64.zip
+

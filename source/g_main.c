@@ -349,7 +349,9 @@ cvar_t *maxclients;
 cvar_t *maxentities;
 cvar_t *g_select_empty;
 cvar_t *dedicated;
+cvar_t *steamid;
 cvar_t *filterban;
+cvar_t *silenceban; //rekkie -- silence ban
 cvar_t *sv_maxvelocity;
 cvar_t *sv_gravity;
 cvar_t *sv_rollspeed;
@@ -480,7 +482,20 @@ cvar_t *jump;			// jumping mod
 cvar_t *e_enhancedSlippers;
 // END AQ2 ETE
 
+// 2022
 cvar_t *sv_limp_highping;
+cvar_t *server_id;
+cvar_t *stat_logs;
+cvar_t *mapvote_next_limit;
+cvar_t *stat_apikey;
+cvar_t *stat_url;
+
+// Discord SDK integration with Q2Pro
+cvar_t *cl_discord;
+cvar_t *cl_discord_id;
+cvar_t *cl_discord_discriminator;
+cvar_t *cl_discord_username;
+cvar_t *cl_discord_avatar;
 
 void SpawnEntities (char *mapname, char *entities, char *spawnpoint);
 void ClientThink (edict_t * ent, usercmd_t * cmd);
@@ -568,6 +583,27 @@ game_export_t *GetGameAPI (game_import_t * import)
 
 	globals.edict_size = sizeof (edict_t);
 
+
+#ifdef AQTION_EXTENSION
+	G_InitExtEntrypoints();
+	globals.FetchGameExtension = G_FetchGameExtension;
+
+	engine_Client_GetProtocol = gi.CheckForExtension("Client_GetProtocol");
+	engine_Client_GetVersion = gi.CheckForExtension("Client_GetVersion");
+
+	engine_Ghud_SendUpdates = gi.CheckForExtension("Ghud_SendUpdates");
+	engine_Ghud_NewElement = gi.CheckForExtension("Ghud_NewElement");
+	engine_Ghud_SetFlags = gi.CheckForExtension("Ghud_SetFlags");
+	engine_Ghud_UnicastSetFlags = gi.CheckForExtension("Ghud_UnicastSetFlags");
+	engine_Ghud_SetInt = gi.CheckForExtension("Ghud_SetInt");
+	engine_Ghud_SetText = gi.CheckForExtension("Ghud_SetText");
+	engine_Ghud_SetPosition = gi.CheckForExtension("Ghud_SetPosition");
+	engine_Ghud_SetAnchor = gi.CheckForExtension("Ghud_SetAnchor");
+	engine_Ghud_SetColor = gi.CheckForExtension("Ghud_SetColor");
+	engine_Ghud_SetSize = gi.CheckForExtension("Ghud_SetSize");
+#endif
+
+
 	return &globals;
 }
 
@@ -598,6 +634,7 @@ void Com_Printf (const char *msg, ...)
 }
 
 #endif
+
 
 //======================================================================
 
@@ -655,13 +692,16 @@ void ClientEndServerFrames (void)
 			spectators++;
 	}
 
-	if (updateLayout && spectators && spectator_hud->value) {
+	if (updateLayout && spectators && spectator_hud->value >= 0) {
 		G_UpdateSpectatorStatusbar();
 		if (level.spec_statusbar_lastupdate >= level.realFramenum - 3 * HZ)
 		{
 			for (i = 0, ent = g_edicts + 1; i < game.maxclients; i++, ent++)
 			{
 				if (!ent->inuse || !ent->client)
+					continue;
+
+				if (spectator_hud->value == 0 && !(ent->client->pers.spec_flags & SPECFL_SPECHUD))
 					continue;
 
 				if (!ent->client->resp.team)
@@ -888,6 +928,29 @@ void CheckDMRules (void)
 
 		if (!FRAMESYNC)
 			return;
+
+#ifdef AQTION_EXTENSION
+#ifdef AQTION_HUD
+		// Reki
+		// Update our ghud values for the team score
+		int i;
+		for (i = TEAM1; i < TEAM_TOP; i++)
+		{
+			if (teams[i].ghud_num <= 0)
+				continue;
+
+			if (teams[i].ghud_resettime && level.time > teams[i].ghud_resettime)
+			{
+				teams[i].ghud_resettime = 0;
+				Ghud_SetFlags(teams[i].ghud_icon, 0);
+				Ghud_SetFlags(teams[i].ghud_num, 0);
+			}
+
+			Ghud_SetInt(teams[i].ghud_num, teams[i].score);
+		}
+#endif
+#endif
+
 
 		if (CheckTeamRules())
 			return;

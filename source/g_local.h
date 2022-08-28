@@ -264,6 +264,7 @@
 #include <ctype.h>
 
 #include "q_shared.h"
+#include "q_ghud.h"
 
 // define GAME_INCLUDE so that game.h does not define the
 // short, server-visible gclient_t and edict_t structures,
@@ -323,6 +324,9 @@
 #define svc_stufftext           11
 #define	svc_configstring		13
 
+#define svc_extend				30
+#define svc_userstatistic		31
+
 //==================================================================
 
 #define MASK_VOLUME			1
@@ -359,6 +363,10 @@
 #define FL_POWER_ARMOR                  0x00001000	// power armor (if any) is active
 #define FL_ACCELERATE					0x20000000  // accelerative movement
 #define FL_RESPAWN                      0x80000000	// used for item respawning
+
+// edict->client->pers.spec_flags
+#define SPECFL_KILLFEED					0x00000001
+#define SPECFL_SPECHUD					0x00000002
 
 // variable server FPS
 #ifndef NO_FPS
@@ -724,6 +732,12 @@ typedef struct
 
   // items
   int num_items;
+	
+  // stats
+  char matchid[MAX_QPATH];
+  int gamemode;
+  int gamemodeflags;
+  int roundNum;
 }
 game_locals_t;
 
@@ -920,6 +934,25 @@ extern int sm_meat_index;
 #define LOC_NO			7	// Shot by shotgun or handcannon
 #define LOC_MAX			8
 
+// Awards
+#define ACCURACY 0
+#define IMPRESSIVE 1
+#define EXCELLENT 2
+
+// Game Modes
+#define GM_TEAMPLAY 0
+#define GM_TEAMDM 1
+#define GM_CTF 2
+#define GM_TOURNEY 3
+#define GM_DEATHMATCH 4
+
+// Game Mode Flags
+#define GMF_NONE 0
+#define GMF_3TEAMS 1
+#define GMF_DOMINATION 2
+#define GMF_DARKMATCH 4
+#define GMF_MATCHMODE 8
+
 extern int meansOfDeath;
 // zucc for hitlocation of death
 extern int locOfDeath;
@@ -1059,8 +1092,10 @@ extern cvar_t *capturelimit;
 extern cvar_t *password;
 extern cvar_t *g_select_empty;
 extern cvar_t *dedicated;
+extern cvar_t *steamid;
 
 extern cvar_t *filterban;
+extern cvar_t* silenceban; //rekkie -- silence ban
 extern cvar_t *flood_threshold;
 
 extern cvar_t *sv_gravity;
@@ -1124,7 +1159,55 @@ extern cvar_t *e_enhancedSlippers;
 
 // END AQ2 ETE
 
+#ifdef AQTION_EXTENSION
+extern int (*engine_Client_GetVersion)(edict_t *ent);
+extern int (*engine_Client_GetProtocol)(edict_t *ent);
+
+int Client_GetVersion(edict_t *ent);
+int Client_GetProtocol(edict_t *ent);
+
+extern void (*engine_Ghud_SendUpdates)(edict_t *ent);
+extern int(*engine_Ghud_NewElement)(int type);
+extern void(*engine_Ghud_SetFlags)(int i, int val);
+extern void(*engine_Ghud_UnicastSetFlags)(edict_t *ent, int i, int val);
+extern void(*engine_Ghud_SetInt)(int i, int val);
+extern void(*engine_Ghud_SetText)(int i, char *text);
+extern void(*engine_Ghud_SetPosition)(int i, int x, int y, int z);
+extern void(*engine_Ghud_SetAnchor)(int i, float x, float y);
+extern void(*engine_Ghud_SetColor)(int i, int r, int g, int b, int a);
+extern void(*engine_Ghud_SetSize)(int i, int x, int y);
+
+void  Ghud_SendUpdates(edict_t *ent);
+int   Ghud_NewElement(int type);
+void  Ghud_SetFlags(int i, int val);
+void  Ghud_UnicastSetFlags(edict_t *ent, int i, int val);
+void  Ghud_SetInt(int i, int val);
+void  Ghud_SetText(int i, char *text);
+void  Ghud_SetPosition(int i, int x, int y);
+void  Ghud_SetPosition3D(int i, int x, int y, int z);
+void  Ghud_SetAnchor(int i, float x, float y);
+void  Ghud_SetColor(int i, int r, int g, int b, int a);
+void  Ghud_SetSize(int i, int x, int y);
+
+int   Ghud_AddIcon(int x, int y, int image, int sizex, int sizey);
+int   Ghud_AddText(int x, int y, char *text);
+int   Ghud_AddNumber(int x, int y, int value);
+#endif
+
+// 2022
 extern cvar_t *sv_limp_highping;
+extern cvar_t *server_id;
+extern cvar_t *stat_logs;
+extern cvar_t *mapvote_next_limit;
+extern cvar_t *stat_apikey;
+extern cvar_t *stat_url;
+
+// Discord SDK integration with Q2Pro
+extern cvar_t *cl_discord;
+extern cvar_t *cl_discord_id;
+extern cvar_t *cl_discord_discriminator;
+extern cvar_t *cl_discord_username;
+extern cvar_t *cl_discord_avatar;
 
 #define world   (&g_edicts[0])
 
@@ -1312,6 +1395,14 @@ void InitBodyQue (void);
 void ClientBeginServerFrame (edict_t * ent);
 
 //
+// g_ext.c
+//
+#ifdef AQTION_EXTENSION
+void G_InitExtEntrypoints(void);
+void* G_FetchGameExtension(char *name);
+#endif
+
+//
 // g_player.c
 //
 void player_pain (edict_t * self, edict_t * other, float kick, int damage);
@@ -1323,6 +1414,7 @@ void player_die (edict_t * self, edict_t * inflictor, edict_t * attacker,
 //
 void ServerCommand (void);
 qboolean SV_FilterPacket (char *from, int *temp);
+qboolean SV_FilterSBPacket(char* from, int* temp); //rekkie -- silence ban
 void Kick_Client (edict_t * ent);
 qboolean Ban_TeamKiller (edict_t * ent, int rounds);
 
@@ -1379,6 +1471,7 @@ void ED_CallSpawn( edict_t *ent );
 char* ED_NewString(char* string);
 void G_UpdateSpectatorStatusbar( void );
 void G_UpdatePlayerStatusbar( edict_t *ent, int force );
+void generate_uuid();
 
 //
 // p_client.c
@@ -1405,6 +1498,12 @@ void weapon_grenade_fire(edict_t* ent, qboolean held);
 void InitTookDamage(void);
 void ProduceShotgunDamageReport(edict_t*);
 
+//tng_stats.c
+void LogKill(edict_t *self, edict_t *inflictor, edict_t *attacker);
+void LogWorldKill(edict_t *self);
+void LogMatch();
+void LogAward(char* steamid, char* discordid, int award);
+void LogEndMatchStats();
 
 //============================================================================
 
@@ -1459,6 +1558,8 @@ typedef struct
 	qboolean connected;		// a loadgame will leave valid entities that
 	// just don't have a connection yet
 
+	qboolean silence_banned; //rekkie -- silence ban
+
 	int admin;
 
 	gender_t	gender;
@@ -1475,7 +1576,10 @@ typedef struct
 	int menu_shown;		// has the main menu been shown
 	qboolean dm_selected;		// if dm weapon selection has been done once
 
+	// Reki - added these options, controllable via userinfo cvar
 	int limp_nopred;
+	int spec_flags;
+	qboolean antilag_optout;
 
 	int mk23_mode;		// firing mode, semi or auto
 	int mp5_mode;
@@ -1766,6 +1870,13 @@ struct gclient_s
 	edict_t		*ctf_grapple;		// entity of grapple
 	int			ctf_grapplestate;		// true if pulling
 	int			ctf_grapplereleaseframe;	// frame of grapple release
+
+
+	// used for extrapolation
+	usercmd_t	cmd_last;
+
+	// visiblity mask
+	unsigned int dimension_observe;
 };
 
 
@@ -1922,6 +2033,9 @@ struct edict_s
 	int			z_history_framenum;
 	int			z_history_count;
 #endif
+
+	// visibility mask
+	unsigned int dimension_visible;
 
 	// action
 	qboolean	splatted;
@@ -2120,6 +2234,14 @@ typedef struct team_s
 	int pauses_used, wantReset;
 	cvar_t	*teamscore;
 	edict_t	*captain;
+
+#ifdef AQTION_EXTENSION
+#ifdef AQTION_HUD
+	int	 ghud_resettime;
+	byte ghud_icon;
+	byte ghud_num;
+#endif
+#endif
 }team_t;
 
 extern team_t teams[TEAM_TOP];
@@ -2136,6 +2258,15 @@ extern int gameSettings;
 
 #include "a_ctf.h"
 #include "a_dom.h"
+
+#ifdef AQTION_EXTENSION
+extern int ghud_team1_icon;
+extern int ghud_team1_num;
+extern int ghud_team2_icon;
+extern int ghud_team2_num;
+extern int ghud_team3_icon;
+extern int ghud_team3_num;
+#endif
 
 #ifndef NO_BOTS
 #include "acesrc/acebot.h"
