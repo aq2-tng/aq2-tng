@@ -908,6 +908,8 @@ pmenu_t randmenu[] = {
 	{"You get random weapon and item", PMENU_ALIGN_CENTER, NULL, NULL},
 	{"when round begins.", PMENU_ALIGN_CENTER, NULL, NULL},
   //AQ2:TNG end adding itm_flags
+	{NULL, PMENU_ALIGN_LEFT, NULL, NULL},
+	{"Return to Main Menu", PMENU_ALIGN_LEFT, NULL, CreditsReturnToMain},
   {NULL, PMENU_ALIGN_LEFT, NULL, NULL},
   {"Use [ and ] to move cursor", PMENU_ALIGN_LEFT, NULL, NULL},
   {"ENTER to select", PMENU_ALIGN_LEFT, NULL, NULL},
@@ -1245,6 +1247,12 @@ void JoinTeam (edict_t * ent, int desired_team, int skip_menuclose)
 	//AQ2:TNG END
 	if (!skip_menuclose && (gameSettings & GS_WEAPONCHOOSE) && !use_randoms->value)
 		OpenWeaponMenu(ent);
+
+	if (use_randoms->value)
+	{
+		pmenu_t *p;
+		SelectRandomWeaponAndItem(ent, p);
+	}
 
 	teams_changed = true;
 }
