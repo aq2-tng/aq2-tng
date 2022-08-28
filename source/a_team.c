@@ -859,9 +859,9 @@ pmenu_t weapmenu[] = {
   {NULL, PMENU_ALIGN_LEFT, NULL, NULL},	// "M4 Assault Rifle", SelectWeapon6
   {NULL, PMENU_ALIGN_LEFT, NULL, NULL},	// "Combat Knives", SelectWeapon0
   {NULL, PMENU_ALIGN_LEFT, NULL, NULL},	// "Akimbo Pistols", SelectWeapon9
-	{NULL, PMENU_ALIGN_LEFT, NULL, NULL},
-	{"Random Weapon", PMENU_ALIGN_LEFT, NULL, SelectRandomWeapon},
-	{"Random Weapon and Item", PMENU_ALIGN_LEFT, NULL, SelectRandomWeaponAndItem},
+  {NULL, PMENU_ALIGN_LEFT, NULL, NULL},
+  {"Random Weapon", PMENU_ALIGN_LEFT, NULL, SelectRandomWeapon},
+  {"Random Weapon and Item", PMENU_ALIGN_LEFT, NULL, SelectRandomWeaponAndItem},
   //AQ2:TNG End adding wp_flags
   {NULL, PMENU_ALIGN_LEFT, NULL, NULL},
   //AQ2:TNG - Slicer: changing this
@@ -888,8 +888,8 @@ pmenu_t itemmenu[] = {
   {NULL, PMENU_ALIGN_LEFT, NULL, NULL},	// "Silencer", SelectItem4
   {NULL, PMENU_ALIGN_LEFT, NULL, NULL},	// "Bandolier", SelectItem5
   {NULL, PMENU_ALIGN_LEFT, NULL, NULL},	// "Kevlar Helmet", SelectItem6
-	{NULL, PMENU_ALIGN_LEFT, NULL, NULL},
-	{"Random Item", PMENU_ALIGN_LEFT, NULL, SelectRandomItem},
+  {NULL, PMENU_ALIGN_LEFT, NULL, NULL},
+  {"Random Item", PMENU_ALIGN_LEFT, NULL, SelectRandomItem},
   //AQ2:TNG end adding itm_flags
   {NULL, PMENU_ALIGN_LEFT, NULL, NULL},
   {"Use [ and ] to move cursor", PMENU_ALIGN_LEFT, NULL, NULL},
@@ -903,13 +903,13 @@ pmenu_t randmenu[] = {
   {"*" TNG_TITLE, PMENU_ALIGN_CENTER, NULL, NULL},
   {"\x9D\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9F", PMENU_ALIGN_CENTER, NULL, NULL},
   {NULL, PMENU_ALIGN_LEFT, NULL, NULL},
-	{"Weapon menu disabled!", PMENU_ALIGN_CENTER, NULL, NULL},
-	{NULL, PMENU_ALIGN_LEFT, NULL, NULL},
-	{"You get random weapon and item", PMENU_ALIGN_CENTER, NULL, NULL},
-	{"when round begins.", PMENU_ALIGN_CENTER, NULL, NULL},
+  {"Weapon menu disabled!", PMENU_ALIGN_CENTER, NULL, NULL},
+  {NULL, PMENU_ALIGN_LEFT, NULL, NULL},
+  {"You get random weapon and item", PMENU_ALIGN_CENTER, NULL, NULL},
+  {"when round begins.", PMENU_ALIGN_CENTER, NULL, NULL},
   //AQ2:TNG end adding itm_flags
-	{NULL, PMENU_ALIGN_LEFT, NULL, NULL},
-	{"Return to Main Menu", PMENU_ALIGN_LEFT, NULL, CreditsReturnToMain},
+  {NULL, PMENU_ALIGN_LEFT, NULL, NULL},
+  {"Return to Main Menu", PMENU_ALIGN_LEFT, NULL, CreditsReturnToMain},
   {NULL, PMENU_ALIGN_LEFT, NULL, NULL},
   {"Use [ and ] to move cursor", PMENU_ALIGN_LEFT, NULL, NULL},
   {"ENTER to select", PMENU_ALIGN_LEFT, NULL, NULL},
