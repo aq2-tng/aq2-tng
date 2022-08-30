@@ -599,6 +599,176 @@ void SelectItem6(edict_t *ent, pmenu_t *p)
 	unicastSound(ent, gi.soundindex("misc/veston.wav"), 1.0);
 }
 
+// newrand returns n, where 0 >= n < top
+int newrand (int top)
+{
+	return (int) (random () * top);
+}
+
+void SelectRandomWeapon(edict_t *ent, pmenu_t *p)
+{
+	menu_list_weapon weapon_list[7] = {
+		{ num: MP5_NUM, sound: "weapons/mp5slide.wav", name: MP5_NAME },
+		{ num: M3_NUM, sound: "weapons/m3in.wav", name: M3_NAME },
+		{ num: HC_NUM, sound: "weapons/cclose.wav", name: HC_NAME },
+		{ num: SNIPER_NUM, sound: "weapons/ssgbolt.wav", name: SNIPER_NAME },
+		{ num: M4_NUM, sound: "weapons/m4a1slide.wav", name: M4_NAME },
+		{ num: KNIFE_NUM, sound: "weapons/swish.wav", name: KNIFE_NAME },
+		{ num: DUAL_NUM, sound: "weapons/mk23slide.wav", name: DUAL_NAME }
+	};
+
+	int rand = newrand(7);
+	menu_list_weapon selected_weapon = weapon_list[rand];
+	// prevent picking current weapon
+	if (ent->client->pers.chosenWeapon) {
+		while (selected_weapon.num == ent->client->pers.chosenWeapon->typeNum)
+		{
+			rand = newrand(7);
+			selected_weapon = weapon_list[rand];
+		}
+	}
+	
+	ent->client->pers.chosenWeapon = GET_ITEM(selected_weapon.num);
+	unicastSound(ent, gi.soundindex(selected_weapon.sound), 1.0);
+	gi.centerprintf(ent, "You selected %s", selected_weapon.name);
+	PMenu_Close(ent);
+	OpenItemMenu(ent);
+}
+
+void SelectRandomItem(edict_t *ent, pmenu_t *p)
+{
+	int selected_weapon = ent->client->pers.chosenWeapon->typeNum;
+
+	// Create array with limited items on certain weapons to not have silly kombos
+	menu_list_item item_list[4] = {
+		{ num: KEV_NUM, sound: "misc/veston.wav", name: KEV_NAME },
+		{ num: SLIP_NUM, sound: "misc/veston.wav", name: SLIP_NAME },
+		{ num: BAND_NUM, sound: "misc/veston.wav", name: BAND_NAME },
+		{ num: HELM_NUM, sound: "misc/veston.wav", name: HELM_NAME },
+	};
+	int listCount = 4;
+
+	menu_list_item item_sil = { num: SIL_NUM, sound: "misc/screw.wav", name: SIL_NAME };
+	menu_list_item item_las = { num: LASER_NUM, sound: "misc/lasersight.wav", name: LASER_NAME };
+
+	if (selected_weapon == SNIPER_NUM)
+	{
+		item_list[4] = item_sil;
+		listCount = 5;
+	}
+	if (selected_weapon == M4_NUM)
+	{
+		item_list[4] = item_las;
+		listCount = 5;
+	}
+	if (selected_weapon == MP5_NUM)
+	{
+		item_list[4] = item_sil;
+		item_list[5] = item_las;
+		listCount = 6;
+	}
+
+	int rand = newrand(listCount);
+	menu_list_item selected_item = item_list[rand];
+
+	if (ent->client->pers.chosenItem) {
+		while (selected_item.num == ent->client->pers.chosenItem->typeNum && selected_item.num < SIL_NUM)
+		{
+			rand = newrand(listCount);
+			selected_item = item_list[rand];
+		}
+	} else {
+		while (selected_item.num < SIL_NUM)
+		{
+			rand = newrand(listCount);
+			selected_item = item_list[rand];
+		}
+	}
+
+	ent->client->pers.chosenItem = GET_ITEM(selected_item.num);
+	unicastSound(ent, gi.soundindex(selected_item.sound), 1.0);
+	gi.centerprintf(ent, "You selected %s", selected_item.name);
+	PMenu_Close(ent);
+}
+
+void SelectRandomWeaponAndItem(edict_t *ent, pmenu_t *p)
+{
+	// WEAPON
+	menu_list_weapon weapon_list[7] = {
+		{ num: MP5_NUM, sound: "weapons/mp5slide.wav", name: MP5_NAME },
+		{ num: M3_NUM, sound: "weapons/m3in.wav", name: M3_NAME },
+		{ num: HC_NUM, sound: "weapons/cclose.wav", name: HC_NAME },
+		{ num: SNIPER_NUM, sound: "weapons/ssgbolt.wav", name: SNIPER_NAME },
+		{ num: M4_NUM, sound: "weapons/m4a1slide.wav", name: M4_NAME },
+		{ num: KNIFE_NUM, sound: "weapons/swish.wav", name: KNIFE_NAME },
+		{ num: DUAL_NUM, sound: "weapons/mk23slide.wav", name: DUAL_NAME }
+	};
+
+	int rand = newrand(7);
+	menu_list_weapon selected_weapon = weapon_list[rand];
+	// prevent picking current weapon
+	if (ent->client->pers.chosenWeapon) {
+		while (selected_weapon.num == ent->client->pers.chosenWeapon->typeNum)
+		{
+			rand = newrand(7);
+			selected_weapon = weapon_list[rand];
+		}
+	}
+	
+	ent->client->pers.chosenWeapon = GET_ITEM(selected_weapon.num);
+	unicastSound(ent, gi.soundindex(selected_weapon.sound), 1.0);
+
+	// ITEM
+	// Create array with limited items on certain weapons to not have silly kombos
+	menu_list_item item_list[4] = {
+		{ num: KEV_NUM, sound: "misc/veston.wav", name: KEV_NAME },
+		{ num: SLIP_NUM, sound: "misc/veston.wav", name: SLIP_NAME },
+		{ num: BAND_NUM, sound: "misc/veston.wav", name: BAND_NAME },
+		{ num: HELM_NUM, sound: "misc/veston.wav", name: HELM_NAME },
+	};
+	int listCount = 4;
+
+	menu_list_item item_sil = { num: SIL_NUM, sound: "misc/screw.wav", name: SIL_NAME };
+	menu_list_item item_las = { num: LASER_NUM, sound: "misc/lasersight.wav", name: LASER_NAME };
+
+	if (selected_weapon.num == SNIPER_NUM)
+	{
+		item_list[4] = item_sil;
+		listCount = 5;
+	}
+	if (selected_weapon.num == M4_NUM)
+	{
+		item_list[4] = item_las;
+		listCount = 5;
+	}
+	if (selected_weapon.num == MP5_NUM)
+	{
+		item_list[4] = item_sil;
+		item_list[5] = item_las;
+		listCount = 6;
+	}
+
+	rand = newrand(listCount);
+	menu_list_item selected_item = item_list[rand];
+
+	if (ent->client->pers.chosenItem) {
+		while (selected_item.num == ent->client->pers.chosenItem->typeNum)
+		{
+			rand = newrand(listCount);
+			selected_item = item_list[rand];
+		}
+	}
+
+	for (int i = 0; i < listCount; i++) {
+		gi.cprintf(ent, PRINT_HIGH, "%i %s\n", item_list[i].num, item_list[i].name);
+	}
+
+	ent->client->pers.chosenItem = GET_ITEM(selected_item.num);
+	unicastSound(ent, gi.soundindex(selected_item.sound), 1.0);
+	gi.centerprintf(ent, "You selected %s and %s", selected_weapon.name, selected_item.name);
+	PMenu_Close(ent);
+}
+
 void CreditsReturnToMain (edict_t * ent, pmenu_t * p)
 {
 	PMenu_Close (ent);
@@ -689,6 +859,9 @@ pmenu_t weapmenu[] = {
   {NULL, PMENU_ALIGN_LEFT, NULL, NULL},	// "M4 Assault Rifle", SelectWeapon6
   {NULL, PMENU_ALIGN_LEFT, NULL, NULL},	// "Combat Knives", SelectWeapon0
   {NULL, PMENU_ALIGN_LEFT, NULL, NULL},	// "Akimbo Pistols", SelectWeapon9
+  {NULL, PMENU_ALIGN_LEFT, NULL, NULL},
+  {"Random Weapon", PMENU_ALIGN_LEFT, NULL, SelectRandomWeapon},
+  {"Random Weapon and Item", PMENU_ALIGN_LEFT, NULL, SelectRandomWeaponAndItem},
   //AQ2:TNG End adding wp_flags
   {NULL, PMENU_ALIGN_LEFT, NULL, NULL},
   //AQ2:TNG - Slicer: changing this
@@ -715,7 +888,28 @@ pmenu_t itemmenu[] = {
   {NULL, PMENU_ALIGN_LEFT, NULL, NULL},	// "Silencer", SelectItem4
   {NULL, PMENU_ALIGN_LEFT, NULL, NULL},	// "Bandolier", SelectItem5
   {NULL, PMENU_ALIGN_LEFT, NULL, NULL},	// "Kevlar Helmet", SelectItem6
+  {NULL, PMENU_ALIGN_LEFT, NULL, NULL},
+  {"Random Item", PMENU_ALIGN_LEFT, NULL, SelectRandomItem},
   //AQ2:TNG end adding itm_flags
+  {NULL, PMENU_ALIGN_LEFT, NULL, NULL},
+  {"Use [ and ] to move cursor", PMENU_ALIGN_LEFT, NULL, NULL},
+  {"ENTER to select", PMENU_ALIGN_LEFT, NULL, NULL},
+  {"TAB to exit menu", PMENU_ALIGN_LEFT, NULL, NULL},
+  {NULL, PMENU_ALIGN_LEFT, NULL, NULL},
+  {"v" VERSION, PMENU_ALIGN_RIGHT, NULL, NULL},
+};
+
+pmenu_t randmenu[] = {
+  {"*" TNG_TITLE, PMENU_ALIGN_CENTER, NULL, NULL},
+  {"\x9D\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9F", PMENU_ALIGN_CENTER, NULL, NULL},
+  {NULL, PMENU_ALIGN_LEFT, NULL, NULL},
+  {"Weapon menu disabled!", PMENU_ALIGN_CENTER, NULL, NULL},
+  {NULL, PMENU_ALIGN_LEFT, NULL, NULL},
+  {"You get random weapon and item", PMENU_ALIGN_CENTER, NULL, NULL},
+  {"when round begins.", PMENU_ALIGN_CENTER, NULL, NULL},
+  //AQ2:TNG end adding itm_flags
+  {NULL, PMENU_ALIGN_LEFT, NULL, NULL},
+  {"Return to Main Menu", PMENU_ALIGN_LEFT, NULL, CreditsReturnToMain},
   {NULL, PMENU_ALIGN_LEFT, NULL, NULL},
   {"Use [ and ] to move cursor", PMENU_ALIGN_LEFT, NULL, NULL},
   {"ENTER to select", PMENU_ALIGN_LEFT, NULL, NULL},
@@ -1051,8 +1245,14 @@ void JoinTeam (edict_t * ent, int desired_team, int skip_menuclose)
 	}
 
 	//AQ2:TNG END
-	if (!skip_menuclose && (gameSettings & GS_WEAPONCHOOSE))
+	if (!skip_menuclose && (gameSettings & GS_WEAPONCHOOSE) && !use_randoms->value)
 		OpenWeaponMenu(ent);
+
+	if (use_randoms->value)
+	{
+		pmenu_t *p;
+		SelectRandomWeaponAndItem(ent, p);
+	}
 
 	teams_changed = true;
 }
@@ -1156,6 +1356,12 @@ void OpenItemMenu (edict_t * ent)
 
 void OpenWeaponMenu (edict_t * ent)
 {
+	if (use_randoms->value)
+	{
+		PMenu_Open(ent, randmenu, 4, sizeof(randmenu) / sizeof(pmenu_t));
+		return;
+	}
+
 	menuentry_t *menuEntry, menu_items[] = {
 		{ MP5_NUM, SelectWeapon2 },
 		{ M3_NUM, SelectWeapon3 },
@@ -1608,6 +1814,14 @@ static void SpawnPlayers(void)
 
 		if (!ent->client->pers.chosenItem) {
 			ent->client->pers.chosenItem = GET_ITEM(KEV_NUM);
+		}
+
+		// Random weapons and items mode.
+		// Force random weapon and item on spawn.
+		if (use_randoms->value)
+		{
+			pmenu_t *p;
+			SelectRandomWeaponAndItem(ent, p);
 		}
 
 #ifndef NO_BOTS
@@ -3024,12 +3238,6 @@ void GetSpawnPoints (void)
 
 	spawn_distances = (spawn_distances_t *)gi.TagMalloc (num_potential_spawns *
 					sizeof (spawn_distances_t), TAG_GAME);
-}
-
-// newrand returns n, where 0 >= n < top
-int newrand (int top)
-{
-	return (int) (random () * top);
 }
 
 // compare_spawn_distances is used by the qsort() call

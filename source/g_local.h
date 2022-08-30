@@ -1003,6 +1003,7 @@ extern cvar_t *use_voice;
 extern cvar_t *ppl_idletime;
 extern cvar_t *use_tourney;
 extern cvar_t *use_3teams;
+extern cvar_t *use_randoms; // Random weapons and items mode
 extern cvar_t *use_kickvote;
 extern cvar_t *mv_public;
 extern cvar_t *vk_public;

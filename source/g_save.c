@@ -403,6 +403,7 @@ void InitGame( void )
 	use_buggy_bandolier = gi.cvar( "use_buggy_bandolier", "0", 0 );
 	use_tourney = gi.cvar( "use_tourney", "0", CVAR_SERVERINFO | CVAR_LATCH );
 	use_3teams = gi.cvar( "use_3teams", "0", CVAR_SERVERINFO | CVAR_LATCH );
+	use_randoms = gi.cvar( "use_randoms", "0", CVAR_SERVERINFO | CVAR_LATCH ); // Random weapons and items mode
 	use_kickvote = gi.cvar( "use_kickvote", "1", 0 );	//slicer
 	use_mapvote = gi.cvar( "use_mapvote", "1", 0 );	//slicer
 	use_scramblevote = gi.cvar( "use_scramblevote", "1", 0 );	//slicer

@@ -312,6 +312,7 @@ cvar_t *ppl_idletime;
 cvar_t *use_buggy_bandolier;
 cvar_t *use_tourney;
 cvar_t *use_3teams;
+cvar_t *use_randoms; // Random weapons and items mode
 cvar_t *use_kickvote;
 cvar_t *mv_public;		// AQ:TNG - JBravo adding public voting
 cvar_t *vk_public;		// AQ:TNG - JBravo adding public voting

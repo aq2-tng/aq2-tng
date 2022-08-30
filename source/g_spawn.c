@@ -912,6 +912,11 @@ void SpawnEntities (char *mapname, char *entities, char *spawnpoint)
 			gi.dprintf ("Jump Enabled - Forcing Domination off\n");
 			gi.cvar_forceset(dom->name, "0");
 		}
+		if (use_randoms->value)
+		{
+			gi.dprintf ("Jump Enabled - Forcing Random weapons and items off\n");
+			gi.cvar_forceset(use_randoms->name, "0");
+		}
 	}
 	else if (ctf->value)
 	{
@@ -951,6 +956,11 @@ void SpawnEntities (char *mapname, char *entities, char *spawnpoint)
 			gi.dprintf ("CTF Enabled - Forcing Friendly Fire off\n");
 			gi.cvar_forceset(dmflags->name, va("%i", (int)dmflags->value | DF_NO_FRIENDLY_FIRE));
 		}
+		if (use_randoms->value)
+		{
+			gi.dprintf ("CTF Enabled - Forcing Random weapons and items off\n");
+			gi.cvar_forceset(use_randoms->name, "0");
+		}
 		strcpy(teams[TEAM1].name, "RED");
 		strcpy(teams[TEAM2].name, "BLUE");
 		strcpy(teams[TEAM1].skin, "male/ctf_r");
@@ -975,6 +985,11 @@ void SpawnEntities (char *mapname, char *entities, char *spawnpoint)
 		{
 			gi.dprintf ("Domination Enabled - Forcing Tourney off\n");
 			gi.cvar_forceset(use_tourney->name, "0");
+		}
+		if (use_randoms->value)
+		{
+			gi.dprintf ("Domination Enabled - Forcing Random weapons and items off\n");
+			gi.cvar_forceset(use_randoms->name, "0");
 		}
 		strcpy(teams[TEAM1].name, "RED");
 		strcpy(teams[TEAM2].name, "BLUE");
