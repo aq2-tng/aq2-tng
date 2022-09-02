@@ -13,8 +13,8 @@
 #-----------------------------------------------------------------------------
 
 CC=lcc
-CFLAGS=-DC_ONLY -o2
-OBJS= g_ai.obj g_cmds.obj g_combat.obj g_func.obj g_items.obj g_main.obj \
+CFLAGS=-DC_ONLY -o2 -DAQTION_EXTENSION
+OBJS= g_ai.obj g_cmds.obj g_combat.obj g_func.obj g_items.obj g_main.obj g_ext.obj \
 g_misc.obj g_monster.obj g_phys.obj g_save.obj g_spawn.obj g_target.obj \
 g_trigger.obj g_turret.obj g_utils.obj g_weapon.obj m_actor.obj \
 m_berserk.obj m_boss2.obj m_boss3.obj m_boss31.obj m_boss32.obj \
@@ -64,6 +64,9 @@ g_items.obj:	g_items.c g_local.h q_shared.h game.h
 
 g_main.obj:	g_main.c g_local.h q_shared.h game.h
 	$(CC) $(CFLAGS) g_main.c
+
+g_ext.obj:	g_ext.c g_local.h q_shared.h game.h
+	$(CC) $(CFLAGS) g_ext.c
 
 g_misc.obj:	g_misc.c g_local.h q_shared.h game.h
 	$(CC) $(CFLAGS) g_misc.c

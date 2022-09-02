@@ -345,6 +345,16 @@ static size_t transparentEntryCount = 0;
 transparent_list_t *transparent_list = NULL;
 static transparent_list_t *transparentlistFree = NULL;
 
+#define SCORES2_TEAM   0x001
+#define SCORES2_TIME   0x002
+#define SCORES2_PING   0x004
+#define SCORES2_CAPS   0x008
+#define SCORES2_SCORE  0x010
+#define SCORES2_KILLS  0x020
+#define SCORES2_DEATHS 0x040
+#define SCORES2_DAMAGE 0x080
+#define SCORES2_ACC    0x100
+
 void InitTransparentList( void )
 {
 	transparent_list = NULL;
@@ -589,6 +599,176 @@ void SelectItem6(edict_t *ent, pmenu_t *p)
 	unicastSound(ent, gi.soundindex("misc/veston.wav"), 1.0);
 }
 
+// newrand returns n, where 0 >= n < top
+int newrand (int top)
+{
+	return (int) (random () * top);
+}
+
+void SelectRandomWeapon(edict_t *ent, pmenu_t *p)
+{
+	menu_list_weapon weapon_list[7] = {
+		{ num: MP5_NUM, sound: "weapons/mp5slide.wav", name: MP5_NAME },
+		{ num: M3_NUM, sound: "weapons/m3in.wav", name: M3_NAME },
+		{ num: HC_NUM, sound: "weapons/cclose.wav", name: HC_NAME },
+		{ num: SNIPER_NUM, sound: "weapons/ssgbolt.wav", name: SNIPER_NAME },
+		{ num: M4_NUM, sound: "weapons/m4a1slide.wav", name: M4_NAME },
+		{ num: KNIFE_NUM, sound: "weapons/swish.wav", name: KNIFE_NAME },
+		{ num: DUAL_NUM, sound: "weapons/mk23slide.wav", name: DUAL_NAME }
+	};
+
+	int rand = newrand(7);
+	menu_list_weapon selected_weapon = weapon_list[rand];
+	// prevent picking current weapon
+	if (ent->client->pers.chosenWeapon) {
+		while (selected_weapon.num == ent->client->pers.chosenWeapon->typeNum)
+		{
+			rand = newrand(7);
+			selected_weapon = weapon_list[rand];
+		}
+	}
+	
+	ent->client->pers.chosenWeapon = GET_ITEM(selected_weapon.num);
+	unicastSound(ent, gi.soundindex(selected_weapon.sound), 1.0);
+	gi.centerprintf(ent, "You selected %s", selected_weapon.name);
+	PMenu_Close(ent);
+	OpenItemMenu(ent);
+}
+
+void SelectRandomItem(edict_t *ent, pmenu_t *p)
+{
+	int selected_weapon = ent->client->pers.chosenWeapon->typeNum;
+
+	// Create array with limited items on certain weapons to not have silly kombos
+	menu_list_item item_list[4] = {
+		{ num: KEV_NUM, sound: "misc/veston.wav", name: KEV_NAME },
+		{ num: SLIP_NUM, sound: "misc/veston.wav", name: SLIP_NAME },
+		{ num: BAND_NUM, sound: "misc/veston.wav", name: BAND_NAME },
+		{ num: HELM_NUM, sound: "misc/veston.wav", name: HELM_NAME },
+	};
+	int listCount = 4;
+
+	menu_list_item item_sil = { num: SIL_NUM, sound: "misc/screw.wav", name: SIL_NAME };
+	menu_list_item item_las = { num: LASER_NUM, sound: "misc/lasersight.wav", name: LASER_NAME };
+
+	if (selected_weapon == SNIPER_NUM)
+	{
+		item_list[4] = item_sil;
+		listCount = 5;
+	}
+	if (selected_weapon == M4_NUM)
+	{
+		item_list[4] = item_las;
+		listCount = 5;
+	}
+	if (selected_weapon == MP5_NUM)
+	{
+		item_list[4] = item_sil;
+		item_list[5] = item_las;
+		listCount = 6;
+	}
+
+	int rand = newrand(listCount);
+	menu_list_item selected_item = item_list[rand];
+
+	if (ent->client->pers.chosenItem) {
+		while (selected_item.num == ent->client->pers.chosenItem->typeNum && selected_item.num < SIL_NUM)
+		{
+			rand = newrand(listCount);
+			selected_item = item_list[rand];
+		}
+	} else {
+		while (selected_item.num < SIL_NUM)
+		{
+			rand = newrand(listCount);
+			selected_item = item_list[rand];
+		}
+	}
+
+	ent->client->pers.chosenItem = GET_ITEM(selected_item.num);
+	unicastSound(ent, gi.soundindex(selected_item.sound), 1.0);
+	gi.centerprintf(ent, "You selected %s", selected_item.name);
+	PMenu_Close(ent);
+}
+
+void SelectRandomWeaponAndItem(edict_t *ent, pmenu_t *p)
+{
+	// WEAPON
+	menu_list_weapon weapon_list[7] = {
+		{ num: MP5_NUM, sound: "weapons/mp5slide.wav", name: MP5_NAME },
+		{ num: M3_NUM, sound: "weapons/m3in.wav", name: M3_NAME },
+		{ num: HC_NUM, sound: "weapons/cclose.wav", name: HC_NAME },
+		{ num: SNIPER_NUM, sound: "weapons/ssgbolt.wav", name: SNIPER_NAME },
+		{ num: M4_NUM, sound: "weapons/m4a1slide.wav", name: M4_NAME },
+		{ num: KNIFE_NUM, sound: "weapons/swish.wav", name: KNIFE_NAME },
+		{ num: DUAL_NUM, sound: "weapons/mk23slide.wav", name: DUAL_NAME }
+	};
+
+	int rand = newrand(7);
+	menu_list_weapon selected_weapon = weapon_list[rand];
+	// prevent picking current weapon
+	if (ent->client->pers.chosenWeapon) {
+		while (selected_weapon.num == ent->client->pers.chosenWeapon->typeNum)
+		{
+			rand = newrand(7);
+			selected_weapon = weapon_list[rand];
+		}
+	}
+	
+	ent->client->pers.chosenWeapon = GET_ITEM(selected_weapon.num);
+	unicastSound(ent, gi.soundindex(selected_weapon.sound), 1.0);
+
+	// ITEM
+	// Create array with limited items on certain weapons to not have silly kombos
+	menu_list_item item_list[4] = {
+		{ num: KEV_NUM, sound: "misc/veston.wav", name: KEV_NAME },
+		{ num: SLIP_NUM, sound: "misc/veston.wav", name: SLIP_NAME },
+		{ num: BAND_NUM, sound: "misc/veston.wav", name: BAND_NAME },
+		{ num: HELM_NUM, sound: "misc/veston.wav", name: HELM_NAME },
+	};
+	int listCount = 4;
+
+	menu_list_item item_sil = { num: SIL_NUM, sound: "misc/screw.wav", name: SIL_NAME };
+	menu_list_item item_las = { num: LASER_NUM, sound: "misc/lasersight.wav", name: LASER_NAME };
+
+	if (selected_weapon.num == SNIPER_NUM)
+	{
+		item_list[4] = item_sil;
+		listCount = 5;
+	}
+	if (selected_weapon.num == M4_NUM)
+	{
+		item_list[4] = item_las;
+		listCount = 5;
+	}
+	if (selected_weapon.num == MP5_NUM)
+	{
+		item_list[4] = item_sil;
+		item_list[5] = item_las;
+		listCount = 6;
+	}
+
+	rand = newrand(listCount);
+	menu_list_item selected_item = item_list[rand];
+
+	if (ent->client->pers.chosenItem) {
+		while (selected_item.num == ent->client->pers.chosenItem->typeNum)
+		{
+			rand = newrand(listCount);
+			selected_item = item_list[rand];
+		}
+	}
+
+	for (int i = 0; i < listCount; i++) {
+		gi.cprintf(ent, PRINT_HIGH, "%i %s\n", item_list[i].num, item_list[i].name);
+	}
+
+	ent->client->pers.chosenItem = GET_ITEM(selected_item.num);
+	unicastSound(ent, gi.soundindex(selected_item.sound), 1.0);
+	gi.centerprintf(ent, "You selected %s and %s", selected_weapon.name, selected_item.name);
+	PMenu_Close(ent);
+}
+
 void CreditsReturnToMain (edict_t * ent, pmenu_t * p)
 {
 	PMenu_Close (ent);
@@ -679,6 +859,9 @@ pmenu_t weapmenu[] = {
   {NULL, PMENU_ALIGN_LEFT, NULL, NULL},	// "M4 Assault Rifle", SelectWeapon6
   {NULL, PMENU_ALIGN_LEFT, NULL, NULL},	// "Combat Knives", SelectWeapon0
   {NULL, PMENU_ALIGN_LEFT, NULL, NULL},	// "Akimbo Pistols", SelectWeapon9
+  {NULL, PMENU_ALIGN_LEFT, NULL, NULL},
+  {"Random Weapon", PMENU_ALIGN_LEFT, NULL, SelectRandomWeapon},
+  {"Random Weapon and Item", PMENU_ALIGN_LEFT, NULL, SelectRandomWeaponAndItem},
   //AQ2:TNG End adding wp_flags
   {NULL, PMENU_ALIGN_LEFT, NULL, NULL},
   //AQ2:TNG - Slicer: changing this
@@ -705,7 +888,28 @@ pmenu_t itemmenu[] = {
   {NULL, PMENU_ALIGN_LEFT, NULL, NULL},	// "Silencer", SelectItem4
   {NULL, PMENU_ALIGN_LEFT, NULL, NULL},	// "Bandolier", SelectItem5
   {NULL, PMENU_ALIGN_LEFT, NULL, NULL},	// "Kevlar Helmet", SelectItem6
+  {NULL, PMENU_ALIGN_LEFT, NULL, NULL},
+  {"Random Item", PMENU_ALIGN_LEFT, NULL, SelectRandomItem},
   //AQ2:TNG end adding itm_flags
+  {NULL, PMENU_ALIGN_LEFT, NULL, NULL},
+  {"Use [ and ] to move cursor", PMENU_ALIGN_LEFT, NULL, NULL},
+  {"ENTER to select", PMENU_ALIGN_LEFT, NULL, NULL},
+  {"TAB to exit menu", PMENU_ALIGN_LEFT, NULL, NULL},
+  {NULL, PMENU_ALIGN_LEFT, NULL, NULL},
+  {"v" VERSION, PMENU_ALIGN_RIGHT, NULL, NULL},
+};
+
+pmenu_t randmenu[] = {
+  {"*" TNG_TITLE, PMENU_ALIGN_CENTER, NULL, NULL},
+  {"\x9D\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9F", PMENU_ALIGN_CENTER, NULL, NULL},
+  {NULL, PMENU_ALIGN_LEFT, NULL, NULL},
+  {"Weapon menu disabled!", PMENU_ALIGN_CENTER, NULL, NULL},
+  {NULL, PMENU_ALIGN_LEFT, NULL, NULL},
+  {"You get random weapon and item", PMENU_ALIGN_CENTER, NULL, NULL},
+  {"when round begins.", PMENU_ALIGN_CENTER, NULL, NULL},
+  //AQ2:TNG end adding itm_flags
+  {NULL, PMENU_ALIGN_LEFT, NULL, NULL},
+  {"Return to Main Menu", PMENU_ALIGN_LEFT, NULL, CreditsReturnToMain},
   {NULL, PMENU_ALIGN_LEFT, NULL, NULL},
   {"Use [ and ] to move cursor", PMENU_ALIGN_LEFT, NULL, NULL},
   {"ENTER to select", PMENU_ALIGN_LEFT, NULL, NULL},
@@ -975,6 +1179,12 @@ void JoinTeam (edict_t * ent, int desired_team, int skip_menuclose)
 	if (oldTeam == desired_team || ent->client->pers.mvdspec)
 		return;
 
+#ifndef NO_BOTS
+	// Bots are always allowed to join their selected team.
+	if( ent->is_bot )
+		;
+	else
+#endif
 	if (matchmode->value)
 	{
 		if (mm_allowlock->value && teams[desired_team].locked) {
@@ -1035,8 +1245,14 @@ void JoinTeam (edict_t * ent, int desired_team, int skip_menuclose)
 	}
 
 	//AQ2:TNG END
-	if (!skip_menuclose && (gameSettings & GS_WEAPONCHOOSE))
+	if (!skip_menuclose && (gameSettings & GS_WEAPONCHOOSE) && !use_randoms->value)
 		OpenWeaponMenu(ent);
+
+	if (use_randoms->value)
+	{
+		pmenu_t *p;
+		SelectRandomWeaponAndItem(ent, p);
+	}
 
 	teams_changed = true;
 }
@@ -1140,6 +1356,12 @@ void OpenItemMenu (edict_t * ent)
 
 void OpenWeaponMenu (edict_t * ent)
 {
+	if (use_randoms->value)
+	{
+		PMenu_Open(ent, randmenu, 4, sizeof(randmenu) / sizeof(pmenu_t));
+		return;
+	}
+
 	menuentry_t *menuEntry, menu_items[] = {
 		{ MP5_NUM, SelectWeapon2 },
 		{ M3_NUM, SelectWeapon3 },
@@ -1594,6 +1816,19 @@ static void SpawnPlayers(void)
 			ent->client->pers.chosenItem = GET_ITEM(KEV_NUM);
 		}
 
+		// Random weapons and items mode.
+		// Force random weapon and item on spawn.
+		if (use_randoms->value)
+		{
+			pmenu_t *p;
+			SelectRandomWeaponAndItem(ent, p);
+		}
+
+#ifndef NO_BOTS
+		if( !Q_stricmp( ent->classname, "bot" ) )
+			ACESP_PutClientInServer( ent, true, ent->client->resp.team );
+		else
+#endif
 		PutClientInServer(ent);
 		AddToTransparentList(ent);
 	}
@@ -1956,7 +2191,17 @@ int WonGame (int winner)
 			if(use_warnings->value)
 				gi.sound(&g_edicts[0], CHAN_VOICE | CHAN_NO_PHS_ADD, level.snd_teamwins[winner], 1.0, ATTN_NONE, 0.0);
 			// end of changing sound dir
+			game.roundNum++;
 			teams[winner].score++;
+
+			#ifdef AQTION_EXTENSION
+			#ifdef AQTION_HUD
+			Ghud_SetFlags(teams[winner].ghud_icon, GHF_BLINK);
+			Ghud_SetFlags(teams[winner].ghud_num, GHF_BLINK);
+			teams[winner].ghud_resettime = level.time + 3;
+			#endif
+			#endif
+
 			gi.cvar_forceset(teams[winner].teamscore->name, va("%i", teams[winner].score));
 
 			PrintScores ();
@@ -2791,151 +3036,104 @@ void A_ScoreboardMessage (edict_t * ent, edict_t * killer)
 	}
 	else if (ent->client->layout == LAYOUT_SCORES2)
 	{
-		const char *sb = scoreboard->string;
-		int sb_len = 0;
-		int chars = 0;
-
-		if( ! sb[0] )
-		{
-			if( noscore->value )
-				sb = "NMP";
-			else if( ctf->value )
-				sb = "SNMPCT";
-			else if( teamdm->value )
-				sb = "FNMPDT";
-			else
-				sb = "FNMPIT";
-		}
-
-		sb_len = strlen(sb);
-
-		for( i = 0; i < sb_len; i ++ )
-		{
-			char field = toupper( sb[ i ] );
-			if( i )
-				chars ++;
-			if(      field == 'F' ) chars +=  5;
-			else if( field == 'T' ) chars +=  4;
-			else if( field == 'N' ) chars += 15;
-			else if( field == 'M' ) chars +=  4;
-			else if( field == 'P' ) chars +=  4;
-			else if( field == 'C' ) chars +=  4;
-			else if( field == 'S' ) chars +=  5;
-			else if( field == 'K' ) chars +=  5;
-			else if( field == 'D' ) chars +=  6;
-			else if( field == 'I' ) chars +=  6;
-			else if( field == 'A' ) chars +=  3;
-			else chars ++;
-		}
+		char team_buf[6]="", time_buf[6]="", ping_buf[6]="", caps_buf[6]="", score_buf[7]="", kills_buf[7]="", deaths_buf[8]="", damage_buf[8]="", acc_buf[5]="";
+		int s2f = ctf->value ? scores2ctf->value : scores2teamplay->value;
+		int chars = 15
+			+ ((s2f & SCORES2_TEAM)   ? 5 : 0)
+			+ ((s2f & SCORES2_TIME)   ? 5 : 0)
+			+ ((s2f & SCORES2_PING)   ? 5 : 0)
+			+ ((s2f & SCORES2_CAPS)   ? 5 : 0)
+			+ ((s2f & SCORES2_SCORE)  ? 6 : 0)
+			+ ((s2f & SCORES2_KILLS)  ? 6 : 0)
+			+ ((s2f & SCORES2_DEATHS) ? 7 : 0)
+			+ ((s2f & SCORES2_DAMAGE) ? 7 : 0)
+			+ ((s2f & SCORES2_ACC)    ? 4 : 0);
 
 		if (noscore->value)
 			totalClients = G_NotSortedClients(sortedClients);
 		else
 			totalClients = G_SortedClients(sortedClients);
 
+		if( noscore->value )
+			s2f &= ~(SCORES2_CAPS | SCORES2_SCORE | SCORES2_KILLS | SCORES2_DEATHS | SCORES2_DAMAGE | SCORES2_ACC);
+		else if( ! ctf->value )
+		{
+			s2f &= ~SCORES2_CAPS;
+			if( s2f & SCORES2_SCORE )
+				s2f = (s2f & ~SCORES2_SCORE) | SCORES2_KILLS;
+		}
+
 		line_x = 160 - (chars * 4);
-		sprintf( string, "xv %i yv 32 string2 \"", line_x );
+		sprintf( string, "xv %i ", line_x );
 
-		for( i = 0; i < sb_len; i ++ )
-		{
-			char field = toupper( sb[ i ] );
-			if( i )
-				strcat( string, " " );
-
-			if(      field == 'F' ) strcat( string, "Frags" );
-			else if( field == 'T' ) strcat( string, "Team" );
-			else if( field == 'N' ) strcat( string, "Player         " );
-			else if( field == 'M' ) strcat( string, "Time" );
-			else if( field == 'P' ) strcat( string, "Ping" );
-			else if( field == 'C' ) strcat( string, "Caps" );
-			else if( field == 'S' ) strcat( string, "Score" );
-			else if( field == 'K' ) strcat( string, "Kills" );
-			else if( field == 'D' ) strcat( string, "Deaths" );
-			else if( field == 'I' ) strcat( string, "Damage" );
-			else if( field == 'A' ) strcat( string, "Acc" );
-			else sprintf( string + strlen(string), "%c", sb[ i ] );
-		}
-
-		strcat( string, "\" yv 40 string2 \"" );
-
-		for( i = 0; i < sb_len; i ++ )
-		{
-			char field = toupper( sb[ i ] );
-			if( i )
-				strcat( string, " " );
-
-			if(      field == 'F' ) strcat( string, "\x9D\x9E\x9E\x9E\x9F" );
-			else if( field == 'T' ) strcat( string, "\x9D\x9E\x9E\x9F" );
-			else if( field == 'N' ) strcat( string, "\x9D\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9F" );
-			else if( field == 'M' ) strcat( string, "\x9D\x9E\x9E\x9F" );
-			else if( field == 'P' ) strcat( string, "\x9D\x9E\x9E\x9F" );
-			else if( field == 'C' ) strcat( string, "\x9D\x9E\x9E\x9F" );
-			else if( field == 'S' ) strcat( string, "\x9D\x9E\x9E\x9E\x9F" );
-			else if( field == 'K' ) strcat( string, "\x9D\x9E\x9E\x9E\x9F" );
-			else if( field == 'D' ) strcat( string, "\x9D\x9E\x9E\x9E\x9E\x9F" );
-			else if( field == 'I' ) strcat( string, "\x9D\x9E\x9E\x9E\x9E\x9F" );
-			else if( field == 'A' ) strcat( string, "\x9D\x9E\x9F" );
-			else sprintf( string + strlen(string), "%c", sb[ i ] );
-		}
-
-		strcat( string, "\" " );
+		sprintf( string + strlen(string),
+			"yv 32 string2 \"%sPlayer         %s%s%s%s%s%s%s%s\" ",
+			((s2f & SCORES2_TEAM)   ? "Team "   : ""),
+			((s2f & SCORES2_TIME)   ? " Time"   : ""),
+			((s2f & SCORES2_PING)   ? " Ping"   : ""),
+			((s2f & SCORES2_CAPS)   ? " Caps"   : ""),
+			((s2f & SCORES2_SCORE)  ? " Score"  : ""),
+			((s2f & SCORES2_KILLS)  ? " Kills"  : ""),
+			((s2f & SCORES2_DEATHS) ? " Deaths" : ""),
+			((s2f & SCORES2_DAMAGE) ? " Damage" : ""),
+			((s2f & SCORES2_ACC)    ? " Acc"    : "")
+		);
+		sprintf( string + strlen(string),
+			"yv 40 string2 \"%s\x9D\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9F%s%s%s%s%s%s%s%s\" ",
+			((s2f & SCORES2_TEAM)   ? "\x9D\x9E\x9E\x9F "   : ""),
+			((s2f & SCORES2_TIME)   ? " \x9D\x9E\x9E\x9F"   : ""),
+			((s2f & SCORES2_PING)   ? " \x9D\x9E\x9E\x9F"   : ""),
+			((s2f & SCORES2_CAPS)   ? " \x9D\x9E\x9E\x9F"   : ""),
+			((s2f & SCORES2_SCORE)  ? " \x9D\x9E\x9E\x9E\x9F"  : ""),
+			((s2f & SCORES2_KILLS)  ? " \x9D\x9E\x9E\x9E\x9F"  : ""),
+			((s2f & SCORES2_DEATHS) ? " \x9D\x9E\x9E\x9E\x9E\x9F" : ""),
+			((s2f & SCORES2_DAMAGE) ? " \x9D\x9E\x9E\x9E\x9E\x9F" : ""),
+			((s2f & SCORES2_ACC)    ? " \x9D\x9E\x9F"   : "")
+		);
 
 		line_y = 48;
 
 		for (i = 0; i < totalClients; i++)
 		{
+			int minutes;
+
 			cl = sortedClients[i];
 			cl_ent = g_edicts + 1 + (cl - game.clients);
 
-			sprintf( string + strlen(string), "yv %i string \"", line_y );
+			Com_sprintf( team_buf,   6, " %c%c%c ", (cl->resp.team ? (cl->resp.team + '0') : ' '), (IS_CAPTAIN(cl_ent) ? 'C' : ' '), (cl->resp.subteam ? 'S' : ' ') );
+			minutes = (level.framenum - cl->resp.enterframe) / (60 * HZ);
+			if( minutes < 60 )
+				Com_sprintf( time_buf, 6, " %4i", minutes );
+			else if( minutes < 600 )
+				Com_sprintf( time_buf, 6, " %1i:%02i", minutes / 60, minutes % 60 );
+			else
+				Com_sprintf( time_buf, 6, " %3ih", min( 999, minutes / 60 ) );
+			Com_sprintf( ping_buf,   6, " %4i", min( 9999, cl->ping ) );
+#ifndef NO_BOTS
+			if( cl_ent->is_bot )
+				strcpy( ping_buf, "  BOT" );
+#endif
+			Com_sprintf( caps_buf,   6, " %4i", min( 9999, cl->resp.ctf_caps ) );
+			Com_sprintf( score_buf,  7, " %5i", min( 99999, cl->resp.score) );
+			Com_sprintf( kills_buf,  7, " %5i", min( 99999, cl->resp.kills) );
+			Com_sprintf( deaths_buf, 8, " %6i", min( 999999, cl->resp.deaths) );
+			Com_sprintf( damage_buf, 8, " %6i", min( 999999, cl->resp.damage_dealt) );
+			Com_sprintf( acc_buf   , 5, " %3.f", cl->resp.shotsTotal ? (double) cl->resp.hitsTotal * 100.0 / (double) cl->resp.shotsTotal : 0. );
 
-			for( j = 0; j < sb_len; j ++ )
-			{
-				char buf[ 16 ] = "";
-				char field = toupper( sb[ j ] );
-				if( j )
-					strcat( string, " " );
-
-				if(      field == 'F' ) Com_sprintf( buf, sizeof(buf), "%5i", min( 99999, cl->resp.score ) );
-				else if( field == 'T' )
-				{
-					if( matchmode->value )
-					{
-						char suffix = ' ';
-						if( IS_CAPTAIN(cl_ent) )
-							suffix = 'C';
-						else if( cl->resp.subteam )
-							suffix = 'S';
-						Com_sprintf( buf, sizeof(buf), "  %c%c", (cl->resp.team ? (cl->resp.team + '0') : ' '), suffix );
-					}
-					else
-						Com_sprintf( buf, sizeof(buf), "   %c", (cl->resp.team ? (cl->resp.team + '0') : ' ') );
-				}
-				else if( field == 'N' ) Com_sprintf( buf, sizeof(buf), "%-15s", cl->pers.netname );
-				else if( field == 'M' )
-				{
-					int minutes = (level.framenum - cl->resp.enterframe) / (60 * HZ);
-					if( minutes < 60 )
-						Com_sprintf( buf, sizeof(buf), "%4i", minutes );
-					else if( minutes < 600 )
-						Com_sprintf( buf, sizeof(buf), "%1i:%02i", minutes / 60, minutes % 60 );
-					else
-						Com_sprintf( buf, sizeof(buf), "%3ih", min( 999, minutes / 60 ) );
-				}
-				else if( field == 'P' ) Com_sprintf( buf, sizeof(buf), "%4i", min( 9999, cl->ping ) );
-				else if( field == 'C' ) Com_sprintf( buf, sizeof(buf), "%4i", min( 9999, cl->resp.ctf_caps ) );
-				else if( field == 'S' ) Com_sprintf( buf, sizeof(buf), "%5i", min( 99999, cl->resp.score ) );
-				else if( field == 'K' ) Com_sprintf( buf, sizeof(buf), "%5i", min( 99999, cl->resp.kills) );
-				else if( field == 'D' ) Com_sprintf( buf, sizeof(buf), "%6i", min( 999999, cl->resp.deaths) );
-				else if( field == 'I' ) Com_sprintf( buf, sizeof(buf), "%6i", min( 999999, cl->resp.damage_dealt) );
-				else if( field == 'A' ) Com_sprintf( buf, sizeof(buf), "%3.f", cl->resp.shotsTotal ? (double) cl->resp.hitsTotal * 100.0 / (double) cl->resp.shotsTotal : 0. );
-				else sprintf( buf, "%c", sb[ j ] );
-
-				strcat( string, buf );
-			}
-
-			strcat( string, "\" " );
-
+			sprintf( string + strlen(string), "yv %d string \"%s%-15s%s%s%s%s%s%s%s%s\"",
+				line_y,
+				((s2f & SCORES2_TEAM)   ? team_buf   : ""),
+				cl->pers.netname,
+				((s2f & SCORES2_TIME)   ? time_buf   : ""),
+				((s2f & SCORES2_PING)   ? ping_buf   : ""),
+				((s2f & SCORES2_CAPS)   ? caps_buf   : ""),
+				((s2f & SCORES2_SCORE)  ? score_buf  : ""),
+				((s2f & SCORES2_KILLS)  ? kills_buf  : ""),
+				((s2f & SCORES2_DEATHS) ? deaths_buf : ""),
+				((s2f & SCORES2_DAMAGE) ? damage_buf : ""),
+				((s2f & SCORES2_ACC)    ? acc_buf    : "")
+			);
+			
 			line_y += 8;
 			if (strlen(string) > (maxsize - 100) && i < (totalClients - 2))
 			{
@@ -2973,6 +3171,16 @@ void TallyEndOfLevelTeamScores (void)
 
 		teams[game.clients[i].resp.team].total += game.clients[i].resp.score;
 	}
+
+	// Stats begin
+	#if USE_AQTION
+	if (stat_logs->value && !ltk_loadbots->value) {
+		LogMatch();  // Generates end of match logs
+	}
+	#endif
+	// Stats: Reset roundNum
+	game.roundNum = 0;
+	// Stats end
 }
 
 
@@ -3030,12 +3238,6 @@ void GetSpawnPoints (void)
 
 	spawn_distances = (spawn_distances_t *)gi.TagMalloc (num_potential_spawns *
 					sizeof (spawn_distances_t), TAG_GAME);
-}
-
-// newrand returns n, where 0 >= n < top
-int newrand (int top)
-{
-	return (int) (random () * top);
 }
 
 // compare_spawn_distances is used by the qsort() call

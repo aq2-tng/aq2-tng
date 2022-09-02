@@ -1665,6 +1665,9 @@ static void Cmd_PrintSettings_f( edict_t * ent )
 		length = strlen( text );
 	}
 
+        Com_sprintf( text + length, sizeof( text ) - length, "sv_antilag = %d\n", (int)sv_antilag->value );
+        length = strlen( text );
+	
 	Com_sprintf( text + length, sizeof( text ) - length, "dmflags %i: ", (int)dmflags->value );
 	dmflagsSettings( text, sizeof( text ), (int)dmflags->value );
 
@@ -1900,6 +1903,12 @@ static cmdList_t commandList[] =
 	{ "resetscores", Cmd_ResetScores_f, 0 },
 	{ "gamesettings", Cmd_PrintSettings_f, 0 },
 	{ "follow", Cmd_Follow_f, 0 },
+
+#ifndef NO_BOTS
+	{ "placenode", Cmd_Placenode_f, 0 },
+	{ "placetrigger", Cmd_PlaceTrigger_f, 0 },
+#endif
+
 	//vote stuff
 	{ "votemap", Cmd_Votemap_f, 0 },
 	{ "maplist", Cmd_Maplist_f, 0 },

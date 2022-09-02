@@ -320,7 +320,6 @@
 #include "m_player.h"
 #include "cgf_sfx_glass.h"
 
-
 static void FreeClientEdicts(gclient_t *client)
 {
 	//remove lasersight
@@ -371,6 +370,16 @@ void Add_Frag(edict_t * ent, int mod)
 				CenterPrintAll(buf);
 				gi.sound(&g_edicts[0], CHAN_VOICE | CHAN_NO_PHS_ADD,
 					 gi.soundindex("tng/impressive.wav"), 1.0, ATTN_NONE, 0.0);
+
+				#if USE_AQTION
+				if (stat_logs->value && !ltk_loadbots->value) {
+					char steamid[24];
+					char discordid[24];
+					Q_strncpyz(steamid, Info_ValueForKey(ent->client->pers.userinfo, "steamid"), sizeof(steamid));
+					Q_strncpyz(discordid, Info_ValueForKey(ent->client->pers.userinfo, "cl_discord_id"), sizeof(discordid));
+					LogAward(steamid, discordid, IMPRESSIVE);
+				}
+				#endif
 			}
 			else if (ent->client->resp.streakKills % 12 == 0 && use_rewards->value)
 			{
@@ -378,6 +387,16 @@ void Add_Frag(edict_t * ent, int mod)
 				CenterPrintAll(buf);
 				gi.sound(&g_edicts[0], CHAN_VOICE | CHAN_NO_PHS_ADD,
 					 gi.soundindex("tng/excellent.wav"), 1.0, ATTN_NONE, 0.0);
+
+				#if USE_AQTION
+				if (stat_logs->value && !ltk_loadbots->value) {
+					char steamid[24];
+					char discordid[24];
+					Q_strncpyz(steamid, Info_ValueForKey(ent->client->pers.userinfo, "steamid"), sizeof(steamid));
+					Q_strncpyz(discordid, Info_ValueForKey(ent->client->pers.userinfo, "cl_discord_id"), sizeof(discordid));
+					LogAward(steamid, discordid, EXCELLENT);
+				}
+				#endif
 			}
 		}
 
@@ -615,6 +634,7 @@ void player_pain(edict_t * self, edict_t * other, float kick, int damage)
 
 // ^^^
 
+
 // PrintDeathMessage: moved the actual printing of the death messages to here, to handle
 //  the fact that live players shouldn't receive them in teamplay.  -FB
 void PrintDeathMessage(char *msg, edict_t * gibee)
@@ -667,6 +687,29 @@ void ClientObituary(edict_t * self, edict_t * inflictor, edict_t * attacker)
 	loc = locOfDeath;	// useful for location based hits
 	message = NULL;
 	message2 = "";
+
+	// Reki: Print killfeed to spectators who ask for easily parsable stuff
+	edict_t *other;
+	for (int j = 1; j <= game.maxclients; j++) {
+		other = &g_edicts[j];
+		if (!other->inuse || !other->client || !teamplay->value)
+			continue;
+
+		if (other->client->resp.team) // we only want team 0 (spectators)
+			continue;
+
+		if (!(other->client->pers.spec_flags & SPECFL_KILLFEED)) // only print to spectators who want it
+			continue;
+
+		if (attacker == world || !attacker->client)
+			sprintf(death_msg, "--KF %i %s, MOD %i\n",
+				self->client->resp.team, self->client->pers.netname, mod);
+		else
+			sprintf(death_msg, "--KF %i %s, MOD %i, %i %s\n",
+				attacker->client->resp.team, attacker->client->pers.netname, mod, self->client->resp.team, self->client->pers.netname);
+		gi.cprintf(other, PRINT_MEDIUM, "%s", death_msg);
+	}
+	//
 
 	if (attacker == self)
 	{
@@ -772,6 +815,13 @@ void ClientObituary(edict_t * self, edict_t * inflictor, edict_t * attacker)
 			PrintDeathMessage(death_msg, self);
 			IRC_printf(IRC_T_KILL, death_msg);
 			AddKilledPlayer(self->client->attacker, self);
+
+			#if USE_AQTION
+			if (stat_logs->value && !ltk_loadbots->value) { // Only create stats logs if stat_logs is 1 and ltk_loadbots is 0
+				LogKill(self, inflictor, self->client->attacker);
+			}
+			#endif
+
 			self->client->attacker->client->radio_num_kills++;
 
 			//MODIFIED FOR FF -FB
@@ -803,6 +853,12 @@ void ClientObituary(edict_t * self, edict_t * inflictor, edict_t * attacker)
 			}
 
 			self->enemy = NULL;
+
+			#if USE_AQTION
+			if (stat_logs->value && !ltk_loadbots->value) { // Only create stats logs if stat_logs is 1 and ltk_loadbots is 0
+				LogWorldKill(self);
+			}
+			#endif
 		}
 		return;
 	}
@@ -1136,6 +1192,12 @@ void ClientObituary(edict_t * self, edict_t * inflictor, edict_t * attacker)
 			IRC_printf(IRC_T_KILL, death_msg);
 			AddKilledPlayer(attacker, self);
 
+			#if USE_AQTION
+			if (stat_logs->value && !ltk_loadbots->value) { // Only create stats logs if stat_logs is 1 and ltk_loadbots is 0
+				LogKill(self, inflictor, attacker);
+			}
+			#endif
+
 			if (friendlyFire) {
 				if (!teamplay->value || team_round_going || !ff_afterround->value)
 				{
@@ -1159,6 +1221,12 @@ void ClientObituary(edict_t * self, edict_t * inflictor, edict_t * attacker)
 	sprintf(death_msg, "%s died\n", self->client->pers.netname);
 	PrintDeathMessage(death_msg, self);
 	IRC_printf(IRC_T_DEATH, death_msg);
+
+	#if USE_AQTION
+	if (stat_logs->value && !ltk_loadbots->value) { // Only create stats logs if stat_logs is 1 and ltk_loadbots is 0
+		LogWorldKill(self);
+	}
+	#endif
 
 	Subtract_Frag(self);	//self->client->resp.score--;
 	Add_Death( self, true );
@@ -2687,14 +2755,49 @@ void ClientUserinfoChanged(edict_t *ent, char *userinfo)
 
 
 	// Reki - disable prediction on limping
-	s = Info_ValueForKey(userinfo, "limp_nopred");
-	int limp = atoi(s);
-	if (limp == 1)
-		client->pers.limp_nopred = 1; // client explicity wants new behavior 
-	else if (s[0] == 0)
-		client->pers.limp_nopred = 2 | (client->pers.limp_nopred & 256); // client doesn't specify, so use auto threshold
-	else if (limp == 0)
-		client->pers.limp_nopred = 0; // client explicity wants old behavior
+#ifdef AQTION_EXTENSION
+	if (Client_GetProtocol(ent) == 38) // if we're using AQTION protocol, we have limp prediction
+	{
+		client->pers.limp_nopred = 0;
+	}
+	else
+	{
+#endif
+		s = Info_ValueForKey(userinfo, "limp_nopred");
+		int limp = atoi(s);
+		if (limp == 1)
+			client->pers.limp_nopred = 1; // client explicity wants new behavior 
+		else if (s[0] == 0)
+			client->pers.limp_nopred = 2 | (client->pers.limp_nopred & 256); // client doesn't specify, so use auto threshold
+		else if (limp == 0)
+			client->pers.limp_nopred = 0; // client explicity wants old behavior
+#ifdef AQTION_EXTENSION
+	}
+#endif
+
+	// Reki - spectator options, force team overlay/send easily parsable kill feed prints
+	s = Info_ValueForKey(userinfo, "cl_spectatorhud");
+	if (atoi(s))
+		client->pers.spec_flags |= SPECFL_SPECHUD;
+	else
+		client->pers.spec_flags &= SPECFL_SPECHUD;
+
+	s = Info_ValueForKey(userinfo, "cl_spectatorkillfeed");
+	if (atoi(s))
+		client->pers.spec_flags |= SPECFL_KILLFEED;
+	else
+		client->pers.spec_flags &= SPECFL_KILLFEED;
+
+	// Reki - disable antilag for *my own shooting*, not others shooting at me
+	s = Info_ValueForKey(userinfo, "cl_antilag");
+	int antilag_value = client->pers.antilag_optout;
+	if (s[0] == 0 || atoi(s) > 0)
+		client->pers.antilag_optout = qfalse;
+	else if (atoi(s) <= 0)
+		client->pers.antilag_optout = qtrue;
+
+	if (sv_antilag->value && antilag_value != client->pers.antilag_optout)
+		gi.cprintf(ent, PRINT_MEDIUM, "YOUR CL_ANTILAG IS NOW SET TO %i\n", !client->pers.antilag_optout);
 }
 
 /*
@@ -2763,6 +2866,17 @@ qboolean ClientConnect(edict_t * ent, char *userinfo)
 		IRC_printf(IRC_T_SERVER, "%n@%s connected", value, ipaddr_buf);
 	}
 
+	//rekkie -- silence ban -- s
+	if (SV_FilterSBPacket(ipaddr_buf, NULL)) // Check if player has been silenced
+	{
+		ent->client->pers.silence_banned = true;
+		value = Info_ValueForKey(userinfo, "name");
+		gi.dprintf("%s has been [SILENCED] because they're on the naughty list\n", value); // Notify console the player is silenced
+	}
+	else
+		ent->client->pers.silence_banned = false;
+	//rekkie -- silence ban -- e
+
 	//set connected on ClientBeginDeathmatch as clientconnect doesn't always
 	//guarantee a client is actually making it all the way into the game.
 	//ent->client->pers.connected = true;
@@ -2799,6 +2913,11 @@ void ClientDisconnect(edict_t * ent)
 
 	gi.bprintf(PRINT_HIGH, "%s disconnected\n", ent->client->pers.netname);
 	IRC_printf(IRC_T_SERVER, "%n disconnected", ent->client->pers.netname);
+	//Stats begin
+	//Get client stats when disconnected and not in intermission as stats are printed during intermission already
+	//if (stat_logs->value && !ltk_loadbots->value && !level.intermission_framenum) {
+	//	LogEndMatchStats();
+	//}
 
 	if( !teamplay->value && !ent->client->pers.spectator )
 	{
@@ -3040,12 +3159,17 @@ void ClientThink(edict_t * ent, usercmd_t * ucmd)
 		}
 
 		pm.cmd = *ucmd;
+		client->cmd_last = *ucmd;
 
 		// Stumbling movement with leg damage.
 		// darksaint ETE edit:  if e_enhancedSlippers are enabled/equipped, negate all stumbling
 		qboolean has_enhanced_slippers = e_enhancedSlippers->value && INV_AMMO(ent, SLIP_NUM);
 		if( client->leg_damage && ent->groundentity && ! has_enhanced_slippers )
 		{
+			#ifdef AQTION_EXTENSION
+			pm.s.pm_aq2_flags |= PMF_AQ2_LIMP;
+			pm.s.pm_aq2_leghits = min(client->leghits, 255);
+			#else
 			int frame_mod_6 = (level.framenum / game.framediv) % 6;
 			if( frame_mod_6 <= 2 )
 			{
@@ -3060,7 +3184,15 @@ void ClientThink(edict_t * ent, usercmd_t * ucmd)
 
 			// Prevent jumping with leg damage.
 			pm.s.pm_flags |= PMF_JUMP_HELD;
+			#endif
 		}
+		#ifdef AQTION_EXTENSION
+		else
+		{
+			pm.s.pm_aq2_flags &= ~PMF_AQ2_LIMP;
+			pm.s.pm_aq2_leghits = 0;
+		}
+		#endif
 
 		pm.trace = PM_trace;	// adds default parms
 		pm.pointcontents = gi.pointcontents;
@@ -3209,6 +3341,18 @@ void ClientBeginServerFrame(edict_t * ent)
 
 	if (sv_antilag->value) // if sv_antilag is enabled, we want to track our player position for later reference
 		antilag_update(ent);
+
+#ifdef AQTION_EXTENSION
+	// resync pm_timestamp so all limps are roughly synchronous, to try to maintain original behavior
+	unsigned short world_timestamp = (int)(level.time * 1000) % 60000;
+	client->ps.pmove.pm_timestamp = world_timestamp;
+
+	// network any pending ghud updates
+	Ghud_SendUpdates(ent);
+
+	// update dimension mask for team-only entities
+	client->dimension_observe = 1 | (1 << client->resp.team);
+#endif
 
 	if (client->resp.penalty > 0 && level.realFramenum % HZ == 0)
 		client->resp.penalty--;

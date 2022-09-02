@@ -125,3 +125,19 @@ extern int day_cycle_at;
 extern int teamCount;
 extern int in_warmup;
 extern qboolean teams_changed;
+
+typedef struct menu_list_weapon
+{
+  int num;
+  char sound[40];
+  char name[40];
+}
+menu_list_weapon;
+
+typedef struct menu_list_item
+{
+  int num;
+  char sound[40];
+  char name[40];
+}
+menu_list_item;
