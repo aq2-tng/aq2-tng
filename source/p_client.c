@@ -2685,7 +2685,7 @@ void ClientUserinfoChanged(edict_t *ent, char *userinfo)
 		client->pers.gender = GENDER_NEUTRAL;
 	}
 
-	
+
 	// Reki - disable prediction on limping
 	s = Info_ValueForKey(userinfo, "limp_nopred");
 	int limp = atoi(s);
