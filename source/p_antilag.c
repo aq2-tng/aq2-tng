@@ -11,6 +11,7 @@ void antilag_update(edict_t *ent)
 
 	state->seek++;
 	state->curr_timestamp = level.time;
+	
 	time_stamp = level.time;
 	if (sv_antilag_interp->value) // offset by 1 server frame to account for interpolation
 		time_stamp += FRAMETIME;
