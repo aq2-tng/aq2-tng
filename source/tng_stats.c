@@ -448,7 +448,7 @@ void A_ScoreboardEndLevel (edict_t * ent, edict_t * killer)
 		}
 	}
 
-	
+
 	if (strlen(string) > 1023)	// for debugging...
 	{
 		gi.dprintf("Warning: scoreboard string neared or exceeded max length\nDump:\n%s\n---\n", string);
