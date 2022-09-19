@@ -3031,6 +3031,7 @@ void GetSpawnPoints (void)
 	spawn_distances = (spawn_distances_t *)gi.TagMalloc (num_potential_spawns *
 					sizeof (spawn_distances_t), TAG_GAME);
 }
+
 // newrand returns n, where 0 >= n < top
 int newrand (int top)
 {

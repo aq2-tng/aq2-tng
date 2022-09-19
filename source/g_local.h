@@ -1390,6 +1390,8 @@ void P_ProjectSource(gclient_t *client, vec3_t point, vec3_t distance, vec3_t fo
 void weapon_grenade_fire(edict_t* ent, qboolean held);
 void InitTookDamage(void);
 void ProduceShotgunDamageReport(edict_t*);
+
+
 //============================================================================
 
 // client_t->anim_priority
