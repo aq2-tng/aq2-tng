@@ -51,6 +51,15 @@
 
 #include "g_local.h"
 
+#ifdef AQTION_EXTENSION
+int ghud_team1_icon;
+int ghud_team1_num;
+int ghud_team2_icon;
+int ghud_team2_num;
+int ghud_team3_icon;
+int ghud_team3_num;
+#endif
+
 
 /*
   ======================================================================
@@ -106,10 +115,6 @@ void MoveClientToIntermission(edict_t *ent)
 	ent->client->ps.stats[STAT_SNIPER_ICON] = 0;
 	ent->client->pickup_msg_framenum = 0;
 
-#ifndef NO_BOTS
-	if( ent->is_bot )
-		return;
-#endif
 	// add the layout
 	DeathmatchScoreboardMessage(ent, NULL);
 	gi.unicast(ent, true);
@@ -126,9 +131,11 @@ void BeginIntermission(edict_t *targ)
 	level.intermission_framenum = level.realFramenum;
 
 	// Stats begin
+	#if USE_AQTION
 	if (stat_logs->value && !ltk_loadbots->value) {
 		LogEndMatchStats(); // Generates end of match logs
 	}
+	#endif
 	// Stats end
 
 	if (ctf->value)
@@ -201,11 +208,6 @@ void DeathmatchScoreboardMessage (edict_t * ent, edict_t * killer)
 	gclient_t *cl;
 	edict_t *cl_ent;
 	char *tag;
-
-#ifndef NO_BOTS
-	if (ent->is_bot)
-		return;
-#endif
 
 	if (teamplay->value && !use_tourney->value)
 	{
@@ -285,10 +287,6 @@ void DeathmatchScoreboardMessage (edict_t * ent, edict_t * killer)
 */
 void DeathmatchScoreboard(edict_t *ent)
 {
-#ifndef NO_BOTS
-	if( ent->is_bot )
-		return;
-#endif
 	DeathmatchScoreboardMessage(ent, ent->enemy);
 	gi.unicast(ent, true);
 }

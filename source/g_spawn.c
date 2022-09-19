@@ -912,6 +912,11 @@ void SpawnEntities (char *mapname, char *entities, char *spawnpoint)
 			gi.dprintf ("Jump Enabled - Forcing Domination off\n");
 			gi.cvar_forceset(dom->name, "0");
 		}
+		if (use_randoms->value)
+		{
+			gi.dprintf ("Jump Enabled - Forcing Random weapons and items off\n");
+			gi.cvar_forceset(use_randoms->name, "0");
+		}
 	}
 	else if (ctf->value)
 	{
@@ -951,6 +956,11 @@ void SpawnEntities (char *mapname, char *entities, char *spawnpoint)
 			gi.dprintf ("CTF Enabled - Forcing Friendly Fire off\n");
 			gi.cvar_forceset(dmflags->name, va("%i", (int)dmflags->value | DF_NO_FRIENDLY_FIRE));
 		}
+		if (use_randoms->value)
+		{
+			gi.dprintf ("CTF Enabled - Forcing Random weapons and items off\n");
+			gi.cvar_forceset(use_randoms->name, "0");
+		}
 		strcpy(teams[TEAM1].name, "RED");
 		strcpy(teams[TEAM2].name, "BLUE");
 		strcpy(teams[TEAM1].skin, "male/ctf_r");
@@ -975,6 +985,11 @@ void SpawnEntities (char *mapname, char *entities, char *spawnpoint)
 		{
 			gi.dprintf ("Domination Enabled - Forcing Tourney off\n");
 			gi.cvar_forceset(use_tourney->name, "0");
+		}
+		if (use_randoms->value)
+		{
+			gi.dprintf ("Domination Enabled - Forcing Random weapons and items off\n");
+			gi.cvar_forceset(use_randoms->name, "0");
 		}
 		strcpy(teams[TEAM1].name, "RED");
 		strcpy(teams[TEAM2].name, "BLUE");
@@ -1204,13 +1219,6 @@ void SpawnEntities (char *mapname, char *entities, char *spawnpoint)
 	SVCmd_CheckSB_f(); //rekkie -- silence ban
 
 	UnBan_TeamKillers();
-
-#ifndef NO_BOTS
-	// Reload nodes and any persistent bots.
-	ACEND_InitNodes();
-	ACEND_LoadNodes();
-	ACESP_LoadBotConfig();
-#endif
 }
 
 
@@ -1428,7 +1436,7 @@ void G_UpdatePlayerStatusbar( edict_t * ent, int force )
 {
 	char *playerStatusbar;
 
-	if (!teamplay->value || teamCount != 2 || !spectator_hud->value) {
+	if (!teamplay->value || teamCount != 2 || spectator_hud->value < 0 || (spectator_hud->value == 0 && !(ent->client->pers.spec_flags & SPECFL_SPECHUD))) {
 		return;
 	}
 
@@ -1445,10 +1453,6 @@ void G_UpdatePlayerStatusbar( edict_t * ent, int force )
 		playerStatusbar = level.spec_statusbar;
 	}
 
-#ifndef NO_BOTS
-	if( ent->is_bot )
-		return;
-#endif
 	gi.WriteByte( svc_configstring );
 	gi.WriteShort( CS_STATUSBAR );
 	gi.WriteString( playerStatusbar );
@@ -1740,6 +1744,40 @@ void SP_worldspawn (edict_t * ent)
 	gi.configstring(CS_LIGHTS + 11, "abcdefghijklmnopqrrqponmlkjihgfedcba");	// 11 SLOW PULSE NOT FADE TO BLACK
 	// styles 32-62 are assigned by the light program for switchable lights
 	gi.configstring(CS_LIGHTS + 63, "a");	// 63 testing
+
+
+#ifdef AQTION_EXTENSION
+#ifdef AQTION_HUD
+	if (teamplay->value)
+	{
+		int base_y = -8;
+		int team_amt = 2;
+
+		if (use_3teams->value)
+		{
+			teams[TEAM3].ghud_icon = -1; // just so we know these are unused
+			teams[TEAM3].ghud_num = -1;  // 
+
+			base_y -= 112;
+			team_amt = 3;
+		}
+		else
+			base_y -= 72;
+
+		int i;
+		for (i = 1; i <= team_amt; i++)
+		{
+			teams[i].ghud_icon = Ghud_AddIcon(8, base_y, level.pic_teamskin[i], 32, 32);
+			Ghud_SetAnchor(teams[i].ghud_icon, 0, 1);
+
+			teams[i].ghud_num = Ghud_AddNumber(44, base_y + 2, 0);
+			Ghud_SetAnchor(teams[i].ghud_num, 0, 1);
+
+			base_y += 40;
+		}
+	}
+#endif
+#endif
 }
 
 int LoadFlagsFromFile (const char *mapname)

@@ -402,6 +402,7 @@ void InitGame( void )
 	use_buggy_bandolier = gi.cvar( "use_buggy_bandolier", "0", 0 );
 	use_tourney = gi.cvar( "use_tourney", "0", CVAR_SERVERINFO | CVAR_LATCH );
 	use_3teams = gi.cvar( "use_3teams", "0", CVAR_SERVERINFO | CVAR_LATCH );
+	use_randoms = gi.cvar( "use_randoms", "0", CVAR_SERVERINFO | CVAR_LATCH ); // Random weapons and items mode
 	use_kickvote = gi.cvar( "use_kickvote", "1", 0 );	//slicer
 	use_mapvote = gi.cvar( "use_mapvote", "1", 0 );	//slicer
 	use_scramblevote = gi.cvar( "use_scramblevote", "1", 0 );	//slicer
@@ -552,10 +553,19 @@ void InitGame( void )
 	// 2022
 	server_id = gi.cvar( "server_id", "", CVAR_SERVERINFO );
 	stat_logs = gi.cvar( "stat_logs", "0", 0);
-	sv_antilag = gi.cvar("sv_antilag", "1", CVAR_SERVERINFO);
+  sv_antilag = gi.cvar("sv_antilag", "1", CVAR_SERVERINFO);
 	sv_antilag_interp = gi.cvar("sv_antilag_interp", "0", CVAR_SERVERINFO);
 	sv_limp_highping = gi.cvar("sv_limp_highping", "70", CVAR_SERVERINFO);
 	mapvote_next_limit = gi.cvar( "mapvote_next_limit", "0", 0);
+	stat_apikey = gi.cvar("stat_apikey", "none", 0);
+	stat_url = gi.cvar("stat_url", "https://apigateway.aq2world.com/api/v1/stats", 0);
+
+	// Discord SDK integration with Q2Pro
+	cl_discord = gi.cvar("cl_discord", "0", 0);
+	cl_discord_id = gi.cvar("cl_discord_id", "0", 0);
+	cl_discord_discriminator = gi.cvar("cl_discord_discriminator", "0", 0);
+	cl_discord_username = gi.cvar("cl_discord_username", "", 0);
+	cl_discord_avatar = gi.cvar("cl_discord_avatar", "0", 0);
 
 #ifndef NO_BOTS
 	// bots

@@ -985,11 +985,6 @@ void G_RunEntity(edict_t *ent)
 
   switch (ent->movetype)
     {
-#ifndef NO_BOTS
-    case MOVETYPE_WALK:
-      SV_RunThink (ent);
-      break;
-#endif
     case MOVETYPE_PUSH:
     case MOVETYPE_STOP:
       SV_Physics_Pusher (ent);

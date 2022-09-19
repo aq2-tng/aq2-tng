@@ -214,15 +214,6 @@
 #include "g_local.h"
 #include "m_player.h"
 
-#ifndef NO_BOTS
-void Cmd_Placenode_f( edict_t *ent );
-
-static void Cmd_PlaceTrigger_f( edict_t *ent )
-{
-	ent->is_triggering = 1;
-}
-#endif
-
 qboolean FloodCheck (edict_t *ent)
 {
 	if (flood_threshold->value)
@@ -1912,10 +1903,12 @@ static cmdList_t commandList[] =
 	{ "resetscores", Cmd_ResetScores_f, 0 },
 	{ "gamesettings", Cmd_PrintSettings_f, 0 },
 	{ "follow", Cmd_Follow_f, 0 },
+
 #ifndef NO_BOTS
 	{ "placenode", Cmd_Placenode_f, 0 },
 	{ "placetrigger", Cmd_PlaceTrigger_f, 0 },
 #endif
+
 	//vote stuff
 	{ "votemap", Cmd_Votemap_f, 0 },
 	{ "maplist", Cmd_Maplist_f, 0 },
@@ -1982,11 +1975,6 @@ void ClientCommand (edict_t * ent)
 
 	if (!ent->client)
 		return;			// not fully in game yet
-
-#ifndef NO_BOTS
-	if( ACECM_Commands(ent) )
-		return;
-#endif
 
 	// if (level.intermission_framenum)
 	// return;

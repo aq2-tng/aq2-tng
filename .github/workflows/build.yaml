@@ -3,7 +3,9 @@ name: TNG Build
 on:
   push:
     branches: ["master", "aqtion"]
-
+  pull_request:
+  workflow_dispatch:
+  
 env:
   LIN64_DIST_DIR: "linux-x64-tng"
   LINARM64_DIST_DIR: "linux-arm64-tng"
@@ -45,11 +47,18 @@ jobs:
         working-directory: build
         run: echo "::set-output name=sha_short::$(git rev-parse --short HEAD)"
 
+      - name: Download mingw package
+        working-directory: build
+        run: |
+          wget -nv https://github.com/skullernet/q2pro-mgw-sdk/releases/download/2022-06-14/q2pro-mgw-sdk.tar.gz
+          tar xf q2pro-mgw-sdk.tar.gz
+
       - name: Build TNG (Win 64-bit)
         working-directory: build/source
-        run: make -j2 V=1 && mv gamex86_64.dll ../gamex86_64.dll
+        run: make -j4 V=1 && mv gamex86_64.dll ../gamex86_64.dll
         env:
           TNG_BUILD_FOR: "WIN64"
+          USE_AQTION: "TRUE"
 
       - name: Generate Win64 archive
         uses: actions/upload-artifact@v3
@@ -61,9 +70,10 @@ jobs:
 
       - name: Build TNG (Win 32-bit)
         working-directory: build/source
-        run: make clean && make -j2 V=1 && mv gamex86.dll ../gamex86.dll
+        run: make clean && make -j4 V=1 && mv gamex86.dll ../gamex86.dll
         env:
           TNG_BUILD_FOR: "WIN32"
+          USE_AQTION: "TRUE"
 
       - name: Generate Win32 archive
         uses: actions/upload-artifact@v3
@@ -75,9 +85,10 @@ jobs:
 
       - name: Build TNG (Linux 64-bit)
         working-directory: build/source
-        run: make clean && make -j2 V=1 && mv gamex86_64.so ../gamex86_64.so
+        run: make clean && make -j4 V=1 && mv gamex86_64.so ../gamex86_64.so
         env:
           CC: "gcc"
+          USE_AQTION: "TRUE"
 
       - name: Generate Linux x86 archive
         uses: actions/upload-artifact@v3
@@ -109,9 +120,10 @@ jobs:
 
       - name: Build TNG (Linux ARM64)
         working-directory: build/source
-        run: make -j2 V=1 && mv gameaarch64.so ../gameaarch64.so
+        run: make -j4 V=1 && mv gameaarch64.so ../gameaarch64.so
         env:
           CC: "gcc"
+          USE_AQTION: "TRUE"
 
       - name: Generate archive
         uses: actions/upload-artifact@v3

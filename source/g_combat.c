@@ -432,7 +432,6 @@ T_Damage (edict_t * targ, edict_t * inflictor, edict_t * attacker, vec3_t dir,
 	float from_top;
 	vec_t dist;
 	float targ_maxs2;		//FB 6/1/99
-	char steamid[24];
 
 	// do this before teamplay check
 	if (!targ->takedamage)
@@ -546,10 +545,16 @@ T_Damage (edict_t * targ, edict_t * inflictor, edict_t * attacker, vec3_t dir,
 								Com_sprintf(buf, sizeof(buf), "ACCURACY %s!", attacker->client->pers.netname);
 								CenterPrintAll(buf);
 								gi.sound(&g_edicts[0], CHAN_VOICE | CHAN_NO_PHS_ADD, gi.soundindex("tng/accuracy.wav"), 1.0, ATTN_NONE, 0.0);
+
+								#if USE_AQTION
 								if (stat_logs->value && !ltk_loadbots->value) {
-									strcpy(steamid, Info_ValueForKey(attacker->client->pers.userinfo, "steamid"));
-									LogAward(steamid, ACCURACY);
+									char steamid[24];
+									char discordid[24];
+									Q_strncpyz(steamid, Info_ValueForKey(attacker->client->pers.userinfo, "steamid"), sizeof(steamid));
+									Q_strncpyz(discordid, Info_ValueForKey(attacker->client->pers.userinfo, "cl_discord_id"), sizeof(discordid));
+									LogAward(steamid, discordid, ACCURACY);
 								}
+								#endif
 							}
 						}
 					}

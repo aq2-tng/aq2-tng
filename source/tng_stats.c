@@ -487,6 +487,63 @@ void Cmd_Statmode_f(edict_t* ent)
 	stuffcmd(ent, stuff);
 }
 
+#if USE_AQTION
+
+// Revisit one day...
+
+// #include <curl/curl.h>
+// // AQtion stats addon
+// // Utilizes AWS API Gateway and AWS SQS
+// // Review documentation to understand their use
+
+// size_t write_data(void *buffer, size_t size, size_t nmemb, void *userp)
+// {
+//    return size * nmemb;
+// }
+// void StatSend(const char *payload, ...)
+// {	
+// 	va_list argptr;
+// 	char text[1024];
+// 	char apikeyheader[64] = "x-api-key: ";
+// 	char apiurl[128] = "\0";
+// 	int apikey_check;
+
+// 	// If stat logs are disabled or stat-apikey is default, just return
+// 	apikey_check = Q_stricmp(stat_apikey->string, "none");
+// 	if (!stat_logs->value || apikey_check == 0) {
+// 		return;
+// 	}
+	
+// 	Q_strncatz(apikeyheader, stat_apikey->string, sizeof(apikeyheader));
+// 	Q_strncpyz(apiurl, stat_url->string, sizeof(apiurl));
+	
+// 	va_start (argptr, payload);
+// 	vsnprintf (text, sizeof(text), payload, argptr);
+// 	va_end (argptr);
+
+// 	CURL *curl = curl_easy_init();
+// 	struct curl_slist *headers = NULL;
+// 	headers = curl_slist_append(headers, "Accept: application/json");
+// 	headers = curl_slist_append(headers, "Content-Type: application/json");
+// 	headers = curl_slist_append(headers, apikeyheader);
+
+// 	curl_easy_setopt(curl, CURLOPT_URL, apiurl);
+// 	curl_easy_setopt(curl, CURLOPT_CUSTOMREQUEST, "POST");
+// 	curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
+// 	curl_easy_setopt(curl, CURLOPT_POSTFIELDS, text);
+
+// 	// Do not print responses from curl request
+// 	// Comment below if you are debugging responses
+// 	// Hint: Forbidden would mean your stat_url is malformed,
+// 	// and a key error indicates your api key is bad or expired
+// 	curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_data);
+
+// 	// Run it!
+// 	curl_easy_perform(curl);
+// 	curl_easy_cleanup(curl);
+// 	curl_global_cleanup();
+// }
+
 int Gamemode(void) // These are distinct game modes; you cannot have a teamdm tourney mode, for example
 {
 	int gamemode = 0;
@@ -542,15 +599,17 @@ void LogKill(edict_t *self, edict_t *inflictor, edict_t *attacker)
 	int ttk = 0; //Default TTK (time to kill) is 0
 	int vl = 0; //Placeholder victimleader until Espionage gets ported
 	int kl = 0; //Placeholder killerleader until Espionage gets ported
-	char msg[1024];
-	char v[24];
-	char vn[128];
-	char vip[24];
-	char *vi;
-	char k[24];
-	char kn[128];
-	char kip[24];
-	char *ki;
+	char msg[1024]; // Whole stat line in JSON format
+	char v[24]; // Victim's Steam ID
+	char vn[128]; // Victim's name
+	char vip[24]; // Victim's IP:port
+	char vd[24]; // Victim's Discord ID
+	char *vi; // Victim's IP (without port)
+	char k[24]; // Killer's Steam ID
+	char kn[128]; // Killer's name
+	char kip[24]; // Killer's IP:port
+	char kd[24]; // Killer's Discord ID
+	char *ki; // Killer's IP (without port)
 
 	if ((team_round_going && !in_warmup) || (gameSettings & GS_DEATHMATCH)) // If round is active OR if deathmatch
 	{
@@ -564,12 +623,14 @@ void LogKill(edict_t *self, edict_t *inflictor, edict_t *attacker)
 			ttk = current_round_length / 10;
 		}
 		
-		strcpy(v, Info_ValueForKey(self->client->pers.userinfo, "steamid"));
-		strcpy(vn, Info_ValueForKey(self->client->pers.userinfo, "name"));
-		strcpy(vip, Info_ValueForKey(self->client->pers.userinfo, "ip"));
-		strcpy(k, Info_ValueForKey(attacker->client->pers.userinfo, "steamid"));
-		strcpy(kn, Info_ValueForKey(attacker->client->pers.userinfo, "name"));
-		strcpy(kip, Info_ValueForKey(attacker->client->pers.userinfo, "ip"));
+		Q_strncpyz(v, Info_ValueForKey(self->client->pers.userinfo, "steamid"), sizeof(v));
+		Q_strncpyz(vn, Info_ValueForKey(self->client->pers.userinfo, "name"), sizeof(vn));
+		Q_strncpyz(vip, Info_ValueForKey(self->client->pers.userinfo, "ip"), sizeof(vip));
+		Q_strncpyz(vd, Info_ValueForKey(self->client->pers.userinfo, "cl_discord_id"), sizeof(vd));
+		Q_strncpyz(k, Info_ValueForKey(attacker->client->pers.userinfo, "steamid"), sizeof(k));
+		Q_strncpyz(kn, Info_ValueForKey(attacker->client->pers.userinfo, "name"), sizeof(kn));
+		Q_strncpyz(kip, Info_ValueForKey(attacker->client->pers.userinfo, "ip"), sizeof(kip));
+		Q_strncpyz(kd, Info_ValueForKey(attacker->client->pers.userinfo, "cl_discord_id"), sizeof(kd));
 
 		// Separate IP from Port
 		char* portSeperator = ":";
@@ -580,9 +641,10 @@ void LogKill(edict_t *self, edict_t *inflictor, edict_t *attacker)
 		eventtime = (int)time(NULL);
 		roundNum = game.roundNum + 1;
 
-		strcpy(
+		Q_strncpyz(
 			msg,
-			"{\"frag\":{\"sid\":\"%s\",\"mid\":\"%s\",\"v\":\"%s\",\"vn\":\"%s\",\"vi\":\"%s\",\"vt\":%i,\"vl\":%i,\"k\":\"%s\",\"kn\":\"%s\",\"ki\":\"%s\",\"kt\":%i,\"kl\":%i,\"w\":%i,\"i\":%i,\"l\":%i,\"ks\":%i,\"gm\":%i,\"gmf\":%i,\"ttk\":\"%d\",\"t\":%d,\"gt\":%d,\"m\":\"%s\",\"r\":\"%i\"}}\n"
+			"{\"frag\":{\"sid\":\"%s\",\"mid\":\"%s\",\"v\":\"%s\",\"vn\":\"%s\",\"vi\":\"%s\",\"vt\":%i,\"vl\":%i,\"k\":\"%s\",\"kn\":\"%s\",\"ki\":\"%s\",\"kt\":%i,\"kl\":%i,\"w\":%i,\"i\":%i,\"l\":%i,\"ks\":%i,\"gm\":%i,\"gmf\":%i,\"ttk\":%d,\"t\":%d,\"gt\":%d,\"m\":\"%s\",\"r\":%i,\"vd\":\"%s\",\"kd\":\"%s\"}}\n",
+			sizeof(msg)
 		);
 
 		Com_Printf(
@@ -609,7 +671,9 @@ void LogKill(edict_t *self, edict_t *inflictor, edict_t *attacker)
 			eventtime,
 			gametime,
 			level.mapname,
-			roundNum
+			roundNum,
+			vd,
+			kd
 		);
 	}
 }
@@ -633,6 +697,7 @@ void LogWorldKill(edict_t *self)
 	char v[24];
 	char vn[128];
 	char vip[24];
+	char vd[24];
 	char *vi;
 
 	if ((team_round_going && !in_warmup) || (gameSettings & GS_DEATHMATCH)) // If round is active OR if deathmatch
@@ -646,9 +711,10 @@ void LogWorldKill(edict_t *self)
 			ttk = current_round_length / 10;
 		}
 		
-		strcpy(v, Info_ValueForKey(self->client->pers.userinfo, "steamid"));
-		strcpy(vn, Info_ValueForKey(self->client->pers.userinfo, "name"));
-		strcpy(vip, Info_ValueForKey(self->client->pers.userinfo, "ip"));
+		Q_strncpyz(v, Info_ValueForKey(self->client->pers.userinfo, "steamid"), sizeof(v));
+		Q_strncpyz(vn, Info_ValueForKey(self->client->pers.userinfo, "name"), sizeof(vn));
+		Q_strncpyz(vip, Info_ValueForKey(self->client->pers.userinfo, "ip"), sizeof(vip));
+		Q_strncpyz(vd, Info_ValueForKey(self->client->pers.userinfo, "cl_discord_id"), sizeof(vd));
 
 		// Separate IP from Port
 		char* portSeperator = ":";
@@ -658,9 +724,10 @@ void LogWorldKill(edict_t *self)
 		eventtime = (int)time(NULL);
 		roundNum = game.roundNum + 1;
 
-		strcpy(
+		Q_strncpyz(
 			msg,
-			"{\"frag\":{\"sid\":\"%s\",\"mid\":\"%s\",\"v\":\"%s\",\"vn\":\"%s\",\"vi\":\"%s\",\"vt\":%i,\"vl\":%i,\"k\":\"%s\",\"kn\":\"%s\",\"ki\":\"%s\",\"kt\":%i,\"kl\":%i,\"w\":%i,\"i\":%i,\"l\":%i,\"ks\":%i,\"gm\":%i,\"gmf\":%i,\"ttk\":\"%d\",\"t\":%d,\"gt\":%d,\"m\":\"%s\",\"r\":\"%i\"}}\n"
+			"{\"frag\":{\"sid\":\"%s\",\"mid\":\"%s\",\"v\":\"%s\",\"vn\":\"%s\",\"vi\":\"%s\",\"vt\":%i,\"vl\":%i,\"k\":\"%s\",\"kn\":\"%s\",\"ki\":\"%s\",\"kt\":%i,\"kl\":%i,\"w\":%i,\"i\":%i,\"l\":%i,\"ks\":%i,\"gm\":%i,\"gmf\":%i,\"ttk\":%d,\"t\":%d,\"gt\":%d,\"m\":\"%s\",\"r\":%i,\"vd\":\"%s\",\"kd\":\"%s\"}}\n",
+			sizeof(msg)
 		);
 
 		Com_Printf(
@@ -678,16 +745,18 @@ void LogWorldKill(edict_t *self)
 			vt,
 			vl,
 			mod,
-			16, // No attacker for world death
+			16, // No attacker for world death, setting to 16 as a 'dummy' value
 			loc,
-			0, // No killstreak for world death
+			0, // No killstreak for world death, setting to 0 permanently as we aren't tracking world death kill streaks
 			Gamemode(),
 			Gamemodeflag(),
 			ttk,
 			eventtime,
 			gametime,
 			level.mapname,
-			roundNum
+			roundNum,
+			vd,
+			vd
 		);
 	}
 }
@@ -706,9 +775,10 @@ void LogMatch()
 	int t3 = teams[TEAM3].score;
 	eventtime = (int)time(NULL);
 
-	strcpy(
+	Q_strncpyz(
 		msg,
-		"{\"gamematch\":{\"mid\":\"%s\",\"sid\":\"%s\",\"t\":\"%d\",\"m\":\"%s\",\"gm\":\"%i\",\"gmf\":%i,\"t1\":%i,\"t2\":\"%i\",\"t3\":\"%i\"}}\n"
+		"{\"gamematch\":{\"mid\":\"%s\",\"sid\":\"%s\",\"t\":\"%d\",\"m\":\"%s\",\"gm\":%i,\"gmf\":%i,\"t1\":%i,\"t2\":%i,\"t3\":%i}}\n",
+		sizeof(msg)
 	);
 
 	Com_Printf(
@@ -730,7 +800,7 @@ void LogMatch()
 LogAward
 =================
 */
-void LogAward(char* steamid, int award)
+void LogAward(char* steamid, char* discordid, int award)
 {
 	int gametime = 0;
 	int eventtime;
@@ -741,9 +811,10 @@ void LogAward(char* steamid, int award)
 	gametime = level.matchTime;
 	eventtime = (int)time(NULL);
 
-	strcpy(
+	Q_strncpyz(
 		msg,
-		"{\"award\":{\"sid\":\"%s\",\"mid\":\"%s\",\"t\":\"%d\",\"gt\":\"%d\",\"a\":%i,\"k\":%s,\"w\":\"%i\"}}\n"
+		"{\"award\":{\"sid\":\"%s\",\"mid\":\"%s\",\"t\":\"%d\",\"gt\":\"%d\",\"a\":%i,\"k\":\"%s\",\"w\":%i,\"d\":\"%s\"}}\n",
+		sizeof(msg)
 	);
 
 	Com_Printf(
@@ -754,7 +825,8 @@ void LogAward(char* steamid, int award)
 		gametime,
 		award,
 		steamid,
-		mod
+		mod,
+		discordid
 	);
 }
 
@@ -771,6 +843,7 @@ void LogEndMatchStats()
 	int totalClients, secs, shots;
 	double accuracy, fpm;
 	char steamid[24];
+	char discordid[24];
 	totalClients = G_SortedClients(sortedClients);
 
 	for (i = 0; i < totalClients; i++){
@@ -788,10 +861,12 @@ void LogEndMatchStats()
 			else
 				fpm = 0.0;
 				
-		strcpy(steamid, Info_ValueForKey(cl->pers.userinfo, "steamid"));
-		strcpy(
+		Q_strncpyz(steamid, Info_ValueForKey(cl->pers.userinfo, "steamid"), sizeof(steamid));
+		Q_strncpyz(discordid, Info_ValueForKey(cl->pers.userinfo, "cl_discord_id"), sizeof(discordid));
+		Q_strncpyz(
 			msg,
-			"{\"matchstats\":{\"sid\":\"%s\",\"mid\":\"%s\",\"s\":\"%s\",\"sc\":\"%i\",\"sh\":\"%i\",\"a\":\"%f\",\"f\":\"%f\",\"dd\":\"%i\",\"d\":\"%i\",\"k\":\"%i\",\"ctfc\":\"%i\",\"ctfcs\":\"%i\",\"ht\":\"%i\",\"tk\":\"%i\",\"t\":\"%i\",\"hks\":\"%i\",\"hhs\":\"%i\"}}\n"
+			"{\"matchstats\":{\"sid\":\"%s\",\"mid\":\"%s\",\"s\":\"%s\",\"sc\":%i,\"sh\":%i,\"a\":%f,\"f\":%f,\"dd\":%i,\"d\":%i,\"k\":%i,\"ctfc\":%i,\"ctfcs\":%i,\"ht\":%i,\"tk\":%i,\"t\":%i,\"hks\":%i,\"hhs\":%i,\"dis\":\"%s\"}}\n",
+			sizeof(msg)
 		);
 
 		Com_Printf(
@@ -812,7 +887,9 @@ void LogEndMatchStats()
 			cl->resp.team_kills,
 			cl->resp.team,
 			cl->resp.streakKillsHighest,
-			cl->resp.streakHSHighest
+			cl->resp.streakHSHighest,
+			discordid
 		);
 	}
 }
+#endif

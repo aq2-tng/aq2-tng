@@ -345,8 +345,6 @@ void Add_Frag(edict_t * ent, int mod)
 {
 	char buf[256];
 	int frags = 0;
-	char steamid[24];
-	strcpy(steamid, Info_ValueForKey(ent->client->pers.userinfo, "steamid"));
 
 	if (in_warmup)
 		return;
@@ -372,9 +370,16 @@ void Add_Frag(edict_t * ent, int mod)
 				CenterPrintAll(buf);
 				gi.sound(&g_edicts[0], CHAN_VOICE | CHAN_NO_PHS_ADD,
 					 gi.soundindex("tng/impressive.wav"), 1.0, ATTN_NONE, 0.0);
+
+				#if USE_AQTION
 				if (stat_logs->value && !ltk_loadbots->value) {
-					LogAward(steamid, IMPRESSIVE);
+					char steamid[24];
+					char discordid[24];
+					Q_strncpyz(steamid, Info_ValueForKey(ent->client->pers.userinfo, "steamid"), sizeof(steamid));
+					Q_strncpyz(discordid, Info_ValueForKey(ent->client->pers.userinfo, "cl_discord_id"), sizeof(discordid));
+					LogAward(steamid, discordid, IMPRESSIVE);
 				}
+				#endif
 			}
 			else if (ent->client->resp.streakKills % 12 == 0 && use_rewards->value)
 			{
@@ -382,9 +387,16 @@ void Add_Frag(edict_t * ent, int mod)
 				CenterPrintAll(buf);
 				gi.sound(&g_edicts[0], CHAN_VOICE | CHAN_NO_PHS_ADD,
 					 gi.soundindex("tng/excellent.wav"), 1.0, ATTN_NONE, 0.0);
+
+				#if USE_AQTION
 				if (stat_logs->value && !ltk_loadbots->value) {
-					LogAward(steamid, EXCELLENT);
+					char steamid[24];
+					char discordid[24];
+					Q_strncpyz(steamid, Info_ValueForKey(ent->client->pers.userinfo, "steamid"), sizeof(steamid));
+					Q_strncpyz(discordid, Info_ValueForKey(ent->client->pers.userinfo, "cl_discord_id"), sizeof(discordid));
+					LogAward(steamid, discordid, EXCELLENT);
 				}
+				#endif
 			}
 		}
 
@@ -650,10 +662,6 @@ void PrintDeathMessage(char *msg, edict_t * gibee)
 		other = &g_edicts[j];
 		if (!other->inuse || !other->client)
 			continue;
-#ifndef NO_BOTS
-		if( other->is_bot )
-			continue;
-#endif
 
 		// only print if he's NOT gibee, NOT attacker, and NOT alive! -TempFile
 		if (other != gibee && other != gibee->client->attacker && other->solid == SOLID_NOT)
@@ -679,6 +687,29 @@ void ClientObituary(edict_t * self, edict_t * inflictor, edict_t * attacker)
 	loc = locOfDeath;	// useful for location based hits
 	message = NULL;
 	message2 = "";
+
+	// Reki: Print killfeed to spectators who ask for easily parsable stuff
+	edict_t *other;
+	for (int j = 1; j <= game.maxclients; j++) {
+		other = &g_edicts[j];
+		if (!other->inuse || !other->client || !teamplay->value)
+			continue;
+
+		if (other->client->resp.team) // we only want team 0 (spectators)
+			continue;
+
+		if (!(other->client->pers.spec_flags & SPECFL_KILLFEED)) // only print to spectators who want it
+			continue;
+
+		if (attacker == world || !attacker->client)
+			sprintf(death_msg, "--KF %i %s, MOD %i\n",
+				self->client->resp.team, self->client->pers.netname, mod);
+		else
+			sprintf(death_msg, "--KF %i %s, MOD %i, %i %s\n",
+				attacker->client->resp.team, attacker->client->pers.netname, mod, self->client->resp.team, self->client->pers.netname);
+		gi.cprintf(other, PRINT_MEDIUM, "%s", death_msg);
+	}
+	//
 
 	if (attacker == self)
 	{
@@ -784,9 +815,13 @@ void ClientObituary(edict_t * self, edict_t * inflictor, edict_t * attacker)
 			PrintDeathMessage(death_msg, self);
 			IRC_printf(IRC_T_KILL, death_msg);
 			AddKilledPlayer(self->client->attacker, self);
+
+			#if USE_AQTION
 			if (stat_logs->value && !ltk_loadbots->value) { // Only create stats logs if stat_logs is 1 and ltk_loadbots is 0
 				LogKill(self, inflictor, self->client->attacker);
 			}
+			#endif
+
 			self->client->attacker->client->radio_num_kills++;
 
 			//MODIFIED FOR FF -FB
@@ -819,9 +854,11 @@ void ClientObituary(edict_t * self, edict_t * inflictor, edict_t * attacker)
 
 			self->enemy = NULL;
 
+			#if USE_AQTION
 			if (stat_logs->value && !ltk_loadbots->value) { // Only create stats logs if stat_logs is 1 and ltk_loadbots is 0
 				LogWorldKill(self);
 			}
+			#endif
 		}
 		return;
 	}
@@ -1154,9 +1191,12 @@ void ClientObituary(edict_t * self, edict_t * inflictor, edict_t * attacker)
 			PrintDeathMessage(death_msg, self);
 			IRC_printf(IRC_T_KILL, death_msg);
 			AddKilledPlayer(attacker, self);
+
+			#if USE_AQTION
 			if (stat_logs->value && !ltk_loadbots->value) { // Only create stats logs if stat_logs is 1 and ltk_loadbots is 0
 				LogKill(self, inflictor, attacker);
 			}
+			#endif
 
 			if (friendlyFire) {
 				if (!teamplay->value || team_round_going || !ff_afterround->value)
@@ -1181,9 +1221,12 @@ void ClientObituary(edict_t * self, edict_t * inflictor, edict_t * attacker)
 	sprintf(death_msg, "%s died\n", self->client->pers.netname);
 	PrintDeathMessage(death_msg, self);
 	IRC_printf(IRC_T_DEATH, death_msg);
+
+	#if USE_AQTION
 	if (stat_logs->value && !ltk_loadbots->value) { // Only create stats logs if stat_logs is 1 and ltk_loadbots is 0
-		LogKill(self, inflictor, attacker);
+		LogWorldKill(self);
 	}
+	#endif
 
 	Subtract_Frag(self);	//self->client->resp.score--;
 	Add_Death( self, true );
@@ -2436,125 +2479,6 @@ void PutClientInServer(edict_t * ent)
 	for (i = 0; i < 3; i++)
 		client->ps.pmove.delta_angles[i] = ANGLE2SHORT(ent->s.angles[i] - client->resp.cmd_angles[i]);
 
-#ifndef NO_BOTS
-	ent->last_node = -1;
-	ent->is_jumping = false;
-	ent->is_triggering = false;
-	ent->grenadewait = 0;
-	ent->react = 0.f;
-	
-	if( ent->is_bot )
-	{
-		ent->classname = "bot";
-		
-		ent->enemy = NULL;
-		ent->movetarget = NULL;
-		if( ! teamplay->value )
-		{
-			ent->state = STATE_MOVE;
-			ent->botState = BS_ROAM;
-			ent->nextState = BS_ROAM;
-			ent->secondaryState = BSS_NONE;
-		}
-		else
-		{
-			ent->state = STATE_POSITION;
-			ent->botState = BS_ROAM;
-			ent->nextState = BS_ROAM;
-			ent->secondaryState = BSS_POSITION;
-		}
-		
-		// Set the current node
-		ent->current_node = ACEND_FindClosestReachableNode( ent, NODE_DENSITY, NODE_ALL );
-		ent->goal_node = ent->current_node;
-		ent->next_node = ent->current_node;
-		ent->next_move_time = level.framenum;
-		ent->suicide_timeout = level.framenum + 15.0 * HZ;
-		
-		ent->killchat = false;
-		VectorClear( ent->lastSeen );
-		ent->cansee = false;
-		
-		ent->bot_strafe = SPEED_WALK;
-		ent->bot_speed = 0;
-		VectorClear( ent->lastPosition );
-		
-		// Choose Teamplay weapon
-		switch( ent->weaponchoice - 1 )  // Range is 1..5
-		{
-		case 0:
-			ACEAI_Cmd_Choose_Weapon_Num( ent, MP5_NUM );
-			break;
-		case 1:
-			ACEAI_Cmd_Choose_Weapon_Num( ent, M4_NUM );
-			break;
-		case 2:
-			ACEAI_Cmd_Choose_Weapon_Num( ent, M3_NUM );
-			break;
-		case 3:
-			ACEAI_Cmd_Choose_Weapon_Num( ent, HC_NUM );
-			break;
-		case 4:
-			ACEAI_Cmd_Choose_Weapon_Num( ent, SNIPER_NUM );
-			break;
-		default:
-			ACEAI_Cmd_Choose_Weapon_Num( ent, 0 );  // Random allowed.
-			break;
-		}
-		
-		// Choose Teamplay equipment
-		switch( ent->equipchoice - 1 )  // Range is 1..5
-		{
-		case 0:
-			ACEAI_Cmd_Choose_Item_Num( ent, SIL_NUM );
-			break;
-		case 1:
-			ACEAI_Cmd_Choose_Item_Num( ent, SLIP_NUM );
-			break;
-		case 2:
-			ACEAI_Cmd_Choose_Item_Num( ent, BAND_NUM );
-			break;
-		case 3:
-			ACEAI_Cmd_Choose_Item_Num( ent, KEV_NUM );
-			break;
-		case 4:
-			ACEAI_Cmd_Choose_Item_Num( ent, LASER_NUM );
-			break;
-		default:
-			ACEAI_Cmd_Choose_Item_Num( ent, 0 );  // Random allowed.
-			break;
-		}
-		
-		if( teamplay->value )
-		{
-			int randomnode = 0;
-			const char *s = Info_ValueForKey( ent->client->pers.userinfo, "skin" );
-			AssignSkin( ent, s, false /* nickChanged */ );
-			// Anti centipede timer
-			ent->teamPauseTime = level.framenum + (3.0 + (rand() % 7)) * HZ;
-			// Radio setup
-			ent->teamReportedIn = true;
-			ent->lastRadioTime = level.framenum;
-			// Change facing angle for each bot
-			randomnode = (int)( num_players * random() );
-			VectorSubtract( nodes[randomnode].origin, ent->s.origin, ent->move_vector );
-			ent->move_vector[2] = 0;
-		}
-		else
-			ent->teamPauseTime = level.framenum;
-		
-		//RiEvEr - new node pathing system
-		memset( &(ent->pathList), 0, sizeof(ent->pathList) );
-		ent->pathList.head = ent->pathList.tail = NULL;
-		//R
-		
-		ent->client->resp.radio.gender = (ent->client->pers.gender == GENDER_FEMALE) ? 1 : 0;
-	}
-	
-	if( (! ent->is_bot) || (ent->think != ACESP_HoldSpawn) )  // if( respawn )
-	{
-#endif
-
 	if (teamplay->value) {
 		going_observer = (!ent->client->resp.team || ent->client->resp.subteam);
 	}
@@ -2572,10 +2496,6 @@ void PutClientInServer(edict_t * ent)
 		gi.linkentity(ent);
 		return;
 	}
-
-#ifndef NO_BOTS
-	}  // end if( respawn )
-#endif
 
 	if (!teamplay->value) {	// this handles telefrags...
 		KillBox(ent);
@@ -2676,10 +2596,6 @@ void ClientBeginDeathmatch(edict_t * ent)
 
 	TourneyNewPlayer(ent);
 	vInitClient(ent);
-
-#ifndef NO_BOTS
-	ACEIT_RebuildPlayerList();
-#endif
 
 	// locate ent at a spawn point
 	PutClientInServer(ent);
@@ -2839,14 +2755,49 @@ void ClientUserinfoChanged(edict_t *ent, char *userinfo)
 
 
 	// Reki - disable prediction on limping
-	s = Info_ValueForKey(userinfo, "limp_nopred");
-	int limp = atoi(s);
-	if (limp == 1)
-		client->pers.limp_nopred = 1; // client explicity wants new behavior 
-	else if (s[0] == 0)
-		client->pers.limp_nopred = 2 | (client->pers.limp_nopred & 256); // client doesn't specify, so use auto threshold
-	else if (limp == 0)
-		client->pers.limp_nopred = 0; // client explicity wants old behavior
+#ifdef AQTION_EXTENSION
+	if (Client_GetProtocol(ent) == 38) // if we're using AQTION protocol, we have limp prediction
+	{
+		client->pers.limp_nopred = 0;
+	}
+	else
+	{
+#endif
+		s = Info_ValueForKey(userinfo, "limp_nopred");
+		int limp = atoi(s);
+		if (limp == 1)
+			client->pers.limp_nopred = 1; // client explicity wants new behavior 
+		else if (s[0] == 0)
+			client->pers.limp_nopred = 2 | (client->pers.limp_nopred & 256); // client doesn't specify, so use auto threshold
+		else if (limp == 0)
+			client->pers.limp_nopred = 0; // client explicity wants old behavior
+#ifdef AQTION_EXTENSION
+	}
+#endif
+
+	// Reki - spectator options, force team overlay/send easily parsable kill feed prints
+	s = Info_ValueForKey(userinfo, "cl_spectatorhud");
+	if (atoi(s))
+		client->pers.spec_flags |= SPECFL_SPECHUD;
+	else
+		client->pers.spec_flags &= SPECFL_SPECHUD;
+
+	s = Info_ValueForKey(userinfo, "cl_spectatorkillfeed");
+	if (atoi(s))
+		client->pers.spec_flags |= SPECFL_KILLFEED;
+	else
+		client->pers.spec_flags &= SPECFL_KILLFEED;
+
+	// Reki - disable antilag for *my own shooting*, not others shooting at me
+	s = Info_ValueForKey(userinfo, "cl_antilag");
+	int antilag_value = client->pers.antilag_optout;
+	if (s[0] == 0 || atoi(s) > 0)
+		client->pers.antilag_optout = qfalse;
+	else if (atoi(s) <= 0)
+		client->pers.antilag_optout = qtrue;
+
+	if (sv_antilag->value && antilag_value != client->pers.antilag_optout)
+		gi.cprintf(ent, PRINT_MEDIUM, "YOUR CL_ANTILAG IS NOW SET TO %i\n", !client->pers.antilag_optout);
 }
 
 /*
@@ -3014,12 +2965,6 @@ void ClientDisconnect(edict_t * ent)
 	ent->client->pers.connected = false;
 
 	teams_changed = true;
-
-#ifndef NO_BOTS
-	ent->is_bot = false;
-	ent->think = NULL;
-	ACEIT_RebuildPlayerList();
-#endif
 }
 
 void CreateGhost(edict_t * ent)
@@ -3214,12 +3159,17 @@ void ClientThink(edict_t * ent, usercmd_t * ucmd)
 		}
 
 		pm.cmd = *ucmd;
+		client->cmd_last = *ucmd;
 
 		// Stumbling movement with leg damage.
 		// darksaint ETE edit:  if e_enhancedSlippers are enabled/equipped, negate all stumbling
 		qboolean has_enhanced_slippers = e_enhancedSlippers->value && INV_AMMO(ent, SLIP_NUM);
 		if( client->leg_damage && ent->groundentity && ! has_enhanced_slippers )
 		{
+			#ifdef AQTION_EXTENSION
+			pm.s.pm_aq2_flags |= PMF_AQ2_LIMP;
+			pm.s.pm_aq2_leghits = min(client->leghits, 255);
+			#else
 			int frame_mod_6 = (level.framenum / game.framediv) % 6;
 			if( frame_mod_6 <= 2 )
 			{
@@ -3234,7 +3184,15 @@ void ClientThink(edict_t * ent, usercmd_t * ucmd)
 
 			// Prevent jumping with leg damage.
 			pm.s.pm_flags |= PMF_JUMP_HELD;
+			#endif
 		}
+		#ifdef AQTION_EXTENSION
+		else
+		{
+			pm.s.pm_aq2_flags &= ~PMF_AQ2_LIMP;
+			pm.s.pm_aq2_leghits = 0;
+		}
+		#endif
 
 		pm.trace = PM_trace;	// adds default parms
 		pm.pointcontents = gi.pointcontents;
@@ -3383,6 +3341,18 @@ void ClientBeginServerFrame(edict_t * ent)
 
 	if (sv_antilag->value) // if sv_antilag is enabled, we want to track our player position for later reference
 		antilag_update(ent);
+
+#ifdef AQTION_EXTENSION
+	// resync pm_timestamp so all limps are roughly synchronous, to try to maintain original behavior
+	unsigned short world_timestamp = (int)(level.time * 1000) % 60000;
+	client->ps.pmove.pm_timestamp = world_timestamp;
+
+	// network any pending ghud updates
+	Ghud_SendUpdates(ent);
+
+	// update dimension mask for team-only entities
+	client->dimension_observe = 1 | (1 << client->resp.team);
+#endif
 
 	if (client->resp.penalty > 0 && level.realFramenum % HZ == 0)
 		client->resp.penalty--;

@@ -264,6 +264,7 @@
 #include <ctype.h>
 
 #include "q_shared.h"
+#include "q_ghud.h"
 
 // define GAME_INCLUDE so that game.h does not define the
 // short, server-visible gclient_t and edict_t structures,
@@ -289,10 +290,6 @@
 #include	"tng_jump.h"
 #include	"g_grapple.h"
 #include	"p_antilag.h"
-
-#ifndef NO_BOTS
-#include	"acesrc/botnav.h"
-#endif
 
 #define		getEnt(entnum)	(edict_t *)((char *)globals.edicts + (globals.edict_size * entnum))	//AQ:TNG Slicer - This was missing
 #define		GAMEVERSION			"action"	// the "gameversion" client command will print this plus compile date
@@ -322,6 +319,9 @@
 #define svc_sound				9
 #define svc_stufftext           11
 #define	svc_configstring		13
+
+#define svc_extend				30
+#define svc_userstatistic		31
 
 //==================================================================
 
@@ -359,6 +359,10 @@
 #define FL_POWER_ARMOR                  0x00001000	// power armor (if any) is active
 #define FL_ACCELERATE					0x20000000  // accelerative movement
 #define FL_RESPAWN                      0x80000000	// used for item respawning
+
+// edict->client->pers.spec_flags
+#define SPECFL_KILLFEED					0x00000001
+#define SPECFL_SPECHUD					0x00000002
 
 // variable server FPS
 #ifndef NO_FPS
@@ -987,13 +991,11 @@ extern cvar_t *hud_noscore;
 extern cvar_t *use_newscore;
 extern cvar_t *scoreboard;
 extern cvar_t *actionversion;
-#ifndef NO_BOTS
-extern cvar_t *ltk_jumpy;
-#endif
 extern cvar_t *use_voice;
 extern cvar_t *ppl_idletime;
 extern cvar_t *use_tourney;
 extern cvar_t *use_3teams;
+extern cvar_t *use_randoms; // Random weapons and items mode
 extern cvar_t *use_kickvote;
 extern cvar_t *mv_public;
 extern cvar_t *vk_public;
@@ -1149,11 +1151,55 @@ extern cvar_t *e_enhancedSlippers;
 
 // END AQ2 ETE
 
+#ifdef AQTION_EXTENSION
+extern int (*engine_Client_GetVersion)(edict_t *ent);
+extern int (*engine_Client_GetProtocol)(edict_t *ent);
+
+int Client_GetVersion(edict_t *ent);
+int Client_GetProtocol(edict_t *ent);
+
+extern void (*engine_Ghud_SendUpdates)(edict_t *ent);
+extern int(*engine_Ghud_NewElement)(int type);
+extern void(*engine_Ghud_SetFlags)(int i, int val);
+extern void(*engine_Ghud_UnicastSetFlags)(edict_t *ent, int i, int val);
+extern void(*engine_Ghud_SetInt)(int i, int val);
+extern void(*engine_Ghud_SetText)(int i, char *text);
+extern void(*engine_Ghud_SetPosition)(int i, int x, int y, int z);
+extern void(*engine_Ghud_SetAnchor)(int i, float x, float y);
+extern void(*engine_Ghud_SetColor)(int i, int r, int g, int b, int a);
+extern void(*engine_Ghud_SetSize)(int i, int x, int y);
+
+void  Ghud_SendUpdates(edict_t *ent);
+int   Ghud_NewElement(int type);
+void  Ghud_SetFlags(int i, int val);
+void  Ghud_UnicastSetFlags(edict_t *ent, int i, int val);
+void  Ghud_SetInt(int i, int val);
+void  Ghud_SetText(int i, char *text);
+void  Ghud_SetPosition(int i, int x, int y);
+void  Ghud_SetPosition3D(int i, int x, int y, int z);
+void  Ghud_SetAnchor(int i, float x, float y);
+void  Ghud_SetColor(int i, int r, int g, int b, int a);
+void  Ghud_SetSize(int i, int x, int y);
+
+int   Ghud_AddIcon(int x, int y, int image, int sizex, int sizey);
+int   Ghud_AddText(int x, int y, char *text);
+int   Ghud_AddNumber(int x, int y, int value);
+#endif
+
 // 2022
 extern cvar_t *sv_limp_highping;
 extern cvar_t *server_id;
 extern cvar_t *stat_logs;
 extern cvar_t *mapvote_next_limit;
+extern cvar_t *stat_apikey;
+extern cvar_t *stat_url;
+
+// Discord SDK integration with Q2Pro
+extern cvar_t *cl_discord;
+extern cvar_t *cl_discord_id;
+extern cvar_t *cl_discord_discriminator;
+extern cvar_t *cl_discord_username;
+extern cvar_t *cl_discord_avatar;
 
 #define world   (&g_edicts[0])
 
@@ -1258,11 +1304,6 @@ size_t  G_HighlightStr(char *dst, const char *src, size_t size);
 char	*G_CopyString(char *in);
 qboolean visible(edict_t *self, edict_t *other, int mask);
 
-#ifndef NO_BOTS
-qboolean ai_visible( edict_t *self, edict_t *other );
-qboolean infront( edict_t *self, edict_t *other );
-#endif
-
 // Re-enabled for bots
 float *tv (float x, float y, float z);
 char *vtos (vec3_t v);
@@ -1339,6 +1380,14 @@ void BeginIntermission (edict_t * targ);
 void PutClientInServer (edict_t * ent);
 void InitBodyQue (void);
 void ClientBeginServerFrame (edict_t * ent);
+
+//
+// g_ext.c
+//
+#ifdef AQTION_EXTENSION
+void G_InitExtEntrypoints(void);
+void* G_FetchGameExtension(char *name);
+#endif
 
 //
 // g_player.c
@@ -1440,7 +1489,7 @@ void ProduceShotgunDamageReport(edict_t*);
 void LogKill(edict_t *self, edict_t *inflictor, edict_t *attacker);
 void LogWorldKill(edict_t *self);
 void LogMatch();
-void LogAward(char* steamid, int award);
+void LogAward(char* steamid, char* discordid, int award);
 void LogEndMatchStats();
 
 //============================================================================
@@ -1514,7 +1563,10 @@ typedef struct
 	int menu_shown;		// has the main menu been shown
 	qboolean dm_selected;		// if dm weapon selection has been done once
 
+	// Reki - added these options, controllable via userinfo cvar
 	int limp_nopred;
+	int spec_flags;
+	qboolean antilag_optout;
 
 	int mk23_mode;		// firing mode, semi or auto
 	int mp5_mode;
@@ -1805,6 +1857,13 @@ struct gclient_s
 	edict_t		*ctf_grapple;		// entity of grapple
 	int			ctf_grapplestate;		// true if pulling
 	int			ctf_grapplereleaseframe;	// frame of grapple release
+
+
+	// used for extrapolation
+	usercmd_t	cmd_last;
+
+	// visiblity mask
+	unsigned int dimension_observe;
 };
 
 
@@ -1962,73 +2021,13 @@ struct edict_s
 	int			z_history_count;
 #endif
 
+	// visibility mask
+	unsigned int dimension_visible;
+
 	// action
 	qboolean	splatted;
 	int			classnum;
 	int			typeNum;
-
-#ifndef NO_BOTS
-	int old_health;
-
-	int recheck_timeout;
-	int jumphack_timeout;
-
-	qboolean is_bot; 
-	qboolean is_jumping; 
-	qboolean is_triggering; 
-	 
-	// For movement 
-	vec3_t move_vector;  
-	float next_move_time; 
-	float wander_timeout; 
-	float suicide_timeout; 
- 
-//AQ2 ADD 
-	// Door and pause time stuff. 
-	float	last_door_time;	// Used to open doors without immediately closing them again! 
-	float	teamPauseTime;	// To stop the centipede effect and seperate the team out a little 
-	qboolean	teamReportedIn;	// Have we reported in yet? 
-	float	lastRadioTime;	// Don't use the radio too often 
-	// Path to follow 
-	ltklist_t	pathList;	// Single linked list of node numbers 
-	float	antLastCallTime;	// Check for calling complex pathsearcher 
-	// Who killed me? 
-	edict_t	*lastkilledby;	// Set in ClientObituary... 
-	int grenadewait; // Raptor007: Moved here from player_state_t.
-//AQ2 END 
- 
-	// For node code 
-	int current_node; // current node 
-	int goal_node; // current goal node 
-	int next_node; // the node that will take us one step closer to our goal 
-	int node_timeout; 
-	int last_node; 
-	int tries; 
-	 
-	// AI related stuff 
-	int weaponchoice; 
-	int equipchoice; 
-	float	fLastZoomTime;	// Time we last changed sniper zoom mode 
- 
-	// Enemy related 
-	qboolean	killchat;	// Have we reported an enemy death and taunted him 
-	vec3_t		lastSeen; 
-	qboolean	cansee; 
-	float react;            // How long enemy has been in view.
- 
-	// States 
-	int state;	//ACE only 
-	int botState; 
-	int nextState; 
-	int secondaryState; 
- 
-	// Movement 
-	int	bot_strafe; 
-	int bot_speed; 
-	qboolean	bCrawl; 
-	qboolean	bLastJump; 
-	vec3_t	lastPosition; 
-#endif
 };
 
 typedef struct
@@ -2159,6 +2158,14 @@ typedef struct team_s
 	int pauses_used, wantReset;
 	cvar_t	*teamscore;
 	edict_t	*captain;
+
+#ifdef AQTION_EXTENSION
+#ifdef AQTION_HUD
+	int	 ghud_resettime;
+	byte ghud_icon;
+	byte ghud_num;
+#endif
+#endif
 }team_t;
 
 extern team_t teams[TEAM_TOP];
@@ -2175,6 +2182,15 @@ extern int gameSettings;
 
 #include "a_ctf.h"
 #include "a_dom.h"
+
+#ifdef AQTION_EXTENSION
+extern int ghud_team1_icon;
+extern int ghud_team1_num;
+extern int ghud_team2_icon;
+extern int ghud_team2_num;
+extern int ghud_team3_icon;
+extern int ghud_team3_num;
+#endif
 
 #ifndef NO_BOTS
 #include "acesrc/acebot.h"
