@@ -319,6 +319,8 @@
 #include "g_local.h"
 #include "m_player.h"
 #include "cgf_sfx_glass.h"
+
+
 static void FreeClientEdicts(gclient_t *client)
 {
 	//remove lasersight
@@ -2682,7 +2684,6 @@ void ClientUserinfoChanged(edict_t *ent, char *userinfo)
 	} else {
 		client->pers.gender = GENDER_NEUTRAL;
 	}
-
 	// Reki - disable prediction on limping
 	s = Info_ValueForKey(userinfo, "limp_nopred");
 	int limp = atoi(s);
