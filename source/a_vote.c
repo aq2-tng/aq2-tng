@@ -1014,7 +1014,6 @@ void _CheckKickVote (void)
 
 	if (playernum < kickvote_min->value)
 		return;
-
 	if (Allkickvotes < kickvote_need->value)
 		return;
 	if (Mostkickpercent < kickvote_pass->value)

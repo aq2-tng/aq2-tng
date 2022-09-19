@@ -12,12 +12,7 @@
 // This is the PG Bund Edition V1.25 with all stuff laying around here...
 //
 //-----------------------------------------------------------------------------
-#ifdef AQTION_EXTENSION
-#define GAME_API_VERSION        4
-#else
 #define GAME_API_VERSION        3
-#endif
-
 
 // edict->svflags
 
@@ -184,10 +179,6 @@ typedef struct
   void (*AddCommandString) (char *text);
 
   void (*DebugGraph) (float value, int color);
-
-#ifdef AQTION_EXTENSION
-  void *(*CheckForExtension)(char *text);
-#endif
 }
 game_import_t;
 
@@ -233,12 +224,6 @@ typedef struct
   // The game can issue gi.argc() / gi.argv() commands to get the rest
   // of the parameters
   void (*ServerCommand) (void);
-
-#ifdef AQTION_EXTENSION
-  void* (*FetchGameExtension)(char *name);
-#endif
-
-
   //
   // global variables shared between game and server
   //
