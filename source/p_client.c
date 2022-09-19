@@ -2682,6 +2682,16 @@ void ClientUserinfoChanged(edict_t *ent, char *userinfo)
 	} else {
 		client->pers.gender = GENDER_NEUTRAL;
 	}
+
+	// Reki - disable prediction on limping
+	s = Info_ValueForKey(userinfo, "limp_nopred");
+	int limp = atoi(s);
+	if (limp == 1)
+		client->pers.limp_nopred = 1; // client explicity wants new behavior 
+	else if (s[0] == 0)
+		client->pers.limp_nopred = 2 | (client->pers.limp_nopred & 256); // client doesn't specify, so use auto threshold
+	else if (limp == 0)
+		client->pers.limp_nopred = 0; // client explicity wants old behavior
 }
 
 /*
