@@ -3032,6 +3032,11 @@ void GetSpawnPoints (void)
 	spawn_distances = (spawn_distances_t *)gi.TagMalloc (num_potential_spawns *
 					sizeof (spawn_distances_t), TAG_GAME);
 }
+// newrand returns n, where 0 >= n < top
+int newrand (int top)
+{
+	return (int) (random () * top);
+}
 
 // compare_spawn_distances is used by the qsort() call
 int compare_spawn_distances (const void *sd1, const void *sd2)

@@ -90,7 +90,6 @@ struct edict_s
 };
 
 #endif // GAME_INCLUDE
-
 //===============================================================
 //
 // functions provided by the main engine

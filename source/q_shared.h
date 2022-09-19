@@ -353,7 +353,6 @@ void ProjectPointOnPlane (vec3_t dst, const vec3_t p, const vec3_t normal);
 void PerpendicularVector (vec3_t dst, const vec3_t src);
 void RotatePointAroundVector (vec3_t dst, const vec3_t dir,
 			      const vec3_t point, float degrees);
-
 //=============================================
 
 char *COM_SkipPath (char *pathname);

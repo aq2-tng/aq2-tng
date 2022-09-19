@@ -959,6 +959,7 @@ void SpawnEntities (char *mapname, char *entities, char *spawnpoint)
 	else if (dom->value)
 	{
 		gameSettings |= GS_WEAPONCHOOSE;
+		
 		if (!teamplay->value)
 		{
 			gi.dprintf ("Domination Enabled - Forcing teamplay on\n");

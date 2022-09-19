@@ -1310,7 +1310,6 @@ void player_die (edict_t * self, edict_t * inflictor, edict_t * attacker,
 //
 void ServerCommand (void);
 qboolean SV_FilterPacket (char *from, int *temp);
-qboolean SV_FilterSBPacket(char* from, int* temp); //rekkie -- silence ban
 void Kick_Client (edict_t * ent);
 qboolean Ban_TeamKiller (edict_t * ent, int rounds);
 
@@ -1391,7 +1390,6 @@ void P_ProjectSource(gclient_t *client, vec3_t point, vec3_t distance, vec3_t fo
 void weapon_grenade_fire(edict_t* ent, qboolean held);
 void InitTookDamage(void);
 void ProduceShotgunDamageReport(edict_t*);
-
 //============================================================================
 
 // client_t->anim_priority

@@ -1900,7 +1900,6 @@ static cmdList_t commandList[] =
 	{ "resetscores", Cmd_ResetScores_f, 0 },
 	{ "gamesettings", Cmd_PrintSettings_f, 0 },
 	{ "follow", Cmd_Follow_f, 0 },
-
 	//vote stuff
 	{ "votemap", Cmd_Votemap_f, 0 },
 	{ "maplist", Cmd_Maplist_f, 0 },

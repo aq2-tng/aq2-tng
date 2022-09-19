@@ -319,7 +319,6 @@
 #include "g_local.h"
 #include "m_player.h"
 #include "cgf_sfx_glass.h"
-
 static void FreeClientEdicts(gclient_t *client)
 {
 	//remove lasersight
@@ -614,7 +613,6 @@ void player_pain(edict_t * self, edict_t * other, float kick, int damage)
 
 // ^^^
 
-
 // PrintDeathMessage: moved the actual printing of the death messages to here, to handle
 //  the fact that live players shouldn't receive them in teamplay.  -FB
 void PrintDeathMessage(char *msg, edict_t * gibee)
@@ -772,7 +770,6 @@ void ClientObituary(edict_t * self, edict_t * inflictor, edict_t * attacker)
 			PrintDeathMessage(death_msg, self);
 			IRC_printf(IRC_T_KILL, death_msg);
 			AddKilledPlayer(self->client->attacker, self);
-
 			self->client->attacker->client->radio_num_kills++;
 
 			//MODIFIED FOR FF -FB

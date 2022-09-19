@@ -525,6 +525,7 @@ void ShutdownGame (void)
 game_export_t *GetGameAPI (game_import_t * import)
 {
 	gi = *import;
+
 	globals.apiversion = GAME_API_VERSION;
 	globals.Init = InitGame;
 	globals.Shutdown = ShutdownGame;
@@ -625,6 +626,7 @@ void ClientEndServerFrames (void)
 				PMenu_Update(ent);
 			else
 				DeathmatchScoreboardMessage(ent, ent->enemy);
+				
 			gi.unicast(ent, false);
 		}
 		if (teamplay->value && !ent->client->resp.team)
