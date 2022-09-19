@@ -959,7 +959,7 @@ void SpawnEntities (char *mapname, char *entities, char *spawnpoint)
 	else if (dom->value)
 	{
 		gameSettings |= GS_WEAPONCHOOSE;
-		
+
 		if (!teamplay->value)
 		{
 			gi.dprintf ("Domination Enabled - Forcing teamplay on\n");
@@ -1006,7 +1006,6 @@ void SpawnEntities (char *mapname, char *entities, char *spawnpoint)
 	else if (use_3teams->value)
 	{
 		gameSettings |= (GS_ROUNDBASED | GS_WEAPONCHOOSE);
-
 		if (!teamplay->value)
 		{
 			gi.dprintf ("3 Teams Enabled - Forcing teamplay on\n");
@@ -1035,7 +1034,6 @@ void SpawnEntities (char *mapname, char *entities, char *spawnpoint)
 	else if (use_tourney->value)
 	{
 		gameSettings |= (GS_ROUNDBASED | GS_WEAPONCHOOSE);
-
 		if (!teamplay->value)
 		{
 			gi.dprintf ("Tourney Enabled - Forcing teamplay on\n");

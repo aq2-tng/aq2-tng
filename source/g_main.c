@@ -626,7 +626,7 @@ void ClientEndServerFrames (void)
 				PMenu_Update(ent);
 			else
 				DeathmatchScoreboardMessage(ent, ent->enemy);
-				
+
 			gi.unicast(ent, false);
 		}
 		if (teamplay->value && !ent->client->resp.team)

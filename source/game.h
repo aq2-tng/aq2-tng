@@ -90,7 +90,9 @@ struct edict_s
 };
 
 #endif // GAME_INCLUDE
+
 //===============================================================
+
 //
 // functions provided by the main engine
 //
@@ -223,6 +225,7 @@ typedef struct
   // The game can issue gi.argc() / gi.argv() commands to get the rest
   // of the parameters
   void (*ServerCommand) (void);
+
   //
   // global variables shared between game and server
   //

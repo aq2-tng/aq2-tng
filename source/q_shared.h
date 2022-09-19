@@ -353,6 +353,8 @@ void ProjectPointOnPlane (vec3_t dst, const vec3_t p, const vec3_t normal);
 void PerpendicularVector (vec3_t dst, const vec3_t src);
 void RotatePointAroundVector (vec3_t dst, const vec3_t dir,
 			      const vec3_t point, float degrees);
+
+
 //=============================================
 
 char *COM_SkipPath (char *pathname);
@@ -661,6 +663,7 @@ typedef struct
   short gravity;
   short delta_angles[3];	// add to command angles to get view direction
   // changed by spawns, rotating objects, and teleporters
+
 }
 pmove_state_t;
 
