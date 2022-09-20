@@ -978,7 +978,7 @@ void SpawnEntities (char *mapname, char *entities, char *spawnpoint)
 			gi.dprintf ("Domination Enabled - Forcing Tourney off\n");
 			gi.cvar_forceset(use_tourney->name, "0");
 		}
-				Q_strncpyz(teams[TEAM1].name, "RED", sizeof(teams[TEAM1].name));
+		Q_strncpyz(teams[TEAM1].name, "RED", sizeof(teams[TEAM1].name));
 		Q_strncpyz(teams[TEAM2].name, "BLUE", sizeof(teams[TEAM2].name));
 		Q_strncpyz(teams[TEAM3].name, "BLUE", sizeof(teams[TEAM3].name));
 		Q_strncpyz(teams[TEAM1].skin, "male/ctf_r", sizeof(teams[TEAM1].skin));
