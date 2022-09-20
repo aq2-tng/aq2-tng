@@ -1071,6 +1071,8 @@ void SpawnEntities (char *mapname, char *entities, char *spawnpoint)
 		}
 	}
 
+	// Set the gamemodeflag for serverinfo
+	Gamemodeflag();
 
 	gi.cvar_forceset(maptime->name, "0:00");
 
