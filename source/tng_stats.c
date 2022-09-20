@@ -488,23 +488,6 @@ void Cmd_Statmode_f(edict_t* ent)
 	stuffcmd(ent, stuff);
 }
 
-int Gamemode(void) // These are distinct game modes; you cannot have a teamdm tourney mode, for example
-{
-	int gamemode = 0;
-	if (teamdm->value) {
-		gamemode = GM_TEAMDM;
-	} else if (ctf->value) {
-		gamemode = GM_CTF;
-	} else if (use_tourney->value) {
-		gamemode = GM_TOURNEY;
-	} else if (teamplay->value) {
-		gamemode = GM_TEAMPLAY;  
-	} else if (deathmatch->value) {
-		gamemode = GM_DEATHMATCH;
-	}
-	return gamemode;
-}
-
 int Gamemodeflag(void) 
 // These are gamemode flags that change the rules of gamemodes.
 // For example, you can have a darkmatch matchmode 3team teamplay server
@@ -514,9 +497,6 @@ int Gamemodeflag(void)
 
 	if (use_3teams->value) {
 		gamemodeflag += GMF_3TEAMS;
-	}
-	if (dom->value) {
-		gamemodeflag += GMF_DOMINATION;
 	}
 	if (darkmatch->value) {
 		gamemodeflag += GMF_DARKMATCH;

@@ -951,12 +951,12 @@ void SpawnEntities (char *mapname, char *entities, char *spawnpoint)
 			gi.dprintf ("CTF Enabled - Forcing Friendly Fire off\n");
 			gi.cvar_forceset(dmflags->name, va("%i", (int)dmflags->value | DF_NO_FRIENDLY_FIRE));
 		}
-		strcpy(teams[TEAM1].name, "RED");
-		strcpy(teams[TEAM2].name, "BLUE");
-		strcpy(teams[TEAM1].skin, "male/ctf_r");
-		strcpy(teams[TEAM2].skin, "male/ctf_b");
-		strcpy(teams[TEAM1].skin_index, "i_ctf1");
-		strcpy(teams[TEAM2].skin_index, "i_ctf2");
+		Q_strncpyz(teams[TEAM1].name, "RED", sizeof(teams[TEAM1].name));
+		Q_strncpyz(teams[TEAM2].name, "BLUE", sizeof(teams[TEAM2].name));
+		Q_strncpyz(teams[TEAM1].skin, "male/ctf_r", sizeof(teams[TEAM1].skin));
+		Q_strncpyz(teams[TEAM2].skin, "male/ctf_b", sizeof(teams[TEAM2].skin));
+		Q_strncpyz(teams[TEAM1].skin_index, "i_ctf1", sizeof(teams[TEAM1].skin_index));
+		Q_strncpyz(teams[TEAM2].skin_index, "i_ctf2", sizeof(teams[TEAM2].skin_index));
 	}
 	else if (dom->value)
 	{
@@ -978,15 +978,15 @@ void SpawnEntities (char *mapname, char *entities, char *spawnpoint)
 			gi.dprintf ("Domination Enabled - Forcing Tourney off\n");
 			gi.cvar_forceset(use_tourney->name, "0");
 		}
-		strcpy(teams[TEAM1].name, "RED");
-		strcpy(teams[TEAM2].name, "BLUE");
-		strcpy(teams[TEAM3].name, "GREEN");
-		strcpy(teams[TEAM1].skin, "male/ctf_r");
-		strcpy(teams[TEAM2].skin, "male/ctf_b");
-		strcpy(teams[TEAM3].skin, "male/commando");
-		strcpy(teams[TEAM1].skin_index, "i_ctf1");
-		strcpy(teams[TEAM2].skin_index, "i_ctf2");
-		strcpy(teams[TEAM3].skin_index, "i_pack");
+				Q_strncpyz(teams[TEAM1].name, "RED", sizeof(teams[TEAM1].name));
+		Q_strncpyz(teams[TEAM2].name, "BLUE", sizeof(teams[TEAM2].name));
+		Q_strncpyz(teams[TEAM3].name, "BLUE", sizeof(teams[TEAM3].name));
+		Q_strncpyz(teams[TEAM1].skin, "male/ctf_r", sizeof(teams[TEAM1].skin));
+		Q_strncpyz(teams[TEAM2].skin, "male/ctf_b", sizeof(teams[TEAM2].skin));
+		Q_strncpyz(teams[TEAM3].skin, "male/commando", sizeof(teams[TEAM3].skin));
+		Q_strncpyz(teams[TEAM1].skin_index, "i_ctf1", sizeof(teams[TEAM1].skin_index));
+		Q_strncpyz(teams[TEAM2].skin_index, "i_ctf2", sizeof(teams[TEAM2].skin_index));
+		Q_strncpyz(teams[TEAM3].skin_index, "i_pack", sizeof(teams[TEAM3].skin_index));
 	}
 	else if(teamdm->value)
 	{
@@ -1545,15 +1545,15 @@ void SP_worldspawn (edict_t * ent)
 				// If the action.ini file isn't found, set default skins rather than kill the server
 				gi.dprintf("WARNING: No skin was specified for team %i in config file, server either could not find it or is does not exist.\n", i);
 				gi.dprintf("Setting default team names, skins and skin indexes.\n", i);
-				strcpy(teams[TEAM1].name, "RED");
-				strcpy(teams[TEAM2].name, "BLUE");
-				strcpy(teams[TEAM3].name, "GREEN");
-				strcpy(teams[TEAM1].skin, "male/ctf_r");
-				strcpy(teams[TEAM2].skin, "male/ctf_b");
-				strcpy(teams[TEAM3].skin, "male/ctf_g");
-				strcpy(teams[TEAM1].skin_index, "ctf_r_i");
-				strcpy(teams[TEAM2].skin_index, "ctf_b_i");
-				strcpy(teams[TEAM3].skin_index, "ctf_g_i");
+				Q_strncpyz(teams[TEAM1].name, "RED", sizeof(teams[TEAM1].name));
+				Q_strncpyz(teams[TEAM2].name, "BLUE", sizeof(teams[TEAM2].name));
+				Q_strncpyz(teams[TEAM3].name, "BLUE", sizeof(teams[TEAM3].name));
+				Q_strncpyz(teams[TEAM1].skin, "male/ctf_r", sizeof(teams[TEAM1].skin));
+				Q_strncpyz(teams[TEAM2].skin, "male/ctf_b", sizeof(teams[TEAM2].skin));
+				Q_strncpyz(teams[TEAM3].skin, "male/ctf_b", sizeof(teams[TEAM3].skin));
+				Q_strncpyz(teams[TEAM1].skin_index, "i_ctf1", sizeof(teams[TEAM1].skin_index));
+				Q_strncpyz(teams[TEAM2].skin_index, "i_ctf2", sizeof(teams[TEAM2].skin_index));
+				Q_strncpyz(teams[TEAM3].skin_index, "i_ctf2", sizeof(teams[TEAM3].skin_index));
 				//exit(1);
 			}
 			level.pic_teamskin[i] = gi.imageindex(teams[i].skin_index);

@@ -617,11 +617,12 @@ bind 6 "use Sniper Rifle"
 #define GM_CTF 2
 #define GM_TOURNEY 3
 #define GM_DEATHMATCH 4
+#define GM_DOMINATION 5
 
 // Game Mode Flags
 #define GMF_NONE 0
 #define GMF_3TEAMS 1
-#define GMF_DOMINATION 2
+//#define NEW_MODE 2       // If new game mode flags are created, use 2 for its value first
 #define GMF_DARKMATCH 4
 #define GMF_MATCHMODE 8
 
