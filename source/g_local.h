@@ -611,6 +611,20 @@ bind 6 "use Sniper Rifle"
 #define AMMO_FIRST				ITEM_MAX
 #define AMMO_MAX				AMMO_FIRST+AMMO_COUNT
 
+// Game Modes
+#define GM_TEAMPLAY 0
+#define GM_TEAMDM 1
+#define GM_CTF 2
+#define GM_TOURNEY 3
+#define GM_DEATHMATCH 4
+
+// Game Mode Flags
+#define GMF_NONE 0
+#define GMF_3TEAMS 1
+#define GMF_DOMINATION 2
+#define GMF_DARKMATCH 4
+#define GMF_MATCHMODE 8
+
 //AQ2:TNG - Igor adding wp_flags/itm_flags
 #define STRINGIFY(x) #x
 #define TOSTRING(x) STRINGIFY(x)
