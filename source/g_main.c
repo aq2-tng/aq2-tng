@@ -464,9 +464,11 @@ cvar_t *medkit_instant;
 
 cvar_t *jump;			// jumping mod
 
-// AQ2 ETE Add
+// BEGIN AQ2 ETE
 cvar_t *e_enhancedSlippers;
+// END AQ2 ETE
 
+// 2022
 cvar_t *sv_limp_highping;
 cvar_t *mapvote_next_limit;
 

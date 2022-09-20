@@ -1109,9 +1109,12 @@ extern cvar_t *medkit_drop;
 extern cvar_t *medkit_time;
 extern cvar_t *medkit_instant;
 
-// AQ2 ETE
+// BEGIN AQ2 ETE
 extern cvar_t *e_enhancedSlippers;
 
+// END AQ2 ETE
+
+// 2022
 extern cvar_t *sv_limp_highping;
 extern cvar_t *mapvote_next_limit;
 
