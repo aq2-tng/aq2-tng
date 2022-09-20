@@ -980,7 +980,7 @@ void SpawnEntities (char *mapname, char *entities, char *spawnpoint)
 		}
 		Q_strncpyz(teams[TEAM1].name, "RED", sizeof(teams[TEAM1].name));
 		Q_strncpyz(teams[TEAM2].name, "BLUE", sizeof(teams[TEAM2].name));
-		Q_strncpyz(teams[TEAM3].name, "BLUE", sizeof(teams[TEAM3].name));
+		Q_strncpyz(teams[TEAM3].name, "GREEN", sizeof(teams[TEAM3].name));
 		Q_strncpyz(teams[TEAM1].skin, "male/ctf_r", sizeof(teams[TEAM1].skin));
 		Q_strncpyz(teams[TEAM2].skin, "male/ctf_b", sizeof(teams[TEAM2].skin));
 		Q_strncpyz(teams[TEAM3].skin, "male/commando", sizeof(teams[TEAM3].skin));
@@ -1549,13 +1549,13 @@ void SP_worldspawn (edict_t * ent)
 				gi.dprintf("Setting default team names, skins and skin indexes.\n", i);
 				Q_strncpyz(teams[TEAM1].name, "RED", sizeof(teams[TEAM1].name));
 				Q_strncpyz(teams[TEAM2].name, "BLUE", sizeof(teams[TEAM2].name));
-				Q_strncpyz(teams[TEAM3].name, "BLUE", sizeof(teams[TEAM3].name));
+				Q_strncpyz(teams[TEAM3].name, "GREEN", sizeof(teams[TEAM3].name));
 				Q_strncpyz(teams[TEAM1].skin, "male/ctf_r", sizeof(teams[TEAM1].skin));
 				Q_strncpyz(teams[TEAM2].skin, "male/ctf_b", sizeof(teams[TEAM2].skin));
-				Q_strncpyz(teams[TEAM3].skin, "male/ctf_b", sizeof(teams[TEAM3].skin));
+				Q_strncpyz(teams[TEAM3].skin, "male/commando", sizeof(teams[TEAM3].skin));
 				Q_strncpyz(teams[TEAM1].skin_index, "i_ctf1", sizeof(teams[TEAM1].skin_index));
 				Q_strncpyz(teams[TEAM2].skin_index, "i_ctf2", sizeof(teams[TEAM2].skin_index));
-				Q_strncpyz(teams[TEAM3].skin_index, "i_ctf2", sizeof(teams[TEAM3].skin_index));
+				Q_strncpyz(teams[TEAM3].skin_index, "i_pack", sizeof(teams[TEAM3].skin_index));
 				//exit(1);
 			}
 			level.pic_teamskin[i] = gi.imageindex(teams[i].skin_index);
