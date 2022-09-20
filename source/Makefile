@@ -99,34 +99,10 @@ SHLIBEXT=dll
 SHLIBLIBS=-lws2_32
 endif
 
-ifeq ($(USE_AQTION),TRUE)
-CFLAGS += -DUSE_AQTION -DAQTION_EXTENSION
-
-ifneq (,$(findstring WIN32,$(TNG_BUILD_FOR))$(findstring WIN64,$(TNG_BUILD_FOR)))
-CFLAGS += -I../q2pro-mgw-sdk/inc -DCURL_STATICLIB
-SHLIBLIBS += -lcurl -lcrypt32 -lwsock32 -lz -lws2_32
-ifeq ($(TNG_BUILD_FOR),WIN32)
-CFLAGS += -L../q2pro-mgw-sdk/lib
-else ifeq ($(TNG_BUILD_FOR),WIN64)
-CFLAGS += -L../q2pro-mgw-sdk/lib64
-endif
-
-else # Linux + Mac
-
-CURL_CFLAGS ?= $(shell pkg-config libcurl --cflags)
-CURL_LIBS ?= $(shell pkg-config libcurl --libs)
-CFLAGS += -DUSE_CURL=1 $(CURL_CFLAGS) 
-SHLIBLIBS=-luuid -lcurl
-endif
-endif
-
 ifeq ($(ARCH),x86)
 CFLAGS+=-m32
 endif
 
-ifdef NO_BOTS
-CFLAGS+=-DNO_BOTS
-endif
 
 #############################################################################
 # SETUP AND BUILD
@@ -140,7 +116,7 @@ GAME_OBJS = \
 	a_cmds.o a_ctf.o a_doorkick.o a_game.o a_items.o a_match.o \
 	a_menu.o a_radio.o a_team.o a_tourney.o a_vote.o a_xcmds.o a_xgame.o \
 	a_xmenu.o a_xvote.o cgf_sfx_glass.o g_chase.o g_cmds.o \
-	g_combat.o g_func.o g_items.o g_main.o g_misc.o g_ext.o \
+	g_combat.o g_func.o g_items.o g_main.o g_misc.o \
 	g_phys.o g_save.o g_spawn.o g_svcmds.o g_target.o g_trigger.o \
 	g_utils.o g_weapon.o \
 	p_antilag.o p_client.o p_hud.o p_view.o p_weapon.o q_shared.o \

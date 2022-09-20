@@ -51,15 +51,6 @@
 
 #include "g_local.h"
 
-#ifdef AQTION_EXTENSION
-int ghud_team1_icon;
-int ghud_team1_num;
-int ghud_team2_icon;
-int ghud_team2_num;
-int ghud_team3_icon;
-int ghud_team3_num;
-#endif
-
 
 /*
   ======================================================================
@@ -129,14 +120,6 @@ void BeginIntermission(edict_t *targ)
 		return;			// already activated
 
 	level.intermission_framenum = level.realFramenum;
-
-	// Stats begin
-	#if USE_AQTION
-	if (stat_logs->value && !ltk_loadbots->value) {
-		LogEndMatchStats(); // Generates end of match logs
-	}
-	#endif
-	// Stats end
 
 	if (ctf->value)
 		CTFCalcScores();
