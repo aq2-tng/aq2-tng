@@ -1116,12 +1116,8 @@ extern cvar_t *e_enhancedSlippers;
 
 // 2022
 extern cvar_t *sv_limp_highping;
-extern cvar_t *mapvote_next_limit;
 extern cvar_t *server_id; // Unique server_id
-extern cvar_t *stat_logs; // Enables/disables logging of stats
 extern cvar_t *mapvote_next_limit; // Time left that disables map voting
-extern cvar_t *stat_apikey; // Stats URL key
-extern cvar_t *stat_url; // Stats URL endpoint
 extern cvar_t *gm; // Gamemode
 extern cvar_t *gmf; // Gamemodeflags
 
