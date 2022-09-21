@@ -1117,6 +1117,7 @@ extern cvar_t *e_enhancedSlippers;
 // 2022
 extern cvar_t *sv_limp_highping;
 extern cvar_t *mapvote_next_limit;
+extern cvar_t *sv_idleremove; // Remove idlers
 
 #define world   (&g_edicts[0])
 
@@ -1518,6 +1519,7 @@ typedef struct
   int team_wounds;
   
   int idletime;
+  int totalidletime;
   int tourneynumber;
   edict_t *kickvote;
 
