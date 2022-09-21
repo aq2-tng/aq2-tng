@@ -472,6 +472,8 @@ cvar_t *e_enhancedSlippers;
 cvar_t *sv_limp_highping;
 cvar_t *mapvote_next_limit;
 cvar_t *sv_idleremove;
+cvar_t *gm;
+cvar_t *gmf;
 
 void SpawnEntities (char *mapname, char *entities, char *spawnpoint);
 void ClientThink (edict_t * ent, usercmd_t * cmd);
