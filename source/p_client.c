@@ -3183,11 +3183,9 @@ void ClientThink(edict_t * ent, usercmd_t * ucmd)
 		}
 	}
 
-	if( ucmd->forwardmove || ucmd->sidemove || client->oldbuttons != client->buttons
-		|| (ent->solid == SOLID_NOT && ent->deadflag != DEAD_DEAD) ) { // No idle noises at round start.
-			client->resp.idletime = 0;
-			client->resp.totalidletime = 0;
-		}
+	if( ucmd->forwardmove || ucmd->sidemove || (client->oldbuttons != client->buttons)
+	|| ((ent->solid == SOLID_NOT) && (ent->deadflag != DEAD_DEAD)) ) // No idle noises at round start.
+		client->resp.idletime = 0;
 	else if( ! client->resp.idletime )
 		client->resp.idletime = level.framenum;
 }
@@ -3326,43 +3324,32 @@ void ClientBeginServerFrame(edict_t * ent)
 		return;
 	}
 
-	if (ent->solid != SOLID_NOT)
+	if( IS_ALIVE(ent) )
 	{
-		int idleframes, remove_idleframes, idler_team;
+		int idleframes = client->resp.idletime ? (level.framenum - client->resp.idletime) : 0;
 
 		if( client->punch_desired && ! client->jumping && ! lights_camera_action && ! client->uvTime )
 			punch_attack( ent );
 		client->punch_desired = false;
 
-		idleframes = ppl_idletime->value * HZ;
-		if( (idleframes > 0) && client->resp.idletime && IS_ALIVE(ent) && (level.framenum >= client->resp.idletime + idleframes) )
-		{
+		if( (ppl_idletime->value > 0) && idleframes && (idleframes % (int)(ppl_idletime->value * HZ) == 0) )
 			//plays a random sound/insane sound, insane1-9.wav
 			gi.sound( ent, CHAN_VOICE, gi.soundindex(va( "insane/insane%i.wav", rand() % 9 + 1 )), 1, ATTN_NORM, 0 );
-			client->resp.totalidletime = client->resp.totalidletime + client->resp.idletime;
-			client->resp.idletime = 0;
-		}
 
-		remove_idleframes = sv_idleremove->value * HZ;
-		if( sv_idleremove->value > 0 && (remove_idleframes > 0) && client->resp.totalidletime &&
-			(level.framenum >= client->resp.totalidletime + remove_idleframes))
+		if( (sv_idleremove->value > 0) && (idleframes > (sv_idleremove->value * HZ)) && client->resp.team )
 		{
-			if (client->resp.team != 0) {
-				// Get team number of idle player
-				idler_team = client->resp.team;
-				// Removes member from team once sv_idleremove value in seconds has been reached in resp.totalidletime
-				if (teamplay->value) {
-					LeaveTeam(ent);
-				}
-				if (matchmode->value) {
-					MM_LeftTeam(ent);
-					teams[idler_team].ready = 0;
-				}
-				client->resp.totalidletime = 0;
-				client->resp.idletime = 0;
-				gi.dprintf("%s has been removed from play due to reaching the sv_idleremove timer of %i seconds\n",
-				client->pers.netname, (int) sv_idleremove->value );
+			// Removes member from team once sv_idleremove value in seconds has been reached
+			int idler_team = client->resp.team;
+			if( teamplay->value )
+				LeaveTeam( ent );
+			if( matchmode->value )
+			{
+				MM_LeftTeam( ent );
+				teams[ idler_team ].ready = 0;
 			}
+			client->resp.idletime = 0;
+			gi.dprintf( "%s has been removed from play due to reaching the sv_idleremove timer of %i seconds\n",
+				client->pers.netname, (int) sv_idleremove->value );
 		}
 
 		if (client->autoreloading && (client->weaponstate == WEAPON_END_MAG)

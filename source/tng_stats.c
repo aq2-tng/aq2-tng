@@ -488,7 +488,7 @@ void Cmd_Statmode_f(edict_t* ent)
 	stuffcmd(ent, stuff);
 }
 
-int Gamemodeflag(void) 
+int Gamemodeflag(void)
 // These are gamemode flags that change the rules of gamemodes.
 // For example, you can have a darkmatch matchmode 3team teamplay server
 {
