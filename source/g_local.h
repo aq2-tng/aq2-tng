@@ -1135,6 +1135,7 @@ extern cvar_t *server_id; // Unique server_id
 extern cvar_t *mapvote_next_limit; // Time left that disables map voting
 extern cvar_t *gm; // Gamemode
 extern cvar_t *gmf; // Gamemodeflags
+extern cvar_t *sv_idleremove; // Remove idlers
 
 #define world   (&g_edicts[0])
 
@@ -1536,6 +1537,7 @@ typedef struct
   int team_wounds;
   
   int idletime;
+  int totalidletime;
   int tourneynumber;
   edict_t *kickvote;
 
