@@ -185,12 +185,12 @@ if (ltk_loadbots->value){
 				return; // bail
 		}
 
-		// Now scan each line for information
-		// First line should be the file version number
-		fgets( inString, 80, pIn );
-		sp = inString;
-		tp = tokenString;
-		ttype = UNDEF;
+	// Now scan each line for information
+	// First line should be the file version number
+	fgets( inString, 80, pIn );
+	sp = inString;
+	tp = tokenString;
+	ttype = UNDEF;
 
 		// Scan it for the version number
 		scanner( &sp, tp, &ttype );
