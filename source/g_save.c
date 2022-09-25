@@ -343,7 +343,7 @@ void InitGame( void )
 	dedicated = gi.cvar( "dedicated", "0", CVAR_NOSET );
 
 	sv_cheats = gi.cvar( "cheats", "0", CVAR_SERVERINFO | CVAR_LATCH );
-	gi.cvar( "gamename", GAMEVERSION, CVAR_SERVERINFO | CVAR_NOSET );
+	gi.cvar( "gamename", GAMEVERSION, CVAR_SERVERINFO | CVAR_NOSET ); // Removed it from Serverinfo, we already have game and gamedir
 	gi.cvar( "gamedate", __DATE__, CVAR_SERVERINFO | CVAR_NOSET );
 	actionversion = gi.cvar( "actionversion", "TNG " VERSION, CVAR_SERVERINFO | CVAR_NOSET );
 	gi.cvar_set( "actionversion", "TNG " VERSION );
@@ -371,7 +371,7 @@ void InitGame( void )
 	filterban = gi.cvar( "filterban", "1", 0 );
 	needpass = gi.cvar( "needpass", "0", CVAR_SERVERINFO );
 	radiolog = gi.cvar( "radiolog", "0", 0 );
-	teamplay = gi.cvar( "teamplay", "0", CVAR_SERVERINFO | CVAR_LATCH );
+	teamplay = gi.cvar( "teamplay", "0", /*CVAR_SERVERINFO | */ CVAR_LATCH ); //Removed in favor of 'gm' (gamemode)
 	motd_time = gi.cvar( "motd_time", "2", 0 );
 	hostname = gi.cvar( "hostname", "unnamed", CVAR_SERVERINFO );
 	strtwpn = gi.cvar( "dmweapon", MK23_NAME, 0 );
@@ -394,17 +394,16 @@ void InitGame( void )
 	noscore = gi.cvar( "noscore", "0", CVAR_LATCH );	// Was serverinfo
 	hud_noscore = gi.cvar( "hud_noscore", "0", CVAR_LATCH ); // Hide score from HUD in teamplay.
 	use_newscore = gi.cvar( "use_newscore", "0", 0 );
-	scores2teamplay = gi.cvar( "scores2teamplay", "487", 0 ); // Flags: T+t+P+K+D+d+A
-	scores2ctf = gi.cvar( "scores2ctf", "31", 0 );            // Flags: T+t+P+C+S
+	scoreboard = gi.cvar( "scoreboard", "", 0 );
 	use_voice = gi.cvar( "use_voice", "1", 0 );	//slicer
 	ppl_idletime = gi.cvar( "ppl_idletime", "15", 0 );
 	use_buggy_bandolier = gi.cvar( "use_buggy_bandolier", "0", 0 );
-	use_tourney = gi.cvar( "use_tourney", "0", CVAR_SERVERINFO | CVAR_LATCH );
-	use_3teams = gi.cvar( "use_3teams", "0", CVAR_SERVERINFO | CVAR_LATCH );
+	use_tourney = gi.cvar( "use_tourney", "0", /*CVAR_SERVERINFO | */ CVAR_LATCH ); //Removed in favor of 'gm' (gamemode)
+	use_3teams = gi.cvar( "use_3teams", "0", /*CVAR_SERVERINFO | */ CVAR_LATCH ); //Removed in favor of 'gmf' (gamemodeflags)
 	use_kickvote = gi.cvar( "use_kickvote", "1", 0 );	//slicer
 	use_mapvote = gi.cvar( "use_mapvote", "1", 0 );	//slicer
 	use_scramblevote = gi.cvar( "use_scramblevote", "1", 0 );	//slicer
-	ctf = gi.cvar( "ctf", "0", CVAR_SERVERINFO | CVAR_LATCH );
+	ctf = gi.cvar( "ctf", "0", /*CVAR_SERVERINFO | */ CVAR_LATCH ); //Removed in favor of 'gm' (gamemode)
 	ctf_forcejoin = gi.cvar( "ctf_forcejoin", "", 0 );
 	ctf_mode = gi.cvar( "ctf_mode", "0", 0 );
 	ctf_dropflag = gi.cvar( "ctf_dropflag", "1", 0 );
@@ -413,7 +412,7 @@ void InitGame( void )
 	medkit_drop = gi.cvar( "medkit_drop", "0", 0 );
 	medkit_time = gi.cvar( "medkit_time", "30", 0 );
 	medkit_instant = gi.cvar( "medkit_instant", "0", 0 );
-	dom = gi.cvar( "dom", "0", CVAR_SERVERINFO | CVAR_LATCH );
+	dom = gi.cvar( "dom", "0", /*CVAR_SERVERINFO | */ CVAR_LATCH ); //Removed in favor of 'gm' (gamemode)
 	use_grapple = gi.cvar( "use_grapple", "0", 0 );
 	mv_public = gi.cvar( "mv_public", "0", 0 );	//slicer 
 	vk_public = gi.cvar( "vk_public", "0", 0 );	//slicer
@@ -502,8 +501,8 @@ void InitGame( void )
 	unique_items = gi.cvar( "items", "1", CVAR_SERVERINFO | CVAR_LATCH );
 	ir = gi.cvar( "ir", "1", 0 );
 	knifelimit = gi.cvar( "knifelimit", "40", 0 );
-	allweapon = gi.cvar( "allweapon", "0", CVAR_SERVERINFO );
-	allitem = gi.cvar( "allitem", "0", CVAR_SERVERINFO );
+	allweapon = gi.cvar( "allweapon", "0", 0 ); 	// Removed it from Serverinfo
+	allitem = gi.cvar( "allitem", "0", 0 ); 	// Removed it from Serverinfo
 	allow_hoarding = gi.cvar( "allow_hoarding", "0", CVAR_LATCH );
 	tgren = gi.cvar( "tgren", "0", CVAR_SERVERINFO );
 	//SLIC2
@@ -536,7 +535,7 @@ void InitGame( void )
 	// flood control
 	flood_threshold = gi.cvar( "flood_threshold", "4", 0 );
 
-	jump = gi.cvar ("jump", "0", CVAR_SERVERINFO|CVAR_LATCH); // jumping mod
+	jump = gi.cvar ("jump", "0", /*CVAR_SERVERINFO|*/ CVAR_LATCH); // jumping mod -- Removed from Serverinfo
 
 	warmup = gi.cvar( "warmup", "0", CVAR_LATCH );
 	round_begin = gi.cvar( "round_begin", "15", 0 );
@@ -548,23 +547,26 @@ void InitGame( void )
 	e_enhancedSlippers = gi.cvar( "e_enhancedSlippers", "0", 0);
 	// END AQ2 ETE
 
-	sv_antilag = gi.cvar("sv_antilag", "0", CVAR_SERVERINFO);
-	sv_limp_highping = gi.cvar("sv_limp_highping", "70", CVAR_SERVERINFO);
+	// 2022
+	sv_antilag = gi.cvar("sv_antilag", "1", CVAR_SERVERINFO);
+	sv_antilag_interp = gi.cvar("sv_antilag_interp", "0", CVAR_SERVERINFO);
+	sv_limp_highping = gi.cvar("sv_limp_highping", "70", 0); // Removed it from Serverinfo
+	mapvote_next_limit = gi.cvar( "mapvote_next_limit", "0", 0);
+	gm = gi.cvar("gm", "dm", CVAR_SERVERINFO);
+	gmf = gi.cvar("gmf", "0", CVAR_SERVERINFO);
+	sv_idleremove = gi.cvar("sv_idleremove", "0", 0);
 
 #ifndef NO_BOTS
 	// bots
-	ltk_jumpy = gi.cvar( "ltk_jumpy", "1", CVAR_SERVERINFO );
-	ltk_skill = gi.cvar( "ltk_skill", "5", 0 );
+	ltk_jumpy = gi.cvar( "ltk_jumpy", "1", 0 );
+	ltk_skill = gi.cvar( "ltk_skill", "5", CVAR_SERVERINFO );
 	ltk_showpath = gi.cvar( "ltk_showpath", "0", 0 );
 	ltk_chat = gi.cvar( "ltk_chat", "1", 0 );
 	ltk_routing = gi.cvar( "ltk_routing", "0", 0 );
-	ltk_botfile = gi.cvar( "ltk_botfile", "botdata", 0);
-	ltk_loadbots = gi.cvar( "ltk_loadbots", "1", CVAR_LATCH);
 #endif
 
 	// items
 	InitItems();
-
 
 	// initialize all clients for this game
 	game.maxclients = (int)maxclients->value;

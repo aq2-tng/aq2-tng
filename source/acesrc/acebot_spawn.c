@@ -136,98 +136,87 @@ void ACESP_LoadBotConfig()
 	game_dir = gi.cvar ("game", "action", 0);
 	botdir = gi.cvar ("botdir", "bots", 0);
 
-if (ltk_loadbots->value == 1){
-		// Try to load the file for THIS level
-	#ifdef	_WIN32
+	// Try to load the file for THIS level
+#ifdef	_WIN32
+	i =  sprintf(filename, ".\\");
+	i += sprintf(filename + i, game_dir->string);
+	i += sprintf(filename + i, "\\");
+	i += sprintf(filename + i, botdir->string);
+	i += sprintf(filename + i, "\\");
+	i += sprintf(filename + i, level.mapname);
+	i += sprintf(filename + i, ".cfg");
+#else
+	strcpy(filename, "./");
+	strcat(filename, game_dir->string);
+	strcat(filename, "/");
+	strcat(filename, botdir->string);
+	strcat(filename, "/");
+	strcat(filename, level.mapname);
+	strcat(filename, ".cfg");
+#endif
+
+	// If there's no specific file for this level then get the normal one
+	if((pIn = fopen(filename, "rb" )) == NULL)
+	{
+#ifdef	_WIN32
 		i =  sprintf(filename, ".\\");
 		i += sprintf(filename + i, game_dir->string);
 		i += sprintf(filename + i, "\\");
 		i += sprintf(filename + i, botdir->string);
-		i += sprintf(filename + i, "\\");
-		i += sprintf(filename + i, level.mapname);
-		i += sprintf(filename + i, ".cfg");
-	#else
+		i += sprintf(filename + i, "\\botdata.cfg");
+#else
 		strcpy(filename, "./");
 		strcat(filename, game_dir->string);
 		strcat(filename, "/");
 		strcat(filename, botdir->string);
-		strcat(filename, "/");
-		strcat(filename, level.mapname);
-		strcat(filename, ".cfg");
-	#endif
+		strcat(filename, "/botdata.cfg");
+#endif
 
-		// If there's no specific file for this level, then
-		// load the file name from value ltk_botfile (default is botdata.cfg)
+		// No bot file available, get out of here!
 		if((pIn = fopen(filename, "rb" )) == NULL)
-		{
-	#ifdef	_WIN32
-			i =  sprintf(filename, ".\\");
-			i += sprintf(filename + i, game_dir->string);
-			i += sprintf(filename + i, "\\");
-			i += sprintf(filename + i, botdir->string);
-			i += sprintf(filename + i, "\\");
-			i += sprintf(filename + i, ltk_botfile->string);
-			i += sprintf(filename + i, ".cfg");
-	#else
-			strcpy(filename, "./");
-			strcat(filename, game_dir->string);
-			strcat(filename, "/");
-			strcat(filename, botdir->string);
-			strcat(filename, "/");
-			strcat(filename, ltk_botfile->string);
-			strcat(filename, ".cfg");
-	#endif
-
-			// No bot file available, get out of here!
-			if((pIn = fopen(filename, "rb" )) == NULL)
-				gi.dprintf("WARNING: No file containing bot data was found, no bots loaded.\n");
-				gi.dprintf("ltk_botfile value is %s\n", ltk_botfile->string);
-				return; // bail
-		}
-
-		// Now scan each line for information
-		// First line should be the file version number
-		fgets( inString, 80, pIn );
-		sp = inString;
-		tp = tokenString;
-		ttype = UNDEF;
-
-		// Scan it for the version number
-		scanner( &sp, tp, &ttype );
-		if(ttype == BANG)
-		{
-			scanner( &sp, tp, &ttype );
-			if(ttype == INTLIT)
-			{
-				fileVersion = atoi( tokenString );
-			}
-			if( fileVersion != CONFIG_FILE_VERSION )
-			{
-				// ERROR!
-				gi.bprintf(PRINT_HIGH, "Bot Config file is out of date!\n");
-				fclose(pIn);
-				return;
-			}
-		}
-
-		// Now process each line of the config file
-		while( fgets(inString, 80, pIn) )
-		{
-			ACESP_SpawnBotFromConfig( inString );
-		}
-
-			
-
-	/*	fread(&count,sizeof (int),1,pIn); 
-
-		for(i=0;i<count;i++)
-		{
-			fread(userinfo,sizeof(char) * MAX_INFO_STRING,1,pIn); 
-			ACESP_SpawnBot (NULL, NULL, NULL, userinfo);
-		}*/
-			
-		fclose(pIn);
+			return; // bail
 	}
+
+	// Now scan each line for information
+	// First line should be the file version number
+	fgets( inString, 80, pIn );
+	sp = inString;
+	tp = tokenString;
+	ttype = UNDEF;
+
+	// Scan it for the version number
+	scanner( &sp, tp, &ttype );
+	if(ttype == BANG)
+	{
+		scanner( &sp, tp, &ttype );
+		if(ttype == INTLIT)
+		{
+			fileVersion = atoi( tokenString );
+		}
+		if( fileVersion != CONFIG_FILE_VERSION )
+		{
+			// ERROR!
+			gi.bprintf(PRINT_HIGH, "Bot Config file is out of date!\n");
+			fclose(pIn);
+			return;
+		}
+	}
+
+	// Now process each line of the config file
+	while( fgets(inString, 80, pIn) )
+	{
+		ACESP_SpawnBotFromConfig( inString );
+	}
+
+/*	fread(&count,sizeof (int),1,pIn); 
+
+	for(i=0;i<count;i++)
+	{
+		fread(userinfo,sizeof(char) * MAX_INFO_STRING,1,pIn); 
+		ACESP_SpawnBot (NULL, NULL, NULL, userinfo);
+	}*/
+		
+    fclose(pIn);
 }
 
 //===========================
@@ -720,26 +709,15 @@ char	*names4[NUMNAMES] = {
 qboolean	nameused[NUMNAMES][NUMNAMES];
 
 //====================================
-// AQ2World Staff Names -- come shoot at us!
-// Find time to implement this!  Or better yet, 
-// load names from a file rather than this array
-//====================================
-// #define AQ2WORLDNUMNAMES	14
-// char	*aq2names[AQ2WORLDNUMNAMES] = {
-// 	"bAron", "darksaint", "FragBait", "matic", "stan0x", "TgT", "dmc", "dox", "KaniZ", "keffo", "QuimBy", "Rezet", "Royce", "vrol"
-// 	};
-//qboolean	adminnameused[AQ2WORLDNUMNAMES];
-// END AQ2World Staff Names //
-
-//====================================
 // New random bot naming routine
 //====================================
 void	LTKsetBotName( char	*bot_name )
 {
 	int	part1,part2;
+
 	part1 = part2 = 0;
 
-	do // Load random bot names from NUMNAMES lists
+	do
 	{
 		part1 = rand()% NUMNAMES;
 		part2 = rand()% NUMNAMES;
@@ -759,4 +737,3 @@ void	LTKsetBotName( char	*bot_name )
 		strcat( bot_name, names4[part2]);
 	}
 }
-

@@ -984,17 +984,23 @@ G_SetClientEvent
 void G_SetClientEvent (edict_t * ent)
 {
 	int footstep_speed = 225;
+	float bobmove2 = bobmove;
+
 	if (ent->s.event)
 		return;
 
-	//if (!FRAMESYNC)
-	//	return;
+	//if (sync_footsteps->value)
+	{
+		if (!FRAMESYNC)
+			return;
+		bobmove2 *= game.framediv;
+	}
 
 	footstep_speed = silentwalk->value ? 290 : 225;
 	if (ent->groundentity && (xyspeed > footstep_speed))
 	{
 		//zucc added item check to see if they have slippers
-		if ((int)(current_client->bobtime + bobmove) != bobcycle && !INV_AMMO(ent, SLIP_NUM))
+		if ((int)(current_client->bobtime + bobmove2) != bobcycle && !INV_AMMO(ent, SLIP_NUM))
 			ent->s.event = EV_FOOTSTEP;
 	}
 }

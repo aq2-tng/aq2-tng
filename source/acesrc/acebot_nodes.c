@@ -1325,7 +1325,7 @@ void ACEND_LoadNodes(void)
 	int version;
 	cvar_t	*game_dir;
 
-	game_dir = gi.cvar ("game", "action", 0);
+	game_dir = gi.cvar ("game", "", 0);
 
 #ifdef	_WIN32
 	i =  sprintf(filename, ".\\");
