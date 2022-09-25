@@ -468,6 +468,8 @@ cvar_t *ltk_skill;
 cvar_t *ltk_showpath;
 cvar_t *ltk_chat;
 cvar_t *ltk_routing;
+cvar_t *ltk_botfile;
+cvar_t *ltk_loadbots;
 #endif
 
 cvar_t *jump;			// jumping mod
