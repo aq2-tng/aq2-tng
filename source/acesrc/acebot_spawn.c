@@ -720,18 +720,6 @@ char	*names4[NUMNAMES] = {
 qboolean	nameused[NUMNAMES][NUMNAMES];
 
 //====================================
-// AQ2World Staff Names -- come shoot at us!
-// Find time to implement this!  Or better yet, 
-// load names from a file rather than this array
-//====================================
-// #define AQ2WORLDNUMNAMES	14
-// char	*aq2names[AQ2WORLDNUMNAMES] = {
-// 	"bAron", "darksaint", "FragBait", "matic", "stan0x", "TgT", "dmc", "dox", "KaniZ", "keffo", "QuimBy", "Rezet", "Royce", "vrol"
-// 	};
-//qboolean	adminnameused[AQ2WORLDNUMNAMES];
-// END AQ2World Staff Names //
-
-//====================================
 // New random bot naming routine
 //====================================
 void	LTKsetBotName( char	*bot_name )
@@ -739,7 +727,7 @@ void	LTKsetBotName( char	*bot_name )
 	int	part1,part2;
 	part1 = part2 = 0;
 
-	do // Load random bot names from NUMNAMES lists
+	do
 	{
 		part1 = rand()% NUMNAMES;
 		part2 = rand()% NUMNAMES;

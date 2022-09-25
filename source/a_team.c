@@ -345,16 +345,6 @@ static size_t transparentEntryCount = 0;
 transparent_list_t *transparent_list = NULL;
 static transparent_list_t *transparentlistFree = NULL;
 
-#define SCORES2_TEAM   0x001
-#define SCORES2_TIME   0x002
-#define SCORES2_PING   0x004
-#define SCORES2_CAPS   0x008
-#define SCORES2_SCORE  0x010
-#define SCORES2_KILLS  0x020
-#define SCORES2_DEATHS 0x040
-#define SCORES2_DAMAGE 0x080
-#define SCORES2_ACC    0x100
-
 void InitTransparentList( void )
 {
 	transparent_list = NULL;
@@ -2812,104 +2802,159 @@ void A_ScoreboardMessage (edict_t * ent, edict_t * killer)
 	}
 	else if (ent->client->layout == LAYOUT_SCORES2)
 	{
-		char team_buf[6]="", time_buf[6]="", ping_buf[6]="", caps_buf[6]="", score_buf[7]="", kills_buf[7]="", deaths_buf[8]="", damage_buf[8]="", acc_buf[5]="";
-		int s2f = ctf->value ? scores2ctf->value : scores2teamplay->value;
-		int chars = 15
-			+ ((s2f & SCORES2_TEAM)   ? 5 : 0)
-			+ ((s2f & SCORES2_TIME)   ? 5 : 0)
-			+ ((s2f & SCORES2_PING)   ? 5 : 0)
-			+ ((s2f & SCORES2_CAPS)   ? 5 : 0)
-			+ ((s2f & SCORES2_SCORE)  ? 6 : 0)
-			+ ((s2f & SCORES2_KILLS)  ? 6 : 0)
-			+ ((s2f & SCORES2_DEATHS) ? 7 : 0)
-			+ ((s2f & SCORES2_DAMAGE) ? 7 : 0)
-			+ ((s2f & SCORES2_ACC)    ? 4 : 0);
+		const char *sb = scoreboard->string;
+		int sb_len = 0;
+		int chars = 0;
+
+		if( ! sb[0] )
+		{
+			if( noscore->value )
+				sb = "NMP";
+			else if( ctf->value )
+				sb = "SNMPCT";
+			else if( teamdm->value )
+				sb = "FNMPDT";
+			else
+				sb = "FNMPIT";
+		}
+
+		sb_len = strlen(sb);
+
+		for( i = 0; i < sb_len; i ++ )
+		{
+			char field = toupper( sb[ i ] );
+			if( i )
+				chars ++;
+			if(      field == 'F' ) chars +=  5;
+			else if( field == 'T' ) chars +=  4;
+			else if( field == 'N' ) chars += 15;
+			else if( field == 'M' ) chars +=  4;
+			else if( field == 'P' ) chars +=  4;
+			else if( field == 'C' ) chars +=  4;
+			else if( field == 'S' ) chars +=  5;
+			else if( field == 'K' ) chars +=  5;
+			else if( field == 'D' ) chars +=  6;
+			else if( field == 'I' ) chars +=  6;
+			else if( field == 'A' ) chars +=  3;
+			else chars ++;
+		}
 
 		if (noscore->value)
 			totalClients = G_NotSortedClients(sortedClients);
 		else
 			totalClients = G_SortedClients(sortedClients);
 
-		if( noscore->value )
-			s2f &= ~(SCORES2_CAPS | SCORES2_SCORE | SCORES2_KILLS | SCORES2_DEATHS | SCORES2_DAMAGE | SCORES2_ACC);
-		else if( ! ctf->value )
+		line_x = 160 - (chars * 4);
+		sprintf( string, "xv %i yv 32 string2 \"", line_x );
+
+		for( i = 0; i < sb_len; i ++ )
 		{
-			s2f &= ~SCORES2_CAPS;
-			if( s2f & SCORES2_SCORE )
-				s2f = (s2f & ~SCORES2_SCORE) | SCORES2_KILLS;
+			char field = toupper( sb[ i ] );
+			if( i )
+				strcat( string, " " );
+
+			if(      field == 'F' ) strcat( string, "Frags" );
+			else if( field == 'T' ) strcat( string, "Team" );
+			else if( field == 'N' ) strcat( string, "Player         " );
+			else if( field == 'M' ) strcat( string, "Time" );
+			else if( field == 'P' ) strcat( string, "Ping" );
+			else if( field == 'C' ) strcat( string, "Caps" );
+			else if( field == 'S' ) strcat( string, "Score" );
+			else if( field == 'K' ) strcat( string, "Kills" );
+			else if( field == 'D' ) strcat( string, "Deaths" );
+			else if( field == 'I' ) strcat( string, "Damage" );
+			else if( field == 'A' ) strcat( string, "Acc" );
+			else sprintf( string + strlen(string), "%c", sb[ i ] );
 		}
 
-		line_x = 160 - (chars * 4);
-		sprintf( string, "xv %i ", line_x );
+		strcat( string, "\" yv 40 string2 \"" );
 
-		sprintf( string + strlen(string),
-			"yv 32 string2 \"%sPlayer         %s%s%s%s%s%s%s%s\" ",
-			((s2f & SCORES2_TEAM)   ? "Team "   : ""),
-			((s2f & SCORES2_TIME)   ? " Time"   : ""),
-			((s2f & SCORES2_PING)   ? " Ping"   : ""),
-			((s2f & SCORES2_CAPS)   ? " Caps"   : ""),
-			((s2f & SCORES2_SCORE)  ? " Score"  : ""),
-			((s2f & SCORES2_KILLS)  ? " Kills"  : ""),
-			((s2f & SCORES2_DEATHS) ? " Deaths" : ""),
-			((s2f & SCORES2_DAMAGE) ? " Damage" : ""),
-			((s2f & SCORES2_ACC)    ? " Acc"    : "")
-		);
-		sprintf( string + strlen(string),
-			"yv 40 string2 \"%s\x9D\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9F%s%s%s%s%s%s%s%s\" ",
-			((s2f & SCORES2_TEAM)   ? "\x9D\x9E\x9E\x9F "   : ""),
-			((s2f & SCORES2_TIME)   ? " \x9D\x9E\x9E\x9F"   : ""),
-			((s2f & SCORES2_PING)   ? " \x9D\x9E\x9E\x9F"   : ""),
-			((s2f & SCORES2_CAPS)   ? " \x9D\x9E\x9E\x9F"   : ""),
-			((s2f & SCORES2_SCORE)  ? " \x9D\x9E\x9E\x9E\x9F"  : ""),
-			((s2f & SCORES2_KILLS)  ? " \x9D\x9E\x9E\x9E\x9F"  : ""),
-			((s2f & SCORES2_DEATHS) ? " \x9D\x9E\x9E\x9E\x9E\x9F" : ""),
-			((s2f & SCORES2_DAMAGE) ? " \x9D\x9E\x9E\x9E\x9E\x9F" : ""),
-			((s2f & SCORES2_ACC)    ? " \x9D\x9E\x9F"   : "")
-		);
+		for( i = 0; i < sb_len; i ++ )
+		{
+			char field = toupper( sb[ i ] );
+			if( i )
+				strcat( string, " " );
+
+			if(      field == 'F' ) strcat( string, "\x9D\x9E\x9E\x9E\x9F" );
+			else if( field == 'T' ) strcat( string, "\x9D\x9E\x9E\x9F" );
+			else if( field == 'N' ) strcat( string, "\x9D\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9F" );
+			else if( field == 'M' ) strcat( string, "\x9D\x9E\x9E\x9F" );
+			else if( field == 'P' ) strcat( string, "\x9D\x9E\x9E\x9F" );
+			else if( field == 'C' ) strcat( string, "\x9D\x9E\x9E\x9F" );
+			else if( field == 'S' ) strcat( string, "\x9D\x9E\x9E\x9E\x9F" );
+			else if( field == 'K' ) strcat( string, "\x9D\x9E\x9E\x9E\x9F" );
+			else if( field == 'D' ) strcat( string, "\x9D\x9E\x9E\x9E\x9E\x9F" );
+			else if( field == 'I' ) strcat( string, "\x9D\x9E\x9E\x9E\x9E\x9F" );
+			else if( field == 'A' ) strcat( string, "\x9D\x9E\x9F" );
+			else sprintf( string + strlen(string), "%c", sb[ i ] );
+		}
+
+		strcat( string, "\" " );
 
 		line_y = 48;
 
 		for (i = 0; i < totalClients; i++)
 		{
-			int minutes;
-
 			cl = sortedClients[i];
 			cl_ent = g_edicts + 1 + (cl - game.clients);
 
-			Com_sprintf( team_buf,   6, " %c%c%c ", (cl->resp.team ? (cl->resp.team + '0') : ' '), (IS_CAPTAIN(cl_ent) ? 'C' : ' '), (cl->resp.subteam ? 'S' : ' ') );
-			minutes = (level.framenum - cl->resp.enterframe) / (60 * HZ);
-			if( minutes < 60 )
-				Com_sprintf( time_buf, 6, " %4i", minutes );
-			else if( minutes < 600 )
-				Com_sprintf( time_buf, 6, " %1i:%02i", minutes / 60, minutes % 60 );
-			else
-				Com_sprintf( time_buf, 6, " %3ih", min( 999, minutes / 60 ) );
-			Com_sprintf( ping_buf,   6, " %4i", min( 9999, cl->ping ) );
-#ifndef NO_BOTS
-			if( cl_ent->is_bot )
-				strcpy( ping_buf, "  BOT" );
-#endif
-			Com_sprintf( caps_buf,   6, " %4i", min( 9999, cl->resp.ctf_caps ) );
-			Com_sprintf( score_buf,  7, " %5i", min( 99999, cl->resp.score) );
-			Com_sprintf( kills_buf,  7, " %5i", min( 99999, cl->resp.kills) );
-			Com_sprintf( deaths_buf, 8, " %6i", min( 999999, cl->resp.deaths) );
-			Com_sprintf( damage_buf, 8, " %6i", min( 999999, cl->resp.damage_dealt) );
-			Com_sprintf( acc_buf   , 5, " %3.f", cl->resp.shotsTotal ? (double) cl->resp.hitsTotal * 100.0 / (double) cl->resp.shotsTotal : 0. );
+			sprintf( string + strlen(string), "yv %i string \"", line_y );
 
-			sprintf( string + strlen(string), "yv %d string \"%s%-15s%s%s%s%s%s%s%s%s\"",
-				line_y,
-				((s2f & SCORES2_TEAM)   ? team_buf   : ""),
-				cl->pers.netname,
-				((s2f & SCORES2_TIME)   ? time_buf   : ""),
-				((s2f & SCORES2_PING)   ? ping_buf   : ""),
-				((s2f & SCORES2_CAPS)   ? caps_buf   : ""),
-				((s2f & SCORES2_SCORE)  ? score_buf  : ""),
-				((s2f & SCORES2_KILLS)  ? kills_buf  : ""),
-				((s2f & SCORES2_DEATHS) ? deaths_buf : ""),
-				((s2f & SCORES2_DAMAGE) ? damage_buf : ""),
-				((s2f & SCORES2_ACC)    ? acc_buf    : "")
-			);
-			
+			for( j = 0; j < sb_len; j ++ )
+			{
+				char buf[ 16 ] = "";
+				char field = toupper( sb[ j ] );
+				if( j )
+					strcat( string, " " );
+
+				if(      field == 'F' ) Com_sprintf( buf, sizeof(buf), "%5i", min( 99999, cl->resp.score ) );
+				else if( field == 'T' )
+				{
+					if( matchmode->value )
+					{
+						char suffix = ' ';
+						if( IS_CAPTAIN(cl_ent) )
+							suffix = 'C';
+						else if( cl->resp.subteam )
+							suffix = 'S';
+						Com_sprintf( buf, sizeof(buf), "  %c%c", (cl->resp.team ? (cl->resp.team + '0') : ' '), suffix );
+					}
+					else
+						Com_sprintf( buf, sizeof(buf), "   %c", (cl->resp.team ? (cl->resp.team + '0') : ' ') );
+				}
+				else if( field == 'N' ) Com_sprintf( buf, sizeof(buf), "%-15s", cl->pers.netname );
+				else if( field == 'M' )
+				{
+					int minutes = (level.framenum - cl->resp.enterframe) / (60 * HZ);
+					if( minutes < 60 )
+						Com_sprintf( buf, sizeof(buf), "%4i", minutes );
+					else if( minutes < 600 )
+						Com_sprintf( buf, sizeof(buf), "%1i:%02i", minutes / 60, minutes % 60 );
+					else
+						Com_sprintf( buf, sizeof(buf), "%3ih", min( 999, minutes / 60 ) );
+				}
+				else if( field == 'P' )
+				{
+#ifndef NO_BOTS
+					if( cl_ent->is_bot )
+						strcpy( buf, " BOT" );
+					else
+#endif
+						Com_sprintf( buf, sizeof(buf), "%4i", min( 9999, cl->ping ) );
+				}
+				else if( field == 'C' ) Com_sprintf( buf, sizeof(buf), "%4i", min( 9999, cl->resp.ctf_caps ) );
+				else if( field == 'S' ) Com_sprintf( buf, sizeof(buf), "%5i", min( 99999, cl->resp.score ) );
+				else if( field == 'K' ) Com_sprintf( buf, sizeof(buf), "%5i", min( 99999, cl->resp.kills) );
+				else if( field == 'D' ) Com_sprintf( buf, sizeof(buf), "%6i", min( 999999, cl->resp.deaths) );
+				else if( field == 'I' ) Com_sprintf( buf, sizeof(buf), "%6i", min( 999999, cl->resp.damage_dealt) );
+				else if( field == 'A' ) Com_sprintf( buf, sizeof(buf), "%3.f", cl->resp.shotsTotal ? (double) cl->resp.hitsTotal * 100.0 / (double) cl->resp.shotsTotal : 0. );
+				else sprintf( buf, "%c", sb[ j ] );
+
+				strcat( string, buf );
+			}
+
+			strcat( string, "\" " );
+
 			line_y += 8;
 			if (strlen(string) > (maxsize - 100) && i < (totalClients - 2))
 			{
