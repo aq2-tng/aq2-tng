@@ -559,10 +559,12 @@ void InitGame( void )
 #ifndef NO_BOTS
 	// bots
 	ltk_jumpy = gi.cvar( "ltk_jumpy", "1", 0 );
-	ltk_skill = gi.cvar( "ltk_skill", "5", CVAR_SERVERINFO );
+	ltk_skill = gi.cvar( "ltk_skill", "5", 0 );
 	ltk_showpath = gi.cvar( "ltk_showpath", "0", 0 );
 	ltk_chat = gi.cvar( "ltk_chat", "1", 0 );
 	ltk_routing = gi.cvar( "ltk_routing", "0", 0 );
+	ltk_botfile = gi.cvar( "ltk_botfile", "botdata", 0);
+	ltk_loadbots = gi.cvar( "ltk_loadbots", "1", CVAR_LATCH);
 #endif
 
 	// items
