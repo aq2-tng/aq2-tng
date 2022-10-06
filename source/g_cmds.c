@@ -1688,6 +1688,38 @@ static void Cmd_PrintSettings_f( edict_t * ent )
 	gi.cprintf( ent, PRINT_HIGH, text );
 }
 
+static void Cmd_Follow_f( edict_t *ent )
+{
+	edict_t *target = NULL;
+
+	if( (ent->solid != SOLID_NOT) || (ent->deadflag == DEAD_DEAD) )
+	{
+		gi.cprintf( ent, PRINT_HIGH, "Only spectators may follow!\n" );
+		return;
+	}
+
+	target = LookupPlayer( ent, gi.argv(1), true, true );
+	if( target == ent )
+	{
+		if( ! limchasecam->value )
+			SetChase( ent, NULL );
+	}
+	else if( target )
+	{
+		if( limchasecam->value && teamplay->value
+		&& (ent->client->resp.team != NOTEAM)
+		&& (ent->client->resp.team != target->client->resp.team) )
+		{
+			gi.cprintf( ent, PRINT_HIGH, "You may not follow enemies!\n" );
+			return;
+		}
+
+		if( ! ent->client->chase_mode )
+			NextChaseMode( ent );
+		SetChase( ent, target );
+	}
+}
+
 static void Cmd_SayAll_f (edict_t * ent) {
 	Cmd_Say_f (ent, false, false, false);
 }
@@ -1867,6 +1899,7 @@ static cmdList_t commandList[] =
 	{ "unpausegame", Cmd_UnpauseGame_f, 0 },
 	{ "resetscores", Cmd_ResetScores_f, 0 },
 	{ "gamesettings", Cmd_PrintSettings_f, 0 },
+	{ "follow", Cmd_Follow_f, 0 },
 	//vote stuff
 	{ "votemap", Cmd_Votemap_f, 0 },
 	{ "maplist", Cmd_Maplist_f, 0 },

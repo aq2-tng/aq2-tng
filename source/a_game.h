@@ -86,7 +86,7 @@
 
 // AQ2:TNG Deathwatch - Updated the Version variables to show TNG Stuff
 #ifndef VERSION
-#define VERSION "2.81 git"
+#define VERSION "2.82 git"
 #endif
 #define TNG_TITLE "AQ2: The Next Generation"
 // AQ2:TNG Deathwatch End
@@ -137,6 +137,7 @@ void GetLastLoss (edict_t * self, char *buf, char team);
 // ...also the modified viewheight -FB 7/18/99
 #define CROUCHING_MAXS2                 16
 #define CROUCHING_VIEWHEIGHT		8
+#define STANDING_VIEWHEIGHT			22
 
 //a_team.c
 void MakeAllLivePlayersObservers( void );
