@@ -136,7 +136,8 @@ void ACESP_LoadBotConfig()
 	game_dir = gi.cvar ("game", "action", 0);
 	botdir = gi.cvar ("botdir", "bots", 0);
 
-if (ltk_loadbots->value){
+	if (ltk_loadbots->value)
+	{
 		// Try to load the file for THIS level
 	#ifdef	_WIN32
 		i =  sprintf(filename, ".\\");
@@ -180,17 +181,19 @@ if (ltk_loadbots->value){
 
 			// No bot file available, get out of here!
 			if((pIn = fopen(filename, "rb" )) == NULL)
+			{
 				gi.dprintf("WARNING: No file containing bot data was found, no bots loaded.\n");
 				gi.dprintf("ltk_botfile value is %s\n", ltk_botfile->string);
 				return; // bail
+			}
 		}
 
-	// Now scan each line for information
-	// First line should be the file version number
-	fgets( inString, 80, pIn );
-	sp = inString;
-	tp = tokenString;
-	ttype = UNDEF;
+		// Now scan each line for information
+		// First line should be the file version number
+		fgets( inString, 80, pIn );
+		sp = inString;
+		tp = tokenString;
+		ttype = UNDEF;
 
 		// Scan it for the version number
 		scanner( &sp, tp, &ttype );
