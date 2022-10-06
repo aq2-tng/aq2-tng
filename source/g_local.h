@@ -288,9 +288,12 @@
 #include	"tng_balancer.h"
 #include	"tng_jump.h"
 #include	"g_grapple.h"
+#include	"p_antilag.h"
+
 #ifndef NO_BOTS
 #include	"acesrc/botnav.h"
 #endif
+
 #define		getEnt(entnum)	(edict_t *)((char *)globals.edicts + (globals.edict_size * entnum))	//AQ:TNG Slicer - This was missing
 #define		GAMEVERSION			"action"	// the "gameversion" client command will print this plus compile date
 
@@ -612,6 +615,21 @@ bind 6 "use Sniper Rifle"
 #define ITEM_MAX				ITEM_FIRST+ITEM_COUNT
 #define AMMO_FIRST				ITEM_MAX
 #define AMMO_MAX				AMMO_FIRST+AMMO_COUNT
+
+// Game Modes
+#define GM_TEAMPLAY 0
+#define GM_TEAMDM 1
+#define GM_CTF 2
+#define GM_TOURNEY 3
+#define GM_DEATHMATCH 4
+#define GM_DOMINATION 5
+
+// Game Mode Flags
+#define GMF_NONE 0
+#define GMF_3TEAMS 1
+//#define NEW_MODE 2       // If new game mode flags are created, use 2 for its value first
+#define GMF_DARKMATCH 4
+#define GMF_MATCHMODE 8
 
 //AQ2:TNG - Igor adding wp_flags/itm_flags
 #define STRINGIFY(x) #x
@@ -957,8 +975,7 @@ extern cvar_t *hud_items_cycle;
 extern cvar_t *noscore;
 extern cvar_t *hud_noscore;
 extern cvar_t *use_newscore;
-extern cvar_t *scores2teamplay;
-extern cvar_t *scores2ctf;
+extern cvar_t *scoreboard;
 extern cvar_t *actionversion;
 #ifndef NO_BOTS
 extern cvar_t *ltk_jumpy;
@@ -1115,11 +1132,17 @@ extern cvar_t *medkit_drop;
 extern cvar_t *medkit_time;
 extern cvar_t *medkit_instant;
 
-// AQ2 ETE
+// BEGIN AQ2 ETE
 extern cvar_t *e_enhancedSlippers;
 
-extern cvar_t *sv_limp_highping;
+// END AQ2 ETE
 
+// 2022
+extern cvar_t *sv_limp_highping;
+extern cvar_t *mapvote_next_limit; // Time left that disables map voting
+extern cvar_t *gm; // Gamemode
+extern cvar_t *gmf; // Gamemodeflags
+extern cvar_t *sv_idleremove; // Remove idlers
 
 #define world   (&g_edicts[0])
 
@@ -1360,6 +1383,7 @@ void ExitLevel (void);
 void UpdateChaseCam (edict_t * ent);
 int ChaseTargetGone (edict_t * ent);
 void NextChaseMode( edict_t *ent );
+void SetChase( edict_t *ent, edict_t *target );
 void ChaseNext (edict_t * ent);
 void ChasePrev (edict_t * ent);
 void GetChaseTarget (edict_t * ent);
@@ -1735,6 +1759,8 @@ struct gclient_s
 	int			push_timeout;	// timeout for how long an attacker will get fall death credit
 
 	int			jumping;
+
+	antilag_t	antilag_state;
 
 	// Number of teammate woundings this game and a "before attack" tracker
 	int			team_wounds_before;
